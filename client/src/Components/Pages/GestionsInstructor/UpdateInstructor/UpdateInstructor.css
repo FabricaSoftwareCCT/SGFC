@@ -24,6 +24,7 @@
     align-items: center;
     border-radius: 15px;
     overflow: hidden;
+    position: relative;
 }
 
 
@@ -173,8 +174,8 @@
     flex-direction: column;
     align-items: center;
     position: absolute;
-    top: 87px;
-    right: 325px;
+    top: -21px;
+    right: 0px;
     z-index: 1000;
 }
 
@@ -185,7 +186,6 @@
     top: 27%;
     font-size: 18px;
     font-weight: 400;
-    z-index: 1000;
     color: #fff;
     left: 4%;
     cursor: pointer;
@@ -241,13 +241,14 @@
     gap: 0.5rem;
 }
 
-.modal-left-update>p>strong, .modal-left-update>p>span{
+.modal-left-update>p>strong,
+.modal-left-update>p>span {
     width: auto;
     height: auto;
 }
 
 
 .valor-campo {
-  margin-left: 8px;
-  display: inline-block;
+    margin-left: 8px;
+    display: inline-block;
 }

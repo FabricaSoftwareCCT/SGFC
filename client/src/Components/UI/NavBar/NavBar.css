@@ -203,13 +203,13 @@
 }
 
 .mobile-label {
-  display: none;
+    display: none;
 }
 
 .desktop-icon {
-  display: inline;
-  width: 2rem;
-  height: 2rem;
+    display: inline;
+    width: 2rem;
+    height: 2rem;
 }
 
 
@@ -233,28 +233,31 @@
     .navBar {
         border-radius: 0;
     }
+
     .desktop-icon {
-    display: none !important;
-  }
-  .mobile-label {
-    display: inline !important;
-    font-size: 1.1rem;
-    color: #fff;
-    margin-right: 0.5rem;
-  }
-  .mobile-profile-btn {
-    background: none;
-    border: none;
-    color: #fff;
-    font-size: 1.1rem;
-    padding: 0.7rem 0;
-    text-align: left;
-    width: 100%;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    cursor: pointer;
-  }
+        display: none !important;
+    }
+
+    .mobile-label {
+        display: inline !important;
+        font-size: 1.1rem;
+        color: #fff;
+        margin-right: 0.5rem;
+    }
+
+    .mobile-profile-btn {
+        background: none;
+        border: none;
+        color: #fff;
+        font-size: 1.1rem;
+        padding: 0.7rem 0;
+        text-align: left;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+    }
 
 }
 
@@ -270,32 +273,32 @@
     }
 }
 
-.notification-modal{
+.notification-modal {
     width: 90%;
     height: auto;
     display: flex;
     flex-direction: column;
-    
+
 }
 
-.notification-modal>h2{
+.notification-modal>h2 {
     width: auto;
     height: auto;
     margin-bottom: 2rem;
     margin-top: 2rem;
 }
 
-.notification-modal>p{
+.notification-modal>p {
     width: auto;
     height: auto;
     font-size: 14px;
     margin-bottom: 2rem;
     text-align: start;
     font-weight: 600;
-    
+
 }
 
-.notification-message{
+.notification-message {
     width: auto;
     height: auto;
     font-size: 12px;
@@ -303,7 +306,7 @@
     margin-bottom: 2rem;
 }
 
-.notification-attachment{
+.notification-attachment {
     width: auto;
     height: auto;
     display: flex;
@@ -311,9 +314,42 @@
     align-items: center;
 }
 
-.notification-attachment>a{
+.notification-attachment>a {
     width: 100%;
     height: auto;
     object-fit: cover;
     border-radius: 10px;
+}
+
+.notification-buttons-container {
+    width: 100%;
+    height: auto;
+    justify-content: center;
+    margin-top: 16px;
+    display: flex;
+    gap: 12px;
+}
+
+.notification-btn-accept {
+    width: 5rem;
+    height: auto;
+    background: #00843d;
+    color: #fff;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    padding: 0.5rem;
+}
+
+.notification-btn-reject {
+    width: 5rem;
+    height: auto;
+    background: #e53935;
+    color: #fff;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    padding: 0.5rem;
 }

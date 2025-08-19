@@ -98,15 +98,15 @@ export const NavBar = ({ children }) => {
         <p><b>Mensaje:</b></p>
         <div className='notification-message' dangerouslySetInnerHTML={{ __html: notif.mensaje }} />
         {notif.tipo === 'invitacion_cursoInstructor' && notif.invitacion_ID && (
-          <div style={{ marginTop: 16, display: 'flex', gap: 12 }}>
+          <div className="notification-buttons-container">
             <button
-              style={{ background: "#00843d", color: "#fff", padding: "8px 16px", border: "none", borderRadius: "4px" }}
+              className="notification-btn-accept"
               onClick={() => cambiarEstadoInvitacion(notif.invitacion_ID, "aceptada")}
             >
               Aceptar
             </button>
             <button
-              style={{ background: "#e53935", color: "#fff", padding: "8px 16px", border: "none", borderRadius: "4px" }}
+              className="notification-btn-reject"
               onClick={() => cambiarEstadoInvitacion(notif.invitacion_ID, "rechazada")}
             >
               Rechazar
@@ -143,17 +143,26 @@ export const NavBar = ({ children }) => {
         // Busca la notificación actual para obtener los IDs
         const notif = notificationsList.find(n => n.invitacion_ID === invitacionId);
         if (notif) {
-          await axiosInstance.post('/api/courses/asignaciones', {
-            instructor_ID: notif.destinatario_ID,
-            curso_ID: notif.curso_ID
-          });
-          alert("Curso asignado correctamente al instructor.");
+          try {
+            const asignacionResponse = await axiosInstance.post('/api/courses/asignaciones', {
+              instructor_ID: notif.destinatario_ID,
+              curso_ID: notif.curso_ID
+            });
+            alert(asignacionResponse.data.message || "Curso asignado correctamente al instructor.");
+          } catch (asignacionError) {
+            console.error("Error al asignar instructor:", asignacionError);
+            alert(
+              asignacionError.response?.data?.message ||
+              "Error al asignar el instructor al curso."
+            );
+          }
         }
       }
 
       setShowModalGeneral(false);
       // Aquí puedes refrescar notificaciones si lo deseas
     } catch (error) {
+      console.error("Error al cambiar estado de invitación:", error);
       alert(
         error.response?.data?.message ||
         "Error al actualizar el estado de la invitación."

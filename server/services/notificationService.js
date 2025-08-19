@@ -13,17 +13,19 @@ const setDb = (databaseInstance) => {
 /**
  * Envía una notificación por email y la registra en la base de datos
  */
-const sendNotification = async (userId, type, title, message, sessionId = null, courseId = null) => {
+const sendNotification = async (remitenteId, destinatarioId, type, title, message, sessionId = null, courseId = null) => {
     try {
-        // Obtener el usuario usando dbInstance
-        const user = await dbInstance.Usuario.findByPk(userId);
+        // Obtener el usuario destinatario
+        const user = await dbInstance.Usuario.findByPk(destinatarioId);
         if (!user) {
-            throw new Error('Usuario no encontrado');
+            throw new Error('Usuario destinatario no encontrado');
         }
 
-        // Crear el registro de notificación usando dbInstance
+        // ✅ Crear el registro con TODOS los campos requeridos
         const notification = await dbInstance.Notificacion.create({
-            usuario_ID: userId,
+            remitente_ID: remitenteId,        // ✅ Campo requerido
+            destinatario_ID: destinatarioId,  // ✅ Campo requerido
+            usuario_ID: destinatarioId,       // Si también necesitas este campo
             tipo: type,
             titulo: title,
             mensaje: message,
@@ -97,8 +99,9 @@ const sendAbsenceNotifications = async (sessionId) => {
                 `;
 
                 return sendNotification(
-                    user.ID,
-                    'inasistencia',
+                    null,           // ✅ O el ID del sistema/admin que envía
+                    user.ID,        // ✅ Destinatario correcto
+                    'inasistencia', // ✅ Tipo
                     title,
                     message,
                     sessionId,

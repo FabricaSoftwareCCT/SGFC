@@ -50,6 +50,7 @@ export const Header = ({ setShowSignIn, setShowSignUp, setShowAccountType }) => 
   // Detectar rutas activas para menús con subopciones
   const isCoursesActive = [
     '/Cursos/MisCursos',
+    '/Cursos/MisCursosAsignados',
     '/Cursos/BuscarCursos',
     '/Cursos/CrearCurso',
     '/SolicitarCurso',
@@ -115,7 +116,7 @@ export const Header = ({ setShowSignIn, setShowSignUp, setShowAccountType }) => 
               break;
             case 'Instructor':
               options = [
-                { label: 'Mis cursos', path: '/Cursos/MisCursos' },
+                { label: 'Mis cursos', path: '/Cursos/MisCursosAsignados' },
                 { label: 'Buscar cursos', path: '/Cursos/BuscarCursos' },
               ];
               break;

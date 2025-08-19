@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import './MisCursos.css';
+import '../Consult/ConsultCourses.css';
 import { Footer } from '../../../Layouts/Footer/Footer';
 import { Main } from '../../../Layouts/Main/Main';
 import { useNavigate } from 'react-router-dom';
@@ -7,17 +8,21 @@ import axiosInstance from '../../../../config/axiosInstance';
 import arrowLeft from '../../../../assets/Icons/arrowLeft.png';
 import arrowRight from '../../../../assets/Icons/arrowRight.png';
 
+// 🔧 Función para normalizar texto (sin tildes, en minúsculas)
+const normalizeText = (text) =>
+  text.toString().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
 export const MisCursos = () => {
   const [cursos, setCursos] = useState([]);
   const [filteredCursos, setFilteredCursos] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  const [currentPosition, setCurrentPosition] = useState(0);
-  const [maxScroll, setMaxScroll] = useState(0);
+  const [startIndex, setStartIndex] = useState(0);
   const scrollRef = useRef(null);
   const navigate = useNavigate();
 
-  const userSession = JSON.parse(localStorage.getItem('userSession')) ||
+  const userSession =
+    JSON.parse(localStorage.getItem('userSession')) ||
     JSON.parse(sessionStorage.getItem('userSession'));
 
   useEffect(() => {
@@ -25,39 +30,34 @@ export const MisCursos = () => {
       try {
         let response;
 
-        // Verificar que tenemos un ID válido antes de hacer la petición
         if (!userSession?.ID && !userSession?.id) {
           setErrorMessage("No se pudo obtener el ID del usuario");
           return;
         }
 
-        // Obtener cursos según el tipo de cuenta
         switch (userSession?.accountType) {
           case 'Instructor':
-            // Usar el ID que esté disponible (ID o id)
             const instructorId = userSession.ID || userSession.id;
             response = await axiosInstance.get(`/api/courses/cursos-asignados/${instructorId}`);
-            // Transformar la respuesta para mantener el mismo formato que los otros endpoints
             const cursosAsignados = response.data.map(asignacion => ({
               ...asignacion.Curso,
-              // Asegurar que cada curso tenga un ID único
-              ID: asignacion.Curso.ID || asignacion.Curso.id || asignacion.curso_ID
+              ID: asignacion.Curso.ID || asignacion.Curso.id || asignacion.curso_ID,
             }));
             setCursos(cursosAsignados);
             setFilteredCursos(cursosAsignados);
             break;
+
           case 'Administrador':
           case 'Gestor':
-            // Para administradores y gestores, mostrar todos los cursos
             response = await axiosInstance.get("/api/courses/cursos");
-            // Asegurar que cada curso tenga un ID único
             const todosLosCursos = response.data.map(curso => ({
               ...curso,
-              ID: curso.ID || curso.id
+              ID: curso.ID || curso.id,
             }));
             setCursos(todosLosCursos);
             setFilteredCursos(todosLosCursos);
             break;
+
           default:
             setErrorMessage("No tienes permisos para ver esta página");
             return;
@@ -73,77 +73,47 @@ export const MisCursos = () => {
     } else {
       setErrorMessage("Debes iniciar sesión para ver tus cursos");
     }
-  }, [userSession]);
+  }, []);
 
-  // Función para filtrar cursos por ficha
-  const handleSearch = (e) => {
-    const searchValue = e.target.value.toLowerCase();
-    setSearchTerm(searchValue);
-
-    const filtered = cursos.filter(curso =>
-      (curso.ficha || '').toLowerCase().includes(searchValue) ||
-      (curso.nombre_curso || '').toLowerCase().includes(searchValue)
-    );
-    setFilteredCursos(filtered);
-  };
-
-  // Función para actualizar el estado del scroll
-  const updateScrollState = () => {
-    const { current } = scrollRef;
-    if (!current) return;
-
-    const trackWidth = current.scrollWidth;
-    const containerWidth = current.offsetWidth;
-    const scrollLeft = current.scrollLeft;
-
-    setMaxScroll(trackWidth - containerWidth);
-    setCurrentPosition(scrollLeft);
-  };
-
-  // Función para manejar el scroll del carrusel
-  const scroll = (direction) => {
-    const { current } = scrollRef;
-    if (!current) return;
-
-    const card = current.querySelector('.carousel-card');
-    if (!card) return;
-
-    const cardWidth = card.offsetWidth;
-    const gap = 24; // 1.5rem en píxeles
-    const scrollAmount = (cardWidth + gap) * 3; // Scroll 3 cartas a la vez
-
-    const newPosition = direction === 'left'
-      ? Math.max(0, currentPosition - scrollAmount)
-      : Math.min(maxScroll, currentPosition + scrollAmount);
-
-    current.scrollTo({
-      left: newPosition,
-      behavior: 'smooth'
-    });
-  };
-
-  // Efecto para actualizar el estado del scroll
+  // 🎯 Filtro de cursos reactivo
   useEffect(() => {
-    const { current } = scrollRef;
-    if (!current) return;
+    const term = normalizeText(searchTerm.trim());
 
-    const handleScroll = () => {
-      updateScrollState();
-    };
+    if (!term) {
+      setFilteredCursos(cursos);
+      return;
+    }
 
-    current.addEventListener('scroll', handleScroll);
-    window.addEventListener('resize', updateScrollState);
+    const filtered = cursos.filter((curso) => {
+      const ficha = normalizeText(curso.ficha || '');
+      const nombre = normalizeText(curso.nombre_curso || '');
+      return ficha.includes(term) || nombre.includes(term);
+    });
 
-    // Actualizar estado inicial
-    updateScrollState();
+    setFilteredCursos(filtered);
+    setStartIndex(0); // Reiniciar carrusel solo al aplicar filtro
+  }, [searchTerm, cursos]);
 
-    return () => {
-      current.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('resize', updateScrollState);
-    };
-  }, [filteredCursos]);
+  // 👉 Manejar input de búsqueda
+  const handleSearch = (e) => {
+    setSearchTerm(e.target.value);
+  };
 
-  // Función para redirigir al usuario al ver un curso
+  // 👉 Cursos visibles en el carrusel
+  const visibleCursos = filteredCursos.slice(startIndex, startIndex + 3);
+
+  // 👉 Scroll del carrusel
+  const scroll = (direction) => {
+    if (direction === 'left') {
+      setStartIndex((prev) => Math.max(prev - 1, 0));
+    } else {
+      setStartIndex((prev) =>
+        Math.min(prev + 1, filteredCursos.length - 3)
+      );
+    }
+  };
+
+  // 👉 Ir al detalle del curso
   const handleCardClick = (ID) => {
     if (!ID) {
       console.error("El ID del curso es undefined o null");
@@ -152,6 +122,7 @@ export const MisCursos = () => {
     navigate(`/Cursos/${ID}`);
   };
 
+  // 👉 Mostrar mensaje si hay error
   if (errorMessage) {
     return (
       <>
@@ -166,80 +137,94 @@ export const MisCursos = () => {
     );
   }
 
+  // 👉 Render principal
   return (
     <>
       <Main>
         <div className="container_misCursos">
           <h2>
-            Cursos <span className='complementary'>Asignados</span>
+            Cursos <span className="complementary">Asignados</span>
           </h2>
           <p>Busca un curso por su ficha o nombre.</p>
 
-          <div className='options_Search'>
+          <div className="options_Search">
             <input
               type="text"
-              placeholder='Buscar por ficha o nombre del curso'
+              placeholder="Buscar por ficha o nombre del curso"
               value={searchTerm}
               onChange={handleSearch}
             />
           </div>
 
-          {errorMessage && <p className="error-message">{errorMessage}</p>}
-
-          <div className="carousel-container-misCursos">
-            <div className="carousel-wrapper-misCursos">
-              {currentPosition > 0 && (
-                <button
-                  className="carousel-arrow-misCursos left"
-                  onClick={() => scroll('left')}
-                >
-                  <img src={arrowLeft} alt="Flecha izquierda" />
-                </button>
-              )}
-              <div className="carousel-track-misCursos" ref={scrollRef}>
-                {filteredCursos.map((curso) => {
-                  // Asegurar que cada curso tenga un ID único
-                  const cursoId = curso.ID || curso.id;
-                  if (!cursoId) {
-                    console.warn('Curso sin ID:', curso);
-                    return null;
-                  }
-
-                  return (
-                    <div
-                      className="carousel-card-misCursos"
-                      key={`curso-${cursoId}`}
-                      onClick={() => handleCardClick(cursoId)}
-                    >
-                      <img
-                        src={`http://localhost:3001${curso.imagen}` || "ruta/imagen/por/defecto.jpg"}
-                        alt={curso.nombre_curso || 'Curso sin nombre'}
-                      />
-                      <div className="card-text-misCursos">
-                        <h4>{curso.nombre_curso || 'Sin nombre'}</h4>
-                        <p className="ficha-misCursos">Ficha: {curso.ficha || 'No disponible'}</p>
-                        <p className="description-misCursos">{curso.descripcion || 'Sin descripción'}</p>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-              {currentPosition < maxScroll && (
-                <button
-                  className="carousel-arrow-misCursos right"
-                  onClick={() => scroll('right')}
-                >
-                  <img src={arrowRight} alt="Flecha derecha" />
-                </button>
-              )}
+          <div className="container-carousel-illustration">
+            <div className="illustration-container-misCursos">
+              <img
+                src="/src/assets/Ilustrations/Professor-amico.svg"
+                alt="Ilustración de gestión de asistencia"
+              />
             </div>
-          </div>
-          <div className="illustration-container-misCursos">
-            <img src="/src/assets/Ilustrations/Professor-amico.svg" alt="Ilustración de gestión de asistencia" />
+
+            {filteredCursos.length > 0 ? (
+              <div className="carousel-container">
+                <div className="carousel-wrapper">
+                  {filteredCursos.length > 3 && (
+                    <button
+                      className="carousel-arrow left"
+                      onClick={() => scroll('left')}
+                      disabled={startIndex === 0}
+                      style={{
+                        opacity: startIndex === 0 ? 0.5 : 1,
+                        cursor: startIndex === 0 ? "not-allowed" : "pointer",
+                      }}
+                    >
+                      <img src={arrowLeft} alt="Flecha izquierda" />
+                    </button>
+                  )}
+
+                  <div className="carousel-track-search-course" ref={scrollRef}>
+                    {visibleCursos.map((curso) => (
+                      <div
+                        className="carousel-card-search-course"
+                        key={curso.ID}
+                        onClick={() => handleCardClick(curso.ID)}
+                      >
+                        <img
+                          className="img_course"
+                          src={`data:image/png;base64,${curso.imagen}`}
+                          alt={curso.nombre_curso}
+                        />
+                        <div className="card-text-search-course">
+                          <h4>{curso.nombre_curso}</h4>
+                          <p>{curso.ficha}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {filteredCursos.length > 3 && (
+                    <button
+                      className="carousel-arrow right"
+                      onClick={() => scroll('right')}
+                      disabled={startIndex >= filteredCursos.length - 3}
+                      style={{
+                        opacity: startIndex >= filteredCursos.length - 3 ? 0.5 : 1,
+                        cursor: startIndex >= filteredCursos.length - 3 ? "not-allowed" : "pointer",
+                      }}
+                    >
+                      <img src={arrowRight} alt="Flecha derecha" />
+                    </button>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <p >
+                No se encontraron resultados.
+              </p>
+            )}
           </div>
         </div>
       </Main>
       <Footer />
     </>
   );
-}; 
+};

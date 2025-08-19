@@ -23,6 +23,8 @@ const setDb = (databaseInstance) => {
 
 // Asignar un instructor a un curso
 const asignarInstructorAlCurso = async (req, res) => {
+  const transaction = await dbInstance.sequelize.transaction();
+  
   try {
     const { instructor_ID, curso_ID } = req.body;
 
@@ -31,26 +33,51 @@ const asignarInstructorAlCurso = async (req, res) => {
     }
 
     // Validar existencia del instructor
-    const instructor = await User.findByPk(instructor_ID);
+    const instructor = await Usuario.findByPk(instructor_ID, { transaction });
     if (!instructor || instructor.accountType !== "Instructor") {
+      await transaction.rollback();
       return res.status(404).json({ message: "Instructor no encontrado o no válido" });
     }
 
     // Validar existencia del curso
-    const curso = await Curso.findByPk(curso_ID);
+    const curso = await Curso.findByPk(curso_ID, { transaction });
     if (!curso) {
+      await transaction.rollback();
       return res.status(404).json({ message: "Curso no encontrado" });
     }
 
+    // Verificar si ya existe una asignación para este instructor y curso
+    const asignacionExistente = await AsignacionCursoInstructor.findOne({
+      where: { instructor_ID, curso_ID },
+      transaction
+    });
+
+    if (asignacionExistente) {
+      await transaction.rollback();
+      return res.status(400).json({ message: "El instructor ya está asignado a este curso." });
+    }
+
+    // Crear la asignación en la tabla asignacion_curso_instructor
+    const nuevaAsignacion = await AsignacionCursoInstructor.create({
+      instructor_ID,
+      curso_ID,
+      estado: 'aceptada',
+      fecha_asignacion: new Date()
+    }, { transaction });
+
     // Actualizar el curso con el instructor asignado
     curso.instructor_ID = instructor_ID;
-    await curso.save();
+    await curso.save({ transaction });
+
+    await transaction.commit();
 
     res.status(200).json({
       message: "Instructor asignado correctamente al curso.",
+      asignacion: nuevaAsignacion,
       curso
     });
   } catch (error) {
+    await transaction.rollback();
     console.error("Error al asignar instructor al curso:", error);
     res.status(500).json({ message: "Error interno al asignar el instructor al curso." });
   }
@@ -72,7 +99,7 @@ const obtenerCursosAsignadosAInstructor = async (req, res) => {
       include: [
         {
           model: Curso,
-          attributes: ["id", "nombre_curso", "descripcion", "imagen"],
+          attributes: ["ID", "nombre_curso", "descripcion", "imagen","ficha"],
         }
       ]
     });

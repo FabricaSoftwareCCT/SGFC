@@ -5,12 +5,35 @@ const Actas = require('../models/Actas'); // Asegúrate de importar el modelo
 const moment = require('moment-timezone');
 const fechaSolicitud = new Date(Date.now() - (new Date().getTimezoneOffset() * 60000));
 const transporter = nodemailer.createTransport({
-  service: "Gmail",
+  service: "gmail",
   auth: {
-    user: "ejemplo@gmail.com",
-    pass: "key",
+    user: "softwareccyt@gmail.com",
+    pass: process.env.GOOGLE_APP_PASSWORD,
   },
 });
+
+// Función genérica para enviar cualquier tipo de email
+const sendEmail = async (email, subject, htmlContent) => {
+  const mailOptions = {
+    from: "softwareccyt@gmail.com",
+    to: email,
+    subject: subject,
+    html: htmlContent
+  };
+
+  return new Promise((resolve, reject) => {
+    transporter.sendMail(mailOptions, (err, info) => {
+      if (err) {
+        console.error("Error al enviar el correo:", err);
+        reject(err);
+      } else {
+        console.log("Correo enviado:", info.response);
+        resolve(info);
+      }
+    });
+  });
+};
+
 
 const sendRequestCourseEmail = async (req, res) => {
   try {
@@ -47,14 +70,14 @@ const sendRequestCourseEmail = async (req, res) => {
     let transporter = nodemailer.createTransport({
       service: "Gmail",
       auth: {
-        user: process.env.EMAIL_USER || "eariassena19@gmail.com",
-        pass: process.env.EMAIL_PASS || "jzcg vevx ixqj wcgv",
+        user: "softwareccyt@gmail.com",
+        pass: process.env.GOOGLE_APP_PASSWORD,
       },
     });
 
     await transporter.sendMail({
-      from: `"SGFC" <${process.env.EMAIL_USER || "eariassena19@gmail.com"}>`,
-      to: "eariassena19@gmail.com",
+      from: `"SGFC" <${process.env.EMAIL_USER || "softwareccyt@gmail.com"}>`,
+      to: "softwareccyt@gmail.com",
       subject: "Nueva Solicitud de Curso",
       html: `<p>Solicitud de curso: ${nombreCurso}</p>`,
       attachments: [
@@ -78,10 +101,21 @@ const sendRequestCourseEmail = async (req, res) => {
 // Función para enviar el correo de verificación
 const sendVerificationEmail = (email, token) => {
   const enlaceVerificacion = `http://localhost:5173/verificarCorreo?token=${token}`;
+  const fs = require('fs');
+  const path = require('path');
+  const logoPath = path.join(__dirname, '../Img/sena.png');
+  
   const mailOptions = {
-    from: "eariassena19@gmail.com",
+    from: "softwareccyt@gmail.com",
     to: email,
     subject: "Verificación de correo electrónico",
+    attachments: [
+      {
+        filename: 'logo.png',
+        path: logoPath,
+        cid: 'logo'
+      }
+    ],
     html: `
 <table width="100%" bgcolor="#f4f4f4" cellpadding="0" cellspacing="0" style="font-family: Arial, sans-serif; margin:0; padding:0;">
   <tr>
@@ -93,7 +127,7 @@ const sendVerificationEmail = (email, token) => {
             <table width="100%" cellpadding="0" cellspacing="0">
               <tr>
                 <td align="center" style="padding-bottom:1.25rem; border-bottom:.0625rem solid #eee;">
-                  <img src="https://i.imgur.com/2pzIurJ.png" alt="Logo de Fábrica de Software CCT" style="width:5rem; height:auto; margin-bottom:.9375rem; display:block;">
+                  <img src="cid:logo" alt="Logo de Fábrica de Software CCT" style="width:5rem; height:auto; margin-bottom:.9375rem; display:block;">
                   <h1 style="color:#00843D; margin:0; font-size:1.5rem; font-family:Arial,sans-serif;">Verificación de Correo Electrónico</h1>
                 </td>
               </tr>
@@ -142,10 +176,21 @@ const sendVerificationEmail = (email, token) => {
 
 // Función para enviar el correo de recuperación de contraseña
 const sendPasswordResetEmail = (email, resetLink) => {
+  const fs = require('fs');
+  const path = require('path');
+  const logoPath = path.join(__dirname, '../Img/sena.png');
+  
   const mailOptions = {
-    from: "eariassena19@gmail.com",
+    from: "softwareccyt@gmail.com",
     to: email,
     subject: "Recuperación de contraseña",
+    attachments: [
+      {
+        filename: 'logo.png',
+        path: logoPath,
+        cid: 'logo'
+      }
+    ],
     html: `
 <table width="100%" bgcolor="#f4f4f4" cellpadding="0" cellspacing="0" style="font-family: Arial, sans-serif; margin:0; padding:0;">
   <tr>
@@ -157,7 +202,7 @@ const sendPasswordResetEmail = (email, resetLink) => {
             <table width="100%" cellpadding="0" cellspacing="0">
               <tr>
                 <td align="center" style="padding-bottom:1.25rem; border-bottom:.0625rem solid #eee;">
-                  <img src="https://i.imgur.com/2pzIurJ.png" alt="Logo de Fábrica de Software CCT" style="width:5rem; height:auto; margin-bottom:.9375rem; display:block;">
+                  <img src="cid:logo" alt="Logo de Fábrica de Software CCT" style="width:5rem; height:auto; margin-bottom:.9375rem; display:block;">
                   <h1 style="color:#00843D; margin:0; font-size:1.5rem; font-family:Arial,sans-serif;">Restablecimiento de Contraseña</h1>
                 </td>
               </tr>
@@ -213,7 +258,7 @@ const sendPasswordResetEmail = (email, resetLink) => {
 // Función para notificar la actualización del curso
 const sendCursoUpdatedNotification = (email, curso) => {
   const mailOptions = {
-    from: "eariassena19@gmail.com",
+    from: "softwareccyt@gmail.com",
     to: email,
     subject: `El curso "${curso.nombre_curso}" ha sido actualizado`,
     html: `
@@ -238,10 +283,21 @@ const sendCursoUpdatedNotification = (email, curso) => {
 
 // Función para enviar el correo de confirmación de cambio de contraseña
 const sendPasswordChangeConfirmationEmail = (email, resetLink) => {
+  const fs = require('fs');
+  const path = require('path');
+  const logoPath = path.join(__dirname, '../Img/sena.png');
+  
   const mailOptions = {
-    from: "eariassena19@gmail.com",
+    from: "softwareccyt@gmail.com",
     to: email,
     subject: "Confirmación de cambio de contraseña",
+    attachments: [
+      {
+        filename: 'logo.png',
+        path: logoPath,
+        cid: 'logo'
+      }
+    ],
     html: `
 <table width="100%" bgcolor="#f4f4f4" cellpadding="0" cellspacing="0" style="font-family: Arial, sans-serif; margin:0; padding:0;">
   <tr>
@@ -253,7 +309,7 @@ const sendPasswordChangeConfirmationEmail = (email, resetLink) => {
             <table width="100%" cellpadding="0" cellspacing="0">
               <tr>
                 <td align="center" style="padding-bottom:1.25rem; border-bottom:.0625rem solid #eee;">
-                  <img src="https://i.imgur.com/2pzIurJ.png" alt="Logo de Fábrica de Software CCT" style="width:5rem; height:auto; margin-bottom:.9375rem; display:block;">
+                  <img src="cid:logo" alt="Logo de Fábrica de Software CCT" style="width:5rem; height:auto; margin-bottom:.9375rem; display:block;">
                   <h1 style="color:#00843D; margin:0; font-size:1.5rem; font-family:Arial,sans-serif;">Confirmación de cambio de contraseña</h1>
                 </td>
               </tr>
@@ -309,7 +365,7 @@ const sendPasswordChangeConfirmationEmail = (email, resetLink) => {
 const sendCourseCreatedEmail = (emails, nombre_curso, courseLink) => {
 
   const mailOptions = {
-    from: 'eariassena19@gmail.com',
+    from: 'softwareccyt@gmail.com',
     to: emails,
     subject: "Nuevo curso en linea",
     html: ` <h2>El nuevo curso: ${nombre_curso} ha creado</h2>
@@ -334,7 +390,7 @@ const sendCourseCreatedEmail = (emails, nombre_curso, courseLink) => {
 // Enviar correo al instructor notificando su asignación
 const sendInstructorAssignedEmail = (email, curso) => {
   const mailOptions = {
-    from: 'eariassena19@gmail.com',
+    from: 'softwareccyt@gmail.com',
     to: email,
     subject: `Has sido asignado al curso: ${curso.nombre_curso}`,
     html: `
@@ -362,7 +418,7 @@ const sendInstructorAssignedEmail = (email, curso) => {
 // Enviar correo al aprendiz notificando su instructor asignado
 const sendStudentsInstructorAssignedEmail = (emails, curso, nombreInstructor) => {
   const mailOptions = {
-    from: 'eariassena19@gmail.com',
+    from: 'softwareccyt@gmail.com',
     to: emails, // puede ser un string o un array de emails
     subject: `Tu curso ${curso.nombre_curso} ya tiene instructor asignado`,
     html: `
@@ -389,6 +445,7 @@ const sendStudentsInstructorAssignedEmail = (emails, curso, nombreInstructor) =>
 // Exportar ambas funciones
 
 module.exports = {
+  sendEmail,
   sendVerificationEmail,
   sendPasswordResetEmail,
   sendPasswordChangeConfirmationEmail,

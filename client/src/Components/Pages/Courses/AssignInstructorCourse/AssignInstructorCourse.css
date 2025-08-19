@@ -24,6 +24,7 @@
     border-radius: 15px;
     overflow: hidden;
     gap: 1rem;
+    position: relative;
 }
 
 .modal-bodyAssignInstructorCourse>h2 {

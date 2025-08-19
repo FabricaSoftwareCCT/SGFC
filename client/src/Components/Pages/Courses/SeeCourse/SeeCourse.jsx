@@ -141,6 +141,15 @@ export const SeeCourse = () => {
                                     Solicitar Curso
                                 </button>
                             )}
+                            {/* Mostrar botón solo si el usuario es Instructor */}
+                            {userSession && (userSession.accountType === 'Instructor') && (
+                                <button
+                                    className='manageAttendance'
+                                    onClick={() => navigate(`/Cursos/${id}/gestionar-asistencia`)}
+                                >
+                                    Gestionar Asistencias
+                                </button>
+                            )}
                         </div>
                     </div>
 

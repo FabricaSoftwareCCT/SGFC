@@ -49,13 +49,13 @@
 
       & .filterGestionsCompany {
         width: 50%;
-        height: 80%;
+        height: auto;
         margin: 0 auto;
         /* background: #555; */
-
         display: flex;
         flex-direction: column;
         align-items: center;
+        gap: 1rem;
 
         & .tituloFiltrar {
           width: 100%;

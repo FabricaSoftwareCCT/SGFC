@@ -444,6 +444,75 @@ const sendStudentsInstructorAssignedEmail = (emails, curso, nombreInstructor) =>
 
 // Exportar ambas funciones
 
+const sendConcertacionActaEmail = async (req, res) => {
+  try {
+    console.log('Received req.body:', req.body);
+    console.log('Received req.file:', req.file);
+
+    const { 
+      curso_ID,
+      empresa_ID,
+      gestor_ID,
+      administrador_ID,
+      instructor_ID,
+      fecha_acta,
+      nombreActa
+    } = req.body;
+
+    const pdfBuffer = req.file.buffer;
+
+    const fs = require('fs');
+    const path = require('path');
+    const pdfFileName = `acta_concertacion_${Date.now()}.pdf`;
+    const pdfPath = path.join(__dirname, '../uploads/documentos', pdfFileName);
+
+    fs.mkdirSync(path.dirname(pdfPath), { recursive: true });
+    fs.writeFileSync(pdfPath, pdfBuffer);
+
+    await Actas.create({
+      fecha_acta: fecha_acta,
+      estado_acta: 'pendiente',
+      fecha_respuesta: null,
+      empresa_ID: empresa_ID,
+      curso_ID: curso_ID,
+      gestor_ID: gestor_ID,
+      administrador_ID: administrador_ID,
+      instructor_ID: instructor_ID,
+      tipo_acta: 'Concertacion',
+      pdf_acta: pdfFileName
+    });
+
+    let transporter = nodemailer.createTransport({
+      service: "Gmail",
+      auth: {
+        user: "softwareccyt@gmail.com",
+        pass: process.env.GOOGLE_APP_PASSWORD,
+      },
+    });
+
+    await transporter.sendMail({
+      from: `"SGFC" <${process.env.EMAIL_USER || "softwareccyt@gmail.com"}>`,
+      to: "softwareccyt@gmail.com",
+      subject: `Nueva Acta de Concertación: ${nombreActa || 'Sin Título'}`,
+      html: `<p>Se ha registrado una nueva acta de concertación para el curso con ID: ${curso_ID}.</p><p>Nombre del Acta: ${nombreActa || 'Sin Título'}</p>`,
+      attachments: [
+        {
+          filename: pdfFileName,
+          content: pdfBuffer
+        }
+      ]
+    });
+
+    res.status(200).json({
+      message: 'Acta de concertación enviada y registrada correctamente.',
+      pdf_acta: pdfFileName
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error al enviar o registrar el acta de concertación.' });
+  }
+};
+
 module.exports = {
   sendEmail,
   sendVerificationEmail,
@@ -453,6 +522,7 @@ module.exports = {
   sendCursoUpdatedNotification,
   sendStudentsInstructorAssignedEmail,
   sendInstructorAssignedEmail,
-  sendRequestCourseEmail
+  sendRequestCourseEmail,
+  sendConcertacionActaEmail
 };
 

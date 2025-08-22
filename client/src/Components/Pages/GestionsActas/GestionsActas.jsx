@@ -7,6 +7,8 @@ import axiosInstance from "../../../config/axiosInstance";
 import seePasswordIcon from "../../../assets/Icons/seePassword.png";
 import { useModal } from "../../../Context/ModalContext";
 import { NavLink, useNavigate } from "react-router-dom";
+import { Modal_General } from '../../UI/Modal_General/Modal_General';
+import agregarArchivo from '../../../assets/Icons/agregar-archivo.png';
 
 const categoriasDisponibles = [
   'Solicitud', 'Concertacion', 'Lugar_formacion', 'Matricula'
@@ -19,6 +21,8 @@ export const GestionsActas = () => {
   const [categoriasSeleccionadas, setCategoriasSeleccionadas] = useState([]);
   const [estadosSeleccionados, setEstadosSeleccionados] = useState([]);
   const { setShowModalGeneral, setModalGeneralContent } = useModal();
+  const [showTipoActaModal, setShowTipoActaModal] = useState(false);
+  const [tipoActaSeleccionada, setTipoActaSeleccionada] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -287,6 +291,12 @@ export const GestionsActas = () => {
                   </section>
                 </div>
               </article>
+              <div className="container-button-firmar">
+                <button className="button-proceedings-generar" onClick={() => setShowTipoActaModal(true)}>
+                  Generar acta
+                </button>
+              </div>
+
             </section>
 
             <section className="resultTableGestionsCompany">
@@ -319,21 +329,45 @@ export const GestionsActas = () => {
                           {acta.estado_acta}
                         </span>
                       </section>
-                        <img
-                          src={seePasswordIcon}
-                          alt="ver"
-                          style={{ width: 24, height: 24, cursor: "pointer", marginRight: "2rem" }}
-                          onClick={() => handleVerOpcionesPDF(acta)}
-                        />
+                      <img
+                        src={seePasswordIcon}
+                        alt="ver"
+                        style={{ width: 24, height: 24, cursor: "pointer", marginRight: "2rem" }}
+                        onClick={() => handleVerOpcionesPDF(acta)}
+                      />
                     </div>
                   ))
                 )}
               </section>
             </section>
+
           </section>
         </section>
       </Main>
       <Footer />
+      {showTipoActaModal && (
+        <Modal_General closeModal={() => setShowTipoActaModal(false)}>
+          <h3 className="title-modal-acta">Seleccione el tipo de acta</h3>
+          <div className="container-modal-acta">
+            <div className="option-1Acta" onClick={() => { setTipoActaSeleccionada('concertacion'); setShowTipoActaModal(false); navigate('/Actas/Concertacion'); }}>
+              <p>Concertación</p>
+              <div className="container-1Acta">
+
+                <img src={agregarArchivo} alt="Concertación" />
+              </div>
+
+            </div>
+            <div className="option-2Acta" onClick={() => { setTipoActaSeleccionada('lugar-formacion'); setShowTipoActaModal(false); navigate('/Actas/Lugar-formacion'); }}>
+              <p>Lugar de formación</p>
+              <div className="container-2Acta">
+                <img src={agregarArchivo} alt="Validación del lugar" />
+              </div>
+
+            </div>
+          </div>
+        </Modal_General>
+      )}
     </div>
+
   );
 };

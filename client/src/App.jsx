@@ -28,6 +28,8 @@ import { MisCursosAdmin } from './Components/Pages/Courses/MisCursos/MisCursosAd
 import { RequestCourse } from './Components/Pages/Courses/RequestCourse/RequestCourse';
 import { GestionsActas } from './Components/Pages/GestionsActas/GestionsActas';
 import { AssignInstructorCourse } from './Components/Pages/Courses/AssignInstructorCourse/AssignInstructorCourse';
+import { ConcertationProceeding } from './Components/Pages/proceedings/ConcertationProceeding';
+import { TrainingPlaceProceeding } from './Components/Pages/proceedings/TrainingPlaceProceeding';
 
 // Importación de modales
 import { NavBar } from './Components/UI/NavBar/NavBar';
@@ -250,7 +252,8 @@ function App() {
               <AttendanceRecords />
             </Layout>
           } />
-
+          <Route path="/Actas/Concertacion" element={<ConcertationProceeding />} />
+          <Route path="/Actas/Lugar-formacion" element={<TrainingPlaceProceeding />} />
           <Route path="/no-autorizado" element={<NoAutorizado />} />
           <Route path="/SolicitarCurso/:nombreCurso" element={<RequestCourse />} />        </Routes>
       </>

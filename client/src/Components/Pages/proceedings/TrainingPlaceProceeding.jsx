@@ -8,12 +8,15 @@ import axiosInstance from '../../../config/axiosInstance';
 import html2pdf from 'html2pdf.js';
 import { ModalSignature } from '../../UI/Modal_Signature/ModalSignature';
 import { EditableList } from '../../UI/EditableList/EditableList';
+import { useNavigate } from 'react-router-dom';
 
 export const TrainingPlaceProceeding = () => {
+    const navigate = useNavigate();
     const { nombreCurso: nombreCursoParam } = useParams();
 
     const [empresa, setEmpresa] = useState(null);
     const [manager, setManager] = useState(null);
+    const [usuarioLogueado, setUsuarioLogueado] = useState(null); // Para almacenar info completa del usuario
 
     // Inicializa el nombre del curso con el parámetro de la URL si existe
     const [nombreCurso, setNombreCurso] = useState(
@@ -41,23 +44,45 @@ export const TrainingPlaceProceeding = () => {
     const [showSignatureModal, setShowSignatureModal] = useState(false);
     const [firmaDigital, setFirmaDigital] = useState("");
     const [firmaArchivo, setFirmaArchivo] = useState(null);
-
+    const [firmaArchivoUrl, setFirmaArchivoUrl] = useState(""); // Nuevo estado
     const [instructores, setInstructores] = useState([]);
     const [instructoresAsignados, setInstructoresAsignados] = useState([]);
     const [participantes, setParticipantes] = useState([]);
-
     const [generatedPdfName, setGeneratedPdfName] = useState('');
+
+    // Función para manejar cuando se sube un archivo de firma
+    const handleUploadSignature = (file) => {
+        setFirmaArchivo(file);
+        // Crear URL para mostrar la imagen subida
+        const fileUrl = URL.createObjectURL(file);
+        setFirmaArchivoUrl(fileUrl);
+    };
 
     useEffect(() => {
         const session = localStorage.getItem("userSession") || sessionStorage.getItem("userSession");
         if (!session) return;
+
         const user = JSON.parse(session);
+        setUsuarioLogueado(user); // Guardar info completa del usuario
+
         axiosInstance.get(`/api/users/profile/${user.id}`)
             .then(res => {
                 setManager(res.data);
                 setEmpresa(res.data.Empresa);
+
+                // ✅ VERIFICAR TIPO DE CUENTA Y ASIGNAR CORRECTAMENTE
+                if (user.accountType === 'Instructor') {
+                    // Si es instructor, agregarlo a instructores asignados
+                    setInstructoresAsignados([res.data.nombres || user.name || '']);
+                    console.log('✅ Usuario instructor asignado:', res.data.nombres);
+                } else if (user.accountType === 'Administrador' || user.accountType === 'Gestor') {
+                    // Si es administrador o gestor, puede ser inspector
+                    console.log('✅ Usuario como inspector:', res.data.nombres);
+                }
             })
-            .catch(err => console.error("Error al obtener datos:", err));
+            .catch(err => {
+                console.error("Error al obtener datos:", err);
+            });
     }, []);
 
     const formatDate = (dateStr) => {
@@ -126,13 +151,11 @@ export const TrainingPlaceProceeding = () => {
     const handleEdit = () => setIsEditing(true);
     const handleSave = () => setIsEditing(false);
 
-
-    // Enviar el acta de lugar de formación al backend (simulación de endpoint lógico)
+    // Enviar el acta de lugar de formación al backend
     const handleSendProceeding = async () => {
         try {
             if (!pdfRef.current) return;
 
-            // Opciones para html2pdf
             const pdfFileName = 'acta_lugar_formacion.pdf';
             const opt = {
                 margin: 10,
@@ -141,55 +164,51 @@ export const TrainingPlaceProceeding = () => {
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
-            // Genera el PDF y obtén el blob
             const worker = html2pdf().set(opt).from(pdfRef.current);
-            const pdfBlob = await worker.outputPdf ? await worker.outputPdf('blob') : await worker.output('blob');
+            const pdfBlob = await worker.output('blob');
 
-            // Prepara el FormData para el acta
             const formData = new FormData();
             formData.append('pdf', pdfBlob, pdfFileName);
             formData.append('empresa', JSON.stringify(empresa));
             formData.append('manager', JSON.stringify(manager));
-            formData.append('fecha', new Date().toISOString());
-            // Puedes agregar más campos relevantes aquí según la estructura del acta
+            formData.append('fecha_acta', new Date().toISOString());
 
-            // Enviar al endpoint lógico del backend
-            const response = await axiosInstance.post('/api/proceedings/lugar-formacion', formData, {
+            // ✅ Enviar el ID del usuario logueado como instructor
+            if (usuarioLogueado && usuarioLogueado.id) {
+                formData.append('instructor_ID', usuarioLogueado.id);
+                console.log('✅ Enviando instructor_ID:', usuarioLogueado.id);
+            }
+
+            if (empresa && empresa.ID) {
+                formData.append('empresa_ID', empresa.ID);
+            }
+
+            const response = await axiosInstance.post('/api/actas/lugar-formacion-acta', formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
 
-            setGeneratedPdfName(pdfFileName);
-            alert('¡Acta enviada correctamente!');
+            // ✅ Si la respuesta es exitosa, redirigir
+            if (response.status === 200) {
+                setGeneratedPdfName(pdfFileName);
+                alert('¡Acta de lugar de formación enviada correctamente!');
+
+                // ✅ REDIRECCIÓN AUTOMÁTICA
+                navigate('/Gestiones/Actas');
+            }
+
         } catch (error) {
-            alert('Error al enviar el acta.');
-            console.error(error);
+            alert('Error al enviar el acta de lugar de formación.');
+            console.error('❌ Error completo:', error);
         }
     };
-
-    // Aprobar el acta de lugar de formación
-    const handleApproveProceeding = async () => {
-        try {
-            const id = empresa?.ID || 'demo-id';
-            await axiosInstance.patch(`/api/proceedings/lugar-formacion/${id}`, { estado: 'aprobado' });
-            alert('Acta aprobada correctamente.');
-        } catch (error) {
-            alert('Error al aprobar el acta.');
-            console.error(error);
-        }
-    };
-
-    // Rechazar el acta de lugar de formación
-    const handleRejectProceeding = async () => {
-        try {
-            const id = empresa?.ID || 'demo-id';
-            await axiosInstance.patch(`/api/proceedings/lugar-formacion/${id}`, { estado: 'rechazado' });
-            alert('Acta rechazada correctamente.');
-        } catch (error) {
-            alert('Error al rechazar el acta.');
-            console.error(error);
-        }
-    };
-
+    useEffect(() => {
+        // Cleanup function para liberar memory de las URLs creadas
+        return () => {
+            if (firmaArchivoUrl) {
+                URL.revokeObjectURL(firmaArchivoUrl);
+            }
+        };
+    }, [firmaArchivoUrl]);
     return (
         <>
             <Header />
@@ -202,7 +221,6 @@ export const TrainingPlaceProceeding = () => {
                         Este documento permite a la empresa formalizar la solicitud de un curso ante el SENA. <br />
                         Escribe el nombre del curso, el número de empleados que lo tomarán y las fechas de inicio y fin del curso.
                     </p>
-                   
 
                     <div className="training-place-proceeding-card">
                         {!isEditing && (
@@ -318,22 +336,48 @@ export const TrainingPlaceProceeding = () => {
                                                 manager?.nombres || '[Nombre del Inspector]'
                                             )}</td>
                                             <td>Inspector o Gestor</td>
-                                            <td>_______________</td>
+                                            <td style={{ padding: '10px' }}>
+                                                {/* ✅ Estilos corregidos para mostrar la firma */}
+                                                {firmaDigital ? (
+                                                    <img
+                                                        src={firmaDigital}
+                                                        alt="Firma digital"
+                                                        style={{
+                                                            width: '120px',        // ✅ Ancho fijo en lugar de maxWidth
+                                                            height: '40px',        // ✅ Alto fijo en lugar de maxHeight  
+                                                            display: 'block',      // ✅ Asegurar que se muestre como bloque                                                         
+                                                            objectFit: 'contain',  // ✅ Mantener proporción
+                                                            backgroundColor: 'transparent'
+                                                        }}
+                                                    />
+                                                ) : firmaArchivoUrl ? (
+                                                    <img
+                                                        src={firmaArchivoUrl}
+                                                        alt="Firma subida"
+                                                        style={{
+                                                            width: '120px',        // ✅ Ancho fijo
+                                                            height: '40px',        // ✅ Alto fijo                                                            
+                                                            display: 'block',      // ✅ Mostrar como bloque                                                        
+                                                            objectFit: 'contain',  // ✅ Mantener proporción
+                                                            backgroundColor: 'transparent'
+                                                        }}
+                                                    />
+                                                ) : (
+                                                    <span style={{ display: 'inline-block', width: '120px', borderBottom: '1px solid #000' }}>
+                                                        &nbsp;
+                                                    </span>
+                                                )}
+                                            </td>
                                         </tr>
                                     </tbody>
                                 </table>
+                                <br />
+                                {dateError && <div style={{ color: 'red', marginBottom: '10px' }}>{dateError}</div>}
                             </p>
                         </div>
 
                     </div>
-                    <div className='training-place-proceeding-observaciones-container'>
-                        <p>Observaciones: </p>
-                        <textarea
-                            className='training-place-proceeding-input'
-                            value={observaciones}
-                            onChange={e => setObservaciones(e.target.value)}
-                        />
-                    </div>
+
                     <div className="training-place-proceeding-botones-solicitud">
                         {isEditing ? (
                             <button className="training-place-proceeding-submit-button" onClick={handleSave} disabled={!!dateError}>Guardar</button>
@@ -342,6 +386,20 @@ export const TrainingPlaceProceeding = () => {
                         )}
 
                         <button className="training-place-proceeding-submit-button" onClick={handleSendProceeding}>Generar acta</button>
+                        {/* ✅ Botón para limpiar firma */}
+                        {(firmaDigital || firmaArchivoUrl) && (
+                            <button
+                                className="submit-button-proceedings"
+                                onClick={() => {
+                                    setFirmaDigital("");
+                                    setFirmaArchivo(null);
+                                    setFirmaArchivoUrl("");
+                                }}
+                                style={{ backgroundColor: '#dc3545' }}
+                            >
+                                Limpiar firma
+                            </button>
+                        )}
                         <button className="training-place-proceeding-submit-button" onClick={() => setShowSignatureModal(true)}>Agregar firma</button>
                         <button className="training-place-proceeding-submit-button-exportar" onClick={handleDownloadPDF}>Exportar</button>
                     </div>
@@ -355,16 +413,8 @@ export const TrainingPlaceProceeding = () => {
                     nombreCurso={nombreCurso}
                     tipoActa="Acta de Lugar de formación"
                     onSignature={setFirmaDigital}
-                    onUpload={setFirmaArchivo}
+                    onUpload={handleUploadSignature} // ✅ Usa la nueva función
                 >
-                    {/* Aquí puedes mostrar una previsualización de la firma si lo deseas */}
-                    {firmaDigital && (
-                        <div style={{ textAlign: 'center', marginTop: 10 }}>
-                            <span style={{ fontSize: 13, color: '#00843d' }}>Previsualización de firma digital:</span>
-                            <img src={firmaDigital} alt="Firma digital" style={{ display: 'block', margin: '8px auto', maxWidth: 200, border: '1px solid #ccc', borderRadius: 6 }} />
-                        </div>
-                    )}
-
                 </ModalSignature>
             )}
         </>

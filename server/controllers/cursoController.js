@@ -24,7 +24,7 @@ const setDb = (databaseInstance) => {
 // Asignar un instructor a un curso
 const asignarInstructorAlCurso = async (req, res) => {
   const transaction = await dbInstance.sequelize.transaction();
-  
+
   try {
     const { instructor_ID, curso_ID } = req.body;
 
@@ -99,7 +99,7 @@ const obtenerCursosAsignadosAInstructor = async (req, res) => {
       include: [
         {
           model: Curso,
-          attributes: ["ID", "nombre_curso", "descripcion", "imagen","ficha"],
+          attributes: ["ID", "nombre_curso", "descripcion", "imagen", "ficha"],
         }
       ]
     });
@@ -543,20 +543,50 @@ const getCursosByEmpresaId = async (req, res) => {
 
 const enviarInvitacionCurso = async (req, res) => {
   try {
+    // ✅ Debug INMEDIATO - Ver qué llega
+    console.log('🚀 === INICIO enviarInvitacionCurso ===');
+    console.log('📦 req.body completo:', req.body);
+    console.log('👤 req.user:', req.user);
+
     // Validar tipo de cuenta
     const { accountType, id } = req.user;
     if (accountType !== "Administrador" && accountType !== "Gestor") {
+      console.log('❌ Error de permisos:', { accountType, id });
       return res.status(403).json({ message: "No tienes permisos para enviar invitaciones." });
     }
 
     const { instructor_ID, curso_ID } = req.body;
 
-    // Validación básica
-    if (!instructor_ID || !curso_ID) {
-      return res.status(400).json({ message: 'Todos los campos son obligatorios.' });
+    // ✅ Debug específico de los campos
+    console.log('🔍 Campos extraídos:');
+    console.log('- instructor_ID:', instructor_ID, '(tipo:', typeof instructor_ID, ')');
+    console.log('- curso_ID:', curso_ID, '(tipo:', typeof curso_ID, ')');
+
+    // ✅ Debug de validaciones paso a paso
+    console.log('🧪 Validaciones:');
+    console.log('- instructor_ID === null:', instructor_ID === null);
+    console.log('- instructor_ID === undefined:', instructor_ID === undefined);
+    console.log('- curso_ID === null:', curso_ID === null);
+    console.log('- curso_ID === undefined:', curso_ID === undefined);
+
+    // Validación mejorada
+    if (instructor_ID === null || instructor_ID === undefined || curso_ID === null || curso_ID === undefined) {
+      console.log('❌ Validación fallida - campos obligatorios');
+      return res.status(400).json({
+        message: 'Todos los campos son obligatorios.',
+        debug: { instructor_ID, curso_ID, tipos: { instructor: typeof instructor_ID, curso: typeof curso_ID } }
+      });
     }
 
-    // Validar que no exista una invitación pendiente para el mismo instructor y curso
+    // Validar que sean números válidos
+    if (isNaN(instructor_ID) || isNaN(curso_ID)) {
+      console.log('❌ Validación fallida - no son números válidos');
+      return res.status(400).json({ message: 'Los IDs deben ser números válidos.' });
+    }
+
+    console.log('✅ Validaciones pasadas, continuando...');
+
+    // Validar que no exista una invitación pendiente
     const invitacionExistente = await InvitacionCurso.findOne({
       where: {
         instructor_ID,
@@ -566,28 +596,33 @@ const enviarInvitacionCurso = async (req, res) => {
     });
 
     if (invitacionExistente) {
+      console.log('❌ Ya existe invitación pendiente');
       return res.status(409).json({ message: 'Ya existe una invitación pendiente para este instructor y curso.' });
     }
 
-    // Crear la invitación, guardando el usuario_ID del remitente
+    console.log('📝 Creando invitación...');
+
+    // Crear la invitación
     const nuevaInvitacion = await InvitacionCurso.create({
-      instructor_ID,
-      usuario_ID: id, // ID del usuario que envía la invitación (admin o gestor)
-      curso_ID,
+      instructor_ID: parseInt(instructor_ID),
+      usuario_ID: id,
+      curso_ID: parseInt(curso_ID),
       estado: 'pendiente',
       fecha_envio: new Date()
     });
+
+    console.log('✅ Invitación creada exitosamente:', nuevaInvitacion.id);
 
     res.status(201).json({
       message: 'Invitación enviada correctamente.',
       invitacion: nuevaInvitacion
     });
+
   } catch (error) {
-    console.error('Error al enviar la invitación:', error);
+    console.error('💥 Error en enviarInvitacionCurso:', error);
     res.status(500).json({ message: 'Error al enviar la invitación.' });
   }
 };
-
 const cambiarEstadoInvitacion = async (req, res) => {
   try {
     const { invitacionId } = req.params;

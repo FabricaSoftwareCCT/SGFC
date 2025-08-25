@@ -104,7 +104,7 @@ const sendVerificationEmail = (email, token) => {
   const fs = require('fs');
   const path = require('path');
   const logoPath = path.join(__dirname, '../Img/sena.png');
-  
+
   const mailOptions = {
     from: "softwareccyt@gmail.com",
     to: email,
@@ -179,7 +179,7 @@ const sendPasswordResetEmail = (email, resetLink) => {
   const fs = require('fs');
   const path = require('path');
   const logoPath = path.join(__dirname, '../Img/sena.png');
-  
+
   const mailOptions = {
     from: "softwareccyt@gmail.com",
     to: email,
@@ -286,7 +286,7 @@ const sendPasswordChangeConfirmationEmail = (email, resetLink) => {
   const fs = require('fs');
   const path = require('path');
   const logoPath = path.join(__dirname, '../Img/sena.png');
-  
+
   const mailOptions = {
     from: "softwareccyt@gmail.com",
     to: email,
@@ -446,10 +446,12 @@ const sendStudentsInstructorAssignedEmail = (emails, curso, nombreInstructor) =>
 
 const sendConcertacionActaEmail = async (req, res) => {
   try {
-    console.log('Received req.body:', req.body);
-    console.log('Received req.file:', req.file);
+    //  Validaciones básicas
+    if (!req.file) {
+      return res.status(400).json({ message: 'No se recibió el archivo PDF' });
+    }
 
-    const { 
+    const {
       curso_ID,
       empresa_ID,
       gestor_ID,
@@ -459,8 +461,33 @@ const sendConcertacionActaEmail = async (req, res) => {
       nombreActa
     } = req.body;
 
-    const pdfBuffer = req.file.buffer;
+    //  Parsear objetos JSON como respaldo
+    let empresaObj = null;
+    let managerObj = null;
 
+    try {
+      if (req.body.empresa) {
+        empresaObj = JSON.parse(req.body.empresa);
+      }
+    } catch (e) {
+      console.log('❌ Error parseando empresa:', e);
+    }
+
+    try {
+      if (req.body.manager) {
+        managerObj = JSON.parse(req.body.manager);
+      }
+    } catch (e) {
+      console.log('❌ Error parseando manager:', e);
+    }
+
+    //  Determinar los IDs finales
+    const finalEmpresaID = empresa_ID || (empresaObj && empresaObj.ID) || null;
+    const finalInstructorID = instructor_ID || (managerObj && managerObj.ID) || null;
+    const finalGestorID = gestor_ID || null; //  Siempre null en este caso
+
+    //  Guardar archivo PDF
+    const pdfBuffer = req.file.buffer;
     const fs = require('fs');
     const path = require('path');
     const pdfFileName = `acta_concertacion_${Date.now()}.pdf`;
@@ -469,19 +496,21 @@ const sendConcertacionActaEmail = async (req, res) => {
     fs.mkdirSync(path.dirname(pdfPath), { recursive: true });
     fs.writeFileSync(pdfPath, pdfBuffer);
 
-    await Actas.create({
+    //  Crear el acta en la base de datos
+    const nuevaActa = await Actas.create({
       fecha_acta: fecha_acta,
       estado_acta: 'pendiente',
       fecha_respuesta: null,
-      empresa_ID: empresa_ID,
+      empresa_ID: finalEmpresaID,
       curso_ID: curso_ID,
-      gestor_ID: gestor_ID,
+      gestor_ID: finalGestorID,
       administrador_ID: administrador_ID,
-      instructor_ID: instructor_ID,
+      instructor_ID: finalInstructorID,
       tipo_acta: 'Concertacion',
       pdf_acta: pdfFileName
     });
 
+    //  Enviar correo con el acta adjunta
     let transporter = nodemailer.createTransport({
       service: "Gmail",
       auth: {
@@ -494,7 +523,15 @@ const sendConcertacionActaEmail = async (req, res) => {
       from: `"SGFC" <${process.env.EMAIL_USER || "softwareccyt@gmail.com"}>`,
       to: "softwareccyt@gmail.com",
       subject: `Nueva Acta de Concertación: ${nombreActa || 'Sin Título'}`,
-      html: `<p>Se ha registrado una nueva acta de concertación para el curso con ID: ${curso_ID}.</p><p>Nombre del Acta: ${nombreActa || 'Sin Título'}</p>`,
+      html: `
+        <h2>Nueva Acta de Concertación</h2>
+        <p><strong>Instructor:</strong> ${managerObj ? `${managerObj.nombres} ${managerObj.apellidos}` : 'No especificado'}</p>
+        <p><strong>Email:</strong> ${managerObj ? managerObj.email : 'No especificado'}</p>
+        <p><strong>Empresa:</strong> ${empresaObj ? empresaObj.nombre_empresa : 'No especificada'}</p>
+        <p><strong>Fecha de creación:</strong> ${new Date(fecha_acta).toLocaleString()}</p>
+        <p><strong>ID del acta:</strong> ${nuevaActa.ID}</p>
+        <p>Se ha registrado una nueva acta de concertación en el sistema.</p>
+      `,
       attachments: [
         {
           filename: pdfFileName,
@@ -503,16 +540,142 @@ const sendConcertacionActaEmail = async (req, res) => {
       ]
     });
 
+    console.log('📧 Email enviado correctamente');
+
+    //  Respuesta exitosa
     res.status(200).json({
       message: 'Acta de concertación enviada y registrada correctamente.',
-      pdf_acta: pdfFileName
+      pdf_acta: pdfFileName,
+      acta_id: nuevaActa.ID,
+      instructor_ID_guardado: nuevaActa.instructor_ID,
+      gestor_ID_guardado: nuevaActa.gestor_ID
     });
+
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Error al enviar o registrar el acta de concertación.' });
+    console.error('❌ Error completo:', error);
+    res.status(500).json({
+      message: 'Error al enviar o registrar el acta de concertación.',
+      error: error.message
+    });
   }
 };
 
+const sendTrainingPlaceActaEmail = async (req, res) => {
+  try {
+  
+    //  Validaciones básicas
+    if (!req.file) {
+      return res.status(400).json({ message: 'No se recibió el archivo PDF' });
+    }
+
+    const {
+      curso_ID,
+      empresa_ID,
+      gestor_ID,
+      administrador_ID,
+      instructor_ID,
+      fecha_acta,
+      nombreActa
+    } = req.body;
+
+    //  Parsear objetos JSON como respaldo
+    let empresaObj = null;
+    let managerObj = null;
+
+    try {
+      if (req.body.empresa) {
+        empresaObj = JSON.parse(req.body.empresa);
+      }
+    } catch (e) {
+      console.log('❌ Error parseando empresa:', e);
+    }
+
+    try {
+      if (req.body.manager) {
+        managerObj = JSON.parse(req.body.manager);
+      }
+    } catch (e) {
+      console.log('❌ Error parseando manager:', e);
+    }
+
+    //  Determinar los IDs finales
+    const finalEmpresaID = empresa_ID || (empresaObj && empresaObj.ID) || null;
+    const finalInstructorID = instructor_ID || (managerObj && managerObj.ID) || null;
+    const finalGestorID = gestor_ID || null; //  Siempre null en este caso
+
+    //  Guardar archivo PDF
+    const pdfBuffer = req.file.buffer;
+    const fs = require('fs');
+    const path = require('path');
+    const pdfFileName = `acta_lugar_formacion_${Date.now()}.pdf`;
+    const pdfPath = path.join(__dirname, '../uploads/documentos', pdfFileName);
+
+    fs.mkdirSync(path.dirname(pdfPath), { recursive: true });
+    fs.writeFileSync(pdfPath, pdfBuffer);
+
+    //  Crear el acta en la base de datos
+    const nuevaActa = await Actas.create({
+      fecha_acta: fecha_acta,
+      estado_acta: 'pendiente',
+      fecha_respuesta: null,
+      empresa_ID: finalEmpresaID,
+      curso_ID: curso_ID,
+      gestor_ID: finalGestorID,
+      administrador_ID: administrador_ID,
+      instructor_ID: finalInstructorID,
+      tipo_acta: 'Lugar_formacion',
+      pdf_acta: pdfFileName
+    });
+
+    // ✅ Enviar correo con el acta adjunta
+    let transporter = nodemailer.createTransport({
+      service: "Gmail",
+      auth: {
+        user: "softwareccyt@gmail.com",
+        pass: process.env.GOOGLE_APP_PASSWORD,
+      },
+    });
+
+    await transporter.sendMail({
+      from: `"SGFC" <${process.env.EMAIL_USER || "softwareccyt@gmail.com"}>`,
+      to: "softwareccyt@gmail.com",
+      subject: `Nueva Acta de Lugar de formacion: ${nombreActa || 'Sin Título'}`,
+      html: `
+        <h2>Nueva Acta de Lugar de formacion</h2>
+        <p><strong>Instructor:</strong> ${managerObj ? `${managerObj.nombres} ${managerObj.apellidos}` : 'No especificado'}</p>
+        <p><strong>Email:</strong> ${managerObj ? managerObj.email : 'No especificado'}</p>
+        <p><strong>Empresa:</strong> ${empresaObj ? empresaObj.nombre_empresa : 'No especificada'}</p>
+        <p><strong>Fecha de creación:</strong> ${new Date(fecha_acta).toLocaleString()}</p>
+        <p><strong>ID del acta:</strong> ${nuevaActa.ID}</p>
+        <p>Se ha registrado una nueva acta de Lugar de formacion en el sistema.</p>
+      `,
+      attachments: [
+        {
+          filename: pdfFileName,
+          content: pdfBuffer
+        }
+      ]
+    });
+
+    console.log('📧 Email enviado correctamente');
+
+    // ✅ Respuesta exitosa
+    res.status(200).json({
+      message: 'Acta de Lugar de formacion enviada y registrada correctamente.',
+      pdf_acta: pdfFileName,
+      acta_id: nuevaActa.ID,
+      instructor_ID_guardado: nuevaActa.instructor_ID,
+      gestor_ID_guardado: nuevaActa.gestor_ID
+    });
+
+  } catch (error) {
+    console.error('❌ Error completo:', error);
+    res.status(500).json({
+      message: 'Error al enviar o registrar el acta de lugar de formacion.',
+      error: error.message
+    });
+  }
+};
 module.exports = {
   sendEmail,
   sendVerificationEmail,
@@ -523,6 +686,7 @@ module.exports = {
   sendStudentsInstructorAssignedEmail,
   sendInstructorAssignedEmail,
   sendRequestCourseEmail,
-  sendConcertacionActaEmail
+  sendConcertacionActaEmail,
+  sendTrainingPlaceActaEmail
 };
 

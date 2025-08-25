@@ -17,9 +17,11 @@ const estadosDisponibles = ['pendiente', 'aprobada', 'rechazada'];
 
 export const GestionsActas = () => {
   const [actas, setActas] = useState([]);
+  const [actasOriginales, setActasOriginales] = useState([]); // Guardar todas las actas
   const [filtro, setFiltro] = useState("");
   const [categoriasSeleccionadas, setCategoriasSeleccionadas] = useState([]);
   const [estadosSeleccionados, setEstadosSeleccionados] = useState([]);
+  const [usuarioLogueado, setUsuarioLogueado] = useState(null);
   const { setShowModalGeneral, setModalGeneralContent } = useModal();
   const [showTipoActaModal, setShowTipoActaModal] = useState(false);
   const [tipoActaSeleccionada, setTipoActaSeleccionada] = useState(null);
@@ -29,14 +31,59 @@ export const GestionsActas = () => {
     const fetchActas = async () => {
       try {
         const res = await axiosInstance.get("/api/actas/actas");
-        setActas(res.data);
+        setActasOriginales(res.data); // Guardar todas las actas
+
+        // Obtener usuario logueado
+        const userData = JSON.parse(sessionStorage.getItem('userSession') || '{}');
+
+        // Filtrar según el tipo de usuario
+        if (userData.accountType === 'Administrador') {
+          // Administrador ve todas las actas
+          setActas(res.data);
+        } else if (userData.accountType === 'Instructor') {
+          // Instructor solo ve sus propias actas
+          const actasDelInstructor = res.data.filter(acta =>
+            acta.instructor_ID === userData.id || acta.instructorId === userData.id
+          );
+          setActas(actasDelInstructor);
+        } else {
+          // Otros tipos de usuario no ven actas o ven según otras reglas
+          setActas([]);
+        }
+
       } catch (error) {
         setActas([]);
+        setActasOriginales([]);
         console.error("Error al cargar actas:", error);
       }
     };
+
+    // Obtener información del usuario logueado
+    const obtenerUsuarioLogueado = () => {
+      try {
+        const userData = JSON.parse(sessionStorage.getItem('userSession') || '{}');
+        setUsuarioLogueado(userData);
+        console.log('Usuario logueado:', userData);
+      } catch (error) {
+        console.error('Error al obtener datos del usuario:', error);
+        setUsuarioLogueado(null);
+      }
+    };
+
+    obtenerUsuarioLogueado();
     fetchActas();
   }, []);
+
+  // Verificar si el usuario es administrador
+  const esAdministrador = () => {
+    const esAdmin = usuarioLogueado && usuarioLogueado.accountType === 'Administrador';
+    return esAdmin;
+  };
+
+  // Verificar si el usuario es instructor
+  const esInstructor = () => {
+    return usuarioLogueado && usuarioLogueado.accountType === 'Instructor';
+  };
 
   // Manejar selección de categorías (multi-selección)
   const handleCategoriaClick = (categoria) => {
@@ -55,28 +102,24 @@ export const GestionsActas = () => {
         : [...prev, estado]
     );
   };
+
   // Filtrado por ID, estado y categorías seleccionadas
   const actasFiltradas = actas.filter((acta) => {
-    // Filtro por ID
     const idMatch = filtro === "" || String(acta.ID).includes(filtro);
-
-    // Filtro por estado
-    const estadoMatch =
-      estadosSeleccionados.length === 0 ||
-      estadosSeleccionados.includes(acta.estado_acta);
-    // Filtro por categorías seleccionadas
-    const categoriaMatch =
-      categoriasSeleccionadas.length === 0 ||
-      categoriasSeleccionadas.includes(acta.tipo_acta);
-
+    const estadoMatch = estadosSeleccionados.length === 0 || estadosSeleccionados.includes(acta.estado_acta);
+    const categoriaMatch = categoriasSeleccionadas.length === 0 || categoriasSeleccionadas.includes(acta.tipo_acta);
     return idMatch && estadoMatch && categoriaMatch;
   });
 
   const handleVerOpcionesPDF = (acta) => {
-
     let nuevoEstado = acta.estado_acta;
 
     const handleChangeEstado = async () => {
+      if (!esAdministrador()) {
+        alert('Solo los administradores pueden cambiar el estado del acta');
+        return;
+      }
+
       try {
         await axiosInstance.put(`/api/actas/${acta.ID}/estado`, { estado_acta: nuevoEstado });
         alert('Estado actualizado correctamente');
@@ -102,7 +145,10 @@ export const GestionsActas = () => {
             to="#"
             onClick={e => {
               e.preventDefault();
-              window.open(`http://localhost:3001/uploads/solicitudes/${acta.pdf_acta}`, "_blank");
+              const baseUrl = acta.tipo_acta === 'Solicitud'
+                ? 'http://localhost:3001/uploads/solicitudes'
+                : 'http://localhost:3001/uploads/documentos';
+              window.open(`${baseUrl}/${acta.pdf_acta}`, "_blank");
             }}
             style={{
               background: "#00843d",
@@ -122,7 +168,10 @@ export const GestionsActas = () => {
             onClick={e => {
               e.preventDefault();
               if (acta.pdf_radicado) {
-                window.open(`http://localhost:3001/uploads/solicitudes/${acta.pdf_radicado}`, "_blank");
+                const baseUrl = acta.tipo_acta === 'Solicitud'
+                  ? 'http://localhost:3001/uploads/solicitudes'
+                  : 'http://localhost:3001/uploads/documentos';
+                window.open(`${baseUrl}/${acta.pdf_radicado}`, "_blank");
               }
             }}
             style={{
@@ -136,7 +185,6 @@ export const GestionsActas = () => {
               pointerEvents: acta.pdf_radicado ? "auto" : "none",
               width: "auto",
               height: "auto"
-
             }}
           >
             Radicado
@@ -166,35 +214,66 @@ export const GestionsActas = () => {
               }}
             />
           </label>
-          <div style={{ textAlign: "center", width: "auto", height: "auto", display: "flex", flexDirection: "column", alignItems: "center" }}>
-            <label style={{ fontWeight: "bold", width: "auto", height: "auto", marginTop: "1rem" }}>
-              Cambiar estado del acta:
-            </label>
-            <select
-              defaultValue={acta.estado_acta}
-              onChange={e => { nuevoEstado = e.target.value; }}
-              className="selectEstadoActa"
-            >
-              <option value="pendiente">Pendiente</option>
-              <option value="aprobada">Aprobada</option>
-              <option value="rechazada">Rechazada</option>
-            </select>
-            <button
-              onClick={handleChangeEstado}
-              style={{
-                background: "#00843d",
-                color: "#fff",
-                padding: "0.5rem 1rem",
-                borderRadius: "5px",
+
+          {/* Sección de cambio de estado - SOLO para administradores */}
+          {esAdministrador() && (
+            <div style={{
+              textAlign: "center",
+              width: "auto",
+              height: "auto",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center"
+            }}>
+              <label style={{
                 fontWeight: "bold",
                 width: "auto",
                 height: "auto",
-                borderStyle: "none",
-              }}
-            >
-              Guardar Estado
-            </button>
-          </div>
+                marginTop: "1rem"
+              }}>
+                Cambiar estado del acta:
+              </label>
+              <select
+                defaultValue={acta.estado_acta}
+                onChange={e => { nuevoEstado = e.target.value; }}
+                className="selectEstadoActa"
+              >
+                <option value="pendiente">Pendiente</option>
+                <option value="aprobada">Aprobada</option>
+                <option value="rechazada">Rechazada</option>
+              </select>
+              <button
+                onClick={handleChangeEstado}
+                style={{
+                  background: "#00843d",
+                  color: "#fff",
+                  padding: "0.5rem 1rem",
+                  borderRadius: "5px",
+                  fontWeight: "bold",
+                  width: "auto",
+                  height: "auto",
+                  borderStyle: "none",
+                  marginTop: "0.5rem"
+                }}
+              >
+                Guardar Estado
+              </button>
+            </div>
+          )}
+
+          {/* Mensaje informativo para no administradores */}
+          {!esAdministrador() && (
+            <div style={{
+              textAlign: "center",
+              padding: "1rem",
+              color: "#666",
+              fontStyle: "italic",
+              borderRadius: "5px",
+              marginTop: "0.5rem"
+            }}>
+              Solo los administradores pueden cambiar el estado del acta
+            </div>
+          )}
         </div>
       </div>
     );
@@ -210,7 +289,7 @@ export const GestionsActas = () => {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       alert('PDF radicado subido correctamente');
-      setShowModalGeneral(false); // Cierra el modal
+      setShowModalGeneral(false);
       window.location.reload();
     } catch (error) {
       alert('Error al subir el PDF radicado');
@@ -225,9 +304,6 @@ export const GestionsActas = () => {
           <section className="sectionGestionsCompanyHeader">
             <p className="tituloGestionsCompany">
               Gestión de <span className="tituloVerde">Actas</span>
-            </p>
-            <p className="paragraphGestionsCompany">
-              Consulta y gestiona las actas y solicitudes registradas en el sistema.
             </p>
           </section>
 
@@ -260,7 +336,6 @@ export const GestionsActas = () => {
                         key={estado}
                         className={`statusOptionActas ${estadosSeleccionados.includes(estado) ? "selected" : ""}`}
                         onClick={() => handleEstadoClick(estado)}
-
                       >
                         {estado}
                       </p>
@@ -278,12 +353,8 @@ export const GestionsActas = () => {
                     {categoriasDisponibles.map((categoria) => (
                       <p
                         key={categoria}
-                        className={`statusOptionActas ${categoriasSeleccionadas.includes(categoria)
-                          ? "selected"
-                          : ""
-                          }`}
+                        className={`statusOptionActas ${categoriasSeleccionadas.includes(categoria) ? "selected" : ""}`}
                         onClick={() => handleCategoriaClick(categoria)}
-
                       >
                         {categoria}
                       </p>
@@ -291,21 +362,30 @@ export const GestionsActas = () => {
                   </section>
                 </div>
               </article>
-              <div className="container-button-firmar">
-                <button className="button-proceedings-generar" onClick={() => setShowTipoActaModal(true)}>
-                  Generar acta
-                </button>
-              </div>
 
+              {/* Solo mostrar botón de generar acta a instructores y administradores */}
+              {(esInstructor() || esAdministrador()) && (
+                <div className="container-button-firmar">
+                  <button className="button-proceedings-generar" onClick={() => setShowTipoActaModal(true)}>
+                    Generar acta
+                  </button>
+                </div>
+              )}
             </section>
 
             <section className="resultTableGestionsCompany">
               <label className="labelFilterOption12">
                 {actasFiltradas.length} Resultados
+                {esInstructor() && <span style={{ fontSize: '12px', color: '#666' }}></span>}
               </label>
               <section className="scrollElement">
                 {actas.length === 0 ? (
-                  <p className="no-results">No hay actas registradas</p>
+                  <p className="no-results">
+                    {esInstructor()
+                      ? "No has generado actas aún"
+                      : "No hay actas registradas"
+                    }
+                  </p>
                 ) : actasFiltradas.length === 0 ? (
                   <p className="no-results">No hay actas que coincidan con los filtros</p>
                 ) : (
@@ -340,7 +420,6 @@ export const GestionsActas = () => {
                 )}
               </section>
             </section>
-
           </section>
         </section>
       </Main>
@@ -352,22 +431,18 @@ export const GestionsActas = () => {
             <div className="option-1Acta" onClick={() => { setTipoActaSeleccionada('concertacion'); setShowTipoActaModal(false); navigate('/Actas/Concertacion'); }}>
               <p>Concertación</p>
               <div className="container-1Acta">
-
                 <img src={agregarArchivo} alt="Concertación" />
               </div>
-
             </div>
             <div className="option-2Acta" onClick={() => { setTipoActaSeleccionada('lugar-formacion'); setShowTipoActaModal(false); navigate('/Actas/Lugar-formacion'); }}>
               <p>Lugar de formación</p>
               <div className="container-2Acta">
                 <img src={agregarArchivo} alt="Validación del lugar" />
               </div>
-
             </div>
           </div>
         </Modal_General>
       )}
     </div>
-
   );
 };

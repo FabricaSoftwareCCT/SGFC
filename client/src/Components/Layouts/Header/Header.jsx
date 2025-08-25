@@ -170,7 +170,7 @@ export const Header = ({ setShowSignIn, setShowSignUp, setShowAccountType }) => 
           );
         })()}
 
-        {/* Gestiones (solo Administrador) */}
+        {/* Gestiones - Menú completo para Administrador */}
         {isLoggedIn && accountType === 'Administrador' && (
           <div className="gestiones-menu" ref={gestionesMenuRef}>
             <button
@@ -203,6 +203,16 @@ export const Header = ({ setShowSignIn, setShowSignUp, setShowAccountType }) => 
               </div>
             )}
           </div>
+        )}
+
+        {/* Gestión de Actas - Solo para Instructor (enlace directo) */}
+        {isLoggedIn && accountType === 'Instructor' && (
+          <NavLink
+            to="/Gestiones/Actas"
+            className={({ isActive }) => (isActive ? 'gestiones active' : 'gestiones')}
+          >
+            Mis Actas
+          </NavLink>
         )}
 
         {/* Empresas (solo Administrador) */}

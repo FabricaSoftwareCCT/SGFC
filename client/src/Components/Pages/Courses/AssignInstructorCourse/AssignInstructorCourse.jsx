@@ -199,11 +199,11 @@ export const AssignInstructorCourse = ({ curso_ID, onClose }) => {
             {/* Mostrar información del instructor actual */}
             {filteredInstructors.length > 0 && (
               <div className="instructor-info">
-                <h3>{filteredInstructors[(current + 1) % filteredInstructors.length]?.nombres} {filteredInstructors[(current + 1) % filteredInstructors.length]?.apellidos}</h3>
-                <p>{filteredInstructors[(current + 1) % filteredInstructors.length]?.titulo_profesional}</p>
+                <h3>{filteredInstructors[current]?.nombres} {filteredInstructors[current]?.apellidos}</h3>
+                <p>{filteredInstructors[current]?.titulo_profesional}</p>
                 <button
                   className="profile-btn"
-                  onClick={() => invitarInstructor(filteredInstructors[current + 1]?.ID)}
+                  onClick={() => invitarInstructor(filteredInstructors[current]?.ID || filteredInstructors[current]?.id)}
                 >
                   Invitar Instructor
                 </button>

@@ -1,0 +1,272 @@
+#container_modalGeneral {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.579);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+    padding: 20px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.signature-modal {
+    width: 400px;
+    height: 550px;
+    background-color: #1a1a1a;
+    border-radius: 15px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.signature-triangles-1 {
+    width: auto;
+    height: auto;
+    transform: rotate(180deg);
+    position: relative;
+    top: 0.1rem;
+}
+
+.signature-triangles-2 {
+    width: auto;
+    height: auto;
+    position: relative;
+    top: 177px;
+}
+
+.signature-triangle-1 {
+    width: 184px;
+    height: 53px;
+    background: linear-gradient(50deg, #b0b0b0, #1a1a1a);
+    opacity: 5%;
+    clip-path: polygon(30% 0%, 0% 100%, 100% 100%);
+    position: relative;
+    left: 5rem;
+    top: 8.4rem;
+}
+
+.signature-triangle-2 {
+    width: 276px;
+    height: 80px;
+    background: linear-gradient(50deg, #b0b0b0, #1a1a1a);
+    opacity: 5%;
+    clip-path: polygon(30% 0%, 0% 100%, 100% 100%);
+    position: relative;
+    left: 9rem;
+    top: 3.4rem;
+}
+
+.signature-triangle-3 {
+    width: 184px;
+    height: 53px;
+    background: linear-gradient(50deg, #b0b0b0, #1a1a1a);
+    opacity: 5%;
+    clip-path: polygon(30% 0%, 0% 100%, 100% 100%);
+    position: relative;
+    left: 12.5rem;
+    top: 0.1rem;
+}
+
+.signature-return {
+    width: 142px;
+    height: 142px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    bottom: 24.6rem;
+    left: 16.2rem;
+}
+
+.signature-close {
+    width: 142px;
+    height: 115px;
+    background: #b0b0b0;
+    clip-path: path("M142 115C142 2 0 115 0 0H130C138.581 2.52132 141.503 5.87638 142 16.5V115Z");
+    opacity: 0.3;
+    border-style: none;
+    cursor: pointer;
+}
+
+.signature-return>h5 {
+    width: auto;
+    height: auto;
+    position: relative;
+    top: 27%;
+    font-size: 18px;
+    font-weight: 400;
+    z-index: 1000;
+    color: #fff;
+    left: 4%;
+    cursor: pointer;
+}
+
+.signature-info {
+    width: 90%;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    gap: 0.5rem;
+    position: relative;
+    bottom: 85%;
+    left: 5%;
+    text-align: center;
+    padding: 1rem;
+    box-sizing: border-box;
+}
+
+.signature-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: auto;
+    text-align: start;
+}
+
+/* Canvas de firma */
+.sigCanvas {
+    background: #9b9b9b;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    cursor: crosshair;
+    width: 100%;
+    height: 100%;
+}
+
+/* Área de firma digital */
+.signature-area {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background: #000000;
+    width: 100%;
+    height: 120px;
+    margin: 0 auto;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Botón limpiar firma */
+.signature-clear-btn {
+    position: absolute;
+    right: 8px;
+    bottom: 8px;
+    background: #e53935;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 2px 10px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+/* Título y tipo de acta */
+.signature-title {
+    width: 100%;
+    height: auto;
+    text-align: start;
+}
+
+.signature-type {
+    width: 100%;
+    height: auto;
+    margin-bottom: 16px;
+    text-align: start;
+}
+
+/* Sección subir firma */
+.signature-upload-section {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: auto;
+    text-align: center;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.signature-upload-label {
+    width: 4rem;
+    height: 4rem;
+    cursor: pointer;
+    background: #454545;
+    border-radius: 50%;
+    margin: 0 auto;
+    display: flex
+;
+    align-items: center;
+    justify-content: center;
+}
+
+.signature-upload-icon {
+    width: 2.5rem;
+    height: 2.5rem;
+}
+
+.uploaded-file-name {
+    width: 100%;
+    height: auto;
+}
+
+/* Previsualización de firma */
+.signature-preview {
+    text-align: center;
+    margin-top: 10px;
+}
+
+.signature-preview-title {
+    font-size: 13px;
+    color: #00843d;
+}
+
+.signature-preview-img {
+    display: block;
+    margin: 8px auto;
+    max-width: 200px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+
+/* Texto "Firme aquí" y "O subir firma" */
+.signature-label {
+    width: 100%;
+    height: auto;
+    margin-bottom: 1rem;
+}
+
+.signature-upload-text {
+    width: 100%;
+    height: auto;
+}
+
+.container-button-firmar {
+    width: 100%;
+    height: auto;
+    align-items: center;
+    display: flex;
+    justify-content: center;
+}
+
+.submit-button-proceedings-firmar {
+    background-color: #00843d;
+    color: white;
+    padding: 0.6rem 2rem;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background 0.3s ease;
+    width: auto;
+    height: auto;
+}
+
+.submit-button-proceedings-firmar:hover {
+    background-color: #00a144;
+}

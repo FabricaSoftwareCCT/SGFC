@@ -1,0 +1,233 @@
+.course-request-container-proceedings {
+    text-align: center;
+    padding: 2rem;
+    font-family: Arial, sans-serif;
+    color: white;
+    width: 100%;
+    height: 70%;
+}
+
+.course-request-container-proceedings h1 {
+    font-size: 2rem;
+    width: auto;
+    height: auto;
+}
+
+.highlight-proceedings {
+    color: #00843d;
+    width: auto;
+    height: auto;
+    font-weight: bold;
+    font-size: 2.2rem
+}
+
+.description-proceedings {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    color: #ccc;
+    margin-left: auto;
+    margin-right: auto;
+    width: auto;
+    height: auto;
+}
+
+.request-card-proceedings {
+    position: relative;
+    background-color: white;
+    padding: 5rem;
+    border-radius: 10px;
+    margin: 0 auto;
+    width: 80%;
+    text-align: left;
+    height: auto;
+    box-sizing: border-box;
+}
+
+.download-icon-proceedings {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    cursor: pointer;
+    width: 3rem;
+    height: auto;
+}
+
+.letter-content-proceedings {
+    white-space: pre-line;
+    font-size: 0.95rem;
+    width: auto;
+    height: auto;
+}
+
+.letter-content-proceedings p {
+    margin: 0.5rem 0;
+    width: auto;
+    height: auto;
+    color: black;
+}
+
+.letter-content-proceedings>p>b {
+    color: #1a1a1a;
+}
+
+.letter-content-proceedings span {
+    color: #1a1a1a;
+}
+
+
+
+.submit-button-proceedings {
+    background-color: #00843d;
+    color: white;
+    padding: 0.6rem 2rem;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background 0.3s ease;
+    width: auto;
+    height: auto;
+}
+
+.submit-button-proceedings:hover {
+    background-color: #00a144;
+    width: auto;
+    height: auto;
+}
+
+.input-solicitud-proceedings {
+    width: 100%;
+    height: auto;
+    padding: 0.5rem;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+    color: #1a1a1a;
+}
+
+.input-solicitud-date-proceedings {
+    width: 15%;
+    height: auto;
+    padding: 0.5rem;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+    color: #1a1a1a;
+}
+
+.botones-solicitud-proceedings {
+    width: 80%;
+    height: auto;
+    display: flex;
+    gap: 1rem;
+    justify-content: end;
+    align-items: center;
+    margin: 0 auto;
+    margin-top: 1rem;
+}
+
+.observaciones-container-proceedings {
+    width: 80%;
+    height: auto;
+    display: flex;
+    gap: 1rem;
+    align-items: start;
+    margin: 2rem auto;
+    flex-direction: column;
+}
+
+.observaciones-container-proceedings p {
+    width: auto;
+    height: auto;
+    font-size: 1rem;
+}
+
+.observaciones-container-proceedings textarea {
+    width: 100%;
+    height: 8rem;
+    padding: 1rem;
+    border-radius: 1rem;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+    box-sizing: border-box;
+    resize: none;
+    color: white;
+    background: #00843d1a;
+}
+
+.botones-aprobacion-proceedings {
+    width: 80%;
+    height: auto;
+    display: flex;
+    gap: 1rem;
+    justify-content: end;
+    align-items: center;
+    margin: 2rem auto;
+}
+
+.submit-button-proceedings-rechazar {
+    background-color: #e53935;
+    color: white;
+    padding: 0.6rem 2rem;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background 0.3s ease;
+    width: auto;
+    height: auto;
+}
+
+.submit-button-proceedings-rechazar:hover {
+    background-color: #ff6a68;
+}
+
+.submit-button-proceedings-exportar {
+    background: unset;
+    color: white;
+    padding: 0.6rem 2rem;
+    border: 1px solid;
+    border-radius: 30px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background 0.3s ease;
+    width: auto;
+    height: auto;
+}
+
+.submit-button-proceedings-exportar:hover {
+    background-color: #00a144;
+}
+
+.title-concertation {
+    width: 100%;
+    height: auto;
+    text-align: center;
+    color: #1a1a1a;
+    margin-bottom: 4rem;
+}
+
+.table-acta {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    color: #1a1a1a;
+}
+
+.table-acta-th {
+    text-align: left;
+    border-bottom: 1px solid #ccc;
+    color: #1a1a1a;
+}
+
+.table-acta td{
+    color: #1a1a1a;
+}
+
+.date-proceeding{
+    width: 100%;    
+    height: auto;
+    margin-bottom: 1rem;
+}

@@ -543,11 +543,6 @@ const getCursosByEmpresaId = async (req, res) => {
 
 const enviarInvitacionCurso = async (req, res) => {
   try {
-    // ✅ Debug INMEDIATO - Ver qué llega
-    console.log('🚀 === INICIO enviarInvitacionCurso ===');
-    console.log('📦 req.body completo:', req.body);
-    console.log('👤 req.user:', req.user);
-
     // Validar tipo de cuenta
     const { accountType, id } = req.user;
     if (accountType !== "Administrador" && accountType !== "Gestor") {
@@ -556,18 +551,6 @@ const enviarInvitacionCurso = async (req, res) => {
     }
 
     const { instructor_ID, curso_ID } = req.body;
-
-    // ✅ Debug específico de los campos
-    console.log('🔍 Campos extraídos:');
-    console.log('- instructor_ID:', instructor_ID, '(tipo:', typeof instructor_ID, ')');
-    console.log('- curso_ID:', curso_ID, '(tipo:', typeof curso_ID, ')');
-
-    // ✅ Debug de validaciones paso a paso
-    console.log('🧪 Validaciones:');
-    console.log('- instructor_ID === null:', instructor_ID === null);
-    console.log('- instructor_ID === undefined:', instructor_ID === undefined);
-    console.log('- curso_ID === null:', curso_ID === null);
-    console.log('- curso_ID === undefined:', curso_ID === undefined);
 
     // Validación mejorada
     if (instructor_ID === null || instructor_ID === undefined || curso_ID === null || curso_ID === undefined) {
@@ -584,8 +567,6 @@ const enviarInvitacionCurso = async (req, res) => {
       return res.status(400).json({ message: 'Los IDs deben ser números válidos.' });
     }
 
-    console.log('✅ Validaciones pasadas, continuando...');
-
     // Validar que no exista una invitación pendiente
     const invitacionExistente = await InvitacionCurso.findOne({
       where: {
@@ -599,8 +580,6 @@ const enviarInvitacionCurso = async (req, res) => {
       console.log('❌ Ya existe invitación pendiente');
       return res.status(409).json({ message: 'Ya existe una invitación pendiente para este instructor y curso.' });
     }
-
-    console.log('📝 Creando invitación...');
 
     // Crear la invitación
     const nuevaInvitacion = await InvitacionCurso.create({

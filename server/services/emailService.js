@@ -1,3 +1,4 @@
+require('dotenv').config();
 const nodemailer = require("nodemailer");
 const PDFDocument = require('pdfkit');
 const Actas = require('../models/Actas'); // Asegúrate de importar el modelo
@@ -7,8 +8,8 @@ const fechaSolicitud = new Date(Date.now() - (new Date().getTimezoneOffset() * 6
 const transporter = nodemailer.createTransport({
   service: "Gmail",
   auth: {
-    user: "ejemplo@gmail.com",
-    pass: "key",
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
   },
 });
 
@@ -47,14 +48,14 @@ const sendRequestCourseEmail = async (req, res) => {
     let transporter = nodemailer.createTransport({
       service: "Gmail",
       auth: {
-        user: process.env.EMAIL_USER || "eariassena19@gmail.com",
-        pass: process.env.EMAIL_PASS || "jzcg vevx ixqj wcgv",
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS ,
       },
     });
 
     await transporter.sendMail({
-      from: `"SGFC" <${process.env.EMAIL_USER || "eariassena19@gmail.com"}>`,
-      to: "eariassena19@gmail.com",
+      from: `"SGFC" <${process.env.EMAIL_USER}>`,
+      to: process.env.EMAIL_TO,
       subject: "Nueva Solicitud de Curso",
       html: `<p>Solicitud de curso: ${nombreCurso}</p>`,
       attachments: [
@@ -76,10 +77,10 @@ const sendRequestCourseEmail = async (req, res) => {
 };
 
 // Función para enviar el correo de verificación
-const sendVerificationEmail = (email, token) => {
+const sendVerificationEmail = async (email, token) => {
   const enlaceVerificacion = `http://localhost:5173/verificarCorreo?token=${token}`;
   const mailOptions = {
-    from: "eariassena19@gmail.com",
+    from: `"SGFC" <${process.env.EMAIL_USER}>`,
     to: email,
     subject: "Verificación de correo electrónico",
     html: `
@@ -143,7 +144,7 @@ const sendVerificationEmail = (email, token) => {
 // Función para enviar el correo de recuperación de contraseña
 const sendPasswordResetEmail = (email, resetLink) => {
   const mailOptions = {
-    from: "eariassena19@gmail.com",
+    from: `"SGFC" <${process.env.EMAIL_USER}>`,
     to: email,
     subject: "Recuperación de contraseña",
     html: `
@@ -213,7 +214,7 @@ const sendPasswordResetEmail = (email, resetLink) => {
 // Función para notificar la actualización del curso
 const sendCursoUpdatedNotification = (email, curso) => {
   const mailOptions = {
-    from: "eariassena19@gmail.com",
+    from: `"SGFC" <${process.env.EMAIL_USER}>`,
     to: email,
     subject: `El curso "${curso.nombre_curso}" ha sido actualizado`,
     html: `
@@ -239,7 +240,7 @@ const sendCursoUpdatedNotification = (email, curso) => {
 // Función para enviar el correo de confirmación de cambio de contraseña
 const sendPasswordChangeConfirmationEmail = (email, resetLink) => {
   const mailOptions = {
-    from: "eariassena19@gmail.com",
+    from: `"SGFC" <${process.env.EMAIL_USER}>`,
     to: email,
     subject: "Confirmación de cambio de contraseña",
     html: `
@@ -309,7 +310,7 @@ const sendPasswordChangeConfirmationEmail = (email, resetLink) => {
 const sendCourseCreatedEmail = (emails, nombre_curso, courseLink) => {
 
   const mailOptions = {
-    from: 'eariassena19@gmail.com',
+    from: `"SGFC" <${process.env.EMAIL_USER}>`,
     to: emails,
     subject: "Nuevo curso en linea",
     html: ` <h2>El nuevo curso: ${nombre_curso} ha creado</h2>
@@ -334,7 +335,7 @@ const sendCourseCreatedEmail = (emails, nombre_curso, courseLink) => {
 // Enviar correo al instructor notificando su asignación
 const sendInstructorAssignedEmail = (email, curso) => {
   const mailOptions = {
-    from: 'eariassena19@gmail.com',
+    from: `"SGFC" <${process.env.EMAIL_USER}>`,
     to: email,
     subject: `Has sido asignado al curso: ${curso.nombre_curso}`,
     html: `
@@ -362,7 +363,7 @@ const sendInstructorAssignedEmail = (email, curso) => {
 // Enviar correo al aprendiz notificando su instructor asignado
 const sendStudentsInstructorAssignedEmail = (emails, curso, nombreInstructor) => {
   const mailOptions = {
-    from: 'eariassena19@gmail.com',
+    from: `"SGFC" <${process.env.EMAIL_USER}>`,
     to: emails, // puede ser un string o un array de emails
     subject: `Tu curso ${curso.nombre_curso} ya tiene instructor asignado`,
     html: `

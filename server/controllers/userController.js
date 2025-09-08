@@ -1,6 +1,8 @@
 const User = require("../models/User");
+require('dotenv').config();
 const crypto = require("crypto");
 const { sendVerificationEmail, sendPasswordResetEmail, sendPasswordChangeConfirmationEmail } = require("../services/emailService");
+const {generateToken} = require("../middlewares/generateToken_R")
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const { Op } = require("sequelize");
@@ -42,7 +44,9 @@ const registerUser = async (req, res) => {
         }
 
         // Generar token de verificación
-        const token = crypto.randomBytes(32).toString('hex');
+        const payload = {email};
+
+        const token = generateToken(payload, process.env.JWT_SECRET, 5);
 
         // Hashear la contraseña
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -106,6 +110,16 @@ const verifyEmail = async (req, res) => {
             return res.status(400).json({ message: "Token inválido o expirado" });
         }
         console.log('Token en la base de datos:', user.token);
+
+        jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+            if(err){
+                if (err.name === 'TokenExpiredError') {
+                    return res.status(400).json({ message: "Token expirado" });
+                }
+                return res.status(400).json({ message: "Token inválido" });
+            }
+            req.user = decoded.data
+        })
 
         // Actualizar estado de verificación
         user.verificacion_email = true;

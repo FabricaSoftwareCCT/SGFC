@@ -4,6 +4,7 @@ import ilustration_02 from "../../../assets/Ilustrations/SignUp.svg";
 import seePassword from "../../../assets/Icons/seePassword.png";
 import hidePassword from "../../../assets/Icons/hidePassword.png";
 import axiosInstance from "../../../config/axiosInstance";
+import { ResquestNewEmail } from "../../UI/RequestNewEmail/ResquestNewEmail"
 import { GoogleLogin } from '@react-oauth/google';
 import { useNavigate } from "react-router-dom";
 import { useModal } from "../../../Context/ModalContext"; // 👈 importa el hook del contexto
@@ -14,7 +15,8 @@ export const Modal_SignUp = ({ accountType }) => {
     setShowSignIn,
     setShowModalSuccesfull,
     setModalSuccesfullContent,
-    setShowModalGeneral
+    setShowModalGeneral,
+    setModalGeneralContent
   } = useModal(); // 👈 usa el contexto
 
   const navigate = useNavigate();
@@ -31,6 +33,12 @@ export const Modal_SignUp = ({ accountType }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
+  const showModalRequestNewEmail = () => {
+      setShowSignUp(false);
+      setShowModalGeneral(true);
+      setModalGeneralContent(<ResquestNewEmail />);
+    };
+
   useEffect(() => {
     setEmail("");
     setPassword("");
@@ -45,6 +53,7 @@ export const Modal_SignUp = ({ accountType }) => {
       specialChar: /[@$!%*?&]/.test(password)
     });
   }, [password]);
+
 
   const registerUser = async (event) => {
     event.preventDefault();
@@ -261,6 +270,20 @@ const handleGoogleResponse = async (response) => {
                     locale="es"
                   />
                 </div>
+            <button
+              type="button"
+              className="forgetPassword"
+              onClick={showModalRequestNewEmail}
+              style={{
+                background: "none",
+                border: "none",
+                color: "#00843e",
+                cursor: "pointer",
+                padding: 5,
+              }}
+            >
+              ¿No llego su correo de verificación o ya expiro?
+            </button>
               </form>
             </div>
 

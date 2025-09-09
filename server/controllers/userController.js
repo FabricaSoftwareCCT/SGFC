@@ -133,6 +133,32 @@ const verifyEmail = async (req, res) => {
     }
 };
 
+const requestNewVerificationEmail = async (req, res) => {
+    try{
+        const { email } = req.body;
+        if (!email) {
+            return res.status(400).json({ message: "El correo es obligatorio" });
+        }
+        const token = generateToken({email}, process.env.JWT_SECRET, 5);
+        const user = await User.findOne({ where: { email } });
+        if (!user) {
+            return res.status(404).json({ message: "Usuario no encontrado" });
+        }
+        try {
+            const result = await user.update({ token });
+            console.log("Token del usuario actualizado:", result.token);
+        } catch (error) {
+            console.error("Error al actualizar el token del usuario:", error);
+        }
+        // Enviar correo de verificación
+        await sendVerificationEmail(email, token);
+
+        res.status(200).json({ message: "Correo de verificación reenviado" });
+    } catch(error){
+
+    }
+}
+
 // Iniciar sesión
 const loginUser = async (req, res) => {
     try {
@@ -150,7 +176,7 @@ const loginUser = async (req, res) => {
         if (!isPasswordValid) {
             return res.status(400).json({ message: "Usuario o contraseña incorrectos" });
         }
-
+        
         // Construir el payload del token
         const payload = {
             id: user.ID,
@@ -726,7 +752,9 @@ const updateUserProfile = async (req, res) => {
                 }
 
                 // Generar token de verificación
-                const verificationToken = crypto.randomBytes(32).toString('hex');
+                const payload = {email};
+
+                const verificationToken = generateToken(payload, process.env.JWT_SECRET, 5);
                 user.token = verificationToken;
                 user.verificacion_email = false;
 
@@ -788,7 +816,9 @@ const createInstructor = async (req, res) => {
         }
 
         // Generar token de verificación
-        const token = crypto.randomBytes(32).toString("hex");
+        const payload = {email};
+
+        const token = generateToken(payload, process.env.JWT_SECRET, 5);
 
         // Encriptar la contraseña
         const hashedPassword = await bcrypt.hash("defaultPassword123", 10);
@@ -856,7 +886,9 @@ const createGestor = async (req, res) => {
         }
 
         // Generar token de verificación
-        const token = crypto.randomBytes(32).toString("hex");
+        const payload = {email};
+
+        const token = generateToken(payload, process.env.JWT_SECRET, 5);
 
         // Encriptar la contraseña
         const hashedPassword = await bcrypt.hash("defaultPassword123", 10);
@@ -1086,7 +1118,9 @@ const createEmpleado = async (req, res) => {
         }
 
         // Generar token de verificación
-        const token = crypto.randomBytes(32).toString("hex");
+        const payload = {email};
+
+        const token = generateToken(payload, process.env.JWT_SECRET, 5);
 
         // Encriptar la contraseña (si no se envía, usar una por defecto)
         const hashedPassword = await bcrypt.hash(password || "defaultPassword123", 10);
@@ -1214,4 +1248,30 @@ const subirDocumentoIdentidad = async (req, res) => {
 
 
 
-module.exports = { subirDocumentoIdentidad, getEmpresaById, createEmpleado, getEmpleadosByEmpresaId, refreshAccessToken, getAprendicesByEmpresa, registerUser, verifyEmail, loginUser, requestPasswordReset, resetPassword, getAllUsers, getUserProfile, getAprendices, getEmpresas, getInstructores, getGestores, updateUserProfile, createInstructor, createGestor, logoutUser, cleanExpiredTokens, createMasiveUsers, getEmpresaByNIT };
+module.exports = { 
+    subirDocumentoIdentidad, 
+    getEmpresaById, 
+    createEmpleado, 
+    getEmpleadosByEmpresaId, 
+    refreshAccessToken, 
+    getAprendicesByEmpresa, 
+    registerUser, 
+    verifyEmail, 
+    loginUser, 
+    requestPasswordReset, 
+    resetPassword, 
+    getAllUsers, 
+    getUserProfile, 
+    getAprendices, 
+    getEmpresas, 
+    getInstructores, 
+    getGestores, 
+    updateUserProfile, 
+    createInstructor, 
+    createGestor, 
+    logoutUser, 
+    cleanExpiredTokens, 
+    createMasiveUsers, 
+    getEmpresaByNIT,
+    requestNewVerificationEmail 
+};

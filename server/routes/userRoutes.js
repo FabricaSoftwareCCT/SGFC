@@ -1,11 +1,12 @@
 const express = require("express");
-const { createEmpleado, getEmpleadosByEmpresaId, subirDocumentoIdentidad, getEmpresaById, refreshAccessToken, getAprendicesByEmpresa, registerUser, verifyEmail, loginUser,requestPasswordReset,resetPassword, getAllUsers, getUserProfile, getAprendices, getEmpresas, getInstructores, getGestores, updateUserProfile,createInstructor, createGestor,logoutUser, createMasiveUsers, getEmpresaByNIT } = require("../controllers/userController");
+const { createEmpleado, getEmpleadosByEmpresaId, subirDocumentoIdentidad, getEmpresaById, refreshAccessToken, getAprendicesByEmpresa, registerUser, verifyEmail, loginUser,requestPasswordReset,resetPassword, getAllUsers, getUserProfile, getAprendices, getEmpresas, getInstructores, getGestores, updateUserProfile,createInstructor, createGestor,logoutUser, createMasiveUsers, getEmpresaByNIT, requestNewVerificationEmail } = require("../controllers/userController");
 const { googleSignIn, googleSignUp } = require("../controllers/authGoogleController"); // Importar controlador de autenticación de Google
 const router = express.Router();
 const upload = require("../config/multer"); // Importar configuración de multer
 
 router.post("/createUser", registerUser); // Ruta para registrar usuario
 router.get("/verificarCorreo", verifyEmail); // Ruta para verificar correo
+router.post("/requestNewVerificationEmail", requestNewVerificationEmail); // Ruta para reenviar correo de verificación
 router.post("/login", loginUser); // Ruta para iniciar sesión
 router.post("/auth/googleSignIn", googleSignIn); // Ruta para iniciar sesión con Google
 router.post("/auth/googleSignUp", googleSignUp); // Ruta para registrar usuario con Google

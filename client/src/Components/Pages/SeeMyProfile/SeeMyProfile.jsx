@@ -16,50 +16,29 @@ export const SeeMyProfile = () => {
     const [perfil, setPerfil] = useState(null);
     const [tipoCuenta, setTipoCuenta] = useState('');
     const [editMode, setEditMode] = useState(false);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
-    const [saving, setSaving] = useState(false);
 
     const getImageSrcFromBase64 = (base64) => {
-    if (!base64) return fotoPerfilDefect;
-    
-    // Si es una ruta de archivo (no base64), devolver la imagen por defecto
-    if (typeof base64 === 'string' && (base64.includes('../') || base64.includes('/') || base64.includes('./'))) {
-        return fotoPerfilDefect;
-    }
-    
-    try {
-        // Detectar tipo MIME
-        let mimeType = 'image/jpeg';
-        
+        if (!base64) return 'default-profile.png'; // Ruta a imagen por defecto
+
+        // Detectar tipo MIME por encabezado base64
         if (base64.startsWith('iVBOR')) {
-            mimeType = 'image/png';
-        } else if (base64.startsWith('/9j/') || base64.startsWith('FFD8')) {
-            mimeType = 'image/jpeg';
-        } else if (base64.startsWith('R0lGOD')) {
-            mimeType = 'image/gif';
+            return `data:image/png;base64,${base64}`;
+        } else if (base64.startsWith('/9j/')) {
+            return `data:image/jpeg;base64,${base64}`;
+        } else {
+            // Si no puedes detectar, asume jpeg por defecto
+            return `data:image/jpeg;base64,${base64}`;
         }
-        
-        return `data:${mimeType};base64,${base64}`;
-    } catch (error) {
-        console.error('Error procesando imagen:', error);
-        return fotoPerfilDefect;
-    }
-};
+    };
 
     useEffect(() => {
         const fetchProfile = async () => {
             try {
-                setLoading(true);
-                setError(null);
                 const response = await axiosInstance.get(`/api/users/profile/${userId}`);
                 setPerfil(response.data);
                 setTipoCuenta(response.data.accountType);
             } catch (error) {
                 console.error('Error al obtener el perfil:', error);
-                setError('Error al cargar el perfil');
-            } finally {
-                setLoading(false);
             }
         };
 
@@ -88,19 +67,6 @@ export const SeeMyProfile = () => {
     const handleFileChange = (e, type) => {
         const file = e.target.files[0];
         if (!file) return;
-        
-        // Validar tipo de archivo
-        if (!file.type.startsWith('image/')) {
-            alert('Por favor selecciona una imagen válida');
-            return;
-        }
-        
-        // Validar tamaño (ej: máximo 5MB)
-        if (file.size > 5 * 1024 * 1024) {
-            alert('La imagen debe ser menor a 5MB');
-            return;
-        }
-        
         const reader = new FileReader();
         reader.onloadend = () => {
             const base64 = reader.result.split(",")[1];
@@ -109,10 +75,7 @@ export const SeeMyProfile = () => {
             } else if (type === "img_empresa") {
                 setPerfil(prev => ({
                     ...prev,
-                    Empresa: { 
-                        ...prev.Empresa, 
-                        img_empresa: base64 
-                    }
+                    Empresa: { ...prev.Empresa, img_empresa: base64 }
                 }));
             }
         };
@@ -121,124 +84,60 @@ export const SeeMyProfile = () => {
 
     const handleSaveChanges = async () => {
         try {
-            setSaving(true);
-            setError(null);
-            
-            // Usar FormData para enviar archivos
-            const formData = new FormData();
-            
-            // Agregar datos básicos del usuario
-            formData.append('nombres', perfil?.nombres || '');
-            formData.append('apellidos', perfil?.apellidos || '');
-            formData.append('email', perfil?.email || '');
-            formData.append('celular', perfil?.celular || '');
-            formData.append('estado', perfil?.estado || '');
-            
-            // Si es empresa, agregar datos de la empresa
-            if (tipoCuenta === 'Empresa' && perfil?.Empresa) {
-                formData.append('empresa', JSON.stringify({
-                    NIT: perfil.Empresa.NIT || '',
-                    email_empresa: perfil.Empresa.email_empresa || '',
-                    nombre_empresa: perfil.Empresa.nombre_empresa || '',
-                    direccion: perfil.Empresa.direccion || '',
-                    telefono: perfil.Empresa.telefono || '',
-                    categoria: perfil.Empresa.categoria || '',
-                    estado: perfil.Empresa.estado || 'inactivo'
-                }));
+            // Clonamos el perfil
+            const payload = { ...perfil };
+
+            // Si es una empresa, serializamos el objeto Empresa
+            if (tipoCuenta === 'Empresa' && perfil.Empresa) {
+                payload.empresa = JSON.stringify(perfil.Empresa);
             }
+
+            await axiosInstance.put(`/api/users/perfil/actualizar/${userId}`, payload);
             
-            // Agregar archivos si existen
-            if (fotoPerfilInputRef.current?.files[0]) {
-                formData.append('foto_perfil', fotoPerfilInputRef.current.files[0]);
-            }
+            // ✅ NOTIFICACIÓN MEJORADA
+            alert('✅ Perfil actualizado con éxito');
             
-            if (logoEmpresaInputRef.current?.files[0]) {
-                formData.append('img_empresa', logoEmpresaInputRef.current.files[0]);
-            }
-            
-            await axiosInstance.put(
-                `/api/users/perfil/actualizar/${userId}`,
-                formData,
-                {
-                    headers: {
-                        'Content-Type': 'multipart/form-data'
-                    }
-                }
-            );
-            
-            alert('Perfil actualizado con éxito');
             setEditMode(false);
-            
-            // Recargar los datos actualizados
-            const response = await axiosInstance.get(`/api/users/profile/${userId}`);
-            setPerfil(response.data);
-            
         } catch (error) {
             console.error('Error al actualizar el perfil:', error);
+            
+            // ✅ NOTIFICACIONES DE ERROR MEJORADAS
+            let errorMessage = '❌ Hubo un error al actualizar el perfil';
+            
             if (error.response?.status === 401) {
-                setError('Sesión expirada. Por favor inicia sesión nuevamente.');
-            } else {
-                setError(error.response?.data?.message || 'Hubo un error al actualizar el perfil');
+                errorMessage = '🔒 Sesión expirada. Por favor inicia sesión nuevamente.';
+            } else if (error.response?.data?.message) {
+                // Formatear mensajes específicos del backend
+                const backendMessage = error.response.data.message;
+                
+                const formattedMessages = {
+                    'Formato de correo electrónico inválido.': '✉️ Formato de correo electrónico inválido',
+                    'Número de celular inválido.': '📱 Número de celular inválido',
+                    'Número de documento inválido.': '📄 Número de documento inválido',
+                    'El correo electrónico ya está registrado.': '✉️ Este correo ya está registrado',
+                    'El documento ya está registrado.': '📄 Este documento ya está registrado',
+                    'El número de celular ya está registrado.': '📱 Este número ya está registrado',
+                    'Formato de correo de empresa inválido.': '✉️ Formato de correo empresarial inválido',
+                    'Número de teléfono de empresa inválido.': '📞 Teléfono empresarial inválido',
+                    'NIT inválido.': '🏢 NIT inválido',
+                    'El NIT ya está registrado.': '🏢 Este NIT ya está registrado',
+                    'El correo de empresa ya está registrado.': '✉️ Este correo empresarial ya está registrado',
+                    'No tienes permiso para actualizar este perfil.': '🔒 Sin permisos para esta acción',
+                    'No tienes permiso para actualizar perfiles.': '🔒 Permisos insuficientes'
+                };
+                
+                errorMessage = formattedMessages[backendMessage] || backendMessage;
             }
-        } finally {
-            setSaving(false);
+            
+            alert(errorMessage);
         }
     };
-
-    if (loading) {
-        return (
-            <>
-                <Header />
-                <Main>
-                    <div className="loading-container">Cargando perfil...</div>
-                </Main>
-                <Footer />
-            </>
-        );
-    }
-
-    if (!perfil) {
-        return (
-            <>
-                <Header />
-                <Main>
-                    <div className="error-container">No se pudo cargar el perfil</div>
-                </Main>
-                <Footer />
-            </>
-        );
-    }
 
     return (
         <>
             <Header />
             <Main>
                 <div className='container_mainSeeMyProfile'>
-                    {error && (
-                        <div className="error-message" style={{
-                            padding: '10px',
-                            backgroundColor: '#ffebee',
-                            color: '#c62828',
-                            border: '1px solid #ef5350',
-                            borderRadius: '4px',
-                            marginBottom: '20px'
-                        }}>
-                            {error}
-                        </div>
-                    )}
-
-                    {saving && (
-                        <div className="loading-message" style={{
-                            padding: '10px',
-                            backgroundColor: '#e3f2fd',
-                            color: '#1565c0',
-                            border: '1px solid #2196f3',
-                            borderRadius: '4px',
-                            marginBottom: '20px'
-                        }}>
-                            Guardando cambios...
-                        </div>
-                    )}
 
                     <div className='container_profile'>
                         <h3>{tipoCuenta}</h3>
@@ -251,6 +150,7 @@ export const SeeMyProfile = () => {
                                 if (editMode && fotoPerfilInputRef.current) fotoPerfilInputRef.current.click();
                             }}
                         />
+                        {/* Foto de perfil */}
                         <input
                             type="file"
                             accept="image/*"
@@ -265,7 +165,6 @@ export const SeeMyProfile = () => {
                                 {tipoCuenta === "Empresa" ? "Manager" : tipoCuenta}
                             </span>
                         </h4>
-                        
                         <p>
                             Nombres <br />
                             {editMode ? (
@@ -329,37 +228,35 @@ export const SeeMyProfile = () => {
                         <button
                             className={`updateProfile ${editMode ? 'cancel' : ''}`}
                             onClick={() => setEditMode(!editMode)}
-                            disabled={saving}
                         >
-                            {editMode ? 'Cancelar' : 'Editar Perfil'}
+                            {editMode ? '' : ''}
                         </button>
 
                         {editMode && (
-                            <button 
-                                className='updateProfile1' 
-                                onClick={handleSaveChanges}
-                                disabled={saving}
-                            >
-                                {saving ? 'Guardando...' : 'Guardar Cambios'}
+                            <button className='updateProfile1' onClick={handleSaveChanges}>
+
                             </button>
                         )}
                     </div>
 
                     {(tipoCuenta === 'Administrador' || tipoCuenta === 'Instructor' || tipoCuenta === 'Gestor') && perfil?.Sena && (
                         <div className='container_data_company'>
+
                             <div className='container_nameCompany-Status'>
                                 <div className='name_company'>
                                     <img
                                         src={getImageSrcFromBase64(perfil?.Sena?.img_sena)}
                                         alt="Logo sede"
                                         className="profile-img"
-                                    />
-                                    <div>
+                                    />                                    <div>
                                         <h3>{perfil.Sena.nombre_sede || '-'}</h3>
-                                        <p>NIT: {perfil.Sena.NIT || '-'}</p>
+                                        <p>
+                                            NIT: {perfil.Sena.NIT || '-'}
+                                        </p>
                                     </div>
                                 </div>
 
+                                {/* elemento gestion de estado */}
                                 <div className='status-company'>
                                     <div
                                         className={`color_status ${perfil?.estado === 'activo' ? 'status-green' : perfil?.estado === 'inactivo' ? 'status-red' : ''}`}
@@ -371,7 +268,6 @@ export const SeeMyProfile = () => {
                                             className="input_updateStatus"
                                             value={perfil?.estado || ''}
                                             onChange={handleInputChange}
-                                            disabled={saving}
                                         >
                                             <option value="activo">Activo</option>
                                             <option value="inactivo">Inactivo</option>
@@ -380,16 +276,39 @@ export const SeeMyProfile = () => {
                                         <h4>{perfil?.estado === 'activo' ? 'Activo' : perfil?.estado === 'inactivo' ? 'Inactivo' : '-'}</h4>
                                     )}
                                 </div>
+
                             </div>
-                            
                             <div className='container_data'>
                                 <div className='data_company'>
                                     <h4 id='titleDataSede'>Datos sede</h4>
-                                    <p>Dirección: <br />{perfil.Sena.direccion || '-'}</p>
-                                    <p>Teléfono: <br />{perfil.Sena.telefono || '-'}</p>
-                                    <p>Email: <br />{perfil.Sena.email_sena || '-'}</p>
-                                    <p>Ciudad: <br />{perfil.Sena.Ciudad?.nombre || '-'}</p>
-                                    <p>Departamento: <br />{perfil.Sena.Ciudad?.Departamento?.nombre || '-'}</p>
+                                    <p>
+                                        Dirección: <br />
+                                        {perfil.Sena.direccion || '-'}
+                                    </p>
+                                    <p>
+                                        Teléfono: <br />
+                                        {perfil.Sena.telefono || '-'}
+                                    </p>
+                                    <p>
+                                        Email: <br />
+                                        {perfil.Sena.email_sena || '-'}
+                                    </p>
+                                    <p>
+                                        Ciudad: <br />
+                                        {perfil.Sena.Ciudad?.nombre || '-'}
+                                    </p>
+                                    <p>
+                                        Departamento: <br />
+                                        {perfil.Sena.Ciudad?.Departamento?.nombre || '-'}
+                                    </p>
+                                </div>
+                                <div className='data_courses_instructor'>
+                                    <div className='data_courses'>
+                                        {/* Aquí puedes mostrar cursos si aplica */}
+                                    </div>
+                                    <div className='data_instructor'>
+                                        {/* Aquí puedes mostrar datos adicionales si aplica */}
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -424,7 +343,6 @@ export const SeeMyProfile = () => {
                                                     className='input_updateData'
                                                     value={perfil?.Empresa?.nombre_empresa || ''}
                                                     onChange={handleInputChange}
-                                                    disabled={saving}
                                                 />
                                             ) : (
                                                 perfil.Empresa.nombre_empresa || '-'
@@ -439,7 +357,6 @@ export const SeeMyProfile = () => {
                                                     className='input_updateData'
                                                     value={perfil?.Empresa?.NIT || ''}
                                                     onChange={handleInputChange}
-                                                    disabled={saving}
                                                 />
                                             ) : (
                                                 perfil.Empresa.NIT || '-'
@@ -447,7 +364,7 @@ export const SeeMyProfile = () => {
                                         </p>
                                     </div>
                                 </div>
-                                
+                                {/* elemento gestion de estado */}
                                 <div className='status-company'>
                                     <div
                                         className={`color_status ${perfil?.estado === 'activo' ? 'status-green' : perfil?.estado === 'inactivo' ? 'status-red' : ''}`}
@@ -459,7 +376,6 @@ export const SeeMyProfile = () => {
                                             className="input_updateStatus"
                                             value={perfil?.estado || ''}
                                             onChange={handleInputChange}
-                                            disabled={saving}
                                         >
                                             <option value="activo">Activo</option>
                                             <option value="inactivo">Inactivo</option>
@@ -468,6 +384,7 @@ export const SeeMyProfile = () => {
                                         <h4>{perfil?.estado === 'activo' ? 'Activo' : perfil?.estado === 'inactivo' ? 'Inactivo' : '-'}</h4>
                                     )}
                                 </div>
+
                             </div>
 
                             <div className='container_data'>
@@ -483,15 +400,13 @@ export const SeeMyProfile = () => {
                                                 className='input_updateData'
                                                 value={perfil?.Empresa?.direccion || ''}
                                                 onChange={handleInputChange}
-                                                disabled={saving}
                                             />
                                         ) : (
                                             perfil?.Empresa?.direccion || ''
                                         )}
+
                                     </p>
-                                    
-                                    <p>
-                                        Teléfono: <br />
+                                    <p>Teléfono: <br />
                                         {editMode ? (
                                             <input
                                                 type="text"
@@ -499,15 +414,12 @@ export const SeeMyProfile = () => {
                                                 className='input_updateData'
                                                 value={perfil?.Empresa?.telefono || ''}
                                                 onChange={handleInputChange}
-                                                disabled={saving}
                                             />
                                         ) : (
                                             perfil?.Empresa?.telefono || ''
                                         )}
                                     </p>
-                                    
-                                    <p>
-                                        Email: <br />
+                                    <p>Email: <br />
                                         {editMode ? (
                                             <input
                                                 type="text"
@@ -515,22 +427,29 @@ export const SeeMyProfile = () => {
                                                 className='input_updateData'
                                                 value={perfil?.Empresa?.email_empresa || ''}
                                                 onChange={handleInputChange}
-                                                disabled={saving}
                                             />
                                         ) : (
                                             perfil?.Empresa?.email_empresa || ''
                                         )}
                                     </p>
-                                    
-                                    <p>
-                                        Ciudad: <br />
+                                    <p>Ciudad: <br />
                                         {perfil?.Empresa?.Ciudad?.nombre || '-'}
+
                                     </p>
 
-                                    <p>
-                                        Departamento: <br />
+                                    <p>Departamento <br />
                                         {perfil?.Empresa?.Ciudad?.Departamento?.nombre || '-'}
+
                                     </p>
+                                </div>
+
+                                <div className='data_courses_instructor'>
+                                    <div className='data_courses'>
+                                        {/* Aquí puedes colocar cursos si los tienes disponibles */}
+                                    </div>
+                                    <div className='data_instructor'>
+                                        {/* Aquí puedes colocar datos adicionales del instructor si aplica */}
+                                    </div>
                                 </div>
                             </div>
                         </div>

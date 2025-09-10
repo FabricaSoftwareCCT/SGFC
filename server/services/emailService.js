@@ -16,7 +16,7 @@ const transporter = nodemailer.createTransport({
 // Función genérica para enviar cualquier tipo de email
 const sendEmail = async (email, subject, htmlContent) => {
   const mailOptions = {
-    from: "softwareccyt@gmail.com",
+    from: `"SGFC" <${process.env.EMAIL_USER}>`,
     to: email,
     subject: subject,
     html: htmlContent

@@ -8,8 +8,10 @@ const xlsx = require("xlsx")
 const path = require('path');
 const fs = require('fs');
 const Tesseract = require('tesseract.js');
-const Poppler = require('pdf-poppler');
 const vision = require('@google-cloud/vision');
+const pdfjsLib = require("pdfjs-dist/legacy/build/pdf.js")
+const { createCanvas } = require("canvas");
+
 
 
 // Registrar usuario
@@ -1112,6 +1114,7 @@ const detectarTextoOCR = async (imagePath) => {
     return result.fullTextAnnotation?.text || '';
 };
 
+
 const subirDocumentoIdentidad = async (req, res) => {
     try {
         const userId = req.params.id;
@@ -1125,22 +1128,45 @@ const subirDocumentoIdentidad = async (req, res) => {
         fs.mkdirSync(path.dirname(pdfPath), { recursive: true });
         fs.writeFileSync(pdfPath, pdfFile.buffer);
 
-        // Convertir primera página del PDF a imagen
+
         const tempDir = path.join(__dirname, '../uploads/temp');
         fs.mkdirSync(tempDir, { recursive: true });
 
-        const options = {
-            format: 'png',
-            out_dir: tempDir,
-            out_prefix: 'page',
-            page: 1,
-        };
-        await Poppler.convert(pdfPath, options);
-        const imagePath = path.join(tempDir, 'page-1.png');
+        async function pdfToPng(pdfPath, outDir) {
+
+            // Cargar el PDF
+            const pdf = await pdfjsLib.getDocument({ url: pdfPath }).promise;
+
+            // Obtener la primera página
+            const page = await pdf.getPage(1);
+
+            // Definir escala (más grande = mejor resolución)
+            const viewport = page.getViewport({ scale: 1.5 });
+
+            // Crear canvas
+            const canvas = createCanvas(viewport.width, viewport.height);
+            const context = canvas.getContext("2d");
+
+            // Renderizar página en el canvas
+            await page.render({ canvasContext: context, viewport }).promise;
+
+            // Exportar como PNG (buffer en memoria)
+            const imageBuffer = canvas.toBuffer("image/png");
+
+            // Guardar en disco
+            const imagePath = path.join(outDir, "page-1.png");
+            fs.writeFileSync(imagePath, imageBuffer);
+
+            return imagePath;
+        }
+
+        //Guardar como imagen PNG
+        const imagePath = await pdfToPng(pdfPath, tempDir);
 
         // Realizar OCR con Google Vision
         const rawText = await detectarTextoOCR(imagePath);
         const lowerText = rawText.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
 
         // Detectar tipo de documento
         let tipoDetectado = 'pendiente';
@@ -1197,7 +1223,6 @@ const subirDocumentoIdentidad = async (req, res) => {
         res.status(500).json({ message: 'Error al procesar el documento con OCR.' });
     }
 };
-
 
 
 module.exports = { subirDocumentoIdentidad, getEmpresaById, createEmpleado, getEmpleadosByEmpresaId, refreshAccessToken, getAprendicesByEmpresa, registerUser, verifyEmail, loginUser, requestPasswordReset, resetPassword, getAllUsers, getUserProfile, getAprendices, getEmpresas, getInstructores, getGestores, updateUserProfile, createInstructor, createGestor, logoutUser, cleanExpiredTokens, createMasiveUsers, getEmpresaByNIT };

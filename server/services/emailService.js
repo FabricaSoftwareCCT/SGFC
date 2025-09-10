@@ -1,5 +1,4 @@
 const nodemailer = require("nodemailer");
-const PDFDocument = require('pdfkit');
 const Actas = require('../models/Actas'); // Asegúrate de importar el modelo
 
 const moment = require('moment-timezone');

@@ -75,3 +75,7 @@ npm run dev
 ## 6. Notas
 - Recuerda **no subir** credenciales ni claves privadas al repositorio.
 - Este proyecto fue desarrollado en la **Fábrica de Software del SENA – Centro de Comercio y Turismo**.
+
+
+## Poner esto en el .env para poder probar:
+- JWT_SECRET=secret

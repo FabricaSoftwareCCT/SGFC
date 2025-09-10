@@ -28,7 +28,9 @@
     "react-icons": "^5.5.0",
     "react-router-dom": "^7.2.0",
     "react-select": "^5.10.1",
-    "swiper": "^11.2.8"
+    "react-signature-canvas": "^1.1.0-alpha.2",
+    "swiper": "^11.2.8",
+    "trim-canvas": "^0.1.2"
   },
   "devDependencies": {
     "@types/react": "^18.2.66",

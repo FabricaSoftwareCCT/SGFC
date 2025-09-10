@@ -6,12 +6,35 @@ const Actas = require('../models/Actas'); // Asegúrate de importar el modelo
 const moment = require('moment-timezone');
 const fechaSolicitud = new Date(Date.now() - (new Date().getTimezoneOffset() * 60000));
 const transporter = nodemailer.createTransport({
-  service: "Gmail",
+  service: "gmail",
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
 });
+
+// Función genérica para enviar cualquier tipo de email
+const sendEmail = async (email, subject, htmlContent) => {
+  const mailOptions = {
+    from: "softwareccyt@gmail.com",
+    to: email,
+    subject: subject,
+    html: htmlContent
+  };
+
+  return new Promise((resolve, reject) => {
+    transporter.sendMail(mailOptions, (err, info) => {
+      if (err) {
+        console.error("Error al enviar el correo:", err);
+        reject(err);
+      } else {
+        console.log("Correo enviado:", info.response);
+        resolve(info);
+      }
+    });
+  });
+};
+
 
 const sendRequestCourseEmail = async (req, res) => {
   try {
@@ -79,10 +102,21 @@ const sendRequestCourseEmail = async (req, res) => {
 // Función para enviar el correo de verificación
 const sendVerificationEmail = async (email, token) => {
   const enlaceVerificacion = `http://localhost:5173/verificarCorreo?token=${token}`;
+  const fs = require('fs');
+  const path = require('path');
+  const logoPath = path.join(__dirname, '../Img/sena.png');
+
   const mailOptions = {
     from: `"SGFC" <${process.env.EMAIL_USER}>`,
     to: email,
     subject: "Verificación de correo electrónico",
+    attachments: [
+      {
+        filename: 'logo.png',
+        path: logoPath,
+        cid: 'logo'
+      }
+    ],
     html: `
 <table width="100%" bgcolor="#f4f4f4" cellpadding="0" cellspacing="0" style="font-family: Arial, sans-serif; margin:0; padding:0;">
   <tr>
@@ -94,7 +128,7 @@ const sendVerificationEmail = async (email, token) => {
             <table width="100%" cellpadding="0" cellspacing="0">
               <tr>
                 <td align="center" style="padding-bottom:1.25rem; border-bottom:.0625rem solid #eee;">
-                  <img src="https://i.imgur.com/2pzIurJ.png" alt="Logo de Fábrica de Software CCT" style="width:5rem; height:auto; margin-bottom:.9375rem; display:block;">
+                  <img src="cid:logo" alt="Logo de Fábrica de Software CCT" style="width:5rem; height:auto; margin-bottom:.9375rem; display:block;">
                   <h1 style="color:#00843D; margin:0; font-size:1.5rem; font-family:Arial,sans-serif;">Verificación de Correo Electrónico</h1>
                 </td>
               </tr>
@@ -143,10 +177,21 @@ const sendVerificationEmail = async (email, token) => {
 
 // Función para enviar el correo de recuperación de contraseña
 const sendPasswordResetEmail = (email, resetLink) => {
+  const fs = require('fs');
+  const path = require('path');
+  const logoPath = path.join(__dirname, '../Img/sena.png');
+
   const mailOptions = {
     from: `"SGFC" <${process.env.EMAIL_USER}>`,
     to: email,
     subject: "Recuperación de contraseña",
+    attachments: [
+      {
+        filename: 'logo.png',
+        path: logoPath,
+        cid: 'logo'
+      }
+    ],
     html: `
 <table width="100%" bgcolor="#f4f4f4" cellpadding="0" cellspacing="0" style="font-family: Arial, sans-serif; margin:0; padding:0;">
   <tr>
@@ -158,7 +203,7 @@ const sendPasswordResetEmail = (email, resetLink) => {
             <table width="100%" cellpadding="0" cellspacing="0">
               <tr>
                 <td align="center" style="padding-bottom:1.25rem; border-bottom:.0625rem solid #eee;">
-                  <img src="https://i.imgur.com/2pzIurJ.png" alt="Logo de Fábrica de Software CCT" style="width:5rem; height:auto; margin-bottom:.9375rem; display:block;">
+                  <img src="cid:logo" alt="Logo de Fábrica de Software CCT" style="width:5rem; height:auto; margin-bottom:.9375rem; display:block;">
                   <h1 style="color:#00843D; margin:0; font-size:1.5rem; font-family:Arial,sans-serif;">Restablecimiento de Contraseña</h1>
                 </td>
               </tr>
@@ -239,10 +284,21 @@ const sendCursoUpdatedNotification = (email, curso) => {
 
 // Función para enviar el correo de confirmación de cambio de contraseña
 const sendPasswordChangeConfirmationEmail = (email, resetLink) => {
+  const fs = require('fs');
+  const path = require('path');
+  const logoPath = path.join(__dirname, '../Img/sena.png');
+
   const mailOptions = {
     from: `"SGFC" <${process.env.EMAIL_USER}>`,
     to: email,
     subject: "Confirmación de cambio de contraseña",
+    attachments: [
+      {
+        filename: 'logo.png',
+        path: logoPath,
+        cid: 'logo'
+      }
+    ],
     html: `
 <table width="100%" bgcolor="#f4f4f4" cellpadding="0" cellspacing="0" style="font-family: Arial, sans-serif; margin:0; padding:0;">
   <tr>
@@ -254,7 +310,7 @@ const sendPasswordChangeConfirmationEmail = (email, resetLink) => {
             <table width="100%" cellpadding="0" cellspacing="0">
               <tr>
                 <td align="center" style="padding-bottom:1.25rem; border-bottom:.0625rem solid #eee;">
-                  <img src="https://i.imgur.com/2pzIurJ.png" alt="Logo de Fábrica de Software CCT" style="width:5rem; height:auto; margin-bottom:.9375rem; display:block;">
+                  <img src="cid:logo" alt="Logo de Fábrica de Software CCT" style="width:5rem; height:auto; margin-bottom:.9375rem; display:block;">
                   <h1 style="color:#00843D; margin:0; font-size:1.5rem; font-family:Arial,sans-serif;">Confirmación de cambio de contraseña</h1>
                 </td>
               </tr>
@@ -389,7 +445,240 @@ const sendStudentsInstructorAssignedEmail = (emails, curso, nombreInstructor) =>
 
 // Exportar ambas funciones
 
+const sendConcertacionActaEmail = async (req, res) => {
+  try {
+    //  Validaciones básicas
+    if (!req.file) {
+      return res.status(400).json({ message: 'No se recibió el archivo PDF' });
+    }
+
+    const {
+      curso_ID,
+      empresa_ID,
+      gestor_ID,
+      administrador_ID,
+      instructor_ID,
+      fecha_acta,
+      nombreActa
+    } = req.body;
+
+    //  Parsear objetos JSON como respaldo
+    let empresaObj = null;
+    let managerObj = null;
+
+    try {
+      if (req.body.empresa) {
+        empresaObj = JSON.parse(req.body.empresa);
+      }
+    } catch (e) {
+      console.log('❌ Error parseando empresa:', e);
+    }
+
+    try {
+      if (req.body.manager) {
+        managerObj = JSON.parse(req.body.manager);
+      }
+    } catch (e) {
+      console.log('❌ Error parseando manager:', e);
+    }
+
+    //  Determinar los IDs finales
+    const finalEmpresaID = empresa_ID || (empresaObj && empresaObj.ID) || null;
+    const finalInstructorID = instructor_ID || (managerObj && managerObj.ID) || null;
+    const finalGestorID = gestor_ID || null; //  Siempre null en este caso
+
+    //  Guardar archivo PDF
+    const pdfBuffer = req.file.buffer;
+    const fs = require('fs');
+    const path = require('path');
+    const pdfFileName = `acta_concertacion_${Date.now()}.pdf`;
+    const pdfPath = path.join(__dirname, '../uploads/documentos', pdfFileName);
+
+    fs.mkdirSync(path.dirname(pdfPath), { recursive: true });
+    fs.writeFileSync(pdfPath, pdfBuffer);
+
+    //  Crear el acta en la base de datos
+    const nuevaActa = await Actas.create({
+      fecha_acta: fecha_acta,
+      estado_acta: 'pendiente',
+      fecha_respuesta: null,
+      empresa_ID: finalEmpresaID,
+      curso_ID: curso_ID,
+      gestor_ID: finalGestorID,
+      administrador_ID: administrador_ID,
+      instructor_ID: finalInstructorID,
+      tipo_acta: 'Concertacion',
+      pdf_acta: pdfFileName
+    });
+
+    //  Enviar correo con el acta adjunta
+    let transporter = nodemailer.createTransport({
+      service: "Gmail",
+      auth: {
+        user: "softwareccyt@gmail.com",
+        pass: process.env.GOOGLE_APP_PASSWORD,
+      },
+    });
+
+    await transporter.sendMail({
+      from: `"SGFC" <${process.env.EMAIL_USER || "softwareccyt@gmail.com"}>`,
+      to: "softwareccyt@gmail.com",
+      subject: `Nueva Acta de Concertación: ${nombreActa || 'Sin Título'}`,
+      html: `
+        <h2>Nueva Acta de Concertación</h2>
+        <p><strong>Instructor:</strong> ${managerObj ? `${managerObj.nombres} ${managerObj.apellidos}` : 'No especificado'}</p>
+        <p><strong>Email:</strong> ${managerObj ? managerObj.email : 'No especificado'}</p>
+        <p><strong>Empresa:</strong> ${empresaObj ? empresaObj.nombre_empresa : 'No especificada'}</p>
+        <p><strong>Fecha de creación:</strong> ${new Date(fecha_acta).toLocaleString()}</p>
+        <p><strong>ID del acta:</strong> ${nuevaActa.ID}</p>
+        <p>Se ha registrado una nueva acta de concertación en el sistema.</p>
+      `,
+      attachments: [
+        {
+          filename: pdfFileName,
+          content: pdfBuffer
+        }
+      ]
+    });
+
+    console.log('📧 Email enviado correctamente');
+
+    //  Respuesta exitosa
+    res.status(200).json({
+      message: 'Acta de concertación enviada y registrada correctamente.',
+      pdf_acta: pdfFileName,
+      acta_id: nuevaActa.ID,
+      instructor_ID_guardado: nuevaActa.instructor_ID,
+      gestor_ID_guardado: nuevaActa.gestor_ID
+    });
+
+  } catch (error) {
+    console.error('❌ Error completo:', error);
+    res.status(500).json({
+      message: 'Error al enviar o registrar el acta de concertación.',
+      error: error.message
+    });
+  }
+};
+
+const sendTrainingPlaceActaEmail = async (req, res) => {
+  try {
+  
+    //  Validaciones básicas
+    if (!req.file) {
+      return res.status(400).json({ message: 'No se recibió el archivo PDF' });
+    }
+
+    const {
+      curso_ID,
+      empresa_ID,
+      gestor_ID,
+      administrador_ID,
+      instructor_ID,
+      fecha_acta,
+      nombreActa
+    } = req.body;
+
+    //  Parsear objetos JSON como respaldo
+    let empresaObj = null;
+    let managerObj = null;
+
+    try {
+      if (req.body.empresa) {
+        empresaObj = JSON.parse(req.body.empresa);
+      }
+    } catch (e) {
+      console.log('❌ Error parseando empresa:', e);
+    }
+
+    try {
+      if (req.body.manager) {
+        managerObj = JSON.parse(req.body.manager);
+      }
+    } catch (e) {
+      console.log('❌ Error parseando manager:', e);
+    }
+
+    //  Determinar los IDs finales
+    const finalEmpresaID = empresa_ID || (empresaObj && empresaObj.ID) || null;
+    const finalInstructorID = instructor_ID || (managerObj && managerObj.ID) || null;
+    const finalGestorID = gestor_ID || null; //  Siempre null en este caso
+
+    //  Guardar archivo PDF
+    const pdfBuffer = req.file.buffer;
+    const fs = require('fs');
+    const path = require('path');
+    const pdfFileName = `acta_lugar_formacion_${Date.now()}.pdf`;
+    const pdfPath = path.join(__dirname, '../uploads/documentos', pdfFileName);
+
+    fs.mkdirSync(path.dirname(pdfPath), { recursive: true });
+    fs.writeFileSync(pdfPath, pdfBuffer);
+
+    //  Crear el acta en la base de datos
+    const nuevaActa = await Actas.create({
+      fecha_acta: fecha_acta,
+      estado_acta: 'pendiente',
+      fecha_respuesta: null,
+      empresa_ID: finalEmpresaID,
+      curso_ID: curso_ID,
+      gestor_ID: finalGestorID,
+      administrador_ID: administrador_ID,
+      instructor_ID: finalInstructorID,
+      tipo_acta: 'Lugar_formacion',
+      pdf_acta: pdfFileName
+    });
+
+    // ✅ Enviar correo con el acta adjunta
+    let transporter = nodemailer.createTransport({
+      service: "Gmail",
+      auth: {
+        user: "softwareccyt@gmail.com",
+        pass: process.env.GOOGLE_APP_PASSWORD,
+      },
+    });
+
+    await transporter.sendMail({
+      from: `"SGFC" <${process.env.EMAIL_USER || "softwareccyt@gmail.com"}>`,
+      to: "softwareccyt@gmail.com",
+      subject: `Nueva Acta de Lugar de formacion: ${nombreActa || 'Sin Título'}`,
+      html: `
+        <h2>Nueva Acta de Lugar de formacion</h2>
+        <p><strong>Instructor:</strong> ${managerObj ? `${managerObj.nombres} ${managerObj.apellidos}` : 'No especificado'}</p>
+        <p><strong>Email:</strong> ${managerObj ? managerObj.email : 'No especificado'}</p>
+        <p><strong>Empresa:</strong> ${empresaObj ? empresaObj.nombre_empresa : 'No especificada'}</p>
+        <p><strong>Fecha de creación:</strong> ${new Date(fecha_acta).toLocaleString()}</p>
+        <p><strong>ID del acta:</strong> ${nuevaActa.ID}</p>
+        <p>Se ha registrado una nueva acta de Lugar de formacion en el sistema.</p>
+      `,
+      attachments: [
+        {
+          filename: pdfFileName,
+          content: pdfBuffer
+        }
+      ]
+    });
+
+    console.log('📧 Email enviado correctamente');
+
+    // ✅ Respuesta exitosa
+    res.status(200).json({
+      message: 'Acta de Lugar de formacion enviada y registrada correctamente.',
+      pdf_acta: pdfFileName,
+      acta_id: nuevaActa.ID,
+      instructor_ID_guardado: nuevaActa.instructor_ID,
+      gestor_ID_guardado: nuevaActa.gestor_ID
+    });
+
+  } catch (error) {
+    console.error('❌ Error completo:', error);
+    res.status(500).json({
+      message: 'Error al enviar o registrar el acta de lugar de formacion.',
+      error: error.message
+    });
+  }
+};
 module.exports = {
+  sendEmail,
   sendVerificationEmail,
   sendPasswordResetEmail,
   sendPasswordChangeConfirmationEmail,
@@ -397,6 +686,8 @@ module.exports = {
   sendCursoUpdatedNotification,
   sendStudentsInstructorAssignedEmail,
   sendInstructorAssignedEmail,
-  sendRequestCourseEmail
+  sendRequestCourseEmail,
+  sendConcertacionActaEmail,
+  sendTrainingPlaceActaEmail
 };
 

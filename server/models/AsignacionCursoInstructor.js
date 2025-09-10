@@ -13,6 +13,22 @@ class AsignacionCursoInstructor extends Model {
           type: DataTypes.ENUM('aceptada', 'rechazada'),
           defaultValue: 'aceptada',
         },
+        instructor_ID: {
+          type: DataTypes.INTEGER,
+          allowNull: false,
+          references: {
+            model: 'usuarios',
+            key: 'ID'
+          }
+        },
+        curso_ID: {
+          type: DataTypes.INTEGER,
+          allowNull: false,
+          references: {
+            model: 'curso',
+            key: 'ID'
+          }
+        },
         fecha_asignacion: {
           type: DataTypes.DATE,
           allowNull: true,

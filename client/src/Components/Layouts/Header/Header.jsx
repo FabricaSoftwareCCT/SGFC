@@ -50,6 +50,7 @@ export const Header = ({ setShowSignIn, setShowSignUp, setShowAccountType }) => 
   // Detectar rutas activas para menús con subopciones
   const isCoursesActive = [
     '/Cursos/MisCursos',
+    '/Cursos/MisCursosAsignados',
     '/Cursos/BuscarCursos',
     '/Cursos/CrearCurso',
     '/SolicitarCurso',
@@ -115,7 +116,7 @@ export const Header = ({ setShowSignIn, setShowSignUp, setShowAccountType }) => 
               break;
             case 'Instructor':
               options = [
-                { label: 'Mis cursos', path: '/Cursos/MisCursos' },
+                { label: 'Mis cursos', path: '/Cursos/MisCursosAsignados' },
                 { label: 'Buscar cursos', path: '/Cursos/BuscarCursos' },
               ];
               break;
@@ -169,7 +170,7 @@ export const Header = ({ setShowSignIn, setShowSignUp, setShowAccountType }) => 
           );
         })()}
 
-        {/* Gestiones (solo Administrador) */}
+        {/* Gestiones - Menú completo para Administrador */}
         {isLoggedIn && accountType === 'Administrador' && (
           <div className="gestiones-menu" ref={gestionesMenuRef}>
             <button
@@ -202,6 +203,16 @@ export const Header = ({ setShowSignIn, setShowSignUp, setShowAccountType }) => 
               </div>
             )}
           </div>
+        )}
+
+        {/* Gestión de Actas - Solo para Instructor (enlace directo) */}
+        {isLoggedIn && accountType === 'Instructor' && (
+          <NavLink
+            to="/Gestiones/Actas"
+            className={({ isActive }) => (isActive ? 'gestiones active' : 'gestiones')}
+          >
+            Mis Actas
+          </NavLink>
         )}
 
         {/* Empresas (solo Administrador) */}

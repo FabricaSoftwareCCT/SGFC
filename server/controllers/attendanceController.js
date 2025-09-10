@@ -73,12 +73,13 @@ const registerAttendance = async (req, res) => {
             `;
 
             await sendNotification(
-                aprendiz.ID,
-                'inasistencia',
+                registrador_ID,  // ✅ remitente
+                aprendiz.ID,     // ✅ destinatario  
+                'inasistencia',  // ✅ tipo
                 title,
                 message,
-                null,
-                curso.ID
+                null,            // sessionId
+                curso.ID         // courseId
             );
         }
 
@@ -165,12 +166,13 @@ const updateAttendance = async (req, res) => {
                 `;
 
                 await sendNotification(
-                    aprendiz.ID,
-                    'inasistencia',
+                    instructorId,    // ✅ remitente
+                    aprendiz.ID,     // ✅ destinatario
+                    'inasistencia',  // ✅ tipo  
                     title,
                     message,
-                    null,
-                    curso.ID
+                    null,            // sessionId
+                    curso.ID         // courseId
                 );
             }
         }
@@ -229,7 +231,7 @@ const getAttendanceRecords = async (req, res) => {
             const empresaUser = await dbInstance.Usuario.findByPk(user.id, {
                 include: [{ model: dbInstance.Empresa, as: 'Empresa' }]
             });
-            
+
             if (!empresaUser || !empresaUser.empresa_ID) {
                 return res.status(404).json({
                     success: false,

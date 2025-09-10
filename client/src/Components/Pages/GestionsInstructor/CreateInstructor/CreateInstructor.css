@@ -24,6 +24,7 @@
     border-radius: 15px;
     overflow: hidden;
     gap: 5rem;
+    position: relative;
 }
 
 .modal-left {

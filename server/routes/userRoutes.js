@@ -1,6 +1,7 @@
 const express = require("express");
 const { createEmpleado, getEmpleadosByEmpresaId, subirDocumentoIdentidad, getEmpresaById, refreshAccessToken, getAprendicesByEmpresa, registerUser, verifyEmail, loginUser,requestPasswordReset,resetPassword, getAllUsers, getUserProfile, getAprendices, getEmpresas, getInstructores, getGestores, updateUserProfile,createInstructor, createGestor,logoutUser, createMasiveUsers, getEmpresaByNIT } = require("../controllers/userController");
 const { googleSignIn, googleSignUp } = require("../controllers/authGoogleController"); // Importar controlador de autenticación de Google
+const { authMiddleware } = require("../middlewares/authMiddleware");
 const router = express.Router();
 const upload = require("../config/multer"); // Importar configuración de multer
 
@@ -19,6 +20,7 @@ router.get('/instructores', getInstructores); // Obtener todos los instructores
 router.get('/gestores', getGestores); // Obtener todos los gestores
 router.put(
   '/perfil/actualizar/:id',
+  authMiddleware, // ✅ AÑADIR EL MIDDLEWARE AQUÍ
   upload.fields([
     { name: 'foto_perfil', maxCount: 1 },
     { name: 'img_empresa', maxCount: 1 }

@@ -7,7 +7,7 @@ const fechaSolicitud = new Date(Date.now() - (new Date().getTimezoneOffset() * 6
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
-    user: "softwareccyt@gmail.com",
+    user: "tabordasantiago350@gmail.com",
     pass: process.env.GOOGLE_APP_PASSWORD,
   },
 });
@@ -15,7 +15,7 @@ const transporter = nodemailer.createTransport({
 // Función genérica para enviar cualquier tipo de email
 const sendEmail = async (email, subject, htmlContent) => {
   const mailOptions = {
-    from: "softwareccyt@gmail.com",
+    from: "tabordasantiago350@gmail.com",
     to: email,
     subject: subject,
     html: htmlContent
@@ -70,14 +70,14 @@ const sendRequestCourseEmail = async (req, res) => {
     let transporter = nodemailer.createTransport({
       service: "Gmail",
       auth: {
-        user: "softwareccyt@gmail.com",
+        user: "tabordasantiago350@gmail.com",
         pass: process.env.GOOGLE_APP_PASSWORD,
       },
     });
 
     await transporter.sendMail({
-      from: `"SGFC" <${process.env.EMAIL_USER || "softwareccyt@gmail.com"}>`,
-      to: "softwareccyt@gmail.com",
+      from: `"SGFC" <${process.env.EMAIL_USER || "tabordasantiago350@gmail.com"}>`,
+      to: "tabordasantiago350@gmail.com",
       subject: "Nueva Solicitud de Curso",
       html: `<p>Solicitud de curso: ${nombreCurso}</p>`,
       attachments: [
@@ -106,7 +106,7 @@ const sendVerificationEmail = (email, token) => {
   const logoPath = path.join(__dirname, '../Img/sena.png');
 
   const mailOptions = {
-    from: "softwareccyt@gmail.com",
+    from: "tabordasantiago350@gmail.com",
     to: email,
     subject: "Verificación de correo electrónico",
     attachments: [

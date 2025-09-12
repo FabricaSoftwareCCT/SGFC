@@ -17,7 +17,6 @@ export const SeeMyProfile = () => {
     const [tipoCuenta, setTipoCuenta] = useState('');
     const [editMode, setEditMode] = useState(false);
 
-
     const getImageSrcFromBase64 = (base64) => {
         if (!base64) return 'default-profile.png'; // Ruta a imagen por defecto
 
@@ -94,11 +93,43 @@ export const SeeMyProfile = () => {
             }
 
             await axiosInstance.put(`/api/users/perfil/actualizar/${userId}`, payload);
-            alert('Perfil actualizado con éxito');
+            
+            // ✅ NOTIFICACIÓN MEJORADA
+            alert('✅ Perfil actualizado con éxito');
+            
             setEditMode(false);
         } catch (error) {
             console.error('Error al actualizar el perfil:', error);
-            alert('Hubo un error al actualizar el perfil');
+            
+            // ✅ NOTIFICACIONES DE ERROR MEJORADAS
+            let errorMessage = '❌ Hubo un error al actualizar el perfil';
+            
+            if (error.response?.status === 401) {
+                errorMessage = '🔒 Sesión expirada. Por favor inicia sesión nuevamente.';
+            } else if (error.response?.data?.message) {
+                // Formatear mensajes específicos del backend
+                const backendMessage = error.response.data.message;
+                
+                const formattedMessages = {
+                    'Formato de correo electrónico inválido.': '✉️ Formato de correo electrónico inválido',
+                    'Número de celular inválido.': '📱 Número de celular inválido',
+                    'Número de documento inválido.': '📄 Número de documento inválido',
+                    'El correo electrónico ya está registrado.': '✉️ Este correo ya está registrado',
+                    'El documento ya está registrado.': '📄 Este documento ya está registrado',
+                    'El número de celular ya está registrado.': '📱 Este número ya está registrado',
+                    'Formato de correo de empresa inválido.': '✉️ Formato de correo empresarial inválido',
+                    'Número de teléfono de empresa inválido.': '📞 Teléfono empresarial inválido',
+                    'NIT inválido.': '🏢 NIT inválido',
+                    'El NIT ya está registrado.': '🏢 Este NIT ya está registrado',
+                    'El correo de empresa ya está registrado.': '✉️ Este correo empresarial ya está registrado',
+                    'No tienes permiso para actualizar este perfil.': '🔒 Sin permisos para esta acción',
+                    'No tienes permiso para actualizar perfiles.': '🔒 Permisos insuficientes'
+                };
+                
+                errorMessage = formattedMessages[backendMessage] || backendMessage;
+            }
+            
+            alert(errorMessage);
         }
     };
 

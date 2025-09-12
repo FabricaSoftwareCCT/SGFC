@@ -221,8 +221,10 @@ const loginUser = async (req, res) => {
             extraData.empresa_ID = user.empresa_ID;
         }
 
+        // ✅ CORRECCIÓN CRÍTICA: Devolver el accessToken en la respuesta JSON
         res.status(200).json({
             message: "Inicio de sesión exitoso",
+            accessToken: accessToken, // ✅ Esto es lo que falta
             id: user.ID,
             email: user.email,
             accountType: user.accountType,
@@ -262,7 +264,11 @@ const refreshAccessToken = async (req, res) => {
             maxAge: 15 * 60 * 1000 // 15 minutos
         });
 
-        res.status(200).json({ message: "Token renovado" });
+        // ✅ También devolver el nuevo accessToken en la respuesta
+        res.status(200).json({ 
+            message: "Token renovado",
+            accessToken: accessToken // ✅ Para que el frontend lo guarde
+        });
     } catch (error) {
         console.error("Error al refrescar el token:", error);
         res.status(401).json({ message: "Refresh token inválido o expirado" });
@@ -581,22 +587,26 @@ const updateUserProfile = async (req, res) => {
             estado,
             titulo_profesional,
             tipoDocumento
-
         } = req.body;
 
-        // Procesar imagen de perfil si se sube (como base64)
-        const foto_perfil = null;
+        // Procesar imagen de perfil si se sube (como base64) - CORREGIDO
+        let foto_perfil = null;
         if (req.files?.foto_perfil?.[0]) {
             foto_perfil = req.files.foto_perfil[0].buffer.toString("base64");
         }
 
-
-        const token = req.cookies.accessToken;
+        const token = req.cookies.accessToken || req.headers.authorization?.replace('Bearer ', '');
         if (!token) {
             return res.status(401).json({ message: "No autorizado. Debes iniciar sesión." });
         }
 
-        const loggedInUser = jwt.verify(token, process.env.JWT_SECRET || "secret");
+        let loggedInUser;
+        try {
+            loggedInUser = jwt.verify(token, process.env.JWT_SECRET || "secret");
+        } catch (error) {
+            return res.status(401).json({ message: "Token inválido o expirado." });
+        }
+
         if (!loggedInUser) {
             return res.status(401).json({ message: "Token inválido o expirado." });
         }
@@ -607,6 +617,31 @@ const updateUserProfile = async (req, res) => {
 
         if (!user) {
             return res.status(404).json({ message: "Usuario no encontrado." });
+        }
+
+        // Función para validar email
+        const isValidEmail = (email) => {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        };
+
+        // Función para validar que no sean números negativos
+        const isValidPositiveNumber = (value) => {
+            const num = parseInt(value);
+            return !isNaN(num) && num >= 0;
+        };
+
+        // Validaciones de formato
+        if (email && !isValidEmail(email)) {
+            return res.status(400).json({ message: "Formato de correo electrónico inválido." });
+        }
+
+        if (celular && (!isValidPositiveNumber(celular) || celular.toString().length < 10)) {
+            return res.status(400).json({ message: "Número de celular inválido." });
+        }
+
+        if (documento && !isValidPositiveNumber(documento)) {
+            return res.status(400).json({ message: "Número de documento inválido." });
         }
 
         // Verificación de permisos
@@ -636,6 +671,7 @@ const updateUserProfile = async (req, res) => {
                         return res.status(400).json({ message: "El número de celular ya está registrado." });
                     }
                 }
+
                 // Asignación directa de campos
                 if (email) user.email = email;
                 if (nombres) user.nombres = nombres;
@@ -644,7 +680,6 @@ const updateUserProfile = async (req, res) => {
                 if (documento) user.documento = documento;
                 if (estado) user.estado = estado;
                 if (titulo_profesional) user.titulo_profesional = titulo_profesional;
-
                 if (foto_perfil) user.foto_perfil = foto_perfil;
 
                 await user.save();
@@ -652,8 +687,34 @@ const updateUserProfile = async (req, res) => {
             }
         }
 
-        // EMPRESA puede actualizar su propio perfil
+        // EMPRESA puede actualizar su propio perfil - CORREGIDO
         if (loggedInUser.accountType === "Empresa" && user.accountType === "Empresa") {
+            // VALIDACIÓN CRÍTICA: La empresa solo puede actualizar su propio perfil
+            if (loggedInUser.id !== parseInt(id)) {
+                return res.status(403).json({ message: "No tienes permiso para actualizar este perfil." });
+            }
+
+            // Validaciones únicas para empresa
+            if (email && email !== user.email) {
+                const existingEmail = await User.findOne({ where: { email } });
+                if (existingEmail) {
+                    return res.status(400).json({ message: "El correo electrónico ya está registrado." });
+                }
+            }
+            if (documento && documento !== user.documento) {
+                const existingDocumento = await User.findOne({ where: { documento } });
+                if (existingDocumento) {
+                    return res.status(400).json({ message: "El documento ya está registrado." });
+                }
+            }
+            if (celular && celular !== user.celular) {
+                const existingCelular = await User.findOne({ where: { celular } });
+                if (existingCelular) {
+                    return res.status(400).json({ message: "El número de celular ya está registrado." });
+                }
+            }
+
+            // Actualizar datos básicos del usuario empresa
             if (email) user.email = email;
             if (nombres) user.nombres = nombres;
             if (apellidos) user.apellidos = apellidos;
@@ -662,12 +723,13 @@ const updateUserProfile = async (req, res) => {
             if (estado) user.estado = estado;
             if (foto_perfil) user.foto_perfil = foto_perfil;
 
-
-            // Empresa viene como string JSON en el campo 'empresa'
+            // Actualizar datos de la empresa - MEJORADO
             if (req.body.empresa && user.Empresa) {
                 let empresaData;
                 try {
-                    empresaData = JSON.parse(req.body.empresa);
+                    // Si viene como string, parsearlo, si ya es objeto, usarlo directamente
+                    empresaData = typeof req.body.empresa === 'string' ? 
+                        JSON.parse(req.body.empresa) : req.body.empresa;
                 } catch (e) {
                     return res.status(400).json({ message: "Formato de empresa inválido." });
                 }
@@ -677,28 +739,70 @@ const updateUserProfile = async (req, res) => {
                     email_empresa,
                     nombre_empresa,
                     direccion,
-                    estado,
+                    estado: estadoEmpresa,
                     categoria,
                     telefono,
                     img_empresa
                 } = empresaData;
 
+                // Validaciones para datos de empresa
+                if (email_empresa && !isValidEmail(email_empresa)) {
+                    return res.status(400).json({ message: "Formato de correo de empresa inválido." });
+                }
+
+                if (telefono && (!isValidPositiveNumber(telefono) || telefono.toString().length < 7)) {
+                    return res.status(400).json({ message: "Número de teléfono de empresa inválido." });
+                }
+
+                if (nit && !isValidPositiveNumber(nit)) {
+                    return res.status(400).json({ message: "NIT inválido." });
+                }
+
+                // Verificar NIT único si cambió
+                if (nit && nit !== user.Empresa.NIT) {
+                    const existingNIT = await Empresa.findOne({ where: { NIT: nit } });
+                    if (existingNIT) {
+                        return res.status(400).json({ message: "El NIT ya está registrado." });
+                    }
+                }
+
+                // Verificar email de empresa único si cambió
+                if (email_empresa && email_empresa !== user.Empresa.email_empresa) {
+                    const existingEmailEmpresa = await Empresa.findOne({ where: { email_empresa } });
+                    if (existingEmailEmpresa) {
+                        return res.status(400).json({ message: "El correo de empresa ya está registrado." });
+                    }
+                }
+
+                // Actualizar datos de empresa
                 if (nit) user.Empresa.NIT = nit;
                 if (email_empresa) user.Empresa.email_empresa = email_empresa;
                 if (nombre_empresa) user.Empresa.nombre_empresa = nombre_empresa;
                 if (direccion) user.Empresa.direccion = direccion;
-                if (estado) user.Empresa.estado = estado;
+                if (estadoEmpresa !== undefined) user.Empresa.estado = estadoEmpresa;
                 if (categoria) user.Empresa.categoria = categoria;
                 if (telefono) user.Empresa.telefono = telefono;
-                if (img_empresa) user.Empresa.img_empresa = img_empresa;
+
+                // Procesar imagen de empresa si viene en archivos
+                if (req.files?.img_empresa?.[0]) {
+                    user.Empresa.img_empresa = req.files.img_empresa[0].buffer.toString("base64");
+                } else if (img_empresa) {
+                    user.Empresa.img_empresa = img_empresa;
+                }
 
                 await user.Empresa.save();
             }
 
-            if (foto_perfil) user.foto_perfil = foto_perfil;
-
             await user.save();
-            return res.status(200).json({ message: "Perfil de empresa actualizado con éxito." });
+            return res.status(200).json({ 
+                message: "Perfil de empresa actualizado con éxito.",
+                user: {
+                    id: user.id,
+                    email: user.email,
+                    nombres: user.nombres,
+                    apellidos: user.apellidos
+                }
+            });
         }
 
         // EMPRESA puede actualizar a sus empleados (Aprendiz)
@@ -736,7 +840,6 @@ const updateUserProfile = async (req, res) => {
             if (documento) user.documento = documento;
             if (estado) user.estado = estado;
             if (tipoDocumento) user.tipoDocumento = tipoDocumento;
-
             if (foto_perfil) user.foto_perfil = foto_perfil;
 
             await user.save();
@@ -745,6 +848,11 @@ const updateUserProfile = async (req, res) => {
 
         // APRENDIZ puede actualizar su propio perfil
         if (loggedInUser.accountType === "Aprendiz" && user.accountType === "Aprendiz") {
+            // Validar que el aprendiz solo pueda actualizar su propio perfil
+            if (loggedInUser.id !== parseInt(id)) {
+                return res.status(403).json({ message: "No tienes permiso para actualizar este perfil." });
+            }
+
             if (email && email !== user.email) {
                 const existingEmail = await User.findOne({ where: { email } });
                 if (existingEmail) {
@@ -760,7 +868,6 @@ const updateUserProfile = async (req, res) => {
 
                 // Enviar correo de verificación
                 await sendVerificationEmail(email, verificationToken);
-
                 user.email = email;
             }
             if (nombres) user.nombres = nombres;
@@ -770,8 +877,8 @@ const updateUserProfile = async (req, res) => {
             if (estado) user.estado = estado;
             if (titulo_profesional) user.titulo_profesional = titulo_profesional;
             if (tipoDocumento) user.tipoDocumento = tipoDocumento;
-
             if (foto_perfil) user.foto_perfil = foto_perfil;
+
             await user.save();
             return res.status(200).json({ message: "Perfil de aprendiz actualizado con éxito. Por favor verifica tu nuevo correo." });
         }

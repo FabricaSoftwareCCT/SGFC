@@ -591,6 +591,15 @@ const updateUserProfile = async (req, res) => {
             tipoDocumento
         } = req.body;
 
+        console.log( "entrada backend", email,
+            nombres,
+            apellidos,
+            celular,
+            documento,
+            estado,
+            titulo_profesional,
+            tipoDocumento)
+
         // Procesar imagen de perfil si se sube (como base64)
         let foto_perfil = null;
         if (req.files?.foto_perfil?.[0]) {
@@ -601,7 +610,7 @@ const updateUserProfile = async (req, res) => {
             foto_perfil = req.body.foto_perfil;
         }
 
-        const token = req.cookies.accessToken || req.headers.authorization?.replace('Bearer ', '');
+        const token = req.cookies.accessToken;
         if (!token) {
             return res.status(401).json({ message: "No autorizado. Debes iniciar sesión." });
         }
@@ -661,14 +670,12 @@ const updateUserProfile = async (req, res) => {
         }
 
         // ADMINISTRADOR
-        if (loggedInUser.accountType === "Administrador") {
-            if (["Instructor", "Gestor", "Administrador", "Empresa", "Aprendiz"].includes(user.accountType)) {
+        if (loggedInUser.accountType === "Administrador") {{
             // Validaciones de campos obligatorios para Administrador
             const camposObligatorios = {
                 nombres: nombres,
                 apellidos: apellidos,
                 celular: celular,
-                documento: documento,
                 email: email
             };
 
@@ -710,7 +717,6 @@ const updateUserProfile = async (req, res) => {
                 if (nombres) user.nombres = nombres;
                 if (apellidos) user.apellidos = apellidos;
                 if (celular) user.celular = celular;
-                if (documento) user.documento = documento;
                 if (estado) user.estado = estado;
                 if (titulo_profesional) user.titulo_profesional = titulo_profesional;
                 if (foto_perfil) user.foto_perfil = foto_perfil;

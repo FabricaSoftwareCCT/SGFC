@@ -547,9 +547,13 @@ const updateUserProfile = async (req, res) => {
         } = req.body;
 
         // Procesar imagen de perfil si se sube (como base64)
-        const foto_perfil = null;
+        let foto_perfil = null;
         if (req.files?.foto_perfil?.[0]) {
+            // Si viene como archivo
             foto_perfil = req.files.foto_perfil[0].buffer.toString("base64");
+        } else if (req.body.foto_perfil) {
+            // Si viene como base64 en el body
+            foto_perfil = req.body.foto_perfil;
         }
 
 
@@ -572,13 +576,40 @@ const updateUserProfile = async (req, res) => {
         }
 
         // Verificación de permisos
-        if (loggedInUser.accountType === "Gestor" || loggedInUser.accountType === "Instructor") {
+        // Administrador puede actualizar cualquier perfil (se maneja abajo)
+        // Empresa puede actualizar el suyo (se maneja abajo)
+        // Para otros roles (Instructor, Gestor, Aprendiz): permitir solo si actualiza su propio perfil
+        if (loggedInUser.accountType !== "Administrador" && loggedInUser.accountType !== "Empresa") {
+            if (parseInt(id, 10) !== Number(loggedInUser.id)) {
             return res.status(403).json({ message: "No tienes permiso para actualizar perfiles." });
+            }
         }
 
         // ADMINISTRADOR
         if (loggedInUser.accountType === "Administrador") {
             if (["Instructor", "Gestor", "Administrador", "Empresa", "Aprendiz"].includes(user.accountType)) {
+            // Validaciones de campos obligatorios para Administrador
+            const camposObligatorios = {
+                nombres: nombres,
+                apellidos: apellidos,
+                celular: celular,
+                documento: documento,
+                email: email
+            };
+
+                const camposVacios = [];
+                for (const [campo, valor] of Object.entries(camposObligatorios)) {
+                    if (valor !== undefined && (valor === null || valor === '' || valor.trim() === '')) {
+                        camposVacios.push(campo);
+                    }
+                }
+
+                if (camposVacios.length > 0) {
+                    return res.status(400).json({ 
+                        message: `No se pudo guardar el perfil. Los siguientes campos son obligatorios y no pueden estar vacíos: ${camposVacios.join(', ')}. Intente nuevamente.` 
+                    });
+                }
+
                 // Validaciones únicas
                 if (email && email !== user.email) {
                     const existingEmail = await User.findOne({ where: { email } });
@@ -616,6 +647,28 @@ const updateUserProfile = async (req, res) => {
 
         // EMPRESA puede actualizar su propio perfil
         if (loggedInUser.accountType === "Empresa" && user.accountType === "Empresa") {
+            // Validaciones de campos obligatorios para Empresa
+            const camposObligatorios = {
+                nombres: nombres,
+                apellidos: apellidos,
+                celular: celular,
+                documento: documento,
+                email: email
+            };
+
+            const camposVacios = [];
+            for (const [campo, valor] of Object.entries(camposObligatorios)) {
+                if (valor !== undefined && (valor === null || valor === '' || valor.trim() === '')) {
+                    camposVacios.push(campo);
+                }
+            }
+
+            if (camposVacios.length > 0) {
+                return res.status(400).json({ 
+                    message: `No se pudo guardar el perfil de empresa. Los siguientes campos son obligatorios y no pueden estar vacíos: ${camposVacios.join(', ')}. Intente nuevamente.` 
+                });
+            }
+
             if (email) user.email = email;
             if (nombres) user.nombres = nombres;
             if (apellidos) user.apellidos = apellidos;
@@ -670,6 +723,28 @@ const updateUserProfile = async (req, res) => {
                 return res.status(403).json({ message: "No tienes permiso para actualizar este empleado." });
             }
 
+            // Validaciones de campos obligatorios para empleados
+            const camposObligatorios = {
+                nombres: nombres,
+                apellidos: apellidos,
+                celular: celular,
+                documento: documento,
+                email: email
+            };
+
+            const camposVacios = [];
+            for (const [campo, valor] of Object.entries(camposObligatorios)) {
+                if (valor !== undefined && (valor === null || valor === '' || valor.trim() === '')) {
+                    camposVacios.push(campo);
+                }
+            }
+
+            if (camposVacios.length > 0) {
+                return res.status(400).json({ 
+                    message: `No se pudo guardar el perfil del empleado. Los siguientes campos son obligatorios y no pueden estar vacíos: ${camposVacios.join(', ')}. Intente nuevamente.` 
+                });
+            }
+
             // Validaciones únicas
             if (email && email !== user.email) {
                 const existingEmail = await User.findOne({ where: { email } });
@@ -705,35 +780,84 @@ const updateUserProfile = async (req, res) => {
             return res.status(200).json({ message: "Perfil de empleado actualizado con éxito." });
         }
 
-        // APRENDIZ puede actualizar su propio perfil
-        if (loggedInUser.accountType === "Aprendiz" && user.accountType === "Aprendiz") {
+        // ACTUALIZACIÓN DE PERFIL PROPIO (Instructor, Gestor, Aprendiz)
+        if (parseInt(id, 10) === Number(loggedInUser.id)) {
+            // Validaciones de campos obligatorios
+            const camposObligatorios = {
+                nombres: nombres,
+                apellidos: apellidos,
+                celular: celular,
+                documento: documento,
+                email: email
+            };
+
+            const camposVacios = [];
+            for (const [campo, valor] of Object.entries(camposObligatorios)) {
+                if (valor !== undefined && (valor === null || valor === '' || valor.trim() === '')) {
+                    camposVacios.push(campo);
+                }
+            }
+
+            if (camposVacios.length > 0) {
+                return res.status(400).json({ 
+                    message: `No se pudo guardar su perfil. Los siguientes campos son obligatorios y no pueden estar vacíos: ${camposVacios.join(', ')}. Intente nuevamente.` 
+                });
+            }
+
+            // Validaciones únicas básicas
             if (email && email !== user.email) {
                 const existingEmail = await User.findOne({ where: { email } });
                 if (existingEmail) {
                     return res.status(400).json({ message: "El correo electrónico ya está registrado." });
                 }
 
-                // Generar token de verificación
+                // Para aprendices, generar token de verificación si cambian email
+                if (loggedInUser.accountType === "Aprendiz") {
                 const verificationToken = crypto.randomBytes(32).toString('hex');
                 user.token = verificationToken;
                 user.verificacion_email = false;
-
-                // Enviar correo de verificación
                 await sendVerificationEmail(email, verificationToken);
-
+                }
                 user.email = email;
             }
+            if (documento && documento !== user.documento) {
+                const existingDocumento = await User.findOne({ where: { documento } });
+                if (existingDocumento) {
+                    return res.status(400).json({ message: "El documento ya está registrado." });
+                }
+            }
+            if (celular && celular !== user.celular) {
+                const existingCelular = await User.findOne({ where: { celular } });
+                if (existingCelular) {
+                    return res.status(400).json({ message: "El número de celular ya está registrado." });
+                }
+            }
+
+            // Campos permitidos para actualización propia
             if (nombres) user.nombres = nombres;
             if (apellidos) user.apellidos = apellidos;
             if (celular) user.celular = celular;
             if (documento) user.documento = documento;
-            if (estado) user.estado = estado;
             if (titulo_profesional) user.titulo_profesional = titulo_profesional;
             if (tipoDocumento) user.tipoDocumento = tipoDocumento;
-
             if (foto_perfil) user.foto_perfil = foto_perfil;
+            
+            // Estado: solo instructores y gestores pueden cambiar su estado
+            if (estado && (loggedInUser.accountType === "Instructor" || loggedInUser.accountType === "Gestor")) {
+                if (["activo", "inactivo"].includes(estado)) {
+                    user.estado = estado;
+                }
+            }
+            // Nota: accountType nunca se puede cambiar por actualización propia
+
             await user.save();
-            return res.status(200).json({ message: "Perfil de aprendiz actualizado con éxito. Por favor verifica tu nuevo correo." });
+            
+            let message = "Perfil actualizado con éxito.";
+            if (loggedInUser.accountType === "Aprendiz" && email && email !== user.email) {
+                message = "Perfil actualizado con éxito. Por favor verifica tu nuevo correo.";
+            }
+            
+            return res.status(200).json({ message });
         }
 
         return res.status(403).json({ message: "No tienes permiso para actualizar este perfil." });

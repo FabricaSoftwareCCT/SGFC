@@ -22,6 +22,8 @@ const Ciudad = require('../models/ciudad'); // Importar el modelo Ciudad
 const fotoDefectPerfil = '../Img/userDefect.png'; // Importar la imagen por defecto
 
 //registrar usuario (empresa o aprendiz)
+// Registrar usuario
+// Registrar usuario
 const registerUser = async (req, res) => {
     try {
         const { email, password, accountType, documento, nombres, apellidos, celular, titulo_profesional } = req.body;
@@ -43,13 +45,15 @@ const registerUser = async (req, res) => {
             return res.status(400).json({ message: 'El correo ya está registrado' });
         }
 
-        // Generar token de verificación
-        const payload = {email};
+        // Generar token de verificación JWT (no con crypto)
+        const payload = { email };
+        const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-        const token = generateToken(payload, process.env.JWT_SECRET, 5);
-
-        // Hashear la contraseña
-        const hashedPassword = await bcrypt.hash(password, 10);
+        // Generar contraseña temporal
+        const tempPassword = Math.random().toString(36).slice(-8);
+        
+        // Hashear la contraseña temporal
+        const hashedPassword = await bcrypt.hash(tempPassword, 10);
 
         // Crear nuevo usuario
         const newUser = await User.create({
@@ -63,10 +67,10 @@ const registerUser = async (req, res) => {
             titulo_profesional: titulo_profesional || null,
             verificacion_email: false,
             token,
-            foto_perfil: fotoDefectPerfil // <-- FOTO POR DEFECTO
+            foto_perfil: fotoDefectPerfil
         });
 
-        // Si el tipo de cuenta es Empresa, crear un registro en la tabla Empresa y relacionarlo con el usuario
+        // Si el tipo de cuenta es Empresa, crear un registro en la tabla Empresa
         if (accountType === 'Empresa') {
             const nuevaEmpresa = await Empresa.create({
                 NIT: null,
@@ -83,16 +87,18 @@ const registerUser = async (req, res) => {
             await newUser.save();
         }
 
-        // Enviar correo de verificación
-        await sendVerificationEmail(email, token);
+        // Enviar correo de verificación CON la contraseña temporal
+        await sendVerificationEmail(email, token, tempPassword);
 
-        res.status(201).json({ message: 'Usuario registrado. Por favor verifica tu correo.' });
+        res.status(201).json({ message: 'Usuario registrado. Por favor verifica tu correo para obtener tu contraseña temporal.' });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Error al registrar el usuario' });
     }
 };
-
+// Verificar correo
+// Verificar correo
+// Verificar correo
 // Verificar correo
 const verifyEmail = async (req, res) => {
     try {
@@ -102,24 +108,44 @@ const verifyEmail = async (req, res) => {
         if (!token) {
             return res.status(400).json({ message: "Token no proporcionado" });
         }
+
         console.log('Token recibido:', token);
-        // Buscar usuario por token
-        const user = await User.findOne({ where: { token } });
+        
+        // Verificar el token JWT
+        let decoded;
+        try {
+            decoded = jwt.verify(token, process.env.JWT_SECRET);
+            console.log('Token decodificado:', decoded);
+        } catch (err) {
+            if (err.name === 'TokenExpiredError') {
+                return res.status(400).json({ message: "Token expirado" });
+            }
+            console.log('Error al verificar token:', err);
+            return res.status(400).json({ message: "Token inválido" });
+        }
+
+        // CORRECCIÓN: Acceder al email correctamente
+        // Tu token tiene la estructura: { data: { email: '...' } }
+        const userEmail = decoded.data.email; // ← Aquí está el cambio
+        console.log('Buscando usuario con email:', userEmail);
+        
+        if (!userEmail) {
+            return res.status(400).json({ message: "Token no contiene email válido" });
+        }
+
+        const user = await User.findOne({ where: { email: userEmail } });
 
         if (!user) {
-            return res.status(400).json({ message: "Token inválido o expirado" });
+            return res.status(400).json({ message: "Usuario no encontrado" });
         }
-        console.log('Token en la base de datos:', user.token);
 
-        jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
-            if(err){
-                if (err.name === 'TokenExpiredError') {
-                    return res.status(400).json({ message: "Token expirado" });
-                }
-                return res.status(400).json({ message: "Token inválido" });
-            }
-            req.user = decoded.data
-        })
+        console.log('Token en la base de datos:', user.token);
+        console.log('Token recibido vs token en BD:', token, user.token);
+
+        // Verificar que el token coincida
+        if (user.token !== token) {
+            return res.status(400).json({ message: "Token no coincide" });
+        }
 
         // Actualizar estado de verificación
         user.verificacion_email = true;
@@ -128,7 +154,7 @@ const verifyEmail = async (req, res) => {
 
         res.status(200).json({ message: "Correo verificado con éxito" });
     } catch (error) {
-        console.error(error);
+        console.error("Error completo al verificar el correo:", error);
         res.status(500).json({ message: "Error al verificar el correo" });
     }
 };
@@ -139,23 +165,36 @@ const requestNewVerificationEmail = async (req, res) => {
         if (!email) {
             return res.status(400).json({ message: "El correo es obligatorio" });
         }
-        const token = generateToken({email}, process.env.JWT_SECRET, 5);
+        
         const user = await User.findOne({ where: { email } });
         if (!user) {
             return res.status(404).json({ message: "Usuario no encontrado" });
         }
+        
+        // Generar nueva contraseña temporal
+        const tempPassword = Math.random().toString(36).slice(-8);
+        const hashedPassword = await bcrypt.hash(tempPassword, 10);
+        
+        // Generar nuevo token
+        const token = generateToken({email}, process.env.JWT_SECRET, 5);
+        
+        // Actualizar usuario con nuevo token y nueva contraseña temporal
         try {
-            const result = await user.update({ token });
-            console.log("Token del usuario actualizado:", result.token);
+            await user.update({ 
+                token: token,
+                password: hashedPassword
+            });
         } catch (error) {
-            console.error("Error al actualizar el token del usuario:", error);
+            console.error("Error al actualizar el usuario:", error);
         }
-        // Enviar correo de verificación
-        await sendVerificationEmail(email, token);
+        
+        // Enviar correo de verificación con la nueva contraseña temporal
+        await sendVerificationEmail(email, token, tempPassword);
 
-        res.status(200).json({ message: "Correo de verificación reenviado" });
+        res.status(200).json({ message: "Correo de verificación reenviado con nueva contraseña temporal" });
     } catch(error){
-
+        console.error(error);
+        res.status(500).json({ message: "Error al reenviar el correo de verificación" });
     }
 }
 
@@ -924,11 +963,13 @@ const createInstructor = async (req, res) => {
 
         // Generar token de verificación
         const payload = {email};
-
         const token = generateToken(payload, process.env.JWT_SECRET, 5);
 
-        // Encriptar la contraseña
-        const hashedPassword = await bcrypt.hash("defaultPassword123", 10);
+        // Generar contraseña temporal (8 caracteres alfanuméricos)
+        const tempPassword = Math.random().toString(36).slice(-8);
+        
+        // Encriptar la contraseña temporal
+        const hashedPassword = await bcrypt.hash(tempPassword, 10);
 
         // Crear el instructor
         const newInstructor = await User.create({
@@ -947,11 +988,11 @@ const createInstructor = async (req, res) => {
             token, // Token de verificación
         });
 
-        // Enviar correo de verificación
-        await sendVerificationEmail(email, token);
+        // Enviar correo de verificación CON la contraseña temporal
+        await sendVerificationEmail(email, token, tempPassword);
 
         res.status(201).json({
-            message: "Instructor creado con éxito. Por favor verifica tu correo.",
+            message: "Instructor creado con éxito. Se envió un correo con la información de acceso.",
             instructor: newInstructor
         });
     } catch (error) {
@@ -998,7 +1039,10 @@ const createGestor = async (req, res) => {
         const token = generateToken(payload, process.env.JWT_SECRET, 5);
 
         // Encriptar la contraseña
-        const hashedPassword = await bcrypt.hash("defaultPassword123", 10);
+        const tempPassword = Math.random().toString(36).slice(-8);
+        
+        // Encriptar la contraseña temporal
+        const hashedPassword = await bcrypt.hash(tempPassword, 10);
 
         // Crear el gestor
         const newGestor = await User.create({
@@ -1018,9 +1062,12 @@ const createGestor = async (req, res) => {
         });
 
         // Enviar correo de verificación
-        await sendVerificationEmail(email, token);
+        await sendVerificationEmail(email, token, tempPassword);
 
-        res.status(201).json({ message: "Gestor creado con éxito. Por favor verifica tu correo.", gestor: newGestor });
+        res.status(201).json({
+            message: "Instructor creado con éxito. Se envió un correo con la información de acceso.",
+            instructor: newGestor
+        });
     } catch (error) {
         console.error("Error al crear el gestor:", error);
         res.status(500).json({ message: "Error al crear el gestor." });

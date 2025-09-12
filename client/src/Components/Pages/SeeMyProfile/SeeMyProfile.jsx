@@ -7,6 +7,7 @@ import { Main } from '../../../Components/Layouts/Main/Main';
 import axiosInstance from '../../../config/axiosInstance';
 import { Header } from '../../Layouts/Header/Header';
 import fotoPerfilDefect from "../../../assets/Icons/userDefect.png";
+import {validateEmail, validatePhoneNumber, validateText, validateAddress } from '../../../utils/Validators/formValidator';
 
 export const SeeMyProfile = () => {
     const location = useLocation();
@@ -83,6 +84,25 @@ export const SeeMyProfile = () => {
     };
 
     const handleSaveChanges = async () => {
+        
+        const error = {
+            nombre: validateText(perfil.nombres),
+            apellidos: validateText(perfil.apellidos),
+            email: validateEmail(perfil.email),
+            direccion: validateAddress(perfil.Sena.direccion),
+            telefonoSena: validatePhoneNumber(perfil.Sena.telefono),
+            email_sena: validateEmail(perfil.Sena.email_sena) ,
+            Ciudad_sena: validateText(perfil.Sena.Ciudad?.nombre),
+            Departamento_sena: validateText(perfil.Sena.Ciudad?.Departamento?.nombre),
+        }
+
+        const hastErrors = Object.values(error).some(err => err);
+        if(hastErrors){
+            alert("Por favor revisar los valores ingresados antes de actualizar");
+            return;
+        }
+
+
         try {
             // Clonamos el perfil
             const payload = { ...perfil };

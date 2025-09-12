@@ -47,3 +47,15 @@ export const validateAddress = (address) => {
 
     return "";
 }
+
+
+export const createMensajeError =  async (erros) => {
+    const mensaje = Object.entries(erros)
+    .filter(([_, value]) => value !== "")
+    .map(([key, value]) => `El campo ${key} ${value}`)
+    .join("\n");
+
+    if (mensaje === "") return null;
+    
+    return `No se pudo guardar el perfil.\nLos siguientes campos son obligatorios y no pueden estar vacíos: \n${mensaje}. \nIntente nuevamente.`;
+    };

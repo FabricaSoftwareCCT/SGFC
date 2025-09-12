@@ -7,7 +7,7 @@ import { Main } from '../../../Components/Layouts/Main/Main';
 import axiosInstance from '../../../config/axiosInstance';
 import { Header } from '../../Layouts/Header/Header';
 import fotoPerfilDefect from "../../../assets/Icons/userDefect.png";
-import {validateEmail, validatePhoneNumber, validateText, validateAddress } from '../../../utils/Validators/formValidator';
+import {validateEmail, validatePhoneNumber, validateText, validateAddress, createMensajeError } from '../../../utils/Validators/formValidator';
 
 export const SeeMyProfile = () => {
     const location = useLocation();
@@ -15,11 +15,12 @@ export const SeeMyProfile = () => {
     const fotoPerfilInputRef = React.useRef(null);
     const logoEmpresaInputRef = React.useRef(null);
     const [perfil, setPerfil] = useState(null);
+    const [perfilOriginal, setPerfilOriginal] = useState(null); // Guardar el perfil original
     const [tipoCuenta, setTipoCuenta] = useState('');
     const [editMode, setEditMode] = useState(false);
 
     const getImageSrcFromBase64 = (base64) => {
-        if (!base64) return 'default-profile.png'; // Ruta a imagen por defecto
+        if (!base64 || base64 === '' || base64 === null) return fotoPerfilDefect; // Usar imagen por defecto importada
 
         // Detectar tipo MIME por encabezado base64
         if (base64.startsWith('iVBOR')) {
@@ -37,6 +38,7 @@ export const SeeMyProfile = () => {
             try {
                 const response = await axiosInstance.get(`/api/users/profile/${userId}`);
                 setPerfil(response.data);
+                setPerfilOriginal(response.data); // Guardar el perfil original
                 setTipoCuenta(response.data.accountType);
             } catch (error) {
                 console.error('Error al obtener el perfil:', error);
@@ -47,6 +49,8 @@ export const SeeMyProfile = () => {
             fetchProfile();
         }
     }, [userId]);
+
+
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -83,6 +87,11 @@ export const SeeMyProfile = () => {
         reader.readAsDataURL(file);
     };
 
+    const handleModelCancel = (model) => {
+        setEditMode(!model)
+        setPerfil(perfilOriginal)
+    };
+
     const handleSaveChanges = async () => {
         
         const error = {
@@ -90,16 +99,16 @@ export const SeeMyProfile = () => {
             apellidos: validateText(perfil.apellidos),
             email: validateEmail(perfil.email),
             direccion: validateAddress(perfil.Sena.direccion),
-            telefonoSena: validatePhoneNumber(perfil.Sena.telefono),
+            Celular: validatePhoneNumber(perfil.Sena.telefono),
             email_sena: validateEmail(perfil.Sena.email_sena) ,
             Ciudad_sena: validateText(perfil.Sena.Ciudad?.nombre),
             Departamento_sena: validateText(perfil.Sena.Ciudad?.Departamento?.nombre),
         }
-
-        const hastErrors = Object.values(error).some(err => err);
-        if(hastErrors){
-            alert("Por favor revisar los valores ingresados antes de actualizar");
-            return;
+        const hastErrors = await createMensajeError(error);
+        if(hastErrors != null){
+            alert(hastErrors)
+            setPerfil(perfilOriginal); // Actualizar el perfil original con los datos
+            return ;
         }
 
 
@@ -113,43 +122,40 @@ export const SeeMyProfile = () => {
             }
 
             await axiosInstance.put(`/api/users/perfil/actualizar/${userId}`, payload);
-            
-            // ✅ NOTIFICACIÓN MEJORADA
-            alert('✅ Perfil actualizado con éxito');
-            
+            alert('Perfil actualizado con éxito');
+            setPerfilOriginal(perfil); // Actualizar el perfil original con los nuevos datos
             setEditMode(false);
         } catch (error) {
             console.error('Error al actualizar el perfil:', error);
+            console.error('Error response:', error.response);
+            console.error('Error response data:', error.response?.data);
+            console.error('Error response status:', error.response?.status);
             
-            // ✅ NOTIFICACIONES DE ERROR MEJORADAS
-            let errorMessage = '❌ Hubo un error al actualizar el perfil';
+            // Mostrar el mensaje de error específico del backend
+            let errorMessage = 'Hubo un error al actualizar el perfil';
             
-            if (error.response?.status === 401) {
-                errorMessage = '🔒 Sesión expirada. Por favor inicia sesión nuevamente.';
-            } else if (error.response?.data?.message) {
-                // Formatear mensajes específicos del backend
-                const backendMessage = error.response.data.message;
-                
-                const formattedMessages = {
-                    'Formato de correo electrónico inválido.': '✉️ Formato de correo electrónico inválido',
-                    'Número de celular inválido.': '📱 Número de celular inválido',
-                    'Número de documento inválido.': '📄 Número de documento inválido',
-                    'El correo electrónico ya está registrado.': '✉️ Este correo ya está registrado',
-                    'El documento ya está registrado.': '📄 Este documento ya está registrado',
-                    'El número de celular ya está registrado.': '📱 Este número ya está registrado',
-                    'Formato de correo de empresa inválido.': '✉️ Formato de correo empresarial inválido',
-                    'Número de teléfono de empresa inválido.': '📞 Teléfono empresarial inválido',
-                    'NIT inválido.': '🏢 NIT inválido',
-                    'El NIT ya está registrado.': '🏢 Este NIT ya está registrado',
-                    'El correo de empresa ya está registrado.': '✉️ Este correo empresarial ya está registrado',
-                    'No tienes permiso para actualizar este perfil.': '🔒 Sin permisos para esta acción',
-                    'No tienes permiso para actualizar perfiles.': '🔒 Permisos insuficientes'
-                };
-                
-                errorMessage = formattedMessages[backendMessage] || backendMessage;
+            // Intentar extraer el mensaje del backend de diferentes maneras
+            if (error.response?.data?.message) {
+                errorMessage = error.response.data.message;
+            } else if (error.response?.data && typeof error.response.data === 'string') {
+                errorMessage = error.response.data;
+            } else if (error.response?.data && typeof error.response.data === 'object') {
+                // Intentar extraer el mensaje del objeto
+                const data = error.response.data;
+                if (data.message) {
+                    errorMessage = data.message;
+                } else {
+                    errorMessage = JSON.stringify(data);
+                }
+            } else if (error.message) {
+                errorMessage = error.message;
             }
-            
             alert(errorMessage);
+            
+            // Restaurar el perfil original en caso de error
+            if (perfilOriginal) {
+                setPerfil(perfilOriginal);
+            }
         }
     };
 
@@ -247,7 +253,7 @@ export const SeeMyProfile = () => {
 
                         <button
                             className={`updateProfile ${editMode ? 'cancel' : ''}`}
-                            onClick={() => setEditMode(!editMode)}
+                            onClick={() => handleModelCancel(editMode)}
                         >
                             {editMode ? '' : ''}
                         </button>

@@ -22,7 +22,7 @@ import { SeeMyProfile } from './Components/Pages/SeeMyProfile/SeeMyProfile';
 import { GestionsCompany } from './Components/Pages/GestionsCompany/GestionsCompany';
 import { UpdateEmploye } from './Components/Pages/GestionsEmployes/UpdateEmploye/UpdateEmploye';
 import { GestionsEmployes } from './Components/Pages/GestionsEmployes/GestionsEmployes';
-import { AttendanceRecords } from './components/Pages/AttendanceRecords/AttendanceRecords';
+import { AttendanceRecords } from './Components/Pages/AttendanceRecords/AttendanceRecords';
 import { ManageAttendance } from './Components/Pages/Courses/ManageAttendance/ManageAttendance';
 import { MisCursosAdmin } from './Components/Pages/Courses/MisCursos/MisCursosAdmin/MisCursosAdmin';
 import { RequestCourse } from './Components/Pages/Courses/RequestCourse/RequestCourse';

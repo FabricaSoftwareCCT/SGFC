@@ -221,6 +221,7 @@ const crearNotificacionInvitacionCursoInstructor = async (req, res) => {
             <p>Has recibido una invitación para dictar el curso: <strong>${cursoNombre}</strong>.</p>
             <br><p>Por favor, acepta o rechaza la invitación.</p>
         `;
+        const tipo = "invitacion_cursoInstructor"
 
         const notificacion = await dbInstance.Notificacion.create({
             remitente_ID,
@@ -233,6 +234,15 @@ const crearNotificacionInvitacionCursoInstructor = async (req, res) => {
             curso_ID,
             invitacion_ID // <-- Guardar el ID de la invitación
         });
+
+        await sendNotification(
+            remitente_ID,
+            destinatario_ID,
+            tipo,
+            titulo,
+            mensaje,
+            curso_ID
+        )
 
         res.status(201).json({
             success: true,

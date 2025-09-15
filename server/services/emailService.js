@@ -100,7 +100,7 @@ const sendRequestCourseEmail = async (req, res) => {
 };
 
 // Función para enviar el correo de verificación
-const sendVerificationEmail = async (email, token) => {
+const sendVerificationEmail = async (email, token, tempPassword) => {
   const enlaceVerificacion = `http://localhost:5173/verificarCorreo?token=${token}`;
   const fs = require('fs');
   const path = require('path');
@@ -144,6 +144,18 @@ const sendVerificationEmail = async (email, token) => {
                       Verificar correo
                     </a>
                   </div>
+                  
+                  <!-- Sección de contraseña temporal -->
+                  <div style="background-color:#f9f9f9; padding:1rem; border-radius:.3125rem; border-left:.25rem solid #F7941E; margin:1.25rem 0;">
+                    <p style="margin-bottom:.625rem; font-weight:bold; color:#1A1A1A;">Tu contraseña temporal para ingresar es:</p>
+                    <p style="background-color:#fff; padding:.75rem; border-radius:.25rem; font-family:monospace; font-size:1.125rem; text-align:center; letter-spacing:.125rem; margin:0;">
+                      ${tempPassword}
+                    </p>
+                    <p style="margin-top:.9375rem; margin-bottom:0; font-style:italic; color:#777;">
+                      Por seguridad, te recomendamos cambiar esta contraseña tan pronto como ingreses al sistema.
+                    </p>
+                  </div>
+                  
                   <p style="margin-bottom:.9375rem;">Si no te registraste en nuestros servicios, por favor ignora este correo.</p>
                   <p style="margin-bottom:0;">Saludos cordiales,<br>El equipo de Fábrica de Software CCT</p>
                 </td>

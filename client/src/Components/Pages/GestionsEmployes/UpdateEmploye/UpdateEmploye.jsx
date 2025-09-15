@@ -1,4 +1,5 @@
-import React, { useRef, useState } from 'react';
+import { useRef, useState } from 'react';
+import PropTypes from 'prop-types';
 import "./UpdateEmploye.css";
 import axiosInstance from "../../../../config/axiosInstance";
 import { useModal } from "../../../../Context/ModalContext";
@@ -65,7 +66,7 @@ export const UpdateEmploye = ({ empleado }) => {
       // Paso 1: Actualizar perfil (foto, datos)
       const formDataToSend = new FormData();
       for (const key in formData) {
-        if (formData.hasOwnProperty(key)) {
+        if (Object.prototype.hasOwnProperty.call(formData, key)) {
           if (key === "foto_perfil" && formData[key] instanceof File) {
             formDataToSend.append(key, formData[key]);
           } else {
@@ -338,4 +339,8 @@ export const UpdateEmploye = ({ empleado }) => {
       </form>
     </div>
   );
+};
+
+UpdateEmploye.propTypes = {
+  empleado: PropTypes.object.isRequired
 };

@@ -142,9 +142,11 @@ export const Modal_SignIn = () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ idToken }),
+        credentials: 'include' 
       });
 
       const data = await res.json();
+      console.log(data)
 
       if (res.ok && data.success) {
         sessionStorage.setItem("userSession", JSON.stringify({

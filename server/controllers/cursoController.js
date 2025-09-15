@@ -590,7 +590,16 @@ const enviarInvitacionCurso = async (req, res) => {
       fecha_envio: new Date()
     });
 
-    console.log('✅ Invitación creada exitosamente:', nuevaInvitacion.id);
+    const findInstructor = await User.findByPk(instructor_ID, {attributes: ['email']})
+    const curso = await Curso.findOne({where: {ID: curso_ID}})
+
+    const email = findInstructor.dataValues.email;  
+    console.log("datos necesarios: ", {email, curso})
+
+    if(email.length > 0){
+      await sendInstructorAssignedEmail(email, curso);
+      console.log('✅ Invitación creada exitosamente:', nuevaInvitacion.id);
+    }
 
     res.status(201).json({
       message: 'Invitación enviada correctamente.',
@@ -602,6 +611,7 @@ const enviarInvitacionCurso = async (req, res) => {
     res.status(500).json({ message: 'Error al enviar la invitación.' });
   }
 };
+
 const cambiarEstadoInvitacion = async (req, res) => {
   try {
     const { invitacionId } = req.params;

@@ -404,6 +404,7 @@ const sendCourseCreatedEmail = (emails, nombre_curso, courseLink) => {
 
 // Enviar correo al instructor notificando su asignación
 const sendInstructorAssignedEmail = (email, curso) => {
+  console.log("Datos de email: ", email)
   const mailOptions = {
     from: `"SGFC" <${process.env.EMAIL_USER}>`,
     to: email,

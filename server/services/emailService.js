@@ -388,6 +388,7 @@ const sendCourseCreatedEmail = (emails, nombre_curso, courseLink) => {
 
 // Enviar correo al instructor notificando su asignación
 const sendInstructorAssignedEmail = (email, curso) => {
+  console.log("Datos de email: ", email)
   const mailOptions = {
     from: 'softwareccyt@gmail.com',
     to: email,

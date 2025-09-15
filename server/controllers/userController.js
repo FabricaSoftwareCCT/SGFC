@@ -316,6 +316,13 @@ const refreshAccessToken = async (req, res) => {
 
 //cerrar sesion 
 const logoutUser = (req, res) => {
+    // Verificar si el sistema está apagado
+    if (process.env.SYSTEM_STATUS === 'offline' || process.env.SYSTEM_SHUTDOWN === 'true') {
+        return res.status(503).json({ 
+            message: "El sistema está apagado. No es posible cerrar sesión en este momento." 
+        });
+    }
+
     res.clearCookie("accessToken", {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
@@ -627,6 +634,17 @@ const updateUserProfile = async (req, res) => {
             titulo_profesional,
             tipoDocumento
         } = req.body;
+
+        // VALIDACIÓN PARA CAMPOS VACÍOS - AÑADIR ESTA SECCIÓN
+        const camposRequeridos = {
+            email, nombres, apellidos, celular, documento, tipoDocumento
+        };
+
+        for (const [campo, valor] of Object.entries(camposRequeridos)) {
+            if (valor !== undefined && valor !== null && valor.toString().trim() === '') {
+                return res.status(400).json({ message: `El campo ${campo} no puede estar vacío.` });
+            }
+        }
 
         // Procesar imagen de perfil si se sube (como base64) - CORREGIDO
         let foto_perfil = null;

@@ -8,14 +8,17 @@ const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
     user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
+    pass: process.env.GOOGLE_APP_PASSWORD,
   },
+  tls:{
+    rejectUnauthorized:false
+  }
 });
 
 // Función genérica para enviar cualquier tipo de email
 const sendEmail = async (email, subject, htmlContent) => {
   const mailOptions = {
-    from: "tabordasantiago350@gmail.com",
+    from: "softwareccyt@gmail.com ",
     to: email,
     subject: subject,
     html: htmlContent
@@ -106,7 +109,7 @@ const sendVerificationEmail = async (email, token, tempPassword) => {
   const logoPath = path.join(__dirname, '../Img/sena.png');
 
   const mailOptions = {
-    from: `"SGFC" <${process.env.EMAIL_USER} || "tabordasantiago350@gmail.com">`,
+    from: `"SGFC" <${process.env.EMAIL_USER} || "softwareccyt@gmail.com ">`,
     to: email,
     subject: "Verificación de correo electrónico",
     attachments: [
@@ -300,7 +303,7 @@ const sendPasswordChangeConfirmationEmail = (email, resetLink) => {
   const logoPath = path.join(__dirname, '../Img/sena.png');
 
   const mailOptions = {
-    from: `"SGFC" <${process.env.EMAIL_USER} || "tabordasantiago350@gmail.com">`,
+    from: `"SGFC" <${process.env.EMAIL_USER} || "softwareccyt@gmail.com">`,
     to: email,
     subject: "Confirmación de cambio de contraseña",
     attachments: [

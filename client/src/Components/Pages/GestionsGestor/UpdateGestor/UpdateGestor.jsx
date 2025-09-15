@@ -1,14 +1,8 @@
 import React, { useState } from "react";
 import "./UpdateGestor.css";
 import axiosInstance from "../../../../config/axiosInstance";
-import { Routes, Route, useNavigate } from "react-router-dom";
 
 export const UpdateGestor = ({ gestor }) => {
-
-  // Validación de sesión de usuario y rol de administrador
-  const userSessionString = sessionStorage.getItem("userSession");
-  const userSession = userSessionString ? JSON.parse(userSessionString) : null;
-
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({ ...gestor });
 
@@ -18,14 +12,40 @@ export const UpdateGestor = ({ gestor }) => {
 
   const getImageSrc = (data) => {
     if (!data) return null;
+    if (data.startsWith('/9j/')) return `data:image/jpeg;base64,${data}`;
+    if (data.startsWith('iVBORw0KGgo')) return `data:image/png;base64,${data}`;
+    return `data:image/jpeg;base64,${data}`;
+  };
 
-    if (data.startsWith('/9j/')) {
-      return `data:image/jpeg;base64,${data}`; // jpg y jpeg
-    } else if (data.startsWith('iVBORw0KGgo')) {
-      return `data:image/png;base64,${data}`; // png
-    } else {
-      return `data:image/jpeg;base64,${data}`; // fallback
+  // Función de validación
+  const validateField = (name, value) => {
+    switch (name) {
+      case "nombres":
+        if (!value.trim()) return "Los nombres son obligatorios";
+        if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(value)) return "Solo se permiten letras y espacios en los nombres";
+        break;
+      case "apellidos":
+        if (!value.trim()) return "Los apellidos son obligatorios";
+        if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(value)) return "Solo se permiten letras y espacios en los apellidos";
+        break;
+      case "documento":
+        if (!value.trim()) return "La cédula es obligatoria";
+        if (!/^\d+$/.test(value)) return "Solo se permiten números en la cédula";
+        if (value.length < 6) return "La cédula debe tener al menos 6 dígitos";
+        break;
+      case "celular":
+        if (!value.trim()) return "El celular es obligatorio";
+        if (!/^\d+$/.test(value)) return "Solo se permiten números en el celular";
+        if (value.length < 10) return "El celular debe tener al menos 10 dígitos";
+        break;
+      case "email":
+        if (!value.trim()) return "El email es obligatorio";
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return "Formato de email inválido";
+        break;
+      default:
+        break;
     }
+    return "";
   };
 
   const handleChange = (e) => {
@@ -36,6 +56,18 @@ export const UpdateGestor = ({ gestor }) => {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      // Validar tipo de archivo
+      if (!file.type.startsWith('image/')) {
+        alert("Solo se permiten archivos de imagen");
+        return;
+      }
+      
+      // Validar tamaño de archivo (max 2MB)
+      if (file.size > 2 * 1024 * 1024) {
+        alert("La imagen no debe superar los 2MB");
+        return;
+      }
+      
       setFormData((prev) => ({
         ...prev,
         foto_perfil: file,
@@ -47,12 +79,30 @@ export const UpdateGestor = ({ gestor }) => {
     setFormData((prev) => ({ ...prev, estado }));
   };
 
+  const validateForm = () => {
+    const fieldsToValidate = ["nombres", "apellidos", "documento", "celular", "email"];
+    
+    for (const field of fieldsToValidate) {
+      const error = validateField(field, formData[field] || "");
+      if (error) {
+        alert(error);
+        return false;
+      }
+    }
+    
+    return true;
+  };
+
   const handleButtonClick = async (e) => {
     e.preventDefault();
 
     if (!isEditing) {
-      // Activar edición
       setIsEditing(true);
+      return;
+    }
+
+    // Validar antes de guardar
+    if (!validateForm()) {
       return;
     }
 
@@ -224,7 +274,6 @@ export const UpdateGestor = ({ gestor }) => {
           </button>
         </div>
 
-
         <div className="container_return_UpdateInstructor">
           <h5>Volver</h5>
           <button
@@ -236,5 +285,4 @@ export const UpdateGestor = ({ gestor }) => {
       </form>
     </div>
   );
-
 };

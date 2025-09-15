@@ -118,7 +118,7 @@ const createCurso = async (req, res) => {
   try {
     const { accountType } = req.user;
 
-    if (accountType !== "Administrador") {
+    if (accountType !== "Administrador" & accountType !== "Gestor") {
       return res.status(403).json({ message: "No tienes permisos para crear cursos." });
     }
 
@@ -249,7 +249,7 @@ const createCurso = async (req, res) => {
 const updateCurso = async (req, res) => {
   try {
     const { accountType } = req.user;
-    if (accountType !== "Administrador") {
+    if (accountType !== "Administrador" & accountType !== "Gestor") {
       return res
         .status(403)
         .json({ message: "No tienes permisos para actualizar cursos." });

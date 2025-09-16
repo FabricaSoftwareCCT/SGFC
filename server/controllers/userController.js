@@ -702,7 +702,7 @@ const updateUserProfile = async (req, res) => {
         }
 
         // Verificación de permisos
-        if (loggedInUser.accountType === "Gestor" || loggedInUser.accountType === "Instructor") {
+        if (loggedInUser.accountType === "Gestor") {
             return res.status(403).json({ message: "No tienes permiso para actualizar perfiles." });
         }
 
@@ -905,6 +905,43 @@ const updateUserProfile = async (req, res) => {
 
         // APRENDIZ puede actualizar su propio perfil
         if (loggedInUser.accountType === "Aprendiz" && user.accountType === "Aprendiz") {
+            // Validar que el aprendiz solo pueda actualizar su propio perfil
+            if (loggedInUser.id !== parseInt(id)) {
+                return res.status(403).json({ message: "No tienes permiso para actualizar este perfil." });
+            }
+
+            if (email && email !== user.email) {
+                const existingEmail = await User.findOne({ where: { email } });
+                if (existingEmail) {
+                    return res.status(400).json({ message: "El correo electrónico ya está registrado." });
+                }
+
+                // Generar token de verificación
+                const payload = {email};
+
+                const verificationToken = generateToken(payload, process.env.JWT_SECRET, 5);
+                user.token = verificationToken;
+                user.verificacion_email = false;
+
+                // Enviar correo de verificación
+                await sendVerificationEmail(email, verificationToken);
+                user.email = email;
+            }
+            if (nombres) user.nombres = nombres;
+            if (apellidos) user.apellidos = apellidos;
+            if (celular) user.celular = celular;
+            if (documento) user.documento = documento;
+            if (estado) user.estado = estado;
+            if (titulo_profesional) user.titulo_profesional = titulo_profesional;
+            if (tipoDocumento) user.tipoDocumento = tipoDocumento;
+            if (foto_perfil) user.foto_perfil = foto_perfil;
+
+            await user.save();
+            return res.status(200).json({ message: "Perfil de aprendiz actualizado con éxito. Por favor verifica tu nuevo correo." });
+        }
+
+        // Instructor puede actualizar su propio perfil
+        if (loggedInUser.accountType === "Instructor" && user.accountType === "Instructor") {
             // Validar que el aprendiz solo pueda actualizar su propio perfil
             if (loggedInUser.id !== parseInt(id)) {
                 return res.status(403).json({ message: "No tienes permiso para actualizar este perfil." });

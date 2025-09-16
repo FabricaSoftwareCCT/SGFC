@@ -228,9 +228,16 @@ const createCurso = async (req, res) => {
       attributes: ['email'],
     });
 
+    const Idcurso = await Curso.findByPk(nuevoCurso.ID, { attributes: ['ID'] }).then(c => c.ID);
+
+    if(Idcurso == null){
+      res.status(500).json({ message: "Error al obtener el curso recién creado." });
+      return;
+    }
+
     const emails = usuarios.map(user => user.email);
     if (emails.length > 0) {
-      const courseLink = `http://localhost:5173/cursos/${nuevoCurso.id}`;
+      const courseLink = `http://localhost:5173/cursos/${Idcurso}`;
       await sendCourseCreatedEmail(emails, nombre_curso, courseLink);
     }
 

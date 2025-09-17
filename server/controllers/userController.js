@@ -531,9 +531,9 @@ const getGestores = async (req, res) => {
 
 //Actualizar perfil segun tipo cuenta
 const updateUserProfile = async (req, res) => {
+    console.log("🚀 Entró al controlador updateUserProfile");
     try {
         const { id } = req.params;
-
         const {
             email,
             nombres,
@@ -657,7 +657,6 @@ const updateUserProfile = async (req, res) => {
                 nombres: nombres,
                 apellidos: apellidos,
                 celular: celular,
-                documento: documento,
                 email: email
             };
 
@@ -693,17 +692,19 @@ const updateUserProfile = async (req, res) => {
                 }
 
                 const {
-                    nit,
-                    email_empresa,
-                    nombre_empresa,
-                    direccion,
-                    estado,
+                    NIT,
                     categoria,
-                    telefono,
-                    img_empresa
+                    direccion,
+                    email_empresa,
+                    estado,
+                    img_empresa,
+                    nombre_empresa,
+                    telefono
                 } = empresaData;
 
-                if (nit) user.Empresa.NIT = nit;
+                console.log("Datos de empresa recibidos:", empresaData);
+
+                if (NIT) user.Empresa.NIT = NIT;
                 if (email_empresa) user.Empresa.email_empresa = email_empresa;
                 if (nombre_empresa) user.Empresa.nombre_empresa = nombre_empresa;
                 if (direccion) user.Empresa.direccion = direccion;

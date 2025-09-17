@@ -96,9 +96,7 @@ const registerUser = async (req, res) => {
         res.status(500).json({ message: 'Error al registrar el usuario' });
     }
 };
-// Verificar correo
-// Verificar correo
-// Verificar correo
+
 // Verificar correo
 const verifyEmail = async (req, res) => {
     try {
@@ -124,9 +122,8 @@ const verifyEmail = async (req, res) => {
             return res.status(400).json({ message: "Token inválido" });
         }
 
-        // CORRECCIÓN: Acceder al email correctamente
-        // Tu token tiene la estructura: { data: { email: '...' } }
-        const userEmail = decoded.data.email; // ← Aquí está el cambio
+        console.log(decoded.data.email);
+        const userEmail = decoded.data.email; 
         console.log('Buscando usuario con email:', userEmail);
         
         if (!userEmail) {

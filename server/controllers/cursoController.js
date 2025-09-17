@@ -581,6 +581,11 @@ const enviarInvitacionCurso = async (req, res) => {
       return res.status(409).json({ message: 'Ya existe una invitación pendiente para este instructor y curso.' });
     }
 
+    const validarEstado = await Usuario.findByPk(instructor_ID);
+    if (validarEstado.estado === 'inactivo') {
+      return res.status(404).json({ message: 'Instructor no se encuentra activo' });
+    }
+
     // Crear la invitación
     const nuevaInvitacion = await InvitacionCurso.create({
       instructor_ID: parseInt(instructor_ID),

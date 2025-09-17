@@ -78,7 +78,7 @@ const sendRequestCourseEmail = async (req, res) => {
 
     await transporter.sendMail({
       from: `"SGFC" <${process.env.EMAIL_USER}>`,
-      to: process.env.EMAIL_TO,
+      to: process.env.EMAIL_USER,
       subject: "Nueva Solicitud de Curso",
       html: `<p>Solicitud de curso: ${nombreCurso}</p>`,
       attachments: [

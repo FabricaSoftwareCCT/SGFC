@@ -255,11 +255,49 @@ const crearNotificacionInvitacionCursoInstructor = async (req, res) => {
     }
 };
 
+// crear notificacion de estado de solicitud de curso (aceptada/rechazada) para empresa
+const createCourseRequestStatusNotification = async (req, res) => {
+    try {
+        const {actaID, estado} = req.body;
+        if (!actaID || !estado) {
+            return res.status(400).json({ message: 'Faltan datos requeridos.' });
+        }
+        // Buscar el acta para obtener el ID de la empresa (remitente)
+        const acta = await dbInstance.Acta.findByPk(actaID);
+        if (!acta) {
+            return res.status(404).json({ message: 'Acta no encontrada.' });
+        }
+        const remitente_ID = acta.empresa_ID;
+
+        // Crear la notificación
+        const notificacion = await dbInstance.Notificacion.create({
+            remitente_ID,
+            destinatario_ID: acta.gestor_ID,
+            tipo: 'estado_solicitud_curso',
+            titulo: `Solicitud de curso ${estado}`,
+            mensaje: `La solicitud de curso ha sido ${estado}.`,
+            fecha_envio: new Date(),
+            estado: 'sin_leer',
+            acta_ID: actaID
+        });
+
+        res.status(201).json({
+            success: true,
+            message: 'Notificación de estado de solicitud de curso creada correctamente',
+            notificacion
+        });
+    } catch (error) {
+        console.error('Error al crear notificación de estado de solicitud de curso:', error);
+        res.status(500).json({ message: 'Error al crear la notificación' });
+    }
+}
+
 module.exports = {
     setDb,
     getUserNotifications,
     markNotificationAsRead,
     sendManualAbsenceNotification,
     crearNotificacionSolicitudCurso,
-    crearNotificacionInvitacionCursoInstructor
+    crearNotificacionInvitacionCursoInstructor,
+    createCourseRequestStatusNotification
 }; 

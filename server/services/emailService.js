@@ -15,7 +15,7 @@ const transporter = nodemailer.createTransport({
 // Función genérica para enviar cualquier tipo de email
 const sendEmail = async (email, subject, htmlContent) => {
   const mailOptions = {
-    from: "tabordasantiago350@gmail.com",
+    from: `"SGFC" <${process.env.EMAIL_USER}>`,
     to: email,
     subject: subject,
     html: htmlContent
@@ -77,7 +77,7 @@ const sendRequestCourseEmail = async (req, res) => {
 
     await transporter.sendMail({
       from: `"SGFC" <${process.env.EMAIL_USER}>`,
-      to: process.env.EMAIL_TO,
+      to: process.env.EMAIL_USER,
       subject: "Nueva Solicitud de Curso",
       html: `<p>Solicitud de curso: ${nombreCurso}</p>`,
       attachments: [
@@ -106,7 +106,7 @@ const sendVerificationEmail = async (email, token, tempPassword) => {
   const logoPath = path.join(__dirname, '../Img/sena.png');
 
   const mailOptions = {
-    from: `"SGFC" <${process.env.EMAIL_USER} || "tabordasantiago350@gmail.com">`,
+    from: `"SGFC" <${process.env.EMAIL_USER}>`,
     to: email,
     subject: "Verificación de correo electrónico",
     attachments: [
@@ -300,7 +300,7 @@ const sendPasswordChangeConfirmationEmail = (email, resetLink) => {
   const logoPath = path.join(__dirname, '../Img/sena.png');
 
   const mailOptions = {
-    from: `"SGFC" <${process.env.EMAIL_USER} || "tabordasantiago350@gmail.com">`,
+    from: `"SGFC" <${process.env.EMAIL_USER}>`,
     to: email,
     subject: "Confirmación de cambio de contraseña",
     attachments: [

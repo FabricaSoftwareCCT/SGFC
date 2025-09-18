@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./UpdateInstructor.css";
 import axiosInstance from "../../../../config/axiosInstance"; // Asegúrate de ajustar esta ruta según la estructura de tu proyecto
+import { createMensajeError, validatePhoneNumber, validateText, validateEmail } from "../../../../utils/Validators/formValidator";
 
 export const UpdateInstructor = ({ instructor }) => {
   const [isEditing, setIsEditing] = useState(false);
@@ -10,13 +11,11 @@ export const UpdateInstructor = ({ instructor }) => {
   useEffect(() => {
     const obtenerCursosAsignados = async () => {
       try {
-        console.log("ID del instructor seleccionado:", instructor.ID); // 👈 Valida el ID aquí
 
+        //Obtener cursos asginados al instructor seleccionado
         const response = await axiosInstance.get(
           `/api/courses/cursos-asignados/${instructor.ID}`
         );
-        console.log("Cursos asignados:", response.data); // 👈 Aquí puedes ver lo que devuelve el backend
-
         if (Array.isArray(response.data)) {
           setCantidadCursos(response.data.length);
         } else {
@@ -24,7 +23,7 @@ export const UpdateInstructor = ({ instructor }) => {
         }
       } catch (error) {
         console.error("Error al obtener los cursos asignados:", error);
-        setCantidadCursos(0); // en caso de error, asumimos 0
+        setCantidadCursos(0);
       }
     };
 
@@ -68,6 +67,22 @@ export const UpdateInstructor = ({ instructor }) => {
 
     // Guardar cambios
     try {
+
+      const validationGeneral = {
+        nombres: validateText(formData.nombres),
+        apellidos: validateText(formData.apellidos),
+        documento: validatePhoneNumber(formData.documento),
+        titulo_profesional: validateText(formData.titulo_profesional),
+        celular: validatePhoneNumber(formData.celular),
+        email: validateEmail(formData.email)
+      }
+
+     const errores = await createMensajeError(validationGeneral);
+     if(errores !== null){
+        alert(errores);
+        return;
+     }
+
       const formDataToSend = new FormData();
       for (const key in formData) {
         if (formData.hasOwnProperty(key)) {

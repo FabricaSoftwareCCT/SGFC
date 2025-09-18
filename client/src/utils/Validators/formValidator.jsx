@@ -48,6 +48,17 @@ export const validateAddress = (address) => {
     return "";
 }
 
+export function validateNIT(nit) {
+  if (!nit) return "El NIT es requerido";
+
+  const regex = /^\d{8,10}$/; 
+  if (!regex.test(nit)) {
+    return "El NIT debe tener entre 8 y 10 dígitos numéricos";
+  }
+
+  return ""; 
+}
+
 
 export const createMensajeError =  async (erros) => {
     const mensaje = Object.entries(erros)

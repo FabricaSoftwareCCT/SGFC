@@ -11,7 +11,7 @@ export const validateEmail = (email) => {
     return "";
 }
 
-export const validatePhoneNumber = (phoneNumber) => {
+export const validateNumber = (phoneNumber) => {
     // Validar que el número de teléfono no esté vacío
     if (!phoneNumber) return "El número de teléfono no puede estar vacío";
 
@@ -46,6 +46,17 @@ export const validateAddress = (address) => {
     if (!isValidFormat) return "La dirección contiene caracteres inválidos";
 
     return "";
+}
+
+export function validateNIT(nit) {
+  if (!nit) return "El NIT es requerido";
+
+  const regex = /^\d{8,10}$/; 
+  if (!regex.test(nit)) {
+    return "El NIT debe tener entre 8 y 10 dígitos numéricos";
+  }
+
+  return ""; 
 }
 
 

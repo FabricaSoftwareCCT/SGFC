@@ -118,7 +118,7 @@ const createCurso = async (req, res) => {
   try {
     const { accountType } = req.user;
 
-    if (accountType !== "Administrador") {
+    if (accountType !== "Administrador" & accountType !== "Gestor") {
       return res.status(403).json({ message: "No tienes permisos para crear cursos." });
     }
 
@@ -228,9 +228,16 @@ const createCurso = async (req, res) => {
       attributes: ['email'],
     });
 
+    const Idcurso = await Curso.findByPk(nuevoCurso.ID, { attributes: ['ID'] }).then(c => c.ID);
+
+    if(Idcurso == null){
+      res.status(500).json({ message: "Error al obtener el curso recién creado." });
+      return;
+    }
+
     const emails = usuarios.map(user => user.email);
     if (emails.length > 0) {
-      const courseLink = `http://localhost:5173/cursos/${nuevoCurso.id}`;
+      const courseLink = `http://localhost:5173/cursos/${Idcurso}`;
       await sendCourseCreatedEmail(emails, nombre_curso, courseLink);
     }
 
@@ -249,7 +256,7 @@ const createCurso = async (req, res) => {
 const updateCurso = async (req, res) => {
   try {
     const { accountType } = req.user;
-    if (accountType !== "Administrador") {
+    if (accountType !== "Administrador" & accountType !== "Gestor") {
       return res
         .status(403)
         .json({ message: "No tienes permisos para actualizar cursos." });
@@ -595,7 +602,16 @@ const enviarInvitacionCurso = async (req, res) => {
       fecha_envio: new Date()
     });
 
-    console.log('✅ Invitación creada exitosamente:', nuevaInvitacion.id);
+    const findInstructor = await User.findByPk(instructor_ID, {attributes: ['email']})
+    const curso = await Curso.findOne({where: {ID: curso_ID}})
+
+    const email = findInstructor.dataValues.email;  
+    console.log("datos necesarios: ", {email, curso})
+
+    if(email.length > 0){
+      await sendInstructorAssignedEmail(email, curso);
+      console.log('✅ Invitación creada exitosamente:', nuevaInvitacion.id);
+    }
 
     res.status(201).json({
       message: 'Invitación enviada correctamente.',
@@ -607,6 +623,7 @@ const enviarInvitacionCurso = async (req, res) => {
     res.status(500).json({ message: 'Error al enviar la invitación.' });
   }
 };
+
 const cambiarEstadoInvitacion = async (req, res) => {
   try {
     const { invitacionId } = req.params;

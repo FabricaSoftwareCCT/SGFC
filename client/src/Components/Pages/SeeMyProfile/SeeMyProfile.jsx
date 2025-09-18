@@ -7,7 +7,7 @@ import { Main } from '../../../Components/Layouts/Main/Main';
 import axiosInstance from '../../../config/axiosInstance';
 import { Header } from '../../Layouts/Header/Header';
 import fotoPerfilDefect from "../../../assets/Icons/userDefect.png";
-import {validateEmail, validatePhoneNumber, validateText, validateAddress, createMensajeError } from '../../../utils/Validators/formValidator';
+import {validateEmail, validatePhoneNumber, validateText, validateAddress, createMensajeError, validateNIT } from '../../../utils/Validators/formValidator';
 
 export const SeeMyProfile = () => {
     const location = useLocation();
@@ -92,18 +92,33 @@ export const SeeMyProfile = () => {
         setPerfil(perfilOriginal)
     };
 
+
     const handleSaveChanges = async () => {
         
-        const error = {
+        let erroresTipoCuenta = {};
+
+        const ValidationGeneral = {
             nombre: validateText(perfil.nombres),
             apellidos: validateText(perfil.apellidos),
             email: validateEmail(perfil.email),
-            direccion: validateAddress(perfil.Sena.direccion),
-            Celular: validatePhoneNumber(perfil.Sena.telefono),
-            email_sena: validateEmail(perfil.Sena.email_sena) ,
-            Ciudad_sena: validateText(perfil.Sena.Ciudad?.nombre),
-            Departamento_sena: validateText(perfil.Sena.Ciudad?.Departamento?.nombre),
+            Celular: validateNumber(perfil.celular) 
         }
+
+        if (tipoCuenta === 'Empresa') {
+            erroresTipoCuenta = {
+                nombre_empresa: validateText(perfil.Empresa.nombre_empresa),
+                direccion: validateAddress(perfil.Empresa.direccion),
+                telefono: validateNumber(perfil.Empresa.telefono),
+                email: validateEmail(perfil.Empresa.email_empresa),
+                nit: validateNIT(perfil?.Empresa?.NIT ) 
+            }
+        }
+
+        const error = {
+            ...ValidationGeneral,
+            ...erroresTipoCuenta
+        }
+        
         const hastErrors = await createMensajeError(error);
         if(hastErrors != null){
             alert(hastErrors)
@@ -111,13 +126,13 @@ export const SeeMyProfile = () => {
             return ;
         }
 
-
         try {
             // Clonamos el perfil
             const payload = { ...perfil };
 
             // Si es una empresa, serializamos el objeto Empresa
             if (tipoCuenta === 'Empresa' && perfil.Empresa) {
+                payload.documento = perfil?.Empresa?.NIT;
                 payload.empresa = JSON.stringify(perfil.Empresa);
             }
 

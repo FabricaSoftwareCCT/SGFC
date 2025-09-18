@@ -102,14 +102,14 @@ export const SeeMyProfile = () => {
             nombre: validateText(perfil.nombres),
             apellidos: validateText(perfil.apellidos),
             email: validateEmail(perfil.email),
-            Celular: validatePhoneNumber(perfil.celular) 
+            Celular: validateNumber(perfil.celular) 
         }
 
         if (tipoCuenta === 'Empresa') {
             erroresTipoCuenta = {
                 nombre_empresa: validateText(perfil.Empresa.nombre_empresa),
                 direccion: validateAddress(perfil.Empresa.direccion),
-                telefono: validatePhoneNumber(perfil.Empresa.telefono),
+                telefono: validateNumber(perfil.Empresa.telefono),
                 email: validateEmail(perfil.Empresa.email_empresa),
                 nit: validateNIT(perfil?.Empresa?.NIT ) 
             }

@@ -71,9 +71,9 @@ export const UpdateInstructor = ({ instructor }) => {
       const validationGeneral = {
         nombres: validateText(formData.nombres),
         apellidos: validateText(formData.apellidos),
-        documento: validatePhoneNumber(formData.documento),
+        documento: validateNumber(formData.documento),
         titulo_profesional: validateText(formData.titulo_profesional),
-        celular: validatePhoneNumber(formData.celular),
+        celular: validateNumber(formData.celular),
         email: validateEmail(formData.email)
       }
 

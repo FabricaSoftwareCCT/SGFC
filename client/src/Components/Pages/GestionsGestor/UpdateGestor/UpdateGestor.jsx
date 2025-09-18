@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import "./UpdateGestor.css";
 import axiosInstance from "../../../../config/axiosInstance";
+import { validateEmail, validateNumber, validateText, createMensajeError } from "../../../../utils/Validators/formValidator";
 import { Routes, Route, useNavigate } from "react-router-dom";
 
 export const UpdateGestor = ({ gestor }) => {
@@ -58,6 +59,24 @@ export const UpdateGestor = ({ gestor }) => {
 
     // Guardar cambios
     try {
+      const validationGeneral = {
+          nombres: validateText(formData.nombres),
+          apellidos: validateText(formData.apellidos),
+          Cédula: validateNumber(formData.documento),
+          celular: validateNumber(formData.celular),
+          email: validateEmail(formData.email)
+      }
+
+      console.log("FormData enviado: ", formData)
+      console.log("datos validados: ", validationGeneral)
+      
+      const errores = await createMensajeError(validationGeneral);
+        if(errores !== null){
+          alert(errores);
+          return;
+        }
+
+
       const formDataToSend = new FormData();
       for (const key in formData) {
         if (formData.hasOwnProperty(key)) {

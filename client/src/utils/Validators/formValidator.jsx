@@ -11,7 +11,7 @@ export const validateEmail = (email) => {
     return "";
 }
 
-export const validatePhoneNumber = (phoneNumber) => {
+export const validateNumber = (phoneNumber) => {
     // Validar que el número de teléfono no esté vacío
     if (!phoneNumber) return "El número de teléfono no puede estar vacío";
 

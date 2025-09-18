@@ -258,21 +258,28 @@ const crearNotificacionInvitacionCursoInstructor = async (req, res) => {
 // crear notificacion de estado de solicitud de curso (aceptada/rechazada) para empresa
 const createCourseRequestStatusNotification = async (req, res) => {
     try {
-        const {actaID, estado} = req.body;
-        if (!actaID || !estado) {
+        const { remitente_ID ,actaID, estado} = req.body;
+        if (!remitente_ID || !actaID || !estado ) {
+            console.log('Faltan datos requeridos:', { actaID, estado }); 
             return res.status(400).json({ message: 'Faltan datos requeridos.' });
         }
         // Buscar el acta para obtener el ID de la empresa (remitente)
-        const acta = await dbInstance.Acta.findByPk(actaID);
+        const acta = await dbInstance.Actas.findByPk(actaID);
         if (!acta) {
             return res.status(404).json({ message: 'Acta no encontrada.' });
         }
-        const remitente_ID = acta.empresa_ID;
+        const id_empresa = acta.empresa_ID;
+        // Buscar el usuario de la empresa
+        const usuario = await User.findOne({ where: { empresa_ID: id_empresa } });
+
+        if (!usuario) {
+            return res.status(404).json({ message: 'Usuario no encontrado.' });
+        }
 
         // Crear la notificación
         const notificacion = await dbInstance.Notificacion.create({
             remitente_ID,
-            destinatario_ID: acta.gestor_ID,
+            destinatario_ID: usuario.dataValues.ID,
             tipo: 'estado_solicitud_curso',
             titulo: `Solicitud de curso ${estado}`,
             mensaje: `La solicitud de curso ha sido ${estado}.`,

@@ -21,4 +21,7 @@ router.post('/solicitud-curso', notificationController.crearNotificacionSolicitu
 // Crear notificaciones de invitación a dictar curso para instructores
 router.post('/invitacionCursoInstructor', notificationController.crearNotificacionInvitacionCursoInstructor);
 
+// Crear notificación de estado de solicitud de curso (aceptada/rechazada) para empresa
+router.post('/solicitudNotificacion', notificationController.createCourseRequestStatusNotification);
+
 module.exports = router; 

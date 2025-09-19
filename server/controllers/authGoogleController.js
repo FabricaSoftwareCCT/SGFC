@@ -193,6 +193,8 @@ const generateTokenAndRespond = (user, res) => {
     res.status(200).json({
         success: true,
         message: 'Operación exitosa.',
+        accessToken,
+        refreshToken,
         user: {
             ID: user.ID,
             googleId: user.googleId,

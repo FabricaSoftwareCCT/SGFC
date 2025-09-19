@@ -14,6 +14,9 @@ router.get('/empresa/:empresaId', cursoController.getCursosByEmpresaId);
 // Asignar curso a instructor
 router.post('/asignaciones', cursoController.asignarInstructorAlCurso);
 
+// Disponibilidad de instructor
+router.get('/instructores/:instructor_ID/disponibilidad', cursoController.verificarDisponibilidadInstructor);
+
 
 //ruta que requieren autorizacion
 router.use(authMiddleware);

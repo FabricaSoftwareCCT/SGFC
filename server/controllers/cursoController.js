@@ -650,33 +650,67 @@ const verificarDisponibilidadInstructor = async (req, res) => {
 };
 
 const cambiarEstadoInvitacion = async (req, res) => {
+  const transaction = await dbInstance.sequelize.transaction();
+  
   try {
     const { invitacionId } = req.params;
     const { nuevoEstado } = req.body; // 'aceptada' o 'rechazada'
 
     // Validar estado permitido
     if (!['aceptada', 'rechazada'].includes(nuevoEstado)) {
+      await transaction.rollback();
       return res.status(400).json({ message: "El estado debe ser 'aceptada' o 'rechazada'." });
     }
 
-    // Buscar la invitación
-    const invitacion = await InvitacionCurso.findByPk(invitacionId);
+    // Buscar la invitación con transacción
+    const invitacion = await InvitacionCurso.findByPk(invitacionId, { transaction });
     if (!invitacion) {
+      await transaction.rollback();
       return res.status(404).json({ message: "Invitación no encontrada." });
     }
 
     // Si ya está en ese estado, no hacer nada
     if (invitacion.estado === nuevoEstado) {
+      await transaction.rollback();
       return res.status(200).json({ message: `La invitación ya está en estado '${nuevoEstado}'.` });
     }
 
-    // Cambiar el estado de la invitación seleccionada
-    invitacion.estado = nuevoEstado;
-    invitacion.fecha_estado = new Date();
-    await invitacion.save();
+    // Obtener el curso relacionado
+    const curso = await Curso.findByPk(invitacion.curso_ID, { transaction });
+    if (!curso) {
+      await transaction.rollback();
+      return res.status(404).json({ message: "Curso no encontrado." });
+    }
 
-    // Si se acepta, cancelar las demás invitaciones pendientes para ese curso
+    // Manejar el cambio de estado
     if (nuevoEstado === 'aceptada') {
+      // ASIGNAR INSTRUCTOR AL CURSO
+      
+      // 1. Verificar si ya existe una asignación activa
+      const asignacionExistente = await AsignacionCursoInstructor.findOne({
+        where: {
+          curso_ID: invitacion.curso_ID,
+          instructor_ID: invitacion.instructor_ID,
+          estado: 'aceptada'
+        },
+        transaction
+      });
+
+      if (!asignacionExistente) {
+        // Crear nueva asignación
+        await AsignacionCursoInstructor.create({
+          instructor_ID: invitacion.instructor_ID,
+          curso_ID: invitacion.curso_ID,
+          estado: 'aceptada',
+          fecha_asignacion: new Date()
+        }, { transaction });
+      }
+
+      // 2. Actualizar el curso con el nuevo instructor
+      curso.instructor_ID = invitacion.instructor_ID;
+      await curso.save({ transaction });
+
+      // 3. Cancelar otras invitaciones pendientes para este curso
       await InvitacionCurso.update(
         { estado: 'cancelada', fecha_estado: new Date() },
         {
@@ -684,18 +718,56 @@ const cambiarEstadoInvitacion = async (req, res) => {
             curso_ID: invitacion.curso_ID,
             id: { [Op.ne]: invitacion.id },
             estado: 'pendiente'
-          }
+          },
+          transaction
         }
       );
+
+    } else if (nuevoEstado === 'rechazada') {
+      // REMOVER ASIGNACIÓN SI CORRESPONDE
+      
+      // 1. Verificar si este instructor estaba asignado al curso
+      if (curso.instructor_ID === invitacion.instructor_ID) {
+        curso.instructor_ID = null;
+        await curso.save({ transaction });
+
+        // 2. Cambiar el estado de la asignación a rechazada
+        await AsignacionCursoInstructor.update(
+          { estado: 'rechazada' },
+          {
+            where: {
+              curso_ID: invitacion.curso_ID,
+              instructor_ID: invitacion.instructor_ID
+            },
+            transaction
+          }
+        );
+      }
     }
 
-    res.status(200).json({ message: `Invitación actualizada a estado '${nuevoEstado}'.` });
+    // Actualizar el estado de la invitación
+    invitacion.estado = nuevoEstado;
+    invitacion.fecha_estado = new Date();
+    await invitacion.save({ transaction });
+
+    // Confirmar la transacción
+    await transaction.commit();
+
+    res.status(200).json({ 
+      message: `Invitación actualizada a estado '${nuevoEstado}'.`,
+      cursoActualizado: {
+        instructor_ID: curso.instructor_ID,
+        nombre_curso: curso.nombre_curso
+      }
+    });
+
   } catch (error) {
+    // Revertir la transacción en caso de error
+    await transaction.rollback();
     console.error('Error al cambiar el estado de la invitación:', error);
     res.status(500).json({ message: 'Error al cambiar el estado de la invitación.' });
   }
 };
-
 module.exports = {
   setDb,
   createCurso,

@@ -622,7 +622,6 @@ const getGestores = async (req, res) => {
 const updateUserProfile = async (req, res) => {
     try {
         const { id } = req.params;
-
         const {
             email,
             nombres,
@@ -634,18 +633,7 @@ const updateUserProfile = async (req, res) => {
             tipoDocumento
         } = req.body;
 
-        // VALIDACIÓN PARA CAMPOS VACÍOS - AÑADIR ESTA SECCIÓN
-        const camposRequeridos = {
-            email, nombres, apellidos, celular, documento, tipoDocumento
-        };
-
-        for (const [campo, valor] of Object.entries(camposRequeridos)) {
-            if (valor !== undefined && valor !== null && valor.toString().trim() === '') {
-                return res.status(400).json({ message: `El campo ${campo} no puede estar vacío.` });
-            }
-        }
-
-        // Procesar imagen de perfil si se sube (como base64) - CORREGIDO
+        // Procesar imagen de perfil si se sube (como base64)
         let foto_perfil = null;
         if (req.files?.foto_perfil?.[0]) {
             // Si viene como archivo
@@ -774,7 +762,7 @@ const updateUserProfile = async (req, res) => {
                 nombres: nombres,
                 apellidos: apellidos,
                 celular: celular,
-                documento: documento,
+                //documento : NIT,
                 email: email
             };
 
@@ -811,47 +799,17 @@ const updateUserProfile = async (req, res) => {
                 }
 
                 const {
-                    nit,
-                    email_empresa,
-                    nombre_empresa,
-                    direccion,
-                    estado: estadoEmpresa,
+                    NIT,
                     categoria,
-                    telefono,
-                    img_empresa
+                    direccion,
+                    email_empresa,
+                    estado,
+                    img_empresa,
+                    nombre_empresa,
+                    telefono
                 } = empresaData;
 
-                // Validaciones para datos de empresa
-                if (email_empresa && !isValidEmail(email_empresa)) {
-                    return res.status(400).json({ message: "Formato de correo de empresa inválido." });
-                }
-
-                if (telefono && (!isValidPositiveNumber(telefono) || telefono.toString().length < 7)) {
-                    return res.status(400).json({ message: "Número de teléfono de empresa inválido." });
-                }
-
-                if (nit && !isValidPositiveNumber(nit)) {
-                    return res.status(400).json({ message: "NIT inválido." });
-                }
-
-                // Verificar NIT único si cambió
-                if (nit && nit !== user.Empresa.NIT) {
-                    const existingNIT = await Empresa.findOne({ where: { NIT: nit } });
-                    if (existingNIT) {
-                        return res.status(400).json({ message: "El NIT ya está registrado." });
-                    }
-                }
-
-                // Verificar email de empresa único si cambió
-                if (email_empresa && email_empresa !== user.Empresa.email_empresa) {
-                    const existingEmailEmpresa = await Empresa.findOne({ where: { email_empresa } });
-                    if (existingEmailEmpresa) {
-                        return res.status(400).json({ message: "El correo de empresa ya está registrado." });
-                    }
-                }
-
-                // Actualizar datos de empresa
-                if (nit) user.Empresa.NIT = nit;
+                if (NIT) user.Empresa.NIT = NIT;
                 if (email_empresa) user.Empresa.email_empresa = email_empresa;
                 if (nombre_empresa) user.Empresa.nombre_empresa = nombre_empresa;
                 if (direccion) user.Empresa.direccion = direccion;

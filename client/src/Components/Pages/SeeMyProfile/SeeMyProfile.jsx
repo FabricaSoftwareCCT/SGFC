@@ -7,7 +7,7 @@ import { Main } from '../../../Components/Layouts/Main/Main';
 import axiosInstance from '../../../config/axiosInstance';
 import { Header } from '../../Layouts/Header/Header';
 import fotoPerfilDefect from "../../../assets/Icons/userDefect.png";
-import {validateEmail, validatePhoneNumber, validateText, validateAddress, createMensajeError, validateNIT } from '../../../utils/Validators/formValidator';
+import {validateEmail, validateNumber, validateText, validateAddress, createMensajeError, validateNIT } from '../../../utils/Validators/formValidator';
 
 export const SeeMyProfile = () => {
     const location = useLocation();

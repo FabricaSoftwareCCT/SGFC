@@ -39,6 +39,12 @@ const asignarInstructorAlCurso = async (req, res) => {
       return res.status(404).json({ message: "Instructor no encontrado o no válido" });
     }
 
+    // Validar disponibilidad (estado activo)
+    if (instructor.estado !== 'activo') {
+      await transaction.rollback();
+      return res.status(409).json({ message: "El instructor no está disponible (estado inactivo)." });
+    }
+
     // Validar existencia del curso
     const curso = await Curso.findByPk(curso_ID, { transaction });
     if (!curso) {
@@ -118,7 +124,7 @@ const createCurso = async (req, res) => {
   try {
     const { accountType } = req.user;
 
-    if (accountType !== "Administrador") {
+    if (accountType !== "Administrador" & accountType !== "Gestor") {
       return res.status(403).json({ message: "No tienes permisos para crear cursos." });
     }
 
@@ -228,9 +234,16 @@ const createCurso = async (req, res) => {
       attributes: ['email'],
     });
 
+    const Idcurso = await Curso.findByPk(nuevoCurso.ID, { attributes: ['ID'] }).then(c => c.ID);
+
+    if(Idcurso == null){
+      res.status(500).json({ message: "Error al obtener el curso recién creado." });
+      return;
+    }
+
     const emails = usuarios.map(user => user.email);
     if (emails.length > 0) {
-      const courseLink = `http://localhost:5173/cursos/${nuevoCurso.id}`;
+      const courseLink = `http://localhost:5173/cursos/${Idcurso}`;
       await sendCourseCreatedEmail(emails, nombre_curso, courseLink);
     }
 
@@ -249,7 +262,7 @@ const createCurso = async (req, res) => {
 const updateCurso = async (req, res) => {
   try {
     const { accountType } = req.user;
-    if (accountType !== "Administrador") {
+    if (accountType !== "Administrador" & accountType !== "Gestor") {
       return res
         .status(403)
         .json({ message: "No tienes permisos para actualizar cursos." });
@@ -581,9 +594,13 @@ const enviarInvitacionCurso = async (req, res) => {
       return res.status(409).json({ message: 'Ya existe una invitación pendiente para este instructor y curso.' });
     }
 
-    const validarEstado = await Usuario.findByPk(instructor_ID);
-    if (validarEstado.estado === 'inactivo') {
-      return res.status(404).json({ message: 'Instructor no se encuentra activo' });
+    // Validar disponibilidad del instructor (solo se invita si está activo)
+    const instructor = await Usuario.findByPk(instructor_ID, { attributes: ['ID', 'estado', 'accountType'] });
+    if (!instructor || instructor.accountType !== 'Instructor') {
+      return res.status(404).json({ message: 'Instructor no encontrado o no válido.' });
+    }
+    if (instructor.estado !== 'activo') {
+      return res.status(409).json({ message: 'No se puede invitar. El instructor está inactivo.' });
     }
 
     // Crear la invitación
@@ -595,7 +612,16 @@ const enviarInvitacionCurso = async (req, res) => {
       fecha_envio: new Date()
     });
 
-    console.log('✅ Invitación creada exitosamente:', nuevaInvitacion.id);
+    const findInstructor = await User.findByPk(instructor_ID, {attributes: ['email']})
+    const curso = await Curso.findOne({where: {ID: curso_ID}})
+
+    const email = findInstructor.dataValues.email;  
+    console.log("datos necesarios: ", {email, curso})
+
+    if(email.length > 0){
+      await sendInstructorAssignedEmail(email, curso);
+      console.log('✅ Invitación creada exitosamente:', nuevaInvitacion.id);
+    }
 
     res.status(201).json({
       message: 'Invitación enviada correctamente.',
@@ -607,6 +633,26 @@ const enviarInvitacionCurso = async (req, res) => {
     res.status(500).json({ message: 'Error al enviar la invitación.' });
   }
 };
+
+// Endpoint de disponibilidad de instructor por ID
+const verificarDisponibilidadInstructor = async (req, res) => {
+  try {
+    const { instructor_ID } = req.params;
+    if (!instructor_ID) {
+      return res.status(400).json({ message: 'El ID del instructor es obligatorio.' });
+    }
+    const instructor = await Usuario.findByPk(instructor_ID, { attributes: ['ID', 'estado', 'accountType', 'nombres', 'apellidos'] });
+    if (!instructor || instructor.accountType !== 'Instructor') {
+      return res.status(404).json({ message: 'Instructor no encontrado o no válido.' });
+    }
+    const disponible = instructor.estado === 'activo';
+    return res.status(200).json({ disponible, estado: instructor.estado, instructor: { ID: instructor.ID, nombres: instructor.nombres, apellidos: instructor.apellidos } });
+  } catch (error) {
+    console.error('Error al verificar disponibilidad del instructor:', error);
+    return res.status(500).json({ message: 'Error al verificar la disponibilidad del instructor.' });
+  }
+};
+
 const cambiarEstadoInvitacion = async (req, res) => {
   try {
     const { invitacionId } = req.params;
@@ -667,5 +713,6 @@ module.exports = {
   getCursoById,
   getCursosByEmpresaId,
   enviarInvitacionCurso,
-  cambiarEstadoInvitacion
+  cambiarEstadoInvitacion,
+  verificarDisponibilidadInstructor
 };

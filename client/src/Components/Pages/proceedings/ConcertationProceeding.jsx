@@ -494,6 +494,7 @@ export const ConcertationProceeding = () => {
         <ModalSignature
           closeModal={() => setShowSignatureModal(false)}
           nombreCurso={nombreCurso}
+          editar ={isEditing}
           tipoActa="Acta de Concertacion"
           onSignature={setFirmaDigital}
           onUpload={handleUploadSignature} // ✅ Usa la nueva función

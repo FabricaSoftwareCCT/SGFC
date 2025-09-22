@@ -14,7 +14,7 @@ class Curso extends Model {
           allowNull: false,
         },
         descripcion: {
-          type: DataTypes.STRING(250),
+          type: DataTypes.STRING(600),
           allowNull: true,
         },
         tipo_oferta: {

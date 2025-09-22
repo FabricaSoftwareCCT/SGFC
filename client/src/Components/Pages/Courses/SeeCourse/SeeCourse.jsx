@@ -49,8 +49,6 @@ export const SeeCourse = () => {
         return <p>Cargando...</p>; // Mostrar un mensaje mientras se cargan los datos
     }
 
-    console.log('DÍAS DE FORMACIÓN:', curso.dias_formacion);
-
     // Prepare calendar data for ViewCalendar component
     const calendarData = {
         startDate: curso.fecha_inicio ? curso.fecha_inicio.split('T')[0] : '',

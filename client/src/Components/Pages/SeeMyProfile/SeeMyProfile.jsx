@@ -19,7 +19,6 @@ export const SeeMyProfile = () => {
     const [tipoCuenta, setTipoCuenta] = useState('');
     const [editMode, setEditMode] = useState(false);
 
-
     const getImageSrcFromBase64 = (base64) => {
         if (!base64 || base64 === '' || base64 === null) return fotoPerfilDefect; // Usar imagen por defecto importada
 

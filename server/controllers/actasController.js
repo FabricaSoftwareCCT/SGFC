@@ -44,7 +44,8 @@ const updateEstadoActa = async (req, res) => {
       { estado_acta },
       { where: { ID: actaId } }
     );
-    res.status(200).json({ message: 'Estado actualizado correctamente.' });
+    const actaActualizada = await Actas.findOne({ where: { ID: actaId } });
+    res.status(200).json({ message: 'Estado actualizado correctamente.', acta: actaActualizada.estado_acta });
   } catch (error) {
     res.status(500).json({ message: 'Error al actualizar el estado.' });
   }

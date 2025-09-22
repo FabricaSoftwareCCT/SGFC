@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { GoogleLogin } from '@react-oauth/google';
 import { useModal } from "../../../Context/ModalContext";
 import { ForgotPassword } from "../../Pages/ForgotPassword/ForgotPassword";
+import { ResquestNewEmail } from "../../UI/RequestNewEmail/ResquestNewEmail";
 import axiosInstance from "../../../config/axiosInstance";
 import Loader from "../Loader/Loader";
 
@@ -86,6 +87,12 @@ export const Modal_SignIn = () => {
     setModalGeneralContent(<ForgotPassword />);
   };
 
+   const showModalRequestNewEmail = () => {
+        setShowSignIn(false);
+        setShowModalGeneral(true);
+        setModalGeneralContent(<ResquestNewEmail />);
+      };
+
   const login = (event) => {
     event.preventDefault();
     setLoginning(true);
@@ -135,9 +142,11 @@ export const Modal_SignIn = () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ idToken }),
+        credentials: 'include' 
       });
 
       const data = await res.json();
+      console.log(data)
 
       if (res.ok && data.success) {
         sessionStorage.setItem("userSession", JSON.stringify({
@@ -248,6 +257,20 @@ export const Modal_SignIn = () => {
               }}
             >
               ¿Olvidó su contraseña?
+            </button>
+            <button
+              type="button"
+              className="forgetPassword"
+              onClick={showModalRequestNewEmail}
+              style={{
+                background: "none",
+                border: "none",
+                color: "#00843e",
+                cursor: "pointer",
+                padding: 0,
+              }}
+            >
+              ¿No llego su correo de verificación o expiro?
             </button>
           </div>
 

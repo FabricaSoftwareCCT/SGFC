@@ -1,6 +1,8 @@
 const User = require("../models/User");
+require('dotenv').config();
 const crypto = require("crypto");
 const { sendVerificationEmail, sendPasswordResetEmail, sendPasswordChangeConfirmationEmail } = require("../services/emailService");
+const {generateToken} = require("../middlewares/generateToken_R")
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const { Op } = require("sequelize");
@@ -22,6 +24,8 @@ const Ciudad = require('../models/ciudad'); // Importar el modelo Ciudad
 const fotoDefectPerfil = '../Img/userDefect.png'; // Importar la imagen por defecto
 
 //registrar usuario (empresa o aprendiz)
+// Registrar usuario
+// Registrar usuario
 const registerUser = async (req, res) => {
     try {
         const { email, password, accountType, documento, nombres, apellidos, celular, titulo_profesional } = req.body;
@@ -43,11 +47,15 @@ const registerUser = async (req, res) => {
             return res.status(400).json({ message: 'El correo ya está registrado' });
         }
 
-        // Generar token de verificación
-        const token = crypto.randomBytes(32).toString('hex');
+        // Generar token de verificación JWT (no con crypto)
+        const payload = { email };
+        const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-        // Hashear la contraseña
-        const hashedPassword = await bcrypt.hash(password, 10);
+        // Generar contraseña temporal
+        const tempPassword = Math.random().toString(36).slice(-8);
+        
+        // Hashear la contraseña temporal
+        const hashedPassword = await bcrypt.hash(tempPassword, 10);
 
         // Crear nuevo usuario
         const newUser = await User.create({
@@ -61,10 +69,10 @@ const registerUser = async (req, res) => {
             titulo_profesional: titulo_profesional || null,
             verificacion_email: false,
             token,
-            foto_perfil: fotoDefectPerfil // <-- FOTO POR DEFECTO
+            foto_perfil: fotoDefectPerfil
         });
 
-        // Si el tipo de cuenta es Empresa, crear un registro en la tabla Empresa y relacionarlo con el usuario
+        // Si el tipo de cuenta es Empresa, crear un registro en la tabla Empresa
         if (accountType === 'Empresa') {
             const nuevaEmpresa = await Empresa.create({
                 NIT: null,
@@ -81,10 +89,10 @@ const registerUser = async (req, res) => {
             await newUser.save();
         }
 
-        // Enviar correo de verificación
-        await sendVerificationEmail(email, token);
+        // Enviar correo de verificación CON la contraseña temporal
+        await sendVerificationEmail(email, token, tempPassword);
 
-        res.status(201).json({ message: 'Usuario registrado. Por favor verifica tu correo.' });
+        res.status(201).json({ message: 'Usuario registrado. Por favor verifica tu correo para obtener tu contraseña temporal.' });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Error al registrar el usuario' });
@@ -100,14 +108,43 @@ const verifyEmail = async (req, res) => {
         if (!token) {
             return res.status(400).json({ message: "Token no proporcionado" });
         }
+
         console.log('Token recibido:', token);
-        // Buscar usuario por token
-        const user = await User.findOne({ where: { token } });
+        
+        // Verificar el token JWT
+        let decoded;
+        try {
+            decoded = jwt.verify(token, process.env.JWT_SECRET);
+            console.log('Token decodificado:', decoded);
+        } catch (err) {
+            if (err.name === 'TokenExpiredError') {
+                return res.status(400).json({ message: "Token expirado" });
+            }
+            console.log('Error al verificar token:', err);
+            return res.status(400).json({ message: "Token inválido" });
+        }
+
+        console.log(decoded.data.email);
+        const userEmail = decoded.data.email; 
+        console.log('Buscando usuario con email:', userEmail);
+        
+        if (!userEmail) {
+            return res.status(400).json({ message: "Token no contiene email válido" });
+        }
+
+        const user = await User.findOne({ where: { email: userEmail } });
 
         if (!user) {
-            return res.status(400).json({ message: "Token inválido o expirado" });
+            return res.status(400).json({ message: "Usuario no encontrado" });
         }
+
         console.log('Token en la base de datos:', user.token);
+        console.log('Token recibido vs token en BD:', token, user.token);
+
+        // Verificar que el token coincida
+        if (user.token !== token) {
+            return res.status(400).json({ message: "Token no coincide" });
+        }
 
         // Actualizar estado de verificación
         user.verificacion_email = true;
@@ -116,10 +153,49 @@ const verifyEmail = async (req, res) => {
 
         res.status(200).json({ message: "Correo verificado con éxito" });
     } catch (error) {
-        console.error(error);
+        console.error("Error completo al verificar el correo:", error);
         res.status(500).json({ message: "Error al verificar el correo" });
     }
 };
+
+const requestNewVerificationEmail = async (req, res) => {
+    try{
+        const { email } = req.body;
+        if (!email) {
+            return res.status(400).json({ message: "El correo es obligatorio" });
+        }
+        
+        const user = await User.findOne({ where: { email } });
+        if (!user) {
+            return res.status(404).json({ message: "Usuario no encontrado" });
+        }
+        
+        // Generar nueva contraseña temporal
+        const tempPassword = Math.random().toString(36).slice(-8);
+        const hashedPassword = await bcrypt.hash(tempPassword, 10);
+        
+        // Generar nuevo token
+        const token = generateToken({email}, process.env.JWT_SECRET, 5);
+        
+        // Actualizar usuario con nuevo token y nueva contraseña temporal
+        try {
+            await user.update({ 
+                token: token,
+                password: hashedPassword
+            });
+        } catch (error) {
+            console.error("Error al actualizar el usuario:", error);
+        }
+        
+        // Enviar correo de verificación con la nueva contraseña temporal
+        await sendVerificationEmail(email, token, tempPassword);
+
+        res.status(200).json({ message: "Correo de verificación reenviado con nueva contraseña temporal" });
+    } catch(error){
+        console.error(error);
+        res.status(500).json({ message: "Error al reenviar el correo de verificación" });
+    }
+}
 
 // Iniciar sesión
 const loginUser = async (req, res) => {
@@ -138,7 +214,7 @@ const loginUser = async (req, res) => {
         if (!isPasswordValid) {
             return res.status(400).json({ message: "Usuario o contraseña incorrectos" });
         }
-
+        
         // Construir el payload del token
         const payload = {
             id: user.ID,
@@ -183,8 +259,10 @@ const loginUser = async (req, res) => {
             extraData.empresa_ID = user.empresa_ID;
         }
 
+        // ✅ CORRECCIÓN CRÍTICA: Devolver el accessToken en la respuesta JSON
         res.status(200).json({
             message: "Inicio de sesión exitoso",
+            accessToken: accessToken, // ✅ Esto es lo que falta
             id: user.ID,
             email: user.email,
             accountType: user.accountType,
@@ -224,7 +302,11 @@ const refreshAccessToken = async (req, res) => {
             maxAge: 15 * 60 * 1000 // 15 minutos
         });
 
-        res.status(200).json({ message: "Token renovado" });
+        // ✅ También devolver el nuevo accessToken en la respuesta
+        res.status(200).json({ 
+            message: "Token renovado",
+            accessToken: accessToken // ✅ Para que el frontend lo guarde
+        });
     } catch (error) {
         console.error("Error al refrescar el token:", error);
         res.status(401).json({ message: "Refresh token inválido o expirado" });
@@ -542,7 +624,6 @@ const updateUserProfile = async (req, res) => {
             estado,
             titulo_profesional,
             tipoDocumento
-
         } = req.body;
 
         // Procesar imagen de perfil si se sube (como base64)
@@ -560,7 +641,13 @@ const updateUserProfile = async (req, res) => {
             return res.status(401).json({ message: "No autorizado. Debes iniciar sesión." });
         }
 
-        const loggedInUser = jwt.verify(token, process.env.JWT_SECRET || "secret");
+        let loggedInUser;
+        try {
+            loggedInUser = jwt.verify(token, process.env.JWT_SECRET || "secret");
+        } catch (error) {
+            return res.status(401).json({ message: "Token inválido o expirado." });
+        }
+
         if (!loggedInUser) {
             return res.status(401).json({ message: "Token inválido o expirado." });
         }
@@ -571,6 +658,31 @@ const updateUserProfile = async (req, res) => {
 
         if (!user) {
             return res.status(404).json({ message: "Usuario no encontrado." });
+        }
+
+        // Función para validar email
+        const isValidEmail = (email) => {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        };
+
+        // Función para validar que no sean números negativos
+        const isValidPositiveNumber = (value) => {
+            const num = parseInt(value);
+            return !isNaN(num) && num >= 0;
+        };
+
+        // Validaciones de formato
+        if (email && !isValidEmail(email)) {
+            return res.status(400).json({ message: "Formato de correo electrónico inválido." });
+        }
+
+        if (celular && (!isValidPositiveNumber(celular) || celular.toString().length < 10)) {
+            return res.status(400).json({ message: "Número de celular inválido." });
+        }
+
+        if (documento && !isValidPositiveNumber(documento)) {
+            return res.status(400).json({ message: "Número de documento inválido." });
         }
 
         // Verificación de permisos
@@ -625,6 +737,7 @@ const updateUserProfile = async (req, res) => {
                         return res.status(400).json({ message: "El número de celular ya está registrado." });
                     }
                 }
+
                 // Asignación directa de campos
                 if (email) user.email = email;
                 if (nombres) user.nombres = nombres;
@@ -632,7 +745,6 @@ const updateUserProfile = async (req, res) => {
                 if (celular) user.celular = celular;
                 if (estado) user.estado = estado;
                 if (titulo_profesional) user.titulo_profesional = titulo_profesional;
-
                 if (foto_perfil) user.foto_perfil = foto_perfil;
 
                 await user.save();
@@ -640,7 +752,7 @@ const updateUserProfile = async (req, res) => {
             }
         }
 
-        // EMPRESA puede actualizar su propio perfil
+        // EMPRESA puede actualizar su propio perfil - CORREGIDO
         if (loggedInUser.accountType === "Empresa" && user.accountType === "Empresa") {
             // Validaciones de campos obligatorios para Empresa
             const camposObligatorios = {
@@ -672,12 +784,13 @@ const updateUserProfile = async (req, res) => {
             if (estado) user.estado = estado;
             if (foto_perfil) user.foto_perfil = foto_perfil;
 
-
-            // Empresa viene como string JSON en el campo 'empresa'
+            // Actualizar datos de la empresa - MEJORADO
             if (req.body.empresa && user.Empresa) {
                 let empresaData;
                 try {
-                    empresaData = JSON.parse(req.body.empresa);
+                    // Si viene como string, parsearlo, si ya es objeto, usarlo directamente
+                    empresaData = typeof req.body.empresa === 'string' ? 
+                        JSON.parse(req.body.empresa) : req.body.empresa;
                 } catch (e) {
                     return res.status(400).json({ message: "Formato de empresa inválido." });
                 }
@@ -697,18 +810,30 @@ const updateUserProfile = async (req, res) => {
                 if (email_empresa) user.Empresa.email_empresa = email_empresa;
                 if (nombre_empresa) user.Empresa.nombre_empresa = nombre_empresa;
                 if (direccion) user.Empresa.direccion = direccion;
-                if (estado) user.Empresa.estado = estado;
+                if (estadoEmpresa !== undefined) user.Empresa.estado = estadoEmpresa;
                 if (categoria) user.Empresa.categoria = categoria;
                 if (telefono) user.Empresa.telefono = telefono;
-                if (img_empresa) user.Empresa.img_empresa = img_empresa;
+
+                // Procesar imagen de empresa si viene en archivos
+                if (req.files?.img_empresa?.[0]) {
+                    user.Empresa.img_empresa = req.files.img_empresa[0].buffer.toString("base64");
+                } else if (img_empresa) {
+                    user.Empresa.img_empresa = img_empresa;
+                }
 
                 await user.Empresa.save();
             }
 
-            if (foto_perfil) user.foto_perfil = foto_perfil;
-
             await user.save();
-            return res.status(200).json({ message: "Perfil de empresa actualizado con éxito." });
+            return res.status(200).json({ 
+                message: "Perfil de empresa actualizado con éxito.",
+                user: {
+                    id: user.id,
+                    email: user.email,
+                    nombres: user.nombres,
+                    apellidos: user.apellidos
+                }
+            });
         }
 
         // EMPRESA puede actualizar a sus empleados (Aprendiz)
@@ -768,7 +893,6 @@ const updateUserProfile = async (req, res) => {
             if (documento) user.documento = documento;
             if (estado) user.estado = estado;
             if (tipoDocumento) user.tipoDocumento = tipoDocumento;
-
             if (foto_perfil) user.foto_perfil = foto_perfil;
 
             await user.save();
@@ -895,10 +1019,14 @@ const createInstructor = async (req, res) => {
         }
 
         // Generar token de verificación
-        const token = crypto.randomBytes(32).toString("hex");
+        const payload = {email};
+        const token = generateToken(payload, process.env.JWT_SECRET, 5);
 
-        // Encriptar la contraseña
-        const hashedPassword = await bcrypt.hash("defaultPassword123", 10);
+        // Generar contraseña temporal (8 caracteres alfanuméricos)
+        const tempPassword = Math.random().toString(36).slice(-8);
+        
+        // Encriptar la contraseña temporal
+        const hashedPassword = await bcrypt.hash(tempPassword, 10);
 
         // Crear el instructor
         const newInstructor = await User.create({
@@ -917,11 +1045,11 @@ const createInstructor = async (req, res) => {
             token, // Token de verificación
         });
 
-        // Enviar correo de verificación
-        await sendVerificationEmail(email, token);
+        // Enviar correo de verificación CON la contraseña temporal
+        await sendVerificationEmail(email, token, tempPassword);
 
         res.status(201).json({
-            message: "Instructor creado con éxito. Por favor verifica tu correo.",
+            message: "Instructor creado con éxito. Se envió un correo con la información de acceso.",
             instructor: newInstructor
         });
     } catch (error) {
@@ -963,10 +1091,15 @@ const createGestor = async (req, res) => {
         }
 
         // Generar token de verificación
-        const token = crypto.randomBytes(32).toString("hex");
+        const payload = {email};
+
+        const token = generateToken(payload, process.env.JWT_SECRET, 5);
 
         // Encriptar la contraseña
-        const hashedPassword = await bcrypt.hash("defaultPassword123", 10);
+        const tempPassword = Math.random().toString(36).slice(-8);
+        
+        // Encriptar la contraseña temporal
+        const hashedPassword = await bcrypt.hash(tempPassword, 10);
 
         // Crear el gestor
         const newGestor = await User.create({
@@ -988,7 +1121,10 @@ const createGestor = async (req, res) => {
         // Enviar correo de verificación
         await sendVerificationEmail(email, token);
 
-        res.status(201).json({ message: "Gestor creado con éxito. Por favor verifica tu correo.", gestor: newGestor });
+        res.status(201).json({
+            message: "Instructor creado con éxito. Se envió un correo con la información de acceso.",
+            instructor: newGestor
+        });
     } catch (error) {
         console.error("Error al crear el gestor:", error);
         res.status(500).json({ message: "Error al crear el gestor." });
@@ -1193,7 +1329,9 @@ const createEmpleado = async (req, res) => {
         }
 
         // Generar token de verificación
-        const token = crypto.randomBytes(32).toString("hex");
+        const payload = {email};
+
+        const token = generateToken(payload, process.env.JWT_SECRET, 5);
 
         // Encriptar la contraseña (si no se envía, usar una por defecto)
         const hashedPassword = await bcrypt.hash(password || "defaultPassword123", 10);
@@ -1343,5 +1481,30 @@ const subirDocumentoIdentidad = async (req, res) => {
     }
 };
 
-
-module.exports = { subirDocumentoIdentidad, getEmpresaById, createEmpleado, getEmpleadosByEmpresaId, refreshAccessToken, getAprendicesByEmpresa, registerUser, verifyEmail, loginUser, requestPasswordReset, resetPassword, getAllUsers, getUserProfile, getAprendices, getEmpresas, getInstructores, getGestores, updateUserProfile, createInstructor, createGestor, logoutUser, cleanExpiredTokens, createMasiveUsers, getEmpresaByNIT };
+module.exports = { 
+    subirDocumentoIdentidad, 
+    getEmpresaById, 
+    createEmpleado, 
+    getEmpleadosByEmpresaId, 
+    refreshAccessToken, 
+    getAprendicesByEmpresa, 
+    registerUser, 
+    verifyEmail, 
+    loginUser, 
+    requestPasswordReset, 
+    resetPassword, 
+    getAllUsers, 
+    getUserProfile, 
+    getAprendices, 
+    getEmpresas, 
+    getInstructores, 
+    getGestores, 
+    updateUserProfile, 
+    createInstructor, 
+    createGestor, 
+    logoutUser, 
+    cleanExpiredTokens, 
+    createMasiveUsers, 
+    getEmpresaByNIT,
+    requestNewVerificationEmail 
+};

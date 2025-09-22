@@ -10,8 +10,10 @@ const xlsx = require("xlsx")
 const path = require('path');
 const fs = require('fs');
 const Tesseract = require('tesseract.js');
-const Poppler = require('pdf-poppler');
 const vision = require('@google-cloud/vision');
+const pdfjsLib = require("pdfjs-dist/legacy/build/pdf.js")
+const { createCanvas } = require("canvas");
+
 
 
 // Registrar usuario
@@ -96,9 +98,7 @@ const registerUser = async (req, res) => {
         res.status(500).json({ message: 'Error al registrar el usuario' });
     }
 };
-// Verificar correo
-// Verificar correo
-// Verificar correo
+
 // Verificar correo
 const verifyEmail = async (req, res) => {
     try {
@@ -124,9 +124,8 @@ const verifyEmail = async (req, res) => {
             return res.status(400).json({ message: "Token inválido" });
         }
 
-        // CORRECCIÓN: Acceder al email correctamente
-        // Tu token tiene la estructura: { data: { email: '...' } }
-        const userEmail = decoded.data.email; // ← Aquí está el cambio
+        console.log(decoded.data.email);
+        const userEmail = decoded.data.email; 
         console.log('Buscando usuario con email:', userEmail);
         
         if (!userEmail) {
@@ -623,7 +622,6 @@ const getGestores = async (req, res) => {
 const updateUserProfile = async (req, res) => {
     try {
         const { id } = req.params;
-
         const {
             email,
             nombres,
@@ -635,24 +633,17 @@ const updateUserProfile = async (req, res) => {
             tipoDocumento
         } = req.body;
 
-        // VALIDACIÓN PARA CAMPOS VACÍOS - AÑADIR ESTA SECCIÓN
-        const camposRequeridos = {
-            email, nombres, apellidos, celular, documento, tipoDocumento
-        };
-
-        for (const [campo, valor] of Object.entries(camposRequeridos)) {
-            if (valor !== undefined && valor !== null && valor.toString().trim() === '') {
-                return res.status(400).json({ message: `El campo ${campo} no puede estar vacío.` });
-            }
-        }
-
-        // Procesar imagen de perfil si se sube (como base64) - CORREGIDO
+        // Procesar imagen de perfil si se sube (como base64)
         let foto_perfil = null;
         if (req.files?.foto_perfil?.[0]) {
+            // Si viene como archivo
             foto_perfil = req.files.foto_perfil[0].buffer.toString("base64");
+        } else if (req.body.foto_perfil) {
+            // Si viene como base64 en el body
+            foto_perfil = req.body.foto_perfil;
         }
 
-        const token = req.cookies.accessToken || req.headers.authorization?.replace('Bearer ', '');
+        const token = req.cookies.accessToken;
         if (!token) {
             return res.status(401).json({ message: "No autorizado. Debes iniciar sesión." });
         }
@@ -702,13 +693,38 @@ const updateUserProfile = async (req, res) => {
         }
 
         // Verificación de permisos
-        if (loggedInUser.accountType === "Gestor") {
+        // Administrador puede actualizar cualquier perfil (se maneja abajo)
+        // Empresa puede actualizar el suyo (se maneja abajo)
+        // Para otros roles (Instructor, Gestor, Aprendiz): permitir solo si actualiza su propio perfil
+        if (loggedInUser.accountType !== "Administrador" && loggedInUser.accountType !== "Empresa") {
+            if (parseInt(id, 10) !== Number(loggedInUser.id)) {
             return res.status(403).json({ message: "No tienes permiso para actualizar perfiles." });
+            }
         }
 
         // ADMINISTRADOR
-        if (loggedInUser.accountType === "Administrador") {
-            if (["Instructor", "Gestor", "Administrador", "Empresa", "Aprendiz"].includes(user.accountType)) {
+        if (loggedInUser.accountType === "Administrador") {{
+            // Validaciones de campos obligatorios para Administrador
+            const camposObligatorios = {
+                nombres: nombres,
+                apellidos: apellidos,
+                celular: celular,
+                email: email
+            };
+
+                const camposVacios = [];
+                for (const [campo, valor] of Object.entries(camposObligatorios)) {
+                    if (valor !== undefined && (valor === null || valor === '' || valor.trim() === '')) {
+                        camposVacios.push(campo);
+                    }
+                }
+
+                if (camposVacios.length > 0) {
+                    return res.status(400).json({ 
+                        message: `No se pudo guardar el perfil. Los siguientes campos son obligatorios y no pueden estar vacíos: ${camposVacios.join(', ')}. Intente nuevamente.` 
+                    });
+                }
+
                 // Validaciones únicas
                 if (email && email !== user.email) {
                     const existingEmail = await User.findOne({ where: { email } });
@@ -734,7 +750,6 @@ const updateUserProfile = async (req, res) => {
                 if (nombres) user.nombres = nombres;
                 if (apellidos) user.apellidos = apellidos;
                 if (celular) user.celular = celular;
-                if (documento) user.documento = documento;
                 if (estado) user.estado = estado;
                 if (titulo_profesional) user.titulo_profesional = titulo_profesional;
                 if (foto_perfil) user.foto_perfil = foto_perfil;
@@ -746,32 +761,28 @@ const updateUserProfile = async (req, res) => {
 
         // EMPRESA puede actualizar su propio perfil - CORREGIDO
         if (loggedInUser.accountType === "Empresa" && user.accountType === "Empresa") {
-            // VALIDACIÓN CRÍTICA: La empresa solo puede actualizar su propio perfil
-            if (loggedInUser.id !== parseInt(id)) {
-                return res.status(403).json({ message: "No tienes permiso para actualizar este perfil." });
-            }
+            // Validaciones de campos obligatorios para Empresa
+            const camposObligatorios = {
+                nombres: nombres,
+                apellidos: apellidos,
+                celular: celular,
+                //documento : NIT,
+                email: email
+            };
 
-            // Validaciones únicas para empresa
-            if (email && email !== user.email) {
-                const existingEmail = await User.findOne({ where: { email } });
-                if (existingEmail) {
-                    return res.status(400).json({ message: "El correo electrónico ya está registrado." });
-                }
-            }
-            if (documento && documento !== user.documento) {
-                const existingDocumento = await User.findOne({ where: { documento } });
-                if (existingDocumento) {
-                    return res.status(400).json({ message: "El documento ya está registrado." });
-                }
-            }
-            if (celular && celular !== user.celular) {
-                const existingCelular = await User.findOne({ where: { celular } });
-                if (existingCelular) {
-                    return res.status(400).json({ message: "El número de celular ya está registrado." });
+            const camposVacios = [];
+            for (const [campo, valor] of Object.entries(camposObligatorios)) {
+                if (valor !== undefined && (valor === null || valor === '' || valor.trim() === '')) {
+                    camposVacios.push(campo);
                 }
             }
 
-            // Actualizar datos básicos del usuario empresa
+            if (camposVacios.length > 0) {
+                return res.status(400).json({ 
+                    message: `No se pudo guardar el perfil de empresa. Los siguientes campos son obligatorios y no pueden estar vacíos: ${camposVacios.join(', ')}. Intente nuevamente.` 
+                });
+            }
+
             if (email) user.email = email;
             if (nombres) user.nombres = nombres;
             if (apellidos) user.apellidos = apellidos;
@@ -792,47 +803,17 @@ const updateUserProfile = async (req, res) => {
                 }
 
                 const {
-                    nit,
-                    email_empresa,
-                    nombre_empresa,
-                    direccion,
-                    estado: estadoEmpresa,
+                    NIT,
                     categoria,
-                    telefono,
-                    img_empresa
+                    direccion,
+                    email_empresa,
+                    estado,
+                    img_empresa,
+                    nombre_empresa,
+                    telefono
                 } = empresaData;
 
-                // Validaciones para datos de empresa
-                if (email_empresa && !isValidEmail(email_empresa)) {
-                    return res.status(400).json({ message: "Formato de correo de empresa inválido." });
-                }
-
-                if (telefono && (!isValidPositiveNumber(telefono) || telefono.toString().length < 7)) {
-                    return res.status(400).json({ message: "Número de teléfono de empresa inválido." });
-                }
-
-                if (nit && !isValidPositiveNumber(nit)) {
-                    return res.status(400).json({ message: "NIT inválido." });
-                }
-
-                // Verificar NIT único si cambió
-                if (nit && nit !== user.Empresa.NIT) {
-                    const existingNIT = await Empresa.findOne({ where: { NIT: nit } });
-                    if (existingNIT) {
-                        return res.status(400).json({ message: "El NIT ya está registrado." });
-                    }
-                }
-
-                // Verificar email de empresa único si cambió
-                if (email_empresa && email_empresa !== user.Empresa.email_empresa) {
-                    const existingEmailEmpresa = await Empresa.findOne({ where: { email_empresa } });
-                    if (existingEmailEmpresa) {
-                        return res.status(400).json({ message: "El correo de empresa ya está registrado." });
-                    }
-                }
-
-                // Actualizar datos de empresa
-                if (nit) user.Empresa.NIT = nit;
+                if (NIT) user.Empresa.NIT = NIT;
                 if (email_empresa) user.Empresa.email_empresa = email_empresa;
                 if (nombre_empresa) user.Empresa.nombre_empresa = nombre_empresa;
                 if (direccion) user.Empresa.direccion = direccion;
@@ -869,6 +850,28 @@ const updateUserProfile = async (req, res) => {
                 return res.status(403).json({ message: "No tienes permiso para actualizar este empleado." });
             }
 
+            // Validaciones de campos obligatorios para empleados
+            const camposObligatorios = {
+                nombres: nombres,
+                apellidos: apellidos,
+                celular: celular,
+                documento: documento,
+                email: email
+            };
+
+            const camposVacios = [];
+            for (const [campo, valor] of Object.entries(camposObligatorios)) {
+                if (valor !== undefined && (valor === null || valor === '' || valor.trim() === '')) {
+                    camposVacios.push(campo);
+                }
+            }
+
+            if (camposVacios.length > 0) {
+                return res.status(400).json({ 
+                    message: `No se pudo guardar el perfil del empleado. Los siguientes campos son obligatorios y no pueden estar vacíos: ${camposVacios.join(', ')}. Intente nuevamente.` 
+                });
+            }
+
             // Validaciones únicas
             if (email && email !== user.email) {
                 const existingEmail = await User.findOne({ where: { email } });
@@ -903,41 +906,84 @@ const updateUserProfile = async (req, res) => {
             return res.status(200).json({ message: "Perfil de empleado actualizado con éxito." });
         }
 
-        // APRENDIZ puede actualizar su propio perfil
-        if (loggedInUser.accountType === "Aprendiz" && user.accountType === "Aprendiz") {
-            // Validar que el aprendiz solo pueda actualizar su propio perfil
-            if (loggedInUser.id !== parseInt(id)) {
-                return res.status(403).json({ message: "No tienes permiso para actualizar este perfil." });
+        // ACTUALIZACIÓN DE PERFIL PROPIO (Instructor, Gestor, Aprendiz)
+        if (parseInt(id, 10) === Number(loggedInUser.id)) {
+            // Validaciones de campos obligatorios
+            const camposObligatorios = {
+                nombres: nombres,
+                apellidos: apellidos,
+                celular: celular,
+                documento: documento,
+                email: email
+            };
+
+            const camposVacios = [];
+            for (const [campo, valor] of Object.entries(camposObligatorios)) {
+                if (valor !== undefined && (valor === null || valor === '' || valor.trim() === '')) {
+                    camposVacios.push(campo);
+                }
             }
 
+            if (camposVacios.length > 0) {
+                return res.status(400).json({ 
+                    message: `No se pudo guardar su perfil. Los siguientes campos son obligatorios y no pueden estar vacíos: ${camposVacios.join(', ')}. Intente nuevamente.` 
+                });
+            }
+
+            // Validaciones únicas básicas
             if (email && email !== user.email) {
                 const existingEmail = await User.findOne({ where: { email } });
                 if (existingEmail) {
                     return res.status(400).json({ message: "El correo electrónico ya está registrado." });
                 }
 
-                // Generar token de verificación
-                const payload = {email};
-
-                const verificationToken = generateToken(payload, process.env.JWT_SECRET, 5);
+                // Para aprendices, generar token de verificación si cambian email
+                if (loggedInUser.accountType === "Aprendiz") {
+                const verificationToken = crypto.randomBytes(32).toString('hex');
                 user.token = verificationToken;
                 user.verificacion_email = false;
-
-                // Enviar correo de verificación
                 await sendVerificationEmail(email, verificationToken);
+                }
                 user.email = email;
             }
+            if (documento && documento !== user.documento) {
+                const existingDocumento = await User.findOne({ where: { documento } });
+                if (existingDocumento) {
+                    return res.status(400).json({ message: "El documento ya está registrado." });
+                }
+            }
+            if (celular && celular !== user.celular) {
+                const existingCelular = await User.findOne({ where: { celular } });
+                if (existingCelular) {
+                    return res.status(400).json({ message: "El número de celular ya está registrado." });
+                }
+            }
+
+            // Campos permitidos para actualización propia
             if (nombres) user.nombres = nombres;
             if (apellidos) user.apellidos = apellidos;
             if (celular) user.celular = celular;
             if (documento) user.documento = documento;
-            if (estado) user.estado = estado;
             if (titulo_profesional) user.titulo_profesional = titulo_profesional;
             if (tipoDocumento) user.tipoDocumento = tipoDocumento;
             if (foto_perfil) user.foto_perfil = foto_perfil;
+            
+            // Estado: solo instructores y gestores pueden cambiar su estado
+            if (estado && (loggedInUser.accountType === "Instructor" || loggedInUser.accountType === "Gestor")) {
+                if (["activo", "inactivo"].includes(estado)) {
+                    user.estado = estado;
+                }
+            }
+            // Nota: accountType nunca se puede cambiar por actualización propia
 
             await user.save();
-            return res.status(200).json({ message: "Perfil de aprendiz actualizado con éxito. Por favor verifica tu nuevo correo." });
+            
+            let message = "Perfil actualizado con éxito.";
+            if (loggedInUser.accountType === "Aprendiz" && email && email !== user.email) {
+                message = "Perfil actualizado con éxito. Por favor verifica tu nuevo correo.";
+            }
+            
+            return res.status(200).json({ message });
         }
 
         // Instructor puede actualizar su propio perfil
@@ -1117,7 +1163,7 @@ const createGestor = async (req, res) => {
         });
 
         // Enviar correo de verificación
-        await sendVerificationEmail(email, token, tempPassword);
+        await sendVerificationEmail(email, token);
 
         res.status(201).json({
             message: "Instructor creado con éxito. Se envió un correo con la información de acceso.",
@@ -1369,6 +1415,7 @@ const detectarTextoOCR = async (imagePath) => {
     return result.fullTextAnnotation?.text || '';
 };
 
+
 const subirDocumentoIdentidad = async (req, res) => {
     try {
         const userId = req.params.id;
@@ -1382,22 +1429,45 @@ const subirDocumentoIdentidad = async (req, res) => {
         fs.mkdirSync(path.dirname(pdfPath), { recursive: true });
         fs.writeFileSync(pdfPath, pdfFile.buffer);
 
-        // Convertir primera página del PDF a imagen
+
         const tempDir = path.join(__dirname, '../uploads/temp');
         fs.mkdirSync(tempDir, { recursive: true });
 
-        const options = {
-            format: 'png',
-            out_dir: tempDir,
-            out_prefix: 'page',
-            page: 1,
-        };
-        await Poppler.convert(pdfPath, options);
-        const imagePath = path.join(tempDir, 'page-1.png');
+        async function pdfToPng(pdfPath, outDir) {
+
+            // Cargar el PDF
+            const pdf = await pdfjsLib.getDocument({ url: pdfPath }).promise;
+
+            // Obtener la primera página
+            const page = await pdf.getPage(1);
+
+            // Definir escala (más grande = mejor resolución)
+            const viewport = page.getViewport({ scale: 1.5 });
+
+            // Crear canvas
+            const canvas = createCanvas(viewport.width, viewport.height);
+            const context = canvas.getContext("2d");
+
+            // Renderizar página en el canvas
+            await page.render({ canvasContext: context, viewport }).promise;
+
+            // Exportar como PNG (buffer en memoria)
+            const imageBuffer = canvas.toBuffer("image/png");
+
+            // Guardar en disco
+            const imagePath = path.join(outDir, "page-1.png");
+            fs.writeFileSync(imagePath, imageBuffer);
+
+            return imagePath;
+        }
+
+        //Guardar como imagen PNG
+        const imagePath = await pdfToPng(pdfPath, tempDir);
 
         // Realizar OCR con Google Vision
         const rawText = await detectarTextoOCR(imagePath);
         const lowerText = rawText.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
 
         // Detectar tipo de documento
         let tipoDetectado = 'pendiente';
@@ -1454,8 +1524,6 @@ const subirDocumentoIdentidad = async (req, res) => {
         res.status(500).json({ message: 'Error al procesar el documento con OCR.' });
     }
 };
-
-
 
 module.exports = { 
     subirDocumentoIdentidad, 

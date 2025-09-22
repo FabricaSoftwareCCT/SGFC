@@ -170,8 +170,7 @@ export const CreateCourse = ( ) => {
         },
       });
 
-      alert("Curso creado con éxito");
-      console.log(response.data);
+      alert("Curso creado con éxito");  
 
       // Redirigir al usuario a la página del curso creado
       if (response.data.curso && response.data.curso.ID) {

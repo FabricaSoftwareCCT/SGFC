@@ -1166,12 +1166,26 @@ const createGestor = async (req, res) => {
         await sendVerificationEmail(email, token);
 
         res.status(201).json({
-            message: "Instructor creado con éxito. Se envió un correo con la información de acceso.",
-            instructor: newGestor
+            message: "Gestor creado con éxito. Se envió un correo con la información de acceso.",
+            gestor: newGestor
         });
     } catch (error) {
         console.error("Error al crear el gestor:", error);
-        res.status(500).json({ message: "Error al crear el gestor." });
+        if (error.name === 'SequelizeUniqueConstraintError') {
+            const campos = (error.errors || []).map(e => e.path).filter(Boolean);
+            return res.status(409).json({
+                message: "Datos duplicados al crear el gestor.",
+                detalles: campos.length ? `Campos en conflicto: ${campos.join(', ')}` : undefined
+            });
+        }
+        if (error.name === 'SequelizeValidationError') {
+            const detalles = (error.errors || []).map(e => ({ campo: e.path, mensaje: e.message }));
+            return res.status(400).json({
+                message: "Validación fallida al crear el gestor.",
+                errores: detalles
+            });
+        }
+        return res.status(500).json({ message: `Error al crear el gestor: ${error.message || 'desconocido'}` });
     }
 };
 

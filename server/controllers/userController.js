@@ -1119,7 +1119,7 @@ const createGestor = async (req, res) => {
         });
 
         // Enviar correo de verificación
-        await sendVerificationEmail(email, token, tempPassword);
+        await sendVerificationEmail(email, token);
 
         res.status(201).json({
             message: "Instructor creado con éxito. Se envió un correo con la información de acceso.",

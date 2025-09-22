@@ -8,8 +8,11 @@ const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
     user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
+    pass: process.env.GOOGLE_APP_PASSWORD,
   },
+  tls : {
+    rejectUnauthorized : false
+  }
 });
 
 // Función genérica para enviar cualquier tipo de email
@@ -99,7 +102,7 @@ const sendRequestCourseEmail = async (req, res) => {
 };
 
 // Función para enviar el correo de verificación
-const sendVerificationEmail = async (email, token, tempPassword) => {
+const sendVerificationEmail = async (email, token) => {
   const enlaceVerificacion = `http://localhost:5173/verificarCorreo?token=${token}`;
   const fs = require('fs');
   const path = require('path');
@@ -142,17 +145,6 @@ const sendVerificationEmail = async (email, token, tempPassword) => {
                       style="display:inline-block; background-color:#F7941E; color:#fff !important; padding:.75rem 1.5625rem; border-radius:.3125rem; text-decoration:none; font-weight:bold; font-family:Arial,sans-serif; font-size:1rem;">
                       Verificar correo
                     </a>
-                  </div>
-                  
-                  <!-- Sección de contraseña temporal -->
-                  <div style="background-color:#f9f9f9; padding:1rem; border-radius:.3125rem; border-left:.25rem solid #F7941E; margin:1.25rem 0;">
-                    <p style="margin-bottom:.625rem; font-weight:bold; color:#1A1A1A;">Tu contraseña temporal para ingresar es:</p>
-                    <p style="background-color:#fff; padding:.75rem; border-radius:.25rem; font-family:monospace; font-size:1.125rem; text-align:center; letter-spacing:.125rem; margin:0;">
-                      ${tempPassword}
-                    </p>
-                    <p style="margin-top:.9375rem; margin-bottom:0; font-style:italic; color:#777;">
-                      Por seguridad, te recomendamos cambiar esta contraseña tan pronto como ingreses al sistema.
-                    </p>
                   </div>
                   
                   <p style="margin-bottom:.9375rem;">Si no te registraste en nuestros servicios, por favor ignora este correo.</p>

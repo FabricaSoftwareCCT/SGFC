@@ -3,7 +3,7 @@ import "./UpdateInstructor.css";
 import axiosInstance from "../../../../config/axiosInstance"; // Asegúrate de ajustar esta ruta según la estructura de tu proyecto
 import { createMensajeError, validateNumber, validateText, validateEmail } from "../../../../utils/Validators/formValidator";
 
-export const UpdateInstructor = ({ instructor }) => {
+export const UpdateInstructor = ({ instructor, onClose }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({ ...instructor });
   const [cantidadCursos, setCantidadCursos] = useState(0);
@@ -33,8 +33,9 @@ export const UpdateInstructor = ({ instructor }) => {
   }, [instructor]);
 
   const closeModalUpdateInstructor = () => {
-    document.getElementById("modal-overlayUpdateInstructor").style.display =
-      "none";
+    if (onClose) onClose();
+    const overlay = document.getElementById("modal-overlayUpdateInstructor");
+    if (overlay) overlay.style.display = "none";
   };
 
   const handleChange = (e) => {

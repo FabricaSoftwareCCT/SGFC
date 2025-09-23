@@ -306,6 +306,7 @@ const createCourseRequestStatusNotification = async (req, res) => {
     }
 }
 
+
 module.exports = {
     setDb,
     getUserNotifications,

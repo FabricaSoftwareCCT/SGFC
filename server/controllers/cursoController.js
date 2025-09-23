@@ -12,6 +12,7 @@ const fs = require('fs');
 const InscripcionCurso = require('../models/InscripcionCurso');
 const InvitacionCurso = require('../models/InvitacionCurso');
 const Usuario = require("../models/User");
+const { sendNotification } = require("../services/notificationService");
 
 
 let dbInstance;
@@ -245,6 +246,7 @@ const createCurso = async (req, res) => {
     if (emails.length > 0) {
       const courseLink = `http://localhost:5173/cursos/${Idcurso}`;
       await sendCourseCreatedEmail(emails, nombre_curso, courseLink);
+      await sendNotifiCursoApi()
     }
 
   } catch (error) {

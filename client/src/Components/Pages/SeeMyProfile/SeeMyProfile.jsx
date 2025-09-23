@@ -19,18 +19,36 @@ export const SeeMyProfile = () => {
     const [tipoCuenta, setTipoCuenta] = useState('');
     const [editMode, setEditMode] = useState(false);
 
-    const getImageSrcFromBase64 = (base64) => {
-        if (!base64 || base64 === '' || base64 === null) return fotoPerfilDefect; // Usar imagen por defecto importada
+    const getImageSrcFromBase64 = (value) => {
+        // Fallback inmediato si no hay valor
+        if (!value) return fotoPerfilDefect;
 
+        // Si ya viene como data URL o URL absoluta, úsala tal cual
+        if (typeof value === 'string' && (value.startsWith('data:') || value.startsWith('http'))) {
+            return value;
+        }
+
+        // Si en BD guardaron una ruta relativa (p.ej. ../Img/userDefect.png), usar por defecto
+        if (typeof value === 'string' && /(\.png|\.jpg|\.jpeg|\.gif)$/i.test(value)) {
+            return fotoPerfilDefect;
+        }
+
+        const base64 = value;
         // Detectar tipo MIME por encabezado base64
-        if (base64.startsWith('iVBOR')) {
+        if (typeof base64 === 'string' && base64.startsWith('iVBOR')) {
             return `data:image/png;base64,${base64}`;
-        } else if (base64.startsWith('/9j/')) {
-            return `data:image/jpeg;base64,${base64}`;
-        } else {
-            // Si no puedes detectar, asume jpeg por defecto
+        }
+        if (typeof base64 === 'string' && base64.startsWith('/9j/')) {
             return `data:image/jpeg;base64,${base64}`;
         }
+
+        // Si la cadena es muy corta, probablemente no es una imagen base64 válida
+        if (typeof base64 === 'string' && base64.length < 100) {
+            return fotoPerfilDefect;
+        }
+
+        // Último recurso: asumir jpeg
+        return `data:image/jpeg;base64,${base64}`;
     };
 
     useEffect(() => {
@@ -266,17 +284,21 @@ export const SeeMyProfile = () => {
                             )}
                         </p>
 
-                        <button
-                            className={`updateProfile ${editMode ? 'cancel' : ''}`}
-                            onClick={() => handleModelCancel(editMode)}
-                        >
-                            {editMode ? '' : ''}
-                        </button>
+                        {tipoCuenta !== 'Aprendiz' && (
+                            <>
+                                <button
+                                    className={`updateProfile ${editMode ? 'cancel' : ''}`}
+                                    onClick={() => handleModelCancel(editMode)}
+                                >
+                                    {editMode ? '' : ''}
+                                </button>
 
-                        {editMode && (
-                            <button className='updateProfile1' onClick={handleSaveChanges}>
+                                {editMode && (
+                                    <button className='updateProfile1' onClick={handleSaveChanges}>
 
-                            </button>
+                                    </button>
+                                )}
+                            </>
                         )}
                     </div>
 

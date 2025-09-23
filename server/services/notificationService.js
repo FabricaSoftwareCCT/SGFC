@@ -156,9 +156,63 @@ const sendCourseRequestStatusEmail = async (userId, actaID) => {
     }
 };
 
+// Crear notificacion a todos los usuario sobre un nuevo curso creado
+const sendNotifiCursoApi = async (curso, emails, fecha_inicio, fecha_fin, estado) => {
+    //consultar el id de lo usuario por email
+    try {
+        const users = await dbInstance.Usuario.findAll({
+            where: {
+                email: {
+                    [Op.in]: emails
+                }
+            }
+        });
+        const userIds = users.map(async user => {
+            const title = `Nuevo curso disponible - ${curso}`;
+            const message = `
+            Notificación de Nuevo Curso
+            Estimado(a) ${user.nombres} ${user.apellidos}, Nos complace informarle que un nuevo curso ha sido creado y está disponible para inscripción:
+            <br>
+            <br>
+            Curso: ${curso}
+            <br>
+            Tipo de estado: ${estado}
+            <br>
+            <br>
+            Fecha de Inicio: ${new Date(fecha_inicio).toLocaleDateString()}
+            <br>
+            <br>
+            Fecha de Fin: ${new Date(fecha_fin).toLocaleDateString()}
+            <br>
+            <br>
+            Le invitamos a inscribirse lo antes posible para asegurar su lugar.
+            <br>
+            <br>
+            Saludos cordiales, SGFC
+        `;
+       const notificacion = await dbInstance.Notificacion.create({
+            remitente_ID: 1,
+            destinatario_ID: user.ID,
+            tipo: 'nuevo_curso',
+            titulo: title,
+            mensaje: message,
+            fecha_envio: new Date(),
+            estado: 'pendiente'
+        });
+        await notificacion.save();
+       });
+        await Promise.all(userIds);
+        return { success: true, message: 'Notificaciones creadas en la base de datos' };
+    } catch (error) {
+        console.error('Error al enviar notificaciones de nuevo curso:', error);
+        throw error;
+    }
+};
+
 module.exports = {
     setDb,
     sendNotification,
     sendAbsenceNotifications,
-    sendCourseRequestStatusEmail
+    sendCourseRequestStatusEmail,
+    sendNotifiCursoApi
 }; 

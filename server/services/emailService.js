@@ -366,7 +366,7 @@ const sendPasswordChangeConfirmationEmail = (email, resetLink) => {
 };
 
 //Funcion para enviar correo de notificacion de curso creado
-const sendCourseCreatedEmail = (emails, nombre_curso, courseLink) => {
+const sendCourseCreatedEmail = (emails, nombre_curso, courseLink, descripcion, estado) => {
   const fs = require('fs');
   const path = require('path');
   const logoPath = path.join(__dirname, '../Img/sena.png');
@@ -401,7 +401,8 @@ const sendCourseCreatedEmail = (emails, nombre_curso, courseLink) => {
             <table width="100%" cellpadding="0" cellspacing="0">
               <tr>
                 <td style="padding:1.25rem 0; line-height:1.6; color:#1A1A1A; font-size:1rem;">
-                  <p style="margin-bottom:.9375rem;">Aca puede ver mas sobre el nuevo curso creado y sus detalles.</p>
+                  <p style="margin-bottom:.9375rem;">Tipo de estado: ${estado}</p>
+                  <p style="margin-bottom:.9375rem;">${descripcion}</p>
                   <div style="text-align:center; padding:1.25rem 0;">
                     <a href="${courseLink}" 
                       style="display:inline-block; background-color:#F7941E; color:#fff !important; padding:.75rem 1.5625rem; border-radius:.3125rem; text-decoration:none; font-weight:bold; font-family:Arial,sans-serif; font-size:1rem;">

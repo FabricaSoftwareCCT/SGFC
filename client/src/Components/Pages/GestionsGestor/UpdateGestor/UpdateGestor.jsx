@@ -66,10 +66,7 @@ export const UpdateGestor = ({ gestor }) => {
           celular: validateNumber(formData.celular),
           email: validateEmail(formData.email)
       }
-
-      console.log("FormData enviado: ", formData)
-      console.log("datos validados: ", validationGeneral)
-      
+         
       const errores = await createMensajeError(validationGeneral);
         if(errores !== null){
           alert(errores);

@@ -11,15 +11,34 @@ export const validateEmail = (email) => {
     return "";
 }
 
+export const validarFecha = (fecha) => {
+    console.log(fecha);
+    if(!fecha) return "No se ingrsaron la fechas"
+
+    const regex = /^\d{4}-\d{2}-\d{2}$/;
+    if (!regex.test(fecha)) {
+        return ` no tiene el formato correcto (dd/mm/yyyy)`;
+    }
+
+    const [anio, mes, dia] = fecha.split("-").map(Number);
+    const newfecha = new Date(anio, mes - 1, dia);
+
+    if (!newfecha || newfecha.getFullYear() !== anio ||newfecha.getMonth() !== mes - 1 || newfecha.getDate() !== dia) {
+        return `${fecha} no es una fecha válida`;
+    }
+
+    return "";
+};
+
 export const validateNumber = (phoneNumber) => {
     // Validar que el número de teléfono no esté vacío
-    if (!phoneNumber) return "El número de teléfono no puede estar vacío";
+    if (!phoneNumber) return "El campo no puede estar vacío";
 
     // Expresión para validar que el formato sea válido
     const phoneRegex = /^\+?[0-9]{7,15}$/; 
     const isValidFormat = phoneRegex.test(phoneNumber);
 
-    if (!isValidFormat) return "El formato del número de teléfono es incorrecto";
+    if (!isValidFormat) return "El formato del número es incorrecto";
 
     return "";
 }
@@ -68,5 +87,5 @@ export const createMensajeError =  async (erros) => {
 
     if (mensaje === "") return null;
     
-    return `No se pudo guardar el perfil.\nLos siguientes campos son obligatorios y no pueden estar vacíos: \n${mensaje}. \nIntente nuevamente.`;
+    return `No se logro guardar.\nLos siguientes campos son obligatorios y no pueden estar vacíos: \n${mensaje}. \nIntente nuevamente.`;
     };

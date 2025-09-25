@@ -29,7 +29,8 @@ const fotoDefectPerfil = '../Img/userDefect.png'; // Importar la imagen por defe
 const registerUser = async (req, res) => {
     try {
         const { email, password, accountType, documento, nombres, apellidos, celular, titulo_profesional } = req.body;
-
+        
+        console.log(email, password)
         // Validar datos obligatorios
         if (!email || !password || !accountType) {
             return res.status(400).json({ message: 'Los campos email, password y accountType son obligatorios' });
@@ -48,14 +49,17 @@ const registerUser = async (req, res) => {
         }
 
         // Generar token de verificación JWT (no con crypto)
-        const payload = { email };
+        // const payload = { email };
+        // const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
+        const payload = { data: { email } };
         const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
 
         // Generar contraseña temporal
-        const tempPassword = Math.random().toString(36).slice(-8);
+        //Configurar para usuarios que necesitan contraseña temporal
+       //const tempPassword = Math.random().toString(36).slice(-8);
         
         // Hashear la contraseña temporal
-        const hashedPassword = await bcrypt.hash(tempPassword, 10);
+        const hashedPassword = await bcrypt.hash(password, 10);
 
         // Crear nuevo usuario
         const newUser = await User.create({
@@ -90,7 +94,7 @@ const registerUser = async (req, res) => {
         }
 
         // Enviar correo de verificación CON la contraseña temporal
-        await sendVerificationEmail(email, token, tempPassword);
+        await sendVerificationEmail(email, token, null, accountType);
 
         res.status(201).json({ message: 'Usuario registrado. Por favor verifica tu correo para obtener tu contraseña temporal.' });
     } catch (error) {
@@ -101,62 +105,63 @@ const registerUser = async (req, res) => {
 
 // Verificar correo
 const verifyEmail = async (req, res) => {
-    try {
-        const { token } = req.query;
+  try {
+    const { token } = req.query;
 
-        // Validar token
-        if (!token) {
-            return res.status(400).json({ message: "Token no proporcionado" });
-        }
-
-        console.log('Token recibido:', token);
-        
-        // Verificar el token JWT
-        let decoded;
-        try {
-            decoded = jwt.verify(token, process.env.JWT_SECRET);
-            console.log('Token decodificado:', decoded);
-        } catch (err) {
-            if (err.name === 'TokenExpiredError') {
-                return res.status(400).json({ message: "Token expirado" });
-            }
-            console.log('Error al verificar token:', err);
-            return res.status(400).json({ message: "Token inválido" });
-        }
-
-        console.log(decoded.data.email);
-        const userEmail = decoded.data.email; 
-        console.log('Buscando usuario con email:', userEmail);
-        
-        if (!userEmail) {
-            return res.status(400).json({ message: "Token no contiene email válido" });
-        }
-
-        const user = await User.findOne({ where: { email: userEmail } });
-
-        if (!user) {
-            return res.status(400).json({ message: "Usuario no encontrado" });
-        }
-
-        console.log('Token en la base de datos:', user.token);
-        console.log('Token recibido vs token en BD:', token, user.token);
-
-        // Verificar que el token coincida
-        if (user.token !== token) {
-            return res.status(400).json({ message: "Token no coincide" });
-        }
-
-        // Actualizar estado de verificación
-        user.verificacion_email = true;
-        user.token = null;
-        await user.save();
-
-        res.status(200).json({ message: "Correo verificado con éxito" });
-    } catch (error) {
-        console.error("Error completo al verificar el correo:", error);
-        res.status(500).json({ message: "Error al verificar el correo" });
+    // Validar token
+    if (!token) {
+      return res.status(400).json({ message: "Token no proporcionado" });
     }
+
+    console.log('Token recibido:', token);
+
+    // Verificar el token JWT
+    let decoded;
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET);
+      console.log('Token decodificado:', decoded);
+    } catch (err) {
+      if (err.name === 'TokenExpiredError') {
+        return res.status(400).json({ message: "Token expirado" });
+      }
+      console.log('Error al verificar token:', err);
+      return res.status(400).json({ message: "Token inválido" });
+    }
+
+    // ⚡️ Aquí estaba el problema
+    const userEmail = decoded.email || decoded?.data?.email;
+    console.log('Buscando usuario con email:', userEmail);
+
+    if (!userEmail) {
+      return res.status(400).json({ message: "Token no contiene email válido" });
+    }
+
+    const user = await User.findOne({ where: { email: userEmail } });
+
+    if (!user) {
+      return res.status(400).json({ message: "Usuario no encontrado" });
+    }
+
+    console.log('Token en la base de datos:', user.token);
+    console.log('Token recibido vs token en BD:', token, user.token);
+
+    // Verificar que el token coincida
+    if (user.token !== token) {
+      return res.status(400).json({ message: "Token no coincide" });
+    }
+
+    // Actualizar estado de verificación
+    user.verificacion_email = true;
+    user.token = null;
+    await user.save();
+
+    res.status(200).json({ message: "Correo verificado con éxito" });
+  } catch (error) {
+    console.error("Error completo al verificar el correo:", error);
+    res.status(500).json({ message: "Error al verificar el correo" });
+  }
 };
+
 
 const requestNewVerificationEmail = async (req, res) => {
     try{
@@ -209,6 +214,8 @@ const loginUser = async (req, res) => {
         if (!user || !user.verificacion_email) {
             return res.status(403).json({ message: "Credenciales inválidas o correo no verificado." });
         }
+
+        console.log(password, "Datos ingresados: ",  user.password)
 
         const isPasswordValid = await bcrypt.compare(password, user.password);
         if (!isPasswordValid) {

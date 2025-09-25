@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./UpdateInstructor.css";
 import axiosInstance from "../../../../config/axiosInstance"; // Asegúrate de ajustar esta ruta según la estructura de tu proyecto
-import { createMensajeError, validatePhoneNumber, validateText, validateEmail } from "../../../../utils/Validators/formValidator";
+import { createMensajeError, validateText, validateEmail } from "../../../../utils/Validators/formValidator";
 
 export const UpdateInstructor = ({ instructor }) => {
   const [isEditing, setIsEditing] = useState(false);

@@ -74,7 +74,7 @@ const sendRequestCourseEmail = async (req, res) => {
       service: "Gmail",
       auth: {
         user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS ,
+        pass: process.env.GOOGLE_APP_PASSWORD,
       },
     });
 
@@ -102,11 +102,18 @@ const sendRequestCourseEmail = async (req, res) => {
 };
 
 // Función para enviar el correo de verificación
-const sendVerificationEmail = async (email, token) => {
+const sendVerificationEmail = async (email, token, newPassword, accountType) => {
   const enlaceVerificacion = `http://localhost:5173/verificarCorreo?token=${token}`;
   const fs = require('fs');
   const path = require('path');
   const logoPath = path.join(__dirname, '../Img/sena.png');
+
+  // ⭐⭐ NUEVO: Mensaje específico para Aprendiz ⭐⭐
+  const mensajeEspecifico = accountType === 'Aprendiz' 
+    ? `<p style="margin-bottom:.9375rem; background:#fff9e6; padding:10px; border-radius:5px; border-left:4px solid #F7941E;">
+         <strong>💡 Para Aprendices:</strong> Después de verificar tu correo, dirígete a tu perfil para completar tu información personal y comenzar a usar la plataforma.
+       </p>`
+    : '';
 
   const mailOptions = {
     from: `"SGFC" <${process.env.EMAIL_USER}>`,
@@ -139,7 +146,10 @@ const sendVerificationEmail = async (email, token) => {
             <table width="100%" cellpadding="0" cellspacing="0">
               <tr>
                 <td style="padding:1.25rem 0; line-height:1.6; color:#1A1A1A; font-size:1rem;">
-                  <p style="margin-bottom:.9375rem;">Gracias por registrarte. Para completar el proceso y activar tu cuenta, por favor haz clic en el siguiente enlace para verificar tu correo electrónico:</p>
+                  <p style="margin-bottom:.9375rem; display: flex; flex-direction: column; gap: 5px;">Gracias por registrarte. Para completar el proceso y activar tu cuenta, por favor haz clic en el siguiente enlace para verificar tu correo electrónico:</p>
+                  
+                  ${mensajeEspecifico} <!-- ⭐⭐ AQUÍ SE INSERTA EL MENSAJE ESPECÍFICO ⭐⭐ -->
+                  
                   <div style="text-align:center; padding:1.25rem 0;">
                     <a href="${enlaceVerificacion}" 
                       style="display:inline-block; background-color:#F7941E; color:#fff !important; padding:.75rem 1.5625rem; border-radius:.3125rem; text-decoration:none; font-weight:bold; font-family:Arial,sans-serif; font-size:1rem;">
@@ -177,7 +187,6 @@ const sendVerificationEmail = async (email, token) => {
     }
   });
 };
-
 // Función para enviar el correo de recuperación de contraseña
 const sendPasswordResetEmail = (email, resetLink) => {
   const fs = require('fs');

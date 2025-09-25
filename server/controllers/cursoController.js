@@ -122,10 +122,11 @@ const obtenerCursosAsignadosAInstructor = async (req, res) => {
 // Crear un curso (solo para administradores)
 const createCurso = async (req, res) => {
   try {
-    const { accountType } = req.user;
-
-    if (accountType !== "Administrador" & accountType !== "Gestor") {
-      return res.status(403).json({ message: "No tienes permisos para crear cursos." });
+    const { accountType } = req.user; // ← ESTA LÍNEA TIENE EL PROBLEMA
+    console.log("Este es el tipo de cuenta", accountType);
+    
+    if (accountType !== "Administrador" && accountType !== "Gestor" && accountType !== "Instructor") {
+      return res.status(403).json({ message: "No tienes permisos para crear cursos" });
     }
 
     const {

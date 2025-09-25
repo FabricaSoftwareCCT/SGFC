@@ -35,6 +35,12 @@
     padding: 1rem;
     z-index: 3;
 }
+label {
+    color: #fff;
+    font-size: 16px;
+    font-weight: 500;
+    margin-right: 1rem;
+}
 
 .options_Search>input {
     width: 20rem;

@@ -118,6 +118,23 @@ export const ConsultCourses = () => {
     }
   };
 
+  // filtrar por categoria
+  const handleCategoryChange = (e) => {
+    const category = e.target.value;
+    console.log(cursos);
+    cursos.sort((a, b) => {
+      if (category === "Estado") {
+        console.log(a.estado, b.estado);
+        return a.estado.localeCompare(b.estado);
+      } else if (category === "Oferta") {
+        console.log(a.tipo_oferta, b.tipo_oferta);
+        return a.tipo_oferta === b.tipo_oferta ? 0 : a.tipo_oferta ? -1 : 1;
+      }
+    });
+    setSelectedCategory(category);
+    setCursos([...cursos]);
+  }
+
   return (
     <>
       <Main>
@@ -132,26 +149,42 @@ export const ConsultCourses = () => {
           </h2>
           <p>Busca un curso por su <b>nombre</b> o <b>ficha</b>.</p>
 
-          <div className='options_Search'>
-            <div className="custom-select-container">
-              <select
-                className="custom-select"
-                value={selectedCategory}
-                onChange={e => setSelectedCategory(e.target.value)}
-              >
-                <option value="" disabled hidden>Categoría</option>
-                <option value="desarrollo">Desarrollo</option>
-                <option value="diseño">Diseño</option>
-                <option value="marketing">Marketing</option>
-              </select>
-            </div>
-            <input
-              type="text"
-              placeholder='Nombre o ficha del curso'
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
+        <div className="options_Search">
+          {/* Select Estado */}
+          <div className="custom-select-container">
+            <label htmlFor="estado">Estado</label>
+            <select
+              className="custom-select"
+              //value={selectedEstado}
+              //onChange={handleEstadoChange}
+            >
+              <option value="activo">Activo</option>
+              <option value="en_oferta">En oferta</option>
+            </select>
           </div>
+
+          {/* Select Oferta */}
+          <div className="custom-select-container">
+            <label htmlFor="oferta">Oferta</label>
+            <select
+              className="custom-select"
+              //value={selectedOferta}
+              //onChange={handleOfertaChange}
+            >
+              <option value="abierta">Abierta</option>
+              <option value="cerrada">Cerrada</option>
+            </select>
+          </div>
+
+          {/* Input de búsqueda */}
+          <input
+            type="text"
+            className="search-input"
+            placeholder="Nombre o ficha del curso"
+            //value={searchTerm}
+            //onChange={handleSearchChange}
+          />
+        </div>
 
           {errorMessage && (
             <p className="error-message-search" style={{ marginTop: 8, marginBottom: 0 }}>

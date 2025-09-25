@@ -70,3 +70,5 @@ export const createMensajeError =  async (erros) => {
     
     return `No se pudo guardar el perfil.\nLos siguientes campos son obligatorios y no pueden estar vacíos: \n${mensaje}. \nIntente nuevamente.`;
     };
+
+    

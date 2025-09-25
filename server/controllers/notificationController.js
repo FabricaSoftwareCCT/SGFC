@@ -1,6 +1,6 @@
 const Notificacion = require('../models/Notificacion');
 const User = require("../models/User");
-const { sendNotification, sendAbsenceNotifications } = require('../services/notificationService');
+const { sendNotification, sendAbsenceNotifications, sendCourseRequestStatusEmail} = require('../services/notificationService');
 let dbInstance;
 
 // Función para inyectar la instancia de la base de datos
@@ -260,21 +260,28 @@ const crearNotificacionInvitacionCursoInstructor = async (req, res) => {
 // crear notificacion de estado de solicitud de curso (aceptada/rechazada) para empresa
 const createCourseRequestStatusNotification = async (req, res) => {
     try {
-        const {actaID, estado} = req.body;
-        if (!actaID || !estado) {
+        const { remitente_ID ,actaID, estado} = req.body;
+        if (!remitente_ID || !actaID || !estado ) {
+            console.log('Faltan datos requeridos:', { actaID, estado }); 
             return res.status(400).json({ message: 'Faltan datos requeridos.' });
         }
         // Buscar el acta para obtener el ID de la empresa (remitente)
-        const acta = await dbInstance.Acta.findByPk(actaID);
+        const acta = await dbInstance.Actas.findByPk(actaID);
         if (!acta) {
             return res.status(404).json({ message: 'Acta no encontrada.' });
         }
-        const remitente_ID = acta.empresa_ID;
+        const id_empresa = acta.empresa_ID;
+        // Buscar el usuario de la empresa
+        const usuario = await User.findOne({ where: { empresa_ID: id_empresa } });
+
+        if (!usuario) {
+            return res.status(404).json({ message: 'Usuario no encontrado.' });
+        }
 
         // Crear la notificación
         const notificacion = await dbInstance.Notificacion.create({
             remitente_ID,
-            destinatario_ID: acta.gestor_ID,
+            destinatario_ID: usuario.dataValues.ID,
             tipo: 'estado_solicitud_curso',
             titulo: `Solicitud de curso ${estado}`,
             mensaje: `La solicitud de curso ha sido ${estado}.`,
@@ -282,6 +289,11 @@ const createCourseRequestStatusNotification = async (req, res) => {
             estado: 'sin_leer',
             acta_ID: actaID
         });
+
+        await sendCourseRequestStatusEmail(
+            usuario.dataValues.ID,
+            actaID
+        );
 
         res.status(201).json({
             success: true,
@@ -293,6 +305,7 @@ const createCourseRequestStatusNotification = async (req, res) => {
         res.status(500).json({ message: 'Error al crear la notificación' });
     }
 }
+
 
 module.exports = {
     setDb,

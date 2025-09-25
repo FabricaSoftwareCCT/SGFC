@@ -123,10 +123,8 @@ const verifyEmail = async (req, res) => {
             console.log('Error al verificar token:', err);
             return res.status(400).json({ message: "Token inválido" });
         }
-
-        console.log(decoded.data?.email);
+        
         const userEmail = decoded.data.email; 
-        console.log('Buscando usuario con email:', userEmail);
         
         if (!userEmail) {
             return res.status(400).json({ message: "Token no contiene email válido" });

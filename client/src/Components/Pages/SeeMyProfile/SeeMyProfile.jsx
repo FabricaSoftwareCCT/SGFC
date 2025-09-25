@@ -303,7 +303,9 @@ export const SeeMyProfile = () => {
                                         className={`color_status ${perfil.estado === 'activo' ? 'status-green' : perfil?.estado === 'inactivo' ? 'status-red' : ''}`}
                                     ></div>
                                     <h3>Estado</h3>
-                                    {editMode ? (
+                                    {tipoCuenta === "Gestor" ? (
+                                    <span className='input_updateStatus'>{perfil?.estado}</span>
+                                    ) : editMode ? (
                                         <select
                                             name="estado"
                                             className="input_updateStatus"

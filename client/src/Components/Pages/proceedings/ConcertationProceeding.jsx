@@ -9,6 +9,7 @@ import html2pdf from 'html2pdf.js';
 import { ModalSignature } from '../../UI/Modal_Signature/ModalSignature';
 import { EditableList } from '../../UI/EditableList/EditableList';
 import { useNavigate } from 'react-router-dom';
+import { validateText, validateNumber, validarFecha, createMensajeError } from '../../../utils/Validators/formValidator';
 
 export const ConcertationProceeding = () => {
   const navigate = useNavigate();
@@ -87,6 +88,31 @@ export const ConcertationProceeding = () => {
       });
   }, []);
 
+    const handleValidation = async () => {
+      while(true){
+        const validationGeneral = {
+        nombreCurso: validateText(nombreCurso),
+        //Institucion: validateText(empresa?.nombre_empresa),
+        //Lugar: validateText(empresa?.Ciudad?.nombre),
+        CoordinadorAcademico: validateText(coordinadorAcademico),
+        Instructores: validateText(instructores[0]),
+        Instructor: validateText(instructoresAsignados[0]),
+        //numEmpleados: validateNumber(numEmpleados),
+        fechaInicio: validarFecha(fechaInicio),
+        fechaFin: validarFecha(fechaFin),
+        }
+
+        const errores = await createMensajeError(validationGeneral);
+        if(errores !== null){
+          console.log(errores);
+          alert(errores);
+          return true;
+        }
+
+        return false;
+      }
+    }
+
   // ✅ Cleanup function para liberar memory de las URLs creadas
   useEffect(() => {
     return () => {
@@ -130,6 +156,9 @@ export const ConcertationProceeding = () => {
   };
 
   const handleDownloadPDF = () => {
+    const flag = handleValidation();
+    if(flag) return;
+    
     setExportValues({
       nombreCurso,
       numEmpleados,
@@ -165,6 +194,10 @@ export const ConcertationProceeding = () => {
   // Enviar el acta de concertación al backend
   const handleSendProceeding = async () => {
     try {
+
+      const flag = await handleValidation();
+      if(flag) return;
+
       if (!pdfRef.current) return;
 
       const pdfFileName = 'acta_concertacion.pdf';
@@ -177,7 +210,6 @@ export const ConcertationProceeding = () => {
 
       const worker = html2pdf().set(opt).from(pdfRef.current);
       const pdfBlob = await worker.output('blob');
-
       const formData = new FormData();
       formData.append('pdf', pdfBlob, pdfFileName);
       formData.append('empresa', JSON.stringify(empresa));
@@ -497,7 +529,7 @@ export const ConcertationProceeding = () => {
           editar ={isEditing}
           tipoActa="Acta de Concertacion"
           onSignature={setFirmaDigital}
-          onUpload={handleUploadSignature} // ✅ Usa la nueva función
+          onUpload={handleUploadSignature}
         >
         </ModalSignature>
       )}

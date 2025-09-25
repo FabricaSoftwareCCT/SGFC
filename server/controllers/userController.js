@@ -60,7 +60,7 @@ const registerUser = async (req, res) => {
         // Crear nuevo usuario
         const newUser = await User.create({
             email,
-            password: hashedPassword,
+            password: password,
             accountType,
             documento: documento || null,
             nombres: nombres || null,
@@ -124,7 +124,7 @@ const verifyEmail = async (req, res) => {
             return res.status(400).json({ message: "Token inválido" });
         }
 
-        console.log(decoded.data.email);
+        console.log(decoded.data?.email);
         const userEmail = decoded.data.email; 
         console.log('Buscando usuario con email:', userEmail);
         
@@ -810,7 +810,6 @@ const updateUserProfile = async (req, res) => {
                 if (email_empresa) user.Empresa.email_empresa = email_empresa;
                 if (nombre_empresa) user.Empresa.nombre_empresa = nombre_empresa;
                 if (direccion) user.Empresa.direccion = direccion;
-                if (estadoEmpresa !== undefined) user.Empresa.estado = estadoEmpresa;
                 if (categoria) user.Empresa.categoria = categoria;
                 if (telefono) user.Empresa.telefono = telefono;
 
@@ -1368,7 +1367,7 @@ const detectarTextoOCR = async (imagePath) => {
     const client = new vision.ImageAnnotatorClient();
     const imageBuffer = fs.readFileSync(imagePath);
     const [result] = await client.textDetection({ image: { content: imageBuffer } });
-    return result.fullTextAnnotation?.text || '';
+    return result.fullTextAnnotation.text || '';
 };
 
 

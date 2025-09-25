@@ -7,11 +7,11 @@ import { Main } from '../../../Components/Layouts/Main/Main';
 import axiosInstance from '../../../config/axiosInstance';
 import { Header } from '../../Layouts/Header/Header';
 import fotoPerfilDefect from "../../../assets/Icons/userDefect.png";
-import {validateEmail, validatePhoneNumber, validateText, validateAddress, createMensajeError, validateNIT } from '../../../utils/Validators/formValidator';
+import {validateEmail, validateNumber, validateText, validateAddress, createMensajeError, validateNIT } from '../../../utils/Validators/formValidator';
 
 export const SeeMyProfile = () => {
     const location = useLocation();
-    const userId = location.state?.userId;
+    const userId = location.state.userId;
     const fotoPerfilInputRef = React.useRef(null);
     const logoEmpresaInputRef = React.useRef(null);
     const [perfil, setPerfil] = useState(null);
@@ -110,7 +110,7 @@ export const SeeMyProfile = () => {
                 direccion: validateAddress(perfil.Empresa.direccion),
                 telefono: validateNumber(perfil.Empresa.telefono),
                 email: validateEmail(perfil.Empresa.email_empresa),
-                nit: validateNIT(perfil?.Empresa?.NIT ) 
+                nit: validateNIT(perfil.Empresa.NIT ) 
             }
         }
 
@@ -132,7 +132,7 @@ export const SeeMyProfile = () => {
 
             // Si es una empresa, serializamos el objeto Empresa
             if (tipoCuenta === 'Empresa' && perfil.Empresa) {
-                payload.documento = perfil?.Empresa?.NIT;
+                payload.documento = perfil.Empresa.NIT;
                 payload.empresa = JSON.stringify(perfil.Empresa);
             }
 
@@ -143,18 +143,18 @@ export const SeeMyProfile = () => {
         } catch (error) {
             console.error('Error al actualizar el perfil:', error);
             console.error('Error response:', error.response);
-            console.error('Error response data:', error.response?.data);
-            console.error('Error response status:', error.response?.status);
+            console.error('Error response data:', error.response.data);
+            console.error('Error response status:', error.response.status);
             
             // Mostrar el mensaje de error específico del backend
             let errorMessage = 'Hubo un error al actualizar el perfil';
             
             // Intentar extraer el mensaje del backend de diferentes maneras
-            if (error.response?.data?.message) {
+            if (error.response.data.message) {
                 errorMessage = error.response.data.message;
-            } else if (error.response?.data && typeof error.response.data === 'string') {
+            } else if (error.response.data && typeof error.response.data === 'string') {
                 errorMessage = error.response.data;
-            } else if (error.response?.data && typeof error.response.data === 'object') {
+            } else if (error.response.data && typeof error.response.data === 'object') {
                 // Intentar extraer el mensaje del objeto
                 const data = error.response.data;
                 if (data.message) {
@@ -213,7 +213,7 @@ export const SeeMyProfile = () => {
                                     type="text"
                                     name="nombres"
                                     className='input_updateData'
-                                    value={perfil?.nombres || ''}
+                                    value={perfil.nombres || ''}
                                     onChange={handleInputChange}
                                 />
                             ) : (
@@ -228,7 +228,7 @@ export const SeeMyProfile = () => {
                                     type="text"
                                     name="apellidos"
                                     className='input_updateData'
-                                    value={perfil?.apellidos || ''}
+                                    value={perfil.apellidos || ''}
                                     onChange={handleInputChange}
                                 />
                             ) : (
@@ -280,13 +280,13 @@ export const SeeMyProfile = () => {
                         )}
                     </div>
 
-                    {(tipoCuenta === 'Administrador' || tipoCuenta === 'Instructor' || tipoCuenta === 'Gestor') && perfil?.Sena && (
+                    {(tipoCuenta === 'Administrador' || tipoCuenta === 'Instructor' || tipoCuenta === 'Gestor') && perfil.Sena && (
                         <div className='container_data_company'>
 
                             <div className='container_nameCompany-Status'>
                                 <div className='name_company'>
                                     <img
-                                        src={getImageSrcFromBase64(perfil?.Sena?.img_sena)}
+                                        src={getImageSrcFromBase64(perfil.Sena.img_sena)}
                                         alt="Logo sede"
                                         className="profile-img"
                                     />                                    <div>
@@ -300,7 +300,7 @@ export const SeeMyProfile = () => {
                                 {/* elemento gestion de estado */}
                                 <div className='status-company'>
                                     <div
-                                        className={`color_status ${perfil?.estado === 'activo' ? 'status-green' : perfil?.estado === 'inactivo' ? 'status-red' : ''}`}
+                                        className={`color_status ${perfil.estado === 'activo' ? 'status-green' : perfil?.estado === 'inactivo' ? 'status-red' : ''}`}
                                     ></div>
                                     <h3>Estado</h3>
                                     {editMode ? (
@@ -324,23 +324,23 @@ export const SeeMyProfile = () => {
                                     <h4 id='titleDataSede'>Datos sede</h4>
                                     <p>
                                         Dirección: <br />
-                                        {perfil.Sena.direccion || '-'}
+                                        {perfil.Sena?.direccion || '-'}
                                     </p>
                                     <p>
                                         Teléfono: <br />
-                                        {perfil.Sena.telefono || '-'}
+                                        {perfil.Sena?.telefono || '-'}
                                     </p>
                                     <p>
                                         Email: <br />
-                                        {perfil.Sena.email_sena || '-'}
+                                        {perfil.Sena?.email_sena || '-'}
                                     </p>
                                     <p>
                                         Ciudad: <br />
-                                        {perfil.Sena.Ciudad?.nombre || '-'}
+                                        {perfil.Sena?.Ciudad.nombre || '-'}
                                     </p>
                                     <p>
                                         Departamento: <br />
-                                        {perfil.Sena.Ciudad?.Departamento?.nombre || '-'}
+                                        {perfil.Sena?.Ciudad.Departamento.nombre || '-'}
                                     </p>
                                 </div>
                                 <div className='data_courses_instructor'>

@@ -7,7 +7,7 @@ import { Main } from '../../../Components/Layouts/Main/Main';
 import axiosInstance from '../../../config/axiosInstance';
 import { Header } from '../../Layouts/Header/Header';
 import fotoPerfilDefect from "../../../assets/Icons/userDefect.png";
-import {validateEmail, validateNumber, validateText, validateAddress, createMensajeError, validateNIT } from '../../../utils/Validators/formValidator';
+import {validateEmail, validateNumber, validateText, createMensajeError, validateNIT } from '../../../utils/Validators/formValidator';
 
 export const SeeMyProfile = () => {
     const location = useLocation();
@@ -18,19 +18,41 @@ export const SeeMyProfile = () => {
     const [perfilOriginal, setPerfilOriginal] = useState(null); // Guardar el perfil original
     const [tipoCuenta, setTipoCuenta] = useState('');
     const [editMode, setEditMode] = useState(false);
+    const [departamentos, setDepartamentos] = useState([]);
+    const [ciudades, setCiudades] = useState([]);
+    const [departamentoSeleccionado, setDepartamentoSeleccionado] = useState('');
+    const [ciudadSeleccionada, setCiudadSeleccionada] = useState('');
 
-    const getImageSrcFromBase64 = (base64) => {
-        if (!base64 || base64 === '' || base64 === null) return fotoPerfilDefect; // Usar imagen por defecto importada
+    const getImageSrcFromBase64 = (value) => {
+        // Fallback inmediato si no hay valor
+        if (!value) return fotoPerfilDefect;
 
+        // Si ya viene como data URL o URL absoluta, úsala tal cual
+        if (typeof value === 'string' && (value.startsWith('data:') || value.startsWith('http'))) {
+            return value;
+        }
+
+        // Si en BD guardaron una ruta relativa (p.ej. ../Img/userDefect.png), usar por defecto
+        if (typeof value === 'string' && /(\.png|\.jpg|\.jpeg|\.gif)$/i.test(value)) {
+            return fotoPerfilDefect;
+        }
+
+        const base64 = value;
         // Detectar tipo MIME por encabezado base64
-        if (base64.startsWith('iVBOR')) {
+        if (typeof base64 === 'string' && base64.startsWith('iVBOR')) {
             return `data:image/png;base64,${base64}`;
-        } else if (base64.startsWith('/9j/')) {
-            return `data:image/jpeg;base64,${base64}`;
-        } else {
-            // Si no puedes detectar, asume jpeg por defecto
+        }
+        if (typeof base64 === 'string' && base64.startsWith('/9j/')) {
             return `data:image/jpeg;base64,${base64}`;
         }
+
+        // Si la cadena es muy corta, probablemente no es una imagen base64 válida
+        if (typeof base64 === 'string' && base64.length < 100) {
+            return fotoPerfilDefect;
+        }
+
+        // Último recurso: asumir jpeg
+        return `data:image/jpeg;base64,${base64}`;
     };
 
     useEffect(() => {
@@ -40,6 +62,11 @@ export const SeeMyProfile = () => {
                 setPerfil(response.data);
                 setPerfilOriginal(response.data); // Guardar el perfil original
                 setTipoCuenta(response.data.accountType);
+                
+                // Si es empresa, cargar ubicaciones y establecer valores por defecto
+                if (response.data.accountType === 'Empresa' && response.data.Empresa) {
+                    await cargarUbicaciones(response.data.Empresa);
+                }
             } catch (error) {
                 console.error('Error al obtener el perfil:', error);
             }
@@ -49,6 +76,39 @@ export const SeeMyProfile = () => {
             fetchProfile();
         }
     }, [userId]);
+
+    const cargarUbicaciones = async (empresaData) => {
+        try {
+            // Cargar departamentos
+            const departamentosRes = await axiosInstance.get('/api/ubicaciones/departamentos');
+            const departamentosData = Array.isArray(departamentosRes.data) ? departamentosRes.data : departamentosRes.data.data || [];
+            setDepartamentos(departamentosData);
+
+            // Si hay ciudad_ID, cargar ciudades del departamento correspondiente
+            if (empresaData.ciudad_ID) {
+                // Primero obtener la ciudad para saber su departamento
+                const ciudadRes = await axiosInstance.get(`/api/ubicaciones/ciudades/${empresaData.ciudad_ID}`);
+                const ciudadData = ciudadRes.data;
+                
+                if (ciudadData.departamento_ID) {
+                    setDepartamentoSeleccionado(ciudadData.departamento_ID);
+                    setCiudadSeleccionada(empresaData.ciudad_ID);
+                    
+                    // Cargar ciudades del departamento
+                    const ciudadesRes = await axiosInstance.get(`/api/ubicaciones/departamentos/${ciudadData.departamento_ID}/ciudades`);
+                    const ciudadesData = Array.isArray(ciudadesRes.data) ? ciudadesRes.data : ciudadesRes.data.data || [];
+                    setCiudades(ciudadesData);
+                }
+            } else {
+                // Si no hay ciudad_ID, limpiar los selects
+                setDepartamentoSeleccionado('');
+                setCiudadSeleccionada('');
+                setCiudades([]);
+            }
+        } catch (error) {
+            console.error('Error al cargar ubicaciones:', error);
+        }
+    };
 
 
 
@@ -67,6 +127,49 @@ export const SeeMyProfile = () => {
         } else {
             setPerfil({ ...perfil, [name]: value });
         }
+    };
+
+    const handleDepartamentoChange = async (e) => {
+        const departamentoId = e.target.value;
+        setDepartamentoSeleccionado(departamentoId);
+        setCiudadSeleccionada('');
+        
+        // Actualizar el perfil con el nuevo departamento
+        setPerfil(prev => ({
+            ...prev,
+            Empresa: {
+                ...prev.Empresa,
+                departamento_ID: departamentoId,
+                ciudad_ID: null
+            }
+        }));
+
+        if (departamentoId) {
+            try {
+                const ciudadesRes = await axiosInstance.get(`/api/ubicaciones/departamentos/${departamentoId}/ciudades`);
+                const ciudadesData = Array.isArray(ciudadesRes.data) ? ciudadesRes.data : ciudadesRes.data.data || [];
+                setCiudades(ciudadesData);
+            } catch (error) {
+                console.error('Error al cargar ciudades:', error);
+                setCiudades([]);
+            }
+        } else {
+            setCiudades([]);
+        }
+    };
+
+    const handleCiudadChange = (e) => {
+        const ciudadId = e.target.value;
+        setCiudadSeleccionada(ciudadId);
+        
+        // Actualizar el perfil con la nueva ciudad
+        setPerfil(prev => ({
+            ...prev,
+            Empresa: {
+                ...prev.Empresa,
+                ciudad_ID: ciudadId
+            }
+        }));
     };
 
     const handleFileChange = (e, type) => {
@@ -94,51 +197,98 @@ export const SeeMyProfile = () => {
 
 
     const handleSaveChanges = async () => {
+        console.log('🔍 Debug - Iniciando guardado:', { perfil, perfilOriginal, tipoCuenta });
+        
+        // Mezclar datos originales y actuales para evitar null/undefined
+        const empresaBase = perfilOriginal?.Empresa || {};
+        const empresaActual = perfil?.Empresa || {};
+        const empresaSnapshot = {
+            ...empresaBase,
+            ...empresaActual,
+            // Ubicación prioriza lo seleccionado en UI
+            departamento_ID: departamentoSeleccionado ? parseInt(departamentoSeleccionado) : (empresaActual.departamento_ID ? empresaBase.departamento_ID ? null),
+            ciudad_ID: ciudadSeleccionada ? parseInt(ciudadSeleccionada) : (empresaActual.ciudad_ID ? empresaBase.ciudad_ID ? null)
+        };
+
+        console.log('🔍 Debug - empresaSnapshot:', empresaSnapshot);
         
         let erroresTipoCuenta = {};
 
         const ValidationGeneral = {
-            nombre: validateText(perfil.nombres),
-            apellidos: validateText(perfil.apellidos),
-            email: validateEmail(perfil.email),
-            Celular: validateNumber(perfil.celular) 
-        }
+            nombre: validateText(perfil?.nombres || ''),
+            apellidos: validateText(perfil?.apellidos || ''),
+            email: validateEmail(perfil?.email || ''),
+            Celular: validateNumber(perfil?.celular || '') 
+        };
+        
+        console.log('🔍 Debug - ValidationGeneral:', ValidationGeneral);
 
         if (tipoCuenta === 'Empresa') {
+            console.log('🔍 Debug - Validando empresa:', {
+                nombre_empresa: empresaSnapshot.nombre_empresa,
+                direccion: empresaSnapshot.direccion,
+                nombre_empresa_trim: (empresaSnapshot.nombre_empresa || '').trim(),
+                direccion_trim: (empresaSnapshot.direccion || '').trim()
+            });
+            
+            // Validación directa sin variables intermedias
             erroresTipoCuenta = {
-                nombre_empresa: validateText(perfil.Empresa.nombre_empresa),
-                direccion: validateAddress(perfil.Empresa.direccion),
-                telefono: validateNumber(perfil.Empresa.telefono),
-                email: validateEmail(perfil.Empresa.email_empresa),
-                nit: validateNIT(perfil.Empresa.NIT ) 
-            }
+                nombre_empresa: (empresaSnapshot.nombre_empresa && empresaSnapshot.nombre_empresa.trim().length > 0) ? "" : 'El nombre de la empresa es obligatorio',
+                direccion: (empresaSnapshot.direccion && empresaSnapshot.direccion.trim().length > 0) ? "" : 'La dirección es obligatoria',
+                telefono: validateNumber(empresaSnapshot.telefono || ''),
+                email: validateEmail(empresaSnapshot.email_empresa || ''),
+                nit: validateNIT(empresaSnapshot?.NIT || '') 
+            };
+            
+            console.log('🔍 Debug - erroresTipoCuenta después de asignar:', erroresTipoCuenta);
         }
 
         const error = {
             ...ValidationGeneral,
             ...erroresTipoCuenta
-        }
+        };
+        
+        console.log('🔍 Debug - Errores de validación:', error);
+        console.log('🔍 Debug - ValidationGeneral keys:', Object.keys(ValidationGeneral));
+        console.log('🔍 Debug - erroresTipoCuenta keys:', Object.keys(erroresTipoCuenta));
         
         const hastErrors = await createMensajeError(error);
-        if(hastErrors != null){
-            alert(hastErrors)
-            setPerfil(perfilOriginal); // Actualizar el perfil original con los datos
-            return ;
+        if (hastErrors != null) {
+            console.log('🚫 Debug - Validación falló:', hastErrors);
+            alert(hastErrors);
+            setPerfil(perfilOriginal); // Revertir cambios locales
+            return;
         }
 
         try {
-            // Clonamos el perfil
+            // Construir payload seguro
             const payload = { ...perfil };
 
-            // Si es una empresa, serializamos el objeto Empresa
-            if (tipoCuenta === 'Empresa' && perfil.Empresa) {
-                payload.documento = perfil.Empresa.NIT;
-                payload.empresa = JSON.stringify(perfil.Empresa);
+            if (tipoCuenta === 'Empresa') {
+                const empresaPayload = {
+                    ...empresaSnapshot,
+                    // Asegurar que nunca viajen null/undefined a nivel de texto
+                    nombre_empresa: (empresaSnapshot.nombre_empresa || '').trim(),
+                    direccion: (empresaSnapshot.direccion || '').trim(),
+                };
+
+                payload.documento = empresaPayload.NIT;
+                payload.empresa = JSON.stringify(empresaPayload);
             }
 
             await axiosInstance.put(`/api/users/perfil/actualizar/${userId}`, payload);
             alert('Perfil actualizado con éxito');
-            setPerfilOriginal(perfil); // Actualizar el perfil original con los nuevos datos
+            
+            // Recargar el perfil completo para obtener los datos actualizados de ubicación
+            const response = await axiosInstance.get(`/api/users/profile/${userId}`);
+            setPerfil(response.data);
+            setPerfilOriginal(response.data);
+            
+            // Si es empresa, recargar ubicaciones con los nuevos datos
+            if (tipoCuenta === 'Empresa' && response.data.Empresa) {
+                await cargarUbicaciones(response.data.Empresa);
+            }
+            
             setEditMode(false);
         } catch (error) {
             console.error('Error al actualizar el perfil:', error);
@@ -146,28 +296,19 @@ export const SeeMyProfile = () => {
             console.error('Error response data:', error.response.data);
             console.error('Error response status:', error.response.status);
             
-            // Mostrar el mensaje de error específico del backend
             let errorMessage = 'Hubo un error al actualizar el perfil';
-            
-            // Intentar extraer el mensaje del backend de diferentes maneras
-            if (error.response.data.message) {
+            if (error.response?.data?.message) {
                 errorMessage = error.response.data.message;
             } else if (error.response.data && typeof error.response.data === 'string') {
                 errorMessage = error.response.data;
-            } else if (error.response.data && typeof error.response.data === 'object') {
-                // Intentar extraer el mensaje del objeto
+            } else if (error.response?.data && typeof error.response.data === 'object') {
                 const data = error.response.data;
-                if (data.message) {
-                    errorMessage = data.message;
-                } else {
-                    errorMessage = JSON.stringify(data);
-                }
+                errorMessage = data.message ? data.message : JSON.stringify(data);
             } else if (error.message) {
                 errorMessage = error.message;
             }
             alert(errorMessage);
             
-            // Restaurar el perfil original en caso de error
             if (perfilOriginal) {
                 setPerfil(perfilOriginal);
             }
@@ -266,6 +407,8 @@ export const SeeMyProfile = () => {
                             )}
                         </p>
 
+                        {tipoCuenta !== 'Aprendiz' && (
+                            <>
                         <button
                             className={`updateProfile ${editMode ? 'cancel' : ''}`}
                             onClick={() => handleModelCancel(editMode)}
@@ -277,6 +420,8 @@ export const SeeMyProfile = () => {
                             <button className='updateProfile1' onClick={handleSaveChanges}>
 
                             </button>
+                                )}
+                            </>
                         )}
                     </div>
 
@@ -302,10 +447,8 @@ export const SeeMyProfile = () => {
                                     <div
                                         className={`color_status ${perfil.estado === 'activo' ? 'status-green' : perfil?.estado === 'inactivo' ? 'status-red' : ''}`}
                                     ></div>
-                                    <h3>Estado</h3>
-                                    {tipoCuenta === "Gestor" ? (
-                                    <span className='input_updateStatus'>{perfil?.estado}</span>
-                                    ) : editMode ? (
+                                    <h3>{tipoCuenta === 'Empresa' ? 'Estado Manager' : 'Estado'}</h3>
+                                    {editMode ? (
                                         <select
                                             name="estado"
                                             className="input_updateStatus"
@@ -412,7 +555,7 @@ export const SeeMyProfile = () => {
                                     <div
                                         className={`color_status ${perfil?.estado === 'activo' ? 'status-green' : perfil?.estado === 'inactivo' ? 'status-red' : ''}`}
                                     ></div>
-                                    <h3>Estado</h3>
+                                    <h3>{tipoCuenta === 'Empresa' ? 'Estado Manager' : 'Estado'}</h3>
                                     {editMode ? (
                                         <select
                                             name="estado"
@@ -475,14 +618,58 @@ export const SeeMyProfile = () => {
                                             perfil?.Empresa?.email_empresa || ''
                                         )}
                                     </p>
-                                    <p>Ciudad: <br />
-                                        {perfil?.Empresa?.Ciudad?.nombre || '-'}
-
+                                    <p>Categoría: <br />
+                                        {editMode ? (
+                                            <input
+                                                type="text"
+                                                name="Empresa.categoria"
+                                                className='input_updateData'
+                                                value={perfil?.Empresa?.categoria || ''}
+                                                onChange={handleInputChange}
+                                            />
+                                        ) : (
+                                            perfil?.Empresa?.categoria || ''
+                                        )}
+                                    </p>
+                                    <p>Departamento: <br />
+                                        {editMode ? (
+                                            <select
+                                                name="departamento"
+                                                className='input_updateData'
+                                                value={departamentoSeleccionado}
+                                                onChange={handleDepartamentoChange}
+                                            >
+                                                <option value="">Seleccionar departamento</option>
+                                                {departamentos.map((dep) => (
+                                                    <option key={dep.ID} value={dep.ID}>
+                                                        {dep.nombre}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        ) : (
+                                            perfil?.Empresa?.Ciudad?.Departamento?.nombre || '-'
+                                        )}
                                     </p>
 
-                                    <p>Departamento <br />
-                                        {perfil?.Empresa?.Ciudad?.Departamento?.nombre || '-'}
-
+                                    <p>Ciudad: <br />
+                                        {editMode ? (
+                                            <select
+                                                name="ciudad"
+                                                className='input_updateData'
+                                                value={ciudadSeleccionada}
+                                                onChange={handleCiudadChange}
+                                                disabled={!departamentoSeleccionado}
+                                            >
+                                                <option value="">Seleccionar ciudad</option>
+                                                {ciudades.map((ciudad) => (
+                                                    <option key={ciudad.ID} value={ciudad.ID}>
+                                                        {ciudad.nombre}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        ) : (
+                                            perfil?.Empresa?.Ciudad?.nombre || '-'
+                                        )}
                                     </p>
                                 </div>
 

@@ -29,28 +29,37 @@ export const NavBar = ({ children }) => {
     }
   };
 
-  const handleLogout = async () => {
-    try {
-      const response = await axiosInstance.post("/api/users/logout", {}, {
-        withCredentials: true,
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
+const handleLogout = async () => {
+  try {
+    const response = await axiosInstance.post("/api/users/logout", {}, {
+      withCredentials: true,
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      timeout: 5000 // Agregar timeout para que no se quede esperando eternamente
+    });
 
-      if (response.status === 200) {
-        localStorage.removeItem("userSession");
-        sessionStorage.removeItem("userSession");
-        navigate("/");
-      }
-    } catch (error) {
-      console.error("Error al cerrar sesión:", error);
-      // Si hay un error, aún así intentamos limpiar la sesión local
+    if (response.status === 200) {
       localStorage.removeItem("userSession");
       sessionStorage.removeItem("userSession");
       navigate("/");
     }
-  };
+  } catch (error) {
+    console.error("Error al cerrar sesión:", error);
+    
+    // Verificar si el error es por conexión rechazada (sistema apagado)
+    if (error.code === 'ERR_NETWORK' || error.code === 'ECONNREFUSED') {
+      alert("El sistema está actualmente apagado. No es posible cerrar sesión de forma segura en este momento.");
+      // No limpiamos la sesión para mantener al usuario logueado
+      return;
+    }
+    
+    // Para otros tipos de errores, proceder con el logout
+    localStorage.removeItem("userSession");
+    sessionStorage.removeItem("userSession");
+    navigate("/");
+  }
+};
 
   const handleSignIn = () => {
     setShowSignIn(true);

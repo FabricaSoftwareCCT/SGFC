@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import "./GestionsInstructor.css";
 import { Header } from "../../../Components/Layouts/Header/Header";
 import { Footer } from "../../../Components/Layouts/Footer/Footer";
 import { Main } from "../../../Components/Layouts/Main/Main";
 import { UpdateInstructor } from "./UpdateInstructor/UpdateInstructor";
 import axiosInstance from "../../../config/axiosInstance";
-import { Routes, Route, useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 
 export const GestionsInstructor = () => {
   const [instructors, setInstructors] = useState([]); // Estado para almacenar los instructores
@@ -20,17 +20,11 @@ export const GestionsInstructor = () => {
 
 
   // Validación de sesión de usuario y rol de administrador
-  const userSessionString = sessionStorage.getItem("userSession");
-  const userSession = userSessionString ? JSON.parse(userSessionString) : null;
+  // const userSessionString = sessionStorage.getItem("userSession");
+  // const userSession = userSessionString ? JSON.parse(userSessionString) : null;
 
   const showModalSeeProfile = (instructor) => {
-    setSelectedInstructor(instructor); // Establecer el instructor seleccionado
-    const modalSeeProfile = document.getElementById(
-      "modal-overlayUpdateInstructor"
-    );
-    if (modalSeeProfile) {
-      modalSeeProfile.style.display = "flex"; // Mostrar el modal
-    }
+    setSelectedInstructor(instructor);
   };
 
 
@@ -49,9 +43,11 @@ export const GestionsInstructor = () => {
   // Llamar a la función al cargar el componente
   useEffect(() => {
     fetchInstructors();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     applyFilters();
   }, [selectedState, filter, instructors]);
 
@@ -251,19 +247,23 @@ export const GestionsInstructor = () => {
                   )}
                 </div>
 
-                {/* Mostrar información del instructor actual */}
-                {filteredInstructors.length > 0 && (
-                  <div className="instructor-info">
-                    <h3>{filteredInstructors[(current + 1) % filteredInstructors.length]?.nombres} {filteredInstructors[(current + 1) % filteredInstructors.length]?.apellidos}</h3>
-                    <p>{filteredInstructors[(current + 1) % filteredInstructors.length]?.titulo_profesional}</p>
-                    <button
-                      className="profile-btn"
-                      onClick={() => showModalSeeProfile(filteredInstructors[(current + 1) % filteredInstructors.length])}
-                    >
-                      Ver perfil
-                    </button>
-                  </div>
-                )}
+                {/* Mostrar información del instructor actual (centrado) */}
+                {filteredInstructors.length > 0 && (() => {
+                  const centerIndex = (current + 1) % filteredInstructors.length;
+                  const currentInstructor = filteredInstructors[centerIndex];
+                  return (
+                    <div className="instructor-info">
+                      <h3>{currentInstructor?.nombres} {currentInstructor?.apellidos}</h3>
+                      <p>{currentInstructor?.titulo_profesional}</p>
+                      <button
+                        className="profile-btn"
+                        onClick={() => showModalSeeProfile(currentInstructor)}
+                      >
+                        Ver perfil
+                      </button>
+                    </div>
+                  );
+                })()}
               </div>
 
               {/* Mostrar flecha derecha solo si hay más de un resultado */}
@@ -277,6 +277,7 @@ export const GestionsInstructor = () => {
       {selectedInstructor && (
         <UpdateInstructor
           instructor={selectedInstructor}
+          onClose={() => setSelectedInstructor(null)}
         />
       )}
 

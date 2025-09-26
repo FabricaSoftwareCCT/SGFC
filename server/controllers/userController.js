@@ -526,7 +526,21 @@ const getEmpresas = async (req, res) => {
                 {
                     model: Empresa,
                     as: 'Empresa', // Alias definido en la relación
-                    attributes: ['ID', 'NIT', 'email_empresa', 'nombre_empresa', 'direccion', 'estado', 'categoria', 'telefono', 'img_empresa'], // Campos que deseas incluir
+                    attributes: ['ID', 'NIT', 'email_empresa', 'nombre_empresa', 'direccion', 'estado', 'categoria', 'telefono', 'img_empresa', 'ciudad_ID'], // Campos que deseas incluir
+                    include: [
+                        {
+                            model: Ciudad,
+                            as: 'Ciudad',
+                            attributes: ['ID', 'nombre', 'departamento_ID'],
+                            include: [
+                                {
+                                    model: Departamento,
+                                    as: 'Departamento',
+                                    attributes: ['ID', 'nombre']
+                                }
+                            ]
+                        }
+                    ]
                 },
             ],
         });
@@ -754,6 +768,35 @@ const updateUserProfile = async (req, res) => {
                 if (titulo_profesional) user.titulo_profesional = titulo_profesional;
                 if (foto_perfil) user.foto_perfil = foto_perfil;
 
+                // Si se envía información de empresa, permitir que el administrador la actualice también
+                if (req.body.empresa && user.Empresa) {
+                    let empresaData;
+                    try {
+                        empresaData = typeof req.body.empresa === 'string' ? JSON.parse(req.body.empresa) : req.body.empresa;
+                    } catch (e) {
+                        return res.status(400).json({ message: "Formato de empresa inválido." });
+                    }
+
+                    const { NIT, categoria, direccion, email_empresa, estado: estadoEmpresa, img_empresa, nombre_empresa, telefono, ciudad_ID, departamento_ID } = empresaData;
+
+                    if (NIT !== undefined) user.Empresa.NIT = NIT;
+                    if (email_empresa !== undefined) user.Empresa.email_empresa = email_empresa;
+                    if (nombre_empresa !== undefined) user.Empresa.nombre_empresa = nombre_empresa;
+                    if (direccion !== undefined) user.Empresa.direccion = direccion;
+                    if (categoria !== undefined) user.Empresa.categoria = categoria;
+                    if (telefono !== undefined) user.Empresa.telefono = telefono;
+                    if (ciudad_ID !== undefined) user.Empresa.ciudad_ID = ciudad_ID;
+                    if (estadoEmpresa !== undefined) user.Empresa.estado = estadoEmpresa;
+
+                    if (req.files?.img_empresa?.[0]) {
+                        user.Empresa.img_empresa = req.files.img_empresa[0].buffer.toString("base64");
+                    } else if (img_empresa !== undefined) {
+                        user.Empresa.img_empresa = img_empresa;
+                    }
+
+                    await user.Empresa.save();
+                }
+
                 await user.save();
                 return res.status(200).json({ message: "Perfil actualizado con éxito." });
             }
@@ -788,7 +831,10 @@ const updateUserProfile = async (req, res) => {
             if (apellidos) user.apellidos = apellidos;
             if (celular) user.celular = celular;
             if (documento) user.documento = documento;
-            if (estado) user.estado = estado;
+            // El estado de la cuenta Empresa solo puede ser modificado por Administrador
+            if (estado && loggedInUser.accountType === "Administrador") {
+                user.estado = estado;
+            }
             if (foto_perfil) user.foto_perfil = foto_perfil;
 
             // Actualizar datos de la empresa - MEJORADO
@@ -810,16 +856,17 @@ const updateUserProfile = async (req, res) => {
                     estado,
                     img_empresa,
                     nombre_empresa,
-                    telefono
+                    telefono,
+                    ciudad_ID
                 } = empresaData;
 
                 if (NIT) user.Empresa.NIT = NIT;
                 if (email_empresa) user.Empresa.email_empresa = email_empresa;
                 if (nombre_empresa) user.Empresa.nombre_empresa = nombre_empresa;
                 if (direccion) user.Empresa.direccion = direccion;
-                if (estadoEmpresa !== undefined) user.Empresa.estado = estadoEmpresa;
                 if (categoria) user.Empresa.categoria = categoria;
                 if (telefono) user.Empresa.telefono = telefono;
+                if (ciudad_ID) user.Empresa.ciudad_ID = ciudad_ID;
 
                 // Procesar imagen de empresa si viene en archivos
                 if (req.files?.img_empresa?.[0]) {

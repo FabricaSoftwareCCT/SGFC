@@ -14,6 +14,7 @@ const userRoutes = require("./routes/userRoutes");
 const cursoRoutes = require("./routes/cursoRoutes");
 const attendanceRoutes = require("./routes/attendanceRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
+const ubicacionesRoutesFactory = require("./routes/ubicacionesRoutes");
 const actasRoutes = require("./routes/actasRoutes");
 
 // libreria para programar tareas
@@ -74,6 +75,11 @@ app.use("/api/users", userRoutes);
 app.use("/api/courses", cursoRoutes);
 app.use("/api/attendance", attendanceRoutes);
 app.use("/api/notifications", notificationRoutes);
+// Rutas de ubicaciones, inyectando instancia DB
+app.use("/api/ubicaciones", (req, res, next) => {
+  req._passDbToUbicaciones = true; // flag
+  next();
+});
 app.use("/api/actas", actasRoutes);
 
 async function startServer() {
@@ -92,6 +98,10 @@ async function startServer() {
     cursoController.setDb(db);
     notificationService.setDb(db);
     notificationController.setDb(db);
+
+    // Montar rutas de ubicaciones con acceso a la DB
+    const ubicacionesRoutes = ubicacionesRoutesFactory(db);
+    app.use("/api/ubicaciones", ubicacionesRoutes);
 
     // Crear datos por defecto
     await db.Departamento.createDefaultDeparment();

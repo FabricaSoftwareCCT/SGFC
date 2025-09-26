@@ -78,6 +78,8 @@ export const NavBar = ({ children }) => {
       setLoadingNotifications(true);
       try {
         const res = await axiosInstance.get('/api/notifications?limit=5');
+        // no mostrar notificaciones aceptadas o rechazadas
+        res.data.notifications = res.data.notifications.filter(notif => notif.estado !== 'aceptada' && notif.estado !== 'rechazada');
         setNotificationsList(res.data.notifications || []);
       } catch (err) {
         setNotificationsList([]);

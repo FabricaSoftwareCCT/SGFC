@@ -35,7 +35,10 @@ const getUserNotifications = async (req, res) => {
             limit: parseInt(limit),
             offset: offset
         });
-
+       notifications.forEach(notification => {
+        const invitacionID = notification.dataValues.invitacion_ID;
+        console.log('Invitacion ID:', invitacionID);
+       });
         res.status(200).json({
             success: true,
             notifications,

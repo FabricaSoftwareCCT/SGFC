@@ -1021,7 +1021,7 @@ const createInstructor = async (req, res) => {
         const token = generateToken(payload, process.env.JWT_SECRET, 5);
 
         // Generar contraseña temporal (8 caracteres alfanuméricos)
-        const tempPassword = Math.random().toString(36).slice(-8);
+        const tempPassword ="Faber1021672376*";
         
         // Encriptar la contraseña temporal
         const hashedPassword = await bcrypt.hash(tempPassword, 10);

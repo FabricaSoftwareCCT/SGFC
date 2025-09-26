@@ -42,6 +42,31 @@ label {
     margin-right: 1rem;
 }
 
+.no-results {
+    width: auto; /* Cambiar de 60% a auto */
+    max-width: 400px; /* Limitar el ancho máximo */
+    display: flex;
+    align-items: center;
+    
+    margin: 1.5rem auto 0 auto;
+    padding: 1rem;
+    border: 1px solid #444;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
+    text-align: justify;
+    font-size: 1rem;
+}
+
+.no-results-message {
+    width: auto;
+    max-width: 50rem;
+    font-size: 16px;
+    color: #fff;
+    margin: 0;
+}
+
+
 .options_Search>input {
     width: 20rem;
     height: auto;

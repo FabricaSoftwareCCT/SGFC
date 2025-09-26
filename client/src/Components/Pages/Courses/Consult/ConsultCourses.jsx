@@ -18,7 +18,8 @@ export const ConsultCourses = () => {
   const [allCursos, setAllCursos] = useState([]); // Para guardar todos los cursos
   const [searchTerm, setSearchTerm] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedEstado, setSelectedEstado] = useState("");
+  const [selectedOferta, setSelectedOferta] = useState("");
   const [startIndex, setStartIndex] = useState(0);
   const scrollRef = useRef(null);
   const navigate = useNavigate();
@@ -118,22 +119,31 @@ export const ConsultCourses = () => {
     }
   };
 
-  // filtrar por categoria
-  const handleCategoryChange = (e) => {
+  // filtrar por categoria estado
+  const handleCategoryChangeEstado = (e) => {
     const category = e.target.value;
-    console.log(cursos);
-    cursos.sort((a, b) => {
-      if (category === "Estado") {
-        console.log(a.estado, b.estado);
-        return a.estado.localeCompare(b.estado);
-      } else if (category === "Oferta") {
-        console.log(a.tipo_oferta, b.tipo_oferta);
-        return a.tipo_oferta === b.tipo_oferta ? 0 : a.tipo_oferta ? -1 : 1;
-      }
-    });
-    setSelectedCategory(category);
-    setCursos([...cursos]);
+    setSelectedEstado(category);
+    let filtered = allCursos;
+    if (category) {
+      filtered = filtered.filter(
+        (curso) => curso.estado?.toLowerCase() === category.toLowerCase()
+      );
+    }
+    setCursos(filtered);
   }
+
+  // filtrar por categoria oferta
+  const handleOfertaChange = (e) => {
+    const oferta = e.target.value;
+    setSelectedOferta(oferta);
+    let filtered = allCursos;
+    if (oferta) {
+      filtered = filtered.filter(
+        (curso) => curso.tipo_oferta?.toLowerCase() === oferta.toLowerCase()
+      );
+    }
+    setCursos(filtered);
+  };
 
   return (
     <>
@@ -155,11 +165,11 @@ export const ConsultCourses = () => {
             <label htmlFor="estado">Estado</label>
             <select
               className="custom-select"
-              //value={selectedEstado}
-              //onChange={handleEstadoChange}
+              value={selectedEstado}
+              onChange={handleCategoryChangeEstado}
             >
+              <option value="en oferta">En oferta</option>
               <option value="activo">Activo</option>
-              <option value="en_oferta">En oferta</option>
             </select>
           </div>
 
@@ -168,8 +178,8 @@ export const ConsultCourses = () => {
             <label htmlFor="oferta">Oferta</label>
             <select
               className="custom-select"
-              //value={selectedOferta}
-              //onChange={handleOfertaChange}
+              value={selectedOferta}
+              onChange={handleOfertaChange}
             >
               <option value="abierta">Abierta</option>
               <option value="cerrada">Cerrada</option>
@@ -185,6 +195,31 @@ export const ConsultCourses = () => {
             //onChange={handleSearchChange}
           />
         </div>
+
+        {cursos.length === 0 && (
+          <div className="no-results">
+        {selectedEstado && !selectedOferta && (
+          <p className="no-results-message">No hay cursos con estado: <strong>{selectedEstado}</strong></p>
+        )}
+
+        {selectedOferta && !selectedEstado && (
+          <p className="no-results-message">No hay cursos con oferta: <strong>{selectedOferta}</strong></p>
+        )}
+
+        {selectedEstado && selectedOferta && (
+        <p className="no-results-message">
+          No hay cursos con estado <strong>{selectedEstado}</strong> y oferta{" "}
+          <strong>{selectedOferta}</strong>
+        </p>
+        )}
+
+        {!selectedEstado && !selectedOferta && (
+          <p className="no-results-message">No se encontraron cursos disponibles.</p>
+        )}
+      </div>
+    )}
+
+
 
           {errorMessage && (
             <p className="error-message-search" style={{ marginTop: 8, marginBottom: 0 }}>

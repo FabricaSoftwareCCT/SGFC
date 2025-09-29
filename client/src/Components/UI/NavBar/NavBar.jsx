@@ -87,6 +87,7 @@ const handleLogout = async () => {
       setLoadingNotifications(true);
       try {
         const res = await axiosInstance.get('/api/notifications?limit=5');
+        console.log(res.data)
         setNotificationsList(res.data.notifications || []);
       } catch (err) {
         setNotificationsList([]);

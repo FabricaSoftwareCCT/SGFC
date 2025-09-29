@@ -482,14 +482,14 @@
 .manage-button {
   padding: 12px 24px;
   border-radius: 25px;
-  border: 2px solid #156c0f;
-  background: #156c0f;
+  border: 2px solid #00843d;
+  background: #00843d;
   color: #ffffff;
   cursor: pointer;
   font-size: 12px;
   font-weight: 700;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(17, 145, 36, 0.3);
+  box-shadow: 0 4px 12px #00843d;
   text-transform: uppercase;
   letter-spacing: 0.8px;
   min-width: 100px;
@@ -513,19 +513,19 @@
 }
 
 .manage-button:hover {
-  background: #156c0f;
-  border-color: #156c0f;
+  background: #00843d;
+  border-color: #00843d;
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(28, 135, 20, 0.4);
+  box-shadow: 0 6px 16px #00843d;
 }
 
 .manage-button:active {
   transform: translateY(0);
-  box-shadow: 0 3px 8px rgba(16, 168, 39, 0.3);
+  box-shadow: 0 3px 8px #00843d;
 }
 
 .manage-button:focus {
-  outline: 2px solid rgba(23, 194, 49, 0.5);
+  outline: 2px solid #00843d;
   outline-offset: 2px;
 }
 
@@ -650,8 +650,8 @@
   .manage-button {
     color: #ffffff !important;
     -webkit-text-fill-color: #ffffff !important;
-    background: #1b5f06 !important;
-    border-color: #186b24 !important;
+    background: #00843d !important;
+    border-color: #00843d !important;
     display: inline-block !important;
     visibility: visible !important;
     opacity: 1 !important;
@@ -660,13 +660,13 @@
   }
   
   .manage-button:hover {
-    background: #0d650d !important;
-    border-color: #136d17 !important;
+    background: #00843d !important;
+    border-color: #00843d !important;
   }
   
   .manage-button:focus {
-    background: #156c0f !important;
-    border-color: #1d5410 !important;
+    background: #00843d !important;
+    border-color: #00843d !important;
     outline: 2px solid #ffffff !important;
   }
 }
@@ -676,13 +676,13 @@
   .manage-button {
     color: #ffffff !important;
     text-shadow: 0 1px 2px rgba(0,0,0,0.8) !important;
-    background: hwb(116 6% 58%) !important;
-    border-color: #156c0f !important;
+    background: #00843d !important;
+    border-color: #00843d !important;
   }
   
   .manage-button:hover {
-    background: #156c0f !important;
-    border-color: #156c0f !important;
+    background: #00843d !important;
+    border-color: #00843d !important;
   }
 }
 
@@ -691,8 +691,8 @@
   @supports (-webkit-appearance:none) {
     .manage-button {
       color: #ffffff !important;
-      background: #156c0f !important;
-      border-color: #156c0f !important;
+      background: #00843d !important;
+      border-color: #00843d !important;
     }
   }
 }
@@ -709,10 +709,10 @@
 /* Force visibility in Brave */
 @media screen and (-webkit-min-device-pixel-ratio:0) and (min-resolution: 0.001dpcm) {
   .manage-button {
-    background-color: #156c0f !important;
+    background-color: #00843d !important;
     background-image: none !important;
     color: #ffffff !important;
-    border: 2px solid #156c0f !important;
+    border: 2px solid #00843d !important;
     display: block !important;
     visibility: visible !important;
     opacity: 1 !important;
@@ -732,6 +732,6 @@
     border-radius: 25px !important;
     cursor: pointer !important;
     transition: all 0.3s ease !important;
-    box-shadow: 0 4px 12px rgba(23, 195, 14, 0.754) !important;
+    box-shadow: 0 4px 12px rgba(17, 160, 79, 0.3) !important;
   }
 }

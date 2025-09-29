@@ -4,7 +4,6 @@ import axiosInstance from "../../../../config/axiosInstance";
 import { validateEmail, validateNumber, validateText, createMensajeError } from "../../../../utils/Validators/formValidator";
 // import { useNavigate } from "react-router-dom";
 
-<<<<<<< HEAD
 export const UpdateGestor = ({ gestor }) => {
 
   // Validación de sesión de usuario y rol de administrador

@@ -214,30 +214,12 @@
   color: rgba(255, 255, 255, 0.4);
 }
 
-/* Scrollbar personalizada */
-.addDetails::-webkit-scrollbar {
-  width: 8px;
-}
 
-.addDetails::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 10px;
-}
-
-.addDetails::-webkit-scrollbar-thumb {
-  background: linear-gradient(45deg, #00843d, #00c26e);
-  border-radius: 10px;
-  transition: background 0.3s ease;
-}
-
-.addDetails::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(45deg, #00a65a, #00e67e);
-}
 
 /* Para Firefox */
 .addDetails {
   scrollbar-width: thin;
-  scrollbar-color: #00843d rgba(255, 255, 255, 0.05);
+  scrollbar-color: #1ba65c rgba(255, 255, 255, 0.05);
 }
 
 /* Contador de caracteres mejorado */

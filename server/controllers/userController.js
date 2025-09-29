@@ -64,7 +64,7 @@ const registerUser = async (req, res) => {
         // Crear nuevo usuario
         const newUser = await User.create({
             email,
-            password: password,
+            password: hashedPassword,
             accountType,
             documento: documento || null,
             nombres: nombres || null,
@@ -1124,7 +1124,7 @@ const createInstructor = async (req, res) => {
         const tempPassword = Math.random().toString(36).slice(-8);
         
         // Encriptar la contraseña temporal
-        const hashedPassword = await bcrypt.hash(tempPassword, 10);
+        const hashedPassword = await bcrypt.hash(tempPaspasssword, 10);
 
         // Crear el instructor
         const newInstructor = await User.create({

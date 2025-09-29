@@ -1,311 +1,259 @@
 .container_mainSeeMyProfile {
-  width: 100%;
-  height: auto;
-  display: flex;
-  justify-content: center;
-  gap: 1.5rem;
-  margin-top: 1rem;
-  flex-wrap: wrap;
-  padding: 0 1rem;
+    width: 100%;
+    height: auto;
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-top: 1rem;
 }
 
 .container_profile {
-  width: 17rem;
-  height: auto;
-  min-height: 30rem;
-  background-color: #00843e3f;
-  border-radius: 20px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  padding: 1rem;
-  box-sizing: border-box;
+    width: 17rem;
+    height: 30rem;
+    background-color: #00843e3f;
+    border-radius: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
 }
 
-.container_profile > h3,
-.container_profile > h4 {
-  width: 100%;
-  height: auto;
-  font-size: 18px;
+.container_profile>h3,
+.container_profile>h4 {
+    width: 100%;
+    height: auto;
+    font-size: 18px;
 }
 
-.container_profile > img {
-  width: 8rem;
-  height: 8rem;
-  object-fit: cover;
-  border-radius: 25%;
+.container_profile>img {
+    width: 8rem;
+    height: 8rem;
+    object-fit: cover;
+    border-radius: 25%;
 }
 
-.container_profile > p {
-  width: 100%;
-  height: auto;
-  font-size: 16px;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-.input_updateData {
-  width: 100%;
-  max-width: 12rem;
-  height: 2.2rem;
-  padding: 0.6rem 0.8rem;
-  background-color: rgba(255, 255, 255, 0.95);
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  border-radius: 0.8rem;
-  color: #333333;
-  font-size: 14px;
-  font-family: inherit;
-  outline: none;
-  transition: all 0.2s ease;
-  box-sizing: border-box;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  margin-top: 0.3rem;
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
+.container_profile>p {
+    width: 100%;
+    height: auto;
+    font-size: 16px;
+    text-align: center;
 }
 
 .container_data_company {
-  width: 60%;
-  height: 30rem;
-  border-radius: 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1.5rem;
+    width: 60%;
+    height: 30rem;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
 }
 
 .name_company {
-  width: 100%;
-  height: 7rem;
-  background-color: #00843e3f;
-  border-radius: 20px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 1.5rem;
+    width: 100%;
+    height: 7rem;
+    background-color: #00843e3f;
+    border-radius: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1.5rem;
+
 }
 
 .container_data {
-  width: 100%;
-  height: 30rem;
-  border-radius: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1.5rem;
+    width: 100%;
+    height: 30rem;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
 }
+
 
 .data_company {
-  width: 30%;
-  height: 100%;
-  display: flex;
-  border-radius: 20px;
-  justify-content: center;
-  flex-wrap: wrap;
-  align-items: center;
-  background-color: #00843e3f;
+    width: 30%;
+    height: 100%;
+    display: flex;
+    border-radius: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+    align-items: center;
+    background-color: #00843e3f;
 }
 
-.data_company > p {
-  width: 100%;
-  height: auto;
-  font-size: 16px;
-  text-align: center;
+.data_company>p {
+    width: 100%;
+    height: auto;
+    font-size: 16px;
+    text-align: center;
 }
+
 
 .data_courses_instructor {
-  width: 70%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  border-radius: 20px;
-  align-items: center;
-  gap: 1.5rem;
+    width: 70%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    border-radius: 20px;
+    align-items: center;
+    gap: 1.5rem;
 }
 
 .data_courses,
 .data_instructor {
-  width: 100%;
-  height: 50%;
-  display: flex;
-  flex-direction: column;
-  border-radius: 20px;
-  align-items: center;
-  background-color: #00843e3f;
+    width: 100%;
+    height: 50%;
+    display: flex;
+    flex-direction: column;
+    border-radius: 20px;
+    align-items: center;
+    background-color: #00843e3f;
 }
 
-.name_company > img {
-  width: 4rem;
-  height: 4rem;
-  object-fit: cover;
-  border-radius: 25%;
-  margin-left: 2rem;
+.name_company>img {
+    width: 4rem;
+    height: 4rem;
+    object-fit: cover;
+    border-radius: 25%;
+    margin-left: 2rem;
 }
 
-.name_company > div {
-  width: 100%;
-  height: auto;
-  display: flex;
-  flex-direction: column;
+.name_company>div {
+    width: 100%;
+    height: auto;
+    display: flex;
+    flex-direction: column;
 }
 
-.name_company > div > h3,
-.name_company > div > p {
-  width: auto;
-  height: auto;
-  font-size: 24px;
+.name_company>div>h3,
+.name_company>div>p {
+    width: auto;
+    height: auto;
+    font-size: 24px;
 }
 
-.name_company > div > p {
-  font-size: 14px;
+.name_company>div>p {
+    font-size: 14px;
 }
 
 .updateProfile {
-  position: absolute;
-  z-index: 999999999;
-  top: 6.1rem;
-  right: 3rem;
-  width: 4rem;
-  height: 4rem;
-  background-color: #b0b0b0;
-  border-radius: 10px;
-  border-style: none;
-  background: center / 70% no-repeat url("../../../assets/Icons/buttonEdit.png"), #b0b0b0;
+    position: absolute;
+
+    z-index: 999999999;
+    top: 6.1rem;
+    right: 3rem;
+    width: 4rem;
+    height: 4rem;
+    background-color: #b0b0b0;
+    border-radius: 10px;
+    border-style: none;
+    background: center / 70% no-repeat url('../../../assets/Icons/buttonEdit.png'),
+        #b0b0b0;
+
 }
 
 .updateProfile.cancel {
-  background-image: url("../../../assets/Icons/cerca.png");
-  background-size: 60%;
+    background-image: url('../../../assets/Icons/cerca.png');
+    background-size: 60%;
 }
 
 .updateProfile1 {
-  position: absolute;
-  z-index: 999999999;
-  top: 11rem;
-  right: 3rem;
-  width: 4rem;
-  height: 4rem;
-  background-color: #b0b0b0;
-  border-radius: 10px;
-  border-style: none;
-  background: center / 70% no-repeat url("../../../assets/Icons/marca-de-verificacion.png"), #b0b0b0;
+    position: absolute;
+    z-index: 999999999;
+    top: 11rem;
+    right: 3rem;
+    width: 4rem;
+    height: 4rem;
+    background-color: #b0b0b0;
+    border-radius: 10px;
+    border-style: none;
+    background: center / 70% no-repeat url('../../../assets/Icons/marca-de-verificacion.png'),
+        #b0b0b0;
+
+
+}
+
+.input_updateData {
+    width: 9rem;
+    height: auto;
+    background-color: transparent;
+    border-radius: 10px;
+    border-style: none;
+    border: 1px solid #b0b0b0;
 }
 
 .container_nameCompany-Status {
-  width: 100%;
-  height: auto;
-  display: flex;
-  gap: 1.5rem;
+    width: 100%;
+    height: auto;
+    display: flex;
+    gap: 1.5rem;
 }
 
 .status-company {
-  width: 7rem;
-  height: 7rem;
-  background-color: #00843e3f;
-  border-radius: 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
+    width: 7rem;
+    height: 7rem;
+    background-color: #00843e3f;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 .color_status {
-  width: 2rem;
-  height: 2rem;
-  border-radius: 50%;
-  background-color: #ef3c3c;
-  margin-top: 1rem;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    background-color: #ef3c3c;
+    margin-top: 1rem;
 }
 
 .status-green {
-  background-color: #00843e !important;
+    background-color: #00843e !important;
 }
 .status-red {
-  background-color: #ef3c3c !important;
+    background-color: #ef3c3c !important;
 }
 
-.status-company > h3 {
-  width: 100%;
-  height: auto;
-  font-size: 16px;
-  text-align: center;
+.status-company>h3{
+    width: 100%;
+    height: auto;
+    font-size: 16px;
+    text-align: center;
 }
 
-.status-company > h4 {
-  width: 100%;
-  height: auto;
-  font-size: 14px;
-  text-align: center;
+.status-company>h4 {
+    width: 100%;
+    height: auto;
+    font-size: 14px;
+    text-align: center;
 }
 
-.input_updateStatus {
-  width: 5rem;
-  height: auto;
-  background-color: transparent;
-  border-radius: 10px;
-  border-style: none;
-  border: 1px solid #b0b0b0;
-  text-align: center;
+.input_updateStatus{
+    width: 5rem;
+    height: auto;
+    background-color: transparent;
+    border-radius: 10px;
+    border-style: none;
+    border: 1px solid #b0b0b0;
+    text-align: center;
 }
 
+/* Para los options en la mayoría de navegadores */
 .input_updateStatus option {
-  background-color: #007736;
-  color: #fff;
+    background-color: #007736;
+    color: #fff;
+    
 }
 
-#titleDataSede {
-  width: 100%;
-  height: auto;
-  font-size: 18px;
-  text-align: center;
-  margin-top: 0.5rem;
-}
-
-@media (max-width: 768px) {
-  .container_mainSeeMyProfile {
-    flex-direction: column;
-    align-items: center;
-    gap: 1rem;
-    padding: 0 0.5rem;
-  }
-
-  .container_profile {
+#titleDataSede{
     width: 100%;
-    max-width: 18rem;
-    min-width: 280px;
-  }
-
-  .input_updateData {
-    max-width: 10rem;
-    font-size: 13px;
-    padding: 0.5rem 0.6rem;
-  }
-
-  .container_data_company {
-    width: 100%;
-  }
-}
-
-@media (max-width: 480px) {
-  .container_profile {
-    width: 100%;
-    max-width: 16rem;
-    min-width: 260px;
-    padding: 0.8rem;
-  }
-
-  .input_updateData {
-    max-width: 9rem;
-    font-size: 12px;
-    padding: 0.4rem 0.5rem;
-  }
+    height: auto;
+    font-size: 18px;
+    text-align: center;
+    margin-top: 0.5rem;
 }

@@ -41,15 +41,7 @@ export const createMensajeError = async (errores) => {
 
     if (mensaje === "") return null;
     
-    return `No se pudo guardar el perfil.\nErrores de validación:\n${mensaje}\nIntente nuevamente.`;
-};
-// En utils/Validators/formValidator.js - AÑADE ESTA FUNCIÓN
-export const validateDocument = (documento) => {
-    if (!documento) return "El documento no puede estar vacío";
+    return `No se pudo guardar el perfil.\nLos siguientes campos son obligatorios y no pueden estar vacíos: \n${mensaje}. \nIntente nuevamente.`;
+    };
+
     
-    // Validar que solo contenga números y tenga entre 5 y 15 dígitos
-    const docRegex = /^\d{5,15}$/;
-    if (!docRegex.test(documento)) return "El documento debe contener solo números y tener entre 5 y 15 dígitos";
-    
-    return "";
-};

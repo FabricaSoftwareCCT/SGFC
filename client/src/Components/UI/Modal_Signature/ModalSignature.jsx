@@ -3,11 +3,12 @@ import SignatureCanvas from "react-signature-canvas";
 import cloudUpload from "../../../assets/Icons/cloud-upload.png";
 import "./modalSignature.css";
 
-export const ModalSignature = ({ children, closeModal, className, nombreActa, tipoActa, onSignature, onUpload }) => {
+export const ModalSignature = ({ children, closeModal, className, editar, nombreActa, tipoActa, onSignature, onUpload }) => {
     const sigCanvas = useRef();
     const [uploadedFileName, setUploadedFileName] = useState("");
     const [firmaDigital, setFirmaDigital] = useState("");
     const [firmaArchivo, setFirmaArchivo] = useState(null);
+    console.log(tipoActa);
 
     const clearSignature = () => {
         sigCanvas.current.clear();
@@ -35,7 +36,11 @@ export const ModalSignature = ({ children, closeModal, className, nombreActa, ti
 
     // ✅ Función simplificada - solo aplica la firma al documento
     const handleApplySignature = () => {
-        if (firmaDigital || firmaArchivo) {
+        // si no se está editada el acta cerrar modal
+        if (!editar) {
+            alert('Primero editar el documento, para luego aplicar la firma.');
+            closeModal();
+        } else if (firmaDigital || firmaArchivo) {
             alert('¡Firma aplicada correctamente al documento!');
             closeModal();
         } else {

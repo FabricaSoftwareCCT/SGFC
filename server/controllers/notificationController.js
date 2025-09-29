@@ -1,6 +1,6 @@
 const Notificacion = require('../models/Notificacion');
 const User = require("../models/User");
-const { sendNotification, sendAbsenceNotifications } = require('../services/notificationService');
+const { sendNotification, sendAbsenceNotifications, sendCourseRequestStatusEmail} = require('../services/notificationService');
 let dbInstance;
 
 // Función para inyectar la instancia de la base de datos
@@ -54,8 +54,11 @@ const getUserNotifications = async (req, res) => {
             limit,
             offset
         });
-
-        return res.status(200).json({
+       notifications.forEach(notification => {
+        const invitacionID = notification.dataValues.invitacion_ID;
+        console.log('Invitacion ID:', invitacionID);
+       });
+        res.status(200).json({
             success: true,
             notifications,
             pagination: {
@@ -323,6 +326,11 @@ const createCourseRequestStatusNotification = async (req, res) => {
             acta_ID: actaID
         });
 
+        await sendCourseRequestStatusEmail(
+            usuario.dataValues.ID,
+            actaID
+        );
+
         res.status(201).json({
             success: true,
             message: 'Notificación de estado de solicitud de curso creada correctamente',
@@ -333,6 +341,7 @@ const createCourseRequestStatusNotification = async (req, res) => {
         res.status(500).json({ message: 'Error al crear la notificación' });
     }
 }
+
 
 module.exports = {
     setDb,

@@ -375,15 +375,68 @@ const sendPasswordChangeConfirmationEmail = (email, resetLink) => {
 };
 
 //Funcion para enviar correo de notificacion de curso creado
-const sendCourseCreatedEmail = (emails, nombre_curso, courseLink) => {
+const sendCourseCreatedEmail = (emails, nombre_curso, courseLink, descripcion, estado) => {
+  const fs = require('fs');
+  const path = require('path');
+  const logoPath = path.join(__dirname, '../Img/sena.png');
 
   const mailOptions = {
     from: `"SGFC" <${process.env.EMAIL_USER}>`,
     to: emails,
     subject: "Nuevo curso en linea",
-    html: ` <h2>El nuevo curso: ${nombre_curso} ha creado</h2>
-            <p>Haz clic en el siguiente enlace para mas informacion del curso: </p>
-               <a href="${courseLink}">Nuevo curso</a>`,
+    attachments: [
+      {
+        filename: 'logo.png',
+        path: logoPath,
+        cid: 'logo'
+      }
+    ],
+    html: `<table width="100%" bgcolor="#f4f4f4" cellpadding="0" cellspacing="0" style="font-family: Arial, sans-serif; margin:0; padding:0;">
+  <tr>
+    <td align="center">
+      <table width="100%" cellpadding="0" cellspacing="0" style="max-width:37.5rem; background:#fff; margin:1.25rem auto; border-radius:.5rem; box-shadow:0 0 .625rem rgba(0,0,0,0.1);">
+        <tr>
+          <td style="padding:1.875rem;">
+            <!-- Header -->
+            <table width="100%" cellpadding="0" cellspacing="0">
+              <tr>
+                <td align="center" style="padding-bottom:1.25rem; border-bottom:.0625rem solid #eee;">
+                  <img src="cid:logo" alt="Logo de Fábrica de Software CCT" style="width:5rem; height:auto; margin-bottom:.9375rem; display:block;">
+                  <h1 style="color:#00843D; margin:0; font-size:1.5rem; font-family:Arial,sans-serif;">El nuevo Curso: ${nombre_curso}</h1>
+                </td>
+              </tr>
+            </table>
+            <!-- Content -->
+            <table width="100%" cellpadding="0" cellspacing="0">
+              <tr>
+                <td style="padding:1.25rem 0; line-height:1.6; color:#1A1A1A; font-size:1rem;">
+                  <p style="margin-bottom:.9375rem;">Tipo de estado: ${estado}</p>
+                  <p style="margin-bottom:.9375rem;">${descripcion}</p>
+                  <div style="text-align:center; padding:1.25rem 0;">
+                    <a href="${courseLink}" 
+                      style="display:inline-block; background-color:#F7941E; color:#fff !important; padding:.75rem 1.5625rem; border-radius:.3125rem; text-decoration:none; font-weight:bold; font-family:Arial,sans-serif; font-size:1rem;">
+                      Inscribete ahora
+                    </a>
+                  </div>
+                  
+                  <p style="margin-bottom:0;">Saludos cordiales,<br>El equipo de Fábrica de Software CCT</p>
+                </td>
+              </tr>
+            </table>
+            <!-- Footer -->
+            <table width="100%" cellpadding="0" cellspacing="0">
+              <tr>
+                <td align="center" style="padding-top:1.25rem; border-top:.0625rem solid #eee; font-size:.75rem; color:#777;">
+                  <p style="margin:0;">Copyright © 2025 Fábrica de Software CCT - Regional Quindío</p>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>`,
   }
   console.log(emails, nombre_curso, courseLink)
   return new Promise((resolve, reject) => {

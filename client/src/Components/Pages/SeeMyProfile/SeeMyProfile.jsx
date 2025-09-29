@@ -4,20 +4,12 @@ import React, { useEffect, useState } from "react"
 import "./SeeMyProfile.css"
 import { useLocation, useNavigate } from "react-router-dom"
 
-import { Footer } from "../../../Components/Layouts/Footer/Footer"
-import { Main } from "../../../Components/Layouts/Main/Main"
-import axiosInstance from "../../../config/axiosInstance"
-import { Header } from "../../Layouts/Header/Header"
-import fotoPerfilDefect from "../../../assets/Icons/userDefect.png"
-import {
-  validateEmail,
-  validateText,
-  validateAddress,
-  createMensajeError,
-  validateNIT,
-  validateNumber,
-  validateDocument,
-} from "../../../utils/Validators/formValidator"
+import { Footer } from '../../../Components/Layouts/Footer/Footer';
+import { Main } from '../../../Components/Layouts/Main/Main';
+import axiosInstance from '../../../config/axiosInstance';
+import { Header } from '../../Layouts/Header/Header';
+import fotoPerfilDefect from "../../../assets/Icons/userDefect.png";
+import {validateEmail, validateNumber, validateText, validateAddress, createMensajeError, validateNIT } from '../../../utils/Validators/formValidator';
 
 export const SeeMyProfile = () => {
   const location = useLocation()

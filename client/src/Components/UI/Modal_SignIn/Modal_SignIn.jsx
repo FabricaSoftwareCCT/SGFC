@@ -142,7 +142,7 @@ export const Modal_SignIn = () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ idToken }),
-        credential: 'include'
+        credentials: 'include' 
       });
 
       const data = await res.json();

@@ -3,7 +3,7 @@ import "./UpdateInstructor.css";
 import axiosInstance from "../../../../config/axiosInstance"; // Asegúrate de ajustar esta ruta según la estructura de tu proyecto
 import { createMensajeError, validateNumber, validateText, validateEmail } from "../../../../utils/Validators/formValidator";
 
-export const UpdateInstructor = ({ instructor }) => {
+export const UpdateInstructor = ({ instructor, onClose }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({ ...instructor });
   const [cantidadCursos, setCantidadCursos] = useState(0);
@@ -27,14 +27,15 @@ export const UpdateInstructor = ({ instructor }) => {
       }
     };
 
-    if (instructor?.ID) {
+    if (instructor.ID) {
       obtenerCursosAsignados();
     }
   }, [instructor]);
 
   const closeModalUpdateInstructor = () => {
-    document.getElementById("modal-overlayUpdateInstructor").style.display =
-      "none";
+    if (onClose) onClose();
+    const overlay = document.getElementById("modal-overlayUpdateInstructor");
+    if (overlay) overlay.style.display = "none";
   };
 
   const handleChange = (e) => {
@@ -117,7 +118,7 @@ export const UpdateInstructor = ({ instructor }) => {
     } catch (error) {
       console.error(
         "Error al actualizar el perfil:",
-        error.response?.data || error.message
+        error.response.data || error.message
       );
       alert("Hubo un error al actualizar el perfil.");
     }

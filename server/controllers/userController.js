@@ -64,7 +64,7 @@ const registerUser = async (req, res) => {
         // Crear nuevo usuario
         const newUser = await User.create({
             email,
-            password: hashedPassword,
+            password: password,
             accountType,
             documento: documento || null,
             nombres: nombres || null,
@@ -531,7 +531,21 @@ const getEmpresas = async (req, res) => {
                 {
                     model: Empresa,
                     as: 'Empresa', // Alias definido en la relación
-                    attributes: ['ID', 'NIT', 'email_empresa', 'nombre_empresa', 'direccion', 'estado', 'categoria', 'telefono', 'img_empresa'], // Campos que deseas incluir
+                    attributes: ['ID', 'NIT', 'email_empresa', 'nombre_empresa', 'direccion', 'estado', 'categoria', 'telefono', 'img_empresa', 'ciudad_ID'], // Campos que deseas incluir
+                    include: [
+                        {
+                            model: Ciudad,
+                            as: 'Ciudad',
+                            attributes: ['ID', 'nombre', 'departamento_ID'],
+                            include: [
+                                {
+                                    model: Departamento,
+                                    as: 'Departamento',
+                                    attributes: ['ID', 'nombre']
+                                }
+                            ]
+                        }
+                    ]
                 },
             ],
         });
@@ -638,15 +652,15 @@ const updateUserProfile = async (req, res) => {
                 tipoDocumento
             } = req.body;
 
-            // Procesar imagen de perfil si se sube (como base64)
-            let foto_perfil = null;
-            if (req.files?.foto_perfil?.[0]) {
-                // Si viene como archivo
-                foto_perfil = req.files.foto_perfil[0].buffer.toString("base64");
-            } else if (req.body.foto_perfil) {
-                // Si viene como base64 en el body
-                foto_perfil = req.body.foto_perfil;
-            }
+        // Procesar imagen de perfil si se sube (como base64)
+        let foto_perfil = null;
+        if (req.files?.foto_perfil?.[0]) {
+            // Si viene como archivo
+            foto_perfil = req.files.foto_perfil[0].buffer.toString("base64");
+        } else if (req.body.foto_perfil) {
+            // Si viene como base64 en el body
+            foto_perfil = req.body.foto_perfil;
+        }
 
             const token = req.cookies.accessToken;
             if (!token) {
@@ -697,11 +711,15 @@ const updateUserProfile = async (req, res) => {
                 return res.status(400).json({ message: "Número de documento inválido." });
             }
 
-            // Verificación de permisos
-            if (loggedInUser.accountType === "Gestor") {{
-                return res.status(403).json({ message: "No tienes permiso para actualizar perfiles." });
-                }
+        // Verificación de permisos
+        // Administrador puede actualizar cualquier perfil (se maneja abajo)
+        // Empresa puede actualizar el suyo (se maneja abajo)
+        // Para otros roles (Instructor, Gestor, Aprendiz): permitir solo si actualiza su propio perfil
+        if (loggedInUser.accountType !== "Administrador" && loggedInUser.accountType !== "Empresa") {
+            if (parseInt(id, 10) !== Number(loggedInUser.id)) {
+            return res.status(403).json({ message: "No tienes permiso para actualizar perfiles." });
             }
+        }
 
             // ADMINISTRADOR
             if (loggedInUser.accountType === "Administrador") {
@@ -746,14 +764,43 @@ const updateUserProfile = async (req, res) => {
                         }
                     }
 
-                    // Asignación directa de campos
-                    if (email) user.email = email;
-                    if (nombres) user.nombres = nombres;
-                    if (apellidos) user.apellidos = apellidos;
-                    if (celular) user.celular = celular;
-                    if (estado) user.estado = estado;
-                    if (titulo_profesional) user.titulo_profesional = titulo_profesional;
-                    if (foto_perfil) user.foto_perfil = foto_perfil;
+                // Asignación directa de campos
+                if (email) user.email = email;
+                if (nombres) user.nombres = nombres;
+                if (apellidos) user.apellidos = apellidos;
+                if (celular) user.celular = celular;
+                if (estado) user.estado = estado;
+                if (titulo_profesional) user.titulo_profesional = titulo_profesional;
+                if (foto_perfil) user.foto_perfil = foto_perfil;
+
+                // Si se envía información de empresa, permitir que el administrador la actualice también
+                if (req.body.empresa && user.Empresa) {
+                    let empresaData;
+                    try {
+                        empresaData = typeof req.body.empresa === 'string' ? JSON.parse(req.body.empresa) : req.body.empresa;
+                    } catch (e) {
+                        return res.status(400).json({ message: "Formato de empresa inválido." });
+                    }
+
+                    const { NIT, categoria, direccion, email_empresa, estado: estadoEmpresa, img_empresa, nombre_empresa, telefono, ciudad_ID, departamento_ID } = empresaData;
+
+                    if (NIT !== undefined) user.Empresa.NIT = NIT;
+                    if (email_empresa !== undefined) user.Empresa.email_empresa = email_empresa;
+                    if (nombre_empresa !== undefined) user.Empresa.nombre_empresa = nombre_empresa;
+                    if (direccion !== undefined) user.Empresa.direccion = direccion;
+                    if (categoria !== undefined) user.Empresa.categoria = categoria;
+                    if (telefono !== undefined) user.Empresa.telefono = telefono;
+                    if (ciudad_ID !== undefined) user.Empresa.ciudad_ID = ciudad_ID;
+                    if (estadoEmpresa !== undefined) user.Empresa.estado = estadoEmpresa;
+
+                    if (req.files?.img_empresa?.[0]) {
+                        user.Empresa.img_empresa = req.files.img_empresa[0].buffer.toString("base64");
+                    } else if (img_empresa !== undefined) {
+                        user.Empresa.img_empresa = img_empresa;
+                    }
+
+                    await user.Empresa.save();
+                }
 
                     await user.save();
                     return res.status(200).json({ message: "Perfil actualizado con éxito." });
@@ -788,7 +835,10 @@ const updateUserProfile = async (req, res) => {
             if (apellidos) user.apellidos = apellidos;
             if (celular) user.celular = celular;
             if (documento) user.documento = documento;
-            if (estado) user.estado = estado;
+            // El estado de la cuenta Empresa solo puede ser modificado por Administrador
+            if (estado && loggedInUser.accountType === "Administrador") {
+                user.estado = estado;
+            }
             if (foto_perfil) user.foto_perfil = foto_perfil;
 
             // Actualizar datos de la empresa - MEJORADO
@@ -810,16 +860,17 @@ const updateUserProfile = async (req, res) => {
                     estado,
                     img_empresa,
                     nombre_empresa,
-                    telefono
+                    telefono,
+                    ciudad_ID
                 } = empresaData;
 
                 if (NIT) user.Empresa.NIT = NIT;
                 if (email_empresa) user.Empresa.email_empresa = email_empresa;
                 if (nombre_empresa) user.Empresa.nombre_empresa = nombre_empresa;
                 if (direccion) user.Empresa.direccion = direccion;
-                if (estadoEmpresa !== undefined) user.Empresa.estado = estadoEmpresa;
                 if (categoria) user.Empresa.categoria = categoria;
                 if (telefono) user.Empresa.telefono = telefono;
+                if (ciudad_ID) user.Empresa.ciudad_ID = ciudad_ID;
 
                 // Procesar imagen de empresa si viene en archivos
                 if (req.files?.img_empresa?.[0]) {
@@ -1124,12 +1175,26 @@ const createGestor = async (req, res) => {
         await sendVerificationEmail(email, token);
 
         res.status(201).json({
-            message: "Instructor creado con éxito. Se envió un correo con la información de acceso.",
-            instructor: newGestor
+            message: "Gestor creado con éxito. Se envió un correo con la información de acceso.",
+            gestor: newGestor
         });
     } catch (error) {
         console.error("Error al crear el gestor:", error);
-        res.status(500).json({ message: "Error al crear el gestor." });
+        if (error.name === 'SequelizeUniqueConstraintError') {
+            const campos = (error.errors || []).map(e => e.path).filter(Boolean);
+            return res.status(409).json({
+                message: "Datos duplicados al crear el gestor.",
+                detalles: campos.length ? `Campos en conflicto: ${campos.join(', ')}` : undefined
+            });
+        }
+        if (error.name === 'SequelizeValidationError') {
+            const detalles = (error.errors || []).map(e => ({ campo: e.path, mensaje: e.message }));
+            return res.status(400).json({
+                message: "Validación fallida al crear el gestor.",
+                errores: detalles
+            });
+        }
+        return res.status(500).json({ message: `Error al crear el gestor: ${error.message || 'desconocido'}` });
     }
 };
 
@@ -1370,7 +1435,7 @@ const detectarTextoOCR = async (imagePath) => {
     const client = new vision.ImageAnnotatorClient();
     const imageBuffer = fs.readFileSync(imagePath);
     const [result] = await client.textDetection({ image: { content: imageBuffer } });
-    return result.fullTextAnnotation?.text || '';
+    return result.fullTextAnnotation.text || '';
 };
 
 

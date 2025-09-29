@@ -2,19 +2,25 @@ import React, { useState } from "react";
 import "./UpdateGestor.css";
 import axiosInstance from "../../../../config/axiosInstance";
 import { validateEmail, validateNumber, validateText, createMensajeError } from "../../../../utils/Validators/formValidator";
-import { Routes, Route, useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 
+<<<<<<< HEAD
 export const UpdateGestor = ({ gestor }) => {
 
   // Validación de sesión de usuario y rol de administrador
   const userSessionString = sessionStorage.getItem("userSession");
   const userSession = userSessionString ? JSON.parse(userSessionString) : null;
 
+=======
+export const UpdateGestor = ({ gestor, onClose }) => {
+>>>>>>> Jefferson
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({ ...gestor });
 
   const closeModalUpdateGestor = () => {
-    document.getElementById("modal-overlayUpdateGestor").style.display = "none";
+    if (onClose) onClose();
+    const overlay = document.getElementById("modal-overlayUpdateGestor");
+    if (overlay) overlay.style.display = "none";
   };
 
   const getImageSrc = (data) => {

@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import "./GestionsGestor.css";
 import { Header } from "../../Layouts/Header/Header";
 import { Footer } from "../../Layouts/Footer/Footer";
 import { Main } from "../../Layouts/Main/Main";
 import { UpdateGestor } from "./UpdateGestor/UpdateGestor";
 import axiosInstance from "../../../config/axiosInstance";
-import { Routes, Route, useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 
 export const GestionsGestor = () => {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const [gestores, setGestores] = useState([]); // Estado para almacenar los gestores
   const [filteredGestors, setfilteredGestorses] = useState([]); // Estado para los gestores filtrados
   const [filter, setFilter] = useState(""); // Estado para el valor del filtro
@@ -19,17 +19,13 @@ export const GestionsGestor = () => {
   });
 
   // Validación de sesión de usuario y rol de administrador
-  const userSessionString = sessionStorage.getItem("userSession");
-  const userSession = userSessionString ? JSON.parse(userSessionString) : null;
+  // const userSessionString = sessionStorage.getItem("userSession");
+  // const userSession = userSessionString ? JSON.parse(userSessionString) : null;
 
   const [selectedGestor, setSelectedGestor] = useState(null); // Estado para el instructor seleccionado
 
   const showModalSeeProfile = (gestor) => {
-    setSelectedGestor(gestor); // Establecer el instructor seleccionado
-    const modalSeeProfile = document.getElementById("modal-overlayUpdateGestor");
-    if (modalSeeProfile) {
-      modalSeeProfile.style.display = "flex"; // Mostrar el modal
-    }
+    setSelectedGestor(gestor);
   };
 
 
@@ -52,6 +48,7 @@ export const GestionsGestor = () => {
   }, []);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     applyFilters();
   }, [selectedState, filter, gestores]);
 
@@ -60,50 +57,28 @@ export const GestionsGestor = () => {
   const handleFilterChange = (e) => {
     const value = e.target.value.toLowerCase();
     setFilter(value);
-
-    // Filtrar los instructores según el nombre, apellidos o cédula
-    const filtered = gestor.filter((gestor) =>
-      gestor.nombres.toLowerCase().includes(value) ||
-      gestor.apellidos.toLowerCase().includes(value) ||
-      gestor.documento.toLowerCase().includes(value)
-    );
-
-    // Aplicar también el filtro de estado
-    const filteredByState = filtered.filter((gestor) => {
-      if (selectedState.activo && gestor.estado.toLowerCase() === 'activo') {
-        return true;
-      }
-      if (selectedState.inactivo && gestor.estado.toLowerCase() === 'inactivo') {
-        return true;
-      }
-      return false;
-    });
-
-    setfilteredGestorses(filteredByState);
-    setCurrent(0); // Reiniciar el índice del carrusel
   };
 
   const applyFilters = () => {
-    // Filtrar los Gestores según el nombre, apellidos o cédula
     const filtered = gestores.filter((gestor) =>
-      gestor.nombres.toLowerCase().includes(filter) ||
-      gestor.apellidos.toLowerCase().includes(filter) ||
-      gestor.documento.toLowerCase().includes(filter)
+      (gestor.nombres || '').toLowerCase().includes(filter.toLowerCase()) ||
+      (gestor.apellidos || '').toLowerCase().includes(filter.toLowerCase()) ||
+      (gestor.documento || '').toLowerCase().includes(filter.toLowerCase())
     );
 
-    // Aplicar también el filtro de estado
     const filteredByState = filtered.filter((gestor) => {
-      if (selectedState.activo && gestor.estado.toLowerCase() === 'activo') {
+      const estado = (gestor.estado || '').toLowerCase();
+      if (selectedState.activo && estado === 'activo') {
         return true;
       }
-      if (selectedState.inactivo && gestor.estado.toLowerCase() === 'inactivo') {
+      if (selectedState.inactivo && estado === 'inactivo') {
         return true;
       }
       return false;
     });
 
     setfilteredGestorses(filteredByState);
-    setCurrent(0); // Reiniciar el índice del carrusel
+    setCurrent(0);
   };
 
   const next = () => setCurrent((prev) => (prev + 1) % filteredGestors.length);
@@ -249,19 +224,23 @@ export const GestionsGestor = () => {
                   )}
                 </div>
 
-                {/* Mostrar información del gestor actual */}
-                {filteredGestors.length > 0 && (
-                  <div className="instructor-info">
-                    <h3>{filteredGestors[(current + 1) % filteredGestors.length]?.nombres} {filteredGestors[(current + 1) % filteredGestors.length]?.apellidos}</h3>
-                    <p>{filteredGestors[(current + 1) % filteredGestors.length]?.titulo_profesional}</p>
-                    <button
-                      className="profile-btn"
-                      onClick={() => showModalSeeProfile(filteredGestors[(current + 1) % filteredGestors.length])}
-                    >
-                      Ver perfil
-                    </button>
-                  </div>
-                )}
+                {/* Mostrar información del gestor actual (centrado) */}
+                {filteredGestors.length > 0 && (() => {
+                  const centerIndex = current % filteredGestors.length;
+                  const currentGestor = filteredGestors[centerIndex];
+                  return (
+                    <div className="instructor-info">
+                      <h3>{currentGestor?.nombres} {currentGestor?.apellidos}</h3>
+                      <p>{currentGestor?.titulo_profesional}</p>
+                      <button
+                        className="profile-btn"
+                        onClick={() => showModalSeeProfile(currentGestor)}
+                      >
+                        Ver perfil
+                      </button>
+                    </div>
+                  );
+                })()}
               </div>
 
 
@@ -276,6 +255,7 @@ export const GestionsGestor = () => {
         {selectedGestor && (
           <UpdateGestor
             gestor={selectedGestor}
+            onClose={() => setSelectedGestor(null)}
           />
         )}
         <Footer />

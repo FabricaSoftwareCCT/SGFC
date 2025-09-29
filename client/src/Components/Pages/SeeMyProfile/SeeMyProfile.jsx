@@ -196,6 +196,7 @@ export const SeeMyProfile = () => {
     };
 
 
+
     const handleSaveChanges = async () => {
         console.log('🔍 Debug - Iniciando guardado:', { perfil, perfilOriginal, tipoCuenta });
         
@@ -206,8 +207,16 @@ export const SeeMyProfile = () => {
             ...empresaBase,
             ...empresaActual,
             // Ubicación prioriza lo seleccionado en UI
-            departamento_ID: departamentoSeleccionado ? parseInt(departamentoSeleccionado) : (empresaActual.departamento_ID ? empresaBase.departamento_ID ? null),
-            ciudad_ID: ciudadSeleccionada ? parseInt(ciudadSeleccionada) : (empresaActual.ciudad_ID ? empresaBase.ciudad_ID ? null)
+departamento_ID: departamentoSeleccionado 
+    ? parseInt(departamentoSeleccionado) 
+    : (empresaActual.departamento_ID 
+        ? empresaActual.departamento_ID 
+        : null),
+ciudad_ID: ciudadSeleccionada 
+    ? parseInt(ciudadSeleccionada) 
+    : (empresaActual.ciudad_ID 
+        ? empresaActual.ciudad_ID 
+        : null)
         };
 
         console.log('🔍 Debug - empresaSnapshot:', empresaSnapshot);

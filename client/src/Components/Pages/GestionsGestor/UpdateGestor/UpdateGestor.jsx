@@ -11,9 +11,6 @@ export const UpdateGestor = ({ gestor }) => {
   const userSessionString = sessionStorage.getItem("userSession");
   const userSession = userSessionString ? JSON.parse(userSessionString) : null;
 
-=======
-export const UpdateGestor = ({ gestor, onClose }) => {
->>>>>>> Jefferson
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({ ...gestor });
 

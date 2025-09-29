@@ -4,16 +4,12 @@ import axiosInstance from "../../../../config/axiosInstance";
 import { validateEmail, validateNumber, validateText, createMensajeError } from "../../../../utils/Validators/formValidator";
 // import { useNavigate } from "react-router-dom";
 
-<<<<<<< HEAD
 export const UpdateGestor = ({ gestor }) => {
 
   // Validación de sesión de usuario y rol de administrador
   const userSessionString = sessionStorage.getItem("userSession");
   const userSession = userSessionString ? JSON.parse(userSessionString) : null;
 
-=======
-export const UpdateGestor = ({ gestor, onClose }) => {
->>>>>>> Jefferson
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({ ...gestor });
 

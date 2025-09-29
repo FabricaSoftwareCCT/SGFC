@@ -296,7 +296,7 @@ const handleGoogleResponse = async (response) => {
 
           <div className="option_signIn">
             <div className="logo">SGFC</div>
-            <h3>Lorem Ipsum es simplemente el texto</h3>
+            <h3>Lorem Ipsum es simplemente el textos</h3>
             <p>Lorem Ipsum es simplemente</p>
             <button className="goTo_SignIn" onClick={showModalSignIn}>
               Iniciar sesión

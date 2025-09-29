@@ -122,10 +122,11 @@ const obtenerCursosAsignadosAInstructor = async (req, res) => {
 // Crear un curso (solo para administradores)
 const createCurso = async (req, res) => {
   try {
-    const { accountType } = req.user;
-
-    if (accountType !== "Administrador" & accountType !== "Gestor") {
-      return res.status(403).json({ message: "No tienes permisos para crear cursos." });
+    const { accountType } = req.user; // ← ESTA LÍNEA TIENE EL PROBLEMA
+    console.log("Este es el tipo de cuenta", accountType);
+    
+    if (accountType !== "Administrador" && accountType !== "Gestor" && accountType !== "Instructor") {
+      return res.status(403).json({ message: "No tienes permisos para crear cursos" });
     }
 
     const {
@@ -594,9 +595,13 @@ const enviarInvitacionCurso = async (req, res) => {
       return res.status(409).json({ message: 'Ya existe una invitación pendiente para este instructor y curso.' });
     }
 
-    const validarEstado = await Usuario.findByPk(instructor_ID);
-    if (validarEstado.estado === 'inactivo') {
-      return res.status(404).json({ message: 'Instructor no se encuentra activo' });
+    // Validar disponibilidad del instructor (solo se invita si está activo)
+    const instructor = await Usuario.findByPk(instructor_ID, { attributes: ['ID', 'estado', 'accountType'] });
+    if (!instructor || instructor.accountType !== 'Instructor') {
+      return res.status(404).json({ message: 'Instructor no encontrado o no válido.' });
+    }
+    if (instructor.estado !== 'activo') {
+      return res.status(409).json({ message: 'No se puede invitar. El instructor está inactivo.' });
     }
 
     // Crear la invitación

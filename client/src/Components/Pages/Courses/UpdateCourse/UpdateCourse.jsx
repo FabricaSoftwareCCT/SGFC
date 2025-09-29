@@ -275,7 +275,7 @@ export const UpdateCourse = () => {
 
 
               <div className="containerDetails_course2">
-                <div>
+                <div className="Type_offer">
                   <div className="offer-type-container">
                     <span>Tipo de oferta:</span>
                     <div className="offer-options">
@@ -387,7 +387,7 @@ export const UpdateCourse = () => {
                   )}
                 </div>
 
-                <div>
+                <div className="details_Date_Instructor">
                   <p id='p_addInstructor'>
 
                     Instructor: {curso?.Instructor ? `${curso.Instructor.nombres} ${curso.Instructor.apellidos}` : "Sin asignar"}

@@ -176,8 +176,8 @@ export const Modal_SignIn = () => {
       <div className="modalSignIn">
         <div className="option_signUp">
           <div className="logo">SGFC</div>
-          <h3>Lorem Ipsum es simplemente el texto</h3>
-          <p>Lorem Ipsum es simplemente</p>
+          <h3>¿Aún no tienes cuenta?</h3>
+          <p>Regístrate como Empresa o como Aprendiz y empieza a disfrutar de todos nuestros servicios.</p>
           <button className="goTo_register" onClick={showModalAccountType}>
             Registrarse
           </button>

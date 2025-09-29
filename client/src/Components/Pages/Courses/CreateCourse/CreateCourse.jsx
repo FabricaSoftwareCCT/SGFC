@@ -94,7 +94,7 @@ export const CreateCourse = ( ) => {
       const formData = new FormData();
       // Agrega el campo empresa_NIT al formData si hay empresa seleccionada
       if (empresaSeleccionada) {
-        formData.append("empresa_NIT", empresaSeleccionada.ID); // usa el nombre exacto del campo
+        formData.append("empresa_ID", empresaSeleccionada.ID); // usa el nombre exacto del campo
       }
 
       formData.append("ficha", ficha);

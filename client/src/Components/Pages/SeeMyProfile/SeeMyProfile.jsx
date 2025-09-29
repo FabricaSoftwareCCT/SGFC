@@ -391,60 +391,65 @@ export const SeeMyProfile = () => {
                     </div>
                   </div>
 
-                  {/* elemento gestión de estado */}
-                  <div className="status-company">
-                    <div
-                      className={`color_status ${perfil?.estado === "activo" ? "status-green" : perfil?.estado === "inactivo" ? "status-red" : ""}`}
-                    ></div>
-                    <h3>Estado</h3>
-                    {editMode ? (
-                      <select
-                        name="estado"
-                        className="input_updateStatus"
-                        value={perfil?.estado || ""}
-                        onChange={handleInputChange}
-                      >
-                        <option value="activo">Activo</option>
-                        <option value="inactivo">Inactivo</option>
-                      </select>
-                    ) : (
-                      <h4>
-                        {perfil?.estado === "activo" ? "Activo" : perfil?.estado === "inactivo" ? "Inactivo" : "-"}
-                      </h4>
+                                {/* elemento gestion de estado */}
+                                <div className='status-company'>
+                                    <div
+                                        className={`color_status ${perfil?.estado === 'activo' ? 'status-green' : perfil?.estado === 'inactivo' ? 'status-red' : ''}`}
+                                    ></div>
+                                    <h3>Estado</h3>
+                                    {tipoCuenta === "Gestor" ? (
+                                    <span className='input_updateStatus'>{perfil?.estado}</span>
+                                    ) : editMode ? (
+                                        <select
+                                            name="estado"
+                                            className="input_updateStatus"
+                                            value={perfil?.estado || ''}
+                                            onChange={handleInputChange}
+                                        >
+                                            <option value="activo">Activo</option>
+                                            <option value="inactivo">Inactivo</option>
+                                        </select>
+                                    ) : (
+                                        <h4>{perfil?.estado === 'activo' ? 'Activo' : perfil?.estado === 'inactivo' ? 'Inactivo' : '-'}</h4>
+                                    )}
+                                </div>
+
+                            </div>
+                            <div className='container_data'>
+                                <div className='data_company'>
+                                    <h4 id='titleDataSede'>Datos sede</h4>
+                                    <p>
+                                        Dirección: <br />
+                                        {perfil.Sena.direccion || '-'}
+                                    </p>
+                                    <p>
+                                        Teléfono: <br />
+                                        {perfil.Sena.telefono || '-'}
+                                    </p>
+                                    <p>
+                                        Email: <br />
+                                        {perfil.Sena.email_sena || '-'}
+                                    </p>
+                                    <p>
+                                        Ciudad: <br />
+                                        {perfil.Sena.Ciudad?.nombre || '-'}
+                                    </p>
+                                    <p>
+                                        Departamento: <br />
+                                        {perfil.Sena.Ciudad?.Departamento?.nombre || '-'}
+                                    </p>
+                                </div>
+                                <div className='data_courses_instructor'>
+                                    <div className='data_courses'>
+                                        {/* Aquí puedes mostrar cursos si aplica */}
+                                    </div>
+                                    <div className='data_instructor'>
+                                        {/* Aquí puedes mostrar datos adicionales si aplica */}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     )}
-                  </div>
-                </div>
-                <div className="container_data">
-                  <div className="data_company">
-                    <h4 id="titleDataSede">Datos sede</h4>
-                    <p>
-                      Dirección: <br />
-                      {perfil.Sena.direccion || "-"}
-                    </p>
-                    <p>
-                      Teléfono: <br />
-                      {perfil.Sena.telefono || "-"}
-                    </p>
-                    <p>
-                      Email: <br />
-                      {perfil.Sena.email_sena || "-"}
-                    </p>
-                    <p>
-                      Ciudad: <br />
-                      {perfil.Sena.Ciudad?.nombre || "-"}
-                    </p>
-                    <p>
-                      Departamento: <br />
-                      {perfil.Sena.Ciudad?.Departamento?.nombre || "-"}
-                    </p>
-                  </div>
-                  <div className="data_courses_instructor">
-                    <div className="data_courses">{/* Aquí puedes mostrar cursos si aplica */}</div>
-                    <div className="data_instructor">{/* Aquí puedes mostrar datos adicionales si aplica */}</div>
-                  </div>
-                </div>
-              </div>
-            )}
 
           {/* SECCIÓN COMPLETA PARA EMPRESA (recuperada del original) */}
           {tipoCuenta === "Empresa" && (

@@ -55,12 +55,12 @@ const registerUser = async (req, res) => {
         const tempPassword = Math.random().toString(36).slice(-8);
         
         // Hashear la contraseña temporal
-        const hashedPassword = await bcrypt.hash(tempPassword, 10);
+        const hashedPassword = await bcrypt.hash(password, 10);
 
         // Crear nuevo usuario
         const newUser = await User.create({
             email,
-            password: password,
+            password: hashedPassword,
             accountType,
             documento: documento || null,
             nombres: nombres || null,

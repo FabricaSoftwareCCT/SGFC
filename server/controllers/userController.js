@@ -30,6 +30,7 @@ const registerUser = async (req, res) => {
     try {
         const { email, password, accountType, documento, nombres, apellidos, celular, titulo_profesional } = req.body;
 
+        console.log(email, password)
         // Validar datos obligatorios
         if (!email || !password || !accountType) {
             return res.status(400).json({ message: 'Los campos email, password y accountType son obligatorios' });
@@ -48,11 +49,14 @@ const registerUser = async (req, res) => {
         }
 
         // Generar token de verificación JWT (no con crypto)
-        const payload = { email };
+        // const payload = { email };
+        // const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
+        const payload = { data: { email } };
         const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
 
         // Generar contraseña temporal
-        const tempPassword = Math.random().toString(36).slice(-8);
+        //Configurar para usuarios que necesitan contraseña temporal
+       //const tempPassword = Math.random().toString(36).slice(-8);
         
         // Hashear la contraseña temporal
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -90,7 +94,7 @@ const registerUser = async (req, res) => {
         }
 
         // Enviar correo de verificación CON la contraseña temporal
-        await sendVerificationEmail(email, token, tempPassword);
+        await sendVerificationEmail(email, token, null, accountType);
 
         res.status(201).json({ message: 'Usuario registrado. Por favor verifica tu correo para obtener tu contraseña temporal.' });
     } catch (error) {
@@ -156,6 +160,7 @@ const verifyEmail = async (req, res) => {
     }
 };
 
+
 const requestNewVerificationEmail = async (req, res) => {
     try{
         const { email } = req.body;
@@ -207,6 +212,8 @@ const loginUser = async (req, res) => {
         if (!user || !user.verificacion_email) {
             return res.status(403).json({ message: "Credenciales inválidas o correo no verificado." });
         }
+
+        console.log(password, "Datos ingresados: ",  user.password)
 
         const isPasswordValid = await bcrypt.compare(password, user.password);
         if (!isPasswordValid) {
@@ -715,7 +722,7 @@ const updateUserProfile = async (req, res) => {
         }
 
         // ADMINISTRADOR
-        if (loggedInUser.accountType === "Administrador") {{
+            if (loggedInUser.accountType === "Administrador") {
             // Validaciones de campos obligatorios para Administrador
             const camposObligatorios = {
                 nombres: nombres,
@@ -777,6 +784,25 @@ const updateUserProfile = async (req, res) => {
 
                     const { NIT, categoria, direccion, email_empresa, estado: estadoEmpresa, img_empresa, nombre_empresa, telefono, ciudad_ID, departamento_ID } = empresaData;
 
+                    // Validaciones únicas para Empresa (NIT y email_empresa)
+                    try {
+                        const empresaIdActual = user.Empresa.ID;
+                        if (NIT && NIT !== user.Empresa.NIT) {
+                            const nitExistente = await Empresa.findOne({ where: { NIT, ID: { [Op.ne]: empresaIdActual } } });
+                            if (nitExistente) {
+                                return res.status(400).json({ message: "El NIT de la empresa ya está registrado." });
+                            }
+                        }
+                        if (email_empresa && email_empresa !== user.Empresa.email_empresa) {
+                            const emailEmpExistente = await Empresa.findOne({ where: { email_empresa, ID: { [Op.ne]: empresaIdActual } } });
+                            if (emailEmpExistente) {
+                                return res.status(400).json({ message: "El email de la empresa ya está registrado." });
+                            }
+                        }
+                    } catch (e) {
+                        return res.status(500).json({ message: "Error validando unicidad de empresa." });
+                    }
+
                     if (NIT !== undefined) user.Empresa.NIT = NIT;
                     if (email_empresa !== undefined) user.Empresa.email_empresa = email_empresa;
                     if (nombre_empresa !== undefined) user.Empresa.nombre_empresa = nombre_empresa;
@@ -797,7 +823,6 @@ const updateUserProfile = async (req, res) => {
 
                 await user.save();
                 return res.status(200).json({ message: "Perfil actualizado con éxito." });
-            }
         }
 
         // EMPRESA puede actualizar su propio perfil - CORREGIDO
@@ -824,13 +849,26 @@ const updateUserProfile = async (req, res) => {
                 });
             }
 
-            if (email) user.email = email;
+            // Validaciones únicas para Empresa (email y documento/NIT)
+            if (email && email !== user.email) {
+                const existingEmail = await User.findOne({ where: { email } });
+                if (existingEmail) {
+                    return res.status(400).json({ message: "El correo electrónico ya está registrado." });
+                }
+                user.email = email;
+            }
             if (nombres) user.nombres = nombres;
             if (apellidos) user.apellidos = apellidos;
             if (celular) user.celular = celular;
-            if (documento) user.documento = documento;
-            // El estado de la cuenta Empresa solo puede ser modificado por Administrador
-            if (estado && loggedInUser.accountType === "Administrador") {
+            if (documento && documento !== user.documento) {
+                const existingDocumento = await User.findOne({ where: { documento } });
+                if (existingDocumento) {
+                    return res.status(400).json({ message: "El NIT/documento ya está registrado." });
+                }
+                user.documento = documento;
+            }
+            // Permitir que Empresa cambie su propio estado
+            if (estado) {
                 user.estado = estado;
             }
             if (foto_perfil) user.foto_perfil = foto_perfil;
@@ -858,8 +896,22 @@ const updateUserProfile = async (req, res) => {
                     ciudad_ID
                 } = empresaData;
 
-                if (NIT) user.Empresa.NIT = NIT;
-                if (email_empresa) user.Empresa.email_empresa = email_empresa;
+                // Unicidad NIT y email_empresa cuando Empresa actualiza su Empresa
+                const empresaIdActual = user.Empresa.ID;
+                if (NIT && NIT !== user.Empresa.NIT) {
+                    const nitExistente = await Empresa.findOne({ where: { NIT, ID: { [Op.ne]: empresaIdActual } } });
+                    if (nitExistente) {
+                        return res.status(400).json({ message: "El NIT de la empresa ya está registrado." });
+                    }
+                    user.Empresa.NIT = NIT;
+                }
+                if (email_empresa && email_empresa !== user.Empresa.email_empresa) {
+                    const emailEmpExistente = await Empresa.findOne({ where: { email_empresa, ID: { [Op.ne]: empresaIdActual } } });
+                    if (emailEmpExistente) {
+                        return res.status(400).json({ message: "El email de la empresa ya está registrado." });
+                    }
+                    user.Empresa.email_empresa = email_empresa;
+                }
                 if (nombre_empresa) user.Empresa.nombre_empresa = nombre_empresa;
                 if (direccion) user.Empresa.direccion = direccion;
                 if (categoria) user.Empresa.categoria = categoria;
@@ -951,84 +1003,41 @@ const updateUserProfile = async (req, res) => {
             return res.status(200).json({ message: "Perfil de empleado actualizado con éxito." });
         }
 
-        // ACTUALIZACIÓN DE PERFIL PROPIO (Instructor, Gestor, Aprendiz)
-        if (parseInt(id, 10) === Number(loggedInUser.id)) {
-            // Validaciones de campos obligatorios
-            const camposObligatorios = {
-                nombres: nombres,
-                apellidos: apellidos,
-                celular: celular,
-                documento: documento,
-                email: email
-            };
-
-            const camposVacios = [];
-            for (const [campo, valor] of Object.entries(camposObligatorios)) {
-                if (valor !== undefined && (valor === null || valor === '' || valor.trim() === '')) {
-                    camposVacios.push(campo);
-                }
+        // APRENDIZ puede actualizar su propio perfil
+        if (loggedInUser.accountType === "Aprendiz" && user.accountType === "Aprendiz") {
+            // Validar que el aprendiz solo pueda actualizar su propio perfil
+            if (loggedInUser.id !== parseInt(id)) {
+                return res.status(403).json({ message: "No tienes permiso para actualizar este perfil." });
             }
 
-            if (camposVacios.length > 0) {
-                return res.status(400).json({ 
-                    message: `No se pudo guardar su perfil. Los siguientes campos son obligatorios y no pueden estar vacíos: ${camposVacios.join(', ')}. Intente nuevamente.` 
-                });
-            }
-
-            // Validaciones únicas básicas
             if (email && email !== user.email) {
                 const existingEmail = await User.findOne({ where: { email } });
                 if (existingEmail) {
                     return res.status(400).json({ message: "El correo electrónico ya está registrado." });
                 }
 
-                // Para aprendices, generar token de verificación si cambian email
-                if (loggedInUser.accountType === "Aprendiz") {
-                const verificationToken = crypto.randomBytes(32).toString('hex');
+                // Generar token de verificación
+                const payload = {email};
+
+                const verificationToken = generateToken(payload, process.env.JWT_SECRET, 5);
                 user.token = verificationToken;
                 user.verificacion_email = false;
+
+                // Enviar correo de verificación
                 await sendVerificationEmail(email, verificationToken);
-                }
                 user.email = email;
             }
-            if (documento && documento !== user.documento) {
-                const existingDocumento = await User.findOne({ where: { documento } });
-                if (existingDocumento) {
-                    return res.status(400).json({ message: "El documento ya está registrado." });
-                }
-            }
-            if (celular && celular !== user.celular) {
-                const existingCelular = await User.findOne({ where: { celular } });
-                if (existingCelular) {
-                    return res.status(400).json({ message: "El número de celular ya está registrado." });
-                }
-            }
-
-            // Campos permitidos para actualización propia
             if (nombres) user.nombres = nombres;
             if (apellidos) user.apellidos = apellidos;
             if (celular) user.celular = celular;
             if (documento) user.documento = documento;
+            if (estado) user.estado = estado;
             if (titulo_profesional) user.titulo_profesional = titulo_profesional;
             if (tipoDocumento) user.tipoDocumento = tipoDocumento;
             if (foto_perfil) user.foto_perfil = foto_perfil;
-            
-            // Estado: solo instructores y gestores pueden cambiar su estado
-            if (estado && (loggedInUser.accountType === "Instructor" || loggedInUser.accountType === "Gestor")) {
-                if (["activo", "inactivo"].includes(estado)) {
-                    user.estado = estado;
-                }
-            }
-            // Nota: accountType nunca se puede cambiar por actualización propia
 
             await user.save();
-            
-            let message = "Perfil actualizado con éxito.";
-            if (loggedInUser.accountType === "Aprendiz" && email && email !== user.email) {
-                message = "Perfil actualizado con éxito. Por favor verifica tu nuevo correo.";
-            }
-            
-            return res.status(200).json({ message });
+            return res.status(200).json({ message: "Perfil de aprendiz actualizado con éxito. Por favor verifica tu nuevo correo." });
         }
 
         // Instructor puede actualizar su propio perfil
@@ -1070,11 +1079,12 @@ const updateUserProfile = async (req, res) => {
 
         return res.status(403).json({ message: "No tienes permiso para actualizar este perfil." });
     } catch (error) {
+
         console.error("Error al actualizar el perfil del usuario:", error);
         return res.status(500).json({ message: "Error al actualizar el perfil del usuario." });
     }
-};
 
+}
 // Crear Instructor
 const createInstructor = async (req, res) => {
     try {
@@ -1112,7 +1122,7 @@ const createInstructor = async (req, res) => {
         const token = generateToken(payload, process.env.JWT_SECRET, 5);
 
         // Generar contraseña temporal (8 caracteres alfanuméricos)
-        const tempPassword = Math.random().toString(36).slice(-8);
+        const tempPassword ="Faber1021672376*";
         
         // Encriptar la contraseña temporal
         const hashedPassword = await bcrypt.hash(tempPassword, 10);

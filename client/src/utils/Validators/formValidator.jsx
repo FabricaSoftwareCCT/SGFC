@@ -1,8 +1,5 @@
 export const validateEmail = (email) => {
-    // Validar que email no esté vacío
     if (!email) return "El email no puede estar vacío";
-
-    // Expresión para validar que el formato de email esté correcto
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const isValidFormat = emailRegex.test(email);
 
@@ -43,47 +40,32 @@ export const validateNumber = (phoneNumber) => {
     return "";
 }
 
-export const validateText = (text) => {
-    // Validar que el campo no esté vacío
-    if (!text) return `no puede estar vacío`;
-
+export const validateText = (text, fieldName = "Este campo") => {
+    if (!text) return `${fieldName} no puede estar vacío`;
     const regex = /^[a-zA-ZÀ-ÿ\s'-]+$/;
-    const isValidFormat = regex.test(text);
-
-    if (!isValidFormat) return `contiene caracteres inválidos`;
-
-    return "";
+    if (!regex.test(text)) return `${fieldName} contiene caracteres inválidos`;
+    return ""; // Siempre retornar string vacío en éxito
 }
 
 export const validateAddress = (address) => {
-    // Validar que la dirección no esté vacía
     if (!address) return "La dirección no puede estar vacía";
-
     const addressRegex = /^[a-zA-ZÀ-ÿ0-9\s,.\-#]+$/;
-    const isValidFormat = addressRegex.test(address);
-
-    if (!isValidFormat) return "La dirección contiene caracteres inválidos";
-
-    return "";
+    if (!addressRegex.test(address)) return "La dirección contiene caracteres inválidos";
+    return ""; // Siempre retornar string vacío en éxito
 }
 
 export function validateNIT(nit) {
-  if (!nit) return "El NIT es requerido";
-
-  const regex = /^\d{8,10}$/; 
-  if (!regex.test(nit)) {
-    return "El NIT debe tener entre 8 y 10 dígitos numéricos";
-  }
-
-  return ""; 
+    if (!nit) return "El NIT es requerido";
+    const regex = /^\d{8,10}$/;
+    if (!regex.test(nit)) return "El NIT debe tener entre 8 y 10 dígitos numéricos";
+    return ""; // Siempre retornar string vacío en éxito
 }
 
-
-export const createMensajeError =  async (erros) => {
-    const mensaje = Object.entries(erros)
-    .filter(([_, value]) => value !== "")
-    .map(([key, value]) => `El campo ${key} ${value}`)
-    .join("\n");
+export const createMensajeError = async (errores) => {
+    const mensaje = Object.entries(errores)
+        .filter(([_, value]) => value !== "") // Filtrar solo los que tienen error
+        .map(([_, value]) => value) // Usar solo el valor del mensaje
+        .join("\n");
 
     if (mensaje === "") return null;
     

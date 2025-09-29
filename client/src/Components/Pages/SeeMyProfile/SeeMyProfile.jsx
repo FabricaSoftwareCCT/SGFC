@@ -1,6 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import './SeeMyProfile.css';
-import { useLocation } from 'react-router-dom';
+"use client"
+
+import React, { useEffect, useState } from "react"
+import "./SeeMyProfile.css"
+import { useLocation } from "react-router-dom"
 
 import { Footer } from '../../../Components/Layouts/Footer/Footer';
 import { Main } from '../../../Components/Layouts/Main/Main';
@@ -113,7 +115,7 @@ export const SeeMyProfile = () => {
 
 
     const handleInputChange = (e) => {
-        const { name, value } = e.target;
+    const { name, value } = e.target
 
         if (name.startsWith("Empresa.")) {
             const key = name.split(".")[1];
@@ -173,27 +175,27 @@ export const SeeMyProfile = () => {
     };
 
     const handleFileChange = (e, type) => {
-        const file = e.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
+    const file = e.target.files[0]
+    if (!file) return
+    const reader = new FileReader()
         reader.onloadend = () => {
-            const base64 = reader.result.split(",")[1];
+      const base64 = reader.result.split(",")[1]
             if (type === "foto_perfil") {
-                setPerfil(prev => ({ ...prev, foto_perfil: base64 }));
+        setPerfil((prev) => ({ ...prev, foto_perfil: base64 }))
             } else if (type === "img_empresa") {
-                setPerfil(prev => ({
+        setPerfil((prev) => ({
                     ...prev,
-                    Empresa: { ...prev.Empresa, img_empresa: base64 }
-                }));
-            }
-        };
-        reader.readAsDataURL(file);
-    };
+          Empresa: { ...prev.Empresa, img_empresa: base64 },
+        }))
+      }
+    }
+    reader.readAsDataURL(file)
+  }
 
     const handleModelCancel = (model) => {
         setEditMode(!model)
         setPerfil(perfilOriginal)
-    };
+  }
 
 
     const handleSaveChanges = async () => {
@@ -319,21 +321,41 @@ export const SeeMyProfile = () => {
         }
     };
 
+  // Indicador simple de perfil incompleto (datos básicos)
+  const perfilIncompleto = !perfil || !perfil.nombres || !perfil.apellidos || !perfil.email;
+
     return (
         <>
             <Header />
             <Main>
-                <div className='container_mainSeeMyProfile'>
+        {perfilIncompleto && (
+          <div
+            className="alert-perfil-incompleto"
+            style={{
+              background: "#fff3cd",
+              border: "1px solid #ffeaa7",
+              padding: "15px",
+              margin: "0 20px 20px 20px",
+              borderRadius: "5px",
+              textAlign: "center",
+              color: "#856404",
+            }}
+          >
+            ⚠️ <strong>Perfil Incompleto:</strong> Por favor completa toda tu información para acceder a todas las
+            funciones del sistema.
+          </div>
+        )}
 
-                    <div className='container_profile'>
+        <div className="container_mainSeeMyProfile">
+          <div className="container_profile">
                         <h3>{tipoCuenta}</h3>
                         <img
-                            src={getImageSrcFromBase64(perfil?.foto_perfil)}
+              src={getImageSrcFromBase64(perfil?.foto_perfil) || "/placeholder.svg"}
                             alt="Foto de perfil"
                             className="profile-img"
                             style={{ cursor: editMode ? "pointer" : "default" }}
                             onClick={() => {
-                                if (editMode && fotoPerfilInputRef.current) fotoPerfilInputRef.current.click();
+                if (editMode && fotoPerfilInputRef.current) fotoPerfilInputRef.current.click()
                             }}
                         />
                         {/* Foto de perfil */}
@@ -342,7 +364,7 @@ export const SeeMyProfile = () => {
                             accept="image/*"
                             ref={fotoPerfilInputRef}
                             style={{ display: "none" }}
-                            onChange={e => handleFileChange(e, "foto_perfil")}
+              onChange={(e) => handleFileChange(e, "foto_perfil")}
                         />
 
                         <h4>
@@ -387,12 +409,12 @@ export const SeeMyProfile = () => {
                                 <input
                                     type="email"
                                     name="email"
-                                    className='input_updateData'
-                                    value={perfil?.email || ''}
+                  className="input_updateData"
+                  value={perfil?.email || ""}
                                     onChange={handleInputChange}
                                 />
                             ) : (
-                                perfil?.email || ''
+                perfil?.email || ""
                             )}
                         </p>
 
@@ -402,12 +424,12 @@ export const SeeMyProfile = () => {
                                 <input
                                     type="text"
                                     name="celular"
-                                    className='input_updateData'
-                                    value={perfil?.celular || ''}
+                  className="input_updateData"
+                  value={perfil?.celular || ""}
                                     onChange={handleInputChange}
                                 />
                             ) : (
-                                perfil?.celular || ''
+                perfil?.celular || ""
                             )}
                         </p>
 
@@ -422,7 +444,7 @@ export const SeeMyProfile = () => {
 
                         {editMode && (
                             <button className='updateProfile1' onClick={handleSaveChanges}>
-
+                                
                             </button>
                                 )}
                             </>
@@ -577,9 +599,9 @@ export const SeeMyProfile = () => {
 
                             </div>
 
-                            <div className='container_data'>
-                                <div className='data_company'>
-                                    <h4 id='titleDataSede'>Datos Empresa</h4>
+              <div className="container_data">
+                <div className="data_company">
+                  <h4 id="titleDataSede">Datos Empresa</h4>
 
                                     <p>
                                         Dirección: <br />
@@ -677,13 +699,44 @@ export const SeeMyProfile = () => {
                                     </p>
                                 </div>
 
-                                <div className='data_courses_instructor'>
-                                    <div className='data_courses'>
-                                        {/* Aquí puedes colocar cursos si los tienes disponibles */}
-                                    </div>
-                                    <div className='data_instructor'>
+                <div className="data_courses_instructor">
+                  <div className="data_courses">{/* Aquí puedes colocar cursos si los tienes disponibles */}</div>
+                  <div className="data_instructor">
                                         {/* Aquí puedes colocar datos adicionales del instructor si aplica */}
                                     </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+          {/* SECCIÓN PARA APRENDIZ (si necesitas agregar algo específico) */}
+          {tipoCuenta === "Aprendiz" && perfil?.empresa_ID && (
+            <div className="container_data_company">
+              <div className="container_nameCompany-Status">
+                <div className="name_company">
+                  <div>
+                    <h3>Empresa Asignada</h3>
+                    <p>ID: {perfil.empresa_ID || "-"}</p>
+                  </div>
+                </div>
+                <div className="status-company">
+                  <div
+                    className={`color_status ${perfil?.estado === "activo" ? "status-green" : perfil?.estado === "inactivo" ? "status-red" : ""}`}
+                  ></div>
+                  <h3>Estado</h3>
+                  {editMode ? (
+                    <select
+                      name="estado"
+                      className="input_updateStatus"
+                      value={perfil?.estado || ""}
+                      onChange={handleInputChange}
+                    >
+                      <option value="activo">Activo</option>
+                      <option value="inactivo">Inactivo</option>
+                    </select>
+                  ) : (
+                    <h4>{perfil?.estado === "activo" ? "Activo" : perfil?.estado === "inactivo" ? "Inactivo" : "-"}</h4>
+                  )}
                                 </div>
                             </div>
                         </div>
@@ -692,5 +745,5 @@ export const SeeMyProfile = () => {
             </Main>
             <Footer />
         </>
-    );
-};
+  )
+}

@@ -208,8 +208,8 @@ export const SeeMyProfile = () => {
             ...empresaBase,
             ...empresaActual,
             // Ubicación prioriza lo seleccionado en UI
-            departamento_ID: departamentoSeleccionado ? parseInt(departamentoSeleccionado) : (empresaActual.departamento_ID ? empresaBase.departamento_ID ? null),
-            ciudad_ID: ciudadSeleccionada ? parseInt(ciudadSeleccionada) : (empresaActual.ciudad_ID ? empresaBase.ciudad_ID ? null)
+            departamento_ID: departamentoSeleccionado ? parseInt(departamentoSeleccionado) : (empresaActual.departamento_ID ?? empresaBase.departamento_ID ?? null),
+            ciudad_ID: ciudadSeleccionada ? parseInt(ciudadSeleccionada) : (empresaActual.ciudad_ID ?? empresaBase.ciudad_ID ?? null)
         };
 
         console.log('🔍 Debug - empresaSnapshot:', empresaSnapshot);
@@ -321,7 +321,7 @@ export const SeeMyProfile = () => {
     <>
       <Header />
       <Main>
-        {perfilIncompleto && (
+        {perfilOriginal && (
           <div
             className="alert-perfil-incompleto"
             style={{

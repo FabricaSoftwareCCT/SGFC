@@ -56,7 +56,8 @@ export const ResquestNewEmail = () => {
 
                 <div className="container_return">
                     <h5>Volver</h5>
-                    <button onClick={() => setShowModalGeneral(false)} className="closeModal"></button>                </div>
+                    <button onClick={() => setShowModalGeneral(false)} className="closeModal"></button>               
+                </div>
 
                 <div className="container_informationForgotPassword">
                     <h2 className="title_forgotPassword">

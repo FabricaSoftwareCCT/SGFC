@@ -64,7 +64,7 @@ const registerUser = async (req, res) => {
         // Crear nuevo usuario
         const newUser = await User.create({
             email,
-            password: password,
+            password: hashedPassword,
             accountType,
             documento: documento || null,
             nombres: nombres || null,

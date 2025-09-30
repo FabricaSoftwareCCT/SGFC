@@ -1,6 +1,8 @@
+const { log } = require('console');
 const Notificacion = require('../models/Notificacion');
 const User = require("../models/User");
-const { sendNotification, sendAbsenceNotifications, sendCourseRequestStatusEmail} = require('../services/notificationService');
+const { notify } = require('../routes/userRoutes');
+const { sendNotification, sendAbsenceNotifications, sendCourseRequestStatusEmail, getNotificacionesEstado} = require('../services/notificationService');
 let dbInstance;
 
 // Función para inyectar la instancia de la base de datos
@@ -14,7 +16,6 @@ const setDb = (databaseInstance) => {
 const getUserNotifications = async (req, res) => {
     try {
         const userId = req?.user?.id;
-        console.log(userId)
         if (!userId) {
             return res.status(401).json({
                 success: false,
@@ -54,10 +55,7 @@ const getUserNotifications = async (req, res) => {
             limit,
             offset
         });
-       notifications.forEach(notification => {
-        const invitacionID = notification.dataValues.invitacion_ID;
-        console.log('Invitacion ID:', invitacionID);
-       });
+       const results = await getNotificacionesEstado(notifications);
         res.status(200).json({
             success: true,
             notifications,

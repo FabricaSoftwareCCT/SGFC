@@ -208,10 +208,21 @@ export const SeeMyProfile = () => {
             ...empresaBase,
             ...empresaActual,
             // Ubicación prioriza lo seleccionado en UI
-            departamento_ID: departamentoSeleccionado ? parseInt(departamentoSeleccionado) : (empresaActual.departamento_ID ? empresaBase.departamento_ID ? null),
-            ciudad_ID: ciudadSeleccionada ? parseInt(ciudadSeleccionada) : (empresaActual.ciudad_ID ? empresaBase.ciudad_ID ? null)
+            departamento_ID: departamentoSeleccionado
+                ? parseInt(departamentoSeleccionado)
+                    : empresaActual.departamento_ID
+                      ? empresaActual.departamento_ID
+                       : empresaBase.departamento_ID
+                       ? empresaBase.departamento_ID
+                       : null,
+            ciudad_ID: ciudadSeleccionada
+              ? parseInt(ciudadSeleccionada)
+              : empresaActual.ciudad_ID
+                ? empresaActual.ciudad_ID
+                : empresaBase.ciudad_ID
+                  ? empresaBase.ciudad_ID
+                  : null         
         };
-
         console.log('🔍 Debug - empresaSnapshot:', empresaSnapshot);
         
         let erroresTipoCuenta = {};
@@ -321,23 +332,7 @@ export const SeeMyProfile = () => {
     <>
       <Header />
       <Main>
-        {perfilIncompleto && (
-          <div
-            className="alert-perfil-incompleto"
-            style={{
-              background: "#fff3cd",
-              border: "1px solid #ffeaa7",
-              padding: "15px",
-              margin: "0 20px 20px 20px",
-              borderRadius: "5px",
-              textAlign: "center",
-              color: "#856404",
-            }}
-          >
-            ⚠️ <strong>Perfil Incompleto:</strong> Por favor completa toda tu información para acceder a todas las
-            funciones del sistema.
-          </div>
-        )}
+        
 
         <div className="container_mainSeeMyProfile">
           <div className="container_profile">

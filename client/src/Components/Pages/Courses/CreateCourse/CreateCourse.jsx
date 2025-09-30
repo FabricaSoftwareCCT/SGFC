@@ -97,7 +97,7 @@ export const CreateCourse = ( ) => {
         formData.append("empresa_ID", empresaSeleccionada.ID); // usa el nombre exacto del campo
       }
 
-      formData.append("ficha", ficha);
+      formData.append("ficha", ficha); // ficha fija para pruebas
       // Enviar el nombre del curso en mayúsculas
       formData.append("nombre_curso", nombreCurso.toUpperCase());
       formData.append("descripcion", descripcion);
@@ -261,7 +261,7 @@ export const CreateCourse = ( ) => {
             </label>
 
             <div className='containerDetails_course'>
-              <div id='containerInput_ficha'>
+              <div className='containerInput_ficha'>
                 <label htmlFor="fichaCourse">Ficha: </label>
                 <input
                   id='fichaCourse'

@@ -84,6 +84,7 @@
 
 .profile-btn[disabled] {
     opacity: 0.5;
+    background-color: hotpink;
     cursor: not-allowed;
 }
 

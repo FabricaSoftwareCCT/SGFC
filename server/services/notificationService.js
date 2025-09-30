@@ -4,7 +4,7 @@ const Curso = require('../models/curso');
 const Actas = require('../models/Actas');
 const { Notificacion,  Sesion } = require('../models');
 const { format } = require('date-fns');
-const { Op } = require('sequelize');
+const { Op, where } = require('sequelize');
 
 let dbInstance;
 
@@ -209,10 +209,50 @@ const sendNotifiCursoApi = async (curso, emails, fecha_inicio, fecha_fin, estado
     }
 };
 
+// consultar por invitacion_ID y quitarla si esta rechazada o aceptada
+const getNotificacionesEstado = async (invitaciones) => {
+    try {
+        const resultados = await Promise.all(
+            invitaciones.map(async (inv) => {
+
+                if (!inv.invitacion_ID) {
+                    return inv;
+                }
+
+                // Consultamos en BD
+                const invitacionRecord = await dbInstance.InvitacionCurso.findByPk(inv.invitacion_ID);
+
+                if (invitacionRecord) {
+                    const estado = invitacionRecord.estado; // 'aceptada', 'rechazada', 'pendiente'
+
+                    if (estado === 'aceptada' || estado === 'rechazada') {
+                        await dbInstance.Notificacion.destroy({
+                            where: { id: inv.ID }
+                        });
+                        return null; // la quitamos
+                    }
+                }
+
+
+                return inv;
+            })
+        );
+
+        const invitacionesFiltradas = resultados.filter(inv => inv !== null);
+
+        return invitacionesFiltradas;
+    } catch (error) {
+        console.error('Error al consultar estado de asignación a curso:', error);
+        throw error;
+    }
+};
+
+
 module.exports = {
     setDb,
     sendNotification,
     sendAbsenceNotifications,
     sendCourseRequestStatusEmail,
-    sendNotifiCursoApi
+    sendNotifiCursoApi,
+    getNotificacionesEstado
 }; 

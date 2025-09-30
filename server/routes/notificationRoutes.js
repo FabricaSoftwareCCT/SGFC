@@ -24,4 +24,5 @@ router.post('/invitacionCursoInstructor', notificationController.crearNotificaci
 // Crear notificación de estado de solicitud de curso (aceptada/rechazada) para empresa
 router.post('/solicitudNotificacion', notificationController.createCourseRequestStatusNotification);
 
+
 module.exports = router; 

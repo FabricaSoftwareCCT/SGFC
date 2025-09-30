@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react"
 import { NavBar } from "../../UI/NavBar/NavBar"
 import { NavLink, useNavigate, useLocation } from "react-router-dom"
 import "./Header.css"
+import path from "path"
 
 export const Header = ({ setShowSignIn, setShowSignUp, setShowAccountType }) => {
   const [showCoursesMenu, setShowCoursesMenu] = useState(false)
@@ -138,6 +139,11 @@ export const Header = ({ setShowSignIn, setShowSignUp, setShowAccountType }) => 
                 { label: "Mis cursos", path: "/Cursos/MisCursos" },
                 { label: "Buscar cursos", path: "/Cursos/BuscarCursos" },
               ]
+              break
+            case "Aprendiz":
+              options = [
+                {label: "Mis cursos", path: "/Cursos/MisCursos"},
+                { label: "Buscar cursos", path: "/Cursos/BuscarCursos" }]
               break
             default:
               return null

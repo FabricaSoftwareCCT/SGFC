@@ -8,7 +8,7 @@ import { useParams } from 'react-router-dom';
 import axiosInstance from '../../../../config/axiosInstance';
 import calendar from '../../../../assets/Icons/calendar.png';
 import buttonEdit from '../../../../assets/Icons/buttonEdit.png';
-import materialIcon from '../../../../assets/Icons/material.png'; // Asegúrate de que la ruta sea correcta
+import materialIcon from '../../../../assets/Icons/material.png'; 
 import { AssignInstructorCourse } from '../AssignInstructorCourse/AssignInstructorCourse';
 import ViewCalendar from '../../../UI/Modal_Calendar/ViewCalendar/Calendar';
 
@@ -51,6 +51,10 @@ export const SeeCourse = () => {
         endDate: curso.fecha_fin ? curso.fecha_fin.split('T')[0] : '',
         slots_formacion: curso.slots_formacion ? JSON.parse(curso.slots_formacion) : []
     };
+
+    const handleMaterialClick = () => {
+        navigate('/SupportMaterial')
+    }
 
     return (
         <>
@@ -117,7 +121,7 @@ export const SeeCourse = () => {
                                 </button>
 
                                 {/* Botón de Material */}
-                                <button className='material-btn' onClick={() => setShowMaterial(true)}>
+                                <button className='material-btn' onClick={handleMaterialClick}>
                                     <img src={materialIcon} alt="Material del curso" className="btn-icon" />
                                     Ver Material
                                 </button>
@@ -163,7 +167,7 @@ export const SeeCourse = () => {
             )}
 
             {/* Aquí puedes agregar el modal para el material cuando lo implementes */}
-            {showMaterial && (
+            {/*showMaterial && (
                 <div className="modal-overlay">
                     <div className="modal-content">
                         <h2>Material del Curso</h2>
@@ -171,7 +175,7 @@ export const SeeCourse = () => {
                         <button onClick={() => setShowMaterial(false)}>Cerrar</button>
                     </div>
                 </div>
-            )}
+            )*/}
         </>
     );
 };

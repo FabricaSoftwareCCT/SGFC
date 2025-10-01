@@ -30,6 +30,7 @@ import { GestionsActas } from './Components/Pages/GestionsActas/GestionsActas';
 import { AssignInstructorCourse } from './Components/Pages/Courses/AssignInstructorCourse/AssignInstructorCourse';
 import { ConcertationProceeding } from './Components/Pages/proceedings/ConcertationProceeding';
 import { TrainingPlaceProceeding } from './Components/Pages/proceedings/TrainingPlaceProceeding';
+import { SupportMaterial } from './Components/Pages/Courses/SupportMaterial/SupportMaterial';
 
 // Importación de modales
 import { NavBar } from './Components/UI/NavBar/NavBar';
@@ -182,6 +183,7 @@ function App() {
             >
               <CreateCourse />
             </Layout>
+            
           } />
           <Route path="/Cursos/BuscarCursos" element={<Layout
             setShowSignIn={setShowSignIn}
@@ -192,6 +194,7 @@ function App() {
           </Layout>
           } />
           <Route path="/Cursos/:id" element={<SeeCourse />} />
+          
           <Route path="/Cursos/MisCursos" element={
             <Layout
               setShowSignIn={setShowSignIn}
@@ -253,9 +256,11 @@ function App() {
             </Layout>
           } />
           <Route path="/Actas/Concertacion" element={<ConcertationProceeding />} />
-          <Route path="/Actas/Lugar-formacion" element={<TrainingPlaceProceeding />} />
+          <Route path="/Actas/Lugar-formacion" element={<TrainingPlaceProceeding />} />   
           <Route path="/no-autorizado" element={<NoAutorizado />} />
-          <Route path="/SolicitarCurso/:nombreCurso" element={<RequestCourse />} />        </Routes>
+          <Route path="/SolicitarCurso/:nombreCurso" element={<RequestCourse />} />       
+          <Route path="/SupportMaterial" element={<SupportMaterial/>} />
+          </Routes>
       </>
     </GoogleOAuthProvider>
   );

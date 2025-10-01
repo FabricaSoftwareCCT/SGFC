@@ -201,7 +201,7 @@
   gap: 0.5rem;
   padding: 1rem 1.5rem;
   background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(0, 131, 61, 0.4);
   border-radius: 12px;
   color: white;
   font-size: 1rem;
@@ -213,11 +213,11 @@
   text-decoration: none;
 }
 
-.course-page-container .calendar-btn:hover,
-.course-page-container .material-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
+.course-page-container .calendar-btn:hover{
+  background: rgba(0, 131, 61, 0.3);
   border-color: #039e4c;
   transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(0, 196, 110, 0.2)
 }
 
 /* Iconos de los botones */
@@ -230,14 +230,15 @@
 
 /* Estilos específicos para el botón de material */
 .course-page-container .material-btn {
-  background: rgba(0, 131, 61, 0.2);
+  background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(0, 131, 61, 0.4);
 }
 
 .course-page-container .material-btn:hover {
   background: rgba(0, 131, 61, 0.3);
-  border-color: #00c26e;
+  border-color: #039e4c;
   box-shadow: 0 4px 20px rgba(0, 196, 110, 0.2);
+  transform: translateY(-2px);
 }
 
 /* Estilo para la imagen del icono dentro de los botones */
@@ -245,7 +246,7 @@
   width: 20px !important;
   height: 20px !important;
   object-fit: contain;
-  filter: brightness(0) invert(1); /* Hace el icono blanco */
+  filter: brightness(0) invert(1); 
 }
 
 /* Botones de edición/solicitud/gestionar */

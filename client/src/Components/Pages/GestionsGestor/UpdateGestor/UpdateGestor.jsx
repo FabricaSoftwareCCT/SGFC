@@ -14,9 +14,8 @@ export const UpdateGestor = ({ gestor }) => {
   const [formData, setFormData] = useState({ ...gestor });
 
   const closeModalUpdateGestor = () => {
-    if (onClose) onClose();
     const overlay = document.getElementById("modal-overlayUpdateGestor");
-    if (overlay) overlay.style.display = "none";
+    overlay.style.display = "none";
   };
 
   const getImageSrc = (data) => {

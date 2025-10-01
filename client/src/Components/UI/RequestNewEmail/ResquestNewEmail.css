@@ -97,6 +97,19 @@
     cursor: pointer;
 }
 
+.text-return {
+    width: auto;
+    height: auto;
+    position: relative;
+    top: 27%;
+    font-size: 1.125rem;
+    font-weight: 400;
+    z-index: 1000;
+    color: #fff;
+    left: 4%;
+    cursor: pointer;
+}
+
 .container_return {
     width: 8.875rem;
     height: 8.875rem;

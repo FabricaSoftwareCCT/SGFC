@@ -118,6 +118,7 @@ export const Header = ({ setShowSignIn, setShowSignUp, setShowAccountType }) => 
                 { label: "Mis cursos", path: "/Cursos/MisCursos" },
                 { label: "Buscar cursos", path: "/Cursos/BuscarCursos" },
                 { label: "Crear curso", path: "/Cursos/CrearCurso" },
+                
               ]
               break
             case "Instructor":
@@ -202,6 +203,12 @@ export const Header = ({ setShowSignIn, setShowSignUp, setShowAccountType }) => 
                   onClick={() => handleMenuClick("/Gestiones/Actas")}
                 >
                   Gestión de Actas
+                </button>
+                <button 
+                  className={location.pathname.startsWith("/Empleados/MisEmpleados") ? "active" : ""}
+                  onClick={() => handleMenuClick("/Empleados/MisEmpleados")}
+                >
+                  Gestión de Empleados
                 </button>
               </div>
             )}

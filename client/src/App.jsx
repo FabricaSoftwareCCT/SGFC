@@ -26,6 +26,7 @@ import { AttendanceRecords } from './Components/Pages/AttendanceRecords/Attendan
 import { ManageAttendance } from './Components/Pages/Courses/ManageAttendance/ManageAttendance';
 import { MisCursosAdmin } from './Components/Pages/Courses/MisCursos/MisCursosAdmin/MisCursosAdmin';
 import { RequestCourse } from './Components/Pages/Courses/RequestCourse/RequestCourse';
+import { RequestCourseAp } from './Components/Pages/Courses/RequestCourseAp/RequestCourseAp';
 import { GestionsActas } from './Components/Pages/GestionsActas/GestionsActas';
 import { AssignInstructorCourse } from './Components/Pages/Courses/AssignInstructorCourse/AssignInstructorCourse';
 import { ConcertationProceeding } from './Components/Pages/proceedings/ConcertationProceeding';
@@ -255,7 +256,9 @@ function App() {
           <Route path="/Actas/Concertacion" element={<ConcertationProceeding />} />
           <Route path="/Actas/Lugar-formacion" element={<TrainingPlaceProceeding />} />
           <Route path="/no-autorizado" element={<NoAutorizado />} />
-          <Route path="/SolicitarCurso/:nombreCurso" element={<RequestCourse />} />        </Routes>
+          <Route path="/SolicitarCurso/:nombreCurso" element={<RequestCourse />} />
+          <Route path='/SolicitarCursoAp/:nombreCurso' element={<RequestCourseAp />} />
+        </Routes>
       </>
     </GoogleOAuthProvider>
   );

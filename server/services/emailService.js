@@ -56,6 +56,7 @@ const sendRequestCourseEmail = async (req, res) => {
     fs.writeFileSync(pdfPath, pdfBuffer);
 
     // Registrar la solicitud en la base de datos
+    console.log('id curso', curso_ID)
     await Actas.create({
       fecha_acta: fechaSolicitud,
       estado_acta: 'pendiente',
@@ -100,6 +101,66 @@ const sendRequestCourseEmail = async (req, res) => {
     res.status(500).json({ message: 'Error al enviar o registrar la solicitud.' });
   }
 };
+
+const sendRequestCourseEmailAp = async (req, res) => {
+  try{
+    const {nombreCurso, fechaInicio, fechaFin, aprendiz, id, curso_ID, gestor_ID, administrador_ID, instructor_ID} = req.body;
+    const pdfBuffer = req.file.buffer;
+
+    const fs = require('fs');
+    const path = require('path');
+    const pdfFileName = `solicitud_curso_aprendiz_${Date.now()}.pdf`;
+    const pdfPath = path.join(__dirname, '../uploads/solicitudes', pdfFileName);
+
+    fs.mkdirSync(path.dirname(pdfPath), { recursive: true });
+    fs.writeFileSync(pdfPath, pdfBuffer);
+
+    // Registrar la solicitud en la base de datos
+    await Actas.create({
+      fecha_acta: fechaSolicitud,
+      estado_acta: 'pendiente',
+      fecha_respuesta: null,
+      empresa_ID: id || null, // Usa el ID recibido o el del objeto empresa
+      curso_ID: curso_ID || null,
+      gestor_ID: gestor_ID || null,
+      administrador_ID: administrador_ID || null,
+      instructor_ID: instructor_ID || null,
+      tipo_acta: 'Solicitud',
+      pdf_acta: pdfFileName
+    });
+
+    let transporter = nodemailer.createTransport({
+      service: "Gmail",
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.GOOGLE_APP_PASSWORD,
+      },
+    });
+
+     await transporter.sendMail({
+      from: `"SGFC" <${process.env.EMAIL_USER}>`,
+      to: process.env.EMAIL_USER,
+      subject: "Nueva Solicitud de Curso",
+      html: `<p>Solicitud de curso: ${nombreCurso}</p>`,
+      attachments: [
+        {
+          filename: 'solicitud_curso.pdf',
+          content: pdfBuffer
+        }
+      ]
+    });
+
+    res.status(200).json({
+      message: 'Solicitud del aprendiz enviada y registrada correctamente.',
+      pdf_acta: pdfFileName 
+    })
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Error al procesar la solicitud del aprendiz.' });
+  }
+
+}
 
 // Función para enviar el correo de verificación
 const sendVerificationEmail = async (email, token, newPassword, accountType) => {
@@ -754,6 +815,7 @@ module.exports = {
   sendInstructorAssignedEmail,
   sendRequestCourseEmail,
   sendConcertacionActaEmail,
-  sendTrainingPlaceActaEmail
+  sendTrainingPlaceActaEmail,
+  sendRequestCourseEmailAp
 };
 

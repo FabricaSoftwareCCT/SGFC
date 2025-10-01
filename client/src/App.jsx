@@ -255,7 +255,8 @@ function App() {
           <Route path="/Actas/Concertacion" element={<ConcertationProceeding />} />
           <Route path="/Actas/Lugar-formacion" element={<TrainingPlaceProceeding />} />
           <Route path="/no-autorizado" element={<NoAutorizado />} />
-          <Route path="/SolicitarCurso/:nombreCurso" element={<RequestCourse />} />        </Routes>
+          <Route path="/SolicitarCurso/:nombreCurso" element={<RequestCourse />} />        
+        </Routes>
       </>
     </GoogleOAuthProvider>
   );

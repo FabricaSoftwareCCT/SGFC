@@ -261,7 +261,7 @@ export const CreateCourse = ( ) => {
             </label>
 
             <div className='containerDetails_course'>
-              <div id='containerInput_ficha'>
+              <div className='containerInput_ficha'>
                 <label htmlFor="fichaCourse">Ficha: </label>
                 <input
                   id='fichaCourse'

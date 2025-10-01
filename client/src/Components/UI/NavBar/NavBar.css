@@ -69,7 +69,6 @@
   justify-content: center;
   align-items: center;
   border-radius: 50%;
-  padding: 5px;
 }
 
 .notifications-menu {
@@ -85,7 +84,7 @@
 }
 
 #btn_profile {
-  width: 2rem;
+  width: 3rem;
   height: 2rem;
   border-style: none;
   background-color: transparent;

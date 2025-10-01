@@ -192,16 +192,16 @@
 }
 
 .containerInput_company,
-#containerInput_ficha {
+.containerInput_ficha {
   width: auto;
   height: auto;
   display: flex;
   font-size: 14px;
   align-items: center;
-  gap: 0.5rem;
+  gap: 2.5rem;
 }
 
-#containerInput_ficha {
+.containerInput_ficha {
   justify-content: end;
   width: 100%;
 }

@@ -1,159 +1,158 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
 #modal-overlayUpdateInstructor {
     position: fixed;
     top: 50%;
     left: 50%;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.579);
+    background: rgb(0, 0, 0);
     display: none;
     justify-content: center;
     align-items: center;
     transform: translate(-50%, -50%);
     z-index: 1000;
     padding: 20px;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
 }
 
-
+/* --- Contenedor modal --- */
 .modal-bodyUpdateInstructor {
     width: 740px;
-    height: 464px;
-    background-color: #1A1A1A;
+    min-height: 480px;
+    background: linear-gradient(145deg, #0e0d0d, #141414);
     display: flex;
-    justify-content: space-around;
-    align-items: center;
-    border-radius: 15px;
+    justify-content: space-between;
+    align-items: stretch;
+    border-radius: 18px;
     overflow: hidden;
     position: relative;
+    padding: 24px;
+    box-shadow: 
+        0 10px 25px rgba(0, 0, 0, 0.7),
+        0 0 25px rgba(0, 132, 61, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
+/* Efectos "circle glow" internos */
+.modal-bodyUpdateInstructor::before,
+.modal-bodyUpdateInstructor::after {
+    content: "";
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    filter: blur(160px);
+    z-index: 0;
+}
 
+.modal-bodyUpdateInstructor::before {
+    top: -80px;
+    left: -80px;
+    background: rgba(0, 132, 61, 0.25);
+}
+
+.modal-bodyUpdateInstructor::after {
+    bottom: -80px;
+    right: -80px;
+    background: rgba(0, 214, 108, 0.15);
+}
+
+/* Columna izquierda */
 .modal-left-update {
-    width: auto;
-    height: auto;
+    flex: 1;
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
-    gap: 20px;
+    gap: 18px;
+    padding-right: 20px;
+    border-right: 1px solid rgba(255,255,255,0.1);
+    position: relative;
+    z-index: 1;
 }
 
-.modal-right-update {
-    width: auto;
-    height: auto;
+.modal-left-update > p {
+    font-size: 15px;
+    line-height: 1.4;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: #f0f0f0;
+}
+
+.modal-left-update > p > strong {
+    color: #00843d;
+    min-width: 160px;
+}
+
+.valor-campo {
+    margin-left: 8px;
+    font-weight: 400;
+    color: #e0e0e0;
+}
+
+/* Inputs */
+.input_updateData {
+    flex: 1;
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.15);
+    background-color: #2a2a2a;
+    color: #fff;
+    font-size: 14px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.input_updateData:focus {
+    outline: none;
+    border-color: #00843d;
+    box-shadow: 0 0 6px rgba(0,132,61,0.4);
+}
+
+/* Columna derecha */
+.modal-right {
+    flex: 0.6;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 30px;
-}
-
-.profile-photo-container {
-    width: 220px;
-    height: 300px;
+    gap: 20px;
+    padding-left: 20px;
     position: relative;
+    z-index: 1;
 }
 
-.profile-photo-container img {
+/* Imagen de perfil */
+.upload-area-update {
+    width: 220px;
+    height: 260px;
+    border: 2px dashed rgba(255,255,255,0.2);
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.3s ease, background 0.3s ease;
+    overflow: hidden;
+    position: relative;
+    background-color: rgba(255,255,255,0.03);
+}
+
+.upload-area-update:hover {
+    border-color: #00843d;
+    background: rgba(0,132,61,0.05);
+}
+
+.preview-image-update {
     width: 100%;
     height: 100%;
-    border-radius: 20px;
     object-fit: cover;
+    border-radius: 12px;
 }
 
-.edit-photo-btn {
-    width: 35px;
-    height: 35px;
-    position: absolute;
-    bottom: 10px;
-    right: 10px;
-    background-color: #00843d;
-    color: white;
-    border: none;
-    border-radius: 50%;
-    font-size: 16px;
-    cursor: pointer;
-}
-
-.status-container {
-    width: 100%;
-    height: auto;
-    color: white;
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-    align-items: center;
-}
-
-.status-container span {
-    font-size: 16px;
-    font-weight: bold;
-    color: white;
-    width: auto;
-    height: auto;
-}
-
-.status-buttons {
-    display: flex;
-    gap: 10px;
-    width: auto;
-    height: auto;
-}
-
-.status {
-    padding: 5px 10px;
-    border: none;
-    border-radius: 15px;
-    background-color: #b0b0b028;
-    color: white;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    width: auto;
-    height: auto;
-}
-
-.status:hover {
-    background-color: #444;
-    transform: scale(1.05);
-
-}
-
-.status.active {
-    background-color: #00843d;
-    color: white;
-    transform: scale(1.1);
-    width: auto;
-    height: auto;
-}
-
-
-
-.courses-container {
-    width: 100%;
-    height: auto;
-    text-align: center;
-    color: white;
-    font-size: 14px;
-}
-
-.courses-container a {
-    color: #00843d;
-    margin-left: 5px;
-    text-decoration: none;
-    width: auto;
-    height: auto;
-}
-
-.save-button {
-    width: 140px;
-    height: 45px;
-    background-color: #00843d;
-    color: white;
-    border: none;
-    border-radius: 15px;
-    font-size: 16px;
-    cursor: pointer;
-}
-
-
+/* Botón principal */
 .edit-button-updateInstructor {
     width: 180px;
     height: 44px;
@@ -162,11 +161,50 @@
     border-radius: 12px;
     color: white;
     font-weight: bold;
-    font-size: 1rem;
+    font-size: 0.95rem;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: transform 0.2s ease, background 0.3s ease, box-shadow 0.3s ease;
+    z-index: 1;
 }
 
+.edit-button-updateInstructor:hover {
+    background-color: #006b32;
+    transform: translateY(-2px);
+    box-shadow: 0 0 12px rgba(0, 132, 61, 0.5);
+}
+
+/* Botones de estado */
+.status-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.status {
+    padding: 6px 14px;
+    border-radius: 12px;
+    background-color: rgba(255,255,255,0.1);
+    color: white;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.status:hover {
+    background-color: rgba(255,255,255,0.2);
+}
+
+.status.active {
+    background-color: #00843d;
+    font-weight: bold;
+}
+
+/* Cursos asignados */
+.cursosAsignados {
+    font-size: 15px;
+    color: #ddd;
+}
+
+/* Volver */
 .container_return_UpdateInstructor {
     width: 142px;
     height: 142px;
@@ -179,40 +217,19 @@
     z-index: 1000;
 }
 
-.container_return_UpdateInstructor>h5 {
-    width: auto;
-    height: auto;
-    position: relative;
-    top: 27%;
-    font-size: 18px;
+.container_return_UpdateInstructor > h5 {
+    font-size: 16px;
     font-weight: 400;
-    color: #fff;
-    left: 4%;
+    color: #ccc;
     cursor: pointer;
+    transition: color 0.3s ease;
 }
 
-
-.preview-image-update {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 12px;
+.container_return_UpdateInstructor > h5:hover {
+    color: #00843d;
 }
 
-
-.upload-area-update {
-    width: 220px;
-    height: 250px;
-    border: 2px dotted #ccc;
-    border-radius: 15px;
-    display: flex;
-    justify-content: center;
-    text-align: center;
-    cursor: pointer;
-
-}
-
-/* Inputs en modo solo lectura */
+/* Read only */
 .read-only {
     border: none !important;
     font-size: 1.1rem;
@@ -224,31 +241,4 @@
 .read-only-border {
     border: none !important;
     cursor: default;
-}
-
-.cursosAsignados {
-    width: auto;
-    height: auto;
-
-}
-
-.modal-left-update>p {
-    width: auto;
-    height: auto;
-    font-size: 16px;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.modal-left-update>p>strong,
-.modal-left-update>p>span {
-    width: auto;
-    height: auto;
-}
-
-
-.valor-campo {
-    margin-left: 8px;
-    display: inline-block;
 }

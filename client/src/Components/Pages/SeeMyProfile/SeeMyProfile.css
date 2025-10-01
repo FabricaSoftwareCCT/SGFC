@@ -73,6 +73,13 @@
   margin-right: auto;
 }
 
+.input_updateData:disabled {
+  background-color: rgba(255, 255, 255, 0.7);
+  color: #333;
+  opacity: 1; /* evita que se vea demasiado apagado */
+  cursor: not-allowed;
+}
+
 .container_data_company {
   width: 60%;
   height: 30rem;
@@ -106,15 +113,16 @@
 
 .data_company {
   width: 30%;
-  height: 100%;
+  /* deja que crezca según el contenido */
+  height: auto;
   display: flex;
+  flex-direction: column; /* apila inputs en columna */
+  gap: 12px; /* espacio entre cada <p> */
   border-radius: 20px;
-  justify-content: center;
-  flex-wrap: wrap;
-  align-items: center;
+  padding: 20px;
   background-color: #00843e3f;
+  box-sizing: border-box; /* asegura que padding se incluya dentro del ancho */
 }
-
 .data_company > p {
   width: 100%;
   height: auto;

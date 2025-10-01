@@ -466,8 +466,8 @@
   align-self: center;
   position: relative;
   overflow: hidden;
-  margin-left: 28rem;
-  transform: translateY(-4rem);
+  margin-left: 25rem;
+  transform: translateY(-2rem);
 }
 
 .buttonCreate_Course:hover {

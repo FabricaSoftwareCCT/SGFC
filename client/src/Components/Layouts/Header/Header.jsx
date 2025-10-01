@@ -72,9 +72,12 @@ export const Header = ({ setShowSignIn, setShowSignUp, setShowAccountType }) => 
     "/Cursos",
   ].some((path) => location.pathname.startsWith(path))
 
-  const isGestionesActive = ["/Gestiones/Instructor", "/Gestiones/Gestor", "/Gestiones/Actas"].some((path) =>
-    location.pathname.startsWith(path),
-  )
+  const isGestionesActive = [
+    "/Gestiones/Instructor", 
+    "/Gestiones/Gestor", 
+    "/Gestiones/Actas",
+    "/GestionReporteEstadisticas/ReporteEstadisticas"
+  ].some((path) => location.pathname.startsWith(path))
 
   const isEmpresasActive = location.pathname.startsWith("/Gestiones/Empresas")
 
@@ -202,6 +205,12 @@ export const Header = ({ setShowSignIn, setShowSignUp, setShowAccountType }) => 
                   onClick={() => handleMenuClick("/Gestiones/Actas")}
                 >
                   Gestión de Actas
+                </button>
+                <button
+                  className={location.pathname.startsWith("/GestionReporteEstadisticas/ReporteEstadisticas") ? "active" : ""}
+                  onClick={() => handleMenuClick("/GestionReporteEstadisticas/ReporteEstadisticas")}
+                >
+                  Reporte y Estadísticas
                 </button>
               </div>
             )}

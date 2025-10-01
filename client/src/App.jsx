@@ -30,6 +30,7 @@ import { GestionsActas } from './Components/Pages/GestionsActas/GestionsActas';
 import { AssignInstructorCourse } from './Components/Pages/Courses/AssignInstructorCourse/AssignInstructorCourse';
 import { ConcertationProceeding } from './Components/Pages/proceedings/ConcertationProceeding';
 import { TrainingPlaceProceeding } from './Components/Pages/proceedings/TrainingPlaceProceeding';
+import  ReporteEstadisticas  from './Components/Pages/GestionReporteEstadisticas/ReporteEstadisticas'; // NUEVO IMPORT
 
 // Importación de modales
 import { NavBar } from './Components/UI/NavBar/NavBar';
@@ -232,6 +233,17 @@ function App() {
           <Route path="/MiPerfil" element={<SeeMyProfile />} />
           <Route path="/Gestiones/Empresas" element={<GestionsCompany />} />
           <Route path="/Gestiones/Actas" element={<GestionsActas />} />
+          
+          {/* NUEVA RUTA PARA REPORTE Y ESTADÍSTICAS */}
+          <Route path="/GestionReporteEstadisticas/ReporteEstadisticas" element={
+            <Layout
+              setShowSignIn={setShowSignIn}
+              setShowSignUp={setShowSignUp}
+              setShowModalGeneral={setShowModalGeneral}
+            >
+              <ReporteEstadisticas />
+            </Layout>
+          } />
 
           <Route
             path="/Empleados/MisEmpleados"
@@ -255,7 +267,8 @@ function App() {
           <Route path="/Actas/Concertacion" element={<ConcertationProceeding />} />
           <Route path="/Actas/Lugar-formacion" element={<TrainingPlaceProceeding />} />
           <Route path="/no-autorizado" element={<NoAutorizado />} />
-          <Route path="/SolicitarCurso/:nombreCurso" element={<RequestCourse />} />        </Routes>
+          <Route path="/SolicitarCurso/:nombreCurso" element={<RequestCourse />} />
+        </Routes>
       </>
     </GoogleOAuthProvider>
   );

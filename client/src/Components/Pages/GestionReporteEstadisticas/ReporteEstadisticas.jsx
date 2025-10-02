@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import './ReporteEstadisticas.css';
+import ReporteEstudiantes from './ReporteEstudiantes';
 
 export default function ReporteEstadisticas() {
+  const [pantallaActual, setPantallaActual] = useState('cursos'); // 'cursos' o 'estudiantes'
+  const [cursoSeleccionado, setCursoSeleccionado] = useState(null);
   const [botonActivo, setBotonActivo] = useState('cursos');
   const [mostrarFiltro, setMostrarFiltro] = useState(false);
   const [filtros, setFiltros] = useState({
@@ -29,6 +32,18 @@ export default function ReporteEstadisticas() {
     { curso: "Gráfica 3", ficha: "123452678", instructor: "Zulimy Montera", estado: "Activo", empleados: 24 },
     { curso: "Económia", ficha: "123425678", instructor: "Goku Son", estado: "Activo", empleados: 20 }
   ];
+
+  // Función para manejar el clic en una fila
+  const handleFilaClick = (empleado) => {
+    setCursoSeleccionado(empleado);
+    setPantallaActual('estudiantes');
+  };
+
+  // Función para volver a la pantalla de cursos
+  const handleVolverACursos = () => {
+    setPantallaActual('cursos');
+    setCursoSeleccionado(null);
+  };
 
   const handleBotonClick = (boton) => {
     setBotonActivo(boton);
@@ -77,94 +92,100 @@ export default function ReporteEstadisticas() {
     });
   };
 
+  // Si estamos en la pantalla de estudiantes, mostrar ese componente
+  if (pantallaActual === 'estudiantes') {
+    return (
+      <ReporteEstudiantes 
+        cursoSeleccionado={cursoSeleccionado}
+        onVolver={handleVolverACursos}
+      />
+    );
+  }
+
+  // Pantalla de cursos (tu código original)
   return (
-    <div className="reporte-container">
-      <h1 className="reporte-titulo">Reporte y Estadísticas</h1>
-      <div className='Container-tabla'>
+    <div className="reporte-container-estadisticas">
+      <h1 className="reporte-titulo-estadisticas">Reporte y Estadísticas</h1>
+      <div className='container-tabla-estadisticas'>
         <button 
-          className={`button-Cursos ${botonActivo === 'cursos' ? 'active' : ''}`}
+          className={`button-cursos-estadisticas ${botonActivo === 'cursos' ? 'active' : ''}`}
           onClick={() => handleBotonClick('cursos')}
         >
           Cursos
         </button>
-        <button className="button-generar-reporte">Generar reporte</button>
+        <button className="button-generar-reporte-estadisticas">Generar reporte</button>
+        {/* BOTÓN DE EFICIENCIA ELIMINADO DE AQUÍ */}
         <button 
-          className={`button-eficiencia ${botonActivo === 'eficiencia' ? 'active' : ''}`}
-          onClick={() => handleBotonClick('eficiencia')}
-        >
-          Eficiencia
-        </button>
-        <button 
-          className='button-filtro-reporte' 
+          className='button-filtro-reporte-estadisticas' 
           onClick={toggleFiltro}
         >
           Filtro
         </button>
         
         {mostrarFiltro && (
-          <div className="filtro-menu">
+          <div className="filtro-menu-estadisticas">
             {/* Filtro por Estado */}
-            <div className="filtro-grupo">
-              <div className="filtro-titulo">Estado</div>
-              <div className="filtro-opciones">
+            <div className="filtro-grupo-estadisticas">
+              <div className="filtro-titulo-estadisticas">Estado</div>
+              <div className="filtro-opciones-estadisticas">
                 <div 
-                  className="filtro-opcion"
+                  className="filtro-opcion-estadisticas"
                   onClick={() => handleCheckboxChange('estado', 'activo')}
                 >
-                  <div className={`filtro-checkbox ${filtros.estado.activo ? 'checked' : ''}`}></div>
+                  <div className={`filtro-checkbox-estadisticas ${filtros.estado.activo ? 'checked' : ''}`}></div>
                   <span>Activo</span>
                 </div>
                 <div 
-                  className="filtro-opcion"
+                  className="filtro-opcion-estadisticas"
                   onClick={() => handleCheckboxChange('estado', 'inactivo')}
                 >
-                  <div className={`filtro-checkbox ${filtros.estado.inactivo ? 'checked' : ''}`}></div>
+                  <div className={`filtro-checkbox-estadisticas ${filtros.estado.inactivo ? 'checked' : ''}`}></div>
                   <span>Inactivo</span>
                 </div>
               </div>
             </div>
 
             {/* Filtro por Empleados */}
-            <div className="filtro-grupo">
-              <div className="filtro-titulo">Empleados</div>
-              <div className="filtro-opciones">
+            <div className="filtro-grupo-estadisticas">
+              <div className="filtro-titulo-estadisticas">Empleados</div>
+              <div className="filtro-opciones-estadisticas">
                 <div 
-                  className="filtro-opcion"
+                  className="filtro-opcion-estadisticas"
                   onClick={() => handleCheckboxChange('empleados', '0-10')}
                 >
-                  <div className={`filtro-checkbox ${filtros.empleados['0-10'] ? 'checked' : ''}`}></div>
+                  <div className={`filtro-checkbox-estadisticas ${filtros.empleados['0-10'] ? 'checked' : ''}`}></div>
                   <span>0-10</span>
                 </div>
                 <div 
-                  className="filtro-opcion"
+                  className="filtro-opcion-estadisticas"
                   onClick={() => handleCheckboxChange('empleados', '11-20')}
                 >
-                  <div className={`filtro-checkbox ${filtros.empleados['11-20'] ? 'checked' : ''}`}></div>
+                  <div className={`filtro-checkbox-estadisticas ${filtros.empleados['11-20'] ? 'checked' : ''}`}></div>
                   <span>11-20</span>
                 </div>
                 <div 
-                  className="filtro-opcion"
+                  className="filtro-opcion-estadisticas"
                   onClick={() => handleCheckboxChange('empleados', '21-30')}
                 >
-                  <div className={`filtro-checkbox ${filtros.empleados['21-30'] ? 'checked' : ''}`}></div>
+                  <div className={`filtro-checkbox-estadisticas ${filtros.empleados['21-30'] ? 'checked' : ''}`}></div>
                   <span>21-30</span>
                 </div>
                 <div 
-                  className="filtro-opcion"
+                  className="filtro-opcion-estadisticas"
                   onClick={() => handleCheckboxChange('empleados', '31-40+')}
                 >
-                  <div className={`filtro-checkbox ${filtros.empleados['31-40+'] ? 'checked' : ''}`}></div>
+                  <div className={`filtro-checkbox-estadisticas ${filtros.empleados['31-40+'] ? 'checked' : ''}`}></div>
                   <span>31-40+</span>
                 </div>
               </div>
             </div>
 
             {/* Filtro por Nombre del Curso */}
-            <div className="filtro-grupo">
-              <div className="filtro-titulo">Nombre del Curso</div>
+            <div className="filtro-grupo-estadisticas">
+              <div className="filtro-titulo-estadisticas">Nombre del Curso</div>
               <input 
                 type="text" 
-                className="filtro-input"
+                className="filtro-input-estadisticas"
                 placeholder="Buscar por curso..."
                 value={filtros.curso}
                 onChange={(e) => handleInputChange('curso', e.target.value)}
@@ -172,11 +193,11 @@ export default function ReporteEstadisticas() {
             </div>
 
             {/* Filtro por Nombre del Instructor */}
-            <div className="filtro-grupo">
-              <div className="filtro-titulo">Nombre del Instructor</div>
+            <div className="filtro-grupo-estadisticas">
+              <div className="filtro-titulo-estadisticas">Nombre del Instructor</div>
               <input 
                 type="text" 
-                className="filtro-input"
+                className="filtro-input-estadisticas"
                 placeholder="Buscar por instructor..."
                 value={filtros.instructor}
                 onChange={(e) => handleInputChange('instructor', e.target.value)}
@@ -184,11 +205,11 @@ export default function ReporteEstadisticas() {
             </div>
 
             {/* Botones del filtro */}
-            <div className="filtro-botones">
-              <button className="filtro-boton filtro-limpiar" onClick={limpiarFiltros}>
+            <div className="filtro-botones-estadisticas">
+              <button className="filtro-boton-estadisticas filtro-limpiar-estadisticas" onClick={limpiarFiltros}>
                 Limpiar
               </button>
-              <button className="filtro-boton filtro-aplicar" onClick={aplicarFiltros}>
+              <button className="filtro-boton-estadisticas filtro-aplicar-estadisticas" onClick={aplicarFiltros}>
                 Aplicar
               </button>
             </div>
@@ -196,9 +217,9 @@ export default function ReporteEstadisticas() {
         )}
       </div>
 
-      <div className="tabla-datos">
+      <div className="tabla-datos-estadisticas">
         {/* Cabecera de la tabla */}
-        <div className="tabla-cabecera">
+        <div className="tabla-cabecera-estadisticas">
           <div>Cursos</div>
           <div>Fichas</div>
           <div>Instructores</div>
@@ -206,16 +227,20 @@ export default function ReporteEstadisticas() {
           <div>Empleados registrados</div>
         </div>
 
-        {/* Filas de datos */}
+        {/* Filas de datos - CON ONCLICK AGREGADO */}
         {datosEmpleados.map((empleado, index) => (
-          <div key={index} className="tabla-fila">
-            <div className="columna-curso">{empleado.curso}</div>
-            <div className="columna-ficha">{empleado.ficha}</div>
-            <div className="columna-instructor">{empleado.instructor}</div>
-            <div className={empleado.estado === "Activo" ? "estado-activo" : "estado-inactivo"}>
+          <div 
+            key={index} 
+            className="tabla-fila-estadisticas"
+            onClick={() => handleFilaClick(empleado)}
+          >
+            <div className="columna-curso-estadisticas">{empleado.curso}</div>
+            <div className="columna-ficha-estadisticas">{empleado.ficha}</div>
+            <div className="columna-instructor-estadisticas">{empleado.instructor}</div>
+            <div className={empleado.estado === "Activo" ? "estado-activo-estadisticas" : "estado-inactivo-estadisticas"}>
               {empleado.estado}
             </div>
-            <div className="columna-empleados">{empleado.empleados}</div>
+            <div className="columna-empleados-estadisticas">{empleado.empleados}</div>
           </div>
         ))}
       </div>

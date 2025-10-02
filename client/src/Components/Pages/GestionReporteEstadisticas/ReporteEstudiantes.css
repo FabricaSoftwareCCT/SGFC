@@ -1,0 +1,561 @@
+* {
+    margin: 0px;
+    font-family: 'Poppins', sans-serif;
+    padding: 0px;
+    width: auto;
+    height: auto;
+}
+
+.reporte-container-estudiantes {
+  width: 100%;
+  margin: 0;
+  padding: 4rem 2rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #1a1a1a;
+  min-height: 100vh;
+  color: #fff;
+  position: relative;
+}
+
+.container-tabla-estudiantes {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+  margin: 2rem 0 2rem 0;
+  width: 100%;
+  flex-wrap: wrap;
+  position: relative;
+}
+
+/* Contenedor para título y botón de volver - TÍTULO CENTRADO, BOTÓN A LA IZQUIERDA */
+.titulo-container-estudiantes {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin-bottom: 2rem;
+  position: relative;
+  margin-top: 2%;
+}
+
+.reporte-titulo-estudiantes {
+  text-align: center;
+  color: #fff;
+  font-size: 2.5rem;
+  margin: 0;
+  font-weight: 600;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* Botón de volver a la izquierda SIN FLECHA */
+.button-volver-estudiantes {
+  background: #00843d;
+  color: white;
+  border: none;
+  padding: 10px 25px;
+  border-radius: 25px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 180px;
+  text-align: center;
+  white-space: nowrap;
+  margin-right: auto; /* Empuja el botón a la izquierda */
+}
+
+.button-volver-estudiantes:hover {
+  background: #0a5f0a;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(10, 95, 10, 0.4);
+}
+
+.button-volver-estudiantes:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(10, 95, 10, 0.3);
+}
+
+.button-generar-reporte-estudiantes {
+    background: #f7941e;
+    width: auto;
+    padding: 12px 30px;
+    text-align: center;
+    display: inline-block;
+    height: auto;
+    border: 2px solid #f7941e;
+    border-radius: 25px;
+    color: #ffffff;
+    font-size: 1.3rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 180px;
+}
+
+.button-generar-reporte-estudiantes:hover {
+  background-color: #e6891b;
+  border-color: #e6891b;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(247, 148, 30, 0.4);
+  color: #ffffff;
+}
+
+.button-generar-reporte-estudiantes:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(247, 148, 30, 0.3);
+}
+
+.button-filtro-reporte-estudiantes {
+  background: none;
+  border: none;
+  padding: 12px 30px;
+  color: #00843d;
+  font-size: 1.3rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 120px;
+  position: relative;
+}
+
+.button-filtro-reporte-estudiantes:hover {
+  color: #0c7a0c;
+}
+
+.button-eficiencia-estudiantes {
+    padding: 10px 20px;
+    background-color: #1a1a1a;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 20px;
+    transition: background-color 0.3s;
+}
+
+.button-eficiencia-estudiantes:hover {
+  background-color: #144128;
+}
+
+.button-eficiencia-estudiantes.active {
+  background-color: #00843d;
+  color: white;
+  border-color: #0f4a2a;
+}
+
+/* Menú desplegable de filtros - REDUCIDO 20% */
+.filtro-menu-estudiantes {
+    position: absolute;
+    top: 61%;
+    right: 409px;
+    background: #2a2a2a;
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 1rem;
+    min-width: 240px;
+    max-width: 260px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    margin-top: 0.5rem;
+    max-height: 320px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+/* Personalizar el scrollbar */
+.filtro-menu-estudiantes::-webkit-scrollbar {
+    width: 6px;
+}
+
+.filtro-menu-estudiantes::-webkit-scrollbar-track {
+    background: #1a1a1a;
+    border-radius: 3px;
+}
+
+.filtro-menu-estudiantes::-webkit-scrollbar-thumb {
+    background: #00843d;
+    border-radius: 3px;
+}
+
+.filtro-menu-estudiantes::-webkit-scrollbar-thumb:hover {
+    background: #0a5f0a;
+}
+
+.filtro-grupo-estudiantes {
+  margin-bottom: 1rem;
+}
+
+.filtro-grupo-estudiantes:last-child {
+  margin-bottom: 0;
+}
+
+.filtro-titulo-estudiantes {
+  color: #00843d;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.filtro-opciones-estudiantes {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.filtro-opcion-estudiantes {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0;
+  cursor: pointer;
+  transition: color 0.3s ease;
+  font-size: 0.85rem;
+}
+
+.filtro-opcion-estudiantes:hover {
+  color: #4caf50;
+}
+
+.filtro-checkbox-estudiantes {
+  width: 14px;
+  height: 14px;
+  border: 2px solid #00843d;
+  border-radius: 3px;
+  background: transparent;
+  cursor: pointer;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.filtro-checkbox-estudiantes.checked {
+  background: #00843d;
+}
+
+.filtro-checkbox-estudiantes.checked::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 9px;
+  font-weight: bold;
+}
+
+.filtro-input-estudiantes {
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 4px;
+  padding: 0.3rem;
+  color: white;
+  width: 100%;
+  font-size: 0.85rem;
+}
+
+.filtro-input-estudiantes::placeholder {
+  color: #666;
+}
+
+/* Botones del filtro - NO sticky */
+.filtro-botones-estudiantes {
+    display: flex;
+    gap: 0.6rem;
+    margin-top: 1rem;
+    justify-content: center;
+    padding-top: 0.6rem;
+    border-top: 1px solid #333;
+}
+
+.filtro-boton-estudiantes {
+  padding: 0.5rem 1.2rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  font-size: 0.85rem;
+  min-width: 70px;
+}
+
+.filtro-aplicar-estudiantes {
+  background: #00843d;
+  color: white;
+  border: 2px solid #00843d;
+}
+
+.filtro-aplicar-estudiantes:hover {
+  background: #0a5f0a;
+  border-color: #0a5f0a;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(10, 95, 10, 0.3);
+}
+
+.filtro-limpiar-estudiantes {
+  background: #666;
+  color: white;
+  border: 2px solid #666;
+}
+
+.filtro-limpiar-estudiantes:hover {
+  background: #888;
+  border-color: #888;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(136, 136, 136, 0.3);
+}
+
+/* Tabla de datos */
+.tabla-datos-estudiantes {
+  width: 100%;
+  background: #0000001f;
+  border-radius: 8px;
+  border: 1px solid #333;
+  overflow: hidden;
+  margin-top: 2rem;
+  color: aliceblue;
+  display: block;
+}
+
+.tabla-cabecera-estudiantes {
+  display: grid;
+  grid-template-columns: 1.5fr 1.5fr 1fr 1fr 0.8fr 1.2fr;
+  background: #00843d;
+  padding: 1rem 1.5rem;
+  font-weight: 600;
+  color: #000000;
+  border-bottom: 1px solid #333;
+  align-items: center;
+  gap: 0rem;
+  text-align: center; /* Añadido para centrar el texto */
+}
+
+.tabla-fila-estudiantes {
+  display: grid;
+  grid-template-columns: 1.5fr 1.5fr 1fr 1fr 0.8fr 1.2fr;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #333;
+  align-items: center;
+  transition: background-color 0.3s ease;
+  cursor: pointer;
+  gap: 0rem;
+  text-align: center; /* Añadido para centrar el texto */
+}
+
+.tabla-fila-estudiantes:hover {
+  background: #2a2a2a;
+}
+
+.tabla-fila-estudiantes:last-child {
+  border-bottom: none;
+}
+
+/* Estados */
+.estado-activo-estudiantes {
+  color: #4caf50;
+  font-weight: 600;
+}
+
+.estado-inactivo-estudiantes {
+  color: #ff6b6b;
+  font-weight: 600;
+}
+
+/* Clases específicas para cada columna */
+.columna-nombre-estudiantes {
+  font-weight: 500;
+}
+
+.columna-apellido-estudiantes {
+  font-weight: 500;
+}
+
+.columna-documento-estudiantes {
+  font-size: 17px;
+  font-family: monospace;
+}
+
+.columna-faltas-estudiantes,
+.columna-asistencias-estudiantes {
+  text-align: center;
+  font-weight: 600;
+}
+
+/* Responsive - Diseño con Cards */
+@media (max-width: 768px) {
+  .reporte-container-estudiantes {
+    padding: 1rem;
+  }
+  
+  .titulo-container-estudiantes {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .reporte-titulo-estudiantes {
+    position: static;
+    transform: none;
+    font-size: 2rem;
+    order: 2;
+  }
+  
+  .button-volver-estudiantes {
+    margin-right: 0;
+    width: 80%;
+    max-width: 250px;
+    font-size: 1.1rem;
+    padding: 10px 25px;
+    order: 1;
+  }
+  
+  .container-tabla-estudiantes {
+    flex-direction: column;
+    gap: 1.5rem;
+    margin: 1.5rem 0;
+  }
+  
+  .button-generar-reporte-estudiantes,
+  .button-filtro-reporte-estudiantes {
+    width: 80%;
+    max-width: 250px;
+    border-radius: 10px;
+  }
+  
+  .filtro-menu-estudiantes {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    right: auto;
+    width: 90%;
+    max-width: 280px;
+    max-height: 70vh;
+    margin-top: 0;
+  }
+  
+  /* Ocultar tabla normal en móviles */
+  .tabla-cabecera-estudiantes {
+    display: none;
+  }
+  
+  /* Cambiar a diseño de cards */
+  .tabla-fila-estudiantes {
+    display: flex;
+    flex-direction: column;
+    padding: 1.2rem;
+    border: 1px solid #333;
+    border-radius: 8px;
+    margin-bottom: 0.8rem;
+    background: #2a2a2a;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    gap: 0.5rem;
+  }
+  
+  .tabla-fila-estudiantes:hover {
+    background: #333;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  }
+  
+  /* Estilo para cada campo en móvil */
+  .tabla-fila-estudiantes > div {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #444;
+  }
+  
+  /* Quitar el borde del último elemento */
+  .tabla-fila-estudiantes > div:last-child {
+    border-bottom: none;
+  }
+  
+  /* Añadir labels usando pseudo-elementos */
+  .columna-nombre-estudiantes::before {
+    content: "Nombre:";
+    font-weight: 600;
+    color: #4caf50;
+    margin-right: 1rem;
+  }
+  
+  .columna-apellido-estudiantes::before {
+    content: "Apellido:";
+    font-weight: 600;
+    color: #4caf50;
+    margin-right: 1rem;
+  }
+  
+  .columna-documento-estudiantes::before {
+    content: "Documento:";
+    font-weight: 600;
+    color: #4caf50;
+    margin-right: 1rem;
+  }
+  
+  .estado-activo-estudiantes::before,
+  .estado-inactivo-estudiantes::before {
+    content: "Estado:";
+    font-weight: 600;
+    color: #4caf50;
+    margin-right: 1rem;
+  }
+  
+  .columna-faltas-estudiantes::before {
+    content: "Faltas:";
+    font-weight: 600;
+    color: #4caf50;
+    margin-right: 1rem;
+  }
+  
+  .columna-asistencias-estudiantes::before {
+    content: "Asistencias:";
+    font-weight: 600;
+    color: #4caf50;
+    margin-right: 1rem;
+  }
+}
+
+/* Responsive para tablets más pequeñas */
+@media (max-width: 480px) {
+  .reporte-container-estudiantes {
+    padding: 0.5rem;
+  }
+  
+  .reporte-titulo-estudiantes {
+    font-size: 1.8rem;
+  }
+  
+  .button-volver-estudiantes {
+    font-size: 1rem;
+    padding: 10px 20px;
+    width: 90%;
+  }
+  
+  .button-generar-reporte-estudiantes,
+  .button-filtro-reporte-estudiantes {
+    font-size: 1.1rem;
+    padding: 10px 25px;
+    width: 90%;
+  }
+  
+  .tabla-fila-estudiantes {
+    padding: 1rem;
+    margin-bottom: 0.6rem;
+  }
+  
+  .tabla-fila-estudiantes > div {
+    font-size: 0.9rem;
+  }
+  
+  .filtro-botones-estudiantes {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .filtro-boton-estudiantes {
+    width: 100%;
+  }
+}

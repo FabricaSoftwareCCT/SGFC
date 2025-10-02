@@ -6,7 +6,7 @@
     height: auto;
 }
 
-.reporte-container {
+.reporte-container-estadisticas {
   width: 100%;
   margin: 0;
   padding: 4rem 2rem;
@@ -17,18 +17,18 @@
   position: relative;
 }
 
-.Container-tabla {
+.container-tabla-estadisticas {
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 2rem;
-  margin: 2rem 0 3rem 0;
+  margin: 2rem 0 1rem 0;
   width: 100%;
   flex-wrap: wrap;
   position: relative;
 }
 
-.reporte-titulo {
+.reporte-titulo-estadisticas {
   text-align: center;
   color: #fff;
   font-size: 2.5rem;
@@ -37,7 +37,7 @@
   width: 100%;
 }
 
-.button-Cursos {
+.button-cursos-estadisticas {
     background: none;
     width: auto;
     padding: 12px 30px;
@@ -55,7 +55,7 @@
     border-radius: 10px;
 }
 
-.button-Cursos:hover {
+.button-cursos-estadisticas:hover {
   background-color: #0a5f0a;
   color: white;
   border-color: #0c7a0c;
@@ -64,19 +64,19 @@
   border-radius: 10px;
 }
 
-.button-Cursos:active {
+.button-cursos-estadisticas:active {
   transform: translateY(0);
   box-shadow: 0 2px 6px rgba(10, 95, 10, 0.3);
 }
 
-.button-Cursos.active {
+.button-cursos-estadisticas.active {
     background: #00843d;
     color: #ffffff;
     border-radius: 25px;
     border-color: #00843d;
 }
 
-.button-eficiencia {
+.button-eficiencia-estadisticas {
     background: none;
     width: auto;
     padding: 12px 30px;
@@ -93,7 +93,7 @@
     border-radius: 10px;
 }
 
-.button-eficiencia:hover {
+.button-eficiencia-estadisticas:hover {
   background-color: #0a5f0a;
   color: white;
   border-color: #0c7a0c;
@@ -102,19 +102,19 @@
   border-radius: 10px;
 }
 
-.button-eficiencia:active {
+.button-eficiencia-estadisticas:active {
   transform: translateY(0);
   box-shadow: 0 2px 6px rgba(10, 95, 10, 0.3);
 }
 
-.button-eficiencia.active {
+.button-eficiencia-estadisticas.active {
     background: #00843d;
     color: #ffffff;
     border-radius: 25px;
     border-color: #00843d;
 }
 
-.button-generar-reporte {
+.button-generar-reporte-estadisticas {
     background: #f7941e;
     width: auto;
     padding: 12px 30px;
@@ -131,7 +131,7 @@
     min-width: 180px;
 }
 
-.button-generar-reporte:hover {
+.button-generar-reporte-estadisticas:hover {
   background-color: #e6891b;
   border-color: #e6891b;
   transform: translateY(-2px);
@@ -139,12 +139,12 @@
   color: #ffffff;
 }
 
-.button-generar-reporte:active {
+.button-generar-reporte-estadisticas:active {
   transform: translateY(0);
   box-shadow: 0 2px 6px rgba(247, 148, 30, 0.3);
 }
 
-.button-filtro-reporte {
+.button-filtro-reporte-estadisticas {
   background: none;
   border: none;
   padding: 12px 30px;
@@ -157,12 +157,12 @@
   position: relative;
 }
 
-.button-filtro-reporte:hover {
+.button-filtro-reporte-estadisticas:hover {
   color: #0c7a0c;
 }
 
 /* Menú desplegable de filtros */
-.filtro-menu {
+.filtro-menu-estadisticas {
   position: absolute;
   top: 100%;
   right: 0;
@@ -176,28 +176,28 @@
   margin-top: 0rem;
 }
 
-.filtro-grupo {
+.filtro-grupo-estadisticas {
   margin-bottom: 1.2rem;
 }
 
-.filtro-grupo:last-child {
+.filtro-grupo-estadisticas:last-child {
   margin-bottom: 0;
 }
 
-.filtro-titulo {
+.filtro-titulo-estadisticas {
   color: #00843d;
   font-weight: 600;
   margin-bottom: 0.6rem;
   font-size: 1rem;
 }
 
-.filtro-opciones {
+.filtro-opciones-estadisticas {
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
 }
 
-.filtro-opcion {
+.filtro-opcion-estadisticas {
   display: flex;
   align-items: center;
   gap: 0.6rem;
@@ -207,11 +207,11 @@
   font-size: 0.9rem;
 }
 
-.filtro-opcion:hover {
+.filtro-opcion-estadisticas:hover {
   color: #4caf50;
 }
 
-.filtro-checkbox {
+.filtro-checkbox-estadisticas {
   width: 16px;
   height: 16px;
   border: 2px solid #00843d;
@@ -222,11 +222,11 @@
   flex-shrink: 0;
 }
 
-.filtro-checkbox.checked {
+.filtro-checkbox-estadisticas.checked {
   background: #00843d;
 }
 
-.filtro-checkbox.checked::after {
+.filtro-checkbox-estadisticas.checked::after {
   content: '✓';
   position: absolute;
   top: 50%;
@@ -237,7 +237,7 @@
   font-weight: bold;
 }
 
-.filtro-input {
+.filtro-input-estadisticas {
   background: #1a1a1a;
   border: 1px solid #333;
   border-radius: 4px;
@@ -247,19 +247,19 @@
   font-size: 0.9rem;
 }
 
-.filtro-input::placeholder {
+.filtro-input-estadisticas::placeholder {
   color: #666;
 }
 
 /* Botones del filtro */
-.filtro-botones {
+.filtro-botones-estadisticas {
     display: flex;
     gap: 0.8rem;
     margin-top: 1.2rem;
     justify-content: center;
 }
 
-.filtro-boton {
+.filtro-boton-estadisticas {
   padding: 0.4rem 1.2rem;
   border: none;
   border-radius: 4px;
@@ -269,26 +269,26 @@
   font-size: 0.9rem;
 }
 
-.filtro-aplicar {
+.filtro-aplicar-estadisticas {
   background: #00843d;
   color: white;
 }
 
-.filtro-aplicar:hover {
+.filtro-aplicar-estadisticas:hover {
   background: #0a5f0a;
 }
 
-.filtro-limpiar {
+.filtro-limpiar-estadisticas {
   background: #666;
   color: white;
 }
 
-.filtro-limpiar:hover {
+.filtro-limpiar-estadisticas:hover {
   background: #888;
 }
 
 /* Tabla de datos */
-.tabla-datos {
+.tabla-datos-estadisticas {
   width: 100%;
   background: #0000001f;
   border-radius: 8px;
@@ -299,95 +299,96 @@
   display: block;
 }
 
-.tabla-cabecera {
-  display: grid;
-  grid-template-columns: 2fr 1.5fr 2fr 1fr 1.5fr;
-  background: #00843d;
-  padding: 1rem 1.5rem;
-  font-weight: 600;
-  color: #000000;
-  border-bottom: 1px solid #333;
-  gap: 1rem;
+.tabla-cabecera-estadisticas {
+    display: grid;
+    grid-template-columns: 1.5fr 1.5fr 1fr 1fr 0.8fr;
+    background: #00843d;
+    padding: 1rem 1.5rem;
+    font-weight: 600;
+    color: #000000;
+    border-bottom: 1px solid #333;
+    align-items: center;
+    gap: 0rem;
 }
 
-.tabla-fila {
-  display: grid;
-  grid-template-columns: 2fr 1.5fr 2fr 1fr 1.5fr;
-  padding: 1rem 1.5rem;
-  border-bottom: 1px solid #333;
-  align-items: center;
-  transition: background-color 0.3s ease;
-  cursor: pointer;
-  gap: 1rem;
+.tabla-fila-estadisticas {
+    display: grid;
+    grid-template-columns: 1.5fr 1.5fr 1fr 1fr 0.8fr;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #333;
+    align-items: center;
+    transition: background-color 0.3s ease;
+    cursor: pointer;
+    gap: 0rem;
 }
 
-.tabla-fila:hover {
+.tabla-fila-estadisticas:hover {
   background: #2a2a2a;
 }
 
-.tabla-fila:last-child {
+.tabla-fila-estadisticas:last-child {
   border-bottom: none;
 }
 
 /* Estados */
-.estado-activo {
+.estado-activo-estadisticas {
   color: #4caf50;
   font-weight: 600;
 }
 
-.estado-inactivo {
+.estado-inactivo-estadisticas {
   color: #ff6b6b;
   font-weight: 600;
 }
 
 /* Clases específicas para cada columna */
-.columna-curso {
+.columna-curso-estadisticas {
   font-weight: 500;
 }
 
-.columna-ficha {
+.columna-ficha-estadisticas {
   font-size: 17px;
   font-family: monospace;
 }
 
-.columna-empleados {
+.columna-empleados-estadisticas {
   text-align: center;
   font-weight: 600;
 }
 
 /* Responsive - Diseño con Cards */
 @media (max-width: 768px) {
-  .reporte-container {
+  .reporte-container-estadisticas {
     padding: 1rem;
   }
   
-  .reporte-titulo {
+  .reporte-titulo-estadisticas {
     font-size: 2rem;
     margin: 0.5rem 0 2rem 0;
   }
   
-  .Container-tabla {
+  .container-tabla-estadisticas {
     flex-direction: column;
     gap: 1.5rem;
     margin: 1.5rem 0;
   }
   
-  .button-Cursos,
-  .button-eficiencia,
-  .button-generar-reporte,
-  .button-filtro-reporte {
+  .button-cursos-estadisticas,
+  .button-eficiencia-estadisticas,
+  .button-generar-reporte-estadisticas,
+  .button-filtro-reporte-estadisticas {
     width: 80%;
     max-width: 250px;
     margin-right: 0;
     border-radius: 10px;
   }
   
-  .button-Cursos.active,
-  .button-eficiencia.active {
+  .button-cursos-estadisticas.active,
+  .button-eficiencia-estadisticas.active {
     border-radius: 25px;
   }
   
-  .filtro-menu {
+  .filtro-menu-estadisticas {
     position: fixed;
     top: 50%;
     left: 50%;
@@ -398,12 +399,12 @@
   }
   
   /* Ocultar tabla normal en móviles */
-  .tabla-cabecera {
+  .tabla-cabecera-estadisticas {
     display: none;
   }
   
   /* Cambiar a diseño de cards */
-  .tabla-fila {
+  .tabla-fila-estadisticas {
     display: flex;
     flex-direction: column;
     padding: 1.2rem;
@@ -416,14 +417,14 @@
     gap: 0.5rem;
   }
   
-  .tabla-fila:hover {
+  .tabla-fila-estadisticas:hover {
     background: #333;
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
   }
   
   /* Estilo para cada campo en móvil */
-  .tabla-fila > div {
+  .tabla-fila-estadisticas > div {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -433,41 +434,41 @@
   }
   
   /* Quitar el borde del último elemento */
-  .tabla-fila > div:last-child {
+  .tabla-fila-estadisticas > div:last-child {
     border-bottom: none;
   }
   
   /* Añadir labels usando pseudo-elementos */
-  .columna-curso::before {
+  .columna-curso-estadisticas::before {
     content: "Curso:";
     font-weight: 600;
     color: #4caf50;
     margin-right: 1rem;
   }
   
-  .columna-ficha::before {
+  .columna-ficha-estadisticas::before {
     content: "Ficha:";
     font-weight: 600;
     color: #4caf50;
     margin-right: 1rem;
   }
   
-  .columna-instructor::before {
+  .columna-instructor-estadisticas::before {
     content: "Instructor:";
     font-weight: 600;
     color: #4caf50;
     margin-right: 1rem;
   }
   
-  .estado-activo::before,
-  .estado-inactivo::before {
+  .estado-activo-estadisticas::before,
+  .estado-inactivo-estadisticas::before {
     content: "Estado:";
     font-weight: 600;
     color: #4caf50;
     margin-right: 1rem;
   }
   
-  .columna-empleados::before {
+  .columna-empleados-estadisticas::before {
     content: "Empleados:";
     font-weight: 600;
     color: #4caf50;
@@ -477,29 +478,29 @@
 
 /* Responsive para tablets más pequeñas */
 @media (max-width: 480px) {
-  .reporte-container {
+  .reporte-container-estadisticas {
     padding: 0.5rem;
   }
   
-  .reporte-titulo {
+  .reporte-titulo-estadisticas {
     font-size: 1.8rem;
   }
   
-  .button-Cursos,
-  .button-eficiencia,
-  .button-generar-reporte,
-  .button-filtro-reporte {
+  .button-cursos-estadisticas,
+  .button-eficiencia-estadisticas,
+  .button-generar-reporte-estadisticas,
+  .button-filtro-reporte-estadisticas {
     font-size: 1.1rem;
     padding: 10px 25px;
     width: 90%;
   }
   
-  .tabla-fila {
+  .tabla-fila-estadisticas {
     padding: 1rem;
     margin-bottom: 0.6rem;
   }
   
-  .tabla-fila > div {
+  .tabla-fila-estadisticas > div {
     font-size: 0.9rem;
   }
 }

@@ -111,9 +111,9 @@ function App() {
         const data = await response.json();
 
         const sessionData = {
-          accountType: data.session.payload.accountType,
-          emal: data.session.payload.email,
-          id: data.session.payload.id
+          accountType: data.session?.payload?.accountType,
+          emal: data.session?.payload?.email,
+          id: data.session?.payload?.id
         };
 
         if (!data.session) {
@@ -122,12 +122,14 @@ function App() {
           return;
         }
 
-        if(data.session.payload.accountType === "Empresa" && data.session.payload.empresa_ID){
-            sessionData.empresa_ID = response.data.empresa_ID;
+        console.log(data)
+
+        if(data.session?.payload?.accountType === "Empresa" && data.session?.empresa_ID){
+            sessionData.empresa_ID = data.session.empresa_ID;
         }
 
         sessionStorage.setItem("userSession", JSON.stringify(sessionData));
-        navigate("/", { state: { accountType: data.session.accountType } });
+        navigate("/", { state: { accountType: data.session?.payload?.accountType } });
 
       } catch (error) {
         console.error("Error al verificar el token:", error);

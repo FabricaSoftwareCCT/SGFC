@@ -318,7 +318,7 @@ const recordLogin = async (req, res) => {
 
         let extraData = {};
         if (result.accountType === "Empresa") {
-            extraData.empresa_ID = user.empresa_ID;
+            extraData.empresa_ID = result.empresa_ID;
         }
 
         res.status(200).json({

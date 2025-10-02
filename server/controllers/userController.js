@@ -13,7 +13,7 @@ const Tesseract = require('tesseract.js');
 const vision = require('@google-cloud/vision');
 const pdfjsLib = require("pdfjs-dist/legacy/build/pdf.js")
 const { createCanvas } = require("canvas");
-
+const { UserServices } = require("../services/Userservices")
 
 
 // Registrar usuario
@@ -200,7 +200,7 @@ const requestNewVerificationEmail = async (req, res) => {
 // Iniciar sesión
 const loginUser = async (req, res) => {
     try {
-        const { email, password } = req.body;
+        const { email, password, remember } = req.body;
         if (!email || !password) {
             return res.status(400).json({ message: "Todos los campos son obligatorios" });
         }
@@ -220,6 +220,7 @@ const loginUser = async (req, res) => {
             id: user.ID,
             email: user.email,
             accountType: user.accountType,
+            remember: remember
         };
         if (user.accountType === "Empresa") {
             payload.empresa_ID = user.empresa_ID;
@@ -229,7 +230,7 @@ const loginUser = async (req, res) => {
         const accessToken = jwt.sign(
             payload,
             process.env.JWT_SECRET || "secret",
-            { expiresIn: "10m" }
+            { expiresIn: "10m" },
         );
 
         const refreshToken = jwt.sign(
@@ -243,7 +244,7 @@ const loginUser = async (req, res) => {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
             sameSite: "strict",
-            maxAge: 15 * 60 * 1000 // 15 minutos
+            maxAge: remember ? 15*  60* 1000: null
         });
 
         res.cookie("refreshToken", refreshToken, {
@@ -268,12 +269,39 @@ const loginUser = async (req, res) => {
             accountType: user.accountType,
             ...extraData
         });
+        return;
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: "Error en el servidor" });
     }
 };
 
+const recordLogin = async (req, res) => {
+   try{
+        const token = req.user;
+
+        if (!token || !token.remember) {
+            return res.status(200).json({ session: null });
+        }
+
+        const result = await UserServices.GetUser(token);
+
+        if(!result){
+            res.status(401).json({msg: "Sesión no recordada o usuario invalido"})
+        }
+
+        res.status(200).json({
+            session: {
+                msg: "Inicio de sessión",
+                accountType: result?.accountType
+            }
+        })
+        return; 
+   }catch(err){
+    console.log(err)
+    res.status(500).json({msg: "Error de servidor"})
+   }
+}
 //refrescar el acces web token
 const refreshAccessToken = async (req, res) => {
     try {
@@ -305,7 +333,8 @@ const refreshAccessToken = async (req, res) => {
         // ✅ También devolver el nuevo accessToken en la respuesta
         res.status(200).json({ 
             message: "Token renovado",
-            accessToken: accessToken // ✅ Para que el frontend lo guarde
+            accessToken: accessToken, // ✅ Para que el frontend lo guarde
+            accountType: user.accountType
         });
     } catch (error) {
         console.error("Error al refrescar el token:", error);
@@ -1506,5 +1535,6 @@ module.exports = {
     cleanExpiredTokens, 
     createMasiveUsers, 
     getEmpresaByNIT,
-    requestNewVerificationEmail 
+    requestNewVerificationEmail,
+    recordLogin
 };

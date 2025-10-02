@@ -1,5 +1,5 @@
 const express = require("express");
-const { createEmpleado, getEmpleadosByEmpresaId, subirDocumentoIdentidad, getEmpresaById, refreshAccessToken, getAprendicesByEmpresa, registerUser, verifyEmail, loginUser,requestPasswordReset,resetPassword, getAllUsers, getUserProfile, getAprendices, getEmpresas, getInstructores, getGestores, updateUserProfile,createInstructor, createGestor,logoutUser, createMasiveUsers, getEmpresaByNIT, requestNewVerificationEmail } = require("../controllers/userController");
+const { createEmpleado, getEmpleadosByEmpresaId, recordLogin, subirDocumentoIdentidad, getEmpresaById, refreshAccessToken, getAprendicesByEmpresa, registerUser, verifyEmail, loginUser,requestPasswordReset,resetPassword, getAllUsers, getUserProfile, getAprendices, getEmpresas, getInstructores, getGestores, updateUserProfile,createInstructor, createGestor,logoutUser, createMasiveUsers, getEmpresaByNIT, requestNewVerificationEmail } = require("../controllers/userController");
 const { googleSignIn, googleSignUp } = require("../controllers/authGoogleController"); // Importar controlador de autenticación de Google
 const { authMiddleware } = require("../middlewares/authMiddleware");
 const router = express.Router();
@@ -9,6 +9,7 @@ router.post("/createUser", registerUser); // Ruta para registrar usuario
 router.get("/verificarCorreo", verifyEmail); // Ruta para verificar correo
 router.post("/requestNewVerificationEmail", requestNewVerificationEmail); // Ruta para reenviar correo de verificación
 router.post("/login", loginUser); // Ruta para iniciar sesión
+router.get("/recordsession", authMiddleware, recordLogin); // Ruta para recordar sesión)
 router.post("/auth/googleSignIn", googleSignIn); // Ruta para iniciar sesión con Google
 router.post("/auth/googleSignUp", googleSignUp); // Ruta para registrar usuario con Google
 router.post("/requestPasswordReset", requestPasswordReset); // Solicitar recuperación de contraseña

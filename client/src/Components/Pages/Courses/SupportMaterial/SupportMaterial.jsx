@@ -9,6 +9,7 @@ export const SupportMaterial = () => {
     const navigate = useNavigate();
     const [cursoSeleccionado, setCursoSeleccionado] = useState(null);
     const [subiendoArchivo, setSubiendoArchivo] = useState(false);
+    const [tipoUsuario, setTipoUsuario] = useState('')
 
     const cursos = [
         {
@@ -72,6 +73,10 @@ export const SupportMaterial = () => {
         }
     }
 
+    const esAprendiz =tipoUsuario === 'Aprendiz';
+    const puedeSubirArchivos = !esAprendiz;
+    const puedeEliminarArchivos = !esAprendiz;
+
     return (
         <>
             <Header />
@@ -101,7 +106,9 @@ export const SupportMaterial = () => {
                             <div className='archivos-section'>
                                 <div className='archivos-header'>
                                     <h2>Material de Apoyo - {cursoSeleccionado.nombre_curso}</h2>
-                                    <div className='upload-section'>
+                                    
+                                    {puedeSubirArchivos &&(
+                                        <div className='upload-section'>
                                         <label htmlFor='file-upload' className='upload-btn'>
                                             {subiendoArchivo ? 'Subiendo...' : 'Subir Archivo'}
                                         </label>
@@ -113,6 +120,7 @@ export const SupportMaterial = () => {
                                             style={{ display: 'none' }}
                                         />
                                     </div>
+                                    )}  
                                 </div>
 
                                 <div className='archivos-list'>
@@ -134,12 +142,15 @@ export const SupportMaterial = () => {
                                                     >
                                                         Descargar
                                                     </button>
-                                                    <button 
+
+                                                    {puedeEliminarArchivos && (
+                                                        <button 
                                                         className='btn-eliminar' 
                                                         onClick={() => handleEliminarArchivo(archivo.id)}
                                                     >
                                                         Eliminar
                                                     </button>
+                                                    )}
                                                 </div>
                                             </div>    
                                         ))

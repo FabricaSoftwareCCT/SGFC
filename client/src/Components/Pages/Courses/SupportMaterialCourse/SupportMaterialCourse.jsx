@@ -8,6 +8,7 @@ import './SupportMaterialCourse.css'
 export const SupportMaterialCourse = () => {
     const navigate = useNavigate();
     const [subiendoArchivo, setSubiendoArchivo] = useState(false);
+    const [tipoUsuario, setTipoUsuario] = useState('')
 
     
     const cursoActual = {
@@ -53,6 +54,10 @@ export const SupportMaterialCourse = () => {
         }
     }
 
+    const esAprendiz =tipoUsuario === 'Aprendiz';
+    const puedeSubirArchivos = !esAprendiz;
+    const puedeEliminarArchivos = !esAprendiz;
+
     return (
         <>
             <Header />
@@ -67,7 +72,9 @@ export const SupportMaterialCourse = () => {
                         <div className='archivos-section-c'>
                             <div className='archivos-header-c'>
                                 <h2>Material de Apoyo - {cursoActual.nombre_curso}</h2>
-                                <div className='upload-section-c'>
+
+                                {puedeSubirArchivos &&(
+                                    <div className='upload-section-c'>
                                     <label htmlFor='file-upload' className='upload-btn-c'>
                                         {subiendoArchivo ? 'Subiendo...' : 'Subir Archivo'}
                                     </label>
@@ -79,6 +86,7 @@ export const SupportMaterialCourse = () => {
                                         style={{ display: 'none' }}
                                     />
                                 </div>
+                                )} 
                             </div>
 
                             <div className='archivos-list-c'>
@@ -100,12 +108,15 @@ export const SupportMaterialCourse = () => {
                                                 >
                                                     Descargar
                                                 </button>
-                                                <button 
+
+                                                {puedeEliminarArchivos && (
+                                                    <button 
                                                     className='btn-eliminar' 
                                                     onClick={() => handleEliminarArchivo(archivo.id)}
                                                 >
                                                     Eliminar
                                                 </button>
+                                                )}  
                                             </div>
                                         </div>    
                                     ))

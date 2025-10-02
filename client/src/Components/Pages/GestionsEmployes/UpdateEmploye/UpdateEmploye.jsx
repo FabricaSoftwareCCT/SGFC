@@ -112,7 +112,7 @@ export const UpdateEmploye = ({ empleado }) => {
 
     } catch (error) {
       console.error("Error al actualizar el perfil:", error.response?.data || error.message);
-      alert("Hubo un error al actualizar el perfil.");
+      alert("Hubo un error al actualizar el perfil. " + error.response?.data?.message);
     }
   };
 

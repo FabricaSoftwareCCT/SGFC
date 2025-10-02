@@ -199,7 +199,6 @@ export const SeeMyProfile = () => {
 
 
     const handleSaveChanges = async () => {
-        console.log('🔍 Debug - Iniciando guardado:', { perfil, perfilOriginal, tipoCuenta });
         
         // Mezclar datos originales y actuales para evitar null/undefined
         const empresaBase = perfilOriginal?.Empresa || {};
@@ -216,7 +215,6 @@ export const SeeMyProfile = () => {
                 : (empresaActual.ciudad_ID ?? empresaBase.ciudad_ID ?? null)
         };
 
-        console.log('🔍 Debug - empresaSnapshot:', empresaSnapshot);
         
         let erroresTipoCuenta = {};
 
@@ -227,15 +225,8 @@ export const SeeMyProfile = () => {
             Celular: validateNumber(perfil?.celular || '') 
         };
         
-        console.log('🔍 Debug - ValidationGeneral:', ValidationGeneral);
 
         if (tipoCuenta === 'Empresa') {
-            console.log('🔍 Debug - Validando empresa:', {
-                nombre_empresa: empresaSnapshot.nombre_empresa,
-                direccion: empresaSnapshot.direccion,
-                nombre_empresa_trim: (empresaSnapshot.nombre_empresa || '').trim(),
-                direccion_trim: (empresaSnapshot.direccion || '').trim()
-            });
             
             // Validación directa sin variables intermedias
             erroresTipoCuenta = {
@@ -246,7 +237,6 @@ export const SeeMyProfile = () => {
                 nit: validateNIT(empresaSnapshot?.NIT || '') 
             };
             
-            console.log('🔍 Debug - erroresTipoCuenta después de asignar:', erroresTipoCuenta);
         }
 
         const error = {
@@ -254,13 +244,9 @@ export const SeeMyProfile = () => {
             ...erroresTipoCuenta
         };
         
-        console.log('🔍 Debug - Errores de validación:', error);
-        console.log('🔍 Debug - ValidationGeneral keys:', Object.keys(ValidationGeneral));
-        console.log('🔍 Debug - erroresTipoCuenta keys:', Object.keys(erroresTipoCuenta));
         
         const hastErrors = await createMensajeError(error);
         if (hastErrors != null) {
-            console.log('🚫 Debug - Validación falló:', hastErrors);
             alert(hastErrors);
             setPerfil(perfilOriginal); // Revertir cambios locales
             return;

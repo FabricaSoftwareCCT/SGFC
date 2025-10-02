@@ -19,6 +19,12 @@ export const GestionsEmployes = () => {
   const [selectedEmploye, setSelectedEmploye] = useState(null); // Empleado seleccionado
 
   const { setShowModalCreateEmployee } = useModal();
+  const userSession =
+    JSON.parse(localStorage.getItem("userSession")) || JSON.parse(sessionStorage.getItem("userSession"))
+
+  const isLoggedIn = !!userSession
+  const accountType = userSession?.accountType || null
+
 
   // Obtener empleados de la empresa
   const fetchEmployes = async () => {
@@ -30,10 +36,10 @@ export const GestionsEmployes = () => {
       }
       const userSession = JSON.parse(userSessionString);
       const empresaId = userSession.empresa_ID;
-      if (!empresaId) {
+      /*if (!empresaId) {
         alert("No se encontró el ID de la empresa en la sesión.");
         return;
-      }
+      }*/
       const response = await axiosInstance.get(`/api/users/empresa/${empresaId}/empleados`);
       setEmployes(response.data.empleados || []);
       setFilteredEmployes(response.data.empleados || []);
@@ -120,6 +126,22 @@ export const GestionsEmployes = () => {
                     onChange={handleFilterChange}
                   />
                 </div>
+                
+                {isLoggedIn && accountType === 'Administrador' && (
+                  <div>
+                    <label htmlFor="inputEmpresa">Nombre Empresa o NIT</label>
+                    <div className="inputSearchContainer">
+                      <input
+                        type="text"
+                        id="inputEmpresa"
+                        placeholder="Escriba el nombre o el NIT"
+                        value={filter}
+                        onChange={handleFilterChange}
+                      />
+                    </div>
+                  </div>
+                )}
+          
 
                 <label>Estado</label>
                 <div className="statusButtons">

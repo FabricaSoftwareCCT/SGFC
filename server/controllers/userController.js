@@ -703,8 +703,11 @@ const updateUserProfile = async (req, res) => {
             return res.status(400).json({ message: "Formato de correo electrónico inválido." });
         }
 
-        if (celular && (!isValidPositiveNumber(celular) || celular.toString().length < 10)) {
-            return res.status(400).json({ message: "Número de celular inválido." });
+        if (celular && celular !== user.celular) {
+            const existingCelular = await User.findOne({ where: { celular } });
+            if (existingCelular) {
+                return res.status(400).json({ message: "El número de celular ya está registrado." });
+            }
         }
 
         if (documento && !isValidPositiveNumber(documento)) {

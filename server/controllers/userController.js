@@ -290,10 +290,43 @@ const recordLogin = async (req, res) => {
             res.status(401).json({msg: "Sesión no recordada o usuario invalido"})
         }
 
+        const accessToken = jwt.sign (
+            result,
+            process.env.JWT_SCRET || 'secret',
+            {expiresIn: "10m"}
+        )
+
+        const refreshToken = jwt.sign(
+            {id: result.id},
+            process.env.JWT_SECRET || 'secret',
+            {expiresIn: "7d"}
+        )
+
+        res.cookie("accessToken", accessToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
+            maxAge: 15*  60* 1000
+        });
+
+        res.cookie("refreshToken", refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
+            maxAge: 7 * 24 * 60 * 60 * 1000 // 7 días
+        });
+
+        let extraData = {};
+        if (result.accountType === "Empresa") {
+            extraData.empresa_ID = user.empresa_ID;
+        }
+
         res.status(200).json({
             session: {
                 msg: "Inicio de sessión",
-                accountType: result?.accountType
+                payload: result,
+                accountType: result?.accountType,
+                ...extraData
             }
         })
         return; 
@@ -1325,11 +1358,11 @@ const getEmpleadosByEmpresaId = async (req, res) => {
 // Crear empleado (Aprendiz) asociado a una empresa
 const createEmpleado = async (req, res) => {
     try {
-        const { nombres, apellidos, email, documento, celular, estado, titulo_profesional, password } = req.body;
+        const { nombres, apellidos, email, tipoDocumento, documento, celular, estado, titulo_profesional, password } = req.body;
         const { empresaId } = req.params;
 
         // Validar datos obligatorios
-        if (!nombres || !apellidos || !email || !documento || !celular || !estado || !empresaId) {
+        if (!nombres || !apellidos || !email || !tipoDocumento || !documento || !celular || !estado || !empresaId) {
             return res.status(400).json({ message: "Todos los campos son obligatorios." });
         }
 
@@ -1370,6 +1403,7 @@ const createEmpleado = async (req, res) => {
             nombres,
             apellidos,
             email,
+            tipoDocumento,
             documento,
             celular,
             estado,

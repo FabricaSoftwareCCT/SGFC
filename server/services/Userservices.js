@@ -10,7 +10,19 @@ class UserServices {
                 return null;
             }
 
-            return result;
+            const payload = {
+                id: result.ID,
+                email: result.email,
+                accountType: result.accountType
+            }
+
+            if(result.accountType === "Empresa"){
+                payload.empresa.ID = result.empresa_ID;
+            }
+
+
+
+            return payload;
 
         }catch(err){
             console.log(err)

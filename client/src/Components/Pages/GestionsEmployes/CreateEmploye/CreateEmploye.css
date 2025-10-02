@@ -77,6 +77,21 @@
     object-fit: cover;
 }
 
+.TipoDocumento {
+    width: 16.5rem;
+    height: 40px;
+    border-radius: 10px;
+    border: 1px solid white;
+    background-color: transparent;
+    color: white;
+    margin-top: 10px;
+    padding: 0 10px;
+}
+
+.option {
+    background-color: black;
+}
+
 .edit-photo-btn {
     width: 35px;
     height: 35px;

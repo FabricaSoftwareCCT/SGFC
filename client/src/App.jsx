@@ -91,6 +91,13 @@ function App() {
   useEffect(() => {
     const verifiCarToken = async () => {
       try {
+        const localSession = sessionStorage.getItem("userSession");
+        
+        if (localSession) {
+          console.log("Sesión activa en esta pestaña");
+          return;
+        }
+
         const response = await fetch("http://localhost:3001/api/users/recordsession", {
           method: "GET",
           credentials: "include" 
@@ -103,13 +110,23 @@ function App() {
 
         const data = await response.json();
 
+        const sessionData = {
+          accountType: data.session.payload.accountType,
+          emal: data.session.payload.email,
+          id: data.session.payload.id
+        };
+
         if (!data.session) {
           sessionStorage.removeItem("userSession");
           navigate("/"); 
           return;
         }
 
-        sessionStorage.setItem("userSession", JSON.stringify(data.session));
+        if(data.session.payload.accountType === "Empresa" && data.session.payload.empresa_ID){
+            sessionData.empresa_ID = response.data.empresa_ID;
+        }
+
+        sessionStorage.setItem("userSession", JSON.stringify(sessionData));
         navigate("/", { state: { accountType: data.session.accountType } });
 
       } catch (error) {

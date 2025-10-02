@@ -4,6 +4,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  margin-bottom: 15px;
 }
 
 .container_createCourse>h2 {
@@ -103,7 +104,7 @@
   height: auto;
   display: flex;
   flex-direction: column;
-  gap: 0.7rem;
+  gap: 1.7rem;
   align-items: center;
 }
 
@@ -113,6 +114,7 @@
 .addDetails {
   width: 99%;
   height: 2rem;
+  margin-top: 1rem;
   background-color: transparent;
   border-style: none;
   border: 1px solid #b0b0b0;
@@ -127,13 +129,17 @@
   margin: 0;
 }
 
+/* #fichaCourse{
+  
+} */
+
 .addDetails {
   height: 5rem;
   padding-top: 5px;
 }
 
 .buttonCreate_Course {
-
+  margin-top: 30px;
   width: 10rem;
   height: auto;
   background-color: #00843D;
@@ -192,34 +198,70 @@
 }
 
 .containerInput_company,
-.containerInput_ficha {
+/* .containerInput_ficha {
   width: auto;
   height: auto;
   display: flex;
+  flex-direction: column;
   font-size: 14px;
   align-items: center;
   gap: 2.5rem;
-}
+} */
 
 .containerInput_ficha {
-  justify-content: end;
+  align-items: baseline;
   width: 100%;
 }
 
 
-#nit_company,
-#fichaCourse {
+/* #nit_company, */
+/* #fichaCourse {
   width: 8rem;
-  height: auto;
+  height: 2rem;
+  background-color: transparent;
   font-size: 12px;
   border: 1px solid #b0b0b0;
   border-radius: 10px;
   padding: 0.3rem;
   border-style: node;
-  background-color: #1a1a1a;
   z-index: 100;
+} */
+
+#fichaCourse{
+  width: 99%;
+  height: 2rem;
+  background-color: transparent;
+  border: 1px solid #b0b0b0;
+  border-radius: 10px;
+  padding-left: 5px;
+  outline: none;
+  font-size: 14px;
+  transition: border 0.2s ease-in-out;
 }
 
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px; /* separación entre inputs y label */
+  width: 100%
+}
+
+.input-field {
+  width: 99%;
+  height: 2rem;
+  background-color: transparent;
+  border: 1px solid #b0b0b0;
+  border-radius: 10px;
+  padding-left: 5px;
+  outline: none;
+  font-size: 14px;
+  transition: border 0.2s ease-in-out;
+}
+
+.input-field:focus {
+  border: 1px solid #2F8EAC; /* cambia de color al enfocar */
+  box-shadow: 0 0 3px rgba(47, 142, 172, 0.6);
+}
 .containerInput_company>label,
 #containerInput_ficha>label {
   width: auto;

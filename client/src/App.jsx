@@ -122,8 +122,6 @@ function App() {
           return;
         }
 
-        console.log(data)
-
         if(data.session?.payload?.accountType === "Empresa" && data.session?.empresa_ID){
             sessionData.empresa_ID = data.session.empresa_ID;
         }

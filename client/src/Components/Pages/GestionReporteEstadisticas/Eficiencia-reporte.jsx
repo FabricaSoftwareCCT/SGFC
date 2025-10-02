@@ -11,8 +11,8 @@ export default function EficienciaReporte({ cursoSeleccionado, onVolver }) {
       activo: false,
       inactivo: false
     },
-    faltantes: '',
-    realizadas: ''
+    tipoFiltro: '', // 'faltantes' o 'realizadas'
+    valor: ''
   });
 
   const datosEstudiantes = [
@@ -58,12 +58,6 @@ export default function EficienciaReporte({ cursoSeleccionado, onVolver }) {
     setMostrarFiltro(!mostrarFiltro);
   };
 
-  // Función para navegar de vuelta a Actividades
-  const handleActividadesClick = () => {
-    console.log('Navegando a Actividades');
-    // Esta función debería manejarse desde el componente padre
-  };
-
   const handleCheckboxChange = (categoria, opcion) => {
     setFiltros(prev => ({
       ...prev,
@@ -81,6 +75,14 @@ export default function EficienciaReporte({ cursoSeleccionado, onVolver }) {
     }));
   };
 
+  const seleccionarTipoFiltro = (tipo) => {
+    setFiltros(prev => ({
+      ...prev,
+      tipoFiltro: tipo,
+      valor: '' // Limpiar el valor cuando se cambia el tipo
+    }));
+  };
+
   const aplicarFiltros = () => {
     console.log('Filtros aplicados:', filtros);
     setMostrarFiltro(false);
@@ -95,8 +97,8 @@ export default function EficienciaReporte({ cursoSeleccionado, onVolver }) {
         activo: false,
         inactivo: false
       },
-      faltantes: '',
-      realizadas: ''
+      tipoFiltro: '',
+      valor: ''
     });
   };
 
@@ -131,13 +133,6 @@ export default function EficienciaReporte({ cursoSeleccionado, onVolver }) {
       <div className='container-tabla-eficiencia'>
         <button className="button-generar-reporte-eficiencia" onClick={generarReporte}>
           Generar reporte
-        </button>
-        
-        <button 
-          className="button-actividades-eficiencia"
-          onClick={handleActividadesClick}
-        >
-          Actividades
         </button>
         
         <button 
@@ -206,29 +201,40 @@ export default function EficienciaReporte({ cursoSeleccionado, onVolver }) {
               </div>
             </div>
 
-            {/* Filtro por Actividades Faltantes */}
+            {/* Filtro por Actividades - Botones pequeños */}
             <div className="filtro-grupo-eficiencia">
-              <div className="filtro-titulo-eficiencia">Actividades Faltantes</div>
-              <input 
-                type="number" 
-                className="filtro-input-eficiencia"
-                placeholder="Filtrar por actividades faltantes..."
-                value={filtros.faltantes}
-                onChange={(e) => handleInputChange('faltantes', e.target.value)}
-              />
+              <div className="filtro-titulo-eficiencia">Filtrar por:</div>
+              <div className="filtro-botones-pequenos-eficiencia">
+                <button 
+                  className={`filtro-boton-pequeno-eficiencia ${filtros.tipoFiltro === 'faltantes' ? 'activo' : ''}`}
+                  onClick={() => seleccionarTipoFiltro('faltantes')}
+                >
+                  Actividades Faltantes
+                </button>
+                <button 
+                  className={`filtro-boton-pequeno-eficiencia ${filtros.tipoFiltro === 'realizadas' ? 'activo' : ''}`}
+                  onClick={() => seleccionarTipoFiltro('realizadas')}
+                >
+                  Actividades Realizadas
+                </button>
+              </div>
             </div>
 
-            {/* Filtro por Actividades Realizadas */}
-            <div className="filtro-grupo-eficiencia">
-              <div className="filtro-titulo-eficiencia">Actividades Realizadas</div>
-              <input 
-                type="number" 
-                className="filtro-input-eficiencia"
-                placeholder="Filtrar por actividades realizadas..."
-                value={filtros.realizadas}
-                onChange={(e) => handleInputChange('realizadas', e.target.value)}
-              />
-            </div>
+            {/* Input para el valor del filtro seleccionado */}
+            {filtros.tipoFiltro && (
+              <div className="filtro-grupo-eficiencia">
+                <div className="filtro-titulo-eficiencia">
+                  {filtros.tipoFiltro === 'faltantes' ? 'Actividades Faltantes' : 'Actividades Realizadas'}
+                </div>
+                <input 
+                  type="number" 
+                  className="filtro-input-eficiencia"
+                  placeholder={`Filtrar por ${filtros.tipoFiltro === 'faltantes' ? 'actividades faltantes' : 'actividades realizadas'}...`}
+                  value={filtros.valor}
+                  onChange={(e) => handleInputChange('valor', e.target.value)}
+                />
+              </div>
+            )}
 
             {/* Botones del filtro */}
             <div className="filtro-botones-eficiencia">

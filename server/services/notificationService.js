@@ -247,6 +247,56 @@ const getNotificacionesEstado = async (invitaciones) => {
     }
 };
 
+const createNotificacionMaterialApoyo = async (remitente_ID, emails, curso) => {
+    try {
+        
+        const users = await dbInstance.Usuario.findAll({
+            where: {
+                email: {
+                    [Op.in]: emails
+                }
+            }
+        });
+        const userID = users.map( async user =>{
+
+            const title = `Marial de apoyo del curso - ${curso.dataValues.nombre_curso}`;
+            const message = `
+            Notificación de Nuevo Curso
+            Estimado(a) ${user.nombres} ${user.apellidos}, Nos complace informarle que un se subio el material de apoyo del curso:
+            <br>
+            <br>
+            Curso: ${curso.dataValues.nombre_curso}
+            <br>
+            <br>
+            Fecha de Inicio: ${new Date(curso.dataValues.fecha_inicio).toLocaleDateString()}
+            <br>
+            <br>
+            Fecha de Fin: ${new Date(curso.dataValues.fecha_fin).toLocaleDateString()}
+            <br>
+            <br>
+            Le invitamos a revisarla.
+            <br>
+            <br>
+            Saludos cordiales, SGFC
+        `;
+            const notificacion = await dbInstance.Notificacion.create({
+                remitente_ID: remitente_ID,
+                destinatario_ID: user.ID,
+                tipo: 'nuevo_curso',
+                titulo: title,
+                mensaje: message,
+                fecha_envio: new Date(),
+                estado: 'pendiente'
+            });
+            await notificacion.save();
+        })
+        await Promise.all(userID)
+        return { success: true, message: 'Notificaciones creadas en la base de datos' };
+    } catch (error){
+        return console.log("error al cargar las notificaciones", error)
+    }
+}
+
 
 module.exports = {
     setDb,
@@ -254,5 +304,6 @@ module.exports = {
     sendAbsenceNotifications,
     sendCourseRequestStatusEmail,
     sendNotifiCursoApi,
-    getNotificacionesEstado
+    getNotificacionesEstado,
+    createNotificacionMaterialApoyo
 }; 

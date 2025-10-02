@@ -1,8 +1,10 @@
 const { log } = require('console');
 const Notificacion = require('../models/Notificacion');
 const User = require("../models/User");
+const Curso = require("../models/curso")
 const { notify } = require('../routes/userRoutes');
-const { sendNotification, sendAbsenceNotifications, sendCourseRequestStatusEmail, getNotificacionesEstado} = require('../services/notificationService');
+const { sendNotification, sendAbsenceNotifications, sendCourseRequestStatusEmail, getNotificacionesEstado, createNotificacionMaterialApoyo} = require('../services/notificationService');
+const { Op } = require('sequelize');
 let dbInstance;
 
 // Función para inyectar la instancia de la base de datos
@@ -340,6 +342,37 @@ const createCourseRequestStatusNotification = async (req, res) => {
     }
 }
 
+// crear notificacion de material de apoyo subido para aprendices
+const crearNotificacionMaterialApoyo = async (req, res) => {
+    try {
+        const{ curso_ID} = req.body;
+
+        const remitente_ID = req.user.id;
+        
+        if (!remitente_ID || !curso_ID) {
+            return res.status(400). json({message: 'faltan datos requeridos.'});
+        }
+
+        const usuarios = await User.findAll({
+            where : {
+                verificacion_email : true,
+                accountType : {[Op.or] : ["Aprendiz"]}
+            },
+            attributes : ['email']
+        })
+
+        const curso = await Curso.findByPk(curso_ID)
+        const emails = usuarios.map(user => user.email);
+        await createNotificacionMaterialApoyo(remitente_ID, emails, curso);
+
+        return res.status(200).json({message: "se enviaron las notificaciones, del material de apoyo"})
+        
+    } catch (error) {
+        console.error('Error al crear notificación de material de apoyo:', error);
+        res.status(500).json({ message: 'Error al crear la notificación' });
+    }
+}
+
 
 module.exports = {
     setDb,
@@ -348,5 +381,6 @@ module.exports = {
     sendManualAbsenceNotification,
     crearNotificacionSolicitudCurso,
     crearNotificacionInvitacionCursoInstructor,
-    createCourseRequestStatusNotification
+    createCourseRequestStatusNotification,
+    crearNotificacionMaterialApoyo
 }; 

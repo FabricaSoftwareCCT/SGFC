@@ -26,7 +26,7 @@
 }
 
 .containerInformation_CreateCourse>input {
-  width: 12rem;
+  width: 10rem;
   height: 17rem;
   border: 2px dotted #b0b0b0;
   border-radius: 15px;
@@ -133,7 +133,6 @@
 }
 
 .buttonCreate_Course {
-
   width: 10rem;
   height: auto;
   background-color: #00843D;
@@ -209,9 +208,9 @@
 
 #nit_company,
 #fichaCourse {
-  width: 8rem;
+  width: 10rem;
   height: auto;
-  font-size: 12px;
+  font-size: 14px;
   border: 1px solid #b0b0b0;
   border-radius: 10px;
   padding: 0.3rem;
@@ -287,6 +286,7 @@
 
 /* Resultado de búsqueda empresa */
 .resultados-empresa {
+  text-align: center;
   list-style: none;
   border-left: 1px solid #b0b0b0;
   border-right: 1px solid #b0b0b0;
@@ -296,15 +296,15 @@
   overflow-y: auto;
   background-color: #1a1a1a;
   position: absolute;
-  bottom: 5.5rem;
-  left: 34.9rem;
+  bottom: -3rem;
+  left: 9.5rem;
   z-index: 10;
-  width: 10%;
+  width: 50%;
   height: auto;
 }
 
 .resultados-empresa li {
-  padding: 20px 8px 8px 8px;
+  padding: 20px 8px 8px 0px;
   cursor: pointer;
   transition: background 0.2s ease;
   width: auto;

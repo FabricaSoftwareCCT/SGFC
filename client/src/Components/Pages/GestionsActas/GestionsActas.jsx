@@ -120,12 +120,14 @@ export const GestionsActas = () => {
       }
 
       try {
-       const respo = await axiosInstance.put(`/api/actas/${acta.ID}/estado`, { estado_acta: nuevoEstado });
+        const userData = JSON.parse(sessionStorage.getItem('userSession') || '{}');     
+        const respo = await axiosInstance.put(`/api/actas/${acta.ID}/estado`, { estado_acta: nuevoEstado });
        const updatedEstado = respo.data.acta;
        try{
         console.log('datos acta', acta.ID, updatedEstado);
         const response = await axiosInstance.post('/api/notifications/solicitudNotificacion', {
-          actaId : acta.ID,
+          remitente_ID: userData.id,
+          actaID : acta.ID,
           estado: updatedEstado, 
         })
          alert('Notificación de estado de solicitud de curso enviada correctamente');

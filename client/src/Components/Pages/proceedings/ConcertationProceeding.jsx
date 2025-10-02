@@ -9,7 +9,7 @@ import html2pdf from 'html2pdf.js';
 import { ModalSignature } from '../../UI/Modal_Signature/ModalSignature';
 import { EditableList } from '../../UI/EditableList/EditableList';
 import { useNavigate } from 'react-router-dom';
-import { validateText, validateNumber, validarFecha, createMensajeError } from '../../../utils/Validators/formValidator';
+import { validateText, validateNumber,createMensajeError } from '../../../utils/Validators/formValidator';
 
 export const ConcertationProceeding = () => {
   const navigate = useNavigate();
@@ -526,6 +526,7 @@ export const ConcertationProceeding = () => {
         <ModalSignature
           closeModal={() => setShowSignatureModal(false)}
           nombreCurso={nombreCurso}
+          editar ={isEditing}
           tipoActa="Acta de Concertacion"
           onSignature={setFirmaDigital}
           onUpload={handleUploadSignature}

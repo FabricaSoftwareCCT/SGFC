@@ -29,7 +29,8 @@ const fotoDefectPerfil = '../Img/userDefect.png'; // Importar la imagen por defe
 const registerUser = async (req, res) => {
     try {
         const { email, password, accountType, documento, nombres, apellidos, celular, titulo_profesional } = req.body;
-
+        
+        console.log(email, password)
         // Validar datos obligatorios
         if (!email || !password || !accountType) {
             return res.status(400).json({ message: 'Los campos email, password y accountType son obligatorios' });
@@ -48,14 +49,17 @@ const registerUser = async (req, res) => {
         }
 
         // Generar token de verificación JWT (no con crypto)
-        const payload = { email };
+        // const payload = { email };
+        // const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
+        const payload = { data: { email } };
         const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
 
         // Generar contraseña temporal
-        const tempPassword = Math.random().toString(36).slice(-8);
+        //Configurar para usuarios que necesitan contraseña temporal
+       //const tempPassword = Math.random().toString(36).slice(-8);
         
         // Hashear la contraseña temporal
-        const hashedPassword = await bcrypt.hash(tempPassword, 10);
+        const hashedPassword = await bcrypt.hash(password, 10);
 
         // Crear nuevo usuario
         const newUser = await User.create({
@@ -90,7 +94,7 @@ const registerUser = async (req, res) => {
         }
 
         // Enviar correo de verificación CON la contraseña temporal
-        await sendVerificationEmail(email, token, tempPassword);
+        await sendVerificationEmail(email, token, null, accountType);
 
         res.status(201).json({ message: 'Usuario registrado. Por favor verifica tu correo para obtener tu contraseña temporal.' });
     } catch (error) {
@@ -101,62 +105,63 @@ const registerUser = async (req, res) => {
 
 // Verificar correo
 const verifyEmail = async (req, res) => {
-    try {
-        const { token } = req.query;
+  try {
+    const { token } = req.query;
 
-        // Validar token
-        if (!token) {
-            return res.status(400).json({ message: "Token no proporcionado" });
-        }
-
-        console.log('Token recibido:', token);
-        
-        // Verificar el token JWT
-        let decoded;
-        try {
-            decoded = jwt.verify(token, process.env.JWT_SECRET);
-            console.log('Token decodificado:', decoded);
-        } catch (err) {
-            if (err.name === 'TokenExpiredError') {
-                return res.status(400).json({ message: "Token expirado" });
-            }
-            console.log('Error al verificar token:', err);
-            return res.status(400).json({ message: "Token inválido" });
-        }
-
-        console.log(decoded.data.email);
-        const userEmail = decoded.data.email; 
-        console.log('Buscando usuario con email:', userEmail);
-        
-        if (!userEmail) {
-            return res.status(400).json({ message: "Token no contiene email válido" });
-        }
-
-        const user = await User.findOne({ where: { email: userEmail } });
-
-        if (!user) {
-            return res.status(400).json({ message: "Usuario no encontrado" });
-        }
-
-        console.log('Token en la base de datos:', user.token);
-        console.log('Token recibido vs token en BD:', token, user.token);
-
-        // Verificar que el token coincida
-        if (user.token !== token) {
-            return res.status(400).json({ message: "Token no coincide" });
-        }
-
-        // Actualizar estado de verificación
-        user.verificacion_email = true;
-        user.token = null;
-        await user.save();
-
-        res.status(200).json({ message: "Correo verificado con éxito" });
-    } catch (error) {
-        console.error("Error completo al verificar el correo:", error);
-        res.status(500).json({ message: "Error al verificar el correo" });
+    // Validar token
+    if (!token) {
+      return res.status(400).json({ message: "Token no proporcionado" });
     }
+
+    console.log('Token recibido:', token);
+
+    // Verificar el token JWT
+    let decoded;
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET);
+      console.log('Token decodificado:', decoded);
+    } catch (err) {
+      if (err.name === 'TokenExpiredError') {
+        return res.status(400).json({ message: "Token expirado" });
+      }
+      console.log('Error al verificar token:', err);
+      return res.status(400).json({ message: "Token inválido" });
+    }
+
+    // ⚡️ Aquí estaba el problema
+    const userEmail = decoded.email || decoded?.data?.email;
+    console.log('Buscando usuario con email:', userEmail);
+
+    if (!userEmail) {
+      return res.status(400).json({ message: "Token no contiene email válido" });
+    }
+
+    const user = await User.findOne({ where: { email: userEmail } });
+
+    if (!user) {
+      return res.status(400).json({ message: "Usuario no encontrado" });
+    }
+
+    console.log('Token en la base de datos:', user.token);
+    console.log('Token recibido vs token en BD:', token, user.token);
+
+    // Verificar que el token coincida
+    if (user.token !== token) {
+      return res.status(400).json({ message: "Token no coincide" });
+    }
+
+    // Actualizar estado de verificación
+    user.verificacion_email = true;
+    user.token = null;
+    await user.save();
+
+    res.status(200).json({ message: "Correo verificado con éxito" });
+  } catch (error) {
+    console.error("Error completo al verificar el correo:", error);
+    res.status(500).json({ message: "Error al verificar el correo" });
+  }
 };
+
 
 const requestNewVerificationEmail = async (req, res) => {
     try{
@@ -209,6 +214,8 @@ const loginUser = async (req, res) => {
         if (!user || !user.verificacion_email) {
             return res.status(403).json({ message: "Credenciales inválidas o correo no verificado." });
         }
+
+        console.log(password, "Datos ingresados: ",  user.password)
 
         const isPasswordValid = await bcrypt.compare(password, user.password);
         if (!isPasswordValid) {
@@ -377,6 +384,13 @@ const refreshAccessToken = async (req, res) => {
 
 //cerrar sesion 
 const logoutUser = (req, res) => {
+    // Verificar si el sistema está apagado
+    if (process.env.SYSTEM_STATUS === 'offline' || process.env.SYSTEM_SHUTDOWN === 'true') {
+        return res.status(503).json({ 
+            message: "El sistema está apagado. No es posible cerrar sesión en este momento." 
+        });
+    }
+
     res.clearCookie("accessToken", {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
@@ -581,7 +595,21 @@ const getEmpresas = async (req, res) => {
                 {
                     model: Empresa,
                     as: 'Empresa', // Alias definido en la relación
-                    attributes: ['ID', 'NIT', 'email_empresa', 'nombre_empresa', 'direccion', 'estado', 'categoria', 'telefono', 'img_empresa'], // Campos que deseas incluir
+                    attributes: ['ID', 'NIT', 'email_empresa', 'nombre_empresa', 'direccion', 'estado', 'categoria', 'telefono', 'img_empresa', 'ciudad_ID'], // Campos que deseas incluir
+                    include: [
+                        {
+                            model: Ciudad,
+                            as: 'Ciudad',
+                            attributes: ['ID', 'nombre', 'departamento_ID'],
+                            include: [
+                                {
+                                    model: Departamento,
+                                    as: 'Departamento',
+                                    attributes: ['ID', 'nombre']
+                                }
+                            ]
+                        }
+                    ]
                 },
             ],
         });
@@ -809,6 +837,35 @@ const updateUserProfile = async (req, res) => {
                 if (titulo_profesional) user.titulo_profesional = titulo_profesional;
                 if (foto_perfil) user.foto_perfil = foto_perfil;
 
+                // Si se envía información de empresa, permitir que el administrador la actualice también
+                if (req.body.empresa && user.Empresa) {
+                    let empresaData;
+                    try {
+                        empresaData = typeof req.body.empresa === 'string' ? JSON.parse(req.body.empresa) : req.body.empresa;
+                    } catch (e) {
+                        return res.status(400).json({ message: "Formato de empresa inválido." });
+                    }
+
+                    const { NIT, categoria, direccion, email_empresa, estado: estadoEmpresa, img_empresa, nombre_empresa, telefono, ciudad_ID, departamento_ID } = empresaData;
+
+                    if (NIT !== undefined) user.Empresa.NIT = NIT;
+                    if (email_empresa !== undefined) user.Empresa.email_empresa = email_empresa;
+                    if (nombre_empresa !== undefined) user.Empresa.nombre_empresa = nombre_empresa;
+                    if (direccion !== undefined) user.Empresa.direccion = direccion;
+                    if (categoria !== undefined) user.Empresa.categoria = categoria;
+                    if (telefono !== undefined) user.Empresa.telefono = telefono;
+                    if (ciudad_ID !== undefined) user.Empresa.ciudad_ID = ciudad_ID;
+                    if (estadoEmpresa !== undefined) user.Empresa.estado = estadoEmpresa;
+
+                    if (req.files?.img_empresa?.[0]) {
+                        user.Empresa.img_empresa = req.files.img_empresa[0].buffer.toString("base64");
+                    } else if (img_empresa !== undefined) {
+                        user.Empresa.img_empresa = img_empresa;
+                    }
+
+                    await user.Empresa.save();
+                }
+
                 await user.save();
                 return res.status(200).json({ message: "Perfil actualizado con éxito." });
             }
@@ -843,7 +900,10 @@ const updateUserProfile = async (req, res) => {
             if (apellidos) user.apellidos = apellidos;
             if (celular) user.celular = celular;
             if (documento) user.documento = documento;
-            if (estado) user.estado = estado;
+            // El estado de la cuenta Empresa solo puede ser modificado por Administrador
+            if (estado && loggedInUser.accountType === "Administrador") {
+                user.estado = estado;
+            }
             if (foto_perfil) user.foto_perfil = foto_perfil;
 
             // Actualizar datos de la empresa - MEJORADO
@@ -865,16 +925,17 @@ const updateUserProfile = async (req, res) => {
                     estado,
                     img_empresa,
                     nombre_empresa,
-                    telefono
+                    telefono,
+                    ciudad_ID
                 } = empresaData;
 
                 if (NIT) user.Empresa.NIT = NIT;
                 if (email_empresa) user.Empresa.email_empresa = email_empresa;
                 if (nombre_empresa) user.Empresa.nombre_empresa = nombre_empresa;
                 if (direccion) user.Empresa.direccion = direccion;
-                if (estadoEmpresa !== undefined) user.Empresa.estado = estadoEmpresa;
                 if (categoria) user.Empresa.categoria = categoria;
                 if (telefono) user.Empresa.telefono = telefono;
+                if (ciudad_ID) user.Empresa.ciudad_ID = ciudad_ID;
 
                 // Procesar imagen de empresa si viene en archivos
                 if (req.files?.img_empresa?.[0]) {
@@ -1041,6 +1102,43 @@ const updateUserProfile = async (req, res) => {
             return res.status(200).json({ message });
         }
 
+        // Instructor puede actualizar su propio perfil
+        if (loggedInUser.accountType === "Instructor" && user.accountType === "Instructor") {
+            // Validar que el aprendiz solo pueda actualizar su propio perfil
+            if (loggedInUser.id !== parseInt(id)) {
+                return res.status(403).json({ message: "No tienes permiso para actualizar este perfil." });
+            }
+
+            if (email && email !== user.email) {
+                const existingEmail = await User.findOne({ where: { email } });
+                if (existingEmail) {
+                    return res.status(400).json({ message: "El correo electrónico ya está registrado." });
+                }
+
+                // Generar token de verificación
+                const payload = {email};
+
+                const verificationToken = generateToken(payload, process.env.JWT_SECRET, 5);
+                user.token = verificationToken;
+                user.verificacion_email = false;
+
+                // Enviar correo de verificación
+                await sendVerificationEmail(email, verificationToken);
+                user.email = email;
+            }
+            if (nombres) user.nombres = nombres;
+            if (apellidos) user.apellidos = apellidos;
+            if (celular) user.celular = celular;
+            if (documento) user.documento = documento;
+            if (estado) user.estado = estado;
+            if (titulo_profesional) user.titulo_profesional = titulo_profesional;
+            if (tipoDocumento) user.tipoDocumento = tipoDocumento;
+            if (foto_perfil) user.foto_perfil = foto_perfil;
+
+            await user.save();
+            return res.status(200).json({ message: "Perfil de aprendiz actualizado con éxito. Por favor verifica tu nuevo correo." });
+        }
+
         return res.status(403).json({ message: "No tienes permiso para actualizar este perfil." });
     } catch (error) {
         console.error("Error al actualizar el perfil del usuario:", error);
@@ -1088,7 +1186,7 @@ const createInstructor = async (req, res) => {
         const tempPassword = Math.random().toString(36).slice(-8);
         
         // Encriptar la contraseña temporal
-        const hashedPassword = await bcrypt.hash(tempPassword, 10);
+        const hashedPassword = await bcrypt.hash(tempPaspasssword, 10);
 
         // Crear el instructor
         const newInstructor = await User.create({
@@ -1184,12 +1282,26 @@ const createGestor = async (req, res) => {
         await sendVerificationEmail(email, token);
 
         res.status(201).json({
-            message: "Instructor creado con éxito. Se envió un correo con la información de acceso.",
-            instructor: newGestor
+            message: "Gestor creado con éxito. Se envió un correo con la información de acceso.",
+            gestor: newGestor
         });
     } catch (error) {
         console.error("Error al crear el gestor:", error);
-        res.status(500).json({ message: "Error al crear el gestor." });
+        if (error.name === 'SequelizeUniqueConstraintError') {
+            const campos = (error.errors || []).map(e => e.path).filter(Boolean);
+            return res.status(409).json({
+                message: "Datos duplicados al crear el gestor.",
+                detalles: campos.length ? `Campos en conflicto: ${campos.join(', ')}` : undefined
+            });
+        }
+        if (error.name === 'SequelizeValidationError') {
+            const detalles = (error.errors || []).map(e => ({ campo: e.path, mensaje: e.message }));
+            return res.status(400).json({
+                message: "Validación fallida al crear el gestor.",
+                errores: detalles
+            });
+        }
+        return res.status(500).json({ message: `Error al crear el gestor: ${error.message || 'desconocido'}` });
     }
 };
 
@@ -1431,7 +1543,7 @@ const detectarTextoOCR = async (imagePath) => {
     const client = new vision.ImageAnnotatorClient();
     const imageBuffer = fs.readFileSync(imagePath);
     const [result] = await client.textDetection({ image: { content: imageBuffer } });
-    return result.fullTextAnnotation?.text || '';
+    return result.fullTextAnnotation.text || '';
 };
 
 

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import "./UpdateGestor.css";
 import axiosInstance from "../../../../config/axiosInstance";
 import { validateEmail, validateNumber, validateText, createMensajeError } from "../../../../utils/Validators/formValidator";
-import { Routes, Route, useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 
 export const UpdateGestor = ({ gestor }) => {
 
@@ -14,7 +14,9 @@ export const UpdateGestor = ({ gestor }) => {
   const [formData, setFormData] = useState({ ...gestor });
 
   const closeModalUpdateGestor = () => {
-    document.getElementById("modal-overlayUpdateGestor").style.display = "none";
+    if (onClose) onClose();
+    const overlay = document.getElementById("modal-overlayUpdateGestor");
+    if (overlay) overlay.style.display = "none";
   };
 
   const getImageSrc = (data) => {

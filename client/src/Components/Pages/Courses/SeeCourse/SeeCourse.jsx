@@ -58,123 +58,109 @@ export const SeeCourse = () => {
 
 
     return (
-        <>
-            <Header />
-            <Main>
-                <div className='container_createCourse'>
-                    <h2 id='title_seeCourse'>
-                        {curso.nombre_curso}
-                    </h2>
+  <>
+    <Header />
+    <Main className="course-page-main">
+      <div className='course-page-container'>
+        <div className='course-date'>
+          Ficha: {curso.ficha}
+        </div>
 
-                    <div className='containerInformation_CreateCourse'>
-                        <label className='containerImgCourse'>
-                            {curso.imagen ? (
-                                <img
-                                    src={`data:image/jpeg;base64,${curso.imagen}`}
-                                    alt="Imagen del curso"
-                                    className="imgCourse"
-                                />
-                            ) : (
-                                <div className='upload-placeholder'>
-                                    <p>No hay imagen disponible</p>
-                                </div>
-                            )}
-                        </label>
-
-                        <div className='containerDetails_course'>
-                            <div id='containerInput_ficha'>
-                                <label className='fichaCourseLabel' htmlFor="fichaCourse">Ficha: {curso.ficha} </label>
-
-                            </div>
-
-                            <p id='descripcionSeeCurso'>{curso.descripcion}</p>
-
-                            <div className='containerDetails_course2'>
-                                <div>
-                                    <div className="offer-type-container">
-                                        <span>Tipo de oferta: {curso.tipo_oferta} </span>
-
-                                    </div>
-                                    <div className="offer-type-container">
-                                        <span>Estado: {curso.estado} </span>
-
-                                    </div>
-                                    <div className="offer-type-container">
-                                        <span>
-                                            Empresa: {curso.Empresa?.nombre_empresa ? curso.Empresa.nombre_empresa : "Sin empresa asignada"}
-                                        </span>
-                                    </div>
-                                    <div className="offer-type-container">
-                                        <span>
-                                            Instructor: {curso?.Instructor? `${curso.Instructor.nombres} ${curso.Instructor.apellidos}`: "Sin asignar"}
-                                        </span>
-                                        
-                                    </div>
-
-                                </div>
-
-                                <div>
-
-                                    {/* Botón para abrir el modal general */}
-                                    <button className='addDate' onClick={() => setIsViewCalendarOpen(true)}>
-                                        <img src={calendar} alt="" />
-                                        Ver fechas y horarios
-                                    </button>
-                                </div>
-                            </div>
-                            {/* Mostrar botón solo si el usuario es Administrador o Gestor */}
-                            {userSession && (userSession.accountType === 'Administrador' || userSession.accountType === 'Gestor') && (
-                                <button
-                                    className='editCourse'
-                                    onClick={() => navigate(`/Cursos/ActualizarCurso/${id}`)}
-                                >
-                                    Editar Curso
-                                </button>
-                            )}
-                            {/* Mostrar botón solo si el usuario es Empresa */}
-                            {userSession && (userSession.accountType === 'Empresa') && (
-                                <button
-                                    className='editCourse'
-                                    onClick={() => navigate(`/SolicitarCurso/${encodeURIComponent(curso.nombre_curso)}`)}                                >
-                                    Solicitar Curso
-                                </button>
-                            )}
-                            {/* Mostrar botón solo si el usuario es Instructor */}
-                            {userSession && (userSession.accountType === 'Instructor') && (
-                                <button
-                                    className='manageAttendance'
-                                    onClick={() => navigate(`/Cursos/${id}/gestionar-asistencia`)}
-                                >
-                                    Gestionar Asistencias
-                                </button>
-                            )}
-                        </div>
-                    </div>
-
+        <div className='course-content'>
+          <div className='course-left-section'>
+            <h1 className='course-title'>
+                {curso.nombre_curso}
+              
+            </h1>
+            
+            <div className='course-image-container'>
+              {curso.imagen ? (
+                <img 
+                  src={`data:image/jpeg;base64,${curso.imagen}`} 
+                  alt="Imagen del curso" 
+                  className="course-image" 
+                />
+              ) : (
+                <div className='image-placeholder'>
+                  <p>No hay imagen disponible</p>
                 </div>
+              )}
+            </div>
+          </div>
 
-            </Main>
-            <Footer />
-            {showModal && curso && (
-                <AssignInstructorCourse
-                    curso_ID={curso.ID}
-                    onClose={() => setShowModal(false)} // Para poder cerrarlo desde dentro
-                />
+          <div className='course-info'>
+            <div className='course-description'>
+              <p>{curso.descripcion}</p>
+            </div>
 
-            )}
-            {isViewCalendarOpen && (
-                <ViewCalendar
-                    calendarData={calendarData}
-                    closeModal={() => setIsViewCalendarOpen(false)}
-                />
-            )}
-            {isViewCalendarOpen && (
-                <ViewCalendar
-                    calendarData={calendarData}
-                    closeModal={() => setIsViewCalendarOpen(false)}
-                />
-            )}
+            <div className='course-details-grid'>
+              <div className='detail-row'>
+                <div className='detail-item'>
+                  <span className='detail-label'>Tipo de oferta:</span>
+                  <span className='detail-value'>{curso.tipo_oferta}</span>
+                </div>
+                <div className='detail-item'>
+                    <span className='detail-label'>Estado:</span>
+                    <span className='detail-value detail-status'>{curso.estado}</span>
+                </div>
+              </div>
 
-        </>
-    );
+              <div className='detail-row'>
+                <div className='detail-item'>
+                    <span className='detail-label'>Instructor:</span>
+                    <span className='detail-value'>
+                        {curso?.Instructor ? `${curso.Instructor.nombres} ${curso.Instructor.apellidos}` : "Sin asignar"}
+                    </span>
+                 
+                </div>
+                
+              </div>
+            </div>
+
+            <div className='action-buttons'>
+              <button className='calendar-btn' onClick={() => setIsViewCalendarOpen(true)}>
+                <span className='calendar-icon'>📅</span>
+                Ver fechas y horarios
+              </button>
+
+              {/* Botones condicionales */}
+              {userSession && (userSession.accountType === 'Administrador' || userSession.accountType === 'Gestor') && (
+                <button className='edit-btn' onClick={() => navigate(`/Cursos/ActualizarCurso/${id}`)}>
+                  Editar Curso
+                </button>
+              )}
+
+              {userSession && userSession.accountType === 'Empresa' && (
+                <button className='edit-btn' onClick={() => navigate(`/SolicitarCurso/${encodeURIComponent(curso.nombre_curso)}`)}>
+                  Solicitar Curso
+                </button>
+              )}
+
+              {userSession && userSession.accountType === 'Instructor' && (
+                <button className='edit-btn' onClick={() => navigate(`/Cursos/${id}/gestionar-asistencia`)}>
+                  Gestionar Asistencias
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </Main>
+    <Footer />
+
+    {showModal && curso && (
+      <AssignInstructorCourse 
+        curso_ID={curso.ID} 
+        onClose={() => setShowModal(false)} 
+      />
+    )}
+
+    {isViewCalendarOpen && (
+      <ViewCalendar 
+        calendarData={calendarData} 
+        closeModal={() => setIsViewCalendarOpen(false)} 
+      />
+    )}
+  </>
+);
 };

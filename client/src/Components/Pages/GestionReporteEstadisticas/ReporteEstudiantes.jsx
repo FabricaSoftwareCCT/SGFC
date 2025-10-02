@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
-import EficienciaReporte from './Eficiencia-reporte'; // Importar el componente
+import React, { useState, useMemo } from 'react';
+import EficienciaReporte from './Eficiencia-reporte';
 import './ReporteEstudiantes.css';
 
 export default function ReporteEstudiantes({ cursoSeleccionado, onVolver }) {
   const [mostrarFiltro, setMostrarFiltro] = useState(false);
-  const [mostrarEficiencia, setMostrarEficiencia] = useState(false); // Nuevo estado para mostrar eficiencia
+  const [mostrarEficiencia, setMostrarEficiencia] = useState(false);
   const [filtros, setFiltros] = useState({
     nombre: '',
+    apellido: '',
     documento: '',
     estado: {
       activo: false,
@@ -48,8 +49,58 @@ export default function ReporteEstudiantes({ cursoSeleccionado, onVolver }) {
       estado: "Activo", 
       faltas: 0, 
       asistencias: 30 
+    },
+    { 
+      nombre: "Pedro Antonio", 
+      apellido: "Hernández Díaz", 
+      documento: "55667788", 
+      estado: "Inactivo", 
+      faltas: 3, 
+      asistencias: 22 
     }
   ];
+
+  // Función para aplicar todos los filtros
+  const estudiantesFiltrados = useMemo(() => {
+    return datosEstudiantes.filter(estudiante => {
+      // Filtro por nombre
+      if (filtros.nombre && !estudiante.nombre.toLowerCase().includes(filtros.nombre.toLowerCase())) {
+        return false;
+      }
+
+      // Filtro por apellido
+      if (filtros.apellido && !estudiante.apellido.toLowerCase().includes(filtros.apellido.toLowerCase())) {
+        return false;
+      }
+
+      // Filtro por documento
+      if (filtros.documento && !estudiante.documento.includes(filtros.documento)) {
+        return false;
+      }
+
+      // Filtro por estado
+      const estadosSeleccionados = [];
+      if (filtros.estado.activo) estadosSeleccionados.push('Activo');
+      if (filtros.estado.inactivo) estadosSeleccionados.push('Inactivo');
+      
+      if (estadosSeleccionados.length > 0 && !estadosSeleccionados.includes(estudiante.estado)) {
+        return false;
+      }
+
+      // Filtro por faltas
+      if (filtros.faltas && estudiante.faltas !== parseInt(filtros.faltas)) {
+        return false;
+      }
+
+      // Filtro por asistencias
+      if (filtros.asistencias && estudiante.asistencias !== parseInt(filtros.asistencias)) {
+        return false;
+      }
+
+      // Si pasa todos los filtros, incluir el estudiante
+      return true;
+    });
+  }, [filtros]);
 
   const toggleFiltro = () => {
     setMostrarFiltro(!mostrarFiltro);
@@ -84,12 +135,14 @@ export default function ReporteEstudiantes({ cursoSeleccionado, onVolver }) {
 
   const aplicarFiltros = () => {
     console.log('Filtros aplicados:', filtros);
+    console.log('Estudiantes filtrados:', estudiantesFiltrados.length);
     setMostrarFiltro(false);
   };
 
   const limpiarFiltros = () => {
     setFiltros({
       nombre: '',
+      apellido: '',
       documento: '',
       estado: {
         activo: false,
@@ -98,11 +151,25 @@ export default function ReporteEstudiantes({ cursoSeleccionado, onVolver }) {
       faltas: '',
       asistencias: ''
     });
+    console.log('Filtros limpiados');
   };
 
   const generarReporte = () => {
     console.log('Generando reporte de estudiantes...');
-    alert('Reporte generado exitosamente');
+    const datosReporte = estudiantesFiltrados.length > 0 ? estudiantesFiltrados : datosEstudiantes;
+    alert(`Reporte generado exitosamente\nTotal de estudiantes: ${datosReporte.length}`);
+  };
+
+  // Contador de filtros activos
+  const filtrosActivos = () => {
+    let count = 0;
+    if (filtros.nombre) count++;
+    if (filtros.apellido) count++;
+    if (filtros.documento) count++;
+    if (filtros.estado.activo || filtros.estado.inactivo) count++;
+    if (filtros.faltas) count++;
+    if (filtros.asistencias) count++;
+    return count;
   };
 
   // Si estamos mostrando el reporte de eficiencia, renderizar ese componente
@@ -111,7 +178,7 @@ export default function ReporteEstudiantes({ cursoSeleccionado, onVolver }) {
       <EficienciaReporte 
         cursoSeleccionado={cursoSeleccionado}
         onVolver={handleVolverDesdeEficiencia}
-        datosEstudiantes={datosEstudiantes} // Pasar los datos si son necesarios
+        datosEstudiantes={datosEstudiantes}
       />
     );
   }
@@ -148,7 +215,7 @@ export default function ReporteEstudiantes({ cursoSeleccionado, onVolver }) {
           className='button-filtro-reporte-estudiantes' 
           onClick={toggleFiltro}
         >
-          Filtro
+          Filtro {filtrosActivos() > 0 && `(${filtrosActivos()})`}
         </button>
         
         {mostrarFiltro && (
@@ -162,6 +229,18 @@ export default function ReporteEstudiantes({ cursoSeleccionado, onVolver }) {
                 placeholder="Buscar por nombre..."
                 value={filtros.nombre}
                 onChange={(e) => handleInputChange('nombre', e.target.value)}
+              />
+            </div>
+
+            {/* Filtro por Apellido */}
+            <div className="filtro-grupo-estudiantes">
+              <div className="filtro-titulo-estudiantes">Apellido</div>
+              <input 
+                type="text" 
+                className="filtro-input-estudiantes"
+                placeholder="Buscar por apellido..."
+                value={filtros.apellido}
+                onChange={(e) => handleInputChange('apellido', e.target.value)}
               />
             </div>
 
@@ -207,6 +286,7 @@ export default function ReporteEstudiantes({ cursoSeleccionado, onVolver }) {
                 placeholder="Filtrar por faltas..."
                 value={filtros.faltas}
                 onChange={(e) => handleInputChange('faltas', e.target.value)}
+                min="0"
               />
             </div>
 
@@ -219,7 +299,15 @@ export default function ReporteEstudiantes({ cursoSeleccionado, onVolver }) {
                 placeholder="Filtrar por asistencias..."
                 value={filtros.asistencias}
                 onChange={(e) => handleInputChange('asistencias', e.target.value)}
+                min="0"
               />
+            </div>
+
+            {/* Información de resultados */}
+            <div className="filtro-info-estudiantes">
+              <div className="filtro-resultados-estudiantes">
+                Resultados: {estudiantesFiltrados.length} de {datosEstudiantes.length} estudiantes
+              </div>
             </div>
 
             {/* Botones del filtro */}
@@ -246,19 +334,25 @@ export default function ReporteEstudiantes({ cursoSeleccionado, onVolver }) {
           <div>N° Asistencias</div>
         </div>
 
-        {/* Filas de datos */}
-        {datosEstudiantes.map((estudiante, index) => (
-          <div key={index} className="tabla-fila-estudiantes">
-            <div className="columna-nombre-estudiantes">{estudiante.nombre}</div>
-            <div className="columna-apellido-estudiantes">{estudiante.apellido}</div>
-            <div className="columna-documento-estudiantes">{estudiante.documento}</div>
-            <div className={estudiante.estado === "Activo" ? "estado-activo-estudiantes" : "estado-inactivo-estudiantes"}>
-              {estudiante.estado}
+        {/* Filas de datos filtrados */}
+        {estudiantesFiltrados.length > 0 ? (
+          estudiantesFiltrados.map((estudiante, index) => (
+            <div key={index} className="tabla-fila-estudiantes">
+              <div className="columna-nombre-estudiantes">{estudiante.nombre}</div>
+              <div className="columna-apellido-estudiantes">{estudiante.apellido}</div>
+              <div className="columna-documento-estudiantes">{estudiante.documento}</div>
+              <div className={estudiante.estado === "Activo" ? "estado-activo-estudiantes" : "estado-inactivo-estudiantes"}>
+                {estudiante.estado}
+              </div>
+              <div className="columna-faltas-estudiantes">{estudiante.faltas}</div>
+              <div className="columna-asistencias-estudiantes">{estudiante.asistencias}</div>
             </div>
-            <div className="columna-faltas-estudiantes">{estudiante.faltas}</div>
-            <div className="columna-asistencias-estudiantes">{estudiante.asistencias}</div>
+          ))
+        ) : (
+          <div className="no-resultados-estudiantes">
+            No se encontraron estudiantes que coincidan con los filtros aplicados
           </div>
-        ))}
+        )}
       </div>
     </div>
   );

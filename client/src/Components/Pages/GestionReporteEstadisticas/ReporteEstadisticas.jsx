@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import './ReporteEstadisticas.css';
 import ReporteEstudiantes from './ReporteEstudiantes';
 
@@ -30,8 +30,54 @@ export default function ReporteEstadisticas() {
     { curso: "Pintura 2", ficha: "1234568978", instructor: "Carlos River", estado: "Activo", empleados: 21 },
     { curso: "Sepillo 2", ficha: "123452678", instructor: "Xionará Leona", estado: "Inactivo", empleados: 31 },
     { curso: "Gráfica 3", ficha: "123452678", instructor: "Zulimy Montera", estado: "Activo", empleados: 24 },
-    { curso: "Económia", ficha: "123425678", instructor: "Goku Son", estado: "Activo", empleados: 20 }
+    { curso: "Económia", ficha: "123425678", instructor: "Goku Son", estado: "Activo", empleados: 20 },
+    { curso: "Matemáticas", ficha: "12349876", instructor: "Ana García", estado: "Inactivo", empleados: 8 },
+    { curso: "Física", ficha: "12348765", instructor: "Luis Martínez", estado: "Activo", empleados: 15 }
   ];
+
+  // Función para determinar el rango de empleados
+  const getRangoEmpleados = (cantidad) => {
+    if (cantidad <= 10) return '0-10';
+    if (cantidad <= 20) return '11-20';
+    if (cantidad <= 30) return '21-30';
+    return '31-40+';
+  };
+
+  // Función para aplicar todos los filtros
+  const empleadosFiltrados = useMemo(() => {
+    return datosEmpleados.filter(empleado => {
+      // Filtro por estado
+      const estadosSeleccionados = [];
+      if (filtros.estado.activo) estadosSeleccionados.push('Activo');
+      if (filtros.estado.inactivo) estadosSeleccionados.push('Inactivo');
+      
+      if (estadosSeleccionados.length > 0 && !estadosSeleccionados.includes(empleado.estado)) {
+        return false;
+      }
+
+      // Filtro por rango de empleados
+      const rangosSeleccionados = Object.keys(filtros.empleados).filter(rango => filtros.empleados[rango]);
+      if (rangosSeleccionados.length > 0) {
+        const rangoEmpleado = getRangoEmpleados(empleado.empleados);
+        if (!rangosSeleccionados.includes(rangoEmpleado)) {
+          return false;
+        }
+      }
+
+      // Filtro por nombre del curso
+      if (filtros.curso && !empleado.curso.toLowerCase().includes(filtros.curso.toLowerCase())) {
+        return false;
+      }
+
+      // Filtro por nombre del instructor
+      if (filtros.instructor && !empleado.instructor.toLowerCase().includes(filtros.instructor.toLowerCase())) {
+        return false;
+      }
+
+      // Si pasa todos los filtros, incluir el empleado
+      return true;
+    });
+  }, [filtros]);
 
   // Función para manejar el clic en una fila
   const handleFilaClick = (empleado) => {
@@ -72,6 +118,7 @@ export default function ReporteEstadisticas() {
 
   const aplicarFiltros = () => {
     console.log('Filtros aplicados:', filtros);
+    console.log('Cursos filtrados:', empleadosFiltrados.length);
     setMostrarFiltro(false);
   };
 
@@ -90,6 +137,23 @@ export default function ReporteEstadisticas() {
       curso: '',
       instructor: ''
     });
+    console.log('Filtros limpiados');
+  };
+
+  const generarReporte = () => {
+    console.log('Generando reporte de cursos...');
+    const datosReporte = empleadosFiltrados.length > 0 ? empleadosFiltrados : datosEmpleados;
+    alert(`Reporte generado exitosamente\nTotal de cursos: ${datosReporte.length}`);
+  };
+
+  // Contador de filtros activos
+  const filtrosActivos = () => {
+    let count = 0;
+    if (filtros.estado.activo || filtros.estado.inactivo) count++;
+    if (filtros.empleados['0-10'] || filtros.empleados['11-20'] || filtros.empleados['21-30'] || filtros.empleados['31-40+']) count++;
+    if (filtros.curso) count++;
+    if (filtros.instructor) count++;
+    return count;
   };
 
   // Si estamos en la pantalla de estudiantes, mostrar ese componente
@@ -102,7 +166,7 @@ export default function ReporteEstadisticas() {
     );
   }
 
-  // Pantalla de cursos (tu código original)
+  // Pantalla de cursos
   return (
     <div className="reporte-container-estadisticas">
       <h1 className="reporte-titulo-estadisticas">Reporte y Estadísticas</h1>
@@ -113,13 +177,14 @@ export default function ReporteEstadisticas() {
         >
           Cursos
         </button>
-        <button className="button-generar-reporte-estadisticas">Generar reporte</button>
-        {/* BOTÓN DE EFICIENCIA ELIMINADO DE AQUÍ */}
+        <button className="button-generar-reporte-estadisticas" onClick={generarReporte}>
+          Generar reporte
+        </button>
         <button 
           className='button-filtro-reporte-estadisticas' 
           onClick={toggleFiltro}
         >
-          Filtro
+          Filtro {filtrosActivos() > 0 && `(${filtrosActivos()})`}
         </button>
         
         {mostrarFiltro && (
@@ -204,6 +269,13 @@ export default function ReporteEstadisticas() {
               />
             </div>
 
+            {/* Información de resultados */}
+            <div className="filtro-info-estadisticas">
+              <div className="filtro-resultados-estadisticas">
+                Resultados: {empleadosFiltrados.length} de {datosEmpleados.length} cursos
+              </div>
+            </div>
+
             {/* Botones del filtro */}
             <div className="filtro-botones-estadisticas">
               <button className="filtro-boton-estadisticas filtro-limpiar-estadisticas" onClick={limpiarFiltros}>
@@ -227,22 +299,28 @@ export default function ReporteEstadisticas() {
           <div>Empleados registrados</div>
         </div>
 
-        {/* Filas de datos - CON ONCLICK AGREGADO */}
-        {datosEmpleados.map((empleado, index) => (
-          <div 
-            key={index} 
-            className="tabla-fila-estadisticas"
-            onClick={() => handleFilaClick(empleado)}
-          >
-            <div className="columna-curso-estadisticas">{empleado.curso}</div>
-            <div className="columna-ficha-estadisticas">{empleado.ficha}</div>
-            <div className="columna-instructor-estadisticas">{empleado.instructor}</div>
-            <div className={empleado.estado === "Activo" ? "estado-activo-estadisticas" : "estado-inactivo-estadisticas"}>
-              {empleado.estado}
+        {/* Filas de datos filtrados */}
+        {empleadosFiltrados.length > 0 ? (
+          empleadosFiltrados.map((empleado, index) => (
+            <div 
+              key={index} 
+              className="tabla-fila-estadisticas"
+              onClick={() => handleFilaClick(empleado)}
+            >
+              <div className="columna-curso-estadisticas">{empleado.curso}</div>
+              <div className="columna-ficha-estadisticas">{empleado.ficha}</div>
+              <div className="columna-instructor-estadisticas">{empleado.instructor}</div>
+              <div className={empleado.estado === "Activo" ? "estado-activo-estadisticas" : "estado-inactivo-estadisticas"}>
+                {empleado.estado}
+              </div>
+              <div className="columna-empleados-estadisticas">{empleado.empleados}</div>
             </div>
-            <div className="columna-empleados-estadisticas">{empleado.empleados}</div>
+          ))
+        ) : (
+          <div className="no-resultados-estadisticas">
+            No se encontraron cursos que coincidan con los filtros aplicados
           </div>
-        ))}
+        )}
       </div>
     </div>
   );

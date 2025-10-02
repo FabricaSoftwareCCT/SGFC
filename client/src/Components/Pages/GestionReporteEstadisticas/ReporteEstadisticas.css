@@ -176,6 +176,81 @@
   margin-top: 0rem;
 }
 
+/* Información de filtros */
+.filtro-info-estadisticas {
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  background: #1a1a1a;
+  border-radius: 4px;
+  border: 1px solid #333;
+}
+
+.filtro-resultados-estadisticas {
+  font-size: 0.8rem;
+  color: #4caf50;
+  text-align: center;
+  font-weight: 500;
+}
+
+/* Mensaje cuando no hay resultados */
+.no-resultados-estadisticas {
+  text-align: center;
+  padding: 2rem;
+  color: #ff6b6b;
+  font-weight: 500;
+  font-size: 1.1rem;
+  background: #2a2a2a;
+  border-radius: 8px;
+  margin: 1rem;
+}
+
+/* Mejorar los botones del filtro */
+.filtro-botones-estadisticas {
+    display: flex;
+    gap: 0.8rem;
+    margin-top: 1.2rem;
+    justify-content: center;
+    padding-top: 0.8rem;
+    border-top: 1px solid #333;
+}
+
+.filtro-boton-estadisticas {
+  padding: 0.6rem 1.2rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+  min-width: 80px;
+}
+
+.filtro-aplicar-estadisticas {
+  background: #00843d;
+  color: white;
+  border: 2px solid #00843d;
+}
+
+.filtro-aplicar-estadisticas:hover {
+  background: #0a5f0a;
+  border-color: #0a5f0a;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(10, 95, 10, 0.3);
+}
+
+.filtro-limpiar-estadisticas {
+  background: #666;
+  color: white;
+  border: 2px solid #666;
+}
+
+.filtro-limpiar-estadisticas:hover {
+  background: #888;
+  border-color: #888;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(136, 136, 136, 0.3);
+}
+
 .filtro-grupo-estadisticas {
   margin-bottom: 1.2rem;
 }

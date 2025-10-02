@@ -88,6 +88,39 @@ function App() {
 
   } = useModal();
 
+  useEffect(() => {
+    const verifiCarToken = async () => {
+      try {
+        const response = await fetch("http://localhost:3001/api/users/recordsession", {
+          method: "GET",
+          credentials: "include" 
+        });
+
+        if (!response.ok) {
+          sessionStorage.removeItem("userSession");
+          return;
+        }
+
+        const data = await response.json();
+
+        if (!data.session) {
+          sessionStorage.removeItem("userSession");
+          navigate("/"); 
+          return;
+        }
+
+        sessionStorage.setItem("userSession", JSON.stringify(data.session));
+        navigate("/", { state: { accountType: data.session.accountType } });
+
+      } catch (error) {
+        console.error("Error al verificar el token:", error);
+        sessionStorage.removeItem("userSession");
+      }
+  };
+  
+    verifiCarToken();
+  }, []);
+
 
   useEffect(() => {
     if (window.gapi) {

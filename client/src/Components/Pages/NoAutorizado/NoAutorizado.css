@@ -63,7 +63,6 @@
   text-decoration: none;
   display: inline-block;
   font-weight: 600;
-  box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
 }
 
 .btn-volver:hover {

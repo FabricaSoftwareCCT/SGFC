@@ -31,6 +31,7 @@ import { AssignInstructorCourse } from './Components/Pages/Courses/AssignInstruc
 import { ConcertationProceeding } from './Components/Pages/proceedings/ConcertationProceeding';
 import { TrainingPlaceProceeding } from './Components/Pages/proceedings/TrainingPlaceProceeding';
 import { SupportMaterial } from './Components/Pages/Courses/SupportMaterial/SupportMaterial';
+import { SupportMaterialCourse } from './Components/Pages/Courses/SupportMaterialCourse/SupportMaterialCourse';
 
 // Importación de modales
 import { NavBar } from './Components/UI/NavBar/NavBar';
@@ -48,6 +49,7 @@ import { NoAutorizado } from './Components/Pages/NoAutorizado/NoAutorizado';
 // Importación de estilos
 import "./App.css";
 import { Header } from './Components/Layouts/Header/Header';
+
 
 // Crear un componente Layout que envuelva las páginas con Header y Footer
 const Layout = ({ children, setShowSignIn, setShowSignUp, setShowModalGeneral }) => {
@@ -259,7 +261,8 @@ function App() {
           <Route path="/Actas/Lugar-formacion" element={<TrainingPlaceProceeding />} />   
           <Route path="/no-autorizado" element={<NoAutorizado />} />
           <Route path="/SolicitarCurso/:nombreCurso" element={<RequestCourse />} />       
-          <Route path="/SupportMaterial" element={<SupportMaterial/>} />
+          <Route path="/SupportMaterial" element={<SupportMaterial/>}/>
+          <Route path="/SupportMaterialCourse" element={<SupportMaterialCourse/>}/>
           </Routes>
       </>
     </GoogleOAuthProvider>

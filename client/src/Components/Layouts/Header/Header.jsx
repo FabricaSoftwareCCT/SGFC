@@ -118,12 +118,14 @@ export const Header = ({ setShowSignIn, setShowSignUp, setShowAccountType }) => 
                 { label: "Mis cursos", path: "/Cursos/MisCursos" },
                 { label: "Buscar cursos", path: "/Cursos/BuscarCursos" },
                 { label: "Crear curso", path: "/Cursos/CrearCurso" },
+                { label: "Material de Apoyo", path: "/SupportMaterial"}
               ]
               break
             case "Instructor":
               options = [
                 { label: "Mis cursos", path: "/Cursos/MisCursosAsignados" },
                 { label: "Buscar cursos", path: "/Cursos/BuscarCursos" },
+                { label: "Material de Apoyo", path: "/SupportMaterial"}
               ]
               break
             case "Gestor":
@@ -131,12 +133,14 @@ export const Header = ({ setShowSignIn, setShowSignUp, setShowAccountType }) => 
                 { label: "Mis cursos", path: "/Cursos/MisCursos" },
                 { label: "Buscar cursos", path: "/Cursos/BuscarCursos" },
                 { label: "Crear curso", path: "/Cursos/CrearCurso" },
+                { label: "Material de Apoyo", path: "/SupportMaterial"}
               ]
               break
             case "Empresa":
               options = [
                 { label: "Mis cursos", path: "/Cursos/MisCursos" },
                 { label: "Buscar cursos", path: "/Cursos/BuscarCursos" },
+                { label: "Material de Apoyo", path: "/SupportMaterial"}
               ]
               break
             default:

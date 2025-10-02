@@ -63,7 +63,7 @@ export const SupportMaterial = () => {
     }
         
     const handleDescargarArchivo = (archivo) => {
-        alert(`Descargando: ${archivo.nombre_original}\n\nEl backend manejaría la descarga real.`);
+        alert(`Descargando: ${archivo.nombre_original}`);
     }
     
     const handleEliminarArchivo = (archivoId) => {
@@ -77,10 +77,6 @@ export const SupportMaterial = () => {
             <Header />
             <Main className="material-main">
                 <div className="material-container">
-                    <div className="material-header">
-                        <h1>Material de Apoyo</h1>
-                        <button className='btn-volver' onClick={() => navigate(-1)}>Volver al Curso</button>
-                    </div>
                     <div className='material-content'>
                         <div className='cursos-section'>
                             <h2>Selecciona un Curso</h2>

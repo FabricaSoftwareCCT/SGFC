@@ -121,7 +121,7 @@ export const SeeCourse = () => {
                                 </button>
 
                                 {/* Botón de Material */}
-                                <button className='material-btn' onClick={handleMaterialClick}>
+                                <button className='material-btn' onClick={()=> navigate(`/SupportMaterialCourse`)}>
                                     <img src={materialIcon} alt="Material del curso" className="btn-icon" />
                                     Ver Material
                                 </button>
@@ -165,17 +165,6 @@ export const SeeCourse = () => {
                     closeModal={() => setIsViewCalendarOpen(false)} 
                 />
             )}
-
-            {/* Aquí puedes agregar el modal para el material cuando lo implementes */}
-            {/*showMaterial && (
-                <div className="modal-overlay">
-                    <div className="modal-content">
-                        <h2>Material del Curso</h2>
-                        <p>Aquí irá el contenido del material para el curso: {curso.nombre_curso}</p>
-                        <button onClick={() => setShowMaterial(false)}>Cerrar</button>
-                    </div>
-                </div>
-            )*/}
         </>
     );
 };

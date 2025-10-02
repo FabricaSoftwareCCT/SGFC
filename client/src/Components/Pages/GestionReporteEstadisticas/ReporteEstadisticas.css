@@ -32,48 +32,9 @@
   text-align: center;
   color: #fff;
   font-size: 2.5rem;
-  margin: 1rem 0 2rem 0;
+  margin: 2rem 0 2rem 0;
   font-weight: 600;
   width: 100%;
-}
-
-.button-cursos-estadisticas {
-    background: none;
-    width: auto;
-    padding: 12px 30px;
-    text-align: center;
-    display: inline-block;
-    height: auto;
-    border: none;
-    color: #0a5f0a;
-    font-size: 1.3rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    min-width: 160px;
-    margin-right: auto;
-    border-radius: 10px;
-}
-
-.button-cursos-estadisticas:hover {
-  background-color: #0a5f0a;
-  color: white;
-  border-color: #0c7a0c;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(10, 95, 10, 0.4);
-  border-radius: 10px;
-}
-
-.button-cursos-estadisticas:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 6px rgba(10, 95, 10, 0.3);
-}
-
-.button-cursos-estadisticas.active {
-    background: #00843d;
-    color: #ffffff;
-    border-radius: 25px;
-    border-color: #00843d;
 }
 
 .button-eficiencia-estadisticas {
@@ -163,17 +124,17 @@
 
 /* Menú desplegable de filtros */
 .filtro-menu-estadisticas {
-  position: absolute;
-  top: 100%;
-  right: 0;
-  background: #2a2a2a;
-  border: 1px solid #333;
-  border-radius: 8px;
-  padding: 1.2rem;
-  min-width: 280px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
-  z-index: 1000;
-  margin-top: 0rem;
+    position: absolute;
+    top: 70%;
+    right: 374px;
+    background: #2a2a2a;
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 1.2rem;
+    min-width: 280px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    margin-top: 0rem;
 }
 
 /* Información de filtros */
@@ -448,7 +409,6 @@
     margin: 1.5rem 0;
   }
   
-  .button-cursos-estadisticas,
   .button-eficiencia-estadisticas,
   .button-generar-reporte-estadisticas,
   .button-filtro-reporte-estadisticas {
@@ -458,10 +418,6 @@
     border-radius: 10px;
   }
   
-  .button-cursos-estadisticas.active,
-  .button-eficiencia-estadisticas.active {
-    border-radius: 25px;
-  }
   
   .filtro-menu-estadisticas {
     position: fixed;
@@ -561,7 +517,6 @@
     font-size: 1.8rem;
   }
   
-  .button-cursos-estadisticas,
   .button-eficiencia-estadisticas,
   .button-generar-reporte-estadisticas,
   .button-filtro-reporte-estadisticas {

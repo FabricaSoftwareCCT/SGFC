@@ -171,12 +171,6 @@ export default function ReporteEstadisticas() {
     <div className="reporte-container-estadisticas">
       <h1 className="reporte-titulo-estadisticas">Reporte y Estadísticas</h1>
       <div className='container-tabla-estadisticas'>
-        <button 
-          className={`button-cursos-estadisticas ${botonActivo === 'cursos' ? 'active' : ''}`}
-          onClick={() => handleBotonClick('cursos')}
-        >
-          Cursos
-        </button>
         <button className="button-generar-reporte-estadisticas" onClick={generarReporte}>
           Generar reporte
         </button>

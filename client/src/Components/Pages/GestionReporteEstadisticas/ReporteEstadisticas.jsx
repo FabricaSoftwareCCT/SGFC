@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect,useRef } from 'react';
 import './ReporteEstadisticas.css';
 import ReporteEstudiantes from './ReporteEstudiantes';
 
@@ -28,6 +28,26 @@ export default function ReporteEstadisticas() {
     instructor: ''
   });
 
+  const filtroRef = useRef(null);
+
+ useEffect(() => {
+  function handleClickOutside(event) {
+    if (mostrarFiltro && filtroRef.current && !filtroRef.current.contains(event.target)) {
+      const botonFiltro = document.querySelector('.button-filtro-reporte-estadisticas');
+      if (botonFiltro && !botonFiltro.contains(event.target)) {
+        setMostrarFiltro(false);
+      }
+    }
+  }
+
+  document.addEventListener('mousedown', handleClickOutside);
+
+  // Limpiar event listener cuando el componente se desmonta
+  return () => {
+    document.removeEventListener('mousedown', handleClickOutside);
+  };
+}, [mostrarFiltro]);
+/*
   useEffect(() => {
     const cursos = async () => {
       try{
@@ -54,6 +74,30 @@ export default function ReporteEstadisticas() {
     };
     cursos();
   }, []);
+  */
+
+  const cursos = [
+  { id: 1, curso: "Programación Web con React", ficha: "FW-001", instructor: "María González", estado: "Activo", empleados: 15 },
+  { id: 2, curso: "Base de Datos Avanzadas", ficha: "DB-002", instructor: "Carlos Rodríguez", estado: "Activo", empleados: 8 },
+  { id: 3, curso: "Machine Learning Fundamentals", ficha: "ML-003", instructor: "Ana Martínez", estado: "Inactivo", empleados: 25 },
+  { id: 4, curso: "Desarrollo Mobile con Flutter", ficha: "MB-004", instructor: "Luis Sánchez", estado: "Activo", empleados: 12 },
+  { id: 5, curso: "Ciberseguridad Básica", ficha: "CS-005", instructor: "Elena Ramírez", estado: "Activo", empleados: 32 },
+  { id: 6, curso: "Cloud Computing con AWS", ficha: "CC-006", instructor: "Pedro López", estado: "Inactivo", empleados: 18 },
+  { id: 7, curso: "JavaScript Avanzado", ficha: "JS-007", instructor: "Laura Díaz", estado: "Activo", empleados: 22 },
+  { id: 8, curso: "Python para Ciencia de Datos", ficha: "PY-008", instructor: "Miguel Torres", estado: "Activo", empleados: 28 },
+  { id: 9, curso: "Diseño UX/UI", ficha: "DX-009", instructor: "Sofía Castro", estado: "Inactivo", empleados: 7 },
+  { id: 10, curso: "DevOps y CI/CD", ficha: "DV-010", instructor: "Javier Morales", estado: "Activo", empleados: 35 },
+  { id: 11, curso: "Blockchain Development", ficha: "BC-011", instructor: "Carmen Reyes", estado: "Activo", empleados: 14 },
+  { id: 12, curso: "Inteligencia Artificial", ficha: "IA-012", instructor: "Roberto Silva", estado: "Inactivo", empleados: 19 },
+  { id: 13, curso: "Angular Framework", ficha: "AG-013", instructor: "Patricia Navarro", estado: "Activo", empleados: 11 },
+  { id: 14, curso: "SQL y Optimización", ficha: "SQ-014", instructor: "Daniel Ortega", estado: "Activo", empleados: 26 },
+  { id: 15, curso: "React Native", ficha: "RN-015", instructor: "Gabriela Mendoza", estado: "Inactivo", empleados: 9 },
+  { id: 16, curso: "Testing Automatizado", ficha: "TA-016", instructor: "Fernando Rojas", estado: "Activo", empleados: 17 },
+  { id: 17, curso: "Microservicios con Docker", ficha: "MS-017", instructor: "Isabel Vargas", estado: "Activo", empleados: 38 },
+  { id: 18, curso: "Vue.js Fundamentals", ficha: "VJ-018", instructor: "Ricardo Peña", estado: "Inactivo", empleados: 6 },
+  { id: 19, curso: "Big Data Analytics", ficha: "BD-019", instructor: "Adriana Cruz", estado: "Activo", empleados: 31 },
+  { id: 20, curso: "TypeScript Profesional", ficha: "TS-020", instructor: "Oscar Herrera", estado: "Activo", empleados: 23 }
+];
 
   // Resetear página cuando cambien filtros
   useEffect(() => {
@@ -70,13 +114,13 @@ export default function ReporteEstadisticas() {
 
   // Función para aplicar todos los filtros
   const empleadosFiltrados = useMemo(() => {
-    return datosCurso.filter(empleado => {
+    return cursos.filter(Cursos => {
       // Filtro por estado
       const estadosSeleccionados = [];
       if (filtros.estado.activo) estadosSeleccionados.push('activo');
       if (filtros.estado.inactivo) estadosSeleccionados.push('inactivo');
       
-      if (estadosSeleccionados.length > 0 && !estadosSeleccionados.includes(empleado.estado)) {
+      if (estadosSeleccionados.length > 0 && !estadosSeleccionados.includes(Cursos.estado)) {
         return false;
       }
 
@@ -110,8 +154,8 @@ export default function ReporteEstadisticas() {
   const currentPosts = empleadosFiltrados.slice(indexOfFirstPost, indexOfLastPost);
 
   // Función para manejar el clic en una fila
-  const handleFilaClick = (empleado) => {
-    setCursoSeleccionado(empleado);
+  const handleFilaClick = (Cursos) => {
+    setCursoSeleccionado(Cursos);
     setPantallaActual('estudiantes');
   };
 
@@ -168,7 +212,7 @@ export default function ReporteEstadisticas() {
     const datosReporte = empleadosFiltrados.length > 0 ? empleadosFiltrados : datosCurso;
     alert(`Reporte generado exitosamente\nTotal de cursos: ${datosReporte.length}`);
   };
-
+ 
   // Contador de filtros activos
   const filtrosActivos = () => {
     let count = 0;
@@ -205,7 +249,7 @@ export default function ReporteEstadisticas() {
         </button>
         
         {mostrarFiltro && (
-          <div className="filtro-menu-estadisticas">
+          <div className="filtro-menu-estadisticas" ref={filtroRef}>
             {/* Filtro por Estado */}
             <div className="filtro-grupo-estadisticas">
               <div className="filtro-titulo-estadisticas">Estado</div>
@@ -226,6 +270,7 @@ export default function ReporteEstadisticas() {
                 </div>
               </div>
             </div>
+
 
             {/* Filtro por Empleados */}
             <div className="filtro-grupo-estadisticas">
@@ -315,19 +360,19 @@ export default function ReporteEstadisticas() {
 
         {/* Filas de datos filtrados y paginados */}
         {currentPosts.length > 0 ? (
-          currentPosts.map((empleado, index) => (
+          currentPosts.map((Cursos) => (
             <div 
-              key={index} 
+              key={Cursos.id} 
               className="tabla-fila-estadisticas"
-              onClick={() => handleFilaClick(empleado)}
+              onClick={() => handleFilaClick(Cursos)}
             >
-              <div className="columna-curso-estadisticas">{empleado.curso}</div>
-              <div className="columna-ficha-estadisticas">{empleado.ficha}</div>
-              <div className="columna-instructor-estadisticas">{empleado.instructor}</div>
-              <div className={empleado.estado === "Activo" ? "estado-activo-estadisticas" : "estado-inactivo-estadisticas"}>
-                {empleado.estado}
+              <div className="columna-curso-estadisticas">{Cursos.curso}</div>
+              <div className="columna-ficha-estadisticas">{Cursos.ficha}</div>
+              <div className="columna-instructor-estadisticas">{Cursos.instructor}</div>
+              <div className={Cursos.estado === "Activo" ? "estado-activo-estadisticas" : "estado-inactivo-estadisticas"}>
+                {Cursos.estado}
               </div>
-              <div className="columna-empleados-estadisticas">{empleado.empleados}</div>
+              <div className="columna-empleados-estadisticas">{Cursos.empleados}</div>
             </div>
           ))
         ) : (
@@ -382,13 +427,12 @@ const Pagination = ({
             key={number}
             className={`page-item ${currentPage === number ? "active" : ""}`}
           >
-            <a
+            <button
               onClick={(e) => paginate(number, e)}
-              href="!#"
               className="page-link"
             >
               {number}
-            </a>
+            </button>
           </li>
         ))}
       </ul>

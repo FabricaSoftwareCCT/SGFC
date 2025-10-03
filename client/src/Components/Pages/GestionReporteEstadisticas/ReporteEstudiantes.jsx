@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react'; // ← AGREGAR useRef y useEffect
 import EficienciaReporte from './Eficiencia-reporte';
 import './ReporteEstudiantes.css';
 
@@ -59,6 +59,28 @@ export default function ReporteEstudiantes({ cursoSeleccionado, onVolver }) {
       asistencias: 22 
     }
   ];
+
+  // AGREGAR ESTA LÍNEA - usar filtroRef en lugar de filtrosRef
+  const filtroRef = useRef(null);
+
+  // DESCOMENTAR Y CORREGIR ESTE useEffect
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (mostrarFiltro && filtroRef.current && !filtroRef.current.contains(event.target)) {
+        const botonFiltro = document.querySelector('.button-filtro-reporte-estudiantes');
+        if (botonFiltro && !botonFiltro.contains(event.target)) {
+          setMostrarFiltro(false);
+        }
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+
+    // Limpiar event listener cuando el componente se desmonta
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [mostrarFiltro]);
 
   // Función para aplicar todos los filtros
   const estudiantesFiltrados = useMemo(() => {
@@ -133,12 +155,6 @@ export default function ReporteEstudiantes({ cursoSeleccionado, onVolver }) {
     }));
   };
 
-  /*const aplicarFiltros = () => {
-    console.log('Filtros aplicados:', filtros);
-    console.log('Estudiantes filtrados:', estudiantesFiltrados.length);
-    setMostrarFiltro(false);
-  };*/
-
   const limpiarFiltros = () => {
     setFiltros({
       nombre: '',
@@ -151,7 +167,6 @@ export default function ReporteEstudiantes({ cursoSeleccionado, onVolver }) {
       faltas: '',
       asistencias: ''
     });
-    console.log('Filtros limpiados');
   };
 
   const generarReporte = () => {
@@ -219,7 +234,8 @@ export default function ReporteEstudiantes({ cursoSeleccionado, onVolver }) {
         </button>
         
         {mostrarFiltro && (
-          <div className="filtro-menu-estudiantes">
+          // CORREGIR: usar filtroRef en lugar de filtrosRef
+          <div className="filtro-menu-estudiantes" ref={filtroRef}>
             {/* Filtro por Nombre */}
             <div className="filtro-grupo-estudiantes">
               <div className="filtro-titulo-estudiantes">Nombre</div>
@@ -315,9 +331,6 @@ export default function ReporteEstudiantes({ cursoSeleccionado, onVolver }) {
               <button className="filtro-boton-estudiantes filtro-limpiar-estudiantes" onClick={limpiarFiltros}>
                 Limpiar
               </button>
-              {/*<button className="filtro-boton-estudiantes filtro-aplicar-estudiantes" onClick={aplicarFiltros}>
-                Aplicar
-              </button>*/}
             </div>
           </div>
         )}

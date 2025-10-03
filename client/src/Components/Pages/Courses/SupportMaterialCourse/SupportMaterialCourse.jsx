@@ -65,8 +65,10 @@ export const SupportMaterialCourse = () => {
                 <div className="material-container-c">
                     <div className="material-header">
                         <h1 className='title-material'>Material de Apoyo</h1>
-                        <button className='btn-back-c' onClick={() => navigate(-1)}>Volver al Curso</button>
                     </div>
+                     <div>
+                        <button className='btn-back-c' onClick={() => navigate(-1)}>Volver al Curso</button>
+                        </div>
                     <div className='material-content-c'>
                         {/* Solo mostramos la sección de archivos */}
                         <div className='archivos-section-c'>

@@ -10,7 +10,7 @@
     height: 100%;
     max-width: 1200px;
     min-height: calc(100vh - 120px);
-    margin: 100px auto;
+    margin: 45px auto;
     text-align: -webkit-auto;
 }
 
@@ -43,6 +43,8 @@
     font-size: 1rem;
     width: auto;
     height: auto;
+    margin-bottom: 2%;
+    margin-left: 50%;
 }
 
 .btn-back-c:hover {

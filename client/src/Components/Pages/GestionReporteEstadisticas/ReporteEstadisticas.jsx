@@ -107,13 +107,13 @@ export default function ReporteEstadisticas() {
 
   // Función para aplicar todos los filtros
   const empleadosFiltrados = useMemo(() => {
-    return cursos.filter(empleado => {
+    return cursos.filter(Cursos => {
       // Filtro por estado
       const estadosSeleccionados = [];
       if (filtros.estado.activo) estadosSeleccionados.push('activo');
       if (filtros.estado.inactivo) estadosSeleccionados.push('inactivo');
       
-      if (estadosSeleccionados.length > 0 && !estadosSeleccionados.includes(empleado.estado)) {
+      if (estadosSeleccionados.length > 0 && !estadosSeleccionados.includes(Cursos.estado)) {
         return false;
       }
 
@@ -147,8 +147,8 @@ export default function ReporteEstadisticas() {
   const currentPosts = empleadosFiltrados.slice(indexOfFirstPost, indexOfLastPost);
 
   // Función para manejar el clic en una fila
-  const handleFilaClick = (empleado) => {
-    setCursoSeleccionado(empleado);
+  const handleFilaClick = (Cursos) => {
+    setCursoSeleccionado(Cursos);
     setPantallaActual('estudiantes');
   };
 
@@ -353,19 +353,19 @@ export default function ReporteEstadisticas() {
 
         {/* Filas de datos filtrados y paginados */}
         {currentPosts.length > 0 ? (
-          currentPosts.map((empleado, index) => (
+          currentPosts.map((Cursos) => (
             <div 
-              key={index} 
+              key={Cursos.id} 
               className="tabla-fila-estadisticas"
-              onClick={() => handleFilaClick(empleado)}
+              onClick={() => handleFilaClick(Cursos)}
             >
-              <div className="columna-curso-estadisticas">{empleado.curso}</div>
-              <div className="columna-ficha-estadisticas">{empleado.ficha}</div>
-              <div className="columna-instructor-estadisticas">{empleado.instructor}</div>
-              <div className={empleado.estado === "Activo" ? "estado-activo-estadisticas" : "estado-inactivo-estadisticas"}>
-                {empleado.estado}
+              <div className="columna-curso-estadisticas">{Cursos.curso}</div>
+              <div className="columna-ficha-estadisticas">{Cursos.ficha}</div>
+              <div className="columna-instructor-estadisticas">{Cursos.instructor}</div>
+              <div className={Cursos.estado === "Activo" ? "estado-activo-estadisticas" : "estado-inactivo-estadisticas"}>
+                {Cursos.estado}
               </div>
-              <div className="columna-empleados-estadisticas">{empleado.empleados}</div>
+              <div className="columna-empleados-estadisticas">{Cursos.empleados}</div>
             </div>
           ))
         ) : (

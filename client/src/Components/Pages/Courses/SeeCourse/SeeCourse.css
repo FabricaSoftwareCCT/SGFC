@@ -209,15 +209,18 @@
   margin-top: 1rem;
   width: auto !important;
   height: auto !important;
+  flex-wrap: wrap;
 }
 
-.course-page-container .calendar-btn {
+/* Estilos base para todos los botones con iconos */
+.course-page-container .calendar-btn,
+.course-page-container .material-btn {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   padding: 1rem 1.5rem;
   background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(0, 131, 61, 0.4);
   border-radius: 12px;
   color: white;
   font-size: 1rem;
@@ -226,20 +229,46 @@
   backdrop-filter: blur(10px);
   width: auto !important;
   height: auto !important;
+  text-decoration: none;
 }
 
-.course-page-container .calendar-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
+.course-page-container .calendar-btn:hover{
+  background: rgba(0, 131, 61, 0.3);
   border-color: #039e4c;
   transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(0, 196, 110, 0.2)
 }
 
-.course-page-container .calendar-icon {
+/* Iconos de los botones */
+.course-page-container .calendar-icon,
+.course-page-container .material-icon {
   font-size: 1.2rem;
   width: auto !important;
   height: auto !important;
 }
 
+/* Estilos específicos para el botón de material */
+.course-page-container .material-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(0, 131, 61, 0.4);
+}
+
+.course-page-container .material-btn:hover {
+  background: rgba(0, 131, 61, 0.3);
+  border-color: #039e4c;
+  box-shadow: 0 4px 20px rgba(0, 196, 110, 0.2);
+  transform: translateY(-2px);
+}
+
+/* Estilo para la imagen del icono dentro de los botones */
+.course-page-container .btn-icon {
+  width: 20px !important;
+  height: 20px !important;
+  object-fit: contain;
+  filter: brightness(0) invert(1); 
+}
+
+/* Botones de edición/solicitud/gestionar */
 .course-page-container .edit-btn {
   padding: 1rem 2rem;
   background: #00843d;
@@ -255,7 +284,75 @@
 }
 
 .course-page-container .edit-btn:hover {
+  background: #00c26e;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(0, 196, 110, 0.3);
+}
+
+/* Modal para el material */
+.course-page-container .modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(5px);
+}
+
+.course-page-container .modal-content {
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  padding: 2.5rem;
+  border-radius: 20px;
+  max-width: 600px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.course-page-container .modal-content h2 {
+  margin-bottom: 1.5rem;
+  color: #00c26e;
+  font-size: 1.8rem;
+  font-weight: 300;
+  text-align: center;
+  width: auto !important;
+  height: auto !important;
+}
+
+.course-page-container .modal-content p {
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.6;
+  margin-bottom: 2rem;
+  text-align: center;
+  width: auto !important;
+  height: auto !important;
+}
+
+.course-page-container .modal-content button {
+  padding: 0.8rem 2rem;
   background: #00843d;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  display: block;
+  margin: 0 auto;
+  width: auto !important;
+  height: auto !important;
+}
+
+.course-page-container .modal-content button:hover {
+  background: #00c26e;
   transform: translateY(-2px);
   box-shadow: 0 4px 20px rgba(0, 196, 110, 0.3);
 }
@@ -309,9 +406,15 @@
   }
   
   .course-page-container .calendar-btn,
+  .course-page-container .material-btn,
   .course-page-container .edit-btn {
     width: 100% !important;
     justify-content: center;
+  }
+  
+  .course-page-container .modal-content {
+    padding: 2rem;
+    margin: 1rem;
   }
 }
 
@@ -335,6 +438,14 @@
   .course-page-container .detail-label,
   .course-page-container .detail-value {
     font-size: 0.9rem;
+  }
+  
+  .course-page-container .modal-content {
+    padding: 1.5rem;
+  }
+  
+  .course-page-container .modal-content h2 {
+    font-size: 1.5rem;
   }
 }
 

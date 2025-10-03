@@ -1,0 +1,339 @@
+.material-main {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    padding: 0;
+    margin: 0;
+}
+
+.material-container {
+    width: 100%;
+    height: 100%;
+    max-width: 1200px;
+    min-height: calc(100vh - 120px);
+    margin: 100px;
+    text-align: -webkit-auto;
+}
+
+.material-header {
+    display: flex;
+    justify-content: space-around;
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 5rem;
+    width: 128%;
+    height: 20%;
+}
+
+.material-content {
+    width: 1200px;
+    display: grid;
+    grid-template-columns: 0fr 0fr;
+    gap: 20rem;
+    align-items: end;
+    justify-content: center;
+    align-content: space-between;
+}
+
+.archivos-section h2 {
+    color: white;
+    margin-bottom: 6.5rem;
+    font-weight: 400;
+    font-size: 1.5rem;
+}
+
+.cursos-section h2{
+    z-index: 2;
+    width: 100%;
+    position: absolute;
+    flex-direction: column-reverse;
+    align-content: space-between;
+    justify-content: flex-start;
+    align-items: baseline;
+}
+
+.cursos-section{
+    text-align: center;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+}
+
+.cursos-grid {
+    margin: 53px;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    flex-wrap: nowrap;
+    align-items: center;
+    align-content: space-around;
+    justify-content: space-evenly;
+}
+
+.curso-card {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    padding: 5.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    width: 400px;
+}
+
+.curso-card:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-2px);
+}
+
+.curso-card.selected {
+    background: rgba(0, 131, 61, 0.3);
+    border-color: #00c26e;
+    transform: scale(1.02);
+}
+
+.curso-card h3 {
+    color: white;
+    margin: -20%;
+    font-weight: 500;
+    width: 102%;
+    line-height: 1.6;
+    white-space: normal;
+    text-align: revert-layer;
+    width: -webkit-fill-available;
+}
+
+
+    
+
+.curso-card p {
+    color: rgba(255, 255, 255, 0.8);
+    margin: 0.5rem 0;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    display: block;
+}
+
+.archivos-section {
+    width: 300%;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 15px;
+    padding: 5rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    height: 400px;
+}
+
+.archivos-header {
+    display: flex;
+    flex-direction: row;
+    align-items: baseline;
+    margin-bottom: 5rem;
+    width: 100%;
+    flex-wrap: nowrap;
+}
+
+.archivos-header h2 {
+    width: 140%;
+    height: 110%;
+    color: white;
+    font-size: 1.8rem;
+    font-weight: 300;
+}
+
+.upload-section {
+    display: flex;
+    width: 80%;
+    flex-direction: column-reverse;
+    flex-wrap: wrap;
+    align-content: stretch;
+    align-items: flex-end;
+    margin-bottom: 0%;
+}
+
+.upload-btn {
+    background: #00843d;
+    color: white;
+    border: none;
+    font-size: 1.1rem;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s 
+ease;
+    text-decoration: none;
+    display: inline-block;
+    flex: auto;
+    padding: 5%;
+    width: auto;
+    height: auto;
+    
+}
+
+.upload-btn:hover {
+    background: #00c26e;
+    transform: translateY(-2px);
+}
+
+.upload-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.archivos-list {
+    display: flex;
+    gap: 1rem;
+    height: 100%;
+    flex-direction: column;
+    flex-wrap: wrap;
+    width: auto;
+}
+
+.archivo-item {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    padding: 2.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    width: 700px;
+}
+
+.archivo-item:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-1px);
+}
+
+.archivo-info {
+    display: flex;
+    flex-direction: row;
+    gap: 1.1rem;
+    flex: 1;
+    align-items: self-start;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    justify-content: start;
+}
+
+.archivo-nombre {
+    color: white;
+    font-weight: 500;
+    font-size: 1rem;
+    width: auto;
+    display: flex;
+    align-items: center
+}
+
+.archivo-detalles {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.9rem;
+    width: auto;
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+}
+
+.archivo-actions {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: right;
+    align-items: flex-end;
+    width: 100%;
+    height: 20px;
+    gap: 1rem;
+}
+
+.btn-descargar {
+    padding: 0.6rem 1.2rem;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    width: auto;
+    height: auto;
+}
+
+.btn-descargar:hover {
+    background: #0056b3;
+    transform: translateY(-1px);
+}
+
+.btn-eliminar {
+    padding: 0.6rem 1.2rem;
+    background: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    width: auto;
+    height: auto;
+}
+
+.btn-eliminar:hover {
+    background: #c82333;
+    transform: translateY(-1px);
+}
+
+.no-archivos {
+    color: rgba(255, 255, 255, 0.7);
+    text-align: center;
+    padding: 3rem;
+    font-style: italic;
+    font-size: 1.1rem;
+}
+
+/* Responsive */
+@media (max-width: 968px) {
+    .material-content {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .material-header {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+    
+    .archivos-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .archivo-item {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start;
+    }
+    
+    .archivo-actions {
+        width: 100%;
+        justify-content: flex-end;
+    }
+    
+    .material-container {
+        padding: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .material-header h1 {
+        font-size: 2rem;
+    }
+    
+    .archivos-section {
+        padding: 1.5rem;
+    }
+}

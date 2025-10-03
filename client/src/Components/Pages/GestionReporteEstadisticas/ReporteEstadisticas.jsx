@@ -115,13 +115,13 @@ export default function ReporteEstadisticas() {
       [campo]: valor
     }));
   };
-
+/*
   const aplicarFiltros = () => {
     console.log('Filtros aplicados:', filtros);
     console.log('Cursos filtrados:', empleadosFiltrados.length);
     setMostrarFiltro(false);
   };
-
+*/
   const limpiarFiltros = () => {
     setFiltros({
       estado: {
@@ -275,9 +275,9 @@ export default function ReporteEstadisticas() {
               <button className="filtro-boton-estadisticas filtro-limpiar-estadisticas" onClick={limpiarFiltros}>
                 Limpiar
               </button>
-              <button className="filtro-boton-estadisticas filtro-aplicar-estadisticas" onClick={aplicarFiltros}>
+              {/*<button className="filtro-boton-estadisticas filtro-aplicar-estadisticas" onClick={aplicarFiltros}>
                 Aplicar
-              </button>
+              </button>*/}
             </div>
           </div>
         )}

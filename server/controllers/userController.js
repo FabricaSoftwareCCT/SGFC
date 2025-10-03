@@ -113,28 +113,26 @@ const verifyEmail = async (req, res) => {
       return res.status(400).json({ message: "Token no proporcionado" });
     }
 
-    console.log('Token recibido:', token);
-
-    // Verificar el token JWT
-    let decoded;
-    try {
-      decoded = jwt.verify(token, process.env.JWT_SECRET);
-      console.log('Token decodificado:', decoded);
-    } catch (err) {
-      if (err.name === 'TokenExpiredError') {
-        return res.status(400).json({ message: "Token expirado" });
-      }
-      console.log('Error al verificar token:', err);
-      return res.status(400).json({ message: "Token inválido" });
-    }
-
-    // ⚡️ Aquí estaba el problema
-    const userEmail = decoded.email || decoded?.data?.email;
-    console.log('Buscando usuario con email:', userEmail);
-
-    if (!userEmail) {
-      return res.status(400).json({ message: "Token no contiene email válido" });
-    }
+        console.log('Token recibido:', token);
+        
+        // Verificar el token JWT
+        let decoded;
+        try {
+            decoded = jwt.verify(token, process.env.JWT_SECRET);
+            console.log('Token decodificado:', decoded);
+        } catch (err) {
+            if (err.name === 'TokenExpiredError') {
+                return res.status(400).json({ message: "Token expirado" });
+            }
+            console.log('Error al verificar token:', err);
+            return res.status(400).json({ message: "Token inválido" });
+        }
+        
+        const userEmail = decoded.data.email; 
+        
+        if (!userEmail) {
+            return res.status(400).json({ message: "Token no contiene email válido" });
+        }
 
     const user = await User.findOne({ where: { email: userEmail } });
 
@@ -642,17 +640,17 @@ const getGestores = async (req, res) => {
 //Actualizar perfil segun tipo cuenta
 const updateUserProfile = async (req, res) => {
     try {
-        const { id } = req.params;
-        const {
-            email,
-            nombres,
-            apellidos,
-            celular,
-            documento,
-            estado,
-            titulo_profesional,
-            tipoDocumento
-        } = req.body;
+            const { id } = req.params;
+            const {
+                email,
+                nombres,
+                apellidos,
+                celular,
+                documento,
+                estado,
+                titulo_profesional,
+                tipoDocumento
+            } = req.body;
 
         // Procesar imagen de perfil si se sube (como base64)
         let foto_perfil = null;
@@ -664,54 +662,54 @@ const updateUserProfile = async (req, res) => {
             foto_perfil = req.body.foto_perfil;
         }
 
-        const token = req.cookies.accessToken;
-        if (!token) {
-            return res.status(401).json({ message: "No autorizado. Debes iniciar sesión." });
-        }
+            const token = req.cookies.accessToken;
+            if (!token) {
+                return res.status(401).json({ message: "No autorizado. Debes iniciar sesión." });
+            }
 
-        let loggedInUser;
-        try {
-            loggedInUser = jwt.verify(token, process.env.JWT_SECRET || "secret");
-        } catch (error) {
-            return res.status(401).json({ message: "Token inválido o expirado." });
-        }
+            let loggedInUser;
+            try {
+                loggedInUser = jwt.verify(token, process.env.JWT_SECRET || "secret");
+            } catch (error) {
+                return res.status(401).json({ message: "Token inválido o expirado." });
+            }
 
-        if (!loggedInUser) {
-            return res.status(401).json({ message: "Token inválido o expirado." });
-        }
+            if (!loggedInUser) {
+                return res.status(401).json({ message: "Token inválido o expirado." });
+            }
 
-        const user = await User.findByPk(id, {
-            include: [{ model: Empresa, as: "Empresa" }],
-        });
+            const user = await User.findByPk(id, {
+                include: [{ model: Empresa, as: "Empresa" }],
+            });
 
-        if (!user) {
-            return res.status(404).json({ message: "Usuario no encontrado." });
-        }
+            if (!user) {
+                return res.status(404).json({ message: "Usuario no encontrado." });
+            }
 
-        // Función para validar email
-        const isValidEmail = (email) => {
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            return emailRegex.test(email);
-        };
+            // Función para validar email
+            const isValidEmail = (email) => {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                return emailRegex.test(email);
+            };
 
-        // Función para validar que no sean números negativos
-        const isValidPositiveNumber = (value) => {
-            const num = parseInt(value);
-            return !isNaN(num) && num >= 0;
-        };
+            // Función para validar que no sean números negativos
+            const isValidPositiveNumber = (value) => {
+                const num = parseInt(value);
+                return !isNaN(num) && num >= 0;
+            };
 
-        // Validaciones de formato
-        if (email && !isValidEmail(email)) {
-            return res.status(400).json({ message: "Formato de correo electrónico inválido." });
-        }
+            // Validaciones de formato
+            if (email && !isValidEmail(email)) {
+                return res.status(400).json({ message: "Formato de correo electrónico inválido." });
+            }
 
-        if (celular && (!isValidPositiveNumber(celular) || celular.toString().length < 10)) {
-            return res.status(400).json({ message: "Número de celular inválido." });
-        }
+            if (celular && (!isValidPositiveNumber(celular) || celular.toString().length < 10)) {
+                return res.status(400).json({ message: "Número de celular inválido." });
+            }
 
-        if (documento && !isValidPositiveNumber(documento)) {
-            return res.status(400).json({ message: "Número de documento inválido." });
-        }
+            if (documento && !isValidPositiveNumber(documento)) {
+                return res.status(400).json({ message: "Número de documento inválido." });
+            }
 
         // Verificación de permisos
         // Administrador puede actualizar cualquier perfil (se maneja abajo)
@@ -723,48 +721,48 @@ const updateUserProfile = async (req, res) => {
             }
         }
 
-        // ADMINISTRADOR
-        if (loggedInUser.accountType === "Administrador") {{
-            // Validaciones de campos obligatorios para Administrador
-            const camposObligatorios = {
-                nombres: nombres,
-                apellidos: apellidos,
-                celular: celular,
-                email: email
-            };
+            // ADMINISTRADOR
+            if (loggedInUser.accountType === "Administrador") {
+                // Validaciones de campos obligatorios para Administrador
+                const camposObligatorios = {
+                    nombres: nombres,
+                    apellidos: apellidos,
+                    celular: celular,
+                    email: email
+                };
 
-                const camposVacios = [];
-                for (const [campo, valor] of Object.entries(camposObligatorios)) {
-                    if (valor !== undefined && (valor === null || valor === '' || valor.trim() === '')) {
-                        camposVacios.push(campo);
+                    const camposVacios = [];
+                    for (const [campo, valor] of Object.entries(camposObligatorios)) {
+                        if (valor !== undefined && (valor === null || valor === '' || valor.trim() === '')) {
+                            camposVacios.push(campo);
+                        }
                     }
-                }
 
-                if (camposVacios.length > 0) {
-                    return res.status(400).json({ 
-                        message: `No se pudo guardar el perfil. Los siguientes campos son obligatorios y no pueden estar vacíos: ${camposVacios.join(', ')}. Intente nuevamente.` 
-                    });
-                }
+                    if (camposVacios.length > 0) {
+                        return res.status(400).json({ 
+                            message: `No se pudo guardar el perfil. Los siguientes campos son obligatorios y no pueden estar vacíos: ${camposVacios.join(', ')}. Intente nuevamente.` 
+                        });
+                    }
 
-                // Validaciones únicas
-                if (email && email !== user.email) {
-                    const existingEmail = await User.findOne({ where: { email } });
-                    if (existingEmail) {
-                        return res.status(400).json({ message: "El correo electrónico ya está registrado." });
+                    // Validaciones únicas
+                    if (email && email !== user.email) {
+                        const existingEmail = await User.findOne({ where: { email } });
+                        if (existingEmail) {
+                            return res.status(400).json({ message: "El correo electrónico ya está registrado." });
+                        }
                     }
-                }
-                if (documento && documento !== user.documento) {
-                    const existingDocumento = await User.findOne({ where: { documento } });
-                    if (existingDocumento) {
-                        return res.status(400).json({ message: "El documento ya está registrado." });
+                    if (documento && documento !== user.documento) {
+                        const existingDocumento = await User.findOne({ where: { documento } });
+                        if (existingDocumento) {
+                            return res.status(400).json({ message: "El documento ya está registrado." });
+                        }
                     }
-                }
-                if (celular && celular !== user.celular) {
-                    const existingCelular = await User.findOne({ where: { celular } });
-                    if (existingCelular) {
-                        return res.status(400).json({ message: "El número de celular ya está registrado." });
+                    if (celular && celular !== user.celular) {
+                        const existingCelular = await User.findOne({ where: { celular } });
+                        if (existingCelular) {
+                            return res.status(400).json({ message: "El número de celular ya está registrado." });
+                        }
                     }
-                }
 
                 // Asignación directa de campos
                 if (email) user.email = email;
@@ -804,10 +802,9 @@ const updateUserProfile = async (req, res) => {
                     await user.Empresa.save();
                 }
 
-                await user.save();
-                return res.status(200).json({ message: "Perfil actualizado con éxito." });
-            }
-        }
+                    await user.save();
+                    return res.status(200).json({ message: "Perfil actualizado con éxito." });
+                }
 
         // EMPRESA puede actualizar su propio perfil - CORREGIDO
         if (loggedInUser.accountType === "Empresa" && user.accountType === "Empresa") {
@@ -960,84 +957,41 @@ const updateUserProfile = async (req, res) => {
             return res.status(200).json({ message: "Perfil de empleado actualizado con éxito." });
         }
 
-        // ACTUALIZACIÓN DE PERFIL PROPIO (Instructor, Gestor, Aprendiz)
-        if (parseInt(id, 10) === Number(loggedInUser.id)) {
-            // Validaciones de campos obligatorios
-            const camposObligatorios = {
-                nombres: nombres,
-                apellidos: apellidos,
-                celular: celular,
-                documento: documento,
-                email: email
-            };
-
-            const camposVacios = [];
-            for (const [campo, valor] of Object.entries(camposObligatorios)) {
-                if (valor !== undefined && (valor === null || valor === '' || valor.trim() === '')) {
-                    camposVacios.push(campo);
-                }
+        // APRENDIZ puede actualizar su propio perfil
+        if (loggedInUser.accountType === "Aprendiz" && user.accountType === "Aprendiz") {
+            // Validar que el aprendiz solo pueda actualizar su propio perfil
+            if (loggedInUser.id !== parseInt(id)) {
+                return res.status(403).json({ message: "No tienes permiso para actualizar este perfil." });
             }
 
-            if (camposVacios.length > 0) {
-                return res.status(400).json({ 
-                    message: `No se pudo guardar su perfil. Los siguientes campos son obligatorios y no pueden estar vacíos: ${camposVacios.join(', ')}. Intente nuevamente.` 
-                });
-            }
-
-            // Validaciones únicas básicas
             if (email && email !== user.email) {
                 const existingEmail = await User.findOne({ where: { email } });
                 if (existingEmail) {
                     return res.status(400).json({ message: "El correo electrónico ya está registrado." });
                 }
 
-                // Para aprendices, generar token de verificación si cambian email
-                if (loggedInUser.accountType === "Aprendiz") {
-                const verificationToken = crypto.randomBytes(32).toString('hex');
+                // Generar token de verificación
+                const payload = {email};
+
+                const verificationToken = generateToken(payload, process.env.JWT_SECRET, 5);
                 user.token = verificationToken;
                 user.verificacion_email = false;
+
+                // Enviar correo de verificación
                 await sendVerificationEmail(email, verificationToken);
-                }
                 user.email = email;
             }
-            if (documento && documento !== user.documento) {
-                const existingDocumento = await User.findOne({ where: { documento } });
-                if (existingDocumento) {
-                    return res.status(400).json({ message: "El documento ya está registrado." });
-                }
-            }
-            if (celular && celular !== user.celular) {
-                const existingCelular = await User.findOne({ where: { celular } });
-                if (existingCelular) {
-                    return res.status(400).json({ message: "El número de celular ya está registrado." });
-                }
-            }
-
-            // Campos permitidos para actualización propia
             if (nombres) user.nombres = nombres;
             if (apellidos) user.apellidos = apellidos;
             if (celular) user.celular = celular;
             if (documento) user.documento = documento;
+            if (estado) user.estado = estado;
             if (titulo_profesional) user.titulo_profesional = titulo_profesional;
             if (tipoDocumento) user.tipoDocumento = tipoDocumento;
             if (foto_perfil) user.foto_perfil = foto_perfil;
-            
-            // Estado: solo instructores y gestores pueden cambiar su estado
-            if (estado && (loggedInUser.accountType === "Instructor" || loggedInUser.accountType === "Gestor")) {
-                if (["activo", "inactivo"].includes(estado)) {
-                    user.estado = estado;
-                }
-            }
-            // Nota: accountType nunca se puede cambiar por actualización propia
 
             await user.save();
-            
-            let message = "Perfil actualizado con éxito.";
-            if (loggedInUser.accountType === "Aprendiz" && email && email !== user.email) {
-                message = "Perfil actualizado con éxito. Por favor verifica tu nuevo correo.";
-            }
-            
-            return res.status(200).json({ message });
+            return res.status(200).json({ message: "Perfil de aprendiz actualizado con éxito. Por favor verifica tu nuevo correo." });
         }
 
         // Instructor puede actualizar su propio perfil
@@ -1079,11 +1033,12 @@ const updateUserProfile = async (req, res) => {
 
         return res.status(403).json({ message: "No tienes permiso para actualizar este perfil." });
     } catch (error) {
+
         console.error("Error al actualizar el perfil del usuario:", error);
         return res.status(500).json({ message: "Error al actualizar el perfil del usuario." });
     }
-};
 
+}
 // Crear Instructor
 const createInstructor = async (req, res) => {
     try {
@@ -1121,7 +1076,7 @@ const createInstructor = async (req, res) => {
         const token = generateToken(payload, process.env.JWT_SECRET, 5);
 
         // Generar contraseña temporal (8 caracteres alfanuméricos)
-        const tempPassword = Math.random().toString(36).slice(-8);
+        const tempPassword ="Faber1021672376*";
         
         // Encriptar la contraseña temporal
         const hashedPassword = await bcrypt.hash(tempPaspasssword, 10);

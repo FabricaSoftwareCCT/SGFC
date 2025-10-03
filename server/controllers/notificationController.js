@@ -13,14 +13,33 @@ const setDb = (databaseInstance) => {
  */
 const getUserNotifications = async (req, res) => {
     try {
-        const userId = req.user.id;
-        const { page = 1, limit = 10, type } = req.query;
+        const userId = req?.user?.id;
+        console.log(userId)
+        if (!userId) {
+            return res.status(401).json({
+                success: false,
+                message: 'Usuario no autenticado.'
+            });
+        }
 
-        const whereClause = { destinatario_ID: userId }; if (type) {
-            whereClause.tipo = type;
+        // Validación y saneamiento de query params
+        const page = parseInt(req.query.page, 10) || 1;
+        const limit = parseInt(req.query.limit, 10) || 10;
+        const type = req.query.type;
+
+        if (page < 1 || limit < 1) {
+            return res.status(400).json({
+                success: false,
+                message: 'Parámetros "page" y "limit" deben ser mayores a 0.'
+            });
         }
 
         const offset = (page - 1) * limit;
+
+        const whereClause = { destinatario_ID: userId };
+        if (type) {
+            whereClause.tipo = type;
+        }
 
         const { count, rows: notifications } = await dbInstance.Notificacion.findAndCountAll({
             where: whereClause,
@@ -32,25 +51,42 @@ const getUserNotifications = async (req, res) => {
                 }
             ],
             order: [['fecha_envio', 'DESC']],
-            limit: parseInt(limit),
-            offset: offset
+            limit,
+            offset
         });
-
+       notifications.forEach(notification => {
+        const invitacionID = notification.dataValues.invitacion_ID;
+        console.log('Invitacion ID:', invitacionID);
+       });
         res.status(200).json({
             success: true,
             notifications,
             pagination: {
                 total: count,
                 totalPages: Math.ceil(count / limit),
-                currentPage: parseInt(page),
-                limit: parseInt(limit)
+                currentPage: page,
+                limit
             }
         });
+
     } catch (error) {
-        console.error('Error al obtener notificaciones:', error);
-        res.status(500).json({
+        console.error('Error al obtener notificaciones:', {
+            message: error.message,
+            stack: error.stack,
+            name: error.name,
+        });
+
+        // Puedes personalizar respuestas según tipo de error
+        if (error.name === 'SequelizeDatabaseError') {
+            return res.status(500).json({
+                success: false,
+                message: 'Error de base de datos al obtener las notificaciones.'
+            });
+        }
+
+        return res.status(500).json({
             success: false,
-            message: 'Error al obtener las notificaciones'
+            message: 'Ocurrió un error inesperado al obtener las notificaciones.'
         });
     }
 };

@@ -253,12 +253,11 @@ export const CreateEmploye = () => {
             Guardar
           </button>
         </div>
-
-        <div className="container_return_CreateEmploye">
-          <h5>Volver</h5>
-          <button type="button" onClick={() => setShowModalCreateEmployee(false)} className="closeModal"></button>
-        </div>
       </form>
+      <div className="container_return_CreateEmploye">
+          <a onClick={() => setShowModalCreateEmployee(false)} className="text-return">Volver</a>
+          <button onClick={() => setShowModalCreateEmployee(false)} className="closeModal"></button>       
+        </div>
     </div>
   )
 }

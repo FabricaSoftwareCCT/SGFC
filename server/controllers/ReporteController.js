@@ -22,7 +22,28 @@ class ReporteController {
             return;
         }
 
-    } 
+    }
+    
+    static ReporteEficiencia = async (req, res) => {
+        try {
+            const {fecha_inicio, fecha_fin} = req.body;
+
+            const response = await ReporteService.ReporteEficiencia(fecha_inicio, fecha_fin);
+
+            if(!response){
+                res.status(404).json({msg: "No se encontraron resultados"} );
+                return;
+            }
+
+            res.status(200).json(response);
+            return;
+
+        }catch (err) {  
+            console.log(err);
+            res.status(500).json({msg: 'Error en el servidor'});
+            return;
+        }
+    }
 }
 
 module.exports = { ReporteController };

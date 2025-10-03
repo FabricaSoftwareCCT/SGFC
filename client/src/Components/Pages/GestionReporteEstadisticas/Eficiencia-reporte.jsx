@@ -137,11 +137,11 @@ export default function EficienciaReporte({ cursoSeleccionado, onVolver }) {
     }));
   };
 
-  const aplicarFiltros = () => {
+  /*const aplicarFiltros = () => {
     console.log('Filtros aplicados:', filtros);
     console.log('Estudiantes filtrados:', estudiantesFiltrados.length);
     setMostrarFiltro(false);
-  };
+  };*/
 
   const limpiarFiltros = () => {
     setFiltros({
@@ -317,9 +317,9 @@ export default function EficienciaReporte({ cursoSeleccionado, onVolver }) {
               <button className="filtro-boton-eficiencia filtro-limpiar-eficiencia" onClick={limpiarFiltros}>
                 Limpiar
               </button>
-              <button className="filtro-boton-eficiencia filtro-aplicar-eficiencia" onClick={aplicarFiltros}>
+              {/*<button className="filtro-boton-eficiencia filtro-aplicar-eficiencia" onClick={aplicarFiltros}>
                 Aplicar
-              </button>
+              </button>*/}
             </div>
           </div>
         )}

@@ -55,8 +55,9 @@ export const ForgotPassword = () => {
                 </div>
 
                 <div className="container_return">
-                    <h5>Volver</h5>
-                    <button onClick={() => setShowModalGeneral(false)} className="closeModal"></button>                </div>
+                    <a onClick={() => setShowModalGeneral(false)} className="text-return">Volver</a>
+                    <button onClick={() => setShowModalGeneral(false)} className="closeModal"></button>                
+                </div>
 
                 <div className="container_informationForgotPassword">
                     <h2 className="title_forgotPassword">

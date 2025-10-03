@@ -30,7 +30,8 @@ import { GestionsActas } from './Components/Pages/GestionsActas/GestionsActas';
 import { AssignInstructorCourse } from './Components/Pages/Courses/AssignInstructorCourse/AssignInstructorCourse';
 import { ConcertationProceeding } from './Components/Pages/proceedings/ConcertationProceeding';
 import { TrainingPlaceProceeding } from './Components/Pages/proceedings/TrainingPlaceProceeding';
-import  ReporteEstadisticas  from './Components/Pages/GestionReporteEstadisticas/ReporteEstadisticas'; // NUEVO IMPORT
+import { SupportMaterial } from './Components/Pages/Courses/SupportMaterial/SupportMaterial';
+import { SupportMaterialCourse } from './Components/Pages/Courses/SupportMaterialCourse/SupportMaterialCourse';
 
 // Importación de modales
 import { NavBar } from './Components/UI/NavBar/NavBar';
@@ -44,10 +45,12 @@ import { CreateGestor } from './Components/Pages/GestionsGestor/CreateGestor/Cre
 import { CreateEmploye } from './Components/Pages/GestionsEmployes/CreateEmploye/CreateEmploye';
 import { UpdateInstructor } from './Components/Pages/GestionsInstructor/UpdateInstructor/UpdateInstructor';
 import { NoAutorizado } from './Components/Pages/NoAutorizado/NoAutorizado';
+import ReporteEstadisticas from './Components/Pages/GestionReporteEstadisticas/ReporteEstadisticas';
 
 // Importación de estilos
 import "./App.css";
 import { Header } from './Components/Layouts/Header/Header';
+
 
 // Crear un componente Layout que envuelva las páginas con Header y Footer
 const Layout = ({ children, setShowSignIn, setShowSignUp, setShowModalGeneral }) => {
@@ -183,6 +186,7 @@ function App() {
             >
               <CreateCourse />
             </Layout>
+            
           } />
           <Route path="/Cursos/BuscarCursos" element={<Layout
             setShowSignIn={setShowSignIn}
@@ -193,6 +197,7 @@ function App() {
           </Layout>
           } />
           <Route path="/Cursos/:id" element={<SeeCourse />} />
+          
           <Route path="/Cursos/MisCursos" element={
             <Layout
               setShowSignIn={setShowSignIn}
@@ -265,10 +270,12 @@ function App() {
             </Layout>
           } />
           <Route path="/Actas/Concertacion" element={<ConcertationProceeding />} />
-          <Route path="/Actas/Lugar-formacion" element={<TrainingPlaceProceeding />} />
+          <Route path="/Actas/Lugar-formacion" element={<TrainingPlaceProceeding />} />   
           <Route path="/no-autorizado" element={<NoAutorizado />} />
-          <Route path="/SolicitarCurso/:nombreCurso" element={<RequestCourse />} />
-        </Routes>
+          <Route path="/SolicitarCurso/:nombreCurso" element={<RequestCourse />} />       
+          <Route path="/SupportMaterial" element={<SupportMaterial/>}/>
+          <Route path="/SupportMaterialCourse" element={<SupportMaterialCourse/>}/>
+          </Routes>
       </>
     </GoogleOAuthProvider>
   );

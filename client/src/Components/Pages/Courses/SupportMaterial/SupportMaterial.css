@@ -117,13 +117,13 @@
 
 .archivos-section {
     overflow: scroll;
-    width: 300%;
+    width: 445%;
     background: rgba(255, 255, 255, 0.05);
     border-radius: 15px;
-    padding: 5rem;
+    padding: 1rem;
     border: 1px solid rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(10px);
-    height: 700px;
+    height: 687px;
 }
 
 .archivos-header {
@@ -242,7 +242,7 @@ ease;
     flex-wrap: nowrap;
     justify-content: right;
     align-items: flex-end;
-    width: 135%;
+    width: 104%;
     gap: 1rem;
     height: 20px;
 }

@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import "./UpdateEmploye.css";
 import axiosInstance from "../../../../config/axiosInstance";
@@ -12,8 +12,18 @@ export const UpdateEmploye = ({ empleado }) => {
   const [documentoPDF, setDocumentoPDF] = useState(null);
   const [pdfFileName, setPdfFileName] = useState('');
 
-
   const { showDropdown, setShowDropdown } = useModal();
+
+  // Actualizar formData cuando cambie el empleado
+  useEffect(() => {
+    if (empleado) {
+      console.log("UpdateEmploye recibió empleado:", empleado); // Debug
+      setFormData({ ...empleado });
+      setIsEditing(false); // Resetear modo edición
+      setDocumentoPDF(null); // Limpiar PDF
+      setPdfFileName(''); // Limpiar nombre del archivo
+    }
+  }, [empleado]);
 
   const documentoLabels = {
     CedulaCiudadania: "Cédula de ciudadanía",
@@ -32,7 +42,10 @@ export const UpdateEmploye = ({ empleado }) => {
   };
 
   const closeModalUpdateEmploye = () => {
-    document.getElementById("modal-overlayUpdateEmploye").style.display = "none";
+    const modal = document.getElementById("modal-overlayUpdateEmploye");
+    if (modal) {
+      modal.style.display = "none";
+    }
   };
 
   const handleChange = (e) => {
@@ -107,8 +120,9 @@ export const UpdateEmploye = ({ empleado }) => {
 
       alert(updateResponse.data.message || "Perfil actualizado correctamente");
       setIsEditing(false);
+      closeModalUpdateEmploye();
+      // Recargar la página para mostrar los cambios
       window.location.reload();
-      document.getElementById("modal-overlayUpdateEmploye").style.display = "none";
 
     } catch (error) {
       console.error("Error al actualizar el perfil:", error.response?.data || error.message);
@@ -118,18 +132,48 @@ export const UpdateEmploye = ({ empleado }) => {
 
 
   const getImageSrc = (data) => {
-    if (!data) return null;
+    console.log("UpdateEmploye - Procesando imagen:", data); // Debug
+    
+    if (!data) {
+      console.log("No hay datos de imagen, usando imagen por defecto");
+      return "/src/assets/Icons/userDefect.png";
+    }
+    
+    // Si es una ruta de archivo (empieza con ../ o /)
+    if (typeof data === 'string' && (data.startsWith('../') || data.startsWith('/'))) {
+      console.log("Es una ruta de archivo:", data);
+      // Convertir ruta relativa a ruta absoluta
+      if (data.startsWith('../Img/')) {
+        const newPath = data.replace('../Img/', '/src/assets/Icons/');
+        console.log("Ruta convertida:", newPath);
+        return newPath;
+      }
+      return data;
+    }
+    
+    // Si es base64
+    if (typeof data === 'string') {
     if (data.startsWith('/9j/')) {
+        console.log("Es JPEG base64");
       return `data:image/jpeg;base64,${data}`;
     } else if (data.startsWith('iVBORw0KGgo')) {
+        console.log("Es PNG base64");
       return `data:image/png;base64,${data}`;
+      } else if (data.startsWith('data:')) {
+        console.log("Ya es una URL de datos");
+        return data;
     } else {
+        console.log("Asumiendo JPEG base64");
       return `data:image/jpeg;base64,${data}`;
     }
+    }
+    
+    console.log("Fallback a imagen por defecto");
+    return "/src/assets/Icons/userDefect.png";
   };
 
   return (
-    <div id="modal-overlayUpdateEmploye" style={{ display: "flex" }}>
+    <div id="modal-overlayUpdateEmploye" style={{ display: "none" }}>
       <form className="modal-bodyUpdateInstructor" onSubmit={handleButtonClick}>
         <div className="modal-left-update">
           <p>
@@ -145,6 +189,10 @@ export const UpdateEmploye = ({ empleado }) => {
             ) : (
               <span className="valor-campo">{formData.nombres || ""}</span>
             )}
+          </p>
+          <p>
+            <strong>ID Empleado:</strong>{" "}
+            <span className="valor-campo">{formData.ID || "N/A"}</span>
           </p>
           <p>
             <strong>Apellidos:</strong>{" "}
@@ -273,7 +321,7 @@ export const UpdateEmploye = ({ empleado }) => {
             <strong>Estado:</strong>{" "}
             {isEditing ? (
               <div className="status-buttons">
-                {["Activo", "Inactivo"].map((estado) => (
+                {["activo", "inactivo"].map((estado) => (
                   <button
                     key={estado}
                     type="button"

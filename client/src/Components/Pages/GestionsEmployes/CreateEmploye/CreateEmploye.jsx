@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import './CreateEmploye.css';
 import addIMG from '../../../../assets/Icons/addImg.png';
 import axiosInstance from '../../../../config/axiosInstance';
@@ -19,13 +19,37 @@ export const CreateEmploye = () => {
     celular: '',
     email: '',
     estado: 'Inactivo', // Valor predeterminado
+    empresaId: '', // Para administradores
   });
   const [file, setFile] = useState(null);
   const pdfInputRef = useRef(null);
   const [documentoPDF, setDocumentoPDF] = useState(null);
   const [pdfFileName, setPdfFileName] = useState('');
+  const [empresas, setEmpresas] = useState([]);
+  const [isAdmin, setIsAdmin] = useState(false);
 
 
+
+  // Obtener información del usuario y empresas
+  useEffect(() => {
+    const userSession = JSON.parse(localStorage.getItem("userSession") || sessionStorage.getItem("userSession") || '{}');
+    const accountType = userSession.accountType;
+    setIsAdmin(accountType === 'Administrador');
+
+    if (accountType === 'Administrador') {
+      fetchEmpresas();
+    }
+  }, []);
+
+  // Obtener empresas para administradores
+  const fetchEmpresas = async () => {
+    try {
+      const response = await axiosInstance.get('/api/users/admin/empresas');
+      setEmpresas(response.data.empresas || []);
+    } catch (error) {
+      console.error("Error al obtener las empresas:", error);
+    }
+  };
 
   // Manejar cambios en los campos del formulario
   const handleInputChange = (e) => {
@@ -78,25 +102,44 @@ export const CreateEmploye = () => {
     data.append('estado', formData.estado);
 
     try {
-      // Obtener empresa_ID de la sesión
+      // Obtener información de la sesión
       let userSessionString = localStorage.getItem("userSession") || sessionStorage.getItem("userSession");
       if (!userSessionString) {
         alert("No se encontró la sesión de usuario.");
         return;
       }
       const userSession = JSON.parse(userSessionString);
-      const empresaId = userSession.empresa_ID;
-      if (!empresaId) {
-        alert("No se encontró el ID de la empresa en la sesión.");
-        return;
-      }
+      const accountType = userSession.accountType;
+      
+      let response;
+      
+      if (accountType === 'Administrador') {
+        // Para administradores: usar la nueva ruta con empresa seleccionada
+        if (!formData.empresaId) {
+          alert("Por favor selecciona una empresa.");
+          return;
+        }
+        data.append('empresaId', formData.empresaId);
+        
+        response = await axiosInstance.post('/api/users/admin/empleados', data, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+      } else {
+        // Para gestores: usar la ruta original
+        const empresaId = userSession.empresa_ID;
+        if (!empresaId) {
+          alert("No se encontró el ID de la empresa en la sesión.");
+          return;
+        }
 
-      // Crear el empleado
-      const response = await axiosInstance.post(`/api/users/empresa/${empresaId}/empleados`, data, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+        response = await axiosInstance.post(`/api/users/empresa/${empresaId}/empleados`, data, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+      }
 
       const empleadoId = response.data.empleado?.ID || response.data.id;
       alert('Empleado creado con éxito ' + empleadoId);
@@ -200,6 +243,26 @@ export const CreateEmploye = () => {
               required
             />
           </label>
+          
+          {isAdmin && (
+            <label>
+              Empresa
+              <select
+                name="empresaId"
+                value={formData.empresaId}
+                onChange={handleInputChange}
+                required
+                className="empresa-select"
+              >
+                <option value="">Selecciona una empresa</option>
+                {empresas.map((empresa) => (
+                  <option key={empresa.ID} value={empresa.ID}>
+                    {empresa.nombre_empresa} - {empresa.NIT}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
         </div>
 
         <div className="modal-right">

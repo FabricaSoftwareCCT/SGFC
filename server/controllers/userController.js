@@ -1542,6 +1542,169 @@ const createEmpleado = async (req, res) => {
     }
 };
 
+// Obtener todos los empleados para administradores con filtros avanzados
+const getAllEmpleadosForAdmin = async (req, res) => {
+    try {
+        const { 
+            page = 1, 
+            limit = 10, 
+            search = '', 
+            empresaId = '', 
+            estado = '', 
+            tipoDocumento = '' 
+        } = req.query;
+
+        const offset = (page - 1) * limit;
+        
+        // Construir condiciones de búsqueda
+        const whereConditions = {
+            accountType: "Aprendiz"
+        };
+
+        // Filtro por empresa
+        if (empresaId) {
+            whereConditions.empresa_ID = empresaId;
+        }
+
+        // Filtro por estado
+        if (estado) {
+            whereConditions.estado = estado;
+        }
+
+        // Filtro por tipo de documento
+        if (tipoDocumento) {
+            whereConditions.tipoDocumento = tipoDocumento;
+        }
+
+        // Búsqueda por nombre, apellido, documento o email
+        if (search) {
+            whereConditions[Op.or] = [
+                { nombres: { [Op.like]: `%${search}%` } },
+                { apellidos: { [Op.like]: `%${search}%` } },
+                { documento: { [Op.like]: `%${search}%` } },
+                { email: { [Op.like]: `%${search}%` } }
+            ];
+        }
+
+        // Obtener empleados con información de empresa
+        const { count, rows: empleados } = await User.findAndCountAll({
+            where: whereConditions,
+            include: [
+                {
+                    model: Empresa,
+                    as: 'Empresa',
+                    attributes: ['ID', 'nombre_empresa', 'NIT']
+                }
+            ],
+            attributes: { exclude: ['password', 'token', 'resetPasswordToken', 'resetPasswordExpires'] },
+            limit: parseInt(limit),
+            offset: parseInt(offset),
+            order: [['nombres', 'ASC']]
+        });
+
+        const totalPages = Math.ceil(count / limit);
+
+        res.status(200).json({
+            success: true,
+            empleados,
+            pagination: {
+                currentPage: parseInt(page),
+                totalPages,
+                totalItems: count,
+                itemsPerPage: parseInt(limit)
+            }
+        });
+    } catch (error) {
+        console.error("Error al obtener empleados para administrador:", error);
+        res.status(500).json({ message: "Error al obtener los empleados." });
+    }
+};
+
+// Obtener todas las empresas para el selector de administradores
+const getAllEmpresasForAdmin = async (req, res) => {
+    try {
+        const empresas = await Empresa.findAll({
+            attributes: ['ID', 'nombre_empresa', 'NIT', 'estado'],
+            where: { estado: 'activo' },
+            order: [['nombre_empresa', 'ASC']]
+        });
+
+        res.status(200).json({ success: true, empresas });
+    } catch (error) {
+        console.error("Error al obtener empresas:", error);
+        res.status(500).json({ message: "Error al obtener las empresas." });
+    }
+};
+
+// Crear empleado para cualquier empresa (solo administradores)
+const createEmpleadoForAdmin = async (req, res) => {
+    try {
+        const { nombres, apellidos, email, tipoDocumento, documento, celular, estado, titulo_profesional, password, empresaId } = req.body;
+
+        // Validar datos obligatorios
+        if (!nombres || !apellidos || !email || !tipoDocumento || !documento || !celular || !estado || !empresaId) {
+            return res.status(400).json({ message: "Todos los campos son obligatorios." });
+        }
+
+        // Verificar si el correo ya está registrado
+        const existingEmail = await User.findOne({ where: { email } });
+        if (existingEmail) {
+            return res.status(400).json({ message: "El correo ya está registrado." });
+        }
+
+        // Verificar si el documento ya está registrado
+        const existingDocumento = await User.findOne({ where: { documento } });
+        if (existingDocumento) {
+            return res.status(400).json({ message: "El documento ya está registrado." });
+        }
+
+        // Verificar que la empresa exista
+        const empresa = await Empresa.findByPk(empresaId);
+        if (!empresa) {
+            return res.status(404).json({ message: "Empresa no encontrada." });
+        }
+
+        // Procesar imagen de perfil si se sube
+        let foto_perfil = null;
+        if (req.file) {
+            foto_perfil = req.file.buffer.toString('base64');
+        }
+
+        // Generar token de verificación
+        const payload = { email };
+        const token = generateToken(payload, process.env.JWT_SECRET, 5);
+
+        // Encriptar la contraseña (si no se envía, usar una por defecto)
+        const hashedPassword = await bcrypt.hash(password || "defaultPassword123", 10);
+
+        // Crear el empleado (Aprendiz)
+        const newEmpleado = await User.create({
+            nombres,
+            apellidos,
+            email,
+            tipoDocumento,
+            documento,
+            celular,
+            estado,
+            titulo_profesional: titulo_profesional || null,
+            foto_perfil,
+            accountType: "Aprendiz",
+            empresa_ID: empresaId,
+            password: hashedPassword,
+            verificacion_email: false,
+            token,
+        });
+
+        // Enviar correo de verificación
+        await sendVerificationEmail(email, token);
+
+        res.status(201).json({ message: "Empleado creado con éxito. Por favor verifica tu correo.", empleado: newEmpleado });
+    } catch (error) {
+        console.error("Error al crear el empleado:", error);
+        res.status(500).json({ message: "Error al crear el empleado." });
+    }
+};
+
 //validacion de tipo de documento y numero de documento por pdf del documento cargado
 const detectarTextoOCR = async (imagePath) => {
     const client = new vision.ImageAnnotatorClient();
@@ -1686,5 +1849,8 @@ module.exports = {
     createMasiveUsers, 
     getEmpresaByNIT,
     requestNewVerificationEmail,
-    recordLogin
+    recordLogin,
+    getAllEmpleadosForAdmin,
+    getAllEmpresasForAdmin,
+    createEmpleadoForAdmin
 };

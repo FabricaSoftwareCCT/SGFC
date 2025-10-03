@@ -24,11 +24,10 @@
 }
 
 .title-material{
+    height: auto;
     width: 50%;
-    color: white;
+    color: #00843d;
     font-size: 2.5rem;
-    font-weight: 300;
-    margin: 0px;
 }
 
 .btn-back-c {

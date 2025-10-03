@@ -71,7 +71,7 @@ export const SupportMaterialCourse = () => {
                         {/* Solo mostramos la sección de archivos */}
                         <div className='archivos-section-c'>
                             <div className='archivos-header-c'>
-                                <h2>Material de Apoyo - {cursoActual.nombre_curso}</h2>
+                                <h2>{cursoActual.nombre_curso}</h2>
 
                                 {puedeSubirArchivos &&(
                                     <div className='upload-section-c'>

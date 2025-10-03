@@ -106,6 +106,7 @@ export const SupportMaterial = () => {
             <Header />
             <Main className="material-main">
                 <div className="material-container">
+                    <h1>Material de Apoyo</h1>
                     <div className='material-content'>
                         <div className='cursos-section'>
                             <h2>Selecciona un Curso</h2>
@@ -129,7 +130,7 @@ export const SupportMaterial = () => {
                         {cursoSeleccionado && (
                             <div className='archivos-section'>
                                 <div className='archivos-header'>
-                                    <h2>Material de Apoyo - {cursoSeleccionado.nombre_curso}</h2>
+                                    <h2>{cursoSeleccionado.nombre_curso}</h2>
                                     
                                     {puedeSubirArchivos &&(
                                         <div className='upload-section'>

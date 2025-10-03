@@ -14,6 +14,14 @@
     text-align: -webkit-auto;
 }
 
+.material-container h1{
+    width: auto;
+    height: auto;
+    text-align: center;
+    color: #00843d;
+    padding: 1rem;
+}
+
 .material-header {
     display: flex;
     justify-content: space-around;
@@ -132,6 +140,7 @@
 }
 
 .archivos-header {
+    padding: 1rem;
     display: flex;
     flex-direction: row;
     align-items: baseline;

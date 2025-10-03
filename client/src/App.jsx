@@ -92,6 +92,56 @@ function App() {
 
   } = useModal();
 
+  useEffect(() => {
+    const verifiCarToken = async () => {
+      try {
+        const localSession = sessionStorage.getItem("userSession");
+        
+        if (localSession) {
+          console.log("Sesión activa en esta pestaña");
+          return;
+        }
+
+        const response = await fetch("http://localhost:3001/api/users/recordsession", {
+          method: "GET",
+          credentials: "include" 
+        });
+
+        if (!response.ok) {
+          sessionStorage.removeItem("userSession");
+          return;
+        }
+
+        const data = await response.json();
+
+        const sessionData = {
+          accountType: data.session?.payload?.accountType,
+          emal: data.session?.payload?.email,
+          id: data.session?.payload?.id
+        };
+
+        if (!data.session) {
+          sessionStorage.removeItem("userSession");
+          navigate("/"); 
+          return;
+        }
+
+        if(data.session?.payload?.accountType === "Empresa" && data.session?.empresa_ID){
+            sessionData.empresa_ID = data.session.empresa_ID;
+        }
+
+        sessionStorage.setItem("userSession", JSON.stringify(sessionData));
+        navigate("/", { state: { accountType: data.session?.payload?.accountType } });
+
+      } catch (error) {
+        console.error("Error al verificar el token:", error);
+        sessionStorage.removeItem("userSession");
+      }
+  };
+  
+    verifiCarToken();
+  }, []);
+
 
   useEffect(() => {
     if (window.gapi) {

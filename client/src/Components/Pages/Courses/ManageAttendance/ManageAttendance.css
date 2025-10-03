@@ -20,7 +20,7 @@
 .container_main_attendance>p {
     width: auto;
     height: auto;
-    font-size: 16px;
+    font-size: 27px;
     text-align: center;
     color: #fff;
 }
@@ -51,29 +51,30 @@
 .illustration-container img {
     width: 20em;
     height: auto;
-    margin-top: -12%;
+    margin-top: -10%;
     left: 15rem;
 }
 
 .text-container-manageAttendance {
     width: 50%;
-    height: auto;
+    height: 100%;
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: center;
     color: #fff;
-    margin-top: 1rem;
+    margin-top: 7rem;
+    font-size: 1.5rem;
 }
 
 .back-button-manageAttendance {
     width: 7rem;
-    height: 2rem;
+    height: 3rem;
     background-color: #00843d;
     border-radius: 12px;
     border-style: none;
     color: #fff;
-    font-size: 16px;
+    font-size: 20px;
     cursor: pointer;
-    margin-top: 2rem;
+    margin-top: 4rem;
 }

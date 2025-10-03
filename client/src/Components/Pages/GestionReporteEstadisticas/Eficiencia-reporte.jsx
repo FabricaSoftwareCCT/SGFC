@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react'; // ← AGREGAR useRef y useEffect
 import './Eficiencia-reporte.css';
 
 export default function EficienciaReporte({ cursoSeleccionado, onVolver }) {
@@ -14,6 +14,28 @@ export default function EficienciaReporte({ cursoSeleccionado, onVolver }) {
     tipoFiltro: '', // 'faltantes' o 'realizadas'
     valor: ''
   });
+
+  // AGREGAR LA REFERENCIA
+  const filtroRef = useRef(null);
+
+  // AGREGAR EL USEEFFECT PARA CERRAR AL HACER CLIC FUERA
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (mostrarFiltro && filtroRef.current && !filtroRef.current.contains(event.target)) {
+        const botonFiltro = document.querySelector('.button-filtro-reporte-eficiencia');
+        if (botonFiltro && !botonFiltro.contains(event.target)) {
+          setMostrarFiltro(false);
+        }
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+
+    // Limpiar event listener cuando el componente se desmonta
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [mostrarFiltro]);
 
   const datosEstudiantes = [
     { 
@@ -137,12 +159,6 @@ export default function EficienciaReporte({ cursoSeleccionado, onVolver }) {
     }));
   };
 
-  /*const aplicarFiltros = () => {
-    console.log('Filtros aplicados:', filtros);
-    console.log('Estudiantes filtrados:', estudiantesFiltrados.length);
-    setMostrarFiltro(false);
-  };*/
-
   const limpiarFiltros = () => {
     setFiltros({
       nombre: '',
@@ -211,7 +227,8 @@ export default function EficienciaReporte({ cursoSeleccionado, onVolver }) {
         </button>
         
         {mostrarFiltro && (
-          <div className="filtro-menu-eficiencia">
+          // AGREGAR LA REFERENCIA AL MENÚ DE FILTRO
+          <div className="filtro-menu-eficiencia" ref={filtroRef}>
             {/* Filtro por Nombre */}
             <div className="filtro-grupo-eficiencia">
               <div className="filtro-titulo-eficiencia">Nombres</div>
@@ -317,9 +334,6 @@ export default function EficienciaReporte({ cursoSeleccionado, onVolver }) {
               <button className="filtro-boton-eficiencia filtro-limpiar-eficiencia" onClick={limpiarFiltros}>
                 Limpiar
               </button>
-              {/*<button className="filtro-boton-eficiencia filtro-aplicar-eficiencia" onClick={aplicarFiltros}>
-                Aplicar
-              </button>*/}
             </div>
           </div>
         )}

@@ -1,5 +1,5 @@
-const { ISO_8601 } = require("moment-timezone");
 const {ReportRepository} = require("../Repository/ReportRepository");
+const NotFoundError  = require("../Errors/NotFoundError");
 
 class ReporteService {  
     static SearchReport = async (nombres, filtre) => {
@@ -89,6 +89,30 @@ class ReporteService {
         }catch(error){
             console.log(error);
             throw new Error('Error al generar el reporte de eficiencia');
+        }
+    }
+
+    static GetCursos = async () => {
+        try{
+            const result = await ReportRepository.GetCursosAll()
+
+            if(!result){
+                throw new NotFoundError('Curso no encontrado');
+            }
+
+            const payload = {
+                Id: result.ID,
+                nombre_curso: result.nombre_curso,
+                ficha: result.ficha,
+                estado: result.estado,
+                nombre_Instructor: result.Instructor?.dataValues?.nombres
+            }
+                
+            return  payload;
+
+        }catch(err){
+            console.log(err)
+            throw {status: 500, msg: "Error en el servidor "}
         }
     }
 }

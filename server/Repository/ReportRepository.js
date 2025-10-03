@@ -2,6 +2,7 @@ const User = require("../models/User");
 const Curso = require("../models/curso");
 const Asistencia = require("../models/Asistencia");
 const { Op } = require("sequelize");
+const { toASCII } = require("punycode");
 
 let db;
 
@@ -21,7 +22,7 @@ class ReportRepository {
                             {model: Asistencia, as: 'asistencias', attributes: ["estado_asistencia","fecha","registrado_por"]}
                         ]
                     }
-                ]
+                ],
             });
 
            if (!result) {
@@ -76,7 +77,107 @@ class ReportRepository {
         }
     }
 
+    static GetCursosAll = async (page) => {
+        try {  
+            const limit = 10;
+            const offset = (page - 1) * 10;
 
+            const {count , rows } = await Curso.findAll({
+                attributes : ["ID", "nombre_curso", "estado", "ficha"],
+                include: [{
+                    model: User, as: "Instructor",
+                    attributes: ["nombres"],
+                    where: {
+                        accountType: 'Instructor'
+                    },
+                    required: false
+                }],
+                limit: limit,
+                offset: offset,
+            })
+
+            const totalPages = Math.ceil(count / limit)
+
+            const data ={
+                totalItems: count,
+                totalPages: totalPages,
+                currentPage: page,
+                cursos: rows
+            }
+
+            console.log(data)
+
+            if(!data){
+                return null;
+            }
+
+            return;
+
+        }catch(err){
+            console.log(err)
+            throw {status: 500, msg: "Error en el servidor "}
+        }
+    }
+
+    static GetEmpleadosByIdCurso = async (id, page) => {
+       try{
+            const limit = 10;
+            const offset = (page - 1) * limit;
+
+            const {count, rows} = await Curso.findAll({
+                where: {
+                    ID: id,
+                },
+                attributes: ["ID", "nombre_curso"],
+                include: [{
+                    model: User, as: "Empleados",
+                    attributes: ["nombres", "apellidos", "documento","estado"],
+                    include: [{
+                        model: Asistencia, attributes: [],
+
+                    }]
+                }],
+                    attributes: [
+                        "ID",
+                        "fecha",
+                    [
+                        Asistencia.sequelize.literal(`(
+                            select count(*) from Asistencia as "As" 
+                            where "As"."usuarios_ID" = "Usuarios"."ID" AND 
+                            "As"."estado_asistencia" = presente
+                            )`),
+                        "Asistencias"
+                    ],
+                    [
+                        Asistencia.sequelize.literal(`(
+                            select count(*) from Asistencia as "As" where
+                            "As"."usuarios_ID" = "usuarios".ID" AND" "As"."estado_asistencia" = ausente
+                            )`),
+                        "Faltas"
+                    ],
+                ],
+                limit: limit,
+                offset: offset
+        })
+
+        const totalPages = Math.ceil(count / limit);
+        
+        const data = {
+            totalPages: totalPages,
+            currentPage: page,
+            empleados: rows
+        }
+
+        if(!data){
+            return null;
+        }
+
+        return data;
+       }catch(err){
+            console.log(err)
+            throw {status:500, msg: "Error en el servidor"}
+       }
+    }
 }
 
 module.exports = { ReportRepository, setDb };

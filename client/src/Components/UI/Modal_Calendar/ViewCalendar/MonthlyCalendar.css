@@ -3,8 +3,8 @@
     background-color: rgba(176, 176, 176, 0.5);
     border-radius: 25px;
     padding: 20px;
-    width: 15rem;
-    height: 15rem;
+    width: 18rem;
+    height: 18rem;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
     position: relative;
     backdrop-filter: blur(5px);
@@ -67,7 +67,7 @@
     text-transform: uppercase;
     letter-spacing: 1px;
     position: absolute;
-    left: 6rem;
+    left: 5rem;
     top: 1.6rem;
 }
 
@@ -98,7 +98,7 @@
 .calendar-week {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    gap: 5px;
+    gap: 10px;
 }
 
 /* Días individuales */

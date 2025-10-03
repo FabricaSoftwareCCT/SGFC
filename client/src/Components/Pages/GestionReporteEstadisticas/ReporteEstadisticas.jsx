@@ -1,12 +1,14 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import './ReporteEstadisticas.css';
 import ReporteEstudiantes from './ReporteEstudiantes';
+import { data } from 'react-router-dom';
 
 export default function ReporteEstadisticas() {
   const [pantallaActual, setPantallaActual] = useState('cursos'); // 'cursos' o 'estudiantes'
   const [cursoSeleccionado, setCursoSeleccionado] = useState(null);
   const [botonActivo, setBotonActivo] = useState('cursos');
   const [mostrarFiltro, setMostrarFiltro] = useState(false);
+  const [datosCurso, setdatosCurso] = useState([])
   const [filtros, setFiltros] = useState({
     estado: {
       activo: false,
@@ -22,18 +24,28 @@ export default function ReporteEstadisticas() {
     instructor: ''
   });
 
-  const datosEmpleados = [
-    { curso: "Backend", ficha: "12345678", instructor: "Cristian Hernao", estado: "Activo", empleados: 30 },
-    { curso: "Frontend", ficha: "123456784", instructor: "Pedro Hector", estado: "Activo", empleados: 25 },
-    { curso: "Diseño 1", ficha: "123456738", instructor: "Maria Vilmon", estado: "Activo", empleados: 27 },
-    { curso: "Java", ficha: "1234562178", instructor: "Kevin Mazo", estado: "Activo", empleados: 23 },
-    { curso: "Pintura 2", ficha: "1234568978", instructor: "Carlos River", estado: "Activo", empleados: 21 },
-    { curso: "Sepillo 2", ficha: "123452678", instructor: "Xionará Leona", estado: "Inactivo", empleados: 31 },
-    { curso: "Gráfica 3", ficha: "123452678", instructor: "Zulimy Montera", estado: "Activo", empleados: 24 },
-    { curso: "Económia", ficha: "123425678", instructor: "Goku Son", estado: "Activo", empleados: 20 },
-    { curso: "Matemáticas", ficha: "12349876", instructor: "Ana García", estado: "Inactivo", empleados: 8 },
-    { curso: "Física", ficha: "12348765", instructor: "Luis Martínez", estado: "Activo", empleados: 15 }
-  ];
+  useEffect(() => {
+    const cursos = async () => {
+      try{
+        const response = await fetch('http://localhost:3001/api/reports/ObtenerCursos/admin', {
+          method: "GET",
+          credentials: "include"
+        })
+
+        const data = await response.json()
+        const cursos = [
+          {id: data.curso?.Id, curso: data.curso?.nombre_curso, ficha: data.curso?.ficha, instructor: data.curso?.nombre_Instructor, estado: data.curso?.estado, empleados: 0 }
+        ];
+
+        setdatosCurso(cursos)
+      }catch(err){
+          console.log(err)
+          alert("Error al cargar datos")
+      }
+    }
+
+    cursos();
+  }, [])
 
   // Función para determinar el rango de empleados
   const getRangoEmpleados = (cantidad) => {
@@ -45,11 +57,11 @@ export default function ReporteEstadisticas() {
 
   // Función para aplicar todos los filtros
   const empleadosFiltrados = useMemo(() => {
-    return datosEmpleados.filter(empleado => {
+    return datosCurso.filter(empleado => {
       // Filtro por estado
       const estadosSeleccionados = [];
-      if (filtros.estado.activo) estadosSeleccionados.push('Activo');
-      if (filtros.estado.inactivo) estadosSeleccionados.push('Inactivo');
+      if (filtros.estado.activo) estadosSeleccionados.push('activo');
+      if (filtros.estado.inactivo) estadosSeleccionados.push('inactivo');
       
       if (estadosSeleccionados.length > 0 && !estadosSeleccionados.includes(empleado.estado)) {
         return false;
@@ -117,8 +129,6 @@ export default function ReporteEstadisticas() {
   };
 
   const aplicarFiltros = () => {
-    console.log('Filtros aplicados:', filtros);
-    console.log('Cursos filtrados:', empleadosFiltrados.length);
     setMostrarFiltro(false);
   };
 
@@ -137,12 +147,12 @@ export default function ReporteEstadisticas() {
       curso: '',
       instructor: ''
     });
-    console.log('Filtros limpiados');
+    
   };
 
   const generarReporte = () => {
     console.log('Generando reporte de cursos...');
-    const datosReporte = empleadosFiltrados.length > 0 ? empleadosFiltrados : datosEmpleados;
+    const datosReporte = empleadosFiltrados.length > 0 ? empleadosFiltrados : datosCurso;
     alert(`Reporte generado exitosamente\nTotal de cursos: ${datosReporte.length}`);
   };
 
@@ -272,7 +282,7 @@ export default function ReporteEstadisticas() {
             {/* Información de resultados */}
             <div className="filtro-info-estadisticas">
               <div className="filtro-resultados-estadisticas">
-                Resultados: {empleadosFiltrados.length} de {datosEmpleados.length} cursos
+                Resultados: {empleadosFiltrados.length} de {datosCurso.length} cursos
               </div>
             </div>
 
@@ -307,13 +317,13 @@ export default function ReporteEstadisticas() {
               className="tabla-fila-estadisticas"
               onClick={() => handleFilaClick(empleado)}
             >
-              <div className="columna-curso-estadisticas">{empleado.curso}</div>
-              <div className="columna-ficha-estadisticas">{empleado.ficha}</div>
-              <div className="columna-instructor-estadisticas">{empleado.instructor}</div>
-              <div className={empleado.estado === "Activo" ? "estado-activo-estadisticas" : "estado-inactivo-estadisticas"}>
-                {empleado.estado}
+              <div className="columna-curso-estadisticas">{empleado.curso }</div>
+              <div className="columna-ficha-estadisticas">{empleado.ficha }</div>
+              <div className="columna-instructor-estadisticas">{empleado.instructor }</div>
+              <div className={empleado.estado  === "Activo" ? "estado-activo-estadisticas" : "estado-inactivo-estadisticas"}>
+                {empleado.estado }
               </div>
-              <div className="columna-empleados-estadisticas">{empleado.empleados}</div>
+              <div className="columna-empleados-estadisticas">{empleado.empleados }</div>
             </div>
           ))
         ) : (

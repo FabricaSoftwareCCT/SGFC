@@ -399,13 +399,12 @@ const Pagination = ({
             key={number}
             className={`page-item ${currentPage === number ? "active" : ""}`}
           >
-            <a
+            <button
               onClick={(e) => paginate(number, e)}
-              href="!#"
               className="page-link"
             >
               {number}
-            </a>
+            </button>
           </li>
         ))}
       </ul>

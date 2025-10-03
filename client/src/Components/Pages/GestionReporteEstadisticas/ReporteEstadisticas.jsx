@@ -47,27 +47,6 @@ export default function ReporteEstadisticas() {
     document.removeEventListener('mousedown', handleClickOutside);
   };
 }, [mostrarFiltro]);
-/*
-  useEffect(() => {
-    const cursos = async () => {
-      try{
-        const response = await fetch('http://localhost:3001/api/reports/ObtenerCursos/admin', {
-          method: "GET",
-          credentials: "include"
-        });
-        const data = await response.json();
-        const cursos = [
-          {id: data.curso?.Id, curso: data.curso?.nombre_curso, ficha: data.curso?.ficha, instructor: data.curso?.nombre_Instructor, estado: data.curso?.estado, empleados: 0 }
-        ];
-        setdatosCurso(cursos);
-      } catch(err) {
-        console.log(err);
-        alert("Error al cargar datos");
-      }
-    };
-    cursos();
-  }, []);
-  */
 
   const cursos = [
   { id: 1, curso: "Programación Web con React", ficha: "FW-001", instructor: "María González", estado: "Activo", empleados: 15 },
@@ -105,50 +84,50 @@ export default function ReporteEstadisticas() {
     return '31-40+';
   };
 
-  // Función para aplicar todos los filtros
-  const empleadosFiltrados = useMemo(() => {
-    return cursos.filter(Cursos => {
+  // Función para aplicar todos los filtros - CORREGIDA
+  const cursosFiltrados = useMemo(() => {
+    return cursos.filter(curso => {
       // Filtro por estado
       const estadosSeleccionados = [];
-      if (filtros.estado.activo) estadosSeleccionados.push('activo');
-      if (filtros.estado.inactivo) estadosSeleccionados.push('inactivo');
+      if (filtros.estado.activo) estadosSeleccionados.push('Activo');
+      if (filtros.estado.inactivo) estadosSeleccionados.push('Inactivo');
       
-      if (estadosSeleccionados.length > 0 && !estadosSeleccionados.includes(Cursos.estado)) {
+      if (estadosSeleccionados.length > 0 && !estadosSeleccionados.includes(curso.estado)) {
         return false;
       }
 
       // Filtro por rango de empleados
       const rangosSeleccionados = Object.keys(filtros.empleados).filter(rango => filtros.empleados[rango]);
       if (rangosSeleccionados.length > 0) {
-        const rangoEmpleado = getRangoEmpleados(empleado.empleados);
+        const rangoEmpleado = getRangoEmpleados(curso.empleados);
         if (!rangosSeleccionados.includes(rangoEmpleado)) {
           return false;
         }
       }
 
       // Filtro por nombre del curso
-      if (filtros.curso && !empleado.curso.toLowerCase().includes(filtros.curso.toLowerCase())) {
+      if (filtros.curso && !curso.curso.toLowerCase().includes(filtros.curso.toLowerCase())) {
         return false;
       }
 
       // Filtro por nombre del instructor
-      if (filtros.instructor && !empleado.instructor.toLowerCase().includes(filtros.instructor.toLowerCase())) {
+      if (filtros.instructor && !curso.instructor.toLowerCase().includes(filtros.instructor.toLowerCase())) {
         return false;
       }
 
-      // Si pasa todos los filtros, incluir el empleado
+      // Si pasa todos los filtros, incluir el curso
       return true;
     });
-  }, [filtros, datosCurso]);
+  }, [filtros, cursos]);
 
   // Cálculo para paginación
   const indexOfLastPost = currentPage * postsPerPage;
   const indexOfFirstPost = indexOfLastPost - postsPerPage;
-  const currentPosts = empleadosFiltrados.slice(indexOfFirstPost, indexOfLastPost);
+  const currentPosts = cursosFiltrados.slice(indexOfFirstPost, indexOfLastPost);
 
   // Función para manejar el clic en una fila
-  const handleFilaClick = (Cursos) => {
-    setCursoSeleccionado(Cursos);
+  const handleFilaClick = (curso) => {
+    setCursoSeleccionado(curso);
     setPantallaActual('estudiantes');
   };
 
@@ -202,7 +181,7 @@ export default function ReporteEstadisticas() {
 
   const generarReporte = () => {
     console.log('Generando reporte de cursos...');
-    const datosReporte = empleadosFiltrados.length > 0 ? empleadosFiltrados : datosCurso;
+    const datosReporte = cursosFiltrados.length > 0 ? cursosFiltrados : cursos;
     alert(`Reporte generado exitosamente\nTotal de cursos: ${datosReporte.length}`);
   };
  
@@ -263,7 +242,6 @@ export default function ReporteEstadisticas() {
                 </div>
               </div>
             </div>
-
 
             {/* Filtro por Empleados */}
             <div className="filtro-grupo-estadisticas">
@@ -327,7 +305,7 @@ export default function ReporteEstadisticas() {
             {/* Información de resultados */}
             <div className="filtro-info-estadisticas">
               <div className="filtro-resultados-estadisticas">
-                Resultados: {empleadosFiltrados.length} de {datosCurso.length} cursos
+                Resultados: {cursosFiltrados.length} de {cursos.length} cursos
               </div>
             </div>
 
@@ -353,19 +331,19 @@ export default function ReporteEstadisticas() {
 
         {/* Filas de datos filtrados y paginados */}
         {currentPosts.length > 0 ? (
-          currentPosts.map((Cursos) => (
+          currentPosts.map((curso) => (
             <div 
-              key={Cursos.id} 
+              key={curso.id} 
               className="tabla-fila-estadisticas"
-              onClick={() => handleFilaClick(Cursos)}
+              onClick={() => handleFilaClick(curso)}
             >
-              <div className="columna-curso-estadisticas">{Cursos.curso}</div>
-              <div className="columna-ficha-estadisticas">{Cursos.ficha}</div>
-              <div className="columna-instructor-estadisticas">{Cursos.instructor}</div>
-              <div className={Cursos.estado === "Activo" ? "estado-activo-estadisticas" : "estado-inactivo-estadisticas"}>
-                {Cursos.estado}
+              <div className="columna-curso-estadisticas">{curso.curso}</div>
+              <div className="columna-ficha-estadisticas">{curso.ficha}</div>
+              <div className="columna-instructor-estadisticas">{curso.instructor}</div>
+              <div className={curso.estado === "Activo" ? "estado-activo-estadisticas" : "estado-inactivo-estadisticas"}>
+                {curso.estado}
               </div>
-              <div className="columna-empleados-estadisticas">{Cursos.empleados}</div>
+              <div className="columna-empleados-estadisticas">{curso.empleados}</div>
             </div>
           ))
         ) : (
@@ -376,17 +354,17 @@ export default function ReporteEstadisticas() {
       </div>
 
       {/* PAGINACIÓN */}
-      {empleadosFiltrados.length > postsPerPage && (
+      {cursosFiltrados.length > postsPerPage && (
         <>
           <Pagination
             postsPerPage={postsPerPage}
-            totalPosts={empleadosFiltrados.length}
+            totalPosts={cursosFiltrados.length}
             currentPage={currentPage}
             setCurrentPage={setCurrentPage}
           />
           <div className="info-paginacion">
-            Mostrando {Math.min(indexOfFirstPost + 1, empleadosFiltrados.length)}-
-            {Math.min(indexOfLastPost, empleadosFiltrados.length)} de {empleadosFiltrados.length} cursos
+            Mostrando {Math.min(indexOfFirstPost + 1, cursosFiltrados.length)}-
+            {Math.min(indexOfLastPost, cursosFiltrados.length)} de {cursosFiltrados.length} cursos
           </div>
         </>
       )}

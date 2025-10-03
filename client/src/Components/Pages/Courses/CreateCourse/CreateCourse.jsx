@@ -260,17 +260,7 @@ export const CreateCourse = ( ) => {
               )}
             </label>
 
-            <div className='containerDetails_course'>
-              <div className='containerInput_ficha'>
-                <label htmlFor="fichaCourse">Ficha: </label>
-                <input
-                  id='fichaCourse'
-                  type="number"
-                  placeholder='N° ficha'
-                  value={ficha}
-                  onChange={(e) => setFicha(e.target.value)}
-                />
-              </div>
+            <div className='containerDetails_course '>
               <input
                 className='addName'
                 type="text"
@@ -297,6 +287,19 @@ export const CreateCourse = ( ) => {
 
               <div className='containerDetails_course2'>
                 <div>
+                  {/* Campo Ficha - Siempre visible */}
+                  <div className='containerInput_ficha'>
+                    <label htmlFor="fichaCourse">Ficha: </label>
+                    <input
+                      className='input-field'
+                      id='fichaCourse'
+                      type="number"
+                      placeholder='N° ficha'
+                      value={ficha}
+                      onChange={(e) => setFicha(e.target.value)}
+                    />
+                  </div>
+
                   <div className="offer-type-container">
                     <span>Tipo de oferta:</span>
                     <div className="offer-options">
@@ -357,6 +360,7 @@ export const CreateCourse = ( ) => {
                       ) : (
                         <>
                           <input
+                            className='input-field'
                             id='nit_company'
                             type="text"
                             placeholder='NIT de la empresa'
@@ -394,8 +398,6 @@ export const CreateCourse = ( ) => {
                 </div>
 
                 <div>
-                  
-
                   {/* Botón para abrir el modal general */}
                   <button className='addDate' type="button" onClick={showModalGeneral}>
                     <img src={calendar} alt="" />

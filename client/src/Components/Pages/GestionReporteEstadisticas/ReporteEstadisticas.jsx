@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect,useRef } from 'react';
 import './ReporteEstadisticas.css';
 import ReporteEstudiantes from './ReporteEstudiantes';
 
@@ -27,6 +27,26 @@ export default function ReporteEstadisticas() {
     curso: '',
     instructor: ''
   });
+
+  const filtroRef = useRef(null);
+
+ useEffect(() => {
+  function handleClickOutside(event) {
+    if (mostrarFiltro && filtroRef.current && !filtroRef.current.contains(event.target)) {
+      const botonFiltro = document.querySelector('.button-filtro-reporte-estadisticas');
+      if (botonFiltro && !botonFiltro.contains(event.target)) {
+        setMostrarFiltro(false);
+      }
+    }
+  }
+
+  document.addEventListener('mousedown', handleClickOutside);
+
+  // Limpiar event listener cuando el componente se desmonta
+  return () => {
+    document.removeEventListener('mousedown', handleClickOutside);
+  };
+}, [mostrarFiltro]);
 /*
   useEffect(() => {
     const cursos = async () => {
@@ -185,7 +205,7 @@ export default function ReporteEstadisticas() {
     const datosReporte = empleadosFiltrados.length > 0 ? empleadosFiltrados : datosCurso;
     alert(`Reporte generado exitosamente\nTotal de cursos: ${datosReporte.length}`);
   };
-
+ 
   // Contador de filtros activos
   const filtrosActivos = () => {
     let count = 0;
@@ -222,7 +242,7 @@ export default function ReporteEstadisticas() {
         </button>
         
         {mostrarFiltro && (
-          <div className="filtro-menu-estadisticas">
+          <div className="filtro-menu-estadisticas" ref={filtroRef}>
             {/* Filtro por Estado */}
             <div className="filtro-grupo-estadisticas">
               <div className="filtro-titulo-estadisticas">Estado</div>
@@ -243,6 +263,7 @@ export default function ReporteEstadisticas() {
                 </div>
               </div>
             </div>
+
 
             {/* Filtro por Empleados */}
             <div className="filtro-grupo-estadisticas">

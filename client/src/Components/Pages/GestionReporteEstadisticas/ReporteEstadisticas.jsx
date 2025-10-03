@@ -43,9 +43,9 @@ export default function ReporteEstadisticas() {
     return '31-40+';
   };
 
-  const filtroRef = useRef (null)
+  /*const filtroRef = useRef (null)
   
-  /*useEffect (()=>{
+  useEffect (()=>{
     function handleClickOutside (event){
       if(mostrarFiltro && filtroRef.current && !filtroRef.current.container(event.target)){
 

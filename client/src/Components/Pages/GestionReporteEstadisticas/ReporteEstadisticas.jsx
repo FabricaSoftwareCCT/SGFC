@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo,useEffect,useRef } from 'react';
 import './ReporteEstadisticas.css';
 import ReporteEstudiantes from './ReporteEstudiantes';
 
@@ -42,6 +42,17 @@ export default function ReporteEstadisticas() {
     if (cantidad <= 30) return '21-30';
     return '31-40+';
   };
+
+  const filtroRef = useRef (null)
+  
+  /*useEffect (()=>{
+    function handleClickOutside (event){
+      if(mostrarFiltro && filtroRef.current && !filtroRef.current.container(event.target)){
+
+      }
+    }
+  })*/
+
 
   // Función para aplicar todos los filtros
   const empleadosFiltrados = useMemo(() => {

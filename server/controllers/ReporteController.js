@@ -48,7 +48,9 @@ class ReporteController {
 
     static GetCursosReporte = async (req, res) => {
         try {
-            const response = await ReporteService.GetCursos()
+            const page = req.params.page;
+
+            const response = await ReporteService.GetCursos(page)
 
             res.status(200).json({
                 msg: "Cursos Obtenidos",

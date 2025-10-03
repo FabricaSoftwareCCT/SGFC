@@ -5,6 +5,6 @@ const { ReporteController } = require("../controllers/ReporteController");
 
 router.get("/generarReporte", reporteMiddleware, ReporteController.Searchreport);  
 router.get("/reporteEficiencia", ReporteController.ReporteEficiencia);
-router.get("/ObtenerCursos/admin", ReporteController.GetCursosReporte )
+router.get("/ObtenerCursos/admin/:page", ReporteController.GetCursosReporte )
 
 module.exports = router;

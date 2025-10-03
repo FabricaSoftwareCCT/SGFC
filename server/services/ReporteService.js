@@ -92,22 +92,28 @@ class ReporteService {
         }
     }
 
-    static GetCursos = async () => {
+    static GetCursos = async (page) => {
         try{
-            const result = await ReportRepository.GetCursosAll()
+            const result = await ReportRepository.GetCursosAll(page)
 
             if(!result){
                 throw new NotFoundError('Curso no encontrado');
             }
 
+            const cursos = result?.cursos.map(curso => ({
+                id: curso.ID,
+                nombre_curso: curso.nombre_curso,
+                estado: curso.estado,
+                ficha: curso.ficha,
+                nombre_instructor: curso.Instructor?.dataValues?.nombres +" "+ curso.Instructor?.dataValues?.apellidos
+            }))
+
             const payload = {
-                Id: result.ID,
-                nombre_curso: result.nombre_curso,
-                ficha: result.ficha,
-                estado: result.estado,
-                nombre_Instructor: result.Instructor?.dataValues?.nombres
+                totalItems: result.totalItems,
+                totalPage: result.totalPages,
+                Page: result.currentPage,
+                cursos: cursos
             }
-                
             return  payload;
 
         }catch(err){

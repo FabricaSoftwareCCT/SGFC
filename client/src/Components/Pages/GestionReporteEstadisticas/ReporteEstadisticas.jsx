@@ -31,17 +31,24 @@ export default function ReporteEstadisticas() {
   useEffect(() => {
     const cursos = async () => {
       try{
-        const response = await fetch('http://localhost:3001/api/reports/ObtenerCursos/admin', {
+        const response = await fetch(`http://localhost:3001/api/reports/ObtenerCursos/admin/${currentPage}`, {
           method: "GET",
           credentials: "include"
         });
         const data = await response.json();
-        const cursos = [
-          {id: data.curso?.Id, curso: data.curso?.nombre_curso, ficha: data.curso?.ficha, instructor: data.curso?.nombre_Instructor, estado: data.curso?.estado, empleados: 0 }
-        ];
+
+        const cursos = data?.curso?.cursos.map(curso => ({
+          id: curso.id,
+          curso: curso.nombre_curso,
+          ficha: curso.ficha,
+          estado: curso.estado,
+          instructor: curso.nombre_instructor,
+          empleados: 0
+          })
+        );
+
         setdatosCurso(cursos);
       } catch(err) {
-        console.log(err);
         alert("Error al cargar datos");
       }
     };

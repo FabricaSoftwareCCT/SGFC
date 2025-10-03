@@ -82,11 +82,11 @@ class ReportRepository {
             const limit = 10;
             const offset = (page - 1) * 10;
 
-            const {count , rows } = await Curso.findAll({
+            const {count , rows } = await Curso.findAndCountAll({
                 attributes : ["ID", "nombre_curso", "estado", "ficha"],
                 include: [{
                     model: User, as: "Instructor",
-                    attributes: ["nombres"],
+                    attributes: ["nombres","apellidos"],
                     where: {
                         accountType: 'Instructor'
                     },
@@ -105,20 +105,18 @@ class ReportRepository {
                 cursos: rows
             }
 
-            console.log(data)
-
             if(!data){
                 return null;
             }
 
-            return;
+            return data;
 
         }catch(err){
             console.log(err)
             throw {status: 500, msg: "Error en el servidor "}
         }
     }
-
+    /*
     static GetEmpleadosByIdCurso = async (id, page) => {
        try{
             const limit = 10;
@@ -178,6 +176,7 @@ class ReportRepository {
             throw {status:500, msg: "Error en el servidor"}
        }
     }
+       */
 }
 
 module.exports = { ReportRepository, setDb };

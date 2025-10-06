@@ -13,7 +13,9 @@ import {validateEmail, validateNumber, validateText, createMensajeError, validat
 
 export const SeeMyProfile = () => {
     const location = useLocation();
-    const userId = location.state.userId;
+    const navigate = useNavigate();
+    const userId = location.state?.userId;
+    const requiresCompletion = location.state?.requiresCompletion; // ← NUEVO
     const fotoPerfilInputRef = React.useRef(null);
     const logoEmpresaInputRef = React.useRef(null);
     const [perfil, setPerfil] = useState(null);
@@ -58,6 +60,12 @@ export const SeeMyProfile = () => {
     };
 
     useEffect(() => {
+        // Si viene por redirección de perfil incompleto, activar modo edición automáticamente
+        if (requiresCompletion) {
+            setEditMode(true);
+            alert("⚠️ Por favor completa tu perfil para continuar usando la aplicación");
+        }
+
         const fetchProfile = async () => {
             try {
                 const response = await axiosInstance.get(`/api/users/profile/${userId}`);
@@ -77,7 +85,7 @@ export const SeeMyProfile = () => {
         if (userId) {
             fetchProfile();
         }
-    }, [userId]);
+    }, [userId, requiresCompletion]); // ← AGREGAR requiresCompletion aquí
 
     const cargarUbicaciones = async (empresaData) => {
         try {
@@ -276,6 +284,11 @@ export const SeeMyProfile = () => {
         setPerfilOriginal(response.data);
 
         setEditMode(false);
+        
+        // Si venía de redirección por perfil incompleto, redirigir al home
+        if (requiresCompletion) {
+            navigate("/");
+        }
     } catch (error) {
         console.error('Error al actualizar el perfil:', error);
         console.error('Error response:', error.response);

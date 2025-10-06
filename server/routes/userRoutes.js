@@ -1,5 +1,5 @@
 const express = require("express");
-const { createEmpleado, getEmpleadosByEmpresaId, recordLogin, subirDocumentoIdentidad, getEmpresaById, refreshAccessToken, getAprendicesByEmpresa, registerUser, verifyEmail, loginUser,requestPasswordReset,resetPassword, getAllUsers, getUserProfile, getAprendices, getEmpresas, getInstructores, getGestores, updateUserProfile,createInstructor, createGestor,logoutUser, createMasiveUsers, getEmpresaByNIT, requestNewVerificationEmail, getAllEmpleadosForAdmin, getAllEmpresasForAdmin, createEmpleadoForAdmin } = require("../controllers/userController");
+const { createEmpleado, getEmpleadosByEmpresaId, recordLogin, subirDocumentoIdentidad, getEmpresaById, refreshAccessToken, getAprendicesByEmpresa, registerUser, verifyEmail, loginUser,requestPasswordReset,resetPassword, getAllUsers, getUserProfile, getAprendices, getEmpresas, getInstructores, getGestores, updateUserProfile,createInstructor, createGestor,logoutUser, createMasiveUsers, getEmpresaByNIT, requestNewVerificationEmail, checkProfileComplete, getAllEmpleadosForAdmin, getAllEmpresasForAdmin, createEmpleadoForAdmin } = require("../controllers/userController");
 const { googleSignIn, googleSignUp } = require("../controllers/authGoogleController"); // Importar controlador de autenticación de Google
 const { authMiddleware, authorizeRoles } = require("../middlewares/authMiddleware");
 const router = express.Router();
@@ -20,6 +20,7 @@ router.get('/aprendices', getAprendices); // Obtener todos los aprendices
 router.get('/empresas', getEmpresas); // Obtener todas las empresas
 router.get('/instructores', getInstructores); // Obtener todos los instructores
 router.get('/gestores', getGestores); // Obtener todos los gestores
+router.get("/check-profile", checkProfileComplete); // ✅ NUEVA RUTA - Verificar perfil completo
 router.put(
   '/perfil/actualizar/:id',
   authMiddleware, // ✅ AÑADIR EL MIDDLEWARE AQUÍ
@@ -52,4 +53,4 @@ router.get("/", (req, res) => {
   });
   
 
-module.exports = router;  
+module.exports = router;

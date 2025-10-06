@@ -287,6 +287,16 @@ function App() {
           />
           <Route path="/Gestiones/Gestor" element={<GestionsGestor />} />
           <Route path="/MiPerfil" element={<SeeMyProfile />} />
+          {/* ✅ NUEVA RUTA AGREGADA */}
+          <Route path="/MiProfile" element={
+            <Layout
+              setShowSignIn={setShowSignIn}
+              setShowSignUp={setShowSignUp}
+              setShowModalGeneral={setShowModalGeneral}
+            >
+              <SeeMyProfile />
+            </Layout>
+          } />
           <Route path="/Gestiones/Empresas" element={<GestionsCompany />} />
           <Route path="/Gestiones/Actas" element={<GestionsActas />} />
           

@@ -53,7 +53,6 @@
 .cursos-section h2{
     z-index: 2;
     width: 100%;
-    position: absolute;
     flex-direction: column-reverse;
     align-content: space-between;
     justify-content: flex-start;
@@ -62,7 +61,7 @@
 
 .cursos-section{
     overflow: scroll;
-    height: 700px;
+    height: 42rem;
     width: 50%;
     background: rgba(255, 255, 255, 0.05);
     border-radius: 15px;
@@ -71,14 +70,12 @@
     backdrop-filter: blur(10px);
     text-align: center;
     display: flex;
-    flex-direction: row;
-    justify-content: space-around;;
-    flex-direction: row;
+    flex-direction: column;
     justify-content: space-around;
 }
 
 .cursos-grid {
-    margin: 53px;
+    margin: 1rem;
     display: flex;
     flex-direction: column;
     gap: 1rem;
@@ -148,7 +145,7 @@
     display: flex;
     flex-direction: row;
     align-items: baseline;
-    margin-bottom: 5rem;
+    margin-bottom: -5rem;
     width: 100%;
     flex-wrap: nowrap;
 }
@@ -262,7 +259,7 @@ ease;
     align-items: flex-end;
     width: 104%;
     gap: 1rem;
-    height: 20px;
+    height: 4px;
 }
 
 .btn-descargar {

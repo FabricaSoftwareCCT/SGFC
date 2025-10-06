@@ -44,7 +44,7 @@
     width: auto;
     height: auto;
     margin-bottom: 2%;
-    margin-left: 50%;
+    margin-left: 42.9%;
 }
 
 .btn-back-c:hover {
@@ -66,7 +66,7 @@
     width: 300%;
     background: rgba(255, 255, 255, 0.05);
     border-radius: 15px;
-    padding: 5rem;
+    padding: 2rem;
     border: 1px solid rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(10px);
     height: 400px;
@@ -138,6 +138,7 @@ ease;
 }
 
 .archivo-item-c {
+    display: flex;
     background: rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 12px;
@@ -145,7 +146,12 @@ ease;
     cursor: pointer;
     transition: all 0.3s ease;
     backdrop-filter: blur(10px);
-    width: 700px;
+    width: 1130px;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-content: center;
+    justify-content: center;
+    align-items: center;
 }
 
 .archivo-item:hover {
@@ -166,7 +172,7 @@ ease;
 }
 
 .material-content-c{
-    width: 40%;
+    width: 33.3%;
     
 }
 
@@ -186,6 +192,7 @@ ease;
     display: flex;
     flex-wrap: nowrap;
     align-items: center;
+    gap: 1rem;
 }
 
 .archivo-actions-c {
@@ -195,7 +202,7 @@ ease;
     justify-content: right;
     align-items: flex-end;
     width: 100%;
-    height: 20px;
+    height: 3px;
     gap: 1rem;
 }
 

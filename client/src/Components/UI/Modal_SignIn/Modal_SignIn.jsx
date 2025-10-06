@@ -98,7 +98,7 @@ export const Modal_SignIn = () => {
     setLoginning(true);
 
     axiosInstance.post("api/users/login", { email, password })
-      .then((response) => {
+      .then(async (response) => {
         // Guardar sesión
         const sessionData = {
           accountType: response.data.accountType,
@@ -111,13 +111,47 @@ export const Modal_SignIn = () => {
         }
         sessionStorage.setItem("userSession", JSON.stringify(sessionData));
 
-        // Esperar 2 segundos antes de cerrar modal y navegar
-        setTimeout(() => {
-          closeModalSignIn();
-          navigate("/", {
-            state: { accountType: response.data.accountType },
-          });
-          setLoginning(false); // apagar loader al final
+        // Esperar 1 segundo antes de verificar perfil
+        setTimeout(async () => {
+          try {
+            // Verificar si el perfil está completo
+            const profileCheck = await axiosInstance.get("/api/users/check-profile")
+              .catch(error => {
+                // Si hay error 404, el endpoint no existe - redirigir al home
+                if (error.response?.status === 404) {
+                  console.log("Endpoint check-profile no disponible, redirigiendo al home");
+                  return { data: { isComplete: true } }; // Asumir perfil completo
+                }
+                throw error;
+              });
+            
+            if (!profileCheck.data.isComplete) {
+              // Perfil incompleto - redirigir a MiProfile
+              closeModalSignIn();
+              navigate("/MiProfile", { 
+                state: { 
+                  userId: response.data.id,
+                  requiresCompletion: true,
+                  missingFields: profileCheck.data.missingFields 
+                }
+              });
+            } else {
+              // Perfil completo - redirigir al home
+              closeModalSignIn();
+              navigate("/", {
+                state: { accountType: response.data.accountType },
+              });
+            }
+          } catch (error) {
+            console.error("Error verificando perfil:", error);
+            // En caso de error, redirigir al home por defecto
+            closeModalSignIn();
+            navigate("/", {
+              state: { accountType: response.data.accountType },
+            });
+          } finally {
+            setLoginning(false); // apagar loader al final
+          }
         }, 1000);
       })
       .catch((error) => {
@@ -156,14 +190,46 @@ export const Modal_SignIn = () => {
           empresa_ID: data.user.empresa_ID || null,
           id: data.user.ID,
         }));
-        closeModalSignIn();
-        navigate('/', { state: { accountType: data.user.accountType } });
+        
+        // Verificar perfil después de login con Google
+        setTimeout(async () => {
+          try {
+            const profileCheck = await axiosInstance.get("/api/users/check-profile")
+              .catch(error => {
+                if (error.response?.status === 404) {
+                  console.log("Endpoint check-profile no disponible, redirigiendo al home");
+                  return { data: { isComplete: true } };
+                }
+                throw error;
+              });
+            
+            if (!profileCheck.data.isComplete) {
+              closeModalSignIn();
+              navigate("/MiProfile", { 
+                state: { 
+                  userId: data.user.ID,
+                  requiresCompletion: true,
+                  missingFields: profileCheck.data.missingFields 
+                }
+              });
+            } else {
+              closeModalSignIn();
+              navigate('/', { state: { accountType: data.user.accountType } });
+            }
+          } catch (error) {
+            console.error("Error verificando perfil Google:", error);
+            closeModalSignIn();
+            navigate('/', { state: { accountType: data.user.accountType } });
+          } finally {
+            setLoginning(false);
+          }
+        }, 1000);
       } else {
         alert(data.message || 'Error en el inicio de sesión con Google');
+        setLoginning(false);
       }
     } catch (error) {
       alert('Error de red al intentar iniciar sesión.');
-    } finally {
       setLoginning(false);
     }
   };

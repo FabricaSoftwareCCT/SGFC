@@ -230,6 +230,16 @@ function App() {
           />
           <Route path="/Gestiones/Gestor" element={<GestionsGestor />} />
           <Route path="/MiPerfil" element={<SeeMyProfile />} />
+          {/* ✅ NUEVA RUTA AGREGADA */}
+          <Route path="/MiProfile" element={
+            <Layout
+              setShowSignIn={setShowSignIn}
+              setShowSignUp={setShowSignUp}
+              setShowModalGeneral={setShowModalGeneral}
+            >
+              <SeeMyProfile />
+            </Layout>
+          } />
           <Route path="/Gestiones/Empresas" element={<GestionsCompany />} />
           <Route path="/Gestiones/Actas" element={<GestionsActas />} />
 
@@ -255,7 +265,8 @@ function App() {
           <Route path="/Actas/Concertacion" element={<ConcertationProceeding />} />
           <Route path="/Actas/Lugar-formacion" element={<TrainingPlaceProceeding />} />
           <Route path="/no-autorizado" element={<NoAutorizado />} />
-          <Route path="/SolicitarCurso/:nombreCurso" element={<RequestCourse />} />        </Routes>
+          <Route path="/SolicitarCurso/:nombreCurso" element={<RequestCourse />} />
+        </Routes>
       </>
     </GoogleOAuthProvider>
   );

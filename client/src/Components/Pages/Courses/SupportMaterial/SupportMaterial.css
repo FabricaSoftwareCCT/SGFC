@@ -299,7 +299,7 @@ ease;
 }
 
 /* Responsive */
-@media (max-width: 1440px) {
+@media (max-width: 1400px) {
     .material-content {
         grid-template-columns: 1fr;
         gap: 1.5rem;
@@ -332,7 +332,7 @@ ease;
     }
 }
 
-@media (max-width: 1440px) {
+@media (max-width: 1400px) {
     .material-header h1 {
         font-size: 2rem;
     }

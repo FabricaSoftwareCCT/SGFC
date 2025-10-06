@@ -7,23 +7,23 @@
 .container_createCourse {
   position: relative;
   width: 100%;
-  max-height: 100vh;
-  padding: 3rem 2rem;
+  min-height: 100vh;
+  padding: 3rem 2rem 1rem; /* Padding bottom reducido */
   display: flex;
   flex-direction: column;
   align-items: center;
   color: white;
- 
 }
 
 /* Título principal */
 .container_createCourse h2 {
-  font-size: 3.2rem;
+  font-size: 2.7rem;
   font-weight: 200;
   color: #00843d;
   text-align: center;
-  margin-bottom: 4rem;
+  margin-bottom: 1rem;
   letter-spacing: -0.02em;
+  margin-top: auto;
 }
 
 .container_createCourse .complementary {
@@ -35,8 +35,8 @@
 .containerInformation_CreateCourse {
   display: grid;
   grid-template-columns: 400px 1fr;
-  gap: 4rem;
-  width: 100%;
+  gap: 2rem;
+  width: 80%;
   max-width: 1400px;
   align-items: start;
 }
@@ -68,19 +68,20 @@
 
 /* Área de imagen mejorada */
 .upload-area {
-  position: relative;
-  width: 100%;
-  height: 300px;
-  background: linear-gradient(145deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%);
-  border: 2px dashed rgba(255, 255, 255, 0.15);
-  border-radius: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  backdrop-filter: blur(20px);
-  overflow: hidden;
+ margin-top: 37px;
+    position: relative;
+    width: 85%;
+    height: 444px;
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%);
+    border: 2px dashed rgba(255, 255, 255, 0.15);
+    border-radius: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(20px);
+    overflow: hidden;
 }
 
 .upload-area:hover {
@@ -104,7 +105,7 @@
 .upload-area:hover::before {
   left: 100%;
 }
-
+/*
 .upload-placeholder {
   display: flex;
   flex-direction: column;
@@ -113,7 +114,7 @@
   text-align: center;
   padding: 2rem;
   z-index: 2;
-}
+}*/
 
 .upload-placeholder .icon {
   width: 56px;
@@ -121,6 +122,8 @@
   opacity: 0.6;
   filter: brightness(0) invert(1);
   transition: all 0.3s ease;
+  margin: auto;
+  position: absolute;
 }
 
 .upload-area:hover .upload-placeholder .icon {
@@ -132,7 +135,7 @@
 .upload-placeholder p {
   color: rgba(255, 255, 255, 0.6);
   font-size: 1rem;
-  margin: 0;
+  margin: 80px;
   line-height: 1.4;
 }
 
@@ -164,7 +167,7 @@
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 18px;
   color: white;
-  font-size: 1.4rem;
+  font-size: 1.2rem;
   font-weight: 300;
   outline: none;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -214,30 +217,10 @@
   color: rgba(255, 255, 255, 0.4);
 }
 
-/* Scrollbar personalizada */
-.addDetails::-webkit-scrollbar {
-  width: 8px;
-}
-
-.addDetails::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 10px;
-}
-
-.addDetails::-webkit-scrollbar-thumb {
-  background: linear-gradient(45deg, #00843d, #00c26e);
-  border-radius: 10px;
-  transition: background 0.3s ease;
-}
-
-.addDetails::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(45deg, #00a65a, #00e67e);
-}
-
 /* Para Firefox */
 .addDetails {
   scrollbar-width: thin;
-  scrollbar-color: #00843d rgba(255, 255, 255, 0.05);
+  scrollbar-color: #1ba65c rgba(255, 255, 255, 0.05);
 }
 
 /* Contador de caracteres mejorado */
@@ -267,7 +250,6 @@
 
 .details_Date_Instructor{
     display: flex; 
-    
 }
 
 /* Grid de configuraciones */
@@ -360,11 +342,13 @@
 .containerInput_company label {
   display: block;
   color: rgba(255, 255, 255, 0.7);
-  font-size: 0.95rem;
+  font-size: 1.1rem;
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  margin-bottom: 1rem;
+  margin-bottom: 0rem;
+  margin-left: 3.5rem;
+  margin-right: 1rem;
 }
 
 .containerInput_company input {
@@ -391,6 +375,7 @@
   display: flex;
   flex-direction: column;
   gap: 2rem;
+  margin-bottom: 0; /* Eliminado el margin-bottom */
 }
 
 /* Información del instructor mejorada */
@@ -460,26 +445,35 @@
   background: linear-gradient(145deg, rgba(0, 196, 110, 0.05) 0%, rgba(0, 132, 61, 0.02) 100%);
   border-color: #00843ebd;
   transform: translateY(-2px);
- 
 }
 
-/* Botón principal de actualización */
+/* BOTÓN CREAR CURSO - CORREGIDO */
 .buttonCreate_Course {
-  width: 100%;
-  padding: 1.8rem 2rem;
+  width: 40%;
+  max-width: 400px;
+  padding: 1.3rem 2rem;
   background: #00843ea4;
   border: none;
   border-radius: 14px;
   color: white;
-  font-size: 1.2rem;
-  font-weight: 600;
+  font-size: 1.3rem;
+  font-weight: 400;
   cursor: pointer;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  margin-top: 2rem;
-  position: relative;
-  overflow: hidden;
   text-transform: uppercase;
   letter-spacing: 1px;
+  transition: all 0.3s ease;
+  margin-top: 0;
+  align-self: center;
+  position: relative;
+  overflow: hidden;
+  margin-left: 25rem;
+  transform: translateY(-2rem);
+}
+
+.buttonCreate_Course:hover {
+  background: #00843ebe;
+  transform: translateY(-4rem) translateY(-2px); /* Mantiene la posición Y y añade el efecto hover */
+  box-shadow: 0 10px 25px rgba(0, 132, 62, 0.4);
 }
 
 .buttonCreate_Course::before {
@@ -489,6 +483,7 @@
   left: -100%;
   width: 100%;
   height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
   transition: left 0.6s;
 }
 
@@ -496,13 +491,8 @@
   left: 100%;
 }
 
-.buttonCreate_Course:hover {
-  background: #00843ebe;
-  transform: translateY(-3px);
-}
-
 .buttonCreate_Course:active {
-  transform: translateY(0);
+  transform: translateY(-4rem) translateY(0); /* Mantiene la posición base al hacer click */
 }
 
 /* Scrollbar global mejorada */
@@ -556,7 +546,7 @@
   }
   
   .container_createCourse {
-    padding: 2rem 1.5rem;
+    padding: 2rem 1.5rem 0.5rem; /* Padding bottom muy reducido */
   }
 }
 
@@ -582,11 +572,15 @@
     min-height: 150px;
     padding: 1.5rem;
   }
+  
+  .buttonCreate_Course {
+    width: 70%;
+  }
 }
 
 @media (max-width: 480px) {
   .container_createCourse {
-    padding: 1.5rem 1rem;
+    padding: 1.5rem 1rem 0.5rem; /* Padding bottom mínimo */
   }
   
   .container_createCourse h2 {
@@ -607,5 +601,11 @@
     top: 0;
     right: auto;
     margin-bottom: 1rem;
+  }
+  
+  .buttonCreate_Course {
+    width: 80%;
+    padding: 1.2rem 1.5rem;
+    font-size: 1.1rem;
   }
 }

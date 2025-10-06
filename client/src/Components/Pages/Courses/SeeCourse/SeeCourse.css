@@ -7,39 +7,51 @@
   box-sizing: border-box;
 }
 
-/* Contenedor principal con fondo degradado */
+/* Contenedor principal con fondo degradado - SIN SCROLL */
 .course-page-container {
   position: relative;
   width: 100% !important;
   min-height: 100vh !important;
-  
+  height: auto !important; /* Asegurar que no tenga altura fija */
   padding: 2rem;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   color: white;
   box-sizing: border-box;
+  overflow: visible !important; /* Eliminar cualquier overflow */
 }
 
-/* Ficha del curso - arriba */
+/* Encabezado con fecha y título alineados */
+.course-page-container .course-header {
+  width: 100% !important;
+  max-width: 1200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
 .course-page-container .course-date {
   font-size: 1.5rem;
   color: rgba(255, 255, 255, 0.8);
   font-weight: 300;
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
   width: auto !important;
   height: auto !important;
 }
 
-/* Contenido principal - dos columnas iguales */
+/* Contenido principal - SIN overflow */
 .course-page-container .course-content {
   display: flex;
   gap: 3rem;
   width: 100% !important;
   max-width: 1200px;
   align-items: stretch;
+  overflow: visible !important; /* Eliminar overflow */
+  height: auto !important; /* Altura automática */
 }
 
 /* Sección izquierda - título + imagen */
@@ -47,18 +59,20 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 2rem;
   width: auto !important;
   height: auto !important;
+  overflow: visible !important;
 }
 
+/* Título movido fuera de la sección izquierda y alineado con la fecha */
 .course-page-container .course-title {
   font-size: 2.8rem;
   font-weight: 300;
   color: #00843d;
   text-align: center;
-  margin: 0;
+  margin: 0 0 1rem 0;
   width: auto !important;
   height: auto !important;
 }
@@ -67,19 +81,20 @@
   color: #00c26e;
 }
 
-/* Contenedor de imagen - mismo tamaño que la sección derecha */
+/* Contenedor de imagen */
 .course-page-container .course-image-container {
   flex: 1;
   width: 100% !important;
-  min-height: 400px;
+  min-height: 200px;
   display: flex;
   justify-content: center;
   align-items: stretch;
+  overflow: visible !important;
 }
 
 .course-page-container .course-image {
   width: 80% !important;
-  height: 100% !important;
+  height: 80% !important;
   object-fit: cover;
   border-radius: 20px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
@@ -94,6 +109,7 @@
   align-items: center;
   justify-content: center;
   border: 2px dashed rgba(255, 255, 255, 0.3);
+  overflow: hidden; /* Solo overflow hidden para el placeholder */
 }
 
 .course-page-container .image-placeholder p {
@@ -111,6 +127,7 @@
   gap: 2rem;
   width: auto !important;
   height: auto !important;
+  overflow: visible !important;
 }
 
 .course-page-container .course-description {
@@ -121,6 +138,7 @@
   backdrop-filter: blur(10px);
   width: auto !important;
   height: auto !important;
+  overflow: visible !important;
 }
 
 .course-page-container .course-description p {
@@ -140,6 +158,7 @@
   gap: 1.5rem;
   width: auto !important;
   height: auto !important;
+  overflow: visible !important;
 }
 
 .course-page-container .detail-row {

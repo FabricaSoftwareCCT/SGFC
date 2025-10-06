@@ -1,9 +1,6 @@
-"use client"
-
-import React, { useEffect, useState } from "react"
-import "./SeeMyProfile.css"
-import { useLocation, useNavigate } from "react-router-dom"
-
+import React, { useEffect, useState } from 'react';
+import './SeeMyProfile.css';
+import { useLocation } from 'react-router-dom';
 import { Footer } from '../../../Components/Layouts/Footer/Footer';
 import { Main } from '../../../Components/Layouts/Main/Main';
 import axiosInstance from '../../../config/axiosInstance';

@@ -1260,6 +1260,8 @@ const createMasiveUsers = async (req, res) => {
         // Obtener el rango de celdas
         const rango = xlsx.utils.decode_range(hoja['!ref']);
 
+        console.log("este es el rango de celdas", rango)
+
         // Verificar si la celda C2 existe
         const celdaTitulo = hoja['C2'];
         if (!celdaTitulo) {
@@ -1268,10 +1270,10 @@ const createMasiveUsers = async (req, res) => {
 
         // Extraer los valores de la columna C desde la fila 3 hacia abajo
         const valoresColumna = [];
-        for (let fila = 2; fila <= rango.e.r; fila++) { // Comienza desde la fila 2 (índice 1 en base 0)
+        for (let fila = 1; fila <= rango.e.r; fila++) { // Comienza desde la fila 2 (índice 1 en base 0)
             const celda = hoja[`C${fila + 1}`]; // Celdas C3, C4, etc.
             if (celda) {
-                valoresColumna.push(celda.v);
+                valoresColumna.documento = celda.v;
             }
         }
 
@@ -1294,9 +1296,9 @@ const createMasiveUsers = async (req, res) => {
         }
 
         // Verificar si hay usuarios repetidos en la base de datos antes de crear
-        const emails = valoresColumna.map(identificacion => `${identificacion}@example.com`);
+        const emails = valoresColumna.map(identificacion => `${identificacion}@gmail.com`);
         const existingUsers = await User.findAll({ where: { email: emails } });
-
+        
         if (existingUsers.length > 0) {
             const repetidos = existingUsers.map(user => user.email);
             return res.status(409).json({
@@ -1304,28 +1306,29 @@ const createMasiveUsers = async (req, res) => {
                 repetidos
             });
         }
-
+        
+        console.log(valoresColumna)
         // Crear usuarios con los datos extraídos
         for (const identificacion of valoresColumna) {
             if (!identificacion || identificacion === '') {
                 console.warn(`Número de identificación inválido: ${identificacion}`);
                 continue; // Saltar si el Número de Identificación no es válido
             }
-
-            const email = `${identificacion}@example.com`;
+            
+            const email = identificacion;
             const password = `${identificacion.toString()}example`;
-
+            
             // Crear el usuario
             const hashedPassword = await bcrypt.hash(password, 10);
             await User.create({
                 email,
                 password: hashedPassword,
                 accountType: 'Aprendiz', // Tipo de cuenta por defecto
-                cedula: identificacion,
+                documento: identificacion,
                 verificacion_email: true,
             });
         }
-
+        
         return res.json({
             message: "Usuarios creados exitosamente.",
         });

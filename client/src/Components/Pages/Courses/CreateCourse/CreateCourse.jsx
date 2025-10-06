@@ -97,7 +97,7 @@ export const CreateCourse = ( ) => {
         formData.append("empresa_ID", empresaSeleccionada.ID); // usa el nombre exacto del campo
       }
 
-      formData.append("ficha", ficha); // ficha fija para pruebas
+      formData.append("ficha", ficha); 
       // Enviar el nombre del curso en mayúsculas
       formData.append("nombre_curso", nombreCurso.toUpperCase());
       formData.append("descripcion", descripcion);
@@ -159,11 +159,7 @@ export const CreateCourse = ( ) => {
       if (instructor_ID) {
         formData.append("instructor_ID", instructor_ID);
       }
-
-      if (empresaSeleccionada) {
-        formData.append("empresa_ID", empresaSeleccionada.ID);
-      }
-
+      
       const response = await axiosInstance.post("/api/courses/cursos", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
@@ -209,15 +205,10 @@ export const CreateCourse = ( ) => {
   useEffect(() => {
     debouncedBuscarEmpresa(empresaNIT);
     return () => {
+      console.log("empresa", empresaNIT)
       debouncedBuscarEmpresa.cancel();
     };
   }, [empresaNIT]);
-
-  const handleSeleccionEmpresa = (empresa) => {
-    setEmpresaSeleccionada(empresa);
-    setEmpresaNIT(empresa.NIT);
-    setShowResultados(false);
-  };
 
 
   return (

@@ -3,6 +3,7 @@ const Notificacion = require('../models/Notificacion');
 const User = require("../models/User");
 const Curso = require("../models/curso")
 const { notify } = require('../routes/userRoutes');
+const {sendCreateMaterialApoyo} = require('../services/emailService')
 const { sendNotification, sendAbsenceNotifications, sendCourseRequestStatusEmail, getNotificacionesEstado, createNotificacionMaterialApoyo} = require('../services/notificationService');
 const { Op } = require('sequelize');
 let dbInstance;
@@ -363,6 +364,9 @@ const crearNotificacionMaterialApoyo = async (req, res) => {
 
         const curso = await Curso.findByPk(curso_ID)
         const emails = usuarios.map(user => user.email);
+        const material_link = `http://localhost:5173/cursos/`;
+        
+        await sendCreateMaterialApoyo(emails, curso.dataValues.nombre_curso, material_link)
         await createNotificacionMaterialApoyo(remitente_ID, emails, curso);
 
         return res.status(200).json({message: "se enviaron las notificaciones, del material de apoyo"})

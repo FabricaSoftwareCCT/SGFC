@@ -421,7 +421,7 @@ export const SeeMyProfile = () => {
               )}
             </p>
 
-                        {tipoCuenta === 'Aprendiz' && (
+                        {tipoCuenta === 'Aprendiz'|| tipoCuenta === 'Empresa' &&  (
                             <>
                         <button
                             className={`updateProfile ${editMode ? 'cancel' : ''}`}

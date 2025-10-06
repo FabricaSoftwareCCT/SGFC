@@ -47,7 +47,7 @@ export default function ReporteEstadisticas() {
     document.removeEventListener('mousedown', handleClickOutside);
   };
 }, [mostrarFiltro]);
-/*
+
   useEffect(() => {
     const cursos = async () => {
       try{
@@ -74,30 +74,6 @@ export default function ReporteEstadisticas() {
     };
     cursos();
   }, []);
-  */
-
-  const cursos = [
-  { id: 1, curso: "Programación Web con React", ficha: "FW-001", instructor: "María González", estado: "Activo", empleados: 15 },
-  { id: 2, curso: "Base de Datos Avanzadas", ficha: "DB-002", instructor: "Carlos Rodríguez", estado: "Activo", empleados: 8 },
-  { id: 3, curso: "Machine Learning Fundamentals", ficha: "ML-003", instructor: "Ana Martínez", estado: "Inactivo", empleados: 25 },
-  { id: 4, curso: "Desarrollo Mobile con Flutter", ficha: "MB-004", instructor: "Luis Sánchez", estado: "Activo", empleados: 12 },
-  { id: 5, curso: "Ciberseguridad Básica", ficha: "CS-005", instructor: "Elena Ramírez", estado: "Activo", empleados: 32 },
-  { id: 6, curso: "Cloud Computing con AWS", ficha: "CC-006", instructor: "Pedro López", estado: "Inactivo", empleados: 18 },
-  { id: 7, curso: "JavaScript Avanzado", ficha: "JS-007", instructor: "Laura Díaz", estado: "Activo", empleados: 22 },
-  { id: 8, curso: "Python para Ciencia de Datos", ficha: "PY-008", instructor: "Miguel Torres", estado: "Activo", empleados: 28 },
-  { id: 9, curso: "Diseño UX/UI", ficha: "DX-009", instructor: "Sofía Castro", estado: "Inactivo", empleados: 7 },
-  { id: 10, curso: "DevOps y CI/CD", ficha: "DV-010", instructor: "Javier Morales", estado: "Activo", empleados: 35 },
-  { id: 11, curso: "Blockchain Development", ficha: "BC-011", instructor: "Carmen Reyes", estado: "Activo", empleados: 14 },
-  { id: 12, curso: "Inteligencia Artificial", ficha: "IA-012", instructor: "Roberto Silva", estado: "Inactivo", empleados: 19 },
-  { id: 13, curso: "Angular Framework", ficha: "AG-013", instructor: "Patricia Navarro", estado: "Activo", empleados: 11 },
-  { id: 14, curso: "SQL y Optimización", ficha: "SQ-014", instructor: "Daniel Ortega", estado: "Activo", empleados: 26 },
-  { id: 15, curso: "React Native", ficha: "RN-015", instructor: "Gabriela Mendoza", estado: "Inactivo", empleados: 9 },
-  { id: 16, curso: "Testing Automatizado", ficha: "TA-016", instructor: "Fernando Rojas", estado: "Activo", empleados: 17 },
-  { id: 17, curso: "Microservicios con Docker", ficha: "MS-017", instructor: "Isabel Vargas", estado: "Activo", empleados: 38 },
-  { id: 18, curso: "Vue.js Fundamentals", ficha: "VJ-018", instructor: "Ricardo Peña", estado: "Inactivo", empleados: 6 },
-  { id: 19, curso: "Big Data Analytics", ficha: "BD-019", instructor: "Adriana Cruz", estado: "Activo", empleados: 31 },
-  { id: 20, curso: "TypeScript Profesional", ficha: "TS-020", instructor: "Oscar Herrera", estado: "Activo", empleados: 23 }
-];
 
   // Resetear página cuando cambien filtros
   useEffect(() => {
@@ -114,7 +90,7 @@ export default function ReporteEstadisticas() {
 
   // Función para aplicar todos los filtros
   const empleadosFiltrados = useMemo(() => {
-    return cursos.filter(Cursos => {
+    return datosCurso.filter(Cursos => {
       // Filtro por estado
       const estadosSeleccionados = [];
       if (filtros.estado.activo) estadosSeleccionados.push('activo');
@@ -134,12 +110,12 @@ export default function ReporteEstadisticas() {
       }
 
       // Filtro por nombre del curso
-      if (filtros.curso && !empleado.curso.toLowerCase().includes(filtros.curso.toLowerCase())) {
+      if (filtros.curso && !Cursos.nombre_curso.toLowerCase().includes(filtros.curso.toLowerCase())) {
         return false;
       }
 
       // Filtro por nombre del instructor
-      if (filtros.instructor && !empleado.instructor.toLowerCase().includes(filtros.instructor.toLowerCase())) {
+      if (filtros.instructor && !Cursos.instructor.toLowerCase().includes(filtros.instructor.toLowerCase())) {
         return false;
       }
 
@@ -369,7 +345,7 @@ export default function ReporteEstadisticas() {
               <div className="columna-curso-estadisticas">{Cursos.curso}</div>
               <div className="columna-ficha-estadisticas">{Cursos.ficha}</div>
               <div className="columna-instructor-estadisticas">{Cursos.instructor}</div>
-              <div className={Cursos.estado === "Activo" ? "estado-activo-estadisticas" : "estado-inactivo-estadisticas"}>
+              <div className={Cursos.estado === "activo" ? "estado-activo-estadisticas" : "estado-inactivo-estadisticas"}>
                 {Cursos.estado}
               </div>
               <div className="columna-empleados-estadisticas">{Cursos.empleados}</div>

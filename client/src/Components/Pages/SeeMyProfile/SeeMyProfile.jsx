@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react"
 import "./SeeMyProfile.css"
 import { useLocation } from "react-router-dom"
-
+import { useNavigate } from "react-router-dom"
 import { Footer } from '../../../Components/Layouts/Footer/Footer';
 import { Main } from '../../../Components/Layouts/Main/Main';
 import axiosInstance from '../../../config/axiosInstance';
@@ -322,23 +322,7 @@ export const SeeMyProfile = () => {
         <>
             <Header />
             <Main>
-        {perfilIncompleto && (
-          <div
-            className="alert-perfil-incompleto"
-            style={{
-              background: "#fff3cd",
-              border: "1px solid #ffeaa7",
-              padding: "15px",
-              margin: "0 20px 20px 20px",
-              borderRadius: "5px",
-              textAlign: "center",
-              color: "#856404",
-            }}
-          >
-            ⚠️ <strong>Perfil Incompleto:</strong> Por favor completa toda tu información para acceder a todas las
-            funciones del sistema.
-          </div>
-        )}
+        
 
         <div className="container_mainSeeMyProfile">
           <div className="container_profile">

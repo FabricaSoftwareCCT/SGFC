@@ -1827,48 +1827,7 @@ const subirDocumentoIdentidad = async (req, res) => {
         res.status(500).json({ message: 'Error al procesar el documento con OCR.' });
     }
 };
-const checkProfileComplete = async (req, res) => {
-  try {
-    const token = req.cookies.accessToken;
-    if (!token) {
-      return res.status(401).json({ message: "No autorizado" });
-    }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || "secret");
-    const user = await User.findByPk(decoded.id, {
-      include: [{ model: Empresa, as: 'Empresa' }]
-    });
-    
-    if (!user) {
-      return res.status(404).json({ message: "Usuario no encontrado" });
-    }
-
-    let isComplete = true;
-    let missingFields = [];
-
-    // Validar según tipo de cuenta
-    if (user.accountType === "Aprendiz") {
-      const required = ['nombres', 'apellidos', 'celular', 'email'];
-      missingFields = required.filter(field => !user[field]);
-      isComplete = missingFields.length === 0;
-    } 
-    else if (user.accountType === "Empresa" && user.Empresa) {
-      const required = ['nombre_empresa', 'NIT', 'direccion', 'telefono', 'email_empresa'];
-      missingFields = required.filter(field => !user.Empresa[field]);
-      isComplete = missingFields.length === 0;
-    }
-
-    res.json({ 
-      isComplete,
-      missingFields,
-      accountType: user.accountType,
-      userId: user.id
-    });
-  } catch (error) {
-    console.error("Error verificando perfil:", error);
-    res.status(500).json({ message: "Error verificando perfil" });
-  }
-};
 const checkProfileComplete = async (req, res) => {
   try {
     const token = req.cookies.accessToken;

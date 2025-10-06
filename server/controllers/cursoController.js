@@ -393,6 +393,7 @@ const updateCurso = async (req, res) => {
 const getAllCursos = async (req, res) => {
   try {
     const cursos = await Curso.findAll(); // Obtener todos los cursos
+    console.log(cursos)
     res.status(200).json(cursos);
   } catch (error) {
     console.error("Error al obtener los cursos:", error);

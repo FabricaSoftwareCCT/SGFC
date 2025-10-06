@@ -4,9 +4,11 @@ import addIMG from "../../../../assets/Icons/addImg.png";
 import axiosInstance from "../../../../config/axiosInstance";
 import { useNavigate } from "react-router-dom";
 import fotoPerfilDefect from "../../../../assets/Icons/userDefect.png";
+import { useModal } from "../../../../Context/ModalContext"
 
 export const CreateGestor = ({ onClose }) => {
   // 1. Todos los Hooks al inicio del componente
+  const { setShowModalGeneral } = useModal();
   const navigate = useNavigate();
   const mounted = useRef(false);
   const fileInputRef = useRef(null);
@@ -214,7 +216,7 @@ export const CreateGestor = ({ onClose }) => {
           
         </div>
         <div className="container_return_AssignInstructor">
-          <h5>Volver</h5>
+        <a onClick={() => closeModalCreateGestor(false)} className="text-return">Volver</a>
           <button
             type="button"
             onClick={closeModalCreateGestor}

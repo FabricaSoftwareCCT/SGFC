@@ -31,6 +31,8 @@ import { GestionsActas } from './Components/Pages/GestionsActas/GestionsActas';
 import { AssignInstructorCourse } from './Components/Pages/Courses/AssignInstructorCourse/AssignInstructorCourse';
 import { ConcertationProceeding } from './Components/Pages/proceedings/ConcertationProceeding';
 import { TrainingPlaceProceeding } from './Components/Pages/proceedings/TrainingPlaceProceeding';
+import { SupportMaterial } from './Components/Pages/Courses/SupportMaterial/SupportMaterial';
+import { SupportMaterialCourse } from './Components/Pages/Courses/SupportMaterialCourse/SupportMaterialCourse';
 
 // Importación de modales
 import { NavBar } from './Components/UI/NavBar/NavBar';
@@ -44,10 +46,12 @@ import { CreateGestor } from './Components/Pages/GestionsGestor/CreateGestor/Cre
 import { CreateEmploye } from './Components/Pages/GestionsEmployes/CreateEmploye/CreateEmploye';
 import { UpdateInstructor } from './Components/Pages/GestionsInstructor/UpdateInstructor/UpdateInstructor';
 import { NoAutorizado } from './Components/Pages/NoAutorizado/NoAutorizado';
+import ReporteEstadisticas from './Components/Pages/GestionReporteEstadisticas/ReporteEstadisticas';
 
 // Importación de estilos
 import "./App.css";
 import { Header } from './Components/Layouts/Header/Header';
+
 
 // Crear un componente Layout que envuelva las páginas con Header y Footer
 const Layout = ({ children, setShowSignIn, setShowSignUp, setShowModalGeneral }) => {
@@ -88,6 +92,56 @@ function App() {
     setShowAssignModal
 
   } = useModal();
+
+  useEffect(() => {
+    const verifiCarToken = async () => {
+      try {
+        const localSession = sessionStorage.getItem("userSession");
+        
+        if (localSession) {
+          console.log("Sesión activa en esta pestaña");
+          return;
+        }
+
+        const response = await fetch("http://localhost:3001/api/users/recordsession", {
+          method: "GET",
+          credentials: "include" 
+        });
+
+        if (!response.ok) {
+          sessionStorage.removeItem("userSession");
+          return;
+        }
+
+        const data = await response.json();
+
+        const sessionData = {
+          accountType: data.session?.payload?.accountType,
+          emal: data.session?.payload?.email,
+          id: data.session?.payload?.id
+        };
+
+        if (!data.session) {
+          sessionStorage.removeItem("userSession");
+          navigate("/"); 
+          return;
+        }
+
+        if(data.session?.payload?.accountType === "Empresa" && data.session?.empresa_ID){
+            sessionData.empresa_ID = data.session.empresa_ID;
+        }
+
+        sessionStorage.setItem("userSession", JSON.stringify(sessionData));
+        navigate("/", { state: { accountType: data.session?.payload?.accountType } });
+
+      } catch (error) {
+        console.error("Error al verificar el token:", error);
+        sessionStorage.removeItem("userSession");
+      }
+  };
+  
+    verifiCarToken();
+  }, []);
 
 
   useEffect(() => {
@@ -183,6 +237,7 @@ function App() {
             >
               <CreateCourse />
             </Layout>
+            
           } />
           <Route path="/Cursos/BuscarCursos" element={<Layout
             setShowSignIn={setShowSignIn}
@@ -193,6 +248,7 @@ function App() {
           </Layout>
           } />
           <Route path="/Cursos/:id" element={<SeeCourse />} />
+          
           <Route path="/Cursos/MisCursos" element={
             <Layout
               setShowSignIn={setShowSignIn}
@@ -233,6 +289,17 @@ function App() {
           <Route path="/MiPerfil" element={<SeeMyProfile />} />
           <Route path="/Gestiones/Empresas" element={<GestionsCompany />} />
           <Route path="/Gestiones/Actas" element={<GestionsActas />} />
+          
+          {/* NUEVA RUTA PARA REPORTE Y ESTADÍSTICAS */}
+          <Route path="/GestionReporteEstadisticas/ReporteEstadisticas" element={
+            <Layout
+              setShowSignIn={setShowSignIn}
+              setShowSignUp={setShowSignUp}
+              setShowModalGeneral={setShowModalGeneral}
+            >
+              <ReporteEstadisticas />
+            </Layout>
+          } />
 
           <Route
             path="/Empleados/MisEmpleados"
@@ -254,9 +321,12 @@ function App() {
             </Layout>
           } />
           <Route path="/Actas/Concertacion" element={<ConcertationProceeding />} />
-          <Route path="/Actas/Lugar-formacion" element={<TrainingPlaceProceeding />} />
+          <Route path="/Actas/Lugar-formacion" element={<TrainingPlaceProceeding />} />   
           <Route path="/no-autorizado" element={<NoAutorizado />} />
-          <Route path="/SolicitarCurso/:nombreCurso" element={<RequestCourse />} />
+          <Route path="/SolicitarCurso/:nombreCurso" element={<RequestCourse />} />       
+          <Route path="/SupportMaterial" element={<SupportMaterial/>}/>
+          <Route path="/SupportMaterialCourse" element={<SupportMaterialCourse/>}/>
+  
           <Route path='/SolicitarCursoAp/:nombreCurso' element={<RequestCourseAp />} />
         </Routes>
       </>

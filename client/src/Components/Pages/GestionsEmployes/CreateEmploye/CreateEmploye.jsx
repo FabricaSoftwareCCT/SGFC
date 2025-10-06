@@ -14,6 +14,7 @@ export const CreateEmploye = () => {
   const [formData, setFormData] = useState({
     nombres: '',
     apellidos: '',
+    tipoDocumento: '',
     cedula: '',
     celular: '',
     email: '',
@@ -67,8 +68,10 @@ export const CreateEmploye = () => {
       const blob = await response.blob();
       data.append('foto_perfil', blob, "fotoPerfilDefect.png");
     }
+
     data.append('nombres', formData.nombres);
     data.append('apellidos', formData.apellidos);
+    data.append('tipoDocumento', formData.tipoDocumento);
     data.append('documento', formData.cedula);
     data.append('celular', formData.celular);
     data.append('email', formData.email);
@@ -151,6 +154,21 @@ export const CreateEmploye = () => {
               onChange={handleInputChange}
               required
             />
+          </label>
+         <label>
+            Tipo de Documento
+            <select className='TipoDocumento'
+                name="tipoDocumento"
+                value={formData.tipoDocumento}
+                onChange={handleInputChange}
+                required
+              >
+              <option className="option" value=""> Selecciona un tipo </option>
+              <option className="option" value="CedulaCiudadania">Cédula de Ciudadanía</option>
+              <option className="option" value="TarjetaIdentidad">Tarjeta de Identidad</option>
+              <option className="option" value="PPT">Pasaporte</option>
+              <option className="option" value="CedulaExtranjeria">Cédula Extranjera</option>
+            </select>
           </label>
           <label>
             Cédula
@@ -253,12 +271,11 @@ export const CreateEmploye = () => {
             Guardar
           </button>
         </div>
-
-        <div className="container_return_CreateEmploye">
-          <h5>Volver</h5>
-          <button type="button" onClick={() => setShowModalCreateEmployee(false)} className="closeModal"></button>
-        </div>
       </form>
+      <div className="container_return_CreateEmploye">
+          <a onClick={() => setShowModalCreateEmployee(false)} className="text-return">Volver</a>
+          <button onClick={() => setShowModalCreateEmployee(false)} className="closeModal"></button>       
+        </div>
     </div>
   )
 }

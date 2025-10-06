@@ -94,7 +94,7 @@ async function initializeDatabase() {
   });
 
   // Sincronizar tablas
-  await sequelize.sync({ force: false });
+  await sequelize.sync();
   console.log("📂 Tablas sincronizadas con la base de datos.");
 
   return {

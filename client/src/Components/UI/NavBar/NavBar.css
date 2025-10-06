@@ -8,6 +8,7 @@
   align-items: center;
   gap: 6rem;
   font-size: 16px;
+  z-index: 9999;
 }
 
 .logo {
@@ -82,7 +83,6 @@
 .img_notifications {
   width: 100%;
   height: auto;
-  padding: 0.5rem;
 }
 
 #btn_profile {
@@ -340,4 +340,3 @@
   cursor: pointer;
   padding: 0.5rem;
 }
-

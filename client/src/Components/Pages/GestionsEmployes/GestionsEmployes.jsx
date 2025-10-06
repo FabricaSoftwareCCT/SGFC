@@ -14,10 +14,7 @@ export const GestionsEmployes = () => {
   const [filteredEmployes, setFilteredEmployes] = useState([])
   const [filter, setFilter] = useState("")
   const [current, setCurrent] = useState(0)
-  const [selectedState, setSelectedState] = useState({
-    activo: true,
-    inactivo: true,
-  })
+  const [selectedState, setSelectedState] = useState("todos")
   const [selectedEmploye, setSelectedEmploye] = useState(null)
 
   const [empresas, setEmpresas] = useState([])
@@ -34,7 +31,7 @@ export const GestionsEmployes = () => {
 
   const isLoggedIn = !!userSession
   const accountType = userSession?.accountType || null
-  const isAdmin = accountType === "Administrador"
+  const isAdmin = accountType === "Administrador" || accountType === "Gestor"
 
   const fetchEmployes = async (page = 1) => {
     setLoading(true)
@@ -45,15 +42,13 @@ export const GestionsEmployes = () => {
           limit: "10",
           search: filter,
           empresaId: selectedEmpresa,
-          estado: selectedState.activo && selectedState.inactivo ? "" : selectedState.activo ? "activo" : "inactivo",
+          estado: selectedState === "todos" ? "" : selectedState,
           tipoDocumento: selectedTipoDocumento,
         })
 
         const response = await axiosInstance.get(`/api/users/admin/empleados?${params}`)
-        console.log("Respuesta del servidor (admin):", response.data); // Debug
         const data = response.data || {}
         const empleados = data.empleados || []
-        console.log("Empleados procesados:", empleados); // Debug
         setEmployes(empleados)
         setFilteredEmployes(empleados)
         setCurrentPage(data.pagination?.currentPage || 1)
@@ -61,7 +56,7 @@ export const GestionsEmployes = () => {
         setTotalItems(data.pagination?.totalItems || 0)
       } else {
         const userSessionString = localStorage.getItem("userSession") || sessionStorage.getItem("userSession")
-        if (!userSessionString) {
+      if (!userSessionString) {
           alert("No se encontró la sesión de usuario.")
           return
         }
@@ -69,10 +64,8 @@ export const GestionsEmployes = () => {
         const empresaId = userSession.empresa_ID
 
         const response = await axiosInstance.get(`/api/users/empresa/${empresaId}/empleados`)
-        console.log("Respuesta del servidor (gestor):", response.data); // Debug
         const data = response.data || {}
         const empleados = data.empleados || []
-        console.log("Empleados procesados:", empleados); // Debug
         setEmployes(empleados)
         setFilteredEmployes(empleados)
       }
@@ -100,6 +93,26 @@ export const GestionsEmployes = () => {
     if (isAdmin) {
       fetchEmpresas()
     }
+    
+    // Exponer función para refrescar desde otros componentes
+    window.refreshEmployesList = () => {
+      if (isAdmin) {
+        fetchEmployes(currentPage)
+      } else {
+        fetchEmployes()
+      }
+    }
+    
+    // Exponer función para actualizar empleado específico
+    window.updateSelectedEmploye = (updatedEmploye) => {
+      setSelectedEmploye(updatedEmploye)
+    }
+    
+    // Cleanup
+    return () => {
+      delete window.refreshEmployesList
+      delete window.updateSelectedEmploye
+    }
   }, [])
 
   useEffect(() => {
@@ -122,16 +135,16 @@ export const GestionsEmployes = () => {
   const applyFilters = () => {
     const filtered = employes.filter(
       (employe) =>
-        (employe.nombres || "").toLowerCase().includes(filter.toLowerCase()) ||
-        (employe.apellidos || "").toLowerCase().includes(filter.toLowerCase()) ||
-        (employe.documento || "").toLowerCase().includes(filter.toLowerCase()),
+      (employe.nombres || "").toLowerCase().includes(filter.toLowerCase()) ||
+      (employe.apellidos || "").toLowerCase().includes(filter.toLowerCase()) ||
+        (employe.documento || "").toLowerCase().includes(filter.toLowerCase()) ||
+        (employe.email || "").toLowerCase().includes(filter.toLowerCase()),
     )
 
     const filteredByState = filtered.filter((employe) => {
       const estado = (employe.estado || "").toLowerCase()
-      if (selectedState.activo && estado === "activo") return true
-      if (selectedState.inactivo && estado === "inactivo") return true
-      return false
+      if (selectedState === "todos") return true
+      return estado === selectedState
     })
 
     setFilteredEmployes(filteredByState)
@@ -174,59 +187,72 @@ export const GestionsEmployes = () => {
 
   const showModalCreateEmploye = () => {
     setShowModalCreateEmployee(true)
+    setTimeout(() => {
+      const modalCreateEmploye = document.getElementById("modal-overlayCreateEmploye")
+      if (modalCreateEmploye) {
+        modalCreateEmploye.style.display = "flex"
+      }
+    }, 100)
   }
 
   const showModalSeeProfile = (employe) => {
-    console.log("Seleccionando empleado:", employe)
     setSelectedEmploye(employe)
     setTimeout(() => {
       const modalSeeProfile = document.getElementById("modal-overlayUpdateEmploye")
-      if (modalSeeProfile) {
+    if (modalSeeProfile) {
         modalSeeProfile.style.display = "flex"
       }
     }, 100)
   }
 
   const getImageSrcFromBase64 = (imageData) => {
-    console.log("Procesando imagen:", imageData); // Debug
     
     // Si no hay datos de imagen, usar imagen por defecto
     if (!imageData) {
-      console.log("No hay datos de imagen, usando placeholder");
       return "/src/assets/Icons/userDefect.png"
-    }
-    
-    // Si es una ruta de archivo (empieza con ../ o /)
-    if (typeof imageData === 'string' && (imageData.startsWith('../') || imageData.startsWith('/'))) {
-      console.log("Es una ruta de archivo:", imageData);
-      // Convertir ruta relativa a ruta absoluta
-      if (imageData.startsWith('../Img/')) {
-        const newPath = imageData.replace('../Img/', '/src/assets/Icons/')
-        console.log("Ruta convertida:", newPath);
-        return newPath
-      }
-      return imageData
     }
     
     // Si es base64
     if (typeof imageData === 'string') {
-      if (imageData.startsWith("iVBOR")) {
-        console.log("Es PNG base64");
-        return `data:image/png;base64,${imageData}`
-      }
-      if (imageData.startsWith("/9j/")) {
-        console.log("Es JPEG base64");
-        return `data:image/jpeg;base64,${imageData}`
-      }
+      // Verificar si ya es una URL de datos completa
       if (imageData.startsWith("data:")) {
-        console.log("Ya es una URL de datos");
         return imageData // Ya es una URL de datos
       }
-      console.log("Asumiendo JPEG base64");
-      return `data:image/jpeg;base64,${imageData}`
+      
+      // Verificar si es PNG base64
+      if (imageData.startsWith("iVBORw0KGgo") || imageData.startsWith("iVBOR")) {
+        return `data:image/png;base64,${imageData}`
+      }
+      
+      // Verificar si es JPEG base64
+      if (imageData.startsWith("/9j/")) {
+        return `data:image/jpeg;base64,${imageData}`
+      }
+      
+      // Verificar si es una cadena muy larga (probablemente base64)
+      if (imageData.length > 1000) {
+        return `data:image/jpeg;base64,${imageData}`
+      }
+      
+      // Verificar si contiene caracteres base64 válidos
+      const base64Regex = /^[A-Za-z0-9+/=]+$/
+      if (imageData.length > 50 && base64Regex.test(imageData)) {
+        return `data:image/jpeg;base64,${imageData}`
+      }
+      
+      // Si es una ruta de archivo (empieza con ../ o /) - solo después de verificar base64
+      if (imageData.startsWith('../') || imageData.startsWith('/')) {
+        // Convertir ruta relativa a ruta absoluta
+        if (imageData.startsWith('../Img/')) {
+          const newPath = imageData.replace('../Img/', '/src/assets/Icons/')
+          return newPath
+        }
+        return imageData
+      }
+      
+      return "/src/assets/Icons/userDefect.png"
     }
     
-    console.log("Fallback a imagen por defecto");
     return "/src/assets/Icons/userDefect.png"
   }
 
@@ -244,17 +270,17 @@ export const GestionsEmployes = () => {
             <div className="containerConsultEmploye">
               <p>Filtrar por:</p>
               <div className="containerFiltersEmploye">
-                <label htmlFor="inputNameCC">Nombre, Cédula o Email</label>
+                <label htmlFor="inputNameCC">Nombre, Documento o Email</label>
                 <div className="inputSearchContainer">
                   <input
                     type="text"
                     id="inputNameCC"
-                    placeholder="Escriba el nombre,cédula o email"
+                    placeholder="Escriba nombre, documento o email"
                     value={filter}
                     onChange={handleFilterChange}
                   />
                 </div>
-
+                
                 {isAdmin && (
                   <>
                     <label htmlFor="selectEmpresa">Empresa</label>
@@ -289,20 +315,17 @@ export const GestionsEmployes = () => {
                 )}
 
                 <label>Estado</label>
-                <div className="statusButtons">
-                  <button
-                    className={`inactive ${selectedState.inactivo ? "selected" : ""}`}
-                    onClick={() => setSelectedState((prev) => ({ ...prev, inactivo: !prev.inactivo }))}
-                  >
-                    Inactivos
-                  </button>
-                  <button
-                    className={`active ${selectedState.activo ? "selected" : ""}`}
-                    onClick={() => setSelectedState((prev) => ({ ...prev, activo: !prev.activo }))}
-                  >
-                    Activos
-                  </button>
-                </div>
+                <section className="sectionStatusFilter">
+                  {["Todos", "Activo", "Inactivo"].map((op) => (
+                    <p
+                      key={op}
+                      className={`statusOption ${selectedState === op.toLowerCase() ? "selected" : ""}`}
+                      onClick={() => setSelectedState(op.toLowerCase())}
+                    >
+                      {op}
+                    </p>
+                  ))}
+                </section>
               </div>
               <button className="btn_createEmploye" onClick={showModalCreateEmploye}>
                 Agregar Empleado
@@ -315,12 +338,9 @@ export const GestionsEmployes = () => {
                   <p>Cargando empleados...</p>
                 </div>
               ) : isAdmin ? (
-                <div className="admin-employees-table">
+                  <div className="admin-employees-table">
                   <div className="table-header">
                     <h3>Empleados ({totalItems})</h3>
-                    <div className="pagination-info">
-                      Página {currentPage} de {totalPages}
-                    </div>
                   </div>
 
                   {filteredEmployes.length === 0 ? (
@@ -329,7 +349,6 @@ export const GestionsEmployes = () => {
                     <>
                       <div className="employees-grid">
                         {filteredEmployes.map((employe) => {
-                          console.log("Renderizando empleado:", employe); // Debug
                           return (
                             <div key={employe.ID} className="employee-card">
                               {/* Sección 1: Imagen */}
@@ -338,8 +357,7 @@ export const GestionsEmployes = () => {
                                   src={getImageSrcFromBase64(employe?.foto_perfil)}
                                   alt={`${employe.nombres || 'Sin nombre'} ${employe.apellidos || 'Sin apellido'}`}
                                   className="employee-image"
-                                  onError={(e) => {
-                                    console.log("Error cargando imagen:", employe?.foto_perfil);
+                                  onError={(e) => {   
                                     e.target.src = "/src/assets/Icons/userDefect.png";
                                   }}
                                 />
@@ -386,38 +404,21 @@ export const GestionsEmployes = () => {
                       </div>
 
                       {totalPages > 1 && (
-                        <div className="pagination-controls">
-                          <button
+                        <div className="pagination-container">
+                          <button 
+                            className="btn-inline" 
+                            disabled={currentPage === 1} 
                             onClick={() => handlePageChange(currentPage - 1)}
-                            disabled={currentPage === 1}
-                            className="pagination-btn"
                           >
-                            ❮ Anterior
+                            Anterior
                           </button>
-
-                          <div className="pagination-numbers">
-                            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                              const pageNum = Math.max(1, currentPage - 2) + i
-                              if (pageNum > totalPages) return null
-
-                              return (
-                                <button
-                                  key={pageNum}
-                                  onClick={() => handlePageChange(pageNum)}
-                                  className={`pagination-number ${pageNum === currentPage ? "active" : ""}`}
-                                >
-                                  {pageNum}
-                                </button>
-                              )
-                            })}
-                          </div>
-
-                          <button
+                          <span className="pagination-info">{currentPage} / {totalPages}</span>
+                          <button 
+                            className="btn-inline" 
+                            disabled={currentPage === totalPages} 
                             onClick={() => handlePageChange(currentPage + 1)}
-                            disabled={currentPage === totalPages}
-                            className="pagination-btn"
                           >
-                            Siguiente ❯
+                            Siguiente
                           </button>
                         </div>
                       )}
@@ -426,82 +427,83 @@ export const GestionsEmployes = () => {
                 </div>
               ) : (
                 <>
-                  {filteredEmployes.length > 1 && (
-                    <button className="arrow-results left" onClick={prev}>
-                      ❮
-                    </button>
-                  )}
+              {filteredEmployes.length > 1 && (
+                <button className="arrow-results left" onClick={prev}>
+                  ❮
+                </button>
+              )}
 
-                  <div className="carousel-container_2-results">
-                    <div className="carousel-track-results">
-                      {filteredEmployes.length === 0 ? (
-                        <p className="no-results">No hay resultados</p>
-                      ) : filteredEmployes.length === 1 ? (
-                        <div className="carousel-card-results card-center">
-                          <img
-                            src={getImageSrcFromBase64(filteredEmployes[0]?.foto_perfil)}
-                            alt="Employe"
-                            className="carousel-image-results"
+              <div className="carousel-container_2-results">
+                <div className="carousel-track-results">
+                  {filteredEmployes.length === 0 ? (
+                    <p className="no-results">No hay resultados</p>
+                  ) : filteredEmployes.length === 1 ? (
+                    <div className="carousel-card-results card-center">
+                      <img
+                        src={getImageSrcFromBase64(filteredEmployes[0]?.foto_perfil)}
+                        alt="Employe"
+                        className="carousel-image-results"
                             onError={(e) => (e.target.src = "/src/assets/Icons/userDefect.png")}
-                          />
-                        </div>
-                      ) : filteredEmployes.length === 2 ? (
-                        [0].map((offset) => {
+                      />
+                    </div>
+                  ) : filteredEmployes.length === 2 ? (
+                    [0].map((offset) => {
                           const index = (current + offset) % filteredEmployes.length
                           const employe = filteredEmployes[index]
-                          return (
-                            <div className="carousel-card-results card-center" key={index}>
-                              <img
+                      return (
+                        <div className="carousel-card-results card-center" key={index}>
+                          <img
                                 src={getImageSrcFromBase64(employe?.foto_perfil)}
-                                alt="Employe"
-                                className="carousel-image-results"
+                            alt="Employe"
+                            className="carousel-image-results"
                                 onError={(e) => (e.target.src = "/src/assets/Icons/userDefect.png")}
-                              />
-                            </div>
+                          />
+                        </div>
                           )
-                        })
-                      ) : (
-                        [0, 1, 2].map((offset) => {
+                    })
+                  ) : (
+                    [0, 1, 2].map((offset) => {
                           const index = (current + offset) % filteredEmployes.length
                           const employe = filteredEmployes[index]
                           const positionClass = offset === 1 ? "card-center" : "card-side"
-                          return (
-                            <div className={`carousel-card-results ${positionClass}`} key={index}>
-                              <img
+                      return (
+                        <div className={`carousel-card-results ${positionClass}`} key={index}>
+                          <img
                                 src={getImageSrcFromBase64(employe?.foto_perfil)}
-                                alt="Employe"
-                                className="carousel-image-results"
+                            alt="Employe"
+                            className="carousel-image-results"
                                 onError={(e) => (e.target.src = "/src/assets/Icons/userDefect.png")}
-                              />
-                            </div>
+                          />
+                        </div>
                           )
-                        })
-                      )}
-                    </div>
+                    })
+                  )}
+                </div>
 
-                    {filteredEmployes.length > 0 && (
-                      <div className="instructor-info">
-                        <h3>
-                          {filteredEmployes[(current + 1) % filteredEmployes.length]?.nombres}{" "}
-                          {filteredEmployes[(current + 1) % filteredEmployes.length]?.apellidos}
-                        </h3>
-                        <p>{filteredEmployes[(current + 1) % filteredEmployes.length]?.titulo_profesional || "N/A"}</p>
-                        <button
-                          className="profile-btn"
-                          onClick={() =>
+                {filteredEmployes.length > 0 && (
+                  <div className="instructor-info">
+                    <h3>
+                      {filteredEmployes[(current + 1) % filteredEmployes.length]?.nombres}{" "}
+                      {filteredEmployes[(current + 1) % filteredEmployes.length]?.apellidos}
+                          {` (${filteredEmployes.length})`}
+                    </h3>
+                        {/*<p>{filteredEmployes[(current + 1) % filteredEmployes.length]?.titulo_profesional === null || filteredEmployes[(current + 1) % filteredEmployes.length]?.titulo_profesional === undefined || filteredEmployes[(current + 1) % filteredEmployes.length]?.titulo_profesional === "" ? "N/A" : filteredEmployes[(current + 1) % filteredEmployes.length]?.titulo_profesional}</p>*/} {/*Se quito el titulo profesional por ahora*/}
+                    <button
+                      className="profile-btn"
+                      onClick={() =>
                             showModalSeeProfile(filteredEmployes[(current + 1) % filteredEmployes.length])
-                          }
-                        >
-                          Ver perfil
-                        </button>
-                      </div>
-                    )}
-                  </div>
-
-                  {filteredEmployes.length > 1 && (
-                    <button className="arrow-results right" onClick={next}>
-                      ❯
+                      }
+                    >
+                      Ver perfil
                     </button>
+                  </div>
+                )}
+              </div>
+
+              {filteredEmployes.length > 1 && (
+                <button className="arrow-results right" onClick={next}>
+                  ❯
+                </button>
                   )}
                 </>
               )}

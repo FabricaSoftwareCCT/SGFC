@@ -1,7 +1,7 @@
 const express = require("express");
 const { createEmpleado, getEmpleadosByEmpresaId, recordLogin, subirDocumentoIdentidad, getEmpresaById, refreshAccessToken, getAprendicesByEmpresa, registerUser, verifyEmail, loginUser,requestPasswordReset,resetPassword, getAllUsers, getUserProfile, getAprendices, getEmpresas, getInstructores, getGestores, updateUserProfile,createInstructor, createGestor,logoutUser, createMasiveUsers, getEmpresaByNIT, requestNewVerificationEmail, getAllEmpleadosForAdmin, getAllEmpresasForAdmin, createEmpleadoForAdmin } = require("../controllers/userController");
 const { googleSignIn, googleSignUp } = require("../controllers/authGoogleController"); // Importar controlador de autenticación de Google
-const { authMiddleware } = require("../middlewares/authMiddleware");
+const { authMiddleware, authorizeRoles } = require("../middlewares/authMiddleware");
 const router = express.Router();
 const upload = require("../config/multer"); // Importar configuración de multer
 
@@ -41,9 +41,10 @@ router.get('/empresa/id/:id', getEmpresaById);
 router.post('/:id/documento', upload.single('pdf'), subirDocumentoIdentidad);
 
 // Rutas para administradores
-router.get('/admin/empleados', authMiddleware, getAllEmpleadosForAdmin); // Obtener todos los empleados con filtros para administradores
-router.get('/admin/empresas', authMiddleware, getAllEmpresasForAdmin); // Obtener todas las empresas para administradores
-router.post('/admin/empleados', authMiddleware, upload.single('foto_perfil'), createEmpleadoForAdmin); // Crear empleado para cualquier empresa (solo administradores)
+// Permitir Administrador y Gestor
+router.get('/admin/empleados', authMiddleware, authorizeRoles(['Administrador', 'Gestor']), getAllEmpleadosForAdmin);
+router.get('/admin/empresas', authMiddleware, authorizeRoles(['Administrador', 'Gestor']), getAllEmpresasForAdmin);
+router.post('/admin/empleados', authMiddleware, authorizeRoles(['Administrador', 'Gestor']), upload.single('foto_perfil'), createEmpleadoForAdmin);
 
 
 router.get("/", (req, res) => {

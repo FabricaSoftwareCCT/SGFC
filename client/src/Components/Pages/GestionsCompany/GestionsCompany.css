@@ -305,7 +305,7 @@
   box-shadow: 0 4px 20px rgba(0,0,0,0.1);
 }
 
-.table-header {
+.table-heade {
   background: rgba(0,0,0,0.95);
   position: sticky;
   top: 0;
@@ -315,7 +315,7 @@
   margin-top: 0;
 }
 
-.table-header th {
+.table-heade th {
   padding: 16px 12px;
   text-align: center;
   font-weight: 600;

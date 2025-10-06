@@ -779,15 +779,20 @@ const updateUserProfile = async (req, res) => {
         // Verificación de permisos
         // Administrador puede actualizar cualquier perfil (se maneja abajo)
         // Empresa puede actualizar el suyo (se maneja abajo)
-        // Para otros roles (Instructor, Gestor, Aprendiz): permitir solo si actualiza su propio perfil
-        if (loggedInUser.accountType !== "Administrador" && loggedInUser.accountType !== "Empresa") {
+        // Para otros roles (Instructor, Aprendiz): permitir solo si actualiza su propio perfil
+        // Gestor se considera con privilegios de administrador
+        if (
+            loggedInUser.accountType !== "Administrador" &&
+            loggedInUser.accountType !== "Empresa" &&
+            loggedInUser.accountType !== "Gestor"
+        ) {
             if (parseInt(id, 10) !== Number(loggedInUser.id)) {
             return res.status(403).json({ message: "No tienes permiso para actualizar perfiles." });
             }
         }
 
-        // ADMINISTRADOR
-            if (loggedInUser.accountType === "Administrador") {
+        // ADMINISTRADOR o GESTOR (mismas reglas)
+            if (loggedInUser.accountType === "Administrador" || loggedInUser.accountType === "Gestor") {
             // Validaciones de campos obligatorios para Administrador
             const camposObligatorios = {
                 nombres: nombres,

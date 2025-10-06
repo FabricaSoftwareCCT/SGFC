@@ -72,9 +72,12 @@ export const Header = ({ setShowSignIn, setShowSignUp, setShowAccountType }) => 
     "/Cursos",
   ].some((path) => location.pathname.startsWith(path))
 
-  const isGestionesActive = ["/Gestiones/Instructor", "/Gestiones/Gestor", "/Gestiones/Actas"].some((path) =>
-    location.pathname.startsWith(path),
-  )
+  const isGestionesActive = [
+    "/Gestiones/Instructor",
+    "/Gestiones/Gestor",
+    "/Gestiones/Actas",
+    "/Empleados/MisEmpleados",
+  ].some((path) => location.pathname.startsWith(path))
 
   const isEmpresasActive = location.pathname.startsWith("/Gestiones/Empresas")
 
@@ -205,6 +208,29 @@ export const Header = ({ setShowSignIn, setShowSignUp, setShowAccountType }) => 
                   Gestión de Actas
                 </button>
                 <button 
+                  className={location.pathname.startsWith("/Empleados/MisEmpleados") ? "active" : ""}
+                  onClick={() => handleMenuClick("/Empleados/MisEmpleados")}
+                >
+                  Gestión de Empleados
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Gestiones - Menú para Gestor: incluir Gestión de Empleados */}
+        {isLoggedIn && accountType === "Gestor" && (
+          <div className="gestiones-menu" ref={gestionesMenuRef}>
+            <button
+              className={`gestiones${showGestionesMenu || isGestionesActive ? " active" : ""}`}
+              onClick={toggleGestionesMenu}
+            >
+              Gestiones
+            </button>
+            {showGestionesMenu && (
+              <div className="dropdown-gestiones">
+                <div className="arrow-up" />
+                <button
                   className={location.pathname.startsWith("/Empleados/MisEmpleados") ? "active" : ""}
                   onClick={() => handleMenuClick("/Empleados/MisEmpleados")}
                 >

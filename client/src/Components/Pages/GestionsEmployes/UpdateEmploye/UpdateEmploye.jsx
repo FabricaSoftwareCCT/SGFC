@@ -17,7 +17,6 @@ export const UpdateEmploye = ({ empleado }) => {
   // Actualizar formData cuando cambie el empleado
   useEffect(() => {
     if (empleado) {
-      console.log("UpdateEmploye recibió empleado:", empleado); // Debug
       setFormData({ ...empleado });
       setIsEditing(false); // Resetear modo edición
       setDocumentoPDF(null); // Limpiar PDF
@@ -120,9 +119,22 @@ export const UpdateEmploye = ({ empleado }) => {
 
       alert(updateResponse.data.message || "Perfil actualizado correctamente");
       setIsEditing(false);
+      
+      // Actualizar formData con los datos actualizados del servidor
+      if (updateResponse.data.empleado) {
+        setFormData({ ...updateResponse.data.empleado });
+        // Actualizar también el empleado seleccionado en el componente padre
+        if (window.updateSelectedEmploye) {
+          window.updateSelectedEmploye(updateResponse.data.empleado);
+        }
+      }
+      
+      // Actualizar la lista de empleados sin recargar la página
+      if (window.refreshEmployesList) {
+        window.refreshEmployesList();
+      }
+      
       closeModalUpdateEmploye();
-      // Recargar la página para mostrar los cambios
-      window.location.reload();
 
     } catch (error) {
       console.error("Error al actualizar el perfil:", error.response?.data || error.message);
@@ -132,49 +144,59 @@ export const UpdateEmploye = ({ empleado }) => {
 
 
   const getImageSrc = (data) => {
-    console.log("UpdateEmploye - Procesando imagen:", data); // Debug
     
-    if (!data) {
-      console.log("No hay datos de imagen, usando imagen por defecto");
+    // Si no hay datos de imagen, usar imagen por defecto
+    if (!data) {  
       return "/src/assets/Icons/userDefect.png";
-    }
-    
-    // Si es una ruta de archivo (empieza con ../ o /)
-    if (typeof data === 'string' && (data.startsWith('../') || data.startsWith('/'))) {
-      console.log("Es una ruta de archivo:", data);
-      // Convertir ruta relativa a ruta absoluta
-      if (data.startsWith('../Img/')) {
-        const newPath = data.replace('../Img/', '/src/assets/Icons/');
-        console.log("Ruta convertida:", newPath);
-        return newPath;
-      }
-      return data;
     }
     
     // Si es base64
     if (typeof data === 'string') {
-    if (data.startsWith('/9j/')) {
-        console.log("Es JPEG base64");
+      // Verificar si ya es una URL de datos completa
+      if (data.startsWith("data:")) {
+        return data; // Ya es una URL de datos
+      }
+      
+      // Verificar si es PNG base64
+      if (data.startsWith("iVBORw0KGgo") || data.startsWith("iVBOR")) {
+        return `data:image/png;base64,${data}`;
+      }
+      
+      // Verificar si es JPEG base64
+      if (data.startsWith("/9j/")) {
+        return `data:image/jpeg;base64,${data}`;
+      }
+      
+      // Verificar si es una cadena muy larga (probablemente base64)
+      if (data.length > 1000) {
       return `data:image/jpeg;base64,${data}`;
-    } else if (data.startsWith('iVBORw0KGgo')) {
-        console.log("Es PNG base64");
-      return `data:image/png;base64,${data}`;
-      } else if (data.startsWith('data:')) {
-        console.log("Ya es una URL de datos");
+      }
+      
+      // Verificar si contiene caracteres base64 válidos
+      const base64Regex = /^[A-Za-z0-9+/=]+$/
+      if (data.length > 50 && base64Regex.test(data)) {
+      return `data:image/jpeg;base64,${data}`;
+    }
+      
+      // Si es una ruta de archivo (empieza con ../ o /) - solo después de verificar base64
+      if (data.startsWith('../') || data.startsWith('/')) {
+        // Convertir ruta relativa a ruta absoluta
+        if (data.startsWith('../Img/')) {
+          const newPath = data.replace('../Img/', '/src/assets/Icons/');
+          return newPath;
+        }
         return data;
-    } else {
-        console.log("Asumiendo JPEG base64");
-      return `data:image/jpeg;base64,${data}`;
+      }
+      
+      return "/src/assets/Icons/userDefect.png";
     }
-    }
-    
-    console.log("Fallback a imagen por defecto");
+
     return "/src/assets/Icons/userDefect.png";
   };
 
   return (
-    <div id="modal-overlayUpdateEmploye" style={{ display: "none" }}>
-      <form className="modal-bodyUpdateInstructor" onSubmit={handleButtonClick}>
+    <div id="modal-overlayUpdateEmploye" className={isEditing ? 'editing-mode' : ''} style={{ display: "none" }}>
+      <form className={`modal-bodyUpdateGestor ${isEditing ? 'editing-mode' : ''}`} onSubmit={handleButtonClick}>
         <div className="modal-left-update">
           <p>
             <strong>Nombres:</strong>{" "}
@@ -189,10 +211,6 @@ export const UpdateEmploye = ({ empleado }) => {
             ) : (
               <span className="valor-campo">{formData.nombres || ""}</span>
             )}
-          </p>
-          <p>
-            <strong>ID Empleado:</strong>{" "}
-            <span className="valor-campo">{formData.ID || "N/A"}</span>
           </p>
           <p>
             <strong>Apellidos:</strong>{" "}
@@ -358,16 +376,15 @@ export const UpdateEmploye = ({ empleado }) => {
                 alt="Vista previa"
                 className="preview-image"
               />
-            ) : formData.foto_perfil ? (
+            ) : (
               <img
                 src={getImageSrc(formData.foto_perfil)}
                 alt="Foto de perfil"
                 className="preview-image-update"
+                onError={(e) => {
+                  e.target.src = "/src/assets/Icons/userDefect.png";
+                }}
               />
-            ) : (
-              <div className="upload-placeholder">
-                <p>Sin imagen disponible</p>
-              </div>
             )}
           </label>
 
@@ -376,7 +393,7 @@ export const UpdateEmploye = ({ empleado }) => {
           </button>
         </div>
 
-        <div className="container_return_UpdateInstructor">
+        <div className="container_return_UpdateGestor">
           <h5>Volver</h5>
           <button
             type="button"

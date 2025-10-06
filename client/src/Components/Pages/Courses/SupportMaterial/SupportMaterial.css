@@ -12,6 +12,9 @@
     min-height: calc(100vh - 120px);
     margin: 100px;
     text-align: -webkit-auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .material-header {

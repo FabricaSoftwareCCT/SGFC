@@ -4,14 +4,18 @@ import axiosInstance from "../../../../config/axiosInstance";
 import { validateEmail, validateNumber, validateText, createMensajeError } from "../../../../utils/Validators/formValidator";
 // import { useNavigate } from "react-router-dom";
 
-export const UpdateGestor = ({ gestor, onClose }) => {
+export const UpdateGestor = ({ gestor }) => {
+
+  // Validación de sesión de usuario y rol de administrador
+  const userSessionString = sessionStorage.getItem("userSession");
+  const userSession = userSessionString ? JSON.parse(userSessionString) : null;
+
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({ ...gestor });
 
   const closeModalUpdateGestor = () => {
-    if (onClose) onClose();
     const overlay = document.getElementById("modal-overlayUpdateGestor");
-    if (overlay) overlay.style.display = "none";
+    overlay.style.display = "none";
   };
 
   const getImageSrc = (data) => {

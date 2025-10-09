@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect,useRef } from 'react';
 import './ReporteEstadisticas.css';
 import ReporteEstudiantes from './ReporteEstudiantes';
+import {getCursos} from '../../API/ApiRpeort';
 
 export default function ReporteEstadisticas() {
   const [pantallaActual, setPantallaActual] = useState('cursos');
@@ -49,30 +50,21 @@ export default function ReporteEstadisticas() {
 }, [mostrarFiltro]);
 
   useEffect(() => {
-    const cursos = async () => {
-      try{
-        const response = await fetch(`http://localhost:3001/api/reports/ObtenerCursos/admin/${currentPage}`, {
-          method: "GET",
-          credentials: "include"
-        });
-        const data = await response.json();
+    async function fetchData() {
+      try {
+        //Cargar datos
+        const data = await getCursos(currentPage);
 
-        const cursos = data?.curso?.cursos.map(curso => ({
-          id: curso.id,
-          curso: curso.nombre_curso,
-          ficha: curso.ficha,
-          estado: curso.estado,
-          instructor: curso.nombre_instructor,
-          empleados: 0
-          })
-        );
-
-        setdatosCurso(cursos);
-      } catch(err) {
-        alert("Error al cargar datos");
+        if(!data){
+          alert("Error al cargar datos")
+        }
+        //Acutalizar estado
+        setdatosCurso(data);
+      }catch(err){
+        alert(" Error en servidor ")
       }
-    };
-    cursos();
+    }
+    fetchData()
   }, []);
 
   // Resetear página cuando cambien filtros
@@ -90,11 +82,11 @@ export default function ReporteEstadisticas() {
 
   // Función para aplicar todos los filtros - CORREGIDA
   const cursosFiltrados = useMemo(() => {
-    return cursos.filter(curso => {
+    return datosCurso?.filter(curso => {
       // Filtro por estado
       const estadosSeleccionados = [];
-      if (filtros.estado.activo) estadosSeleccionados.push('Activo');
-      if (filtros.estado.inactivo) estadosSeleccionados.push('Inactivo');
+      if (filtros.estado.activo) estadosSeleccionados.push('activo');
+      if (filtros.estado.inactivo) estadosSeleccionados.push('inactivo');
       
       if (estadosSeleccionados.length > 0 && !estadosSeleccionados.includes(curso.estado)) {
         return false;
@@ -122,12 +114,12 @@ export default function ReporteEstadisticas() {
       // Si pasa todos los filtros, incluir el curso
       return true;
     });
-  }, [filtros, cursos]);
+  }, [filtros, datosCurso]);
 
   // Cálculo para paginación
   const indexOfLastPost = currentPage * postsPerPage;
   const indexOfFirstPost = indexOfLastPost - postsPerPage;
-  const currentPosts = cursosFiltrados.slice(indexOfFirstPost, indexOfLastPost);
+  const currentPosts = cursosFiltrados?.slice(indexOfFirstPost, indexOfLastPost);
 
   // Función para manejar el clic en una fila
   const handleFilaClick = (curso) => {
@@ -185,7 +177,7 @@ export default function ReporteEstadisticas() {
 
   const generarReporte = () => {
     console.log('Generando reporte de cursos...');
-    const datosReporte = cursosFiltrados.length > 0 ? cursosFiltrados : cursos;
+    const datosReporte = cursosFiltrados.length > 0 ? cursosFiltrados : datosCurso;
     alert(`Reporte generado exitosamente\nTotal de cursos: ${datosReporte.length}`);
   };
  
@@ -309,7 +301,7 @@ export default function ReporteEstadisticas() {
             {/* Información de resultados */}
             <div className="filtro-info-estadisticas">
               <div className="filtro-resultados-estadisticas">
-                Resultados: {cursosFiltrados.length} de {cursos.length} cursos
+                Resultados: {cursosFiltrados.length} de {datosCurso.length} cursos
               </div>
             </div>
 
@@ -334,7 +326,7 @@ export default function ReporteEstadisticas() {
         </div>
 
         {/* Filas de datos filtrados y paginados */}
-        {currentPosts.length > 0 ? (
+        {currentPosts?.length > 0 ? (
           currentPosts.map((curso) => (
             <div 
               key={curso.id} 
@@ -358,7 +350,7 @@ export default function ReporteEstadisticas() {
       </div>
 
       {/* PAGINACIÓN */}
-      {cursosFiltrados.length > postsPerPage && (
+      {cursosFiltrados?.length > postsPerPage && (
         <>
           <Pagination
             postsPerPage={postsPerPage}

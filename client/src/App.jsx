@@ -49,7 +49,7 @@ import ReporteEstadisticas from './Components/Pages/GestionReporteEstadisticas/R
 
 // Importación de estilos
 import "./App.css";
-import { Header } from './Components/Layouts/Header/Header';
+import { Header } from './Components/Layouts/Header/Header';  
 
 
 // Crear un componente Layout que envuelva las páginas con Header y Footer

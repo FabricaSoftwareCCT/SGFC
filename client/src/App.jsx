@@ -51,6 +51,7 @@ import ReporteEstadisticas from './Components/Pages/GestionReporteEstadisticas/R
 // Importación de estilos
 import "./App.css";
 import { Header } from './Components/Layouts/Header/Header';
+import { CriteriaManagement } from './Components/Pages/CriteriaManagment/Criteria';
 
 
 // Crear un componente Layout que envuelva las páginas con Header y Footer
@@ -299,6 +300,7 @@ function App() {
           } />
           <Route path="/Gestiones/Empresas" element={<GestionsCompany />} />
           <Route path="/Gestiones/Actas" element={<GestionsActas />} />
+          <Route path="/Gestiones/Criterios" element={<CriteriaManagement/>} />
           
           {/* NUEVA RUTA PARA REPORTE Y ESTADÍSTICAS */}
           <Route path="/GestionReporteEstadisticas/ReporteEstadisticas" element={

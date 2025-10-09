@@ -52,6 +52,9 @@ import ReporteEstadisticas from './Components/Pages/GestionReporteEstadisticas/R
 import "./App.css";
 import { Header } from './Components/Layouts/Header/Header';
 import { CriteriaManagement } from './Components/Pages/CriteriaManagment/Criteria';
+import { SeeCourseCriteria } from './Components/Pages/CriteriaManagment/SeeCriteria/SeeCriteria';
+import { CreateCriteria } from './Components/Pages/CriteriaManagment/CreateCriteria/CreateCriteria';
+import { SeeAllCourseCriteria } from './Components/Pages/CriteriaManagment/SeeCourseCriteria/SeeCourseCriteria';
 
 
 // Crear un componente Layout que envuelva las páginas con Header y Footer
@@ -301,7 +304,9 @@ function App() {
           <Route path="/Gestiones/Empresas" element={<GestionsCompany />} />
           <Route path="/Gestiones/Actas" element={<GestionsActas />} />
           <Route path="/Gestiones/Criterios" element={<CriteriaManagement/>} />
-          
+          <Route path="/Gestiones/Criterios/Ver/:id" element={<SeeCourseCriteria/>}/>
+          <Route path="/Gestiones/Criterios/Curso/:id" element={<SeeAllCourseCriteria/>}/>
+          <Route path="/Gestiones/Criterios/Crear/:id" element={<CreateCriteria/>}/>
           {/* NUEVA RUTA PARA REPORTE Y ESTADÍSTICAS */}
           <Route path="/GestionReporteEstadisticas/ReporteEstadisticas" element={
             <Layout

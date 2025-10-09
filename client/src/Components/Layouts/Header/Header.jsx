@@ -131,7 +131,8 @@ export const Header = ({ setShowSignIn, setShowSignUp, setShowAccountType }) => 
 							options = [
 								{ label: "Mis cursos", path: "/Cursos/MisCursosAsignados" },
 								{ label: "Buscar cursos", path: "/Cursos/BuscarCursos" },
-								{ label: "Material de Apoyo", path: "/SupportMaterial"}
+								{ label: "Material de Apoyo", path: "/SupportMaterial"},
+								{ label: "Criterios de certificación", path: "/Gestiones/Criterios"}
 							]
 							break
 						case "Gestor":

@@ -1,0 +1,103 @@
+.container-see-criteria {
+	width: 100%;
+	height: auto;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.container-see-criteria {
+	width: 100%;
+	height: auto;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.container-see-criteria>h2 {
+	width: 100%;
+	height: auto;
+	color: #fff;
+	font-size: 40px;
+	text-align: center;
+	margin: 3rem 0 2rem 0;
+	font-weight: bold;
+}
+
+.container-see-criteria>p {
+	width: auto;
+	height: auto;
+	font-size: 16px;
+	text-align: center;
+	color: #fff;
+}
+
+.container-see-criteria .complementary {
+	color: #00843d;
+}
+
+.container-see-criteria {
+	width: 100%;
+	height: auto;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.buttons {
+	width: 70%;
+	display: flex;
+	justify-content: space-between;
+}
+
+.see-criteria-button {
+	background-color: #ffaa00;
+}
+
+.criteria-aprentice-filter-dropdown {
+	background-color: grey;
+	color: black;
+}
+
+.aprentice-list-container {
+	width: 70%;
+}
+
+.aprentice-list-header {
+	display: flex;
+	justify-content: space-evenly;
+	background-color: #00843D;
+	color: white;
+	font-size: 28px;
+	padding: 10px;
+	margin-top: 20px;
+}
+
+.no-aprentices-list {
+	background-color: #606060;
+	color: white;
+	font-size: 22px;
+	padding: 15px;
+	padding-left: 25px;
+	padding-right: 25px;
+}
+
+.search-aprentice {
+	flex-direction: column;
+	align-items: start;
+	position: absolute;
+	background-color: #383737;
+	margin-top: 35px;
+	right: 15%;
+}
+
+.search-aprentice label {
+	color: white;
+	font-weight: bold;
+}
+
+.end-button {
+	position: absolute;
+	font-size: 24px;
+	bottom: 4%;
+}

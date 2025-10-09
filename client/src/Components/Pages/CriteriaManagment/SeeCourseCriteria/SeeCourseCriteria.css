@@ -1,0 +1,81 @@
+.button-red {
+	background-color: red;
+}
+
+.buttons-right {
+	display: flex;
+	width: 90%;
+	justify-content: end;
+}
+
+.buttons-right button {
+	margin-left: 10px;
+}
+
+.criteriaBox {
+	width: 90%;
+	margin-top: 25px;
+	max-height: 70vh;
+	min-height: 70vh;
+	overflow-y: auto;
+}
+
+.criteria-item {
+	margin: 10px;
+	background-color: #00843D;
+	border-radius: 10px;
+	display: flex;
+	flex-direction: row;
+}
+
+.criteria-head {
+	min-width: 20%;
+	max-width: 20%;
+	background-color: #039d4b;
+	border-radius: 10px;
+	padding: 10px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-evenly;
+}
+
+.criteria-head span {
+	text-align: center;
+	font-size: 32px;
+}
+
+.criteria-description {
+	padding: 15px;
+	font-size: 20px;
+}
+
+.description-edition {
+	width: 100%;
+	background-color: transparent;
+	resize: none;
+	field-sizing: content;
+	text-decoration: underline;
+	border: none;
+}
+
+.editing-criteria-title {
+	background-color: transparent;
+	border: none;
+	text-align: center;
+	font-size: 32px;
+	text-decoration: underline;
+}
+
+.editing-criteria-values {
+	display: flex;
+	justify-content: center;
+}
+
+.editing-criteria-values input {
+	width: 40%;
+	text-align: center;
+	font-size: 32px;
+	background-color: transparent;
+	text-decoration: underline;
+	border: none;
+}

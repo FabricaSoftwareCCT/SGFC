@@ -1195,7 +1195,7 @@ const createInstructor = async (req, res) => {
         const tempPassword ="Faber1021672376*";
         
         // Encriptar la contraseña temporal
-        const hashedPassword = await bcrypt.hash(tempPaspasssword, 10);
+        const hashedPassword = await bcrypt.hash(tempPassword, 10);
 
         // Crear el instructor
         const newInstructor = await User.create({

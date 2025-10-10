@@ -30,7 +30,7 @@ export const SeeAllCourseCriteria = () => {
 								setCriteria(myBC)
 							}}
 						/>
-						<div className="editing-criteria-values">
+						{criteriaData.has_value && <div className="editing-criteria-values">
 							<input 
 								value={criteriaData.value} type="number"
 								onChange={(e) => {
@@ -46,6 +46,17 @@ export const SeeAllCourseCriteria = () => {
 									setCriteria(myBC)
 								}}
 							/>
+						</div>}
+						<div className="bias-input">
+							<span>Ponderación</span>
+							<input
+								type="number"
+								value={criteriaData.weight}
+								onChange={(e) => {
+									myself.weight = e.target.value
+									setCriteria(myBC)
+								}}
+							/>%
 						</div>
 					</div>
 					<textarea
@@ -63,11 +74,14 @@ export const SeeAllCourseCriteria = () => {
 			<div className="criteria-item" id={criteriaData.id}>
 				<div className="criteria-head">
 					<span>{criteriaData.title}</span>
-					<span>{criteriaData.value}/{criteriaData.min}</span>
+					{criteriaData.has_value && <span>{criteriaData.value}/{criteriaData.min}</span>}
 				</div>
-				<p className="criteria-description">
-					{criteriaData.description}
-				</p>
+				<div className="criteria-data">
+					<p className="criteria-description">
+						{criteriaData.description}
+					</p>
+					<span className="criteria-date">Creado el {criteriaData.creation.date} a las {criteriaData.creation.hour} por {criteriaData.author} {criteriaData.last_edit != undefined && <><br/>editador por ultima vez el {criteriaData.last_edit.date} a las {criteriaData.last_edit.hour} por {criteriaData.last_edit.author}</>}</span>
+				</div>
 			</div>
 		)
 	}
@@ -81,32 +95,77 @@ export const SeeAllCourseCriteria = () => {
 		// PLACEHOLDER BORRAR LUEGO
 		let placeholderCriteria = [
 			{
-				"id": 1,
-				"title": "Asistencias",
-				"description": "Para garantizar el óptimo aprovechamiento académico y el cumplimiento de los objetivos del curso, es fundamental la asistencia regular y puntual de todos los aprendices. La asistencia mínima obligatoria para ser acreedor a la certificación es del 80%. Considerando la duración total del programa, esto se traduce en que el aprendiz no puede acumular más de 5 inasistencias a lo largo del curso. Superar este límite automáticamente dará lugar a la baja administrativa, sin derecho a la recuperación de contenidos o a la evaluación final.",
-				"min": 20,
-				"value": 15
+				id: 1,
+				title: "Asistencias",
+				description: "Para garantizar el óptimo aprovechamiento académico y el cumplimiento de los objetivos del curso, es fundamental la asistencia regular y puntual de todos los aprendices. La asistencia mínima obligatoria para ser acreedor a la certificación es del 80%. Considerando la duración total del programa, esto se traduce en que el aprendiz no puede acumular más de 5 inasistencias a lo largo del curso. Superar este límite automáticamente dará lugar a la baja administrativa, sin derecho a la recuperación de contenidos o a la evaluación final.",
+				has_value: true,
+				min: 20,
+				value: 15,
+				creation: {
+					date: "10/10/2025",
+					hour: "8:40"
+				},
+				author: "Administrador",
+				weight: 10
 			},
 			{
-				"id": 2,
-				"title": "Actividades",
-				"description": "La certificación final del curso está sujeta al cumplimiento integral de las actividades académicas asignadas. Es un requisito indispensable para certificarse que el aprendiz haya entregado la totalidad de las actividades, proyectos y evaluaciones establecidos en el plan de estudios. No estar al día con las entregas, es decir, tener actividades pendientes o sin enviar, imposibilita la certificación automáticamente, ya que demuestra un incompleto dominio de los objetivos de aprendizaje planteados para cada módulo.",
-				"min": 5,
-				"value": 5
+				id: 2,
+				title: "Actividades",
+				description: "La certificación final del curso está sujeta al cumplimiento integral de las actividades académicas asignadas. Es un requisito indispensable para certificarse que el aprendiz haya entregado la totalidad de las actividades, proyectos y evaluaciones establecidos en el plan de estudios. No estar al día con las entregas, es decir, tener actividades pendientes o sin enviar, imposibilita la certificación automáticamente, ya que demuestra un incompleto dominio de los objetivos de aprendizaje planteados para cada módulo.",
+				has_value: true,
+				min: 5,
+				value: 5,
+				creation: {
+					date: "10/10/2025",
+					hour: "8:40"
+				},
+				last_edit: {
+					date: "10/10/2025",
+					hour: "8:45",
+					author: "Administrador"
+				},
+				author: "Administrador",
+				weight: 10
 			},
 			{
-				"id": 3,
-				"title": "Evidencias",
-				"description": "La certificación final del curso está sujeta al cumplimiento integral de las actividades académicas asignadas. Es un requisito indispensable para certificarse que el aprendiz haya entregado la totalidad de las actividades, proyectos y evaluaciones establecidos en el plan de estudios. No estar al día con las entregas, es decir, tener actividades pendientes o sin enviar, imposibilita la certificación automáticamente, ya que demuestra un incompleto dominio de los objetivos de aprendizaje planteados para cada módulo.",
-				"min": 1,
-				"value": 0
+				id: 3,
+				title: "Evidencias",
+				description: "La certificación final del curso está sujeta al cumplimiento integral de las actividades académicas asignadas. Es un requisito indispensable para certificarse que el aprendiz haya entregado la totalidad de las actividades, proyectos y evaluaciones establecidos en el plan de estudios. No estar al día con las entregas, es decir, tener actividades pendientes o sin enviar, imposibilita la certificación automáticamente, ya que demuestra un incompleto dominio de los objetivos de aprendizaje planteados para cada módulo.",
+				has_value: true,
+				min: 1,
+				value: 0,
+				creation: {
+					date: "10/10/2025",
+					hour: "8:40"
+				},
+				author: "Administrador",
+				weight: 20
 			},
 			{
-				"id": 4,
-				"title": "Horas",
-				"description": "La certificación final del curso está sujeta al cumplimiento integral de las actividades académicas asignadas. Es un requisito indispensable para certificarse que el aprendiz haya entregado la totalidad de las actividades, proyectos y evaluaciones establecidos en el plan de estudios. No estar al día con las entregas, es decir, tener actividades pendientes o sin enviar, imposibilita la certificación automáticamente, ya que demuestra un incompleto dominio de los objetivos de aprendizaje planteados para cada módulo.",
-				"min": 8,
-				"value": 2
+				id: 4,
+				title: "Horas",
+				description: "La certificación final del curso está sujeta al cumplimiento integral de las actividades académicas asignadas. Es un requisito indispensable para certificarse que el aprendiz haya entregado la totalidad de las actividades, proyectos y evaluaciones establecidos en el plan de estudios. No estar al día con las entregas, es decir, tener actividades pendientes o sin enviar, imposibilita la certificación automáticamente, ya que demuestra un incompleto dominio de los objetivos de aprendizaje planteados para cada módulo.",
+				has_value: true,
+				min: 8,
+				value: 2,
+				creation: {
+					date: "10/10/2025",
+					hour: "8:40"
+				},
+				author: "Administrador",
+				weight: 60
+			},
+			{
+				id: 5,
+				title: "Existir",
+				description: "La certificación final del curso está sujeta al cumplimiento integral de las actividades académicas asignadas. Es un requisito indispensable para certificarse que el aprendiz haya entregado la totalidad de las actividades, proyectos y evaluaciones establecidos en el plan de estudios. No estar al día con las entregas, es decir, tener actividades pendientes o sin enviar, imposibilita la certificación automáticamente, ya que demuestra un incompleto dominio de los objetivos de aprendizaje planteados para cada módulo.",
+				has_value: false,
+				creation: {
+					date: "10/10/2025",
+					hour: "8:40"
+				},
+				author: "Administrador",
+				weight: 60
 			}
 		]
 		setCriteria(placeholderCriteria)
@@ -173,6 +232,7 @@ export const SeeAllCourseCriteria = () => {
 								"No hay criterios por el momento."
 						}
 					</div>
+					<button className="button end-button">Descargar</button>
 				</div>
 			</Main>
 		</>

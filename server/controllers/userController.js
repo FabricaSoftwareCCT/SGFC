@@ -1239,7 +1239,13 @@ const getAprendicesByEmpresa = async (req, res) => {
 
 // Crear múltiples usuarios desde un archivo Excel
 const createMasiveUsers = async (req, res) => {
+    
     try {
+        const {empresaId} = req.params;
+        console.log(empresaId)
+        if (!empresaId) {
+            return res.status(400).json({message : "No se tiene el id de la empresa"})
+        }
         if (!req.file || !req.file.buffer) {
             return res.status(400).json({ message: 'No se ha subido ningún archivo.' });
         }
@@ -1266,7 +1272,8 @@ const createMasiveUsers = async (req, res) => {
                     email : u.email?.toLowerCase(),
                     documento : String(u.documento).trim(),
                     password : hashedPassword,
-                    accountType : "Aprendiz"
+                    accountType : "Aprendiz",
+                    empresa_ID : empresaId
                 }
             })
        )

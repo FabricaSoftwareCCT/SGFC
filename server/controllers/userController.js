@@ -1266,7 +1266,7 @@ const createMasiveUsers = async (req, res) => {
                     email : u.email?.toLowerCase(),
                     documento : String(u.documento).trim(),
                     password : hashedPassword,
-                    verificacion_email : true,
+                    accountType : "Aprendiz"
                 }
             })
        )
@@ -1291,21 +1291,28 @@ const createMasiveUsers = async (req, res) => {
         }
 
         // Verificar si hay usuarios repetidos en la base de datos antes de crear
-        const emails = usuariosLimpios.map((e) =>{return e.email})
-        const existingUsers = await User.findAll({ where: { email: emails } });
+        const emails = usuariosLimpios.map((e) =>{
+            return {
+                email : e.email,
+                accountType : e.accountType
+            }
+        })
         
         const emailList = await Promise.all(
-            emails.map( async (email) =>{
-                const payload = { data: { email } };
+            emails.map( async (e) =>{
+                const newEmail = e.email
+                const payload = { data: { newEmail } };
                 const  token = generateToken(payload, process.env.JWT_SECRET, 5)
                 return {
-                    email : email,
-                    token : token
+                    email : newEmail,
+                    token : token,
+                    accountType : e.accountType
                 }
             })
         )
-        console.log(emailList)
-
+        
+        const emails2 = emails.map((e) =>{return e.email})
+        const existingUsers = await User.findAll({ where: { email: emails2 } });
         if (existingUsers.length > 0) {
             const repetidos = existingUsers.map(user => user.email);
             return res.status(409).json({
@@ -1316,7 +1323,13 @@ const createMasiveUsers = async (req, res) => {
         // Crear usuarios con los datos extraídos 
         await  User.bulkCreate(usuariosLimpios, {ignoreDuplicates : true})
 
-        return res.status(200).json({menssage : "se insertardor los usuarios con exito"})
+        await Promise.all(
+            emailList.map((list) =>{
+                sendVerificationEmail(list.email, list.token, list.accountType)
+            })
+        )
+
+        return res.status(200).json({menssage : "se insertaron los usuarios con exito"})
 
     } catch (error) {
         console.error("Error al procesar el archivo:", error);

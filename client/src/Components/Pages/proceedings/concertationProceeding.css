@@ -67,6 +67,9 @@
     height: auto;
     color: black;
 }
+.punto_name{
+    width: 100%;
+}
 
 .letter-content-proceedings>p>b {
     color: #1a1a1a;
@@ -141,6 +144,11 @@
     display: inline-block;
 }
 
+.input-solicitud-select-proceedings option {
+  color: #1a1a1a;
+  background-color: #ffffff;
+}
+
 .botones-solicitud-proceedings {
     width: 80%;
     height: auto;
@@ -160,6 +168,40 @@
     align-items: start;
     margin: 2rem auto;
     flex-direction: column;
+}
+.input-solicitud-proceedings[style*="flex: 1"] {
+    margin-bottom: 0;
+}
+
+/* Evitar que elementos se corten entre páginas */
+.no-break {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+/* Forzar salto de página antes de un elemento */
+.page-break-before {
+  page-break-before: always;
+  break-before: page;
+}
+
+/* Forzar salto de página después de un elemento */
+.page-break-after {
+  page-break-after: always;
+  break-after: page;
+}
+
+/* Evitar que títulos queden solos al final de página */
+.keep-with-next {
+  page-break-after: avoid;
+  break-after: avoid;
+}
+
+/* Contenedor de secciones importantes */
+.section-container {
+  page-break-inside: avoid;
+  break-inside: avoid;
+  margin-bottom: 20px;
 }
 
 .observaciones-container-proceedings p {

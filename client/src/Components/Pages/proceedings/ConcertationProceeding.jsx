@@ -7,7 +7,6 @@ import { Main } from '../../Layouts/Main/Main';
 import axiosInstance from '../../../config/axiosInstance';
 import html2pdf from 'html2pdf.js';
 import { ModalSignature } from '../../UI/Modal_Signature/ModalSignature';
-import { EditableList } from '../../UI/EditableList/EditableList';
 import { useNavigate } from 'react-router-dom';
 import { validateText, validateNumber, validarFecha, createMensajeError } from '../../../utils/Validators/formValidator';
 
@@ -31,15 +30,8 @@ export const ConcertationProceeding = () => {
   const [horarioInicio, setHorarioInicio] = useState('');
   const [horarioFin, setHorarioFin] = useState('');
   const [modalidad, setModalidad] = useState('Presencial');
-  const [notasRelevantes, setNotasRelevantes] = useState([
-    'Los cursos deben iniciar puntualmente según el horario establecido.',
-    'Se acordó que los cursos virtuales serán grabados y compartidos.',
-    'Las fechas propuestas están sujetas a confirmación por parte de los participantes.'
-  ]);
-  const [condicionesEspeciales, setCondicionesEspeciales] = useState([
-    'Se requiere disponibilidad de sala virtual con capacidad para los participantes.',
-    'Entrega de material didáctico antes de la primera sesión.'
-  ]);
+  const [notasRelevantes, setNotasRelevantes] = useState([]);
+  const [condicionesEspeciales, setCondicionesEspeciales] = useState([]);
 
   const [dateError, setDateError] = useState('');
   const [isExporting, setIsExporting] = useState(false);
@@ -170,10 +162,16 @@ export const ConcertationProceeding = () => {
         const pdfFileName = 'acta_concertacion.pdf';
         html2pdf()
           .set({
-            margin: 10,
+            margin: [15, 15, 20, 15],
             filename: pdfFileName,
             html2canvas: { scale: 2 },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+            // NUEVAS OPCIONES PARA CONTROL DE PÁGINAS
+            pagebreak: { 
+              mode: ['avoid-all', 'css', 'legacy'], // Evitar cortes
+              before: '.page-break-before', // Clases para saltos
+              after: '.page-break-after' 
+            }
           })
           .from(pdfRef.current)
           .save()
@@ -266,7 +264,7 @@ export const ConcertationProceeding = () => {
     }
   };
 
-  return (
+ return (
     <>
       <Header />
       <Main>
@@ -296,7 +294,7 @@ export const ConcertationProceeding = () => {
               </div>
               <h2 className='title-concertation'>ACTA DE CONCERTACIÓN</h2>
               <p>
-                <b>1. Información General</b><br />
+                <b className='punto_name'>1. Información General</b><br />
                 
                 {/* NUEVO: INPUTS PARA NOMBRE DE INSTITUCIÓN Y LUGAR DE CONCERTACIÓN */}
                 Nombre de la Institución: {isEditing ? (
@@ -309,7 +307,7 @@ export const ConcertationProceeding = () => {
                     style={{ width: '300px', marginLeft: '10px' }}
                   />
                 ) : (
-                  <b>{(empresa?.nombre_empresa || '[Nombre de la entidad]')}</b>
+                  <b className='punto_name'>{(empresa?.nombre_empresa || '[Nombre de la entidad]')}</b>
                 )}<br />
                 
                 Lugar de Concertación: {isEditing ? (
@@ -333,7 +331,7 @@ export const ConcertationProceeding = () => {
                     />
                   </>
                 ) : (
-                  <b>{empresa?.Ciudad?.nombre || '[Ciudad]'}, {empresa?.direccion || '[Sede, modalidad]'}</b>
+                  <b className='punto_name'>{empresa?.Ciudad?.nombre || '[Ciudad]'}, {empresa?.direccion || '[Sede, modalidad]'}</b>
                 )}<br />
                 <br />
                 
@@ -353,18 +351,60 @@ export const ConcertationProceeding = () => {
                   coordinadorAcademico || '[Nombre del coordinador académico]'
                 )}<br />
 
+                {/* INSTRUCTORES PARTICIPANTES - CORREGIDO */}
                 • Instructor(es) Participante(s): {isEditing ? (
-                  <EditableList
-                    items={instructores}
-                    setItems={setInstructores}
-                    placeholder="Nombre del instructor participante"
-                  />
+                  <div style={{ display: 'inline-block', marginLeft: '10px' }}>
+                    {instructores.map((instructor, idx) => (
+                      <div key={idx} style={{ display: 'flex', alignItems: 'center', marginBottom: '5px' }}>
+                        <input
+                          type="text"
+                          value={instructor}
+                          onChange={e => {
+                            const newInstructores = [...instructores];
+                            newInstructores[idx] = e.target.value;
+                            setInstructores(newInstructores);
+                          }}
+                          placeholder="Nombre del instructor participante"
+                          className="input-solicitud-proceedings"
+                          style={{ width: '250px', marginRight: '5px' }}
+                        />
+                        <button 
+                          type="button" 
+                          onClick={() => setInstructores(instructores.filter((_, i) => i !== idx))}
+                          style={{ 
+                            background: 'none', 
+                            border: 'none', 
+                            color: '#dc3545', 
+                            cursor: 'pointer',
+                            fontSize: '16px',
+                            padding: '0 5px'
+                          }}
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ))}
+                    <button 
+                      type="button" 
+                      onClick={() => setInstructores([...instructores, ''])}
+                      style={{ 
+                        background: 'none', 
+                        border: 'none', 
+                        color: '#00843d', 
+                        cursor: 'pointer',
+                        fontWeight: 'bold',
+                        marginTop: '5px'
+                      }}
+                    >
+                      + Agregar instructor
+                    </button>
+                  </div>
                 ) : (
                   instructores.length > 0 ? instructores.map((i, idx) => <span key={idx}>{i}{idx < instructores.length - 1 ? ', ' : ''}</span>) : '[Nombre(s) de instructores participantes]'
                 )}<br />
                 <br />
                 
-                <b>2. Detalle de Cursos Concertados</b><br />
+                <b  className='punto_name'>2. Detalle de Cursos Concertados</b><br />
                 Curso: {isEditing ? (
                   <input
                     type="text"
@@ -376,9 +416,9 @@ export const ConcertationProceeding = () => {
                     required
                   />
                 ) : isExporting ? (
-                  <b>{exportValues.nombreCurso || '[Nombre del curso]'}</b>
+                  <b className='punto_name'>{exportValues.nombreCurso || '[Nombre del curso]'}</b>
                 ) : (
-                  <b>{nombreCurso || '[Nombre del curso]'}</b>
+                  <b className='punto_name'>{nombreCurso || '[Nombre del curso]'}</b>
                 )}<br />
 
                 {/* INSTRUCTOR ASIGNADO */}
@@ -450,7 +490,7 @@ export const ConcertationProceeding = () => {
                 ) : (
                   horarioInicio && horarioFin ? `${horarioInicio} - ${horarioFin}` : '[Hora inicio - fin]'
                 )}<br />
-                
+                <br />
                 {/* MODALIDAD - NUEVO CAMPO */}
                 Modalidad: {isEditing ? (
                   <select
@@ -468,20 +508,63 @@ export const ConcertationProceeding = () => {
                 )}<br />
                 <br />
                 
-                <b>3. Participantes</b><br />
+                {/* PARTICIPANTES - CORREGIDO */}
+                <b  className='punto_name'>3. Participantes</b><br />
                 {isEditing ? (
-                  <EditableList
-                    items={participantes}
-                    setItems={setParticipantes}
-                    placeholder="Nombre participante"
-                  />
+                  <div style={{ margin: '10px 0' }}>
+                    {participantes.map((participante, idx) => (
+                      <div key={idx} style={{ display: 'flex', alignItems: 'center', marginBottom: '5px' }}>
+                        <span style={{ marginRight: '8px' }}>•</span>
+                        <input
+                          type="text"
+                          value={participante}
+                          onChange={e => {
+                            const newParticipantes = [...participantes];
+                            newParticipantes[idx] = e.target.value;
+                            setParticipantes(newParticipantes);
+                          }}
+                          placeholder="Nombre participante"
+                          className="input-solicitud-proceedings"
+                          style={{ width: '250px', marginRight: '5px' }}
+                        />
+                        <button 
+                          type="button" 
+                          onClick={() => setParticipantes(participantes.filter((_, i) => i !== idx))}
+                          style={{ 
+                            background: 'none', 
+                            border: 'none', 
+                            color: '#dc3545', 
+                            cursor: 'pointer',
+                            fontSize: '16px',
+                            padding: '0 5px'
+                          }}
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ))}
+                    <button 
+                      type="button" 
+                      onClick={() => setParticipantes([...participantes, ''])}
+                      style={{ 
+                        background: 'none', 
+                        border: 'none', 
+                        color: '#00843d', 
+                        cursor: 'pointer',
+                        fontWeight: 'bold',
+                        marginLeft: '18px'
+                      }}
+                    >
+                      + Agregar participante
+                    </button>
+                  </div>
                 ) : (
                   participantes.length > 0 ? participantes.map((p, idx) => <span key={idx}>• {p}<br /></span>) : <span>• [Nombre participante 1]<br />• [Nombre participante 2]</span>
                 )}
                 <br />
                 
                 {/* 4. NOTAS RELEVANTES - CAMBIADO A TEXTAREA */}
-                <b>4. Notas Relevantes</b><br />
+                <b  className='punto_name page-break-before'>4. Notas Relevantes</b><br />
                 {isEditing ? (
                   <textarea
                     className='textarea-proceedings'
@@ -513,7 +596,7 @@ export const ConcertationProceeding = () => {
                 <br />
 
                 {/* 5. CONDICIONES ESPECIALES - CAMBIADO A TEXTAREA */}
-                <b>5. Condiciones Especiales</b><br />
+                <b  className='punto_name'>5. Condiciones Especiales</b><br />
                 {isEditing ? (
                   <textarea
                     className='textarea-proceedings'
@@ -544,7 +627,7 @@ export const ConcertationProceeding = () => {
                 )}
                 <br />
                 
-                <b>6. Firma de los Participantes</b><br />
+                <b  className='punto_name'>6. Firma de los Participantes</b><br />
                 <table className="table-acta">
                   <thead>
                     <tr>

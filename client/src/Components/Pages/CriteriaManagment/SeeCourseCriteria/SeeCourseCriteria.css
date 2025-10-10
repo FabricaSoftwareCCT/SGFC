@@ -56,6 +56,7 @@
 	field-sizing: content;
 	text-decoration: underline;
 	border: none;
+	height: 100%;
 }
 
 .editing-criteria-title {
@@ -83,6 +84,9 @@
 .criteria-data {
 	display: flex;
 	flex-direction: column;
+	width: 100%;
+	min-height: 15vh;
+	max-height: 30vh;
 }
 
 .criteria-date {

@@ -1,15 +1,167 @@
+import "./CreateCriteria.css"
+
+import { useNavigate, useParams } from "react-router-dom"
 import { Header } from "../../../Layouts/Header/Header"
 import { Main } from "../../../Layouts/Main/Main"
+import { useState } from "react"
 
 export const CreateCriteria = () => {
+	const { id } = useParams()
+
+	const navigate = useNavigate()
+
+	const [title, setTitle] = useState("")
+	const [value, setValue] = useState(0)
+	const [min, setMin] = useState(0)
+	const [description, setDescription] = useState("")
+	const [showTypeModal, setShowTypeModal] = useState(false)
+	const [criteriaType, setCriteriaType] = useState()
+
+	async function save () {
+		navigate(`/Gestiones/Criterios/Curso/${id}`)
+	}
+
 	return(
 		<>
 			<Header/>
 			<Main>
 				<div class="container-see-criteria">
 					<h2>Criterios de <span className="complementary">Certificación</span></h2>
-					
+					<div className="new-criteria-space">
+						<div className="criteria-item">
+							<div className="criteria-head">
+								<input
+									className="criteria-create-title"
+									placeholder="Añadir un titulo"
+									value={title}
+									onChange={(e) => setTitle(e.target.value)}
+								/>
+								{criteriaType != undefined && <span>{value}/{min}</span>}
+								<button
+									className="select-criteria-type"
+									onClick={() => setShowTypeModal(true)}
+								>{criteriaType ?? "Tipo de evaluación"}</button>
+							</div>
+							<div className="criteria-data">
+								<textarea 
+									className="description-creation criteria-description"
+									placeholder="Añadir una descripción..."
+									onChange={(e) => setDescription(e.target.value)}
+								>
+									{description}
+								</textarea>
+							</div>
+						</div>
+					</div>
+					<div className="end-button">
+						<button
+							className="button button-red"
+							onClick={() => {
+								navigate(`/Gestiones/Criterios/Curso/${id}`)
+							}}
+						>Cancelar</button>
+						<button 
+							className="button"
+							onClick={() => save()}
+						>Guardar</button>
+					</div>
 				</div>
+				{showTypeModal && 
+				<div className="modal-overlay">
+					<div 
+						className="modal-background"
+						style={{
+							height: "fit-content",
+							paddingBottom: "20px"
+						}}
+					>
+						<div className="container_return_EditCalendar">
+							<h5
+								onClick={() => setShowTypeModal(false)}
+								style={{ cursor: "pointer" }}
+							>Volver</h5>
+							<button
+								onClick={() => setShowTypeModal(false)}
+								className="closeModal">
+							</button>
+						</div>
+						<h2 className="modal-title-edit-calendar">
+							Seleccionar tipo de <span className="highlight">criterio</span>
+						</h2>
+						<div
+							className="statusButtons"
+							style={{
+								width: "90%"
+							}}
+						>
+							<button
+								className={`status-btn ${criteriaType == undefined || criteriaType.lenght < 1 ? 'selected' : ''}`}
+								onClick={() => setCriteriaType()}
+							>
+								Ninguno
+							</button>
+							<button
+								className={`status-btn ${criteriaType == "Asistencias" ? 'selected' : ''}`}
+								onClick={() => setCriteriaType("Asistencias")}
+							>
+								Asistencias
+							</button>
+							<button
+								className={`status-btn ${criteriaType == "Calificacion" ? 'selected' : ''}`}
+								onClick={() => setCriteriaType("Calificacion")}
+							>
+								Calificación
+							</button>
+							<button
+								className={`status-btn ${criteriaType == "Horas" ? 'selected' : ''}`}
+								onClick={() => setCriteriaType("Horas")}
+							>
+								Horas
+							</button>
+							<button
+								className={`status-btn ${criteriaType == "Documentos" ? 'selected' : ''}`}
+								onClick={() => setCriteriaType("Documentos")}
+							>
+								Subida de documentos
+							</button>
+						</div>
+						{criteriaType != undefined &&
+							<div
+								className="create-criteria-field"
+							>
+								<label>Minimo:</label>
+								<input
+									type="number"
+									className="search-input"
+									placeholder="0"
+									value={min}
+									onChange={(e) => setMin(e.target.value)}
+								/>
+							</div>
+						}
+						<div
+							className="create-criteria-field"
+						>
+							<label>Ponderación:</label>
+							<input
+								type="number"
+								className="search-input"
+								placeholder="0"
+								value={min}
+								onChange={(e) => setMin(e.target.value)}
+							/>%
+						</div>
+						<button
+							className="button"
+							style={{
+								marginTop: "20px"
+							}}
+							onClick={() => setShowTypeModal(false)}
+						>
+							Guardar
+						</button>
+					</div>
+				</div>}
 			</Main>
 		</>
 	)

@@ -4,6 +4,8 @@ import { useNavigate, useParams } from "react-router-dom"
 import { Header } from "../../../Layouts/Header/Header"
 import { Main } from "../../../Layouts/Main/Main"
 import { useEffect, useState } from "react"
+import { GoBackArrow } from "../../../UI/GoBackArrow/GoBackArrow"
+import { PageMover } from "../../../UI/PageMover/PageMover"
 
 export const SeeAllCourseCriteria = () => {
 	const { id } = useParams()
@@ -14,6 +16,14 @@ export const SeeAllCourseCriteria = () => {
 	const [loading, setLoading] = useState(true)
 	const [criteria, setCriteria] = useState([])
 	const [criteriaBackup, setCriteriaBackup] = useState([])
+
+	const [filtering, setFiltering] = useState(false)
+	const [searchName, setSearchName] = useState("")
+	const [searchDate, setSearchDate] = useState()
+	const [searchAuthor, setSearchAuthor] = useState("")
+	
+	const [page, setPage] = useState(0)
+	const [pages, setPages] = useState(1)
 
 	const CourseCriteria = (criteriaData) => {
 		if (editing) {
@@ -89,6 +99,26 @@ export const SeeAllCourseCriteria = () => {
 	async function saveChanges () {
 		setCriteria(criteriaBackup)
 		setEditing(false)
+	}
+
+	async function filter () {
+		setCriteria(criteriaBackup.filter(
+			(c) => {
+				let valid = true
+				if (searchName.length > 0) {
+					valid = valid && c.title.includes(searchName)
+				}
+				if (searchDate != null) {
+					let a = new Date(searchDate)
+					a.setDate(a.getDate() + 1)
+					valid = valid && c.creation.date == a.toLocaleDateString("es-CO")
+				}
+				if (searchAuthor.length > 0) {
+					valid = valid && c.author.includes(searchAuthor)
+				}
+				return valid;
+			}
+		))
 	}
 
 	async function fetchCriteria () {
@@ -182,6 +212,7 @@ export const SeeAllCourseCriteria = () => {
 			<Header/>
 			<Main>
 				<div class="container-see-criteria">
+					<GoBackArrow/>
 					<h2>Criterios de <span className="complementary">Certificación</span></h2>
 					<div className="buttons-right">
 						{
@@ -221,6 +252,12 @@ export const SeeAllCourseCriteria = () => {
 									</button>
 								</>
 						}
+						<button
+							className="button"
+							onClick={() => setFiltering(!filtering)}
+						>
+							Filtrar {filtering ? <>&#9662;</> : <>&#9652;</>}
+						</button>
 					</div>
 					<div className="criteriaBox">
 						{loading ? 
@@ -232,8 +269,60 @@ export const SeeAllCourseCriteria = () => {
 								"No hay criterios por el momento."
 						}
 					</div>
+					<PageMover
+						value={page + 1}
+						max={pages}
+						next={() => {
+							setPage(page + 1)
+						}}
+						prev={() => {
+							setPage(page - 1)
+						}}
+					/>
 					<button className="button end-button">Descargar</button>
 				</div>
+				{filtering &&
+					<div
+						className="options_Search search-aprentice"
+						style={{
+							right: "5%"
+						}}
+					>
+						<label>Nombre del criterio:</label>
+						<input
+							type="text"
+							className="search-input"
+							placeholder="Nombre..."
+							value={searchName}
+							onChange={(e) => setSearchName(e.target.value)}
+						/>
+						<label>Fecha de registro:</label>
+						<input
+							type="date"
+							className="search-input"
+							value={searchDate}
+							onChange={(e) => setSearchDate(e.target.value)}
+						/>
+						<label>Autor:</label>
+						<input
+							type="text"
+							className="search-input"
+							placeholder="..."
+							value={searchAuthor}
+							onChange={(e) => setSearchAuthor(e.target.value)}
+						/>
+						<button
+							className="button"
+							style={{
+								alignSelf: "center",
+								marginTop: "2%"
+							}}
+							onClick={() => filter()}
+						>
+							Filtrar
+						</button>
+					</div>
+				}
 			</Main>
 		</>
 	)

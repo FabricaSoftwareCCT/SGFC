@@ -5,6 +5,7 @@ import { Main } from "../../../Layouts/Main/Main";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axiosInstance from "../../../../config/axiosInstance";
+import { PageMover } from "../../../UI/PageMover/PageMover";
 
 export const SeeCourseCriteria = () => {
 	const navigate = useNavigate()
@@ -18,15 +19,44 @@ export const SeeCourseCriteria = () => {
 	const [aprenticeStatus, setAprenticeStatus] = useState(0)
 	const [ficha, setFicha] = useState("")
 	const [personId, setPersonId] = useState("")
+	const [showingDownloadOptions, setShowingDownloadingOptions] = useState(false)
+	const [reportType, setReportType] = useState("pdf")
+	const [page, setPage] = useState(0)
+	const [pages, setPages] = useState(1)
 
 	async function fetchCourse () {
 		try {
-			const response = await axiosInstance.get(`api/courses/cursos/${id}`);
-			setCurso(response.data);
-			console.log(response.data)
+			const response = await axiosInstance.get(`api/courses/cursos/${id}`)
+			setCurso(response.data)
 		} catch (error) {
-			console.error("Error al obtener el curso:", error);
+			console.error("Error al obtener el curso:", error)
 		}
+	}
+
+	async function fetchAprentices () {
+		setAprentices([
+			{
+				name: "Pol pot",
+				personId: "1001001000",
+				ficha: "2525069",
+				state: "Pendiente",
+				id: 420
+			},
+			{
+				name: "Francisco Macías Nguema",
+				personId: "1001001001",
+				ficha: "2525069",
+				state: "Pendiente",
+				id: 421
+			},
+			{
+				name: "Isaias Afwerki",
+				personId: "1001001003",
+				ficha: "2525069",
+				state: "Pendiente",
+				id: 423
+			}
+		])
 	}
 
 	function selectStatus (s) {
@@ -39,6 +69,7 @@ export const SeeCourseCriteria = () => {
 
 	useEffect(() => {
 		fetchCourse()
+		fetchAprentices()
 	}, [id])
 
 	useEffect(() => {
@@ -118,13 +149,103 @@ export const SeeCourseCriteria = () => {
 						</div>
 						{
 							aprentices.length > 0 ?
-								<div/>
+								aprentices.map((a, i) => 
+									<div 
+										className="aprentice-list"
+										style={{
+											backgroundColor: i % 2 == 0 ? "#474747ff" : "#5b5b5bff"
+										}}
+									>
+										<span>
+											{a.name}
+										</span>
+										<span>
+											{a.personId}
+										</span>
+										<span>
+											{a.ficha}
+										</span>
+										<span>
+											{a.state}
+										</span>
+										<button
+											onClick={() => navigate(`/Gestiones/Criterios/${id}/${a.id}`)}
+										>
+											Ver criterios
+										</button>
+									</div>
+								)
 							:
 								<div className="no-aprentices-list">El curso aún no tiene aprendices asignados</div>
 						}
 					</div>
-					<button className="button end-button">Generar reporte</button>
+					<PageMover
+						value={page + 1}
+						max={pages}
+						next={() => {
+							setPage(page + 1)
+						}}
+						prev={() => {
+							setPage(page - 1)
+						}}
+					/>
+					<button
+						className="button end-button"
+						onClick={() => setShowingDownloadingOptions(true)}
+					>Generar reporte</button>
 				</div>
+				{showingDownloadOptions &&
+					<div className="modal-overlay">
+						<div 
+							className="modal-background"
+							style={{
+								height: "fit-content",
+								paddingBottom: "20px",
+								width: "35%"
+							}}
+						>
+							<div className="container_return_EditCalendar">
+								<h5
+									onClick={() => setShowingDownloadingOptions(false)}
+									style={{ cursor: "pointer" }}
+								>Volver</h5>
+								<button
+									onClick={() => setShowingDownloadingOptions(false)}
+									className="closeModal">
+								</button>
+							</div>
+							<h2 className="modal-title-edit-calendar">
+								Tipo de reporte
+							</h2>
+							<div
+								className="statusButtons"
+								style={{
+									width: "90%"
+								}}
+							>
+								<button
+									className={`status-btn ${reportType == "pdf" && 'selected'}`}
+									onClick={() => setReportType("pdf")}
+								>
+									PDF
+								</button>
+								<button
+									className={`status-btn ${reportType == "excel" && "selected"}`}
+									onClick={() => setReportType("excel")}
+								>
+									Excel
+								</button>
+							</div>
+							<button
+								className="button"
+								style={{
+									marginTop: "20px"
+								}}
+								onClick={() => setShowingDownloadingOptions(false)}
+							>Descargar reporte</button>
+						</div>
+					</div>
+				}
 			</Main>
 		</>
 	);

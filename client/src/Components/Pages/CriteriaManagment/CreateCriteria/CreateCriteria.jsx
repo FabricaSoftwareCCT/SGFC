@@ -4,6 +4,7 @@ import { useNavigate, useParams } from "react-router-dom"
 import { Header } from "../../../Layouts/Header/Header"
 import { Main } from "../../../Layouts/Main/Main"
 import { useState } from "react"
+import { GoBackArrow } from "../../../UI/GoBackArrow/GoBackArrow"
 
 export const CreateCriteria = () => {
 	const { id } = useParams()
@@ -26,6 +27,7 @@ export const CreateCriteria = () => {
 			<Header/>
 			<Main>
 				<div class="container-see-criteria">
+					<GoBackArrow/>
 					<h2>Criterios de <span className="complementary">Certificación</span></h2>
 					<div className="new-criteria-space">
 						<div className="criteria-item">

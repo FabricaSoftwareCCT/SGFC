@@ -16,7 +16,7 @@ const attendanceRoutes = require("./routes/attendanceRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
 const ubicacionesRoutesFactory = require("./routes/ubicacionesRoutes");
 const actasRoutes = require("./routes/actasRoutes");
-const reporteRoutes = require("./routes/reporteRoutes");
+const reporteRoutes = require("./routes/ReporteRoutes");
 
 // libreria para programar tareas
 const cron = require('node-cron');

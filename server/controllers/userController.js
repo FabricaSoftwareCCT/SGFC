@@ -793,12 +793,26 @@ const updateUserProfile = async (req, res) => {
 
         // ADMINISTRADOR o GESTOR (mismas reglas)
             if (loggedInUser.accountType === "Administrador" || loggedInUser.accountType === "Gestor") {
+            // Limpiar valores "null" que vienen del FormData
+            const cleanValue = (val) => {
+                if (val === "null" || val === null || val === undefined) return null;
+                if (typeof val === "string" && val.trim() === "") return null;
+                return val;
+            };
+
+            const nombresClean = cleanValue(nombres);
+            const apellidosClean = cleanValue(apellidos);
+            const celularClean = cleanValue(celular);
+            const documentoClean = cleanValue(documento);
+            const emailClean = cleanValue(email);
+            const tipoDocumentoClean = cleanValue(tipoDocumento);
+
             // Validaciones de campos obligatorios para Administrador
             const camposObligatorios = {
-                nombres: nombres,
-                apellidos: apellidos,
-                celular: celular,
-                email: email
+                nombres: nombresClean,
+                apellidos: apellidosClean,
+                celular: celularClean,
+                email: emailClean
             };
 
                 const camposVacios = [];
@@ -815,30 +829,32 @@ const updateUserProfile = async (req, res) => {
                 }
 
                 // Validaciones únicas
-                if (email && email !== user.email) {
-                    const existingEmail = await User.findOne({ where: { email } });
+                if (emailClean && emailClean !== user.email) {
+                    const existingEmail = await User.findOne({ where: { email: emailClean } });
                     if (existingEmail) {
                         return res.status(400).json({ message: "El correo electrónico ya está registrado." });
                     }
                 }
-                if (documento && documento !== user.documento) {
-                    const existingDocumento = await User.findOne({ where: { documento } });
+                if (documentoClean && documentoClean !== user.documento) {
+                    const existingDocumento = await User.findOne({ where: { documento: documentoClean } });
                     if (existingDocumento) {
                         return res.status(400).json({ message: "El documento ya está registrado." });
                     }
                 }
-                if (celular && celular !== user.celular) {
-                    const existingCelular = await User.findOne({ where: { celular } });
+                if (celularClean && celularClean !== user.celular) {
+                    const existingCelular = await User.findOne({ where: { celular: celularClean } });
                     if (existingCelular) {
                         return res.status(400).json({ message: "El número de celular ya está registrado." });
                     }
                 }
 
                 // Asignación directa de campos
-                if (email) user.email = email;
-                if (nombres) user.nombres = nombres;
-                if (apellidos) user.apellidos = apellidos;
-                if (celular) user.celular = celular;
+                if (emailClean) user.email = emailClean;
+                if (nombresClean) user.nombres = nombresClean;
+                if (apellidosClean) user.apellidos = apellidosClean;
+                if (celularClean) user.celular = celularClean;
+                if (documentoClean) user.documento = documentoClean;
+                if (tipoDocumentoClean) user.tipoDocumento = tipoDocumentoClean;
                 if (estado) user.estado = estado;
                 if (titulo_profesional) user.titulo_profesional = titulo_profesional;
                 if (foto_perfil) user.foto_perfil = foto_perfil;
@@ -1017,13 +1033,27 @@ const updateUserProfile = async (req, res) => {
                 return res.status(403).json({ message: "No tienes permiso para actualizar este empleado." });
             }
 
+            // Limpiar valores "null" que vienen del FormData
+            const cleanValue = (val) => {
+                if (val === "null" || val === null || val === undefined) return null;
+                if (typeof val === "string" && val.trim() === "") return null;
+                return val;
+            };
+
+            const nombresClean = cleanValue(nombres);
+            const apellidosClean = cleanValue(apellidos);
+            const celularClean = cleanValue(celular);
+            const documentoClean = cleanValue(documento);
+            const emailClean = cleanValue(email);
+            const tipoDocumentoClean = cleanValue(tipoDocumento);
+
             // Validaciones de campos obligatorios para empleados
             const camposObligatorios = {
-                nombres: nombres,
-                apellidos: apellidos,
-                celular: celular,
-                documento: documento,
-                email: email
+                nombres: nombresClean,
+                apellidos: apellidosClean,
+                celular: celularClean,
+                documento: documentoClean,
+                email: emailClean
             };
 
             const camposVacios = [];
@@ -1040,33 +1070,33 @@ const updateUserProfile = async (req, res) => {
             }
 
             // Validaciones únicas
-            if (email && email !== user.email) {
-                const existingEmail = await User.findOne({ where: { email } });
+            if (emailClean && emailClean !== user.email) {
+                const existingEmail = await User.findOne({ where: { email: emailClean } });
                 if (existingEmail) {
                     return res.status(400).json({ message: "El correo electrónico ya está registrado." });
                 }
             }
-            if (documento && documento !== user.documento) {
-                const existingDocumento = await User.findOne({ where: { documento } });
+            if (documentoClean && documentoClean !== user.documento) {
+                const existingDocumento = await User.findOne({ where: { documento: documentoClean } });
                 if (existingDocumento) {
                     return res.status(400).json({ message: "El documento ya está registrado." });
                 }
             }
-            if (celular && celular !== user.celular) {
-                const existingCelular = await User.findOne({ where: { celular } });
+            if (celularClean && celularClean !== user.celular) {
+                const existingCelular = await User.findOne({ where: { celular: celularClean } });
                 if (existingCelular) {
                     return res.status(400).json({ message: "El número de celular ya está registrado." });
                 }
             }
 
             // Asignación directa de campos
-            if (email) user.email = email;
-            if (nombres) user.nombres = nombres;
-            if (apellidos) user.apellidos = apellidos;
-            if (celular) user.celular = celular;
-            if (documento) user.documento = documento;
+            if (emailClean) user.email = emailClean;
+            if (nombresClean) user.nombres = nombresClean;
+            if (apellidosClean) user.apellidos = apellidosClean;
+            if (celularClean) user.celular = celularClean;
+            if (documentoClean) user.documento = documentoClean;
             if (estado) user.estado = estado;
-            if (tipoDocumento) user.tipoDocumento = tipoDocumento;
+            if (tipoDocumentoClean) user.tipoDocumento = tipoDocumentoClean;
             if (foto_perfil) user.foto_perfil = foto_perfil;
 
             await user.save();
@@ -1443,7 +1473,7 @@ const createMasiveUsers = async (req, res) => {
                 repetidos
             });
         }
-        // Crear usuarios con los datos extraídos 
+        // Crear usuarios con los datos extraídos
         await  User.bulkCreate(usuariosLimpios, {ignoreDuplicates : true})
 
         await Promise.all(
@@ -1877,7 +1907,7 @@ const checkProfileComplete = async (req, res) => {
   } catch (error) {
     console.error("Error verificando perfil:", error);
     res.status(500).json({ message: "Error verificando perfil" });
-  }
+    }
 };
 
 module.exports = { 

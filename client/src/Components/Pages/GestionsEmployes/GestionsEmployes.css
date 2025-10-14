@@ -4,59 +4,66 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-
+    padding: 0 2rem;
+    max-width: 1600px;
+    margin: 0 auto;
 }
 
-
-
-.container_GestionsEmploye>h2 {
+  .container_GestionsEmploye > h2 {
     width: 100%;
     height: auto;
     color: #fff;
     font-size: 40px;
     text-align: center;
     margin: 3rem 0 2rem 0;
+    padding: 0 1rem;
+    box-sizing: border-box;
 }
 
 .containerGestionsEmployeOptions {
-    width: auto;
+    width: 100%;
+    max-width: 1500px;
     height: auto;
     display: flex;
     justify-content: center;
-    align-items: center;
-    gap: 10rem;
-
+    align-items: flex-start;
+    gap: 2rem;
+    margin-bottom: 2rem;
 }
 
 .containerGestionsEmployeResults {
-    width: auto;
+    flex: 1;
+    width: 100%;
+    min-width: 0;
     height: auto;
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
+    background: transparent;
 }
 
 .containerConsultEmploye {
-    width: auto;
+    width: 280px;
+    min-width: 280px;
     height: auto;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 1rem;
-
 }
 
-.containerConsultEmploye>p {
+  .containerConsultEmploye > p {
     width: 100%;
     height: auto;
     font-size: 18px;
     text-align: start;
+    color: #fff;
 }
 
 .containerFiltersEmploye {
-    width: 260px;
+    width: 100%;
     height: auto;
-    padding: 1rem;
+    padding: 1.5rem;
     background-color: #2b2b2b;
     border-radius: 16px;
     display: flex;
@@ -65,11 +72,11 @@
     color: #fff;
 }
 
-.containerFiltersEmploye>label {
+  .containerFiltersEmploye > label {
     font-size: 16px;
     width: auto;
     height: auto;
-
+    font-weight: 500;
 }
 
 .inputSearchContainer {
@@ -109,50 +116,50 @@
     margin-right: 5px;
 }
 
-.searchButton>img {
+  .searchButton > img {
     width: 70%;
     height: 70%;
 }
 
-.statusButtons {
+  .sectionStatusFilter {
+    border-radius: 12px;
+    padding: 0.75rem;
     width: 100%;
-    height: 40px;
-    border-radius: 20px;
+    height: fit-content;
+    background: rgba(34, 34, 34, 0.8);
     display: flex;
-    overflow: hidden;
+    flex-wrap: wrap;
     gap: 0.5rem;
-    justify-content: center;
-    align-items: center;
-}
+    border: 1px solid rgba(255,255,255,0.1);
+  }
 
-.statusButtons button {
-    padding: 6px 10px;
-    border: none;
-    border-radius: 10px;
+  .statusOption {
+    width: fit-content;
+    height: fit-content;
+    background-color: rgba(43, 43, 43, 0.8);
+    color: #ddd;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
     cursor: pointer;
-    margin-right: 10px;
-    width: auto;
-    height: auto;
-    font-size: 14px;
-    background-color: #b0b0b031; /* Fondo predeterminado para todos los botones */
-    color: white; /* Color del texto predeterminado */
-    transition: background-color 0.3s ease, transform 0.2s ease;
-}
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255,255,255,0.1);
+    min-width: 60px;
+    text-align: center;
+  }
 
+  .statusOption:hover {
+    background-color: rgba(58, 58, 58, 0.9);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  }
 
-
-.statusButtons .inactive.selected {
-    background-color: #00843d; /* Rojo para el botón seleccionado de "Inactivos" */
-    color: white;
-    transform: scale(1.05);
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-}
-
-.statusButtons .active.selected {
-    background-color: #00843d; /* Verde para el botón seleccionado de "Activos" */
-    color: white;
-    transform: scale(1.05);
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  .statusOption.selected {
+    background-color: #00843d;
+    color: #fff;
+    border-color: #00843d;
+    box-shadow: 0 2px 8px rgba(0, 132, 61, 0.3);
 }
 
 .btn_createEmploye {
@@ -164,10 +171,533 @@
     justify-content: center;
     align-items: center;
     cursor: pointer;
-    padding: 10px;
+    padding: 12px;
+    font-size: 16px;
+    color: #fff;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+  }
+  
+  .btn_createEmploye:hover {
+    background-color: #006b32;
+  }
+  
+  #inputNameCC {
+    border: none;
+  }
+  
+  .filter-select {
+    width: 100%;
+    height: 40px;
+    padding: 0 1rem;
+    background-color: #1c1c1c;
+    border: none;
+    border-radius: 20px;
+    color: #fff;
+    font-size: 0.85rem;
+    cursor: pointer;
+  }
+  
+  .filter-select option {
+    background-color: #2b2b2b;
+    color: #fff;
+  }
+  
+  .loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 300px;
+    color: #aaa;
+    font-size: 16px;
+    background: transparent !important;
+    text-align: center;
+    margin: 2rem 0;
+    position: relative;
+  }
+
+  .loading-container p {
+    margin: 0;
+    padding: 2rem;
+    font-weight: 500;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 300px;
+    color: #aaa;
+    font-size: 16px;
+    background: transparent !important;
+    border: none !important;
+    border-radius: 0 !important;
+    backdrop-filter: none !important;
+  }
+
+  .admin-employees-table {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  
+  
+  .table-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    border-radius: 16px;
+    width: 20vw;
+    height: auto;
+    
+  }
+  
+  .table-header h3 {
+    color: #fff;
+    font-size: 24px;
+    width: 100% !important;
+  }
+  
+  
+  .employees-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+    width: 100%;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+    height: 60vh;
+    overflow: scroll;
+  }
+  
+  /* Tarjeta horizontal dividida en 4 secciones */
+  .employee-card {
+    background-color: #2b2b2b;
+    border-radius: 16px;
+    padding: 1.5rem;
+    display: grid;
+    grid-template-columns: 120px 1fr 1fr 220px; /* 4 columnas: imagen, datos principales, datos secundarios, estado+botón (más ancho) */
+    gap: 1.5rem;
+    align-items: center; /* Centrar verticalmente todos los elementos */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    min-height: 140px; /* Altura mínima más grande */
+    width: 100%;
+    box-sizing: border-box;
+    position: relative;
+    overflow: visible;
+    z-index: 1;
+  }
+  
+  .employee-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 132, 61, 0.2);
+  }
+  
+  /* Sección 1: Imagen */
+  .employee-image-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+    padding: 0;
+  }
+
+  .employee-image {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #00843d;
+    position: relative;
+    z-index: 1;
+    display: block;
+    margin: 0 auto;
+  }
+  
+  /* Sección 2: Datos principales */
+  .employee-primary-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    color: #fff;
+    position: relative;
+    z-index: 10;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+    padding: 0;
+  }
+
+  /* Sección 3: Datos secundarios */
+  .employee-secondary-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    color: #fff;
+    position: relative;
+    z-index: 10;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+    padding: 0;
+  }
+
+  /* Sección 4: Estado y botón */
+  .employee-status-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 10;
+    height: 100%;
+    width: 100%;
+    padding: 0;
+  }
+  
+  .employee-primary-info h4 {
+    margin: 0;
+    color: #00843d !important;
+    font-size: 18px;
+    font-weight: 600;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: unset;
+    line-height: 1.3;
+    width: 100%;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: relative;
+    z-index: 15;
+    text-shadow: 0 0 1px rgba(0, 132, 61, 0.5);
+    height: auto;
+    min-height: 22px;
+    background: rgba(0, 132, 61, 0.1);
+    padding: 0.5rem;
+    border-radius: 4px;
+    box-sizing: border-box;
+  }
+  
+  .employee-primary-info p,
+  .employee-secondary-info p {
+    margin: 0;
+    font-size: 14px;
+    color: #ccc !important;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: unset;
+    line-height: 1.4;
+    width: 100%;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: relative;
+    z-index: 15;
+    text-shadow: 0 0 1px rgba(204, 204, 204, 0.5);
+    height: auto;
+    min-height: 18px;
+    background: rgba(204, 204, 204, 0.1);
+    padding: 0.5rem;
+    border-radius: 4px;
+    box-sizing: border-box;
+  }
+  
+  .employee-primary-info p strong,
+  .employee-secondary-info p strong {
+    color: #fff !important;
+    margin-right: 0.5rem;
+    display: inline !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: relative;
+    z-index: 15;
+    text-shadow: 0 0 1px rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.1);
+    padding: 2px 4px;
+    border-radius: 3px;
+    white-space: nowrap;
+    font-size: 14px;
+  }
+
+  .employee-status-section .estado-wrapper {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    flex-wrap: nowrap;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: relative;
+    z-index: 15;
+    height: auto;
+    min-height: 20px;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 0.5rem;
+    border-radius: 4px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .employee-status-section .estado-wrapper strong {
+    color: #fff !important;
+    white-space: nowrap;
+    display: flex !important;
+    align-items: center;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: relative;
+    z-index: 15;
+    text-shadow: 0 0 1px rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.1);
+    padding: 2px 4px;
+    border-radius: 3px;
+    font-size: 14px;
+    flex-shrink: 0;
+    margin-right: 3rem;
+  }
+  
+  
+  /* Badge de estado horizontal */
+  .status-badge {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    padding: 0.4rem 1rem;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+    white-space: nowrap;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: relative;
+    z-index: 15;
+    /* Forzar visibilidad del badge */
+    box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);
+    /* Asegurar que el badge se muestre */
+    min-width: 85px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+  
+  .status-badge.activo {
+    background-color: #00843d !important;
+    color: #fff !important;
+    height: 1.2rem;
+  }
+  
+  .status-badge.inactivo {
+    background-color: #dc3545 !important;
+    color: #fff !important;
+    height: 1.2rem;
+  }
+
+  /* Botón de perfil en la sección de estado */
+  .employee-status-section .profile-btn {
+    background-color: #00843d;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    white-space: nowrap;
+    z-index: 5;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    width: 100%;
+    max-width: 130px;
+    margin: 0 auto;
+    box-sizing: border-box;
+  }
+
+  .employee-status-section .profile-btn:hover {
+    background-color: #006b32;
+  }
+  
+  .no-results {
+    color: #aaa;
+    font-size: 16px;
+    text-align: center;
+    padding: 2rem;
+  }
+  
+  .pagination-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: .5rem;
+    margin-top: 1rem;
+    padding: 1rem 0;
+  }
+
+  .btn-inline {
+    height: 36px;
+    padding: 0 20px;
+    border-radius: 8px;
+    border: 1px solid #3a3a3a;
+    background: #222;
+    color: #fff;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 80px;
+    font-size: 14px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .btn-inline:hover:not(:disabled) {
+    background: #333;
+    border-color: #00843d;
+  }
+
+  .btn-inline:disabled {
+    opacity: .5;
+    cursor: default;
+  }
+
+  .pagination-info {
+    font-size: 14px;
+    color: #bbb;
+    padding: 0 0.5rem;
+    min-width: 60px;
+    text-align: center;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  /* Media queries para responsive */
+  @media (max-width: 1200px) {
+    .containerGestionsEmployeOptions {
+      gap: 1.5rem;
+    }
+  
+    .employees-grid {
+      max-width: 800px;
+    }
+  }
+  
+  @media (max-width: 992px) {
+    .containerGestionsEmployeOptions {
+      flex-direction: column;
+      align-items: center;
+    }
+  
+    .containerConsultEmploye {
+      width: 100%;
+      max-width: 500px;
+    }
+  
+    .containerGestionsEmployeResults {
+      width: 100%;
+    }
+  
+    .employees-grid {
+      max-width: 100%;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .container_GestionsEmploye > h2 {
+      font-size: 32px;
+    }
+  
+    .employees-grid {
+      gap: 1rem;
+    }
+  
+    .employee-card {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 1.25rem;
+      gap: 1rem;
+    }
+  
+    .employee-image {
+      width: 60px;
+      height: 60px;
+      min-width: 60px;
+    }
+  
+    .employee-info {
+      align-items: center;
+      width: 100%;
+      text-align: center;
+    }
+  
+    .employee-info h4,
+    .employee-info p {
+      text-align: center;
+      width: 100%;
+    }
+
+  
+    .estado-wrapper {
+      justify-content: center;
+    }
+  
+    .profile-btn {
+      width: 100%;
+      max-width: 200px;
+    }
+  
+    .table-header {
+      flex-direction: column;
+      gap: 1rem;
+      text-align: center;
+    }
+  
+    .pagination-controls {
+      flex-direction: column;
+      gap: 1rem;
+    }
+  
+    .pagination-btn {
+      width: 100%;
+      max-width: 300px;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .container_GestionsEmploye > h2 {
+      font-size: 24px;
+    }
+  
+    .containerFiltersEmploye {
+      padding: 1rem;
+    }
+  
+    .employee-card {
+      padding: 1rem;
+    }
+  
+    .employee-info h4 {
     font-size: 16px;
 }
 
-#inputNameCC{
-    border: none;
+    .employee-info p {
+      font-size: 13px;
+    }
+  
+    .status-badge {
+      font-size: 10px;
+      padding: 0.2rem 0.6rem;
+    }
 }

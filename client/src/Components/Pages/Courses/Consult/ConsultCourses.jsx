@@ -191,8 +191,8 @@ export const ConsultCourses = () => {
             type="text"
             className="search-input"
             placeholder="Nombre o ficha del curso"
-            //value={searchTerm}
-            //onChange={handleSearchChange}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
 

@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import "./UpdateEmploye.css";
 import axiosInstance from "../../../../config/axiosInstance";
@@ -12,8 +12,17 @@ export const UpdateEmploye = ({ empleado }) => {
   const [documentoPDF, setDocumentoPDF] = useState(null);
   const [pdfFileName, setPdfFileName] = useState('');
 
-
   const { showDropdown, setShowDropdown } = useModal();
+
+  // Actualizar formData cuando cambie el empleado
+  useEffect(() => {
+    if (empleado) {
+      setFormData({ ...empleado });
+      setIsEditing(false); // Resetear modo edición
+      setDocumentoPDF(null); // Limpiar PDF
+      setPdfFileName(''); // Limpiar nombre del archivo
+    }
+  }, [empleado]);
 
   const documentoLabels = {
     CedulaCiudadania: "Cédula de ciudadanía",
@@ -32,7 +41,10 @@ export const UpdateEmploye = ({ empleado }) => {
   };
 
   const closeModalUpdateEmploye = () => {
-    document.getElementById("modal-overlayUpdateEmploye").style.display = "none";
+    const modal = document.getElementById("modal-overlayUpdateEmploye");
+    if (modal) {
+      modal.style.display = "none";
+    }
   };
 
   const handleChange = (e) => {
@@ -107,30 +119,84 @@ export const UpdateEmploye = ({ empleado }) => {
 
       alert(updateResponse.data.message || "Perfil actualizado correctamente");
       setIsEditing(false);
-      window.location.reload();
-      document.getElementById("modal-overlayUpdateEmploye").style.display = "none";
+      
+      // Actualizar formData con los datos actualizados del servidor
+      if (updateResponse.data.empleado) {
+        setFormData({ ...updateResponse.data.empleado });
+        // Actualizar también el empleado seleccionado en el componente padre
+        if (window.updateSelectedEmploye) {
+          window.updateSelectedEmploye(updateResponse.data.empleado);
+        }
+      }
+      
+      // Actualizar la lista de empleados sin recargar la página
+      if (window.refreshEmployesList) {
+        window.refreshEmployesList();
+      }
+      
+      closeModalUpdateEmploye();
 
     } catch (error) {
       console.error("Error al actualizar el perfil:", error.response?.data || error.message);
-      alert("Hubo un error al actualizar el perfil.");
+      alert("Hubo un error al actualizar el perfil. " + error.response?.data?.message);
     }
   };
 
 
   const getImageSrc = (data) => {
-    if (!data) return null;
-    if (data.startsWith('/9j/')) {
+    
+    // Si no hay datos de imagen, usar imagen por defecto
+    if (!data) {  
+      return "/src/assets/Icons/userDefect.png";
+    }
+    
+    // Si es base64
+    if (typeof data === 'string') {
+      // Verificar si ya es una URL de datos completa
+      if (data.startsWith("data:")) {
+        return data; // Ya es una URL de datos
+      }
+      
+      // Verificar si es PNG base64
+      if (data.startsWith("iVBORw0KGgo") || data.startsWith("iVBOR")) {
+        return `data:image/png;base64,${data}`;
+      }
+      
+      // Verificar si es JPEG base64
+      if (data.startsWith("/9j/")) {
+        return `data:image/jpeg;base64,${data}`;
+      }
+      
+      // Verificar si es una cadena muy larga (probablemente base64)
+      if (data.length > 1000) {
       return `data:image/jpeg;base64,${data}`;
-    } else if (data.startsWith('iVBORw0KGgo')) {
-      return `data:image/png;base64,${data}`;
-    } else {
+      }
+      
+      // Verificar si contiene caracteres base64 válidos
+      const base64Regex = /^[A-Za-z0-9+/=]+$/
+      if (data.length > 50 && base64Regex.test(data)) {
       return `data:image/jpeg;base64,${data}`;
     }
+      
+      // Si es una ruta de archivo (empieza con ../ o /) - solo después de verificar base64
+      if (data.startsWith('../') || data.startsWith('/')) {
+        // Convertir ruta relativa a ruta absoluta
+        if (data.startsWith('../Img/')) {
+          const newPath = data.replace('../Img/', '/src/assets/Icons/');
+          return newPath;
+        }
+        return data;
+      }
+      
+      return "/src/assets/Icons/userDefect.png";
+    }
+
+    return "/src/assets/Icons/userDefect.png";
   };
 
   return (
-    <div id="modal-overlayUpdateEmploye" style={{ display: "flex" }}>
-      <form className="modal-bodyUpdateInstructor" onSubmit={handleButtonClick}>
+    <div id="modal-overlayUpdateEmploye" className={isEditing ? 'editing-mode' : ''} style={{ display: "none" }}>
+      <form className={`modal-bodyUpdateGestor ${isEditing ? 'editing-mode' : ''}`} onSubmit={handleButtonClick}>
         <div className="modal-left-update">
           <p>
             <strong>Nombres:</strong>{" "}
@@ -273,7 +339,7 @@ export const UpdateEmploye = ({ empleado }) => {
             <strong>Estado:</strong>{" "}
             {isEditing ? (
               <div className="status-buttons">
-                {["Activo", "Inactivo"].map((estado) => (
+                {["activo", "inactivo"].map((estado) => (
                   <button
                     key={estado}
                     type="button"
@@ -310,16 +376,15 @@ export const UpdateEmploye = ({ empleado }) => {
                 alt="Vista previa"
                 className="preview-image"
               />
-            ) : formData.foto_perfil ? (
+            ) : (
               <img
                 src={getImageSrc(formData.foto_perfil)}
                 alt="Foto de perfil"
                 className="preview-image-update"
+                onError={(e) => {
+                  e.target.src = "/src/assets/Icons/userDefect.png";
+                }}
               />
-            ) : (
-              <div className="upload-placeholder">
-                <p>Sin imagen disponible</p>
-              </div>
             )}
           </label>
 
@@ -328,7 +393,7 @@ export const UpdateEmploye = ({ empleado }) => {
           </button>
         </div>
 
-        <div className="container_return_UpdateInstructor">
+        <div className="container_return_UpdateGestor">
           <h5>Volver</h5>
           <button
             type="button"

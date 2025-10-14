@@ -85,6 +85,7 @@ export const NavBar = ({ children }) => {
         // no mostrar notificaciones aceptadas o rechazadas
         res.data.notifications = res.data.notifications.filter(notif => notif.estado !== 'aceptada' && notif.estado !== 'rechazada');
         setNotificationsList(res.data.notifications || []);
+        console.log(res.data.notifications);
       } catch (err) {
         setNotificationsList([])
       }

@@ -1,38 +1,47 @@
 #modal-overlayCreateEmploye {
     position: fixed;
-    top: 48%;
-    left: 50%;
-    width: 74%;
-    height: 61%;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
     background: rgba(0, 0, 0, 0.579);
-    display: flex;
+    display: none;
     justify-content: center;
     align-items: center;
-    transform: translate(-50%, -50%);
     z-index: 1000;
-    padding: 20px;
+    padding: 0;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+    overflow-y: auto;
 }
 
 .modal-bodyCreateEmploye {
-    width: 884px;
-    height: 696px;
+    width: 90vw;
+    max-width: 1000px;
+    height: auto;
+    min-height: 464px;
+    max-height: 90vh;
     background-color: #1A1A1A;
     display: flex;
-    justify-content: center;
-    align-items: center;
+    justify-content: space-around;
+    align-items: flex-start;
     border-radius: 15px;
-    overflow: hidden;
-    gap: 5rem;
+    overflow: visible;
+    padding: 20px;
+    box-sizing: border-box;
+    position: relative;
+    margin: 20px;
 }
 
 .modal-left {
-    width: auto;
+    width: 50%;
+    min-width: 300px;
     height: auto;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
     gap: 20px;
+    padding: 20px;
+    box-sizing: border-box;
 }
 
 .modal-left label {
@@ -45,23 +54,28 @@
 }
 
 .modal-left input {
-    width: 15rem;
-    height: 40px;
-    margin-top: px;
+    width: 100%;
+    min-width: 200px;
+    height: 35px;
+    margin-top: 5px;
     border-radius: 10px;
     border: 1px solid white;
     background-color: transparent;
     color: white;
-    padding: 0 10px;
+    padding: 0 15px;
+    font-size: 14px;
+    box-sizing: border-box;
 }
 
 .modal-right {
-    width: auto;
+    width: 40%;
+    min-width: 250px;
     height: auto;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 30px;
+    padding-top: 0;
 }
 
 .profile-photo-container {
@@ -78,18 +92,35 @@
 }
 
 .TipoDocumento {
-    width: 16.5rem;
-    height: 40px;
+    width: 100%;
+    min-width: 200px;
+    height: 35px;
     border-radius: 10px;
     border: 1px solid white;
     background-color: transparent;
     color: white;
-    margin-top: 10px;
-    padding: 0 10px;
+    margin-top: 5px;
+    padding: 0 15px;
+    font-size: 14px;
+    box-sizing: border-box;
 }
 
 .option {
     background-color: black;
+}
+
+.empresa-select {
+    width: 100%;
+    min-width: 200px;
+    height: 35px;
+    border-radius: 10px;
+    border: 1px solid white;
+    background-color: transparent;
+    color: white;
+    margin-top: 5px;
+    padding: 0 15px;
+    font-size: 14px;
+    box-sizing: border-box;
 }
 
 .edit-photo-btn {
@@ -206,9 +237,10 @@
     flex-direction: column;
     align-items: center;
     position: absolute;
-    top: 44px;
-    right: 295px;
+    top: -21px;
+    right: 0px;
     z-index: 1000;
+    pointer-events: auto;
 }
 
 .container_return_CreateEmploye>h5 {
@@ -218,7 +250,6 @@
     top: 27%;
     font-size: 18px;
     font-weight: 400;
-    z-index: 1000;
     color: #fff;
     left: 4%;
     cursor: pointer;
@@ -237,11 +268,99 @@
     cursor: pointer;
 }
 
-.pdf-file-name{
+.upload-area {
+    width: 220px;
+    height: 300px;
+    border: 2px dotted #ccc;
+    border-radius: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    cursor: pointer;
+    box-sizing: border-box;
+}
+
+.upload-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: white;
+}
+
+.upload-placeholder .icon {
+    width: 50px;
+    height: 50px;
+    margin-bottom: 10px;
+}
+
+.upload-placeholder p {
+    margin: 0;
+    font-size: 14px;
+}
+
+.preview-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 12px;
+}
+
+#p_addInstructor {
+    color: white;
+    font-size: 16px;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.addInstructor {
+    background-color: #00843d;
+    border: none;
+    border-radius: 8px;
+    padding: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.addInstructor img {
+    width: 20px;
+    height: 20px;
+}
+
+.pdf-file-name {
     width: 90%;
     height: auto;
     margin-top: -1.5rem;
     color: #00843d;
     text-align: center;
+}
+
+/* Estilos para errores de validación */
+.error {
+    border-color: #ff4444 !important;
+    background-color: rgba(255, 68, 68, 0.1) !important;
+}
+
+.error-message {
+    color: #ff4444;
+    font-size: 12px;
+    margin-top: 5px;
+    display: block;
+}
+
+.TipoDocumento.error {
+    border-color: #ff4444 !important;
+    background-color: rgba(255, 68, 68, 0.1) !important;
+}
+
+.empresa-select.error {
+    border-color: #ff4444 !important;
+    background-color: rgba(255, 68, 68, 0.1) !important;
 }
 

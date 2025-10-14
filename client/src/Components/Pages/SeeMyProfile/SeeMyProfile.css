@@ -53,7 +53,7 @@
   background-color: rgba(255, 255, 255, 0.95);
   border: 1px solid rgba(255, 255, 255, 0.4);
   border-radius: 0.8rem;
-  color: #333333;
+  color: #fff   ;
   font-size: 14px;
   font-family: inherit;
   outline: none;
@@ -176,19 +176,16 @@
 }
 
 .updateProfile {
-    position: absolute;
-
-    z-index: 999999999;
-    top: 6.1rem;
-    right: 3rem;
-    width: 4rem;
-    height: 4rem;
-    background-color: #b0b0b0;
-    border-radius: 10px;
-    border-style: none;
-    background: center / 70% no-repeat url('../../../assets/Icons/buttonEdit.png'),
-        #b0b0b0;
-
+  position: absolute;
+  z-index: 0;
+  top: 6.1rem;
+  right: 3rem;
+  width: 4rem;
+  height: 4rem;
+  background-color: #b0b0b0;
+  border-radius: 10px;
+  border-style: none;
+  background: center / 70% no-repeat url("../../../assets/Icons/buttonEdit.png"), #b0b0b0;
 }
 
 .updateProfile.cancel {
@@ -229,14 +226,15 @@
 }
 
 .status-company {
-    width: 7rem;
-    height: 7rem;
-    background-color: #00843e3f;
-    border-radius: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.5rem;
+  width: 7rem;
+  height: 7rem;
+  background-color: #00843e3f;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  z-index: 0;
 }
 
 .color_status {

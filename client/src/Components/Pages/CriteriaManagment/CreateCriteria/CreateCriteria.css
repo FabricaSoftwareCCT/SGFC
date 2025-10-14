@@ -1,0 +1,52 @@
+.criteria-create-title {
+	background-color: transparent;
+	border: none;
+	font-size: 30px;
+	text-align: center;
+	color: white;
+}
+
+.criteria-create-title::placeholder {
+	color: #ffffff7c;
+}
+
+.description-creation {
+	width: 100%;
+	background-color: transparent;
+	resize: none;
+	field-sizing: content;
+	text-decoration: none;
+	border: none;
+	height: 100%;
+}
+
+.description-creation::placeholder {
+	color: #ffffff7c;
+}
+
+.select-criteria-type {
+	color: #ffffff7c;
+	background-color: transparent;
+	border: none;
+	font-size: 20px;
+	text-decoration: underline;
+}
+
+.create-criteria-field {
+	width: 70%;
+	margin-top: 10px;
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
+}
+
+.create-criteria-field span {
+	width: 65%;
+	text-align: end;
+}
+
+.create-criteria-field input {
+	width: 35%;
+	text-align: end;
+}

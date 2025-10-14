@@ -24,18 +24,20 @@
     border-radius: 60%;
     opacity: 0.5;
     filter: blur(200px);
+    pointer-events: none;
 }
 
 /*.circle_2 {
     position: absolute;
-    top: 700px;
-    left: 200px;
+    top:450px;
     width: 400px;
+    right: 1000px;
     height: 200px;
     background-color: #00843D;
     border-radius: 10%;
     opacity: 0.4;
     filter: blur(200px);
+    pointer-events: none;
 }
 */
 .container_main {

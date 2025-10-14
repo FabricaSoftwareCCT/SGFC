@@ -20,20 +20,31 @@ export const CriteriaManagement = () => {
 
 	async function fetchCourses () {
 		let response = null
-		if (accountType === "Administrador") {
-			response = (await axiosInstance.get("/api/courses/cursos")).data
-		} else if (accountType === "Instructor") {
-			const instructorId = userSession.ID || userSession.id;
-			response = (await axiosInstance.get(`/api/courses/cursos-asignados/${instructorId}`)).data.map((curso) => ({
-				...curso.Curso
+		let courses = []
+		try {
+			if (accountType === "Administrador") {
+				response = await axiosInstance.get("/api/courses/cursos")
+				courses = response.data
+			} else if (accountType === "Instructor") {
+				const instructorId = userSession.ID || userSession.id;
+				response = await axiosInstance.get(`/api/courses/cursos-asignados/${instructorId}`)
+				courses = response.data.map((curso) => ({
+					...curso.Curso
+				}))
+			}
+			if (response.status != 200 && response.status != 304) {
+				throw response.data
+			}
+			const todosLosCursos = courses.map(curso => ({
+				...curso,
+				ID: curso.ID || curso.id,
 			}));
+			setCursos(todosLosCursos)
+			setLoading(false)
+		} catch (e) {
+			console.log(e)
+			alert("Ocurrió un error al cargar los cursos")
 		}
-		const todosLosCursos = response.map(curso => ({
-			...curso,
-			ID: curso.ID || curso.id,
-		}));
-		setCursos(todosLosCursos)
-		setLoading(false)
 	}
 
 	function getCurso () {

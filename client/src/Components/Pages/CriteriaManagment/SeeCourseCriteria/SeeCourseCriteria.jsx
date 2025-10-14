@@ -6,6 +6,7 @@ import { Main } from "../../../Layouts/Main/Main"
 import { useEffect, useState } from "react"
 import { GoBackArrow } from "../../../UI/GoBackArrow/GoBackArrow"
 import { PageMover } from "../../../UI/PageMover/PageMover"
+import axiosInstance from "../../../../config/axiosInstance"
 
 export const SeeAllCourseCriteria = () => {
 	const { id } = useParams()
@@ -123,6 +124,15 @@ export const SeeAllCourseCriteria = () => {
 	}
 
 	async function fetchCriteria () {
+		try {
+			let response = await axiosInstance.get("/api/certification/course/1")
+			print("Diavlo muchaco")
+			console.log(response)
+		} catch (e) {
+			console.log(e)
+			alert("Ocurrió un error al cargar los criterios")
+		}
+
 		// PLACEHOLDER BORRAR LUEGO
 		let placeholderCriteria = [
 			{

@@ -17,6 +17,7 @@ const notificationRoutes = require("./routes/notificationRoutes");
 const ubicacionesRoutesFactory = require("./routes/ubicacionesRoutes");
 const actasRoutes = require("./routes/actasRoutes");
 const reporteRoutes = require("./routes/reporteRoutes");
+const certificationCriteriaRoutes = require("./routes/certificationCriteriaRoutes")
 
 // libreria para programar tareas
 const cron = require('node-cron');
@@ -83,6 +84,7 @@ app.use("/api/ubicaciones", (req, res, next) => {
 });
 app.use("/api/actas", actasRoutes);
 app.use("/api/reports", reporteRoutes);
+app.use("/api/certification", certificationCriteriaRoutes)
 
 async function startServer() {
   try {
@@ -95,11 +97,13 @@ async function startServer() {
     const cursoController = require('./controllers/cursoController');
     const notificationService = require('./services/notificationService');
     const notificationController = require('./controllers/notificationController');
+    const certificationCriteriaController = require("./controllers/certificationCriteriaController")
 
     attendanceController.setDb(db);
     cursoController.setDb(db);
     notificationService.setDb(db);
     notificationController.setDb(db);
+    certificationCriteriaController.setDb(db)
 
     // Montar rutas de ubicaciones con acceso a la DB
     const ubicacionesRoutes = ubicacionesRoutesFactory(db);

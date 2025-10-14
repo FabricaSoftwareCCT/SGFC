@@ -1,3 +1,5 @@
+/* MANTENIENDO TODO EL CSS ORIGINAL Y AGREGANDO SOLO LO NUEVO */
+
 .course-request-container-proceedings {
     text-align: center;
     padding: 2rem;
@@ -65,6 +67,9 @@
     height: auto;
     color: black;
 }
+.punto_name{
+    width: 100%;
+}
 
 .letter-content-proceedings>p>b {
     color: #1a1a1a;
@@ -73,8 +78,6 @@
 .letter-content-proceedings span {
     color: #1a1a1a;
 }
-
-
 
 .submit-button-proceedings {
     background-color: #00843d;
@@ -117,6 +120,35 @@
     color: #1a1a1a;
 }
 
+/* NUEVOS ESTILOS PARA LOS CAMPOS AGREGADOS */
+.input-solicitud-time-proceedings {
+    width: auto;
+    height: auto;
+    padding: 0.5rem;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+    color: #1a1a1a;
+    display: inline-block;
+}
+
+.input-solicitud-select-proceedings {
+    width: auto;
+    height: auto;
+    padding: 0.5rem;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+    color: #1a1a1a;
+    background: white;
+    display: inline-block;
+}
+
+.input-solicitud-select-proceedings option {
+  color: #1a1a1a;
+  background-color: #ffffff;
+}
+
 .botones-solicitud-proceedings {
     width: 80%;
     height: auto;
@@ -136,6 +168,40 @@
     align-items: start;
     margin: 2rem auto;
     flex-direction: column;
+}
+.input-solicitud-proceedings[style*="flex: 1"] {
+    margin-bottom: 0;
+}
+
+/* Evitar que elementos se corten entre páginas */
+.no-break {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+/* Forzar salto de página antes de un elemento */
+.page-break-before {
+  page-break-before: always;
+  break-before: page;
+}
+
+/* Forzar salto de página después de un elemento */
+.page-break-after {
+  page-break-after: always;
+  break-after: page;
+}
+
+/* Evitar que títulos queden solos al final de página */
+.keep-with-next {
+  page-break-after: avoid;
+  break-after: avoid;
+}
+
+/* Contenedor de secciones importantes */
+.section-container {
+  page-break-inside: avoid;
+  break-inside: avoid;
+  margin-bottom: 20px;
 }
 
 .observaciones-container-proceedings p {
@@ -230,4 +296,43 @@
     width: 100%;    
     height: auto;
     margin-bottom: 1rem;
+}
+
+.textarea-proceedings {
+    width: 100%;
+    padding: 1rem;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+    font-family: Arial, sans-serif;
+    line-height: 1.5;
+    margin-top: 0.5rem;
+    margin-bottom: 1rem;
+    color: #1a1a1a;
+    background: white;
+    resize: vertical;
+    min-height: 120px;
+}
+
+.textarea-proceedings::placeholder {
+    color: #888;
+    font-style: italic;
+}
+
+.textarea-proceedings:focus {
+    outline: 2px solid #00843d;
+    border-color: #00843d;
+}
+
+/* Mejorar espaciado entre secciones */
+.letter-content-proceedings p {
+    margin: 1rem 0;
+    line-height: 1.6;
+}
+
+/* Espacio adicional después de títulos */
+.letter-content-proceedings p b {
+    display: block;
+    margin-bottom: 0.5rem;
+    margin-top: 1.5rem;
 }

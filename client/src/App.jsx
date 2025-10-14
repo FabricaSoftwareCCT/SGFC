@@ -290,7 +290,7 @@ function App() {
           {/* ✅ NUEVA RUTA AGREGADA */}
           <Route path="/MiProfile" element={
             <Layout
-              setShowSignIn={setShowSignIn}
+              setShowSignIn={setShowSignIn} 
               setShowSignUp={setShowSignUp}
               setShowModalGeneral={setShowModalGeneral}
             >

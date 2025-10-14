@@ -45,21 +45,24 @@ export const SeeCourseCriteria = () => {
 				name: "Pol pot",
 				personId: "1001001000",
 				ficha: "2525069",
-				state: "Pendiente",
+				state: "Activo",
+				certState: "Pendiente",
 				id: 420
 			},
 			{
 				name: "Francisco Macías Nguema",
 				personId: "1001001001",
 				ficha: "2525069",
-				state: "Pendiente",
+				state: "Activo",
+				certState: "Pendiente",
 				id: 421
 			},
 			{
 				name: "Isaias Afwerki",
 				personId: "1001001003",
 				ficha: "2525069",
-				state: "Pendiente",
+				state: "Activo",
+				certState: "Pendiente",
 				id: 423
 			}
 		])
@@ -132,6 +135,10 @@ export const SeeCourseCriteria = () => {
 
 	async function filter () {
 
+	}
+
+	async function generateCert () {
+		
 	}
 
 	const userSession = JSON.parse(localStorage.getItem("userSession")) || JSON.parse(sessionStorage.getItem("userSession"))
@@ -223,6 +230,7 @@ export const SeeCourseCriteria = () => {
 							<span>Aprendiz</span>
 							<span>Documentos</span>
 							<span>Fichas</span>
+							<span>Estado</span>
 							<span>Estado de certificación</span>
 							<span>Detalles</span>
 						</div>
@@ -246,6 +254,9 @@ export const SeeCourseCriteria = () => {
 										</span>
 										<span>
 											{a.state}
+										</span>
+										<span>
+											{a.certState}
 										</span>
 										<button
 											onClick={() => selectAprentice(a)}
@@ -403,6 +414,13 @@ export const SeeCourseCriteria = () => {
 								>
 									Guardar
 								</button>
+								{certificationStatus == "Aprovado" &&
+									<button className="button"
+										onClick={() => generateCert()}
+									>
+										Generar certificado
+									</button>
+								}
 							</div>
 						</div>
 					</div>

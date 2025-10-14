@@ -12,17 +12,23 @@ export const SeeCourseCriteria = () => {
 
 	const { id } = useParams()
 
-	const [curso, setCurso] = useState()
-	const [aprentices, setAprentices] = useState([])
 	const [showFilters, setShowFilters] = useState(false)
+	const [showingDownloadOptions, setShowingDownloadingOptions] = useState(false)
+	const [showAprenticeCriteria, setShowAprenticeCriteria] = useState(false)
+
+	const [curso, setCurso] = useState()
+	const [aprentices, setAprentices] = useState([])	
 	const [aprenticeName, setAprenticeName] = useState("")
 	const [aprenticeStatus, setAprenticeStatus] = useState(0)
 	const [ficha, setFicha] = useState("")
 	const [personId, setPersonId] = useState("")
-	const [showingDownloadOptions, setShowingDownloadingOptions] = useState(false)
 	const [reportType, setReportType] = useState("pdf")
 	const [page, setPage] = useState(0)
 	const [pages, setPages] = useState(1)
+	const [selectedAprentice, setSelectedAprentice] = useState()
+	const [aprenticeCriteria, setAprenticeCriteria] = useState()
+	const [certificationStatus, setCertificationStatus] = useState("Pendiente")
+	const [certificationDenialReason, setCertificationDenialStatus] = useState("")
 
 	async function fetchCourse () {
 		try {
@@ -60,21 +66,86 @@ export const SeeCourseCriteria = () => {
 	}
 
 	function selectStatus (s) {
-		if (aprenticeStatus == s) {
+		if (aprenticeStatus == s)
 			setAprenticeStatus(0)
-		} else {
+		else
 			setAprenticeStatus(s)
+	}
+
+	async function fetchAprenticeCriteria () {
+		setAprenticeCriteria([
+			{
+				id: 1,
+				title: "Asistencias",
+				description: "Para garantizar el óptimo aprovechamiento académico y el cumplimiento de los objetivos del curso, es fundamental la asistencia regular y puntual de todos los aprendices. La asistencia mínima obligatoria para ser acreedor a la certificación es del 80%. Considerando la duración total del programa, esto se traduce en que el aprendiz no puede acumular más de 5 inasistencias a lo largo del curso. Superar este límite automáticamente dará lugar a la baja administrativa, sin derecho a la recuperación de contenidos o a la evaluación final.",
+				has_value: true,
+				min: 20,
+				value: 15,
+			},
+			{
+				id: 2,
+				title: "Actividades",
+				description: "La certificación final del curso está sujeta al cumplimiento integral de las actividades académicas asignadas. Es un requisito indispensable para certificarse que el aprendiz haya entregado la totalidad de las actividades, proyectos y evaluaciones establecidos en el plan de estudios. No estar al día con las entregas, es decir, tener actividades pendientes o sin enviar, imposibilita la certificación automáticamente, ya que demuestra un incompleto dominio de los objetivos de aprendizaje planteados para cada módulo.",
+				has_value: true,
+				min: 5,
+				value: 5,
+			},
+			{
+				id: 3,
+				title: "Evidencias",
+				description: "La certificación final del curso está sujeta al cumplimiento integral de las actividades académicas asignadas. Es un requisito indispensable para certificarse que el aprendiz haya entregado la totalidad de las actividades, proyectos y evaluaciones establecidos en el plan de estudios. No estar al día con las entregas, es decir, tener actividades pendientes o sin enviar, imposibilita la certificación automáticamente, ya que demuestra un incompleto dominio de los objetivos de aprendizaje planteados para cada módulo.",
+				has_value: true,
+				min: 1,
+				value: 0,
+			},
+			{
+				id: 4,
+				title: "Horas",
+				description: "La certificación final del curso está sujeta al cumplimiento integral de las actividades académicas asignadas. Es un requisito indispensable para certificarse que el aprendiz haya entregado la totalidad de las actividades, proyectos y evaluaciones establecidos en el plan de estudios. No estar al día con las entregas, es decir, tener actividades pendientes o sin enviar, imposibilita la certificación automáticamente, ya que demuestra un incompleto dominio de los objetivos de aprendizaje planteados para cada módulo.",
+				has_value: true,
+				min: 8,
+				value: 2,
+			},
+			{
+				id: 5,
+				title: "Existir",
+				description: "La certificación final del curso está sujeta al cumplimiento integral de las actividades académicas asignadas. Es un requisito indispensable para certificarse que el aprendiz haya entregado la totalidad de las actividades, proyectos y evaluaciones establecidos en el plan de estudios. No estar al día con las entregas, es decir, tener actividades pendientes o sin enviar, imposibilita la certificación automáticamente, ya que demuestra un incompleto dominio de los objetivos de aprendizaje planteados para cada módulo.",
+				has_value: false,
+			}
+		])
+	}
+
+	function selectAprentice (aprenticeId) {
+		setCertificationDenialStatus("")
+		setSelectedAprentice(aprenticeId)
+		setShowAprenticeCriteria(true)
+		fetchAprenticeCriteria()
+	}
+
+	async function saveChanges () {
+		if (certificationStatus == "Rechazado" && certificationDenialReason.length < 10) {
+			alert("Se debe escribir el motivo por el cual no se aprovó la certificación")
+		} else {
+			setShowAprenticeCriteria(false)
 		}
 	}
 
+	async function filter () {
+
+	}
+
+	const userSession = JSON.parse(localStorage.getItem("userSession")) || JSON.parse(sessionStorage.getItem("userSession"))
+	const isLoggedIn = !!userSession
+	const accountType = userSession?.accountType || null
+
 	useEffect(() => {
-		fetchCourse()
-		fetchAprentices()
+		if (isLoggedIn && (accountType === "Instructor" || accountType == "Administrador")) { // || accountType === "Gestor"
+			fetchCourse()
+			fetchAprentices()
+		} else {
+			navigate("/no-autorizado");
+		}
 	}, [id])
-
-	useEffect(() => {
-
-	}, [aprenticeName, aprenticeStatus, personId, ficha])
 
 	return (
 		<>
@@ -111,7 +182,7 @@ export const SeeCourseCriteria = () => {
 								type="text"
 								className="search-input"
 								placeholder="Nombre de la ficha..."
-								value={aprenticeName}
+								value={ficha}
 								onChange={(e) => setFicha(e.target.value)}
 							/>
 							<label>Documento:</label>
@@ -119,7 +190,7 @@ export const SeeCourseCriteria = () => {
 								type="text"
 								className="search-input"
 								placeholder="N. del documento..."
-								value={aprenticeName}
+								value={personId}
 								onChange={(e) => setPersonId(e.target.value)}
 							/>
 							<label htmlFor="estado">Estado:</label>
@@ -137,6 +208,14 @@ export const SeeCourseCriteria = () => {
 									Inactivo
 								</button>
 							</div>
+							<button
+								style={{
+									alignSelf: "center",
+									marginTop: "2%"
+								}}
+								onClick={() => filter()}
+								className="button"
+							>Filtrar</button>
 						</div>
 					}
 					<div className="aprentice-list-container">
@@ -169,7 +248,7 @@ export const SeeCourseCriteria = () => {
 											{a.state}
 										</span>
 										<button
-											onClick={() => navigate(`/Gestiones/Criterios/${id}/${a.id}`)}
+											onClick={() => selectAprentice(a)}
 										>
 											Ver criterios
 										</button>
@@ -214,9 +293,7 @@ export const SeeCourseCriteria = () => {
 									className="closeModal">
 								</button>
 							</div>
-							<h2 className="modal-title-edit-calendar">
-								Tipo de reporte
-							</h2>
+							<h2 className="modal-title-edit-calendar">Tipo de reporte</h2>
 							<div
 								className="statusButtons"
 								style={{
@@ -243,6 +320,90 @@ export const SeeCourseCriteria = () => {
 								}}
 								onClick={() => setShowingDownloadingOptions(false)}
 							>Descargar reporte</button>
+						</div>
+					</div>
+				}
+				{showAprenticeCriteria &&
+					<div className="modal-overlay">
+						<div
+							className="modal-background"
+							style={{
+								paddingBottom: "20px",
+								width: "35%",
+								minWidth: "450px"
+							}}
+						>
+							<div className="container_return_EditCalendar">
+								<h5
+									onClick={() => setShowAprenticeCriteria(false)}
+									style={{ cursor: "pointer" }}
+								>Volver</h5>
+								<button
+									onClick={() => setShowAprenticeCriteria(false)}
+									className="closeModal">
+								</button>
+							</div>
+							<h2 className="modal-title-edit-calendar">Criterios</h2>
+							<div className="person-criteria-container">
+								<label>Nombre: </label>
+								<span>{selectedAprentice.name}</span>
+								<label>Documentos:</label>
+								<span>{selectedAprentice.personId}</span>
+								<label>Ficha:</label>
+								<span>{curso.ficha}</span>
+								{aprenticeCriteria.map((criteria) => {
+									//console.log(criteria)
+									return <>
+										<label>{criteria.title}</label>
+										<div className="person-criteria-item">
+											{criteria.has_value &&
+												<div className="person-criteria-value">
+													<span>{criteria.value}</span>
+													<span>/</span>
+													<span>{criteria.min}</span>
+												</div>
+											}
+										</div>
+									</>
+								})}
+								<div className="certification-status">
+									<button
+										className={`status-btn ${certificationStatus == "Aprovado" ? 'selected' : ''}`}
+										onClick={() => setCertificationStatus("Aprovado")}
+									>
+										Aprovado
+									</button>
+									<button
+										className={`status-btn ${certificationStatus == "Pendiente" ? 'selected' : ''}`}
+										onClick={() => setCertificationStatus("Pendiente")}
+									>
+										Pendiente
+									</button>
+									<button
+										className={`status-btn ${certificationStatus == "Rechazado" ? 'selected' : ''}`}
+										onClick={() => setCertificationStatus("Rechazado")}
+										style={certificationStatus == "Rechazado" ? {
+											backgroundColor: "red"
+										} : {}}
+									>
+										Rechazado
+									</button>
+								</div>
+								{certificationStatus == "Rechazado" &&
+									<textarea
+										type="text"
+										className="search-input reason-textarea"
+										placeholder="Escriba la razón por la que se rechazó la certificación..."
+										value={certificationDenialReason}
+										onChange={(e) => setCertificationDenialStatus(e.target.value)}
+									></textarea>
+					 			}
+								<button className="button"
+									onClick={() => saveChanges()}
+								>
+									Guardar
+								</button>
+							</div>
 						</div>
 					</div>
 				}

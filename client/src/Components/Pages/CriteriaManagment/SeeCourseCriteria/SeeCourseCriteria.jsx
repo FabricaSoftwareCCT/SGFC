@@ -47,6 +47,7 @@ export const SeeAllCourseCriteria = () => {
 									myself.value = e.target.value
 									setCriteria(myBC)
 								}}
+								disabled
 							/>
 							<span>/</span>
 							<input
@@ -130,7 +131,7 @@ export const SeeAllCourseCriteria = () => {
 				description: "Para garantizar el óptimo aprovechamiento académico y el cumplimiento de los objetivos del curso, es fundamental la asistencia regular y puntual de todos los aprendices. La asistencia mínima obligatoria para ser acreedor a la certificación es del 80%. Considerando la duración total del programa, esto se traduce en que el aprendiz no puede acumular más de 5 inasistencias a lo largo del curso. Superar este límite automáticamente dará lugar a la baja administrativa, sin derecho a la recuperación de contenidos o a la evaluación final.",
 				has_value: true,
 				min: 20,
-				value: 15,
+				value: 0,
 				creation: {
 					date: "10/10/2025",
 					hour: "8:40"
@@ -144,7 +145,7 @@ export const SeeAllCourseCriteria = () => {
 				description: "La certificación final del curso está sujeta al cumplimiento integral de las actividades académicas asignadas. Es un requisito indispensable para certificarse que el aprendiz haya entregado la totalidad de las actividades, proyectos y evaluaciones establecidos en el plan de estudios. No estar al día con las entregas, es decir, tener actividades pendientes o sin enviar, imposibilita la certificación automáticamente, ya que demuestra un incompleto dominio de los objetivos de aprendizaje planteados para cada módulo.",
 				has_value: true,
 				min: 5,
-				value: 5,
+				value: 0,
 				creation: {
 					date: "10/10/2025",
 					hour: "8:40"
@@ -177,7 +178,7 @@ export const SeeAllCourseCriteria = () => {
 				description: "La certificación final del curso está sujeta al cumplimiento integral de las actividades académicas asignadas. Es un requisito indispensable para certificarse que el aprendiz haya entregado la totalidad de las actividades, proyectos y evaluaciones establecidos en el plan de estudios. No estar al día con las entregas, es decir, tener actividades pendientes o sin enviar, imposibilita la certificación automáticamente, ya que demuestra un incompleto dominio de los objetivos de aprendizaje planteados para cada módulo.",
 				has_value: true,
 				min: 8,
-				value: 2,
+				value: 0,
 				creation: {
 					date: "10/10/2025",
 					hour: "8:40"
@@ -203,8 +204,16 @@ export const SeeAllCourseCriteria = () => {
 		setLoading(false)
 	}
 
+	const userSession = JSON.parse(localStorage.getItem("userSession")) || JSON.parse(sessionStorage.getItem("userSession"))
+	const isLoggedIn = !!userSession
+	const accountType = userSession?.accountType || null
+
 	useEffect(() => {
-		fetchCriteria()
+		if (isLoggedIn && (accountType === "Instructor" || accountType == "Administrador")) { // || accountType === "Gestor"
+			fetchCriteria()
+		} else {
+			navigate("/no-autorizado");
+		}
 	}, [])
 
 	return (

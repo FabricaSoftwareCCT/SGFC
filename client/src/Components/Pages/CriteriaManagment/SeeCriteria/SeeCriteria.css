@@ -68,7 +68,7 @@
 	justify-content: space-evenly;
 	background-color: #00843D;
 	color: white;
-	font-size: 26px;
+	font-size: 24px;
 	padding: 10px;
 	margin-top: 20px;
 	align-items: center;
@@ -82,7 +82,7 @@
 .no-aprentices-list {
 	background-color: #606060;
 	color: white;
-	font-size: 22px;
+	font-size: 18px;
 	padding: 15px;
 	padding-left: 25px;
 	padding-right: 25px;
@@ -103,9 +103,7 @@
 }
 
 .end-button {
-	position: absolute;
 	font-size: 24px;
-	bottom: 4%;
 }
 
 .end-button button {
@@ -140,4 +138,47 @@
 	text-decoration: underline;
 	border: none;
 	font-size: 20px;
+}
+
+.person-criteria-container {
+	width: 85%;
+	display: flex;
+	flex-direction: column;
+	overflow-y: scroll;
+}
+
+.person-criteria-container label {
+	font-weight: bold;
+	color: #bbbbbb;
+	margin-bottom: 10px;
+}
+
+.person-criteria-container span {
+	font-weight: bold;
+	color: white;
+	margin-bottom: 10px;
+}
+
+
+div.person-criteria-value span:first-child {
+	color: #00843D;
+}
+
+.reason-textarea {
+	margin-top: 10px;
+	margin-bottom: 10px;
+	overflow-y: scroll;
+	overflow-x: hidden;
+	min-height: 100px;
+	resize: none;
+}
+
+.certification-status {
+	width: 100%;
+	display: flex;
+	justify-content: space-evenly;
+}
+
+.certification-status button {
+	background-color: #b0b0b031;
 }

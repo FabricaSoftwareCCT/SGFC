@@ -3,7 +3,7 @@ import "./CreateCriteria.css"
 import { useNavigate, useParams } from "react-router-dom"
 import { Header } from "../../../Layouts/Header/Header"
 import { Main } from "../../../Layouts/Main/Main"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { GoBackArrow } from "../../../UI/GoBackArrow/GoBackArrow"
 
 export const CreateCriteria = () => {
@@ -21,6 +21,18 @@ export const CreateCriteria = () => {
 	async function save () {
 		navigate(`/Gestiones/Criterios/Curso/${id}`)
 	}
+
+	const userSession = JSON.parse(localStorage.getItem("userSession")) || JSON.parse(sessionStorage.getItem("userSession"))
+	const isLoggedIn = !!userSession
+	const accountType = userSession?.accountType || null
+
+	useEffect(() => {
+		if (isLoggedIn && (accountType === "Instructor" || accountType == "Administrador")) { // || accountType === "Gestor"
+
+		} else {
+			navigate("/no-autorizado");
+		}
+	}, [])
 
 	return(
 		<>

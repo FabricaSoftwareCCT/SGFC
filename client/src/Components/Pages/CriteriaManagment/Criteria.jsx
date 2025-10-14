@@ -21,12 +21,14 @@ export const CriteriaManagement = () => {
 	async function fetchCourses () {
 		let response = null
 		if (accountType === "Administrador") {
-			response = await axiosInstance.get("/api/courses/cursos")
+			response = (await axiosInstance.get("/api/courses/cursos")).data
 		} else if (accountType === "Instructor") {
 			const instructorId = userSession.ID || userSession.id;
-			response = await axiosInstance.get(`/api/courses/cursos-asignados/${instructorId}`);
+			response = (await axiosInstance.get(`/api/courses/cursos-asignados/${instructorId}`)).data.map((curso) => ({
+				...curso.Curso
+			}));
 		}
-		const todosLosCursos = response.data.map(curso => ({
+		const todosLosCursos = response.map(curso => ({
 			...curso,
 			ID: curso.ID || curso.id,
 		}));
@@ -40,16 +42,15 @@ export const CriteriaManagement = () => {
     };
 
 	function seeCourseCriteria () {
-		console.log(getCurso())
 		navigate(`/Gestiones/Criterios/Ver/${getCurso().ID}`)
 	}
 
 	function seeCourseCriteriaHistorial () {
-
+		navigate(`/Gestiones/Criterios/Historial/${getCurso().ID}`)
 	}
 
 	useEffect(() => {
-		if (accountType === "Instructor" || accountType == "Administrador") {
+		if (isLoggedIn && (accountType === "Instructor" || accountType == "Administrador")) { // || accountType === "Gestor"
 			fetchCourses()
 		} else {
 			navigate("/no-autorizado");

@@ -134,6 +134,14 @@ export const SeeCourse = () => {
 									</button>
 								)}
 
+								{(userSession && userSession.accountType === 'Gestor') &&
+									<button className='material-btn' onClick={() => {
+										navigate(`/Gestiones/Criterios/Historial/${id}`)
+									}}>
+										Ver historial de certificaciones
+									</button>
+								}
+
 								{userSession && userSession.accountType === 'Empresa' && (
 									<button className='edit-btn' onClick={() => navigate(`/SolicitarCurso/${encodeURIComponent(curso.nombre_curso)}`)}>
 										Solicitar Curso

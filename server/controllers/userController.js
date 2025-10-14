@@ -1355,13 +1355,18 @@ const getAprendicesByEmpresa = async (req, res) => {
 
 // Crear múltiples usuarios desde un archivo Excel
 const createMasiveUsers = async (req, res) => {
+    
     try {
+        const {empresaId} = req.params;
+        console.log(empresaId)
+        if (!empresaId) {
+            return res.status(400).json({message : "No se tiene el id de la empresa"})
+        }
         if (!req.file || !req.file.buffer) {
             return res.status(400).json({ message: 'No se ha subido ningún archivo.' });
         }
 
         const Archivo = req.file.buffer;
-        console.log(req.file.buffer)
         // Leer el archivo con xlsx
         const workbook = xlsx.read(Archivo, { type: 'buffer' });
 
@@ -1372,33 +1377,30 @@ const createMasiveUsers = async (req, res) => {
         if (!hoja) {
             return res.status(400).json({ message: 'El archivo no contiene hojas válidas.' });
         }
+        const usuarios = xlsx.utils.sheet_to_json(hoja)
+        
+       const usuariosLimpios = await Promise.all(
+            usuarios.map(async (u) =>{
+                const hashedPassword = await bcrypt.hash(u.contraseña, 10)
+                return {
+                    nombres : u.nombres?.trim(),
+                    apellidos : u.apellidos?.trim(),
+                    email : u.email?.toLowerCase(),
+                    documento : String(u.documento).trim(),
+                    password : hashedPassword,
+                    accountType : "Aprendiz",
+                    empresa_ID : empresaId
+                }
+            })
+       )
 
-        // Obtener el rango de celdas
-        const rango = xlsx.utils.decode_range(hoja['!ref']);
 
-        console.log("este es el rango de celdas", rango)
-
-        // Verificar si la celda C2 existe
-        const celdaTitulo = hoja['C2'];
-        if (!celdaTitulo) {
-            return res.status(400).json({ message: 'La celda C2 no contiene un título válido.' });
-        }
-
-        // Extraer los valores de la columna C desde la fila 3 hacia abajo
-        const valoresColumna = [];
-        for (let fila = 1; fila <= rango.e.r; fila++) { // Comienza desde la fila 2 (índice 1 en base 0)
-            const celda = hoja[`C${fila + 1}`]; // Celdas C3, C4, etc.
-            if (celda) {
-                valoresColumna.documento = celda.v;
-            }
-        }
-
-        if (valoresColumna.length === 0) {
-            return res.status(400).json({ message: 'El archivo no contiene datos en la columna C.' });
+        if (usuariosLimpios.length === 0) {
+            return res.status(400).json({ message: 'El archivo no contiene datos' });
         }
 
         // Verificar si hay usuarios duplicados en el archivo
-        const duplicados = valoresColumna.filter((item, index) => valoresColumna.indexOf(item) !== index);
+        const duplicados = usuariosLimpios.filter((item, index) => usuariosLimpios.indexOf(item) !== index);
         if (duplicados.length > 0) {
             // Excepción: permitir duplicados si son valores vacíos ("")
             const duplicadosFiltrados = duplicados.filter(item => item !== "");
@@ -1412,9 +1414,28 @@ const createMasiveUsers = async (req, res) => {
         }
 
         // Verificar si hay usuarios repetidos en la base de datos antes de crear
-        const emails = valoresColumna.map(identificacion => `${identificacion}@gmail.com`);
-        const existingUsers = await User.findAll({ where: { email: emails } });
+        const emails = usuariosLimpios.map((e) =>{
+            return {
+                email : e.email,
+                accountType : e.accountType
+            }
+        })
         
+        const emailList = await Promise.all(
+            emails.map( async (e) =>{
+                const newEmail = e.email
+                const payload = { data: { newEmail } };
+                const  token = generateToken(payload, process.env.JWT_SECRET, 5)
+                return {
+                    email : newEmail,
+                    token : token,
+                    accountType : e.accountType
+                }
+            })
+        )
+        
+        const emails2 = emails.map((e) =>{return e.email})
+        const existingUsers = await User.findAll({ where: { email: emails2 } });
         if (existingUsers.length > 0) {
             const repetidos = existingUsers.map(user => user.email);
             return res.status(409).json({
@@ -1422,32 +1443,17 @@ const createMasiveUsers = async (req, res) => {
                 repetidos
             });
         }
-        
-        console.log(valoresColumna)
-        // Crear usuarios con los datos extraídos
-        for (const identificacion of valoresColumna) {
-            if (!identificacion || identificacion === '') {
-                console.warn(`Número de identificación inválido: ${identificacion}`);
-                continue; // Saltar si el Número de Identificación no es válido
-            }
-            
-            const email = identificacion;
-            const password = `${identificacion.toString()}example`;
-            
-            // Crear el usuario
-            const hashedPassword = await bcrypt.hash(password, 10);
-            await User.create({
-                email,
-                password: hashedPassword,
-                accountType: 'Aprendiz', // Tipo de cuenta por defecto
-                documento: identificacion,
-                verificacion_email: true,
-            });
-        }
-        
-        return res.json({
-            message: "Usuarios creados exitosamente.",
-        });
+        // Crear usuarios con los datos extraídos 
+        await  User.bulkCreate(usuariosLimpios, {ignoreDuplicates : true})
+
+        await Promise.all(
+            emailList.map((list) =>{
+                sendVerificationEmail(list.email, list.token, list.accountType)
+            })
+        )
+
+        return res.status(200).json({menssage : "se insertaron los usuarios con exito"})
+
     } catch (error) {
         console.error("Error al procesar el archivo:", error);
         return res.status(500).json({ error: 'Error al procesar el archivo' });

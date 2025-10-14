@@ -5,6 +5,7 @@ import { Footer } from "../../../../Layouts/Footer/Footer";
 import { Main } from "../../../../Layouts/Main/Main";
 import axiosInstance from "../../../../../config/axiosInstance";
 import { useNavigate } from "react-router-dom";
+import { CourseList } from "../../../../UI/CourseList/CourseList";
 
 export const MisCursosAdmin = () => {
     const [todosLosCursos, setTodosLosCursos] = useState([]);
@@ -171,63 +172,7 @@ export const MisCursosAdmin = () => {
                             ))}
                         </div>
 
-                        <div className="containerMisCoursesResults">
-                            {loading ? (
-                                <p className="no-results">Cargando cursos...</p>
-                            ) : cursos.length === 0 ? (
-                                <p className="no-results">No hay cursos disponibles</p>
-                            ) : (
-                                <>
-                                    {cursos.length > 1 && (
-                                        <button className="arrow-courses left" onClick={prev}>
-                                            ❮
-                                        </button>
-                                    )}
-
-                                    <div className="carousel-container-courses">
-                                        <div
-                                            key={current}
-                                            className={`carousel-track-courses animate-${direction}`}
-                                        >
-                                            {[getCursoAt(-1), getCursoAt(0), getCursoAt(1)].map(
-                                                (curso, idx) => (
-                                                    <div
-                                                        key={`${curso?.id || curso?.ID}-${current}`}
-                                                        className={`carousel-card-courses ${idx === 1
-                                                            ? "card-center-courses animate-card"
-                                                            : "card-side-courses"
-                                                            }`}
-                                                    >
-                                                        <div className="imagen-curso">
-                                                            <img
-                                                                src={
-                                                                    curso?.imagen
-                                                                        ? `data:image/jpeg;base64,${curso.imagen}`
-                                                                        : "/src/assets/Ilustrations/f3.jpg"
-                                                                }
-                                                                alt={curso?.nombre_curso}
-                                                            />
-                                                            {idx === 1 && (
-                                                                <div className="overlay-course-info">
-                                                                    <h3>{curso?.nombre_curso}</h3>
-                                                                    <p><strong>Ficha:</strong> {curso?.ficha}</p>
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                    </div>
-                                                )
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    {cursos.length > 1 && (
-                                        <button className="arrow-courses right" onClick={next}>
-                                            ❯
-                                        </button>
-                                    )}
-                                </>
-                            )}
-                        </div>
+                        <CourseList loading={loading} cursos={cursos} onChange={(s) => setCurrent(s)}/>
 
                         {cursos.length > 0 && !loading && (
                             <button className="ver-curso" onClick={handleVerCurso}>

@@ -1,0 +1,117 @@
+.button-red {
+	background-color: red;
+}
+
+.buttons-right {
+	display: flex;
+	width: 90%;
+	justify-content: end;
+}
+
+.buttons-right button {
+	margin-left: 10px;
+}
+
+.criteriaBox {
+	width: 90%;
+	margin-top: 25px;
+	max-height: 65vh;
+	min-height: 65vh;
+	overflow-y: auto;
+}
+
+.criteria-item {
+	margin: 10px;
+	background-color: #00843D;
+	border-radius: 10px;
+	display: flex;
+	flex-direction: row;
+}
+
+.criteria-head {
+	min-width: 20%;
+	max-width: 20%;
+	background-color: #039d4b;
+	border-radius: 10px;
+	padding: 10px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-evenly;
+}
+
+.criteria-head span {
+	text-align: center;
+	font-size: 32px;
+}
+
+.criteria-description {
+	padding: 15px;
+	font-size: 20px;
+}
+
+.description-edition {
+	width: 100%;
+	background-color: transparent;
+	resize: none;
+	field-sizing: content;
+	text-decoration: underline;
+	border: none;
+	height: 100%;
+}
+
+.editing-criteria-title {
+	background-color: transparent;
+	border: none;
+	text-align: center;
+	font-size: 32px;
+	text-decoration: underline;
+}
+
+.editing-criteria-values {
+	display: flex;
+	justify-content: center;
+}
+
+.editing-criteria-values input {
+	width: 40%;
+	text-align: center;
+	font-size: 32px;
+	background-color: transparent;
+	text-decoration: underline;
+	border: none;
+}
+
+.criteria-data {
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	min-height: 15vh;
+	max-height: 30vh;
+}
+
+.criteria-date {
+	width: 100%;
+	text-align: end;
+	padding-right: 15px;
+	margin-bottom: 15px;
+	font-weight: lighter;
+}
+
+.bias-input {
+	display: flex;
+	justify-content: center;
+}
+
+.bias-input span {
+	font-size: 20px;
+}
+
+.bias-input input {
+	width: 12.5%;
+	background-color: transparent;
+	text-decoration: underline;
+	border: none;
+	font-weight: bold;
+	font-size: 20px;
+	text-align: end;
+}

@@ -126,15 +126,19 @@ export const SeeAllCourseCriteria = () => {
 	async function fetchCriteria () {
 		try {
 			let response = await axiosInstance.get("/api/certification/course/1")
-			print("Diavlo muchaco")
-			console.log(response)
+			if (response.status != 200 && response.status != 304) {
+				throw response.data
+			}
+			setCriteria(response.data.criteria)
+			setCriteriaBackup(response.data.criteria)
+			setLoading(false)
 		} catch (e) {
 			console.log(e)
 			alert("Ocurrió un error al cargar los criterios")
 		}
 
 		// PLACEHOLDER BORRAR LUEGO
-		let placeholderCriteria = [
+		/*let placeholderCriteria = [
 			{
 				id: 1,
 				title: "Asistencias",
@@ -208,10 +212,7 @@ export const SeeAllCourseCriteria = () => {
 				author: "Administrador",
 				weight: 60
 			}
-		]
-		setCriteria(placeholderCriteria)
-		setCriteriaBackup(placeholderCriteria)
-		setLoading(false)
+		]*/
 	}
 
 	const userSession = JSON.parse(localStorage.getItem("userSession")) || JSON.parse(sessionStorage.getItem("userSession"))

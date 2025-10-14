@@ -14,6 +14,7 @@ const Asistencia = require("./Asistencia");
 const Notificacion = require("./Notificacion");
 const Actas = require("./Actas");
 const InvitacionCurso = require("./InvitacionCurso");
+const Criterio = require("./Criterio");
 
 // Leer la URL de conexión (recomendada en producción)
 const DB_URL = process.env.DB_URL;
@@ -72,6 +73,7 @@ async function initializeDatabase() {
   Notificacion.init(sequelize);
   Actas.init(sequelize);
   InvitacionCurso.init(sequelize);
+  Criterio.init(sequelize);
 
   // Asociar modelos
   const models = {
@@ -86,7 +88,8 @@ async function initializeDatabase() {
     Asistencia,
     Notificacion,
     Actas,
-    InvitacionCurso
+    InvitacionCurso,
+    Criterio
   };
 
   Object.values(models).forEach((model) => {

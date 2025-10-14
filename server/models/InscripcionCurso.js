@@ -17,6 +17,10 @@ class InscripcionCurso extends Model {
           type: DataTypes.ENUM('activo', 'rechazado', 'pendiente'),
           defaultValue: 'pendiente',
         },
+        estado_certificacion: {
+          type: DataTypes.ENUM("pendiente", "rechazado", "aprovado"),
+          defaultValue: "pendiente"
+        }
       },
       {
         sequelize,

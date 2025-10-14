@@ -38,6 +38,7 @@ router.put('/inscripciones', crearOActualizarInscripcion);
 //enviar invitacion de curso a instructor
 router.post('/enviarInvitacionCursoInstructor', cursoController.enviarInvitacionCurso);
 
+// cambiar el estado de la invitacion a un curso (instructor)
 router.put('/cambiarEstadoInvitacion/:invitacionId', cursoController.cambiarEstadoInvitacion);
 
 module.exports = router;

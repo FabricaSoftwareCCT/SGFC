@@ -84,6 +84,9 @@ app.use("/api/ubicaciones", (req, res, next) => {
 app.use("/api/actas", actasRoutes);
 app.use("/api/reports", reporteRoutes);
 
+// Importar utilidades para gestión de índices
+const { ensureIndexesSmart, dropDuplicateIndexes } = require('./utils/indexManagement');
+
 async function startServer() {
   try {
     // Inicializar base de datos
@@ -104,6 +107,15 @@ async function startServer() {
     // Montar rutas de ubicaciones con acceso a la DB
     const ubicacionesRoutes = ubicacionesRoutesFactory(db);
     app.use("/api/ubicaciones", ubicacionesRoutes);
+
+    // Limpiar índices duplicados y asegurar índices faltantes
+    console.log("Limpiando índices duplicados...");
+    await dropDuplicateIndexes(db.sequelize);
+    console.log("Limpieza de índices duplicados completada.");
+    
+    console.log("Asegurando índices faltantes...");
+    await ensureIndexesSmart(db.sequelize);
+    console.log("Aseguramiento de índices completado.");
 
     // Crear datos por defecto
     await db.Departamento.createDefaultDeparment();

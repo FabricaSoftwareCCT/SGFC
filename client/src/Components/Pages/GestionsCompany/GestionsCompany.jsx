@@ -228,7 +228,7 @@ export const GestionsCompany = () => {
                 ) : (
                   <table className="companies-table">
                     <thead>
-                      <tr className="table-header">
+                      <tr className="table-heade">
                         <th className="header-logo">Foto</th>
                         <th className="header-name">Nombre</th>
                         <th className="header-nit">NIT</th>

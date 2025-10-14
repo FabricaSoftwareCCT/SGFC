@@ -29,7 +29,7 @@ const fotoDefectPerfil = '../Img/userDefect.png'; // Importar la imagen por defe
 const registerUser = async (req, res) => {
     try {
         const { email, password, accountType, documento, nombres, apellidos, celular, titulo_profesional } = req.body;
-        
+
         console.log(email, password)
         // Validar datos obligatorios
         if (!email || !password || !accountType) {
@@ -58,7 +58,7 @@ const registerUser = async (req, res) => {
         //Configurar para usuarios que necesitan contraseña temporal
        //const tempPassword = Math.random().toString(36).slice(-8);
         
-        // Hashear la contraseña temporal
+        // Encriptar la contraseña
         const hashedPassword = await bcrypt.hash(password, 10);
 
         // Crear nuevo usuario
@@ -105,13 +105,13 @@ const registerUser = async (req, res) => {
 
 // Verificar correo
 const verifyEmail = async (req, res) => {
-  try {
-    const { token } = req.query;
+    try {
+        const { token } = req.query;
 
-    // Validar token
-    if (!token) {
-      return res.status(400).json({ message: "Token no proporcionado" });
-    }
+        // Validar token
+        if (!token) {
+            return res.status(400).json({ message: "Token no proporcionado" });
+        }
 
         console.log('Token recibido:', token);
         
@@ -134,30 +134,30 @@ const verifyEmail = async (req, res) => {
             return res.status(400).json({ message: "Token no contiene email válido" });
         }
 
-    const user = await User.findOne({ where: { email: userEmail } });
+        const user = await User.findOne({ where: { email: userEmail } });
 
-    if (!user) {
-      return res.status(400).json({ message: "Usuario no encontrado" });
+        if (!user) {
+            return res.status(400).json({ message: "Usuario no encontrado" });
+        }
+
+        console.log('Token en la base de datos:', user.token);
+        console.log('Token recibido vs token en BD:', token, user.token);
+
+        // Verificar que el token coincida
+        if (user.token !== token) {
+            return res.status(400).json({ message: "Token no coincide" });
+        }
+
+        // Actualizar estado de verificación
+        user.verificacion_email = true;
+        user.token = null;
+        await user.save();
+
+        res.status(200).json({ message: "Correo verificado con éxito" });
+    } catch (error) {
+        console.error("Error completo al verificar el correo:", error);
+        res.status(500).json({ message: "Error al verificar el correo" });
     }
-
-    console.log('Token en la base de datos:', user.token);
-    console.log('Token recibido vs token en BD:', token, user.token);
-
-    // Verificar que el token coincida
-    if (user.token !== token) {
-      return res.status(400).json({ message: "Token no coincide" });
-    }
-
-    // Actualizar estado de verificación
-    user.verificacion_email = true;
-    user.token = null;
-    await user.save();
-
-    res.status(200).json({ message: "Correo verificado con éxito" });
-  } catch (error) {
-    console.error("Error completo al verificar el correo:", error);
-    res.status(500).json({ message: "Error al verificar el correo" });
-  }
 };
 
 
@@ -702,17 +702,17 @@ const getGestores = async (req, res) => {
 //Actualizar perfil segun tipo cuenta
 const updateUserProfile = async (req, res) => {
     try {
-            const { id } = req.params;
-            const {
-                email,
-                nombres,
-                apellidos,
-                celular,
-                documento,
-                estado,
-                titulo_profesional,
-                tipoDocumento
-            } = req.body;
+        const { id } = req.params;
+        const {
+            email,
+            nombres,
+            apellidos,
+            celular,
+            documento,
+            estado,
+            titulo_profesional,
+            tipoDocumento
+        } = req.body;
 
         // Procesar imagen de perfil si se sube (como base64)
         let foto_perfil = null;
@@ -724,107 +724,115 @@ const updateUserProfile = async (req, res) => {
             foto_perfil = req.body.foto_perfil;
         }
 
-            const token = req.cookies.accessToken;
-            if (!token) {
-                return res.status(401).json({ message: "No autorizado. Debes iniciar sesión." });
+        const token = req.cookies.accessToken;
+        if (!token) {
+            return res.status(401).json({ message: "No autorizado. Debes iniciar sesión." });
+        }
+
+        let loggedInUser;
+        try {
+            loggedInUser = jwt.verify(token, process.env.JWT_SECRET || "secret");
+        } catch (error) {
+            return res.status(401).json({ message: "Token inválido o expirado." });
+        }
+
+        if (!loggedInUser) {
+            return res.status(401).json({ message: "Token inválido o expirado." });
+        }
+
+        const user = await User.findByPk(id, {
+            include: [{ model: Empresa, as: "Empresa" }],
+        });
+
+        if (!user) {
+            return res.status(404).json({ message: "Usuario no encontrado." });
+        }
+
+        // Función para validar email
+        const isValidEmail = (email) => {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        };
+
+        // Función para validar que no sean números negativos
+        const isValidPositiveNumber = (value) => {
+            const num = parseInt(value);
+            return !isNaN(num) && num >= 0;
+        };
+
+        // Validaciones de formato
+        if (email && !isValidEmail(email)) {
+            return res.status(400).json({ message: "Formato de correo electrónico inválido." });
+        }
+
+        if (celular && celular !== user.celular) {
+            const existingCelular = await User.findOne({ where: { celular } });
+            if (existingCelular) {
+                return res.status(400).json({ message: "El número de celular ya está registrado." });
             }
+        }
 
-            let loggedInUser;
-            try {
-                loggedInUser = jwt.verify(token, process.env.JWT_SECRET || "secret");
-            } catch (error) {
-                return res.status(401).json({ message: "Token inválido o expirado." });
-            }
-
-            if (!loggedInUser) {
-                return res.status(401).json({ message: "Token inválido o expirado." });
-            }
-
-            const user = await User.findByPk(id, {
-                include: [{ model: Empresa, as: "Empresa" }],
-            });
-
-            if (!user) {
-                return res.status(404).json({ message: "Usuario no encontrado." });
-            }
-
-            // Función para validar email
-            const isValidEmail = (email) => {
-                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                return emailRegex.test(email);
-            };
-
-            // Función para validar que no sean números negativos
-            const isValidPositiveNumber = (value) => {
-                const num = parseInt(value);
-                return !isNaN(num) && num >= 0;
-            };
-
-            // Validaciones de formato
-            if (email && !isValidEmail(email)) {
-                return res.status(400).json({ message: "Formato de correo electrónico inválido." });
-            }
-
-            if (celular && (!isValidPositiveNumber(celular) || celular.toString().length < 10)) {
-                return res.status(400).json({ message: "Número de celular inválido." });
-            }
-
-            if (documento && !isValidPositiveNumber(documento)) {
-                return res.status(400).json({ message: "Número de documento inválido." });
-            }
+        if (documento && !isValidPositiveNumber(documento)) {
+            return res.status(400).json({ message: "Número de documento inválido." });
+        }
 
         // Verificación de permisos
         // Administrador puede actualizar cualquier perfil (se maneja abajo)
         // Empresa puede actualizar el suyo (se maneja abajo)
-        // Para otros roles (Instructor, Gestor, Aprendiz): permitir solo si actualiza su propio perfil
-        if (loggedInUser.accountType !== "Administrador" && loggedInUser.accountType !== "Empresa") {
+        // Para otros roles (Instructor, Aprendiz): permitir solo si actualiza su propio perfil
+        // Gestor se considera con privilegios de administrador
+        if (
+            loggedInUser.accountType !== "Administrador" &&
+            loggedInUser.accountType !== "Empresa" &&
+            loggedInUser.accountType !== "Gestor"
+        ) {
             if (parseInt(id, 10) !== Number(loggedInUser.id)) {
             return res.status(403).json({ message: "No tienes permiso para actualizar perfiles." });
             }
         }
 
-            // ADMINISTRADOR
-            if (loggedInUser.accountType === "Administrador") {
-                // Validaciones de campos obligatorios para Administrador
-                const camposObligatorios = {
-                    nombres: nombres,
-                    apellidos: apellidos,
-                    celular: celular,
-                    email: email
-                };
+        // ADMINISTRADOR o GESTOR (mismas reglas)
+            if (loggedInUser.accountType === "Administrador" || loggedInUser.accountType === "Gestor") {
+            // Validaciones de campos obligatorios para Administrador
+            const camposObligatorios = {
+                nombres: nombres,
+                apellidos: apellidos,
+                celular: celular,
+                email: email
+            };
 
-                    const camposVacios = [];
-                    for (const [campo, valor] of Object.entries(camposObligatorios)) {
-                        if (valor !== undefined && (valor === null || valor === '' || valor.trim() === '')) {
-                            camposVacios.push(campo);
-                        }
+                const camposVacios = [];
+                for (const [campo, valor] of Object.entries(camposObligatorios)) {
+                    if (valor !== undefined && (valor === null || valor === '' || valor.trim() === '')) {
+                        camposVacios.push(campo);
                     }
+                }
 
-                    if (camposVacios.length > 0) {
-                        return res.status(400).json({ 
-                            message: `No se pudo guardar el perfil. Los siguientes campos son obligatorios y no pueden estar vacíos: ${camposVacios.join(', ')}. Intente nuevamente.` 
-                        });
-                    }
+                if (camposVacios.length > 0) {
+                    return res.status(400).json({ 
+                        message: `No se pudo guardar el perfil. Los siguientes campos son obligatorios y no pueden estar vacíos: ${camposVacios.join(', ')}. Intente nuevamente.` 
+                    });
+                }
 
-                    // Validaciones únicas
-                    if (email && email !== user.email) {
-                        const existingEmail = await User.findOne({ where: { email } });
-                        if (existingEmail) {
-                            return res.status(400).json({ message: "El correo electrónico ya está registrado." });
-                        }
+                // Validaciones únicas
+                if (email && email !== user.email) {
+                    const existingEmail = await User.findOne({ where: { email } });
+                    if (existingEmail) {
+                        return res.status(400).json({ message: "El correo electrónico ya está registrado." });
                     }
-                    if (documento && documento !== user.documento) {
-                        const existingDocumento = await User.findOne({ where: { documento } });
-                        if (existingDocumento) {
-                            return res.status(400).json({ message: "El documento ya está registrado." });
-                        }
+                }
+                if (documento && documento !== user.documento) {
+                    const existingDocumento = await User.findOne({ where: { documento } });
+                    if (existingDocumento) {
+                        return res.status(400).json({ message: "El documento ya está registrado." });
                     }
-                    if (celular && celular !== user.celular) {
-                        const existingCelular = await User.findOne({ where: { celular } });
-                        if (existingCelular) {
-                            return res.status(400).json({ message: "El número de celular ya está registrado." });
-                        }
+                }
+                if (celular && celular !== user.celular) {
+                    const existingCelular = await User.findOne({ where: { celular } });
+                    if (existingCelular) {
+                        return res.status(400).json({ message: "El número de celular ya está registrado." });
                     }
+                }
 
                 // Asignación directa de campos
                 if (email) user.email = email;
@@ -846,6 +854,25 @@ const updateUserProfile = async (req, res) => {
 
                     const { NIT, categoria, direccion, email_empresa, estado: estadoEmpresa, img_empresa, nombre_empresa, telefono, ciudad_ID, departamento_ID } = empresaData;
 
+                    // Validaciones únicas para Empresa (NIT y email_empresa)
+                    try {
+                        const empresaIdActual = user.Empresa.ID;
+                        if (NIT && NIT !== user.Empresa.NIT) {
+                            const nitExistente = await Empresa.findOne({ where: { NIT, ID: { [Op.ne]: empresaIdActual } } });
+                            if (nitExistente) {
+                                return res.status(400).json({ message: "El NIT de la empresa ya está registrado." });
+                            }
+                        }
+                        if (email_empresa && email_empresa !== user.Empresa.email_empresa) {
+                            const emailEmpExistente = await Empresa.findOne({ where: { email_empresa, ID: { [Op.ne]: empresaIdActual } } });
+                            if (emailEmpExistente) {
+                                return res.status(400).json({ message: "El email de la empresa ya está registrado." });
+                            }
+                        }
+                    } catch (e) {
+                        return res.status(500).json({ message: "Error validando unicidad de empresa." });
+                    }
+
                     if (NIT !== undefined) user.Empresa.NIT = NIT;
                     if (email_empresa !== undefined) user.Empresa.email_empresa = email_empresa;
                     if (nombre_empresa !== undefined) user.Empresa.nombre_empresa = nombre_empresa;
@@ -864,9 +891,9 @@ const updateUserProfile = async (req, res) => {
                     await user.Empresa.save();
                 }
 
-                    await user.save();
-                    return res.status(200).json({ message: "Perfil actualizado con éxito." });
-                }
+                await user.save();
+                return res.status(200).json({ message: "Perfil actualizado con éxito." });
+        }
 
         // EMPRESA puede actualizar su propio perfil - CORREGIDO
         if (loggedInUser.accountType === "Empresa" && user.accountType === "Empresa") {
@@ -892,13 +919,26 @@ const updateUserProfile = async (req, res) => {
                 });
             }
 
-            if (email) user.email = email;
+            // Validaciones únicas para Empresa (email y documento/NIT)
+            if (email && email !== user.email) {
+                const existingEmail = await User.findOne({ where: { email } });
+                if (existingEmail) {
+                    return res.status(400).json({ message: "El correo electrónico ya está registrado." });
+                }
+                user.email = email;
+            }
             if (nombres) user.nombres = nombres;
             if (apellidos) user.apellidos = apellidos;
             if (celular) user.celular = celular;
-            if (documento) user.documento = documento;
-            // El estado de la cuenta Empresa solo puede ser modificado por Administrador
-            if (estado && loggedInUser.accountType === "Administrador") {
+            if (documento && documento !== user.documento) {
+                const existingDocumento = await User.findOne({ where: { documento } });
+                if (existingDocumento) {
+                    return res.status(400).json({ message: "El NIT/documento ya está registrado." });
+                }
+                user.documento = documento;
+            }
+            // Permitir que Empresa cambie su propio estado
+            if (estado) {
                 user.estado = estado;
             }
             if (foto_perfil) user.foto_perfil = foto_perfil;
@@ -926,8 +966,22 @@ const updateUserProfile = async (req, res) => {
                     ciudad_ID
                 } = empresaData;
 
-                if (NIT) user.Empresa.NIT = NIT;
-                if (email_empresa) user.Empresa.email_empresa = email_empresa;
+                // Unicidad NIT y email_empresa cuando Empresa actualiza su Empresa
+                const empresaIdActual = user.Empresa.ID;
+                if (NIT && NIT !== user.Empresa.NIT) {
+                    const nitExistente = await Empresa.findOne({ where: { NIT, ID: { [Op.ne]: empresaIdActual } } });
+                    if (nitExistente) {
+                        return res.status(400).json({ message: "El NIT de la empresa ya está registrado." });
+                    }
+                    user.Empresa.NIT = NIT;
+                }
+                if (email_empresa && email_empresa !== user.Empresa.email_empresa) {
+                    const emailEmpExistente = await Empresa.findOne({ where: { email_empresa, ID: { [Op.ne]: empresaIdActual } } });
+                    if (emailEmpExistente) {
+                        return res.status(400).json({ message: "El email de la empresa ya está registrado." });
+                    }
+                    user.Empresa.email_empresa = email_empresa;
+                }
                 if (nombre_empresa) user.Empresa.nombre_empresa = nombre_empresa;
                 if (direccion) user.Empresa.direccion = direccion;
                 if (categoria) user.Empresa.categoria = categoria;
@@ -1301,13 +1355,18 @@ const getAprendicesByEmpresa = async (req, res) => {
 
 // Crear múltiples usuarios desde un archivo Excel
 const createMasiveUsers = async (req, res) => {
+    
     try {
+        const {empresaId} = req.params;
+        console.log(empresaId)
+        if (!empresaId) {
+            return res.status(400).json({message : "No se tiene el id de la empresa"})
+        }
         if (!req.file || !req.file.buffer) {
             return res.status(400).json({ message: 'No se ha subido ningún archivo.' });
         }
 
         const Archivo = req.file.buffer;
-        console.log(req.file.buffer)
         // Leer el archivo con xlsx
         const workbook = xlsx.read(Archivo, { type: 'buffer' });
 
@@ -1318,31 +1377,30 @@ const createMasiveUsers = async (req, res) => {
         if (!hoja) {
             return res.status(400).json({ message: 'El archivo no contiene hojas válidas.' });
         }
+        const usuarios = xlsx.utils.sheet_to_json(hoja)
+        
+       const usuariosLimpios = await Promise.all(
+            usuarios.map(async (u) =>{
+                const hashedPassword = await bcrypt.hash(u.contraseña, 10)
+                return {
+                    nombres : u.nombres?.trim(),
+                    apellidos : u.apellidos?.trim(),
+                    email : u.email?.toLowerCase(),
+                    documento : String(u.documento).trim(),
+                    password : hashedPassword,
+                    accountType : "Aprendiz",
+                    empresa_ID : empresaId
+                }
+            })
+       )
 
-        // Obtener el rango de celdas
-        const rango = xlsx.utils.decode_range(hoja['!ref']);
 
-        // Verificar si la celda C2 existe
-        const celdaTitulo = hoja['C2'];
-        if (!celdaTitulo) {
-            return res.status(400).json({ message: 'La celda C2 no contiene un título válido.' });
-        }
-
-        // Extraer los valores de la columna C desde la fila 3 hacia abajo
-        const valoresColumna = [];
-        for (let fila = 2; fila <= rango.e.r; fila++) { // Comienza desde la fila 2 (índice 1 en base 0)
-            const celda = hoja[`C${fila + 1}`]; // Celdas C3, C4, etc.
-            if (celda) {
-                valoresColumna.push(celda.v);
-            }
-        }
-
-        if (valoresColumna.length === 0) {
-            return res.status(400).json({ message: 'El archivo no contiene datos en la columna C.' });
+        if (usuariosLimpios.length === 0) {
+            return res.status(400).json({ message: 'El archivo no contiene datos' });
         }
 
         // Verificar si hay usuarios duplicados en el archivo
-        const duplicados = valoresColumna.filter((item, index) => valoresColumna.indexOf(item) !== index);
+        const duplicados = usuariosLimpios.filter((item, index) => usuariosLimpios.indexOf(item) !== index);
         if (duplicados.length > 0) {
             // Excepción: permitir duplicados si son valores vacíos ("")
             const duplicadosFiltrados = duplicados.filter(item => item !== "");
@@ -1356,9 +1414,28 @@ const createMasiveUsers = async (req, res) => {
         }
 
         // Verificar si hay usuarios repetidos en la base de datos antes de crear
-        const emails = valoresColumna.map(identificacion => `${identificacion}@example.com`);
-        const existingUsers = await User.findAll({ where: { email: emails } });
-
+        const emails = usuariosLimpios.map((e) =>{
+            return {
+                email : e.email,
+                accountType : e.accountType
+            }
+        })
+        
+        const emailList = await Promise.all(
+            emails.map( async (e) =>{
+                const newEmail = e.email
+                const payload = { data: { newEmail } };
+                const  token = generateToken(payload, process.env.JWT_SECRET, 5)
+                return {
+                    email : newEmail,
+                    token : token,
+                    accountType : e.accountType
+                }
+            })
+        )
+        
+        const emails2 = emails.map((e) =>{return e.email})
+        const existingUsers = await User.findAll({ where: { email: emails2 } });
         if (existingUsers.length > 0) {
             const repetidos = existingUsers.map(user => user.email);
             return res.status(409).json({
@@ -1366,31 +1443,17 @@ const createMasiveUsers = async (req, res) => {
                 repetidos
             });
         }
+        // Crear usuarios con los datos extraídos 
+        await  User.bulkCreate(usuariosLimpios, {ignoreDuplicates : true})
 
-        // Crear usuarios con los datos extraídos
-        for (const identificacion of valoresColumna) {
-            if (!identificacion || identificacion === '') {
-                console.warn(`Número de identificación inválido: ${identificacion}`);
-                continue; // Saltar si el Número de Identificación no es válido
-            }
+        await Promise.all(
+            emailList.map((list) =>{
+                sendVerificationEmail(list.email, list.token, list.accountType)
+            })
+        )
 
-            const email = `${identificacion}@example.com`;
-            const password = `${identificacion.toString()}example`;
+        return res.status(200).json({menssage : "se insertaron los usuarios con exito"})
 
-            // Crear el usuario
-            const hashedPassword = await bcrypt.hash(password, 10);
-            await User.create({
-                email,
-                password: hashedPassword,
-                accountType: 'Aprendiz', // Tipo de cuenta por defecto
-                cedula: identificacion,
-                verificacion_email: true,
-            });
-        }
-
-        return res.json({
-            message: "Usuarios creados exitosamente.",
-        });
     } catch (error) {
         console.error("Error al procesar el archivo:", error);
         return res.status(500).json({ error: 'Error al procesar el archivo' });
@@ -1460,6 +1523,169 @@ const createEmpleado = async (req, res) => {
         // Generar token de verificación
         const payload = {email};
 
+        const token = generateToken(payload, process.env.JWT_SECRET, 5);
+
+        // Encriptar la contraseña (si no se envía, usar una por defecto)
+        const hashedPassword = await bcrypt.hash(password || "defaultPassword123", 10);
+
+        // Crear el empleado (Aprendiz)
+        const newEmpleado = await User.create({
+            nombres,
+            apellidos,
+            email,
+            tipoDocumento,
+            documento,
+            celular,
+            estado,
+            titulo_profesional: titulo_profesional || null,
+            foto_perfil,
+            accountType: "Aprendiz",
+            empresa_ID: empresaId,
+            password: hashedPassword,
+            verificacion_email: false,
+            token,
+        });
+
+        // Enviar correo de verificación
+        await sendVerificationEmail(email, token);
+
+        res.status(201).json({ message: "Empleado creado con éxito. Por favor verifica tu correo.", empleado: newEmpleado });
+    } catch (error) {
+        console.error("Error al crear el empleado:", error);
+        res.status(500).json({ message: "Error al crear el empleado." });
+    }
+};
+
+// Obtener todos los empleados para administradores con filtros avanzados
+const getAllEmpleadosForAdmin = async (req, res) => {
+    try {
+        const { 
+            page = 1, 
+            limit = 10, 
+            search = '', 
+            empresaId = '', 
+            estado = '', 
+            tipoDocumento = '' 
+        } = req.query;
+
+        const offset = (page - 1) * limit;
+        
+        // Construir condiciones de búsqueda
+        const whereConditions = {
+            accountType: "Aprendiz"
+        };
+
+        // Filtro por empresa
+        if (empresaId) {
+            whereConditions.empresa_ID = empresaId;
+        }
+
+        // Filtro por estado
+        if (estado) {
+            whereConditions.estado = estado;
+        }
+
+        // Filtro por tipo de documento
+        if (tipoDocumento) {
+            whereConditions.tipoDocumento = tipoDocumento;
+        }
+
+        // Búsqueda por nombre, apellido, documento o email
+        if (search) {
+            whereConditions[Op.or] = [
+                { nombres: { [Op.like]: `%${search}%` } },
+                { apellidos: { [Op.like]: `%${search}%` } },
+                { documento: { [Op.like]: `%${search}%` } },
+                { email: { [Op.like]: `%${search}%` } }
+            ];
+        }
+
+        // Obtener empleados con información de empresa
+        const { count, rows: empleados } = await User.findAndCountAll({
+            where: whereConditions,
+            include: [
+                {
+                    model: Empresa,
+                    as: 'Empresa',
+                    attributes: ['ID', 'nombre_empresa', 'NIT']
+                }
+            ],
+            attributes: { exclude: ['password', 'token', 'resetPasswordToken', 'resetPasswordExpires'] },
+            limit: parseInt(limit),
+            offset: parseInt(offset),
+            order: [['nombres', 'ASC']]
+        });
+
+        const totalPages = Math.ceil(count / limit);
+
+        res.status(200).json({
+            success: true,
+            empleados,
+            pagination: {
+                currentPage: parseInt(page),
+                totalPages,
+                totalItems: count,
+                itemsPerPage: parseInt(limit)
+            }
+        });
+    } catch (error) {
+        console.error("Error al obtener empleados para administrador:", error);
+        res.status(500).json({ message: "Error al obtener los empleados." });
+    }
+};
+
+// Obtener todas las empresas para el selector de administradores
+const getAllEmpresasForAdmin = async (req, res) => {
+    try {
+        const empresas = await Empresa.findAll({
+            attributes: ['ID', 'nombre_empresa', 'NIT', 'estado'],
+            where: { estado: 'activo' },
+            order: [['nombre_empresa', 'ASC']]
+        });
+
+        res.status(200).json({ success: true, empresas });
+    } catch (error) {
+        console.error("Error al obtener empresas:", error);
+        res.status(500).json({ message: "Error al obtener las empresas." });
+    }
+};
+
+// Crear empleado para cualquier empresa (solo administradores)
+const createEmpleadoForAdmin = async (req, res) => {
+    try {
+        const { nombres, apellidos, email, tipoDocumento, documento, celular, estado, titulo_profesional, password, empresaId } = req.body;
+
+        // Validar datos obligatorios
+        if (!nombres || !apellidos || !email || !tipoDocumento || !documento || !celular || !estado || !empresaId) {
+            return res.status(400).json({ message: "Todos los campos son obligatorios." });
+        }
+
+        // Verificar si el correo ya está registrado
+        const existingEmail = await User.findOne({ where: { email } });
+        if (existingEmail) {
+            return res.status(400).json({ message: "El correo ya está registrado." });
+        }
+
+        // Verificar si el documento ya está registrado
+        const existingDocumento = await User.findOne({ where: { documento } });
+        if (existingDocumento) {
+            return res.status(400).json({ message: "El documento ya está registrado." });
+        }
+
+        // Verificar que la empresa exista
+        const empresa = await Empresa.findByPk(empresaId);
+        if (!empresa) {
+            return res.status(404).json({ message: "Empresa no encontrada." });
+        }
+
+        // Procesar imagen de perfil si se sube
+        let foto_perfil = null;
+        if (req.file) {
+            foto_perfil = req.file.buffer.toString('base64');
+        }
+
+        // Generar token de verificación
+        const payload = { email };
         const token = generateToken(payload, process.env.JWT_SECRET, 5);
 
         // Encriptar la contraseña (si no se envía, usar una por defecto)
@@ -1611,6 +1837,49 @@ const subirDocumentoIdentidad = async (req, res) => {
     }
 };
 
+const checkProfileComplete = async (req, res) => {
+  try {
+    const token = req.cookies.accessToken;
+    if (!token) {
+      return res.status(401).json({ message: "No autorizado" });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || "secret");
+    const user = await User.findByPk(decoded.id, {
+      include: [{ model: Empresa, as: 'Empresa' }]
+    });
+    
+    if (!user) {
+      return res.status(404).json({ message: "Usuario no encontrado" });
+    }
+
+    let isComplete = true;
+    let missingFields = [];
+
+    // Validar según tipo de cuenta
+    if (user.accountType === "Aprendiz") {
+      const required = ['nombres', 'apellidos', 'celular', 'email'];
+      missingFields = required.filter(field => !user[field]);
+      isComplete = missingFields.length === 0;
+    } 
+    else if (user.accountType === "Empresa" && user.Empresa) {
+      const required = ['nombre_empresa', 'NIT', 'direccion', 'telefono', 'email_empresa'];
+      missingFields = required.filter(field => !user.Empresa[field]);
+      isComplete = missingFields.length === 0;
+    }
+
+    res.json({ 
+      isComplete,
+      missingFields,
+      accountType: user.accountType,
+      userId: user.id
+    });
+  } catch (error) {
+    console.error("Error verificando perfil:", error);
+    res.status(500).json({ message: "Error verificando perfil" });
+  }
+};
+
 module.exports = { 
     subirDocumentoIdentidad, 
     getEmpresaById, 
@@ -1637,5 +1906,9 @@ module.exports = {
     createMasiveUsers, 
     getEmpresaByNIT,
     requestNewVerificationEmail,
-    recordLogin
+    checkProfileComplete,
+    recordLogin,
+    getAllEmpleadosForAdmin,
+    getAllEmpresasForAdmin,
+    createEmpleadoForAdmin
 };

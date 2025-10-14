@@ -15,5 +15,23 @@ const authMiddleware = (req, res, next) => {
     }
 };
 
+// Middleware para autorizar por roles
+// Uso: authorizeRoles(['Administrador', 'Gestor'])
+const authorizeRoles = (allowedRoles = []) => {
+    return (req, res, next) => {
+        try {
+            const userRole = req.user?.accountType || req.user?.data?.accountType; // compatibilidad
+            if (!userRole) {
+                return res.status(403).json({ message: "Rol no disponible en el token" });
+            }
+            if (!allowedRoles.includes(userRole)) {
+                return res.status(403).json({ message: "No tienes permisos para esta operación" });
+            }
+            next();
+        } catch (error) {
+            return res.status(403).json({ message: "Acceso denegado" });
+        }
+    };
+};
 
-module.exports = { authMiddleware };
+module.exports = { authMiddleware, authorizeRoles };

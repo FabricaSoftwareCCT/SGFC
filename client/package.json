@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "commonjs",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --host 0.0.0.0",
     "build": "vite build",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
@@ -29,7 +29,7 @@
     "react-dom": "^18.2.0",
     "react-icons": "^5.5.0",
     "react-router-dom": "^7.2.0",
-    "react-select": "^5.10.1",
+    "react-select": "^5.10.2",
     "react-signature-canvas": "^1.1.0-alpha.2",
     "swiper": "^11.2.8",
     "trim-canvas": "^0.1.2"

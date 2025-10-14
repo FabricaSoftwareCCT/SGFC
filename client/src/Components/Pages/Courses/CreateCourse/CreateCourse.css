@@ -4,25 +4,29 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  margin-bottom: 15px;
+  overflow: visible; /* Agregar esto */
 }
 
 .container_createCourse>h2 {
   width: 100%;
   height: auto;
   color: #fff;
-  font-size: 48px;
+  font-size: 36px; /* Reducido de 48px */
   text-align: center;
-  margin-top: 2rem;
+  margin-top: 1rem; /* Reducido de 2rem */
+  margin-bottom: 1rem;
 }
 
 .containerInformation_CreateCourse {
-  width: 100%;
+  width: 90%;
   height: auto;
   display: flex;
   justify-content: center;
-  align-items: center;
-  margin-top: 2rem;
-  gap: 5rem;
+  align-items: flex-start;
+  margin-top: 1rem;
+  gap: 3rem;
+  overflow: visible; /* Agregar esto */
 }
 
 .containerInformation_CreateCourse>input {
@@ -42,23 +46,21 @@
 .descripcion-counter {
   width: auto;
   height: auto;
-  font-size: 0.95em;
+  font-size: 0.85em; /* Reducido */
   margin-top: 2px;
 }
 
 .descripcion-counter.rojo {
   color: #d32f2f;
-  /* Rojo cuando es menor a 250 */
 }
 
 .descripcion-counter.verde {
   color: #388e3c;
-  /* Verde cuando es 250 o más */
 }
 
 .upload-area {
-  width: 220px;
-  height: 250px;
+  width: 200px; /* Reducido de 220px */
+  height: 230px; /* Reducido de 250px */
   border: 2px dotted #ccc;
   border-radius: 15px;
   display: flex;
@@ -76,13 +78,13 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  font-size: 14px;
+  font-size: 13px; /* Reducido */
 }
 
 .icon {
-  width: 90px;
+  width: 70px; /* Reducido de 90px */
   height: auto;
-  margin: 4rem 0 2rem 0;
+  margin: 3rem 0 1.5rem 0; /* Ajustado */
   opacity: 0.6;
 }
 
@@ -96,28 +98,37 @@
 .upload-placeholder>p {
   width: 10rem;
   height: auto;
+  font-size: 13px; /* Reducido */
 }
 
 .containerDetails_course {
-  width: 50%;
-  height: auto;
+  width: 55%; /* Ajustado de 50% */
+  height: 100%;
   display: flex;
   flex-direction: column;
-  gap: 0.7rem;
+  gap: .5rem; /* Reducido de 1.7rem */
   align-items: center;
 }
-
-
 
 .addName,
 .addDetails {
   width: 99%;
   height: 2rem;
+  margin-top: 0.5rem; /* Reducido de 1rem */
   background-color: transparent;
   border-style: none;
   border: 1px solid #b0b0b0;
   border-radius: 10px;
   padding-left: 5px;
+  outline: none;
+  font-size: 14px;
+  transition: border 0.2s ease-in-out;
+}
+
+.addName:focus,
+.addDetails:focus {
+  border: 1px solid #2F8EAC;
+  box-shadow: 0 0 3px rgba(47, 142, 172, 0.6);
 }
 
 /* Chrome, Safari, Edge, Opera */
@@ -128,29 +139,29 @@
 }
 
 .addDetails {
-  height: 5rem;
+  height: 4rem; /* Reducido de 5rem */
   padding-top: 5px;
 }
 
 .buttonCreate_Course {
-  width: 10rem;
+  margin-top: 10px; /* Reducido de 30px */
+  width: 9rem; /* Reducido */
   height: auto;
   background-color: #00843D;
   list-style: none;
   border-style: none;
   border-radius: 15px;
   color: #fff;
-  font-size: 1.2rem;
+  font-size: 1.1rem; /* Reducido de 1.2rem */
   cursor: pointer;
-  padding: 0.5rem;
-
+  padding: 0.4rem; /* Reducido */
 }
 
 .offer-type-container {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 14px;
+  font-size: 13px; /* Reducido de 14px */
   width: auto;
   height: auto;
   justify-content: start;
@@ -159,18 +170,18 @@
 .offer-type-container>span {
   width: auto;
   height: auto;
-  font-size: 14px;
+  font-size: 13px; /* Reducido */
 }
 
 .offer-options {
   width: auto;
   height: auto;
   display: flex;
-  gap: 8px;
+  gap: 6px; /* Reducido de 8px */
 }
 
 .offer-button {
-  padding: 4px 12px;
+  padding: 3px 10px; /* Reducido */
   border-radius: 999px;
   width: auto;
   height: auto;
@@ -180,11 +191,11 @@
   background-color: #b0b0b01c;
   color: #ccc;
   transition: all 0.2s ease;
+  font-size: 13px; /* Reducido */
 }
 
 .offer-button.active {
   background-color: #00843D;
-  /* verde */
   color: white;
   width: auto;
   height: auto;
@@ -192,43 +203,44 @@
 
 .containerInput_company,
 .containerInput_ficha {
-  width: auto;
+  width: 100%;
   height: auto;
   display: flex;
-  font-size: 14px;
-  align-items: center;
-  gap: 2.5rem;
+  flex-direction: column;
+  font-size: 13px; /* Reducido de 14px */
+  gap: 0.3rem; /* Reducido de 0.5rem */
+  margin-bottom: 0.3rem; /* Reducido */
 }
 
-.containerInput_ficha {
-  justify-content: end;
-  width: 100%;
-}
-
-
-#nit_company,
-#fichaCourse {
-  width: 10rem;
-  height: auto;
-  font-size: 14px;
-  border: 1px solid #b0b0b0;
-  border-radius: 10px;
-  padding: 0.3rem;
-  border-style: node;
-  background-color: #1a1a1a;
-  z-index: 100;
-}
-
-.containerInput_company>label,
-#containerInput_ficha>label {
+.containerInput_ficha label,
+.containerInput_company label {
   width: auto;
   height: auto;
+  color: #fff;
+  font-size: 13px; /* Reducido */
+}
+
+.input-field {
+  width: 99%;
+  height: 1.8rem; /* Reducido de 2rem */
+  background-color: transparent;
+  border: 1px solid #b0b0b0;
+  border-radius: 10px;
+  padding-left: 5px;
+  outline: none;
+  font-size: 13px; /* Reducido de 14px */
+  transition: border 0.2s ease-in-out;
+}
+
+.input-field:focus {
+  border: 1px solid #2F8EAC;
+  box-shadow: 0 0 3px rgba(47, 142, 172, 0.6);
 }
 
 #p_addInstructor {
   width: auto;
   height: auto;
-  font-size: 14px;
+  font-size: 13px; /* Reducido */
   text-align: start;
   display: flex;
   align-items: center;
@@ -240,11 +252,10 @@
   background-color: transparent;
   border-style: none;
   margin-left: 7px;
-
 }
 
 #p_addInstructor>button>img {
-  width: 1.5rem;
+  width: 1.3rem; /* Reducido de 1.5rem */
   height: auto;
 }
 
@@ -253,9 +264,9 @@
   height: auto;
   display: flex;
   justify-content: center;
-  align-items: center;
-  gap: 1rem;
-  margin: 0.5rem 0 1rem 0;
+  align-items: flex-start;
+  gap: 0.8rem; /* Reducido de 1rem */
+  margin: 0.3rem 0 0.8rem 0; /* Reducido */
 }
 
 .containerDetails_course2>div {
@@ -263,7 +274,7 @@
   height: auto;
   display: flex;
   flex-direction: column;
-  gap: 0.7rem;
+  gap: 0.5rem; /* Reducido de 0.7rem */
 }
 
 .addDate {
@@ -276,12 +287,14 @@
   flex-direction: column;
   align-items: center;
   color: #00843D;
+  cursor: pointer;
+  font-size: 13px; /* Reducido */
 }
 
 .addDate>img {
-  width: 2rem;
+  width: 1.8rem; /* Reducido de 2rem */
   height: auto;
-  margin: 1rem 0 0.5rem 0;
+  margin: 0.5rem 0 0.3rem 0; /* Reducido */
 }
 
 /* Resultado de búsqueda empresa */
@@ -291,24 +304,26 @@
   border-left: 1px solid #b0b0b0;
   border-right: 1px solid #b0b0b0;
   border-bottom: 1px solid #b0b0b0;
-  max-height: 150px;
-  min-height: 38px;
+  max-height: 120px; /* Reducido */
+  min-height: 32px; /* Reducido */
   overflow-y: auto;
   background-color: #1a1a1a;
   position: absolute;
-  bottom: -3rem;
-  left: 9.5rem;
+  bottom: 4.5rem; /* Ajustado */
+  left: 34.9rem;
   z-index: 10;
   width: 50%;
   height: auto;
+  font-size: 12px; /* Reducido */
 }
 
 .resultados-empresa li {
-  padding: 20px 8px 8px 0px;
+  padding: 15px 6px 6px 6px; /* Reducido */
   cursor: pointer;
   transition: background 0.2s ease;
   width: auto;
   height: auto;
+  font-size: 12px; /* Reducido */
 }
 
 .resultados-empresa li:hover {
@@ -320,13 +335,13 @@
   height: auto;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px; /* Reducido */
 }
 
 .nombre_empresaSeleccionada{
   width: auto;
   height: auto;
-  font-size: 14px;
+  font-size: 13px; /* Reducido */
   color: #fff;
   margin: 0;
 }
@@ -339,5 +354,91 @@
   cursor: pointer;
   padding: 0;
   color: #00843D;
-  font-size: 14px;
+  font-size: 13px; /* Reducido */
+}
+
+.buttonEditEmpresa img {
+  width: 18px; /* Reducido de 20px */
+  height: 18px; /* Reducido de 20px */
+}
+
+/* Media queries para ajustes adicionales */
+@media (max-width: 1024px) {
+  .containerInformation_CreateCourse {
+    width: 95%;
+    gap: 2rem;
+  }
+  
+  .containerDetails_course {
+    width: 60%;
+  }
+}
+
+@media (max-width: 768px) {
+  .containerInformation_CreateCourse {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  
+  .containerDetails_course {
+    width: 90%;
+  }
+  
+  .containerDetails_course2 {
+    flex-direction: column;
+  }
+  
+  .containerDetails_course2 > div {
+    width: 100%;
+  }
+  
+  .upload-area {
+    width: 180px;
+    height: 210px;
+  }
+  
+  .resultados-empresa {
+    position: relative;
+    width: 100%;
+    left: 0;
+    bottom: 0;
+    margin-top: 0.3rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .container_createCourse > h2 {
+    font-size: 28px;
+  }
+  
+  .containerInformation_CreateCourse {
+    gap: 1rem;
+    width: 95%;
+  }
+  
+  .upload-area {
+    width: 160px;
+    height: 190px;
+  }
+  
+  .icon {
+    width: 60px;
+    margin: 2.5rem 0 1rem 0;
+  }
+}
+.containerDetails_course {
+  overflow: visible !important;
+}
+
+.containerDetails_course2 {
+  overflow: visible !important;
+}
+
+/* Asegurar que ningún contenedor interno tenga scroll */
+.containerInput_description_course,
+.offer-type-container,
+.offer-options,
+.containerInput_company,
+.containerInput_ficha {
+  overflow: visible !important;
 }

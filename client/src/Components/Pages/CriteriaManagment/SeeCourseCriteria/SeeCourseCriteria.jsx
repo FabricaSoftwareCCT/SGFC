@@ -23,6 +23,7 @@ export const SeeAllCourseCriteria = () => {
 	const [searchDate, setSearchDate] = useState()
 	const [searchAuthor, setSearchAuthor] = useState("")
 	const [totalAmount, setTotalAmount] = useState(0)
+	const [editedCriteria, setEditedCriteria] = useState([])
 	
 	const [page, setPage] = useState(0)
 	const [pages, setPages] = useState(1)
@@ -31,6 +32,14 @@ export const SeeAllCourseCriteria = () => {
 		if (editing) {
 			let myBC = [...criteria]
 			let myself = myBC[myBC.findIndex((c) => c.id == criteriaData.id)]
+			function markEdited () {
+				if (!editedCriteria.includes(criteriaData.id)) {
+					setEditedCriteria([
+						...editedCriteria,
+						criteriaData.id
+					])
+				}
+			}
 			return (
 				<div key={criteriaData.id} className="criteria-item" id={criteriaData.id}>
 					<div className="criteria-head">
@@ -38,6 +47,7 @@ export const SeeAllCourseCriteria = () => {
 							className="editing-criteria-title"
 							value={criteriaData.title}
 							onChange={(e) => {
+								markEdited()
 								myself.title = e.target.value
 								setCriteria(myBC)
 							}}
@@ -46,6 +56,7 @@ export const SeeAllCourseCriteria = () => {
 							<input 
 								value={criteriaData.value} type="number"
 								onChange={(e) => {
+									markEdited()
 									myself.value = e.target.value
 									setCriteria(myBC)
 								}}
@@ -55,6 +66,7 @@ export const SeeAllCourseCriteria = () => {
 							<input
 								value={criteriaData.min} type="number"
 								onChange={(e) => {
+									markEdited()
 									myself.min = e.target.value
 									setCriteria(myBC)
 								}}
@@ -66,6 +78,7 @@ export const SeeAllCourseCriteria = () => {
 								type="number"
 								value={criteriaData.weight}
 								onChange={(e) => {
+									markEdited()
 									myself.weight = e.target.value
 									setCriteria(myBC)
 								}}
@@ -76,6 +89,7 @@ export const SeeAllCourseCriteria = () => {
 						defaultValue={criteriaData.description}
 						className="description-edition criteria-description"
 						onChange={(e) => {
+							markEdited()
 							myself.description = e.target.value
 							setCriteria(myBC)
 						}}
@@ -100,13 +114,27 @@ export const SeeAllCourseCriteria = () => {
 	}
 
 	async function saveChanges () {
-		setCriteria(criteriaBackup)
+		for (let criteriaID of editedCriteria) {
+			try {
+				let response = await axiosInstance.put(`/api/certification/update/${criteriaID}`, {
+					...criteria.find((c) => c.id == criteriaID),
+					course: id
+				})
+				if (response.status != 200 && response.status != 304) {
+					throw response.data
+				}
+			} catch (error) {
+				console.error(error)
+				alert("Ocurrió un error al actualizar los criterios")
+			}
+		}
 		setEditing(false)
+		fetchCriteria()
 	}
 
 	async function filter () {
 		try {
-			let response = await axiosInstance.get(`/api/certification/course/1?page=${page}${
+			let response = await axiosInstance.get(`/api/certification/course/${id}?page=${page}${
 				searchName.length > 0 ? `&name=${searchName}` : ""
 			}${
 				searchDate ? `&date=${(new Date(searchDate)).getTime()}` : ""
@@ -128,7 +156,7 @@ export const SeeAllCourseCriteria = () => {
 
 	async function fetchCriteria () {
 		try {
-			let response = await axiosInstance.get(`/api/certification/course/1?page=${page}`)
+			let response = await axiosInstance.get(`/api/certification/course/${id}?page=${page}`)
 			if (response.status != 200 && response.status != 304) {
 				throw response.data
 			}

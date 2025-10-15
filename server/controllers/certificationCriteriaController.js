@@ -2,7 +2,8 @@ const Curso = require("../models/curso")
 const CursoTieneCriterio = require("../models/CursoTieneCriterio")
 const Criterio = require("../models/Criterio")
 const Usuario = require("../models/User");
-const { Op, where, fn, col } = require("sequelize");
+const EdicionCriterio = require("../models/EdicionCriterio")
+const { Op } = require("sequelize");
 
 let dbInstance;
 
@@ -180,8 +181,74 @@ const createCriteriosCurso = async (req, res) => {
 	}
 }
 
+const updateCriteria = async (req, res) => {
+	try {
+		const criteria = req.params.id
+		const { title, min, description, bias, course } = req.body
+		const { id, accountType } = req.user
+
+		if (accountType !== "Administrador" && accountType !== "Instructor") {
+			return res.status(403).json({ message: "No tienes permisos para crear criterios." });
+		}
+
+		let criteriaData = Criterio.findByPk(criteria)
+		if (!criteriaData)
+			return res.status(404).json({message: "Criterio no encontrado."})
+
+		let updatedData = {}
+
+		if (title?.length > 0) {
+			updatedData = {
+				...updatedData,
+				title
+			}
+		}
+
+		if (!isNaN(min) && min > 0) {
+			updatedData = {
+				...updatedData,
+				min
+			}
+		}
+
+		if (description?.length > 0) {
+			updatedData = {
+				...updatedData,
+				description
+			}
+		}
+
+		if (!isNaN(bias)) {
+			const avgCombined = (await dbInstance.sequelize.query(`SELECT IFNULL(AVG(c.weight), 0) AS full_avg FROM curso_tiene_criterio ctc JOIN criterio c ON ctc.curso_ID = c.ID WHERE ctc.curso_ID = ${course}`))[0][0].full_avg
+			if ((parseFloat(avgCombined) + parseFloat(bias)) > 100)
+				return res.status(401).json({message: "La ponderación da más del 100%"})
+			updatedData = {
+				...updatedData,
+				bias
+			}
+		}
+
+		await Criterio.update(updatedData, {
+			where: {
+				ID: criteria
+			}
+		})
+
+		await EdicionCriterio.create({
+			usuario_ID: id,
+			criterio_ID: course
+		})
+
+		return res.status(200).json({ message: "Criterio actualizado" })
+	} catch (error) {
+		console.error(`Error al crear el criterio: ${error}`)
+		return res.status(500).json({ message: "Error interno al editar el criterio de certificación" })
+	}
+}
+
 module.exports = {
 	obtenerCriteriosCertificacionCurso,
 	createCriteriosCurso,
+	updateCriteria,
 	setDb
 }

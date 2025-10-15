@@ -7,11 +7,7 @@ class EdicionCriterio extends Model {
 				edicion: {
 					type: DataTypes.DATE,
 					defaultValue: DataTypes.NOW,
-					allowNull: false
-				},
-				descripcion: {
-					type: DataTypes.STRING(48),
-					allowNull: false
+					allowNull: true
 				}
 			},
 			{

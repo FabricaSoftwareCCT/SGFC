@@ -1,12 +1,18 @@
 const { DataTypes, Model } =  require("sequelize");
 
-class CursoTieneCriterio extends Model {
+class UsuarioTieneCriterios extends Model {
 	static init (sequelize) {
 		super.init(
-			{},
+			{
+				value: {
+					type: DataTypes.DOUBLE,
+					defaultValue: 0,
+					allowNull: false
+				}
+			},
 			{
 				sequelize,
-				tableName: "curso_tiene_criterio",
+				tableName: "usuario_tiene_criterios",
 				timestamps: false
 			}
 		)
@@ -14,7 +20,7 @@ class CursoTieneCriterio extends Model {
 
 	static associate(models) {
 		this.belongsTo(models.Usuario, {
-			foreignKey: "author_ID",
+			foreignKey: "usuario_ID",
 			onDelete: 'NO ACTION', 
 			onUpdate: 'NO ACTION',
 		})
@@ -23,12 +29,7 @@ class CursoTieneCriterio extends Model {
 			onDelete: "NO ACTION",
 			onUpdate: "NO ACTION"
 		})
-		this.belongsTo(models.Curso, {
-			foreignKey: "curso_ID",
-			onDelete: "NO ACTION",
-			onUpdate: "NO ACTION"
-		})
 	}
 }
 
-module.exports = CursoTieneCriterio
+module.exports = UsuarioTieneCriterios

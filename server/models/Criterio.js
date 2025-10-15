@@ -35,8 +35,9 @@ class Criterio extends Model {
 					allowNull: true
 				},
 				type: {
-					type: DataTypes.ENUM("Asistencias", "Calificacion", "Horas", "Documentos"),
-					allowNull: false
+					type: DataTypes.ENUM("Asistencias", "Calificacion", "Horas", "Documentos", "Ninguno"),
+					defaultValue: "Ninguno",
+					allowNull: false,
 				}
 			},
 			{

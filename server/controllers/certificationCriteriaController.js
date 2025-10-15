@@ -1,7 +1,8 @@
 const Curso = require("../models/curso")
 const CursoTieneCriterio = require("../models/CursoTieneCriterio")
 const Criterio = require("../models/Criterio")
-const Usuario = require("../models/User")
+const Usuario = require("../models/User");
+const { Op, where, fn, col } = require("sequelize");
 
 let dbInstance;
 
@@ -13,7 +14,10 @@ const setDb = (databaseInstance) => {
 // Consultar los criterios de un curso
 const obtenerCriteriosCertificacionCurso = async (req, res) => {
 	const { id } = req.params
-	const page = req.params.page ?? 0
+	const page = req.query.page ?? 0
+	const limit = req.query.limit ?? 5
+	const { name, date, author } = req.query
+
 	try {
 		let criteria = []
 		let course = await Curso.findByPk(id)
@@ -21,17 +25,68 @@ const obtenerCriteriosCertificacionCurso = async (req, res) => {
 		if (!course)
 			return res.status(404).json({message: "Curso no encontrado."})
 
+		let whereTerms = {}
+
+		if (name?.length > 0) {
+			whereTerms = {
+				...whereTerms,
+				title: {
+					[Op.like]: `%${name}%`
+				}
+			}
+		}
+
+		if (date?.length > 0) {
+			let d = new Date(parseInt(date))
+			let bd = new Date(parseInt(date) - (86400000 * 2))
+			let ad = new Date(parseInt(date) + (86400000 * 1))
+			whereTerms = {
+				...whereTerms,
+				creation: {
+					[Op.between]: [bd, ad],
+				}
+			}
+		}
+
 		const criteriosCurso = await CursoTieneCriterio.findAll({
 			where: {
-				curso_ID: id
+				curso_ID: id,
 			},
-			include: [
-				{
-					model: Criterio
-				}
-			],
-			limit: 2,
-			offset: 2 * page
+			include: !(author?.length > 0) ?
+				[
+					{
+						model: Criterio,
+						where: whereTerms
+					}
+				]
+			: 
+				[
+					{
+						model: Usuario,
+						where: {
+							[Op.or]: [
+								{
+									accountType: {
+										[Op.like]: `%${author}%`
+									}
+								}, {
+									nombres: {
+										[Op.like]: `%${author}%`
+									}
+								}, {
+									apellidos: {
+										[Op.like]: `%${author}%`
+									}
+								}
+							]
+						}
+					}, {
+						model: Criterio,
+						where: whereTerms
+					}
+				],
+			limit: limit,
+			offset: limit * page
 		})
 
 		for (let c of criteriosCurso) {
@@ -67,7 +122,7 @@ const obtenerCriteriosCertificacionCurso = async (req, res) => {
 		res.status(200).json({
 			criteria,
 			page,
-			max_pages: Math.ceil(totalAmount / 2), 
+			max_pages: Math.ceil(totalAmount / limit), 
 			total: totalAmount,
 		})
 	} catch (error) {

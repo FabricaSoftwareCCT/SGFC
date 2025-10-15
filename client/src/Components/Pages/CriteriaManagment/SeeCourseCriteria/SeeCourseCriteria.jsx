@@ -22,6 +22,7 @@ export const SeeAllCourseCriteria = () => {
 	const [searchName, setSearchName] = useState("")
 	const [searchDate, setSearchDate] = useState()
 	const [searchAuthor, setSearchAuthor] = useState("")
+	const [totalAmount, setTotalAmount] = useState(0)
 	
 	const [page, setPage] = useState(0)
 	const [pages, setPages] = useState(1)
@@ -104,34 +105,37 @@ export const SeeAllCourseCriteria = () => {
 	}
 
 	async function filter () {
-		setCriteria(criteriaBackup.filter(
-			(c) => {
-				let valid = true
-				if (searchName.length > 0) {
-					valid = valid && c.title.includes(searchName)
-				}
-				if (searchDate != null) {
-					let a = new Date(searchDate)
-					a.setDate(a.getDate() + 1)
-					valid = valid && c.creation.date == a.toLocaleDateString("es-CO")
-				}
-				if (searchAuthor.length > 0) {
-					valid = valid && c.author.includes(searchAuthor)
-				}
-				return valid;
-			}
-		))
-	}
-
-	async function fetchCriteria () {
 		try {
-			let response = await axiosInstance.get("/api/certification/course/1")
+			let response = await axiosInstance.get(`/api/certification/course/1?page=${page}${
+				searchName.length > 0 ? `&name=${searchName}` : ""
+			}${
+				searchDate ? `&date=${(new Date(searchDate)).getTime()}` : ""
+			}${
+				searchAuthor.length > 0 ? `&author=${searchAuthor}` : ""
+			}`)
 			if (response.status != 200 && response.status != 304) {
 				throw response.data
 			}
 			setCriteria(response.data.criteria)
 			setCriteriaBackup(response.data.criteria)
 			setPages(response.data.max_pages)
+			setTotalAmount(response.data.total)
+		} catch (e) {
+			console.log(e)
+			alert("Ocurrió un error al buscar los criterios")
+		}
+	}
+
+	async function fetchCriteria () {
+		try {
+			let response = await axiosInstance.get(`/api/certification/course/1?page=${page}`)
+			if (response.status != 200 && response.status != 304) {
+				throw response.data
+			}
+			setCriteria(response.data.criteria)
+			setCriteriaBackup(response.data.criteria)
+			setPages(response.data.max_pages)
+			setTotalAmount(response.data.total)
 			setLoading(false)
 		} catch (e) {
 			console.log(e)
@@ -150,6 +154,15 @@ export const SeeAllCourseCriteria = () => {
 			navigate("/no-autorizado");
 		}
 	}, [])
+
+	useEffect(() => {
+		setLoading(true)
+		if (isLoggedIn && (accountType === "Instructor" || accountType == "Administrador")) { // || accountType === "Gestor"
+			fetchCriteria(page)
+		} else {
+			navigate("/no-autorizado");
+		}
+	}, [page])
 
 	return (
 		<>

@@ -1,228 +1,346 @@
-import "../SeeCriteria/SeeCriteria.css"
-import "./SeeCertificationHistorial.css"
+import "../SeeCriteria/SeeCriteria.css";
+import "./SeeCertificationHistorial.css";
 
-import { Header } from "../../../Layouts/Header/Header"
-import { Main } from "../../../Layouts/Main/Main"
-import { GoBackArrow } from "../../../UI/GoBackArrow/GoBackArrow"
-import { useNavigate } from "react-router-dom"
-import { useEffect, useState } from "react"
-import { PageMover } from "../../../UI/PageMover/PageMover"
+import { Header } from "../../../Layouts/Header/Header";
+import { Main } from "../../../Layouts/Main/Main";
+import { GoBackArrow } from "../../../UI/GoBackArrow/GoBackArrow";
+import { useNavigate, useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { PageMover } from "../../../UI/PageMover/PageMover";
+import axiosInstance from "../../../../config/axiosInstance";
 
 export const SeeCertificationHistorial = () => {
-	const navigate = useNavigate()
+	const navigate = useNavigate();
 
-	const [showFilters, setShowFilters] = useState(false)
-	const [filterName, setFilterName] = useState("")
-	const [filterDate, setFilterDate] = useState()
-	const [filterId, setFilterId] = useState("")
+	const { id } = useParams();
 
-	
-	const [showingDownloadOptions, setShowingDownloadingOptions] = useState(false)
-	const [aprentices, setAprentices] = useState([])
-	const [reportType, setReportType] = useState("pdf")
-	const [page, setPage] = useState(0)
-	const [pages, setPages] = useState(1)
+	const [showFilters, setShowFilters] = useState(false);
+	const [filterName, setFilterName] = useState("");
+	//const [filterDate, setFilterDate] = useState();
+	const [filterId, setFilterId] = useState("");
 
-	const userSession = JSON.parse(localStorage.getItem("userSession")) || JSON.parse(sessionStorage.getItem("userSession"))
-	const isLoggedIn = !!userSession
-	const accountType = userSession?.accountType || null
+	const [showingDownloadOptions, setShowingDownloadingOptions] =
+		useState(false);
+	const [aprentices, setAprentices] = useState([]);
+	const [reportType, setReportType] = useState("pdf");
+	const [page, setPage] = useState(0);
+	const [pages, setPages] = useState(1);
 
-	async function fetchAprentices () {
-		setAprentices([
-			{
-				name: "Pol pot",
-				personId: "1001001000",
-				ficha: "2525069",
-				state: "Activo",
-				certState: "Pendiente",
-				id: 420
-			},
-			{
-				name: "Francisco Macías Nguema",
-				personId: "1001001001",
-				ficha: "2525069",
-				state: "Activo",
-				certState: "Pendiente",
-				id: 421
-			},
-			{
-				name: "Isaias Afwerki",
-				personId: "1001001003",
-				ficha: "2525069",
-				state: "Activo",
-				certState: "Pendiente",
-				id: 423
-			}
-		])
+	//const [selectedAprentice, setSelectedAprentice] = useState();
+	const [showAprenticeCriteria, setShowAprenticeCriteria] = useState(false);
+	const [certificationState, setCertificationState] = useState("");
+	const [certificationDenial, setCertificationDenial] = useState("");
+
+	const userSession =
+		JSON.parse(localStorage.getItem("userSession")) ||
+		JSON.parse(sessionStorage.getItem("userSession"));
+	const isLoggedIn = !!userSession;
+	const accountType = userSession?.accountType || null;
+
+	async function fetchAprenticeCriteria(user) {
+		try {
+			const resp = await axiosInstance.get(
+				`/api/certification/course/${id}/aprendiz/${user.id}`
+			);
+			setCertificationState(resp.data.certification_status);
+			setCertificationDenial(resp.data.denial_justification);
+		} catch (error) {
+			console.error(error);
+			alert(
+				"Ocurrió un error al consultar los resultados de los criterios"
+			);
+			setShowAprenticeCriteria(false);
+		}
 	}
 
-	async function filter () {
-		
+	async function fetchAprentices() {
+		try {
+			const response = await axiosInstance.get(
+				`/api/courses/cursos/${id}/participants?page=${page}${
+					filterName?.length > 0 ? `&name=${filterName}` : ""
+				}${filterId?.length > 0 ? `&doc=${filterId}` : ""}`
+			);
+			if (!response.data.success) throw response.data;
+			setAprentices(
+				response.data.participants.map((aprentice) => {
+					return {
+						name: `${aprentice.aprendiz.nombres} ${aprentice.aprendiz.apellidos}`,
+						personId: aprentice.aprendiz.documento,
+						state: aprentice.aprendiz.estado,
+						certState: aprentice.estado_certificacion,
+						id: aprentice.aprendiz.ID,
+					};
+				})
+			);
+			setPages(response.data.pages);
+		} catch (error) {
+			console.error(error);
+			alert("Ocurrió un error al consultar los aprendices del curso.");
+		}
+	}
+
+	async function filter() {
+		fetchAprentices();
+		setShowFilters(false);
 	}
 
 	useEffect(() => {
-		if (isLoggedIn && (accountType === "Instructor" || accountType == "Administrador" || accountType === "Gestor")) {
-			fetchAprentices()
+		if (
+			isLoggedIn &&
+			(accountType === "Instructor" ||
+				accountType == "Administrador" ||
+				accountType === "Gestor")
+		) {
+			fetchAprentices();
 		} else {
 			navigate("/no-autorizado");
 		}
-	}, [])
+	}, [id]);
 
-	return <>
-		<Header/>
-		<GoBackArrow/>
-		<Main>
-			<div class="container-see-criteria">
-				<h2>Historial de <span className="complementary">certificación</span></h2>
-				<div 
-					className="buttons"
-					style={{
-						flexDirection: "row-reverse"
-					}}
-				>
-					<button 
-						className="button criteria-aprentice-filter-dropdown"
-						onClick={() => setShowFilters(!showFilters)}
+	useEffect(() => {
+		if (
+			isLoggedIn &&
+			(accountType === "Instructor" ||
+				accountType == "Administrador" ||
+				accountType === "Gestor")
+		) {
+			fetchAprentices();
+		} else {
+			navigate("/no-autorizado");
+		}
+	}, [page]);
+
+	function selectAprentice(aprenticeId) {
+		//setSelectedAprentice(aprenticeId);
+		setShowAprenticeCriteria(true);
+		fetchAprenticeCriteria(aprenticeId);
+	}
+
+	return (
+		<>
+			<Header />
+			<GoBackArrow />
+			<Main>
+				<div className="container-see-criteria">
+					<h2>
+						Historial de{" "}
+						<span className="complementary">certificación</span>
+					</h2>
+					<div
+						className="buttons"
+						style={{
+							flexDirection: "row-reverse",
+						}}
 					>
-						Filtro {showFilters ? <>&#9662;</> : <>&#9652;</>}
-					</button>
-				</div>
-				<div className="aprentice-list-container">
-					<div className="aprentice-list-header aprentice-cert-list-header">
-						<span>Aprendiz</span>
-						<span>Documentos</span>
-						<span>Estado de certificación</span>
-						<span>Detalles</span>
+						<button
+							className="button criteria-aprentice-filter-dropdown"
+							onClick={() => setShowFilters(!showFilters)}
+						>
+							Filtro {showFilters ? <>&#9662;</> : <>&#9652;</>}
+						</button>
 					</div>
-					{
-						aprentices.length > 0 ?
-						aprentices.map((a, i) => 
-							<div 
-								className="aprentice-cert-list"
-								style={{
-									backgroundColor: i % 2 == 0 ? "#474747ff" : "#5b5b5bff"
-								}}
-							>
-								<span>
-									{a.name}
-								</span>
-								<span>
-									{a.personId}
-								</span>
-								<span>
-									{a.certState}
-								</span>
-								<button
-									onClick={() => selectAprentice(a)}
+					<div className="aprentice-list-container">
+						<div className="aprentice-list-header aprentice-cert-list-header">
+							<span>Aprendiz</span>
+							<span>Documentos</span>
+							<span>Estado de certificación</span>
+							<span>Detalles</span>
+						</div>
+						{aprentices.length > 0 ? (
+							aprentices.map((a, i) => (
+								<div
+									key={i}
+									className="aprentice-cert-list"
+									style={{
+										backgroundColor:
+											i % 2 == 0
+												? "#474747ff"
+												: "#5b5b5bff",
+									}}
 								>
-									Ver criterios
-								</button>
+									<span>{a.name}</span>
+									<span>{a.personId}</span>
+									<span>{a.certState}</span>
+									<button onClick={() => selectAprentice(a)}>
+										Ver criterios
+									</button>
+								</div>
+							))
+						) : (
+							<div className="no-aprentices-list">
+								Aún no hay aprendices certificados
 							</div>
-						)
-					:
-						<div className="no-aprentices-list">Aún no hay aprendices certificados</div>
-				}
-				</div>
-				<PageMover
-					value={page + 1}
-					max={pages}
-					next={() => {
-						setPage(page + 1)
-					}}
-					prev={() => {
-						setPage(page - 1)
-					}}
-				/>
-				<button
-					className="button end-button"
-					onClick={() => setShowingDownloadingOptions(true)}
-				>Generar reporte</button>
-			</div>
-			{showFilters &&
-				<div className="options_Search search-aprentice">
-					<label>Aprendiz:</label>
-					<input
-						type="text"
-						className="search-input"
-						placeholder="Nombre..."
-						value={filterName}
-						onChange={(e) => setFilterName(e.target.value)}
-					/>
-					<label>Documento:</label>
-					<input
-						type="text"
-						className="search-input"
-						placeholder="N. del documento..."
-						value={filterId}
-						onChange={(e) => setFilterId(e.target.value)}
-					/>
-					<label>Fecha:</label>
-					<input
-						type="date"
-						className="search-input"
-						value={filterDate}
-						onChange={(e) => setFilterDate(e.target.value)}
+						)}
+					</div>
+					<PageMover
+						value={page + 1}
+						max={pages}
+						next={() => {
+							setPage(page + 1);
+						}}
+						prev={() => {
+							setPage(page - 1);
+						}}
 					/>
 					<button
-						style={{
-							alignSelf: "center",
-							marginTop: "2%"
-						}}
-						className="button"
-						onClick={() => filter()}
-					>Filtrar</button>
-				</div>
-			}
-			{showingDownloadOptions &&
-				<div className="modal-overlay">
-					<div 
-						className="modal-background"
-						style={{
-							height: "fit-content",
-							paddingBottom: "20px",
-							width: "35%"
-						}}
+						className="button end-button"
+						onClick={() => setShowingDownloadingOptions(true)}
 					>
-						<div className="container_return_EditCalendar">
-							<h5
-								onClick={() => setShowingDownloadingOptions(false)}
-								style={{ cursor: "pointer" }}
-							>Volver</h5>
-							<button
-								onClick={() => setShowingDownloadingOptions(false)}
-								className="closeModal">
-							</button>
-						</div>
-						<h2 className="modal-title-edit-calendar">Tipo de reporte</h2>
-						<div
-							className="statusButtons"
+						Generar reporte
+					</button>
+				</div>
+				{showFilters && (
+					<div className="options_Search search-aprentice">
+						<label>Aprendiz:</label>
+						<input
+							type="text"
+							className="search-input"
+							placeholder="Nombre..."
+							value={filterName}
+							onChange={(e) => setFilterName(e.target.value)}
+						/>
+						<label>Documento:</label>
+						<input
+							type="text"
+							className="search-input"
+							placeholder="N. del documento..."
+							value={filterId}
+							onChange={(e) => setFilterId(e.target.value)}
+						/>
+						{/*<label>Fecha:</label>
+						<input
+							type="date"
+							className="search-input"
+							value={filterDate}
+							onChange={(e) => setFilterDate(e.target.value)}
+						/>*/}
+						<button
 							style={{
-								width: "90%"
+								alignSelf: "center",
+								marginTop: "2%",
+							}}
+							className="button"
+							onClick={() => filter()}
+						>
+							Filtrar
+						</button>
+					</div>
+				)}
+				{showingDownloadOptions && (
+					<div className="modal-overlay">
+						<div
+							className="modal-background"
+							style={{
+								height: "fit-content",
+								paddingBottom: "20px",
+								width: "35%",
 							}}
 						>
-							<button
-								className={`status-btn ${reportType == "pdf" && 'selected'}`}
-								onClick={() => setReportType("pdf")}
+							<div className="container_return_EditCalendar">
+								<h5
+									onClick={() =>
+										setShowingDownloadingOptions(false)
+									}
+									style={{ cursor: "pointer" }}
+								>
+									Volver
+								</h5>
+								<button
+									onClick={() =>
+										setShowingDownloadingOptions(false)
+									}
+									className="closeModal"
+								></button>
+							</div>
+							<h2 className="modal-title-edit-calendar">
+								Tipo de reporte
+							</h2>
+							<div
+								className="statusButtons"
+								style={{
+									width: "90%",
+								}}
 							>
-								PDF
-							</button>
+								<button
+									className={`status-btn ${
+										reportType == "pdf" && "selected"
+									}`}
+									onClick={() => setReportType("pdf")}
+								>
+									PDF
+								</button>
+								<button
+									className={`status-btn ${
+										reportType == "excel" && "selected"
+									}`}
+									onClick={() => setReportType("excel")}
+								>
+									Excel
+								</button>
+							</div>
 							<button
-								className={`status-btn ${reportType == "excel" && "selected"}`}
-								onClick={() => setReportType("excel")}
+								className="button"
+								style={{
+									marginTop: "20px",
+								}}
+								onClick={() =>
+									setShowingDownloadingOptions(false)
+								}
 							>
-								Excel
+								Descargar reporte
 							</button>
 						</div>
-						<button
-							className="button"
-							style={{
-								marginTop: "20px"
-							}}
-							onClick={() => setShowingDownloadingOptions(false)}
-						>Descargar reporte</button>
 					</div>
-				</div>
-			}
-		</Main>
-	</>
-}
+				)}
+				{showAprenticeCriteria && (
+					<div className="modal-overlay">
+						<div
+							className="modal-background"
+							style={{
+								paddingBottom: "20px",
+								width: "35%",
+								minWidth: "450px",
+								maxHeight: "fit-content",
+							}}
+						>
+							<div className="container_return_EditCalendar">
+								<h5
+									onClick={() =>
+										setShowAprenticeCriteria(false)
+									}
+									style={{ cursor: "pointer" }}
+								>
+									Volver
+								</h5>
+								<button
+									onClick={() =>
+										setShowAprenticeCriteria(false)
+									}
+									className="closeModal"
+								></button>
+							</div>
+							<h2 className="modal-title-edit-calendar">
+								Certificación
+							</h2>
+							<div className="person-criteria-container">
+								<label>Estado: </label>
+								<span>{certificationState}</span>
+								{certificationState == "aprovado" && (
+									<button className="button">
+										Ver certificado
+									</button>
+								)}
+								{certificationState == "rechazado" && (
+									<>
+										<label>Motivo: </label>
+										<span>{certificationDenial}</span>
+									</>
+								)}
+							</div>
+						</div>
+					</div>
+				)}
+			</Main>
+		</>
+	);
+};

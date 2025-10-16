@@ -158,11 +158,9 @@ const createCriteriosCurso = async (req, res) => {
 			accountType !== "Instructor" &&
 			accountType !== "Gestor"
 		) {
-			return res
-				.status(403)
-				.json({
-					message: "No tienes permisos para realizar esta acción.",
-				});
+			return res.status(403).json({
+				message: "No tienes permisos para realizar esta acción.",
+			});
 		}
 
 		if (!title || !description || !course) {
@@ -209,11 +207,9 @@ const createCriteriosCurso = async (req, res) => {
 		});
 	} catch (error) {
 		console.error(`Error al crear el criterio: ${error}`);
-		return res
-			.status(500)
-			.json({
-				message: "Error interno al crear el criterio de certificación",
-			});
+		return res.status(500).json({
+			message: "Error interno al crear el criterio de certificación",
+		});
 	}
 };
 
@@ -228,11 +224,9 @@ const updateCriteria = async (req, res) => {
 			accountType !== "Instructor" &&
 			accountType !== "Gestor"
 		) {
-			return res
-				.status(403)
-				.json({
-					message: "No tienes permisos para realizar esta acción.",
-				});
+			return res.status(403).json({
+				message: "No tienes permisos para realizar esta acción.",
+			});
 		}
 
 		let criteriaData = await Criterio.findByPk(criteria);
@@ -292,11 +286,9 @@ const updateCriteria = async (req, res) => {
 		return res.status(200).json({ message: "Criterio actualizado" });
 	} catch (error) {
 		console.error(`Error al crear el criterio: ${error}`);
-		return res
-			.status(500)
-			.json({
-				message: "Error interno al editar el criterio de certificación",
-			});
+		return res.status(500).json({
+			message: "Error interno al editar el criterio de certificación",
+		});
 	}
 };
 
@@ -312,11 +304,9 @@ const getAprenticeCriteria = async (req, res) => {
 			accountType !== "Instructor" &&
 			accountType !== "Gestor"
 		) {
-			return res
-				.status(403)
-				.json({
-					message: "No tienes permisos para realizar esta acción.",
-				});
+			return res.status(403).json({
+				message: "No tienes permisos para realizar esta acción.",
+			});
 		}
 
 		if (!(await Curso.findByPk(course)))
@@ -376,11 +366,9 @@ const getAprenticeCriteria = async (req, res) => {
 		});
 	} catch (error) {
 		console.error(`Error al crear el criterio: ${error}`);
-		return res
-			.status(500)
-			.json({
-				message: "Error interno al editar el criterio de certificación",
-			});
+		return res.status(500).json({
+			message: "Error interno al editar el criterio de certificación",
+		});
 	}
 };
 
@@ -396,11 +384,9 @@ const updateAprenticeCertificationStatus = async (req, res) => {
 			accountType !== "Instructor" &&
 			accountType !== "Gestor"
 		) {
-			return res
-				.status(403)
-				.json({
-					message: "No tienes permisos para realizar esta acción.",
-				});
+			return res.status(403).json({
+				message: "No tienes permisos para realizar esta acción.",
+			});
 		}
 
 		if (!(await Curso.findByPk(course)))
@@ -410,11 +396,9 @@ const updateAprenticeCertificationStatus = async (req, res) => {
 			return res.status(404).json({ message: "Aprendiz no encontrado." });
 
 		if (!state)
-			return res
-				.status(400)
-				.json({
-					message: "El estado de la certificación es obligatorio.",
-				});
+			return res.status(400).json({
+				message: "El estado de la certificación es obligatorio.",
+			});
 
 		if (state != "pendiente" && state != "aprobado" && state != "rechazado")
 			return res.status(400).json({ mensaje: "Tipo de estado inválido" });
@@ -444,12 +428,9 @@ const updateAprenticeCertificationStatus = async (req, res) => {
 		console.error(
 			`Error al actualizar el estado de la certificación: ${error}`
 		);
-		return res
-			.status(500)
-			.json({
-				message:
-					"Error interno al actualizar el estado de certificación",
-			});
+		return res.status(500).json({
+			message: "Error interno al actualizar el estado de certificación",
+		});
 	}
 };
 

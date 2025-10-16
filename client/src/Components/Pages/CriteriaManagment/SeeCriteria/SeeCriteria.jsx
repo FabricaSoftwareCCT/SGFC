@@ -378,7 +378,7 @@ export const SeeCourseCriteria = () => {
 								paddingBottom: "20px",
 								width: "35%",
 								minWidth: "450px",
-								minHeight: "fit-content",
+								maxHeight: "fit-content",
 							}}
 						>
 							<div className="container_return_EditCalendar">

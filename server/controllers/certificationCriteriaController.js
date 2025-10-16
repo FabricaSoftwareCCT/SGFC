@@ -389,10 +389,18 @@ const updateAprenticeCertificationStatus = async (req, res) => {
 			});
 		}
 
-		if (!(await Curso.findByPk(course)))
+		const courseData = await Curso.findByPk(course, {
+			attributes: ["nombre_curso"],
+		});
+
+		if (!courseData)
 			return res.status(404).json({ message: "Curso no encontrado." });
 
-		if (!(await Usuario.findByPk(userId)))
+		const aprentice = await Usuario.findByPk(userId, {
+			attributes: ["nombres", "apellidos", "email"],
+		});
+
+		if (!aprentice)
 			return res.status(404).json({ message: "Aprendiz no encontrado." });
 
 		if (!state)
@@ -420,6 +428,14 @@ const updateAprenticeCertificationStatus = async (req, res) => {
 				aprendiz_ID: userId,
 			},
 		});
+
+		try {
+			// Enviar notificación al aprendiz
+		} catch (error) {
+			console.log(
+				`Error al enviar la notificación al aprendiz: ${error}`
+			);
+		}
 
 		return res
 			.status(200)

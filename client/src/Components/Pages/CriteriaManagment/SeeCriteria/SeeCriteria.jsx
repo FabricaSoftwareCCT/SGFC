@@ -20,7 +20,6 @@ export const SeeCourseCriteria = () => {
 	const [aprentices, setAprentices] = useState([])	
 	const [aprenticeName, setAprenticeName] = useState("")
 	const [aprenticeStatus, setAprenticeStatus] = useState(0)
-	const [ficha, setFicha] = useState("")
 	const [personId, setPersonId] = useState("")
 	const [reportType, setReportType] = useState("pdf")
 	const [page, setPage] = useState(0)
@@ -40,32 +39,35 @@ export const SeeCourseCriteria = () => {
 	}
 
 	async function fetchAprentices () {
-		setAprentices([
-			{
-				name: "Pol pot",
-				personId: "1001001000",
-				ficha: "2525069",
-				state: "Activo",
-				certState: "Pendiente",
-				id: 420
-			},
-			{
-				name: "Francisco Macías Nguema",
-				personId: "1001001001",
-				ficha: "2525069",
-				state: "Activo",
-				certState: "Pendiente",
-				id: 421
-			},
-			{
-				name: "Isaias Afwerki",
-				personId: "1001001003",
-				ficha: "2525069",
-				state: "Activo",
-				certState: "Pendiente",
-				id: 423
-			}
-		])
+		try {
+			const response = await axiosInstance.get(`/api/courses/cursos/${id}/participants?page=${page}${
+				aprenticeName?.length > 0 ? `&name=${aprenticeName}` : ""
+			}${
+				personId?.length > 0 ? `&doc=${personId}` : ""
+			}${
+				aprenticeStatus != 0 ?
+					aprenticeStatus == 1 ?
+						`&state=activo`
+					:
+						`&state=inactivo`
+				: ""
+			}`)
+			if (!response.data.success)
+				throw response.data
+			setAprentices(response.data.participants.map((aprentice) => {
+				return {
+					name: `${aprentice.aprendiz.nombres} ${aprentice.aprendiz.apellidos}`,
+					personId: aprentice.aprendiz.documento,
+					state: aprentice.aprendiz.estado,
+					certState: aprentice.estado_certificacion,
+					id: aprentice.aprendiz.ID
+				}
+			}))
+			setPages(response.data.pages)
+		} catch (error) {
+			console.error(error)
+			alert("Ocurrió un error al consultar los aprendices del curso.")
+		}
 	}
 
 	function selectStatus (s) {
@@ -134,7 +136,8 @@ export const SeeCourseCriteria = () => {
 	}
 
 	async function filter () {
-
+		fetchAprentices()
+		setShowFilters(false)
 	}
 
 	async function generateCert () {
@@ -153,6 +156,15 @@ export const SeeCourseCriteria = () => {
 			navigate("/no-autorizado");
 		}
 	}, [id])
+
+	useEffect(() => {
+		if (isLoggedIn && (accountType === "Instructor" || accountType == "Administrador")) { // || accountType === "Gestor"
+			fetchCourse()
+			fetchAprentices()
+		} else {
+			navigate("/no-autorizado");
+		}
+	}, [page])
 
 	return (
 		<>
@@ -183,14 +195,6 @@ export const SeeCourseCriteria = () => {
 								placeholder="Nombre..."
 								value={aprenticeName}
 								onChange={(e) => setAprenticeName(e.target.value)}
-							/>
-							<label>Ficha:</label>
-							<input
-								type="text"
-								className="search-input"
-								placeholder="Nombre de la ficha..."
-								value={ficha}
-								onChange={(e) => setFicha(e.target.value)}
 							/>
 							<label>Documento:</label>
 							<input
@@ -229,7 +233,6 @@ export const SeeCourseCriteria = () => {
 						<div className="aprentice-list-header">
 							<span>Aprendiz</span>
 							<span>Documentos</span>
-							<span>Fichas</span>
 							<span>Estado</span>
 							<span>Estado de certificación</span>
 							<span>Detalles</span>
@@ -238,6 +241,7 @@ export const SeeCourseCriteria = () => {
 							aprentices.length > 0 ?
 								aprentices.map((a, i) => 
 									<div 
+										key={i}
 										className="aprentice-list"
 										style={{
 											backgroundColor: i % 2 == 0 ? "#474747ff" : "#5b5b5bff"
@@ -248,9 +252,6 @@ export const SeeCourseCriteria = () => {
 										</span>
 										<span>
 											{a.personId}
-										</span>
-										<span>
-											{a.ficha}
 										</span>
 										<span>
 											{a.state}
@@ -360,8 +361,6 @@ export const SeeCourseCriteria = () => {
 								<span>{selectedAprentice.name}</span>
 								<label>Documentos:</label>
 								<span>{selectedAprentice.personId}</span>
-								<label>Ficha:</label>
-								<span>{curso.ficha}</span>
 								{aprenticeCriteria.map((criteria) => {
 									//console.log(criteria)
 									return <>

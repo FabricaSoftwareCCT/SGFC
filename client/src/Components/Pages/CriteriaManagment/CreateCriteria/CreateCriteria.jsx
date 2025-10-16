@@ -73,7 +73,7 @@ export const CreateCriteria = () => {
 		} else {
 			navigate("/no-autorizado");
 		}
-	}, [])
+	}, [id])
 
 	return(
 		<>

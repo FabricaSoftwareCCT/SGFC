@@ -181,7 +181,7 @@ export const SeeAllCourseCriteria = () => {
 		} else {
 			navigate("/no-autorizado");
 		}
-	}, [])
+	}, [id])
 
 	useEffect(() => {
 		setLoading(true)

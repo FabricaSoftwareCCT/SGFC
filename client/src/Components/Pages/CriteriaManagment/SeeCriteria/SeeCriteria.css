@@ -75,7 +75,7 @@
 }
 
 .aprentice-list-header span {
-	min-width: 16%;
+	min-width: 20%;
 	text-align: center;
 }
 
@@ -129,7 +129,7 @@
 
 .aprentice-list * {
 	display: inline-block;
-	width: 16%;
+	width: 20%;
 	text-align: center;
 }
 
@@ -140,7 +140,7 @@
 	font-size: 16px;
 	text-align: center;
 	width: 20%;
-	padding-left: 6.5%;
+	padding-left: 2.5%;
 }
 
 .person-criteria-container {

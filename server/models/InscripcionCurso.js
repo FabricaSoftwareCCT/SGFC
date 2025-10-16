@@ -20,6 +20,10 @@ class InscripcionCurso extends Model {
         estado_certificacion: {
           type: DataTypes.ENUM("pendiente", "rechazado", "aprovado"),
           defaultValue: "pendiente"
+        },
+        justificacion_rechazo: {
+          type: DataTypes.STRING(300),
+          allowNull: true
         }
       },
       {

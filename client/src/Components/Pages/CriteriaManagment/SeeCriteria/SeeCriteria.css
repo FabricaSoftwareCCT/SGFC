@@ -14,7 +14,7 @@
 	align-items: center;
 }
 
-.container-see-criteria>h2 {
+.container-see-criteria > h2 {
 	width: 100%;
 	height: auto;
 	color: #fff;
@@ -24,7 +24,7 @@
 	font-weight: bold;
 }
 
-.container-see-criteria>p {
+.container-see-criteria > p {
 	width: auto;
 	height: auto;
 	font-size: 16px;
@@ -66,7 +66,7 @@
 .aprentice-list-header {
 	display: flex;
 	justify-content: space-evenly;
-	background-color: #00843D;
+	background-color: #00843d;
 	color: white;
 	font-size: 20px;
 	padding: 10px;
@@ -148,6 +148,7 @@
 	display: flex;
 	flex-direction: column;
 	overflow-y: scroll;
+	margin-top: 20px;
 }
 
 .person-criteria-container label {
@@ -166,9 +167,8 @@
 	margin-bottom: 10px;
 }
 
-
 div.person-criteria-value span:first-child {
-	color: #00843D;
+	color: #00843d;
 }
 
 .reason-textarea {

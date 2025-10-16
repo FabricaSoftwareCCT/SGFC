@@ -25,8 +25,8 @@ export const SeeCourseCriteria = () => {
 	const [page, setPage] = useState(0)
 	const [pages, setPages] = useState(1)
 	const [selectedAprentice, setSelectedAprentice] = useState()
-	const [aprenticeCriteria, setAprenticeCriteria] = useState()
-	const [certificationStatus, setCertificationStatus] = useState("Pendiente")
+	const [aprenticeCriteria, setAprenticeCriteria] = useState([])
+	const [certificationStatus, setCertificationStatus] = useState("pendiente")
 	const [certificationDenialReason, setCertificationDenialStatus] = useState("")
 
 	async function fetchCourse () {
@@ -77,61 +77,42 @@ export const SeeCourseCriteria = () => {
 			setAprenticeStatus(s)
 	}
 
-	async function fetchAprenticeCriteria () {
-		setAprenticeCriteria([
-			{
-				id: 1,
-				title: "Asistencias",
-				description: "Para garantizar el óptimo aprovechamiento académico y el cumplimiento de los objetivos del curso, es fundamental la asistencia regular y puntual de todos los aprendices. La asistencia mínima obligatoria para ser acreedor a la certificación es del 80%. Considerando la duración total del programa, esto se traduce en que el aprendiz no puede acumular más de 5 inasistencias a lo largo del curso. Superar este límite automáticamente dará lugar a la baja administrativa, sin derecho a la recuperación de contenidos o a la evaluación final.",
-				has_value: true,
-				min: 20,
-				value: 15,
-			},
-			{
-				id: 2,
-				title: "Actividades",
-				description: "La certificación final del curso está sujeta al cumplimiento integral de las actividades académicas asignadas. Es un requisito indispensable para certificarse que el aprendiz haya entregado la totalidad de las actividades, proyectos y evaluaciones establecidos en el plan de estudios. No estar al día con las entregas, es decir, tener actividades pendientes o sin enviar, imposibilita la certificación automáticamente, ya que demuestra un incompleto dominio de los objetivos de aprendizaje planteados para cada módulo.",
-				has_value: true,
-				min: 5,
-				value: 5,
-			},
-			{
-				id: 3,
-				title: "Evidencias",
-				description: "La certificación final del curso está sujeta al cumplimiento integral de las actividades académicas asignadas. Es un requisito indispensable para certificarse que el aprendiz haya entregado la totalidad de las actividades, proyectos y evaluaciones establecidos en el plan de estudios. No estar al día con las entregas, es decir, tener actividades pendientes o sin enviar, imposibilita la certificación automáticamente, ya que demuestra un incompleto dominio de los objetivos de aprendizaje planteados para cada módulo.",
-				has_value: true,
-				min: 1,
-				value: 0,
-			},
-			{
-				id: 4,
-				title: "Horas",
-				description: "La certificación final del curso está sujeta al cumplimiento integral de las actividades académicas asignadas. Es un requisito indispensable para certificarse que el aprendiz haya entregado la totalidad de las actividades, proyectos y evaluaciones establecidos en el plan de estudios. No estar al día con las entregas, es decir, tener actividades pendientes o sin enviar, imposibilita la certificación automáticamente, ya que demuestra un incompleto dominio de los objetivos de aprendizaje planteados para cada módulo.",
-				has_value: true,
-				min: 8,
-				value: 2,
-			},
-			{
-				id: 5,
-				title: "Existir",
-				description: "La certificación final del curso está sujeta al cumplimiento integral de las actividades académicas asignadas. Es un requisito indispensable para certificarse que el aprendiz haya entregado la totalidad de las actividades, proyectos y evaluaciones establecidos en el plan de estudios. No estar al día con las entregas, es decir, tener actividades pendientes o sin enviar, imposibilita la certificación automáticamente, ya que demuestra un incompleto dominio de los objetivos de aprendizaje planteados para cada módulo.",
-				has_value: false,
-			}
-		])
+	async function fetchAprenticeCriteria (user) {
+		try {
+			const resp = await axiosInstance.get(`/api/certification/course/${id}/aprendiz/${user.id}`)
+			setAprenticeCriteria(resp.data.criteria)
+			setCertificationStatus(resp.data.certification_status)
+			setCertificationDenialStatus(resp.data.denial_justification)
+		} catch (error) {
+			console.error(error)
+			alert("Ocurrió un error al consultar los resultados de los criterios")
+			setShowAprenticeCriteria(false)
+		}
 	}
 
 	function selectAprentice (aprenticeId) {
 		setCertificationDenialStatus("")
 		setSelectedAprentice(aprenticeId)
 		setShowAprenticeCriteria(true)
-		fetchAprenticeCriteria()
+		fetchAprenticeCriteria(aprenticeId)
 	}
 
 	async function saveChanges () {
-		if (certificationStatus == "Rechazado" && certificationDenialReason.length < 10) {
+		if (certificationStatus == "rechazado" && certificationDenialReason.length < 10) {
 			alert("Se debe escribir el motivo por el cual no se aprovó la certificación")
-		} else {
-			setShowAprenticeCriteria(false)
+			return
+		}
+
+		try {
+			const resp = await axiosInstance.put(`/api/certification/course/${id}/update/${user.id}`, {
+				state: certificationStatus,
+				justification: certificationDenialReason
+			})
+			alert("Se ha actualizado el estado de la certificación del aprendiz")
+		} catch (error) {
+			console.error(error)
+			alert("Ocurrió un error al actualizar el estado de la certificación")
+			//setShowAprenticeCriteria(false)
 		}
 	}
 
@@ -170,7 +151,7 @@ export const SeeCourseCriteria = () => {
 		<>
 			<Header/>
 			<Main>
-				<div class="container-see-criteria">
+				<div className="container-see-criteria">
 					<h2>Criterios de <span className="complementary">Certificación</span></h2>
 					<div className="buttons">
 						<button 
@@ -292,7 +273,8 @@ export const SeeCourseCriteria = () => {
 							style={{
 								height: "fit-content",
 								paddingBottom: "20px",
-								width: "35%"
+								width: "35%",
+								maxHeight: "fit-content"
 							}}
 						>
 							<div className="container_return_EditCalendar">
@@ -378,28 +360,28 @@ export const SeeCourseCriteria = () => {
 								})}
 								<div className="certification-status">
 									<button
-										className={`status-btn ${certificationStatus == "Aprovado" ? 'selected' : ''}`}
-										onClick={() => setCertificationStatus("Aprovado")}
+										className={`status-btn ${certificationStatus == "aprovado" ? 'selected' : ''}`}
+										onClick={() => setCertificationStatus("aprovado")}
 									>
 										Aprovado
 									</button>
 									<button
-										className={`status-btn ${certificationStatus == "Pendiente" ? 'selected' : ''}`}
-										onClick={() => setCertificationStatus("Pendiente")}
+										className={`status-btn ${certificationStatus == "pendiente" ? 'selected' : ''}`}
+										onClick={() => setCertificationStatus("pendiente")}
 									>
 										Pendiente
 									</button>
 									<button
-										className={`status-btn ${certificationStatus == "Rechazado" ? 'selected' : ''}`}
-										onClick={() => setCertificationStatus("Rechazado")}
-										style={certificationStatus == "Rechazado" ? {
+										className={`status-btn ${certificationStatus == "rechazado" ? 'selected' : ''}`}
+										onClick={() => setCertificationStatus("rechazado")}
+										style={certificationStatus == "rechazado" ? {
 											backgroundColor: "red"
 										} : {}}
 									>
 										Rechazado
 									</button>
 								</div>
-								{certificationStatus == "Rechazado" &&
+								{certificationStatus == "rechazado" &&
 									<textarea
 										type="text"
 										className="search-input reason-textarea"
@@ -411,9 +393,9 @@ export const SeeCourseCriteria = () => {
 								<button className="button"
 									onClick={() => saveChanges()}
 								>
-									{certificationStatus == "Aprovado" ? "Certificar" : "Guardar cambios"}
+									{certificationStatus == "aprovado" ? "Certificar" : "Guardar cambios"}
 								</button>
-								{certificationStatus == "Aprovado" &&
+								{certificationStatus == "aprovado" &&
 									<button className="button"
 										onClick={() => generateCert()}
 									>

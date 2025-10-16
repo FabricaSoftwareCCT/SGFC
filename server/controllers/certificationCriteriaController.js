@@ -1,9 +1,11 @@
 const Curso = require("../models/curso")
 const CursoTieneCriterio = require("../models/CursoTieneCriterio")
 const Criterio = require("../models/Criterio")
-const Usuario = require("../models/User");
+const Usuario = require("../models/User")
 const EdicionCriterio = require("../models/EdicionCriterio")
-const { Op } = require("sequelize");
+const UsuarioTieneCriterios = require("../models/UsuarioTieneCriterios")
+const { Op } = require("sequelize")
+const InscripcionCurso = require("../models/InscripcionCurso")
 
 let dbInstance;
 
@@ -138,7 +140,7 @@ const createCriteriosCurso = async (req, res) => {
 		const { id, accountType } = req.user
 
 		if (accountType !== "Administrador" && accountType !== "Instructor" && accountType !== "Gestor") {
-			return res.status(403).json({ message: "No tienes permisos para crear criterios." });
+			return res.status(403).json({ message: "No tienes permisos para realizar esta acción." });
 		}
 
 		if (!title || !description || !course) {
@@ -188,7 +190,7 @@ const updateCriteria = async (req, res) => {
 		const { id, accountType } = req.user
 
 		if (accountType !== "Administrador" && accountType !== "Instructor" && accountType !== "Gestor") {
-			return res.status(403).json({ message: "No tienes permisos para crear criterios." });
+			return res.status(403).json({ message: "No tienes permisos para realizar esta acción." });
 		}
 
 		let criteriaData = await Criterio.findByPk(criteria)
@@ -254,7 +256,7 @@ const getAprenticeCriteria = async (req, res) => {
 		const { id, accountType } = req.user
 
 		if (accountType !== "Administrador" && accountType !== "Instructor" && accountType !== "Gestor") {
-			return res.status(403).json({ message: "No tienes permisos para crear criterios." });
+			return res.status(403).json({ message: "No tienes permisos para realizar esta acción." });
 		}
 
 		if (!(await Curso.findByPk(course)))
@@ -263,10 +265,80 @@ const getAprenticeCriteria = async (req, res) => {
 		if (!(await Usuario.findByPk(userId)))
 			return res.status(404).json({message: "Aprendiz no encontrado."})
 
-		
+		let certificationData = await InscripcionCurso.findOne({
+			where: {
+				aprendiz_ID: userId,
+				curso_ID: course
+			},
+			attributes: ["estado_certificacion", "justificacion_rechazo"]
+		})
+
+		let criteriaList = await CursoTieneCriterio.findAll({
+			where: {
+				curso_ID: course
+			},
+			include: {
+				model: Criterio,
+				attributes: ["title", "description", "has_value", "min"]
+			}
+		})
+
+		let criteria = []
+
+		for (let c of criteriaList) {
+			let criteriaValue = (await UsuarioTieneCriterios.findOne({
+				where: {
+					usuario_ID: userId,
+					criterio_ID: c.id,
+					curso_ID: course
+				},
+				attributes: ["value"]
+			})).dataValues.value
+
+			criteria.push(
+				{
+					id: c.id,
+					title: c.Criterio.title,
+					description: c.Criterio.description,
+					has_value: c.Criterio.has_value,
+					min: c.Criterio.min,
+					value: criteriaValue
+				}
+			)
+		}
+
+		return res.status(200).json({
+			certification_status: certificationData.dataValues.estado_certificacion,
+			denial_justification: certificationData.dataValues.justificacion_rechazo ?? "",
+			criteria
+		})
 	} catch (error) {
 		console.error(`Error al crear el criterio: ${error}`)
 		return res.status(500).json({ message: "Error interno al editar el criterio de certificación" })
+	}
+}
+
+const updateAprenticeCertificationStatus = async (req, res) => {
+	try {
+		const userId = req.params.id
+		const course = req.params.course
+		const { id, accountType } = req.user
+		const { state, justification } = req.body
+
+		if (accountType !== "Administrador" && accountType !== "Instructor" && accountType !== "Gestor") {
+			return res.status(403).json({ message: "No tienes permisos para realizar esta acción." });
+		}
+
+		if (!(await Curso.findByPk(course)))
+			return res.status(404).json({message: "Curso no encontrado."})
+
+		if (!(await Usuario.findByPk(userId)))
+			return res.status(404).json({message: "Aprendiz no encontrado."})
+
+		return res.status(200).json({ message: "Estado de la certificación actualizada" })
+	} catch (error) {
+		console.error(`Error al actualizar el estado de la certificación: ${error}`)
+		return res.status(500).json({ message: "Error interno al actualizar el estado de certificación" })
 	}
 }
 
@@ -275,5 +347,6 @@ module.exports = {
 	createCriteriosCurso,
 	updateCriteria,
 	getAprenticeCriteria,
+	updateAprenticeCertificationStatus,
 	setDb
 }

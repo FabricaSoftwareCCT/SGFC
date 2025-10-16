@@ -30,7 +30,7 @@ class InscripcionCurso extends Model {
         sequelize,
         tableName: 'inscripcion_curso',
         timestamps: false,
-      }
+      },
     );
   }
 

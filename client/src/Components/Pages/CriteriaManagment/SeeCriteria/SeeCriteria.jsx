@@ -411,7 +411,7 @@ export const SeeCourseCriteria = () => {
 								<button className="button"
 									onClick={() => saveChanges()}
 								>
-									Certificar
+									{certificationStatus == "Aprovado" ? "Certificar" : "Guardar cambios"}
 								</button>
 								{certificationStatus == "Aprovado" &&
 									<button className="button"

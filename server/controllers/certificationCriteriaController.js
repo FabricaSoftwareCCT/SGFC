@@ -191,7 +191,7 @@ const updateCriteria = async (req, res) => {
 			return res.status(403).json({ message: "No tienes permisos para crear criterios." });
 		}
 
-		let criteriaData = Criterio.findByPk(criteria)
+		let criteriaData = await Criterio.findByPk(criteria)
 		if (!criteriaData)
 			return res.status(404).json({message: "Criterio no encontrado."})
 
@@ -246,9 +246,34 @@ const updateCriteria = async (req, res) => {
 	}
 }
 
+const getAprenticeCriteria = async (req, res) => {
+	try {
+		const course = req.params.course
+		const userId = req.params.id
+		
+		const { id, accountType } = req.user
+
+		if (accountType !== "Administrador" && accountType !== "Instructor" && accountType !== "Gestor") {
+			return res.status(403).json({ message: "No tienes permisos para crear criterios." });
+		}
+
+		if (!(await Curso.findByPk(course)))
+			return res.status(404).json({message: "Curso no encontrado."})
+
+		if (!(await Usuario.findByPk(userId)))
+			return res.status(404).json({message: "Aprendiz no encontrado."})
+
+		
+	} catch (error) {
+		console.error(`Error al crear el criterio: ${error}`)
+		return res.status(500).json({ message: "Error interno al editar el criterio de certificación" })
+	}
+}
+
 module.exports = {
 	obtenerCriteriosCertificacionCurso,
 	createCriteriosCurso,
 	updateCriteria,
+	getAprenticeCriteria,
 	setDb
 }

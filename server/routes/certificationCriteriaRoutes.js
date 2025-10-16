@@ -14,4 +14,7 @@ router.post("/create", certificationCriteriaController.createCriteriosCurso)
 // Editar el criterio de un curso
 router.put("/update/:id", certificationCriteriaController.updateCriteria)
 
+// Ver los criterios de un aprendiz
+router.get("/course/:course/aprendiz/:id", certificationCriteriaController.getAprenticeCriteria)
+
 module.exports = router

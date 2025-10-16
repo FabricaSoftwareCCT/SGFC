@@ -18,6 +18,7 @@ const Criterio = require("./Criterio");
 const CursoTieneCriterio = require("./CursoTieneCriterio");
 const EdicionCriterio = require("./EdicionCriterio");
 const UsuarioTieneCriterios = require("./UsuarioTieneCriterios");
+const createTriggers = require("../utils/databaseTriggers");
 
 // Leer la URL de conexión (recomendada en producción)
 const DB_URL = process.env.DB_URL;
@@ -105,14 +106,20 @@ async function initializeDatabase() {
     if (model.associate) model.associate(models);
   });
 
-  models.Asistencia.afterCreate("updateAssistanceCriteria", (assistance, options) => {
-    // TODO
-    console.log("Se actualizará el criterio de asistencias si existe",assistance)
-  })
-
   // Sincronizar tablas
   await sequelize.sync({ alter: true });
   console.log("📂 Tablas sincronizadas con la base de datos.");
+
+  // Se añaden los triggers
+  console.log("Creando triggers...");
+  try {
+    await createTriggers(sequelize)
+  } catch (error) {
+    console.log("Ocurrió un error al crear los triggers")
+    console.error(error)
+    process.exit(1);
+  }
+  console.log("Triggers creados.")
 
   return {
     sequelize,

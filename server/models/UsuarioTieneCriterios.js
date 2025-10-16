@@ -29,6 +29,11 @@ class UsuarioTieneCriterios extends Model {
 			onDelete: "NO ACTION",
 			onUpdate: "NO ACTION"
 		})
+		this.belongsTo(models.Curso, {
+			foreignKey: "curso_ID",
+			onDelete: "NO ACTION",
+			onUpdate: "NO ACTION"
+		})
 	}
 }
 

@@ -22,15 +22,22 @@ export const CriteriaManagement = () => {
 		let response = null
 		let courses = []
 		try {
-			if (accountType === "Administrador") {
-				response = await axiosInstance.get("/api/courses/cursos")
-				courses = response.data
-			} else if (accountType === "Instructor") {
-				const instructorId = userSession.ID || userSession.id;
-				response = await axiosInstance.get(`/api/courses/cursos-asignados/${instructorId}`)
-				courses = response.data.map((curso) => ({
-					...curso.Curso
-				}))
+			switch (accountType) {
+				case "Administrador":
+					response = await axiosInstance.get("/api/courses/cursos")
+					courses = response.data
+					break
+				case "Instructor":
+					const instructorId = userSession.ID || userSession.id;
+					response = await axiosInstance.get(`/api/courses/cursos-asignados/${instructorId}`)
+					courses = response.data.map((curso) => ({
+						...curso.Curso
+					}))
+					break
+				case "Gestor":
+					response = await axiosInstance.get("/api/courses/cursos")
+					courses = response.data
+					break
 			}
 			if (response.status != 200 && response.status != 304) {
 				throw response.data
@@ -61,7 +68,7 @@ export const CriteriaManagement = () => {
 	}
 
 	useEffect(() => {
-		if (isLoggedIn && (accountType === "Instructor" || accountType == "Administrador")) { // || accountType === "Gestor"
+		if (isLoggedIn && (accountType === "Instructor" || accountType == "Administrador" || accountType === "Gestor")) {
 			fetchCourses()
 		} else {
 			navigate("/no-autorizado");

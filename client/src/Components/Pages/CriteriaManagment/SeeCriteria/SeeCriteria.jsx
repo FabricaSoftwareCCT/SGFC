@@ -149,7 +149,7 @@ export const SeeCourseCriteria = () => {
 	const accountType = userSession?.accountType || null
 
 	useEffect(() => {
-		if (isLoggedIn && (accountType === "Instructor" || accountType == "Administrador")) { // || accountType === "Gestor"
+		if (isLoggedIn && (accountType === "Instructor" || accountType == "Administrador" || accountType === "Gestor")) {
 			fetchCourse()
 			fetchAprentices()
 		} else {
@@ -158,7 +158,7 @@ export const SeeCourseCriteria = () => {
 	}, [id])
 
 	useEffect(() => {
-		if (isLoggedIn && (accountType === "Instructor" || accountType == "Administrador")) { // || accountType === "Gestor"
+		if (isLoggedIn && (accountType === "Instructor" || accountType == "Administrador" || accountType === "Gestor")) {
 			fetchCourse()
 			fetchAprentices()
 		} else {
@@ -411,7 +411,7 @@ export const SeeCourseCriteria = () => {
 								<button className="button"
 									onClick={() => saveChanges()}
 								>
-									Guardar
+									Certificar
 								</button>
 								{certificationStatus == "Aprovado" &&
 									<button className="button"

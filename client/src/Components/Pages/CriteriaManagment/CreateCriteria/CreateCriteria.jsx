@@ -22,6 +22,11 @@ export const CreateCriteria = () => {
 
 	async function save () {
 		try {
+			if (!criteriaType) {
+				alert("Se debe especificar el tipo de criterio");
+				return
+			}
+
 			if (title.length < 1) {
 				alert("Se debe darle nombre al criterio")
 				return
@@ -34,6 +39,7 @@ export const CreateCriteria = () => {
 				alert("El valor mínimo debe ser un número")
 				return
 			}
+			
 			let body = {}
 			body.title = title
 			if (!!criteriaType)
@@ -68,7 +74,7 @@ export const CreateCriteria = () => {
 	const accountType = userSession?.accountType || null
 
 	useEffect(() => {
-		if (isLoggedIn && (accountType === "Instructor" || accountType == "Administrador")) { // || accountType === "Gestor"
+		if (isLoggedIn && (accountType === "Instructor" || accountType == "Administrador" || accountType === "Gestor")) {
 
 		} else {
 			navigate("/no-autorizado");
@@ -149,12 +155,12 @@ export const CreateCriteria = () => {
 								width: "90%"
 							}}
 						>
-							<button
+							{/*<button
 								className={`status-btn ${criteriaType == undefined || criteriaType.lenght < 1 ? 'selected' : ''}`}
 								onClick={() => setCriteriaType()}
 							>
 								Ninguno
-							</button>
+							</button>*/}
 							<button
 								className={`status-btn ${criteriaType == "Asistencias" ? 'selected' : ''}`}
 								onClick={() => setCriteriaType("Asistencias")}
@@ -165,9 +171,9 @@ export const CreateCriteria = () => {
 								className={`status-btn ${criteriaType == "Calificacion" ? 'selected' : ''}`}
 								onClick={() => setCriteriaType("Calificacion")}
 							>
-								Calificación
+								Actividades
 							</button>
-							<button
+							{/*<button
 								className={`status-btn ${criteriaType == "Horas" ? 'selected' : ''}`}
 								onClick={() => setCriteriaType("Horas")}
 							>
@@ -178,7 +184,7 @@ export const CreateCriteria = () => {
 								onClick={() => setCriteriaType("Documentos")}
 							>
 								Subida de documentos
-							</button>
+							</button>*/}
 						</div>
 						{criteriaType != undefined &&
 							<div

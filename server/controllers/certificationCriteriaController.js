@@ -137,7 +137,7 @@ const createCriteriosCurso = async (req, res) => {
 		const { title, min, description, type, has_value, bias, course } = req.body
 		const { id, accountType } = req.user
 
-		if (accountType !== "Administrador" && accountType !== "Instructor") {
+		if (accountType !== "Administrador" && accountType !== "Instructor" && accountType !== "Gestor") {
 			return res.status(403).json({ message: "No tienes permisos para crear criterios." });
 		}
 
@@ -187,7 +187,7 @@ const updateCriteria = async (req, res) => {
 		const { title, min, description, bias, course } = req.body
 		const { id, accountType } = req.user
 
-		if (accountType !== "Administrador" && accountType !== "Instructor") {
+		if (accountType !== "Administrador" && accountType !== "Instructor" && accountType !== "Gestor") {
 			return res.status(403).json({ message: "No tienes permisos para crear criterios." });
 		}
 

@@ -176,7 +176,7 @@ export const SeeAllCourseCriteria = () => {
 	const accountType = userSession?.accountType || null
 
 	useEffect(() => {
-		if (isLoggedIn && (accountType === "Instructor" || accountType == "Administrador")) { // || accountType === "Gestor"
+		if (isLoggedIn && (accountType === "Instructor" || accountType == "Administrador" || accountType === "Gestor")) {
 			fetchCriteria()
 		} else {
 			navigate("/no-autorizado");
@@ -185,7 +185,7 @@ export const SeeAllCourseCriteria = () => {
 
 	useEffect(() => {
 		setLoading(true)
-		if (isLoggedIn && (accountType === "Instructor" || accountType == "Administrador")) { // || accountType === "Gestor"
+		if (isLoggedIn && (accountType === "Instructor" || accountType == "Administrador" || accountType === "Gestor")) {
 			fetchCriteria(page)
 		} else {
 			navigate("/no-autorizado");

@@ -139,7 +139,9 @@ export const SeeCourseCriteria = () => {
 		setShowFilters(false);
 	}
 
-	async function generateCert() {}
+	async function generateCert() {
+		alert("Aún no implementado");
+	}
 
 	const userSession =
 		JSON.parse(localStorage.getItem("userSession")) ||

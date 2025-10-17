@@ -116,6 +116,10 @@ export const SeeCertificationHistorial = () => {
 		fetchAprenticeCriteria(aprenticeId);
 	}
 
+	function showCert() {
+		alert("Aún no implementado");
+	}
+
 	return (
 		<>
 			<Header />
@@ -326,7 +330,10 @@ export const SeeCertificationHistorial = () => {
 								<label>Estado: </label>
 								<span>{certificationState}</span>
 								{certificationState == "aprovado" && (
-									<button className="button">
+									<button
+										className="button"
+										onClick={() => showCert()}
+									>
 										Ver certificado
 									</button>
 								)}

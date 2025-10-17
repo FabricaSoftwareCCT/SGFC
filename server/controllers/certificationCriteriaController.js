@@ -6,6 +6,7 @@ const EdicionCriterio = require("../models/EdicionCriterio");
 const UsuarioTieneCriterios = require("../models/UsuarioTieneCriterios");
 const { Op } = require("sequelize");
 const InscripcionCurso = require("../models/InscripcionCurso");
+const { sendNotification } = require("../services/notificationService");
 
 let dbInstance;
 
@@ -390,7 +391,7 @@ const updateAprenticeCertificationStatus = async (req, res) => {
 		}
 
 		const courseData = await Curso.findByPk(course, {
-			attributes: ["nombre_curso"],
+			attributes: ["nombre_curso", "ficha"],
 		});
 
 		if (!courseData)
@@ -408,7 +409,7 @@ const updateAprenticeCertificationStatus = async (req, res) => {
 				message: "El estado de la certificación es obligatorio.",
 			});
 
-		if (state != "pendiente" && state != "aprobado" && state != "rechazado")
+		if (state != "pendiente" && state != "aprovado" && state != "rechazado")
 			return res.status(400).json({ mensaje: "Tipo de estado inválido" });
 
 		let updatedData = {
@@ -431,6 +432,36 @@ const updateAprenticeCertificationStatus = async (req, res) => {
 
 		try {
 			// Enviar notificación al aprendiz
+			const title =
+				state == "pendiente"
+					? `Se ha marcado tu certificación como pendiente en el curso ${courseData.nombre_curso}`
+					: state == "aprovado"
+					? `Se ha aprovado tu certificación en el curso ${courseData.nombre_curso}`
+					: `Se ha rechazado tu certificación en el curso ${courseData.nombre_curso}`;
+			const certUrl = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
+			const message = `
+				<p>${
+					state == "pendiente"
+						? `Se ha establecido que tu certificación está pendiente de aprobación en el curso ${courseData.nombre_curso} ficha ${courseData.ficha}.`
+						: state == "aprovado"
+						? `Se ha aprovado tu certificación en el curso ${courseData.nombre_curso} ficha ${courseData.ficha}.<br>Mira tu certificado <a href="${certUrl}">aquí</a>.`
+						: `Se ha rechazado tu certificación en el curso ${courseData.nombre_curso} ficha ${courseData.ficha}.<br>Motivo:<br>${justification}`
+				}</p>
+			`;
+			const type = "actualizacion_curso";
+
+			const notificacion = await dbInstance.Notificacion.create({
+				remitente_ID: id,
+				destinatario_ID: userId,
+				tipo: type,
+				titulo: title,
+				mensaje: message,
+				fecha_envio: new Date(),
+				estado: "sin_leer",
+				curso_ID: course,
+			});
+
+			await sendNotification(id, userId, type, title, message, course);
 		} catch (error) {
 			console.log(
 				`Error al enviar la notificación al aprendiz: ${error}`

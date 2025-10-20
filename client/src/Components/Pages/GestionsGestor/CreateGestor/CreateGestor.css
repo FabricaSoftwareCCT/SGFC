@@ -2,8 +2,8 @@
     position: fixed;
     top: 50%;
     left: 50%;
-    width: 71%;
-    height: 47%;
+    width: 42%;
+    min-width: 660px;
     display: none;
     justify-content: center;
     align-items: center;

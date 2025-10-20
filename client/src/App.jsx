@@ -55,8 +55,7 @@ import { CriteriaManagement } from './Components/Pages/CriteriaManagment/Criteri
 import { SeeCourseCriteria } from './Components/Pages/CriteriaManagment/SeeCriteria/SeeCriteria';
 import { CreateCriteria } from './Components/Pages/CriteriaManagment/CreateCriteria/CreateCriteria';
 import { SeeAllCourseCriteria } from './Components/Pages/CriteriaManagment/SeeCourseCriteria/SeeCourseCriteria';
-import { SeeAprenticeCriteria } from './Components/Pages/CriteriaManagment/SeeAprenticeCriteria/SeeAprenticeCriteria';
-
+import { SeeCertificationHistorial } from './Components/Pages/CriteriaManagment/SeeCertificationHistorial/SeeCertificationHistorial';
 
 // Crear un componente Layout que envuelva las páginas con Header y Footer
 const Layout = ({ children, setShowSignIn, setShowSignUp, setShowModalGeneral }) => {
@@ -308,7 +307,7 @@ function App() {
 					<Route path="/Gestiones/Criterios/Ver/:id" element={<SeeCourseCriteria/>}/>
 					<Route path="/Gestiones/Criterios/Curso/:id" element={<SeeAllCourseCriteria/>}/>
 					<Route path="/Gestiones/Criterios/Crear/:id" element={<CreateCriteria/>}/>
-					<Route path="/Gestiones/Criterios/:user/:id" element={<SeeAprenticeCriteria/>}/>
+					<Route path="/Gestiones/Criterios/Historial/:id" element={<SeeCertificationHistorial/>}/>
 					{/* NUEVA RUTA PARA REPORTE Y ESTADÍSTICAS */}
 					<Route path="/GestionReporteEstadisticas/ReporteEstadisticas" element={
 						<Layout

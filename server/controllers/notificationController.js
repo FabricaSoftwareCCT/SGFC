@@ -1,6 +1,11 @@
+const { log } = require('console');
 const Notificacion = require('../models/Notificacion');
 const User = require("../models/User");
-const { sendNotification, sendAbsenceNotifications } = require('../services/notificationService');
+const Curso = require("../models/curso")
+const { notify } = require('../routes/userRoutes');
+const {sendCreateMaterialApoyo} = require('../services/emailService')
+const { sendNotification, sendAbsenceNotifications, sendCourseRequestStatusEmail, getNotificacionesEstado, createNotificacionMaterialApoyo} = require('../services/notificationService');
+const { Op } = require('sequelize');
 let dbInstance;
 
 // Función para inyectar la instancia de la base de datos
@@ -13,14 +18,32 @@ const setDb = (databaseInstance) => {
  */
 const getUserNotifications = async (req, res) => {
     try {
-        const userId = req.user.id;
-        const { page = 1, limit = 10, type } = req.query;
+        const userId = req?.user?.id;
+        if (!userId) {
+            return res.status(401).json({
+                success: false,
+                message: 'Usuario no autenticado.'
+            });
+        }
 
-        const whereClause = { destinatario_ID: userId }; if (type) {
-            whereClause.tipo = type;
+        // Validación y saneamiento de query params
+        const page = parseInt(req.query.page, 10) || 1;
+        const limit = parseInt(req.query.limit, 10) || 10;
+        const type = req.query.type;
+
+        if (page < 1 || limit < 1) {
+            return res.status(400).json({
+                success: false,
+                message: 'Parámetros "page" y "limit" deben ser mayores a 0.'
+            });
         }
 
         const offset = (page - 1) * limit;
+
+        const whereClause = { destinatario_ID: userId };
+        if (type) {
+            whereClause.tipo = type;
+        }
 
         const { count, rows: notifications } = await dbInstance.Notificacion.findAndCountAll({
             where: whereClause,
@@ -32,25 +55,39 @@ const getUserNotifications = async (req, res) => {
                 }
             ],
             order: [['fecha_envio', 'DESC']],
-            limit: parseInt(limit),
-            offset: offset
+            limit,
+            offset
         });
-
+       const results = await getNotificacionesEstado(notifications);
         res.status(200).json({
             success: true,
             notifications,
             pagination: {
                 total: count,
                 totalPages: Math.ceil(count / limit),
-                currentPage: parseInt(page),
-                limit: parseInt(limit)
+                currentPage: page,
+                limit
             }
         });
+
     } catch (error) {
-        console.error('Error al obtener notificaciones:', error);
-        res.status(500).json({
+        console.error('Error al obtener notificaciones:', {
+            message: error.message,
+            stack: error.stack,
+            name: error.name,
+        });
+
+        // Puedes personalizar respuestas según tipo de error
+        if (error.name === 'SequelizeDatabaseError') {
+            return res.status(500).json({
+                success: false,
+                message: 'Error de base de datos al obtener las notificaciones.'
+            });
+        }
+
+        return res.status(500).json({
             success: false,
-            message: 'Error al obtener las notificaciones'
+            message: 'Ocurrió un error inesperado al obtener las notificaciones.'
         });
     }
 };
@@ -183,6 +220,8 @@ const crearNotificacionSolicitudCurso = async (req, res) => {
             notificaciones.push(notificacion);
         }
 
+        console.log("Notifcación registrada",notificaciones)
+
         res.status(201).json({
             success: true,
             message: 'Notificaciones de solicitud de curso creadas correctamente',
@@ -221,6 +260,7 @@ const crearNotificacionInvitacionCursoInstructor = async (req, res) => {
             <p>Has recibido una invitación para dictar el curso: <strong>${cursoNombre}</strong>.</p>
             <br><p>Por favor, acepta o rechaza la invitación.</p>
         `;
+        const tipo = "invitacion_cursoInstructor"
 
         const notificacion = await dbInstance.Notificacion.create({
             remitente_ID,
@@ -234,6 +274,15 @@ const crearNotificacionInvitacionCursoInstructor = async (req, res) => {
             invitacion_ID // <-- Guardar el ID de la invitación
         });
 
+        await sendNotification(
+            remitente_ID,
+            destinatario_ID,
+            tipo,
+            titulo,
+            mensaje,
+            curso_ID
+        )
+
         res.status(201).json({
             success: true,
             message: 'Notificación creada correctamente',
@@ -245,11 +294,97 @@ const crearNotificacionInvitacionCursoInstructor = async (req, res) => {
     }
 };
 
+// crear notificacion de estado de solicitud de curso (aceptada/rechazada) para empresa
+const createCourseRequestStatusNotification = async (req, res) => {
+    try {
+        const { remitente_ID ,actaID, estado} = req.body;
+        if (!remitente_ID || !actaID || !estado ) {
+            console.log('Faltan datos requeridos:', { actaID, estado }); 
+            return res.status(400).json({ message: 'Faltan datos requeridos.' });
+        }
+        // Buscar el acta para obtener el ID de la empresa (remitente)
+        const acta = await dbInstance.Actas.findByPk(actaID);
+        if (!acta) {
+            return res.status(404).json({ message: 'Acta no encontrada.' });
+        }
+        const id_empresa = acta.empresa_ID;
+        // Buscar el usuario de la empresa
+        const usuario = await User.findOne({ where: { empresa_ID: id_empresa } });
+
+        if (!usuario) {
+            return res.status(404).json({ message: 'Usuario no encontrado.' });
+        }
+
+        // Crear la notificación
+        const notificacion = await dbInstance.Notificacion.create({
+            remitente_ID,
+            destinatario_ID: usuario.dataValues.ID,
+            tipo: 'estado_solicitud_curso',
+            titulo: `Solicitud de curso ${estado}`,
+            mensaje: `La solicitud de curso ha sido ${estado}.`,
+            fecha_envio: new Date(),
+            estado: 'sin_leer',
+            acta_ID: actaID
+        });
+
+        await sendCourseRequestStatusEmail(
+            usuario.dataValues.ID,
+            actaID
+        );
+
+        res.status(201).json({
+            success: true,
+            message: 'Notificación de estado de solicitud de curso creada correctamente',
+            notificacion
+        });
+    } catch (error) {
+        console.error('Error al crear notificación de estado de solicitud de curso:', error);
+        res.status(500).json({ message: 'Error al crear la notificación' });
+    }
+}
+
+// crear notificacion de material de apoyo subido para aprendices
+const crearNotificacionMaterialApoyo = async (req, res) => {
+    try {
+        const{ curso_ID} = req.body;
+
+        const remitente_ID = req.user.id;
+        
+        if (!remitente_ID || !curso_ID) {
+            return res.status(400). json({message: 'faltan datos requeridos.'});
+        }
+
+        const usuarios = await User.findAll({
+            where : {
+                verificacion_email : true,
+                accountType : {[Op.or] : ["Aprendiz"]}
+            },
+            attributes : ['email']
+        })
+
+        const curso = await Curso.findByPk(curso_ID)
+        const emails = usuarios.map(user => user.email);
+        const material_link = `http://localhost:5173/cursos/`;
+        
+        await sendCreateMaterialApoyo(emails, curso.dataValues.nombre_curso, material_link)
+        await createNotificacionMaterialApoyo(remitente_ID, emails, curso);
+
+        return res.status(200).json({message: "se enviaron las notificaciones, del material de apoyo"})
+        
+    } catch (error) {
+        console.error('Error al crear notificación de material de apoyo:', error);
+        res.status(500).json({ message: 'Error al crear la notificación' });
+    }
+}
+
+
 module.exports = {
     setDb,
     getUserNotifications,
     markNotificationAsRead,
     sendManualAbsenceNotification,
     crearNotificacionSolicitudCurso,
-    crearNotificacionInvitacionCursoInstructor
+    crearNotificacionInvitacionCursoInstructor,
+    createCourseRequestStatusNotification,
+    crearNotificacionMaterialApoyo
 }; 

@@ -63,8 +63,9 @@
   cursor: pointer;
   font-size: 1rem;
   transition: background 0.3s ease;
-  width: 100%;
+  width: 50%;
   height: auto;
+  margin-bottom: 4%;
 }
 
 .modal-tipo-acta-opciones {

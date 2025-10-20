@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
+import PropTypes from "prop-types";
 import "./AssignInstructorCourse.css";
 import axiosInstance from "../../../../config/axiosInstance";
-import { Routes, Route, useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 
 export const AssignInstructorCourse = ({ curso_ID, onClose }) => {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   // Validación de sesión de usuario y rol de administrador
   const userSessionString = sessionStorage.getItem("userSession");
@@ -12,12 +13,10 @@ export const AssignInstructorCourse = ({ curso_ID, onClose }) => {
 
   const [filteredInstructors, setFilteredInstructors] = useState([]);
   const [instructors, setInstructors] = useState([]);
+  const [availability, setAvailability] = useState({}); // { [instructorId]: {disponible, estado} }
   const [filter, setFilter] = useState("");
   const [current, setCurrent] = useState(0);
-  const [selectedState, setSelectedState] = useState({
-    activo: true,
-    inactivo: true,
-  });
+  const [selectedState] = useState({ activo: true, inactivo: true });
 
   // Obtener instructores del backend
   const fetchInstructors = async () => {
@@ -25,6 +24,21 @@ export const AssignInstructorCourse = ({ curso_ID, onClose }) => {
       const response = await axiosInstance.get('/api/users/instructores');
       setInstructors(response.data);
       setFilteredInstructors(response.data);
+
+      // Cargar disponibilidad para los primeros N (opcional simple)
+      const checks = await Promise.all(
+        (response.data || []).map(async (inst) => {
+          try {
+            const res = await axiosInstance.get(`/api/courses/instructores/${inst.ID || inst.id}/disponibilidad`);
+            return { id: inst.ID || inst.id, data: res.data };
+          } catch (e) {
+            return { id: inst.ID || inst.id, data: { disponible: false, estado: inst.estado } };
+          }
+        })
+      );
+      const map = {};
+      checks.forEach(({ id, data }) => { map[id] = data; });
+      setAvailability(map);
     } catch (error) {
       console.error('Error al obtener los instructores:', error);
       alert('Hubo un problema al cargar los instructores. Por favor, inténtalo más tarde.');
@@ -36,6 +50,7 @@ export const AssignInstructorCourse = ({ curso_ID, onClose }) => {
   }, []);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     applyFilters();
   }, [selectedState, filter, instructors]);
 
@@ -81,6 +96,16 @@ export const AssignInstructorCourse = ({ curso_ID, onClose }) => {
 
   const invitarInstructor = async (instructor_ID) => {
     try {
+      // Verificar disponibilidad antes de invitar
+      try {
+        const res = await axiosInstance.get(`/api/courses/instructores/${instructor_ID}/disponibilidad`);
+        if (!res.data?.disponible) {
+          return alert('Este instructor está inactivo. No se puede enviar invitación.');
+        }
+      } catch (e) {
+        return alert('No se pudo verificar la disponibilidad del instructor. Intenta más tarde.');
+      }
+
       // 1. Enviar la invitación
       const response = await axiosInstance.post('/api/courses/enviarInvitacionCursoInstructor', {
         instructor_ID,
@@ -197,18 +222,27 @@ export const AssignInstructorCourse = ({ curso_ID, onClose }) => {
             </div>
 
             {/* Mostrar información del instructor actual */}
-            {filteredInstructors.length > 0 && (
-              <div className="instructor-info">
-                <h3>{filteredInstructors[current]?.nombres} {filteredInstructors[current]?.apellidos}</h3>
-                <p>{filteredInstructors[current]?.titulo_profesional}</p>
-                <button
+            {filteredInstructors.length > 0 && (() => {
+              const currentId = filteredInstructors[current]?.ID || filteredInstructors[current]?.id;
+              const disponible = availability[currentId]?.disponible !== false && filteredInstructors[current]?.estado !== 'inactivo';
+              const estadoTexto = availability[currentId]?.estado || filteredInstructors[current]?.estado;
+              return (
+                <div className="instructor-info">
+                  <h3>{filteredInstructors[current]?.nombres} {filteredInstructors[current]?.apellidos}</h3>
+                  <p>{filteredInstructors[current]?.titulo_profesional}</p>
+                  <p>
+                    Estado: {estadoTexto}{availability[currentId]?.disponible === false && ' (No disponible)'}
+                  </p>
+                  <button
                   className="profile-btn"
-                  onClick={() => invitarInstructor(filteredInstructors[current]?.ID || filteredInstructors[current]?.id)}
+                  disabled={!disponible}
+                  onClick={() => invitarInstructor(currentId)}
                 >
                   Invitar Instructor
                 </button>
-              </div>
-            )}
+                </div>
+              );
+            })()}
           </div>
 
           {/* Mostrar flecha derecha solo si hay más de un resultado */}
@@ -229,4 +263,9 @@ export const AssignInstructorCourse = ({ curso_ID, onClose }) => {
     </div>
   );
 
+};
+
+AssignInstructorCourse.propTypes = {
+  curso_ID: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
+  onClose: PropTypes.func,
 };

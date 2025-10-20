@@ -18,7 +18,8 @@ export const ConsultCourses = () => {
   const [allCursos, setAllCursos] = useState([]); // Para guardar todos los cursos
   const [searchTerm, setSearchTerm] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedEstado, setSelectedEstado] = useState("");
+  const [selectedOferta, setSelectedOferta] = useState("");
   const [startIndex, setStartIndex] = useState(0);
   const scrollRef = useRef(null);
   const navigate = useNavigate();
@@ -118,6 +119,32 @@ export const ConsultCourses = () => {
     }
   };
 
+  // filtrar por categoria estado
+  const handleCategoryChangeEstado = (e) => {
+    const category = e.target.value;
+    setSelectedEstado(category);
+    let filtered = allCursos;
+    if (category) {
+      filtered = filtered.filter(
+        (curso) => curso.estado?.toLowerCase() === category.toLowerCase()
+      );
+    }
+    setCursos(filtered);
+  }
+
+  // filtrar por categoria oferta
+  const handleOfertaChange = (e) => {
+    const oferta = e.target.value;
+    setSelectedOferta(oferta);
+    let filtered = allCursos;
+    if (oferta) {
+      filtered = filtered.filter(
+        (curso) => curso.tipo_oferta?.toLowerCase() === oferta.toLowerCase()
+      );
+    }
+    setCursos(filtered);
+  };
+
   return (
     <>
       <Main>
@@ -132,26 +159,67 @@ export const ConsultCourses = () => {
           </h2>
           <p>Busca un curso por su <b>nombre</b> o <b>ficha</b>.</p>
 
-          <div className='options_Search'>
-            <div className="custom-select-container">
-              <select
-                className="custom-select"
-                value={selectedCategory}
-                onChange={e => setSelectedCategory(e.target.value)}
-              >
-                <option value="" disabled hidden>Categoría</option>
-                <option value="desarrollo">Desarrollo</option>
-                <option value="diseño">Diseño</option>
-                <option value="marketing">Marketing</option>
-              </select>
-            </div>
-            <input
-              type="text"
-              placeholder='Nombre o ficha del curso'
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
+        <div className="options_Search">
+          {/* Select Estado */}
+          <div className="custom-select-container">
+            <label htmlFor="estado">Estado</label>
+            <select
+              className="custom-select"
+              value={selectedEstado}
+              onChange={handleCategoryChangeEstado}
+            >
+              <option value="en oferta">En oferta</option>
+              <option value="activo">Activo</option>
+            </select>
           </div>
+
+          {/* Select Oferta */}
+          <div className="custom-select-container">
+            <label htmlFor="oferta">Oferta</label>
+            <select
+              className="custom-select"
+              value={selectedOferta}
+              onChange={handleOfertaChange}
+            >
+              <option value="abierta">Abierta</option>
+              <option value="cerrada">Cerrada</option>
+            </select>
+          </div>
+
+          {/* Input de búsqueda */}
+          <input
+            type="text"
+            className="search-input"
+            placeholder="Nombre o ficha del curso"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+
+        {cursos.length === 0 && (
+          <div className="no-results">
+        {selectedEstado && !selectedOferta && (
+          <p className="no-results-message">No hay cursos con estado: <strong>{selectedEstado}</strong></p>
+        )}
+
+        {selectedOferta && !selectedEstado && (
+          <p className="no-results-message">No hay cursos con oferta: <strong>{selectedOferta}</strong></p>
+        )}
+
+        {selectedEstado && selectedOferta && (
+        <p className="no-results-message">
+          No hay cursos con estado <strong>{selectedEstado}</strong> y oferta{" "}
+          <strong>{selectedOferta}</strong>
+        </p>
+        )}
+
+        {!selectedEstado && !selectedOferta && (
+          <p className="no-results-message">No se encontraron cursos disponibles.</p>
+        )}
+      </div>
+    )}
+
+
 
           {errorMessage && (
             <p className="error-message-search" style={{ marginTop: 8, marginBottom: 0 }}>

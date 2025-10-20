@@ -14,7 +14,7 @@ class Curso extends Model {
           allowNull: false,
         },
         descripcion: {
-          type: DataTypes.STRING(250),
+          type: DataTypes.STRING(600),
           allowNull: true,
         },
         tipo_oferta: {
@@ -83,6 +83,7 @@ class Curso extends Model {
     this.belongsTo(models.Empresa, { foreignKey: 'empresa_ID', onDelete: 'NO ACTION', onUpdate: 'NO ACTION' });
     this.belongsTo(models.Sena, { foreignKey: 'sena_ID', onDelete: 'NO ACTION', onUpdate: 'NO ACTION' });
     this.belongsTo(models.Usuario, { foreignKey: 'instructor_ID', onDelete: 'NO ACTION', onUpdate: 'NO ACTION', as: 'Instructor' });
+    this.hasMany(models.Usuario, { foreignKey: 'ID', as: 'aprendices' });
 
   }
 }

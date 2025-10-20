@@ -6,8 +6,8 @@ const storage = multer.memoryStorage(); // Guarda como buffer
 const fileFilter = (req, file, cb) => {
     console.log("Tipo MIME recibido:", file.mimetype); // 🔍
 
-    if (file.fieldname === 'foto_perfil' || file.fieldname === 'imagen') {
-        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+    if (file.fieldname === 'foto_perfil' || file.fieldname === 'imagen' || file.fieldname === 'img_empresa') {
+        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/x-icon', 'image/webp'];
         if (allowedTypes.includes(file.mimetype)) {
             cb(null, true);
         } else {

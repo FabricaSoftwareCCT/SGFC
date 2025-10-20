@@ -94,10 +94,10 @@ export const CreateCourse = ( ) => {
       const formData = new FormData();
       // Agrega el campo empresa_NIT al formData si hay empresa seleccionada
       if (empresaSeleccionada) {
-        formData.append("empresa_NIT", empresaSeleccionada.ID); // usa el nombre exacto del campo
+        formData.append("empresa_ID", empresaSeleccionada.ID); // usa el nombre exacto del campo
       }
 
-      formData.append("ficha", ficha);
+      formData.append("ficha", ficha); 
       // Enviar el nombre del curso en mayúsculas
       formData.append("nombre_curso", nombreCurso.toUpperCase());
       formData.append("descripcion", descripcion);
@@ -159,19 +159,14 @@ export const CreateCourse = ( ) => {
       if (instructor_ID) {
         formData.append("instructor_ID", instructor_ID);
       }
-
-      if (empresaSeleccionada) {
-        formData.append("empresa_ID", empresaSeleccionada.ID);
-      }
-
+      
       const response = await axiosInstance.post("/api/courses/cursos", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
 
-      alert("Curso creado con éxito");
-      console.log(response.data);
+      alert("Curso creado con éxito");  
 
       // Redirigir al usuario a la página del curso creado
       if (response.data.curso && response.data.curso.ID) {
@@ -210,15 +205,10 @@ export const CreateCourse = ( ) => {
   useEffect(() => {
     debouncedBuscarEmpresa(empresaNIT);
     return () => {
+      console.log("empresa", empresaNIT)
       debouncedBuscarEmpresa.cancel();
     };
   }, [empresaNIT]);
-
-  const handleSeleccionEmpresa = (empresa) => {
-    setEmpresaSeleccionada(empresa);
-    setEmpresaNIT(empresa.NIT);
-    setShowResultados(false);
-  };
 
 
   return (
@@ -261,17 +251,7 @@ export const CreateCourse = ( ) => {
               )}
             </label>
 
-            <div className='containerDetails_course'>
-              <div id='containerInput_ficha'>
-                <label htmlFor="fichaCourse">Ficha: </label>
-                <input
-                  id='fichaCourse'
-                  type="number"
-                  placeholder='N° ficha'
-                  value={ficha}
-                  onChange={(e) => setFicha(e.target.value)}
-                />
-              </div>
+            <div className='containerDetails_course '>
               <input
                 className='addName'
                 type="text"
@@ -298,6 +278,19 @@ export const CreateCourse = ( ) => {
 
               <div className='containerDetails_course2'>
                 <div>
+                  {/* Campo Ficha - Siempre visible */}
+                  <div className='containerInput_ficha'>
+                    <label htmlFor="fichaCourse">Ficha: </label>
+                    <input
+                      className='input-field'
+                      id='fichaCourse'
+                      type="number"
+                      placeholder='N° ficha'
+                      value={ficha}
+                      onChange={(e) => setFicha(e.target.value)}
+                    />
+                  </div>
+
                   <div className="offer-type-container">
                     <span>Tipo de oferta:</span>
                     <div className="offer-options">
@@ -358,6 +351,7 @@ export const CreateCourse = ( ) => {
                       ) : (
                         <>
                           <input
+                            className='input-field'
                             id='nit_company'
                             type="text"
                             placeholder='NIT de la empresa'
@@ -395,8 +389,6 @@ export const CreateCourse = ( ) => {
                 </div>
 
                 <div>
-                  
-
                   {/* Botón para abrir el modal general */}
                   <button className='addDate' type="button" onClick={showModalGeneral}>
                     <img src={calendar} alt="" />

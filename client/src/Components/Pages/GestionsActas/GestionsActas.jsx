@@ -63,7 +63,6 @@ export const GestionsActas = () => {
       try {
         const userData = JSON.parse(sessionStorage.getItem('userSession') || '{}');
         setUsuarioLogueado(userData);
-        console.log('Usuario logueado:', userData);
       } catch (error) {
         console.error('Error al obtener datos del usuario:', error);
         setUsuarioLogueado(null);
@@ -121,7 +120,20 @@ export const GestionsActas = () => {
       }
 
       try {
-        await axiosInstance.put(`/api/actas/${acta.ID}/estado`, { estado_acta: nuevoEstado });
+        const userData = JSON.parse(sessionStorage.getItem('userSession') || '{}');     
+        const respo = await axiosInstance.put(`/api/actas/${acta.ID}/estado`, { estado_acta: nuevoEstado });
+       const updatedEstado = respo.data.acta;
+       try{
+        console.log('datos acta', acta.ID, updatedEstado);
+        const response = await axiosInstance.post('/api/notifications/solicitudNotificacion', {
+          remitente_ID: userData.id,
+          actaID : acta.ID,
+          estado: updatedEstado, 
+        })
+         alert('Notificación de estado de solicitud de curso enviada correctamente');
+       } catch (error) {
+         console.error('Error al enviar notificación de estado de solicitud de curso:', error);
+       }
         alert('Estado actualizado correctamente');
         setShowModalGeneral(false);
         window.location.reload();

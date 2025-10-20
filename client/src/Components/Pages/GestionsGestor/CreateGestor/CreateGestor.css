@@ -2,21 +2,19 @@
     position: fixed;
     top: 50%;
     left: 50%;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.579);
+    width: 71%;
+    height: 47%;
     display: none;
     justify-content: center;
     align-items: center;
     transform: translate(-50%, -50%);
     z-index: 1000;
-    padding: 20px;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
 }
 
 .modal-bodyCreateGestor {
-    width: 800px;
-    height: 550px;
+    width: 840px;
+    height: 554px;
     background-color: #1A1A1A;
     display: flex;
     justify-content: center;
@@ -174,7 +172,7 @@
 
 
 .container_return_CreateGestor {
-    width: 142px;
+    width: 101px;
     height: 142px;
     display: flex;
     flex-direction: column;
@@ -190,11 +188,26 @@
     height: auto;
     position: relative;
     top: 27%;
-    font-size: 18px;
+    font-size: 1.125rem;
     font-weight: 400;
     z-index: 1000;
     color: #fff;
     left: 4%;
     cursor: pointer;
 }
+
+.text-return {
+    width: auto;
+    height: auto;
+    position: relative;
+    top: 27%;
+    font-size: 1.125rem;
+    font-weight: 400;
+    z-index: 1000;
+    color: #fff;
+    left: 4%;
+    cursor: pointer;
+}
+
+
 

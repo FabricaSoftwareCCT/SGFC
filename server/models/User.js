@@ -118,6 +118,11 @@ class Usuario extends Model {
       foreignKey: 'aprendiz_ID',
       as: 'inscripciones'
     });
+
+    this.hasMany(models.Asistencia, {
+      foreignKey: 'aprendiz_ID',
+      as: 'asistencias'
+    })
   }
 
 

@@ -1,0 +1,10 @@
+.go-back-arrow-flying {
+	background-color: transparent;
+	border: none;
+	color: #00843e;
+	font-weight: bold;
+	position: absolute;
+	font-size: 30px;
+	left: 10%;
+	top: 6.5%;
+}

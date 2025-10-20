@@ -26,10 +26,13 @@ import { AttendanceRecords } from './Components/Pages/AttendanceRecords/Attendan
 import { ManageAttendance } from './Components/Pages/Courses/ManageAttendance/ManageAttendance';
 import { MisCursosAdmin } from './Components/Pages/Courses/MisCursos/MisCursosAdmin/MisCursosAdmin';
 import { RequestCourse } from './Components/Pages/Courses/RequestCourse/RequestCourse';
+import { RequestCourseAp } from './Components/Pages/Courses/RequestCourseAp/RequestCourseAp';
 import { GestionsActas } from './Components/Pages/GestionsActas/GestionsActas';
 import { AssignInstructorCourse } from './Components/Pages/Courses/AssignInstructorCourse/AssignInstructorCourse';
 import { ConcertationProceeding } from './Components/Pages/proceedings/ConcertationProceeding';
 import { TrainingPlaceProceeding } from './Components/Pages/proceedings/TrainingPlaceProceeding';
+import { SupportMaterial } from './Components/Pages/Courses/SupportMaterial/SupportMaterial';
+import { SupportMaterialCourse } from './Components/Pages/Courses/SupportMaterialCourse/SupportMaterialCourse';
 
 // Importación de modales
 import { NavBar } from './Components/UI/NavBar/NavBar';
@@ -43,222 +46,312 @@ import { CreateGestor } from './Components/Pages/GestionsGestor/CreateGestor/Cre
 import { CreateEmploye } from './Components/Pages/GestionsEmployes/CreateEmploye/CreateEmploye';
 import { UpdateInstructor } from './Components/Pages/GestionsInstructor/UpdateInstructor/UpdateInstructor';
 import { NoAutorizado } from './Components/Pages/NoAutorizado/NoAutorizado';
+import ReporteEstadisticas from './Components/Pages/GestionReporteEstadisticas/ReporteEstadisticas';
 
 // Importación de estilos
 import "./App.css";
 import { Header } from './Components/Layouts/Header/Header';
+import { CriteriaManagement } from './Components/Pages/CriteriaManagment/Criteria';
+import { SeeCourseCriteria } from './Components/Pages/CriteriaManagment/SeeCriteria/SeeCriteria';
+import { CreateCriteria } from './Components/Pages/CriteriaManagment/CreateCriteria/CreateCriteria';
+import { SeeAllCourseCriteria } from './Components/Pages/CriteriaManagment/SeeCourseCriteria/SeeCourseCriteria';
+import { SeeAprenticeCriteria } from './Components/Pages/CriteriaManagment/SeeAprenticeCriteria/SeeAprenticeCriteria';
+
 
 // Crear un componente Layout que envuelva las páginas con Header y Footer
 const Layout = ({ children, setShowSignIn, setShowSignUp, setShowModalGeneral }) => {
-  return (
-    <>
-      <Header
-        setShowSignIn={setShowSignIn}
-        setShowSignUp={setShowSignUp}
-        setShowModalGeneral={setShowModalGeneral}
-      />
-      {children}
-    </>
-  );
+	return (
+		<>
+			<Header
+				setShowSignIn={setShowSignIn}
+				setShowSignUp={setShowSignUp}
+				setShowModalGeneral={setShowModalGeneral}
+			/>
+			{children}
+		</>
+	);
 };
 
 function App() {
-  const navigate = useNavigate();
+	const navigate = useNavigate();
 
-  // Estados de los modales desde el contexto global
-  const {
-    showSignIn,
-    setShowSignIn,
-    showSignUp,
-    setShowSignUp,
-    showModalGeneral,
-    setShowModalGeneral,
-    selectedAccountType,
-    setSelectedAccountType,
-    showModalCreateEmployee,
-    showModalSuccesfull,
-    setShowModalSuccesfull,
-    modalSuccesfullContent,
-    showModalFailed,
-    setShowModalFailed,
-    modalFailedContent,
-    modalGeneralContent,
-    showAssignModal,
-    setShowAssignModal
+	// Estados de los modales desde el contexto global
+	const {
+		showSignIn,
+		setShowSignIn,
+		showSignUp,
+		setShowSignUp,
+		showModalGeneral,
+		setShowModalGeneral,
+		selectedAccountType,
+		setSelectedAccountType,
+		showModalCreateEmployee,
+		showModalSuccesfull,
+		setShowModalSuccesfull,
+		modalSuccesfullContent,
+		showModalFailed,
+		setShowModalFailed,
+		modalFailedContent,
+		modalGeneralContent,
+		showAssignModal,
+		setShowAssignModal
 
-  } = useModal();
+	} = useModal();
+
+	useEffect(() => {
+		const verifiCarToken = async () => {
+			try {
+				const localSession = sessionStorage.getItem("userSession");
+				
+				if (localSession) {
+					console.log("Sesión activa en esta pestaña");
+					return;
+				}
+
+				const response = await fetch("http://localhost:3001/api/users/recordsession", {
+					method: "GET",
+					credentials: "include" 
+				});
+
+				if (!response.ok) {
+					sessionStorage.removeItem("userSession");
+					return;
+				}
+
+				const data = await response.json();
+
+				const sessionData = {
+					accountType: data.session?.payload?.accountType,
+					emal: data.session?.payload?.email,
+					id: data.session?.payload?.id
+				};
+
+				if (!data.session) {
+					sessionStorage.removeItem("userSession");
+					navigate("/"); 
+					return;
+				}
+
+				if(data.session?.payload?.accountType === "Empresa" && data.session?.empresa_ID){
+						sessionData.empresa_ID = data.session.empresa_ID;
+				}
+
+				sessionStorage.setItem("userSession", JSON.stringify(sessionData));
+				navigate("/", { state: { accountType: data.session?.payload?.accountType } });
+
+			} catch (error) {
+				console.error("Error al verificar el token:", error);
+				sessionStorage.removeItem("userSession");
+			}
+	};
+	
+		verifiCarToken();
+	}, []);
 
 
-  useEffect(() => {
-    if (window.gapi) {
-      window.gapi.load("auth2", () => {
-        window.gapi.auth2.init({
-          client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
-        });
-      });
-    }
-  }, []);
+	useEffect(() => {
+		if (window.gapi) {
+			window.gapi.load("auth2", () => {
+				window.gapi.auth2.init({
+					client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+				});
+			});
+		}
+	}, []);
 
-  useEffect(() => {
-    const userSession = localStorage.getItem('userSession');
-    const userInfo = sessionStorage.getItem('userSession');
-    const { email } = JSON.parse(userInfo || '{}'); // Manejo seguro si userInfo es null
+	useEffect(() => {
+		const userSession = localStorage.getItem('userSession');
+		const userInfo = sessionStorage.getItem('userSession');
+		const { email } = JSON.parse(userInfo || '{}'); // Manejo seguro si userInfo es null
 
-    if (email?.includes('@example.com')) {
-      setShowModalGeneral(true);
-    }
+		if (email?.includes('@example.com')) {
+			setShowModalGeneral(true);
+		}
 
-    if (userSession && location.pathname !== "/resetPassword") {
-      navigate("/", { state: { accountType: selectedAccountType } });
-    }
-  }, [navigate]);
+		if (userSession && location.pathname !== "/resetPassword") {
+			navigate("/", { state: { accountType: selectedAccountType } });
+		}
+	}, [navigate]);
 
 
-  return (
-    <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
-      <>
-        {/* Renderizado condicional de modales basado en el contexto */}
-        {showSignIn && (
-          <Modal_SignIn
-            showSignIn={showSignIn}
-            setShowSignIn={setShowSignIn}
-            setShowSignUp={setShowSignUp}
-            setShowModalGeneral={setShowModalGeneral}
-            setSelectedAccountType={setSelectedAccountType}
-          />
-        )}
+	return (
+		<GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+			<>
+				{/* Renderizado condicional de modales basado en el contexto */}
+				{showSignIn && (
+					<Modal_SignIn
+						showSignIn={showSignIn}
+						setShowSignIn={setShowSignIn}
+						setShowSignUp={setShowSignUp}
+						setShowModalGeneral={setShowModalGeneral}
+						setSelectedAccountType={setSelectedAccountType}
+					/>
+				)}
 
-        {showModalGeneral && (
-          <Modal_General closeModal={() => setShowModalGeneral(false)}>
-            {modalGeneralContent}
-          </Modal_General>
-        )}
+				{showModalGeneral && (
+					<Modal_General closeModal={() => setShowModalGeneral(false)}>
+						{modalGeneralContent}
+					</Modal_General>
+				)}
 
-        {showSignUp && selectedAccountType && (
-          <Modal_SignUp
-            accountType={selectedAccountType}
-            setShowSignUp={setShowSignUp}
-            setShowSignIn={setShowSignIn}
-            setShowModalGeneral={setShowModalGeneral}
-          />
-        )}
+				{showSignUp && selectedAccountType && (
+					<Modal_SignUp
+						accountType={selectedAccountType}
+						setShowSignUp={setShowSignUp}
+						setShowSignIn={setShowSignIn}
+						setShowModalGeneral={setShowModalGeneral}
+					/>
+				)}
 
-        {showModalSuccesfull && (
-          <Modal_Successful closeModal={() => setShowModalSuccesfull(false)}>
-            {modalSuccesfullContent}
-          </Modal_Successful>
-        )}
+				{showModalSuccesfull && (
+					<Modal_Successful closeModal={() => setShowModalSuccesfull(false)}>
+						{modalSuccesfullContent}
+					</Modal_Successful>
+				)}
 
-        {showModalFailed && (
-          <Modal_Failed closeModal={() => setShowModalFailed(false)}>
-            {modalFailedContent}
-          </Modal_Failed>
-        )}
+				{showModalFailed && (
+					<Modal_Failed closeModal={() => setShowModalFailed(false)}>
+						{modalFailedContent}
+					</Modal_Failed>
+				)}
 
-        {showModalCreateEmployee && <CreateEmploye />}
+				{showModalCreateEmployee && <CreateEmploye />}
 
-        {showAssignModal && <AssignInstructorCourse />}
+				{showAssignModal && <AssignInstructorCourse />}
 
-        <CreateInstructor />
-        <CreateGestor />
+				<CreateInstructor />
+				<CreateGestor />
 
-        <Routes>
-          <Route path="/" element={
-            <Start
-              setShowSignIn={setShowSignIn}
-              setShowSignUp={setShowSignUp}
-              setShowModalGeneral={setShowModalGeneral}
-            />
-          } />
-          <Route path="/QuienesSomos" element={<Who_we_are />} />
+				<Routes>
+					<Route path="/" element={
+						<Start
+							setShowSignIn={setShowSignIn}
+							setShowSignUp={setShowSignUp}
+							setShowModalGeneral={setShowModalGeneral}
+						/>
+					} />
+					<Route path="/QuienesSomos" element={<Who_we_are />} />
 
-          <Route path="/verificarCorreo" element={<EmailVerification />} />
-          <Route path="/resetPassword" element={<ResetPassword />} />
-          <Route path="/Cursos/CrearCurso" element={
-            <Layout
-              setShowSignIn={setShowSignIn}
-              setShowSignUp={setShowSignUp}
-              setShowModalGeneral={setShowModalGeneral}
-            >
-              <CreateCourse />
-            </Layout>
-          } />
-          <Route path="/Cursos/BuscarCursos" element={<Layout
-            setShowSignIn={setShowSignIn}
-            setShowSignUp={setShowSignUp}
-            setShowModalGeneral={setShowModalGeneral}
-          >
-            <ConsultCourses />
-          </Layout>
-          } />
-          <Route path="/Cursos/:id" element={<SeeCourse />} />
-          <Route path="/Cursos/MisCursos" element={
-            <Layout
-              setShowSignIn={setShowSignIn}
-              setShowSignUp={setShowSignUp}
-              setShowModalGeneral={setShowModalGeneral}
-            >
-              <MisCursosAdmin />
-            </Layout>
-          } />
+					<Route path="/verificarCorreo" element={<EmailVerification />} />
+					<Route path="/resetPassword" element={<ResetPassword />} />
+					<Route path="/Cursos/CrearCurso" element={
+						<Layout
+							setShowSignIn={setShowSignIn}
+							setShowSignUp={setShowSignUp}
+							setShowModalGeneral={setShowModalGeneral}
+						>
+							<CreateCourse />
+						</Layout>
+						
+					} />
+					<Route path="/Cursos/BuscarCursos" element={<Layout
+						setShowSignIn={setShowSignIn}
+						setShowSignUp={setShowSignUp}
+						setShowModalGeneral={setShowModalGeneral}
+					>
+						<ConsultCourses />
+					</Layout>
+					} />
+					<Route path="/Cursos/:id" element={<SeeCourse />} />
+					
+					<Route path="/Cursos/MisCursos" element={
+						<Layout
+							setShowSignIn={setShowSignIn}
+							setShowSignUp={setShowSignUp}
+							setShowModalGeneral={setShowModalGeneral}
+						>
+							<MisCursosAdmin />
+						</Layout>
+					} />
 
-          <Route path="/Cursos/MisCursosAsignados" element={
-            <Layout
-              setShowSignIn={setShowSignIn}
-              setShowSignUp={setShowSignUp}
-              setShowModalGeneral={setShowModalGeneral}
-            >
-              <MisCursos />
-            </Layout>
-          } />
-          <Route path="/Cursos/:id/gestionar-asistencia" element={
-            <Layout
-              setShowSignIn={setShowSignIn}
-              setShowSignUp={setShowSignUp}
-              setShowModalGeneral={setShowModalGeneral}
-            >
-              <ManageAttendance />
-            </Layout>
-          } />
-          <Route
-            path="/Cursos/ActualizarCurso/:id"
-            element={<UpdateCourse />}
-          />
-          <Route
-            path="/Gestiones/Instructor"
-            element={<GestionsInstructor />}
-          />
-          <Route path="/Gestiones/Gestor" element={<GestionsGestor />} />
-          <Route path="/MiPerfil" element={<SeeMyProfile />} />
-          <Route path="/Gestiones/Empresas" element={<GestionsCompany />} />
-          <Route path="/Gestiones/Actas" element={<GestionsActas />} />
+					<Route path="/Cursos/MisCursosAsignados" element={
+						<Layout
+							setShowSignIn={setShowSignIn}
+							setShowSignUp={setShowSignUp}
+							setShowModalGeneral={setShowModalGeneral}
+						>
+							<MisCursos />
+						</Layout>
+					} />
+					<Route path="/Cursos/:id/gestionar-asistencia" element={
+						<Layout
+							setShowSignIn={setShowSignIn}
+							setShowSignUp={setShowSignUp}
+							setShowModalGeneral={setShowModalGeneral}
+						>
+							<ManageAttendance />
+						</Layout>
+					} />
+					<Route
+						path="/Cursos/ActualizarCurso/:id"
+						element={<UpdateCourse />}
+					/>
+					<Route
+						path="/Gestiones/Instructor"
+						element={<GestionsInstructor />}
+					/>
+					<Route path="/Gestiones/Gestor" element={<GestionsGestor />} />
+					<Route path="/MiPerfil" element={<SeeMyProfile />} />
+					{/* ✅ NUEVA RUTA AGREGADA */}
+					<Route path="/MiProfile" element={
+						<Layout
+							setShowSignIn={setShowSignIn}
+							setShowSignUp={setShowSignUp}
+							setShowModalGeneral={setShowModalGeneral}
+						>
+							<SeeMyProfile />
+						</Layout>
+					} />
+					<Route path="/Gestiones/Empresas" element={<GestionsCompany />} />
+					<Route path="/Gestiones/Actas" element={<GestionsActas />} />
+					<Route path="/Gestiones/Criterios" element={<CriteriaManagement/>} />
+					<Route path="/Gestiones/Criterios/Ver/:id" element={<SeeCourseCriteria/>}/>
+					<Route path="/Gestiones/Criterios/Curso/:id" element={<SeeAllCourseCriteria/>}/>
+					<Route path="/Gestiones/Criterios/Crear/:id" element={<CreateCriteria/>}/>
+					<Route path="/Gestiones/Criterios/:user/:id" element={<SeeAprenticeCriteria/>}/>
+					{/* NUEVA RUTA PARA REPORTE Y ESTADÍSTICAS */}
+					<Route path="/GestionReporteEstadisticas/ReporteEstadisticas" element={
+						<Layout
+							setShowSignIn={setShowSignIn}
+							setShowSignUp={setShowSignUp}
+							setShowModalGeneral={setShowModalGeneral}
+						>
+							<ReporteEstadisticas />
+						</Layout>
+					} />
 
-          <Route
-            path="/Empleados/MisEmpleados"
-            element={<GestionsEmployes />}
-          />
+					<Route
+						path="/Empleados/MisEmpleados"
+						element={<GestionsEmployes />}
+					/>
 
-          <Route path="/Empleados/CrearEmpleado" element={<CreateEmploye />} />
-          <Route
-            path="/Empleados/ActualizarEmpleado/:id"
-            element={<UpdateEmploye />}
-          />
-          <Route path="/Asistencias" element={
-            <Layout
-              setShowSignIn={setShowSignIn}
-              setShowSignUp={setShowSignUp}
-              setShowModalGeneral={setShowModalGeneral}
-            >
-              <AttendanceRecords />
-            </Layout>
-          } />
-          <Route path="/Actas/Concertacion" element={<ConcertationProceeding />} />
-          <Route path="/Actas/Lugar-formacion" element={<TrainingPlaceProceeding />} />
-          <Route path="/no-autorizado" element={<NoAutorizado />} />
-          <Route path="/SolicitarCurso/:nombreCurso" element={<RequestCourse />} />        </Routes>
-      </>
-    </GoogleOAuthProvider>
-  );
+					<Route path="/Empleados/CrearEmpleado" element={<CreateEmploye />} />
+					<Route
+						path="/Empleados/ActualizarEmpleado/:id"
+						element={<UpdateEmploye />}
+					/>
+					<Route path="/Asistencias" element={
+						<Layout
+							setShowSignIn={setShowSignIn}
+							setShowSignUp={setShowSignUp}
+							setShowModalGeneral={setShowModalGeneral}
+						>
+							<AttendanceRecords />
+						</Layout>
+					} />
+					<Route path="/Actas/Concertacion" element={<ConcertationProceeding />} />
+					<Route path="/Actas/Lugar-formacion" element={<TrainingPlaceProceeding />} />   
+					<Route path="/no-autorizado" element={<NoAutorizado />} />
+					<Route path="/SolicitarCurso/:nombreCurso" element={<RequestCourse />} />        
+			 
+					<Route path="/SupportMaterial" element={<SupportMaterial/>}/>
+					<Route path="/SupportMaterialCourse" element={<SupportMaterialCourse/>}/>
+	
+					<Route path='/SolicitarCursoAp/:nombreCurso' element={<RequestCourseAp />} />
+				</Routes>
+			</>
+		</GoogleOAuthProvider>
+	);
 }
 
 export default App;

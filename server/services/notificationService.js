@@ -1,7 +1,10 @@
 const { sendEmail } = require('./emailService');
-const { Notificacion, Usuario, Sesion, Curso } = require('../models');
+const User = require("../models/User");
+const Curso = require('../models/curso');
+const Actas = require('../models/Actas');
+const { Notificacion,  Sesion } = require('../models');
 const { format } = require('date-fns');
-const { Op } = require('sequelize');
+const { Op, where } = require('sequelize');
 
 let dbInstance;
 
@@ -121,8 +124,186 @@ const sendAbsenceNotifications = async (sessionId) => {
     }
 };
 
+// enviar correo de confirmacion de estado de solicitud de curso
+const sendCourseRequestStatusEmail = async (userId, actaID) => {
+    try {
+        const user = await User.findByPk(userId);
+
+        const acta = await Actas.findByPk(actaID);
+        
+        if (!user || !acta) {
+            throw new Error('Usuario o estado no encontrado');
+        }
+        const fechaActa = format(new Date(acta.dataValues.fecha_acta), 'dd/MM/yyyy');
+        
+        const title = `Estado de su solicitud - ${acta.dataValues.estado_acta}`;
+        const message = `
+            <h2>Notificación de Estado de Solicitud</h2>
+            <p>Estimado(a) ${user.nombres} ${user.apellidos},</p>
+            <p>Le informamos que el estado de su solicitud para el curso <strong>${acta.dataValues.curso_ID}</strong> es: <strong>${acta.dataValues.estado_acta}</strong>.</p>
+            <p>Detalles del acta:</p>
+            <ul>
+                <li><strong>Fecha del Acta:</strong> ${fechaActa}</li>
+            </ul>
+            <p>Por favor, no dude en contactarnos si tiene alguna pregunta.</p>
+            <p>Saludos cordiales,<br>SGFC</p>
+        `;
+
+        sendEmail(user.email, title, message);
+    } catch (error) {
+        console.error('Error al enviar correo de confirmación de estado de solicitud de curso:', error);
+        throw error;
+    }
+};
+
+// Crear notificacion a todos los usuario sobre un nuevo curso creado
+const sendNotifiCursoApi = async (curso, emails, fecha_inicio, fecha_fin, estado) => {
+    //consultar el id de lo usuario por email
+    try {
+        const users = await dbInstance.Usuario.findAll({
+            where: {
+                email: {
+                    [Op.in]: emails
+                }
+            }
+        });
+        const userIds = users.map(async user => {
+            const title = `Nuevo curso disponible - ${curso}`;
+            const message = `
+            Notificación de Nuevo Curso
+            Estimado(a) ${user.nombres} ${user.apellidos}, Nos complace informarle que un nuevo curso ha sido creado y está disponible para inscripción:
+            <br>
+            <br>
+            Curso: ${curso}
+            <br>
+            Tipo de estado: ${estado}
+            <br>
+            <br>
+            Fecha de Inicio: ${new Date(fecha_inicio).toLocaleDateString()}
+            <br>
+            <br>
+            Fecha de Fin: ${new Date(fecha_fin).toLocaleDateString()}
+            <br>
+            <br>
+            Le invitamos a inscribirse lo antes posible para asegurar su lugar.
+            <br>
+            <br>
+            Saludos cordiales, SGFC
+        `;
+       const notificacion = await dbInstance.Notificacion.create({
+            remitente_ID: 1,
+            destinatario_ID: user.ID,
+            tipo: 'nuevo_curso',
+            titulo: title,
+            mensaje: message,
+            fecha_envio: new Date(),
+            estado: 'pendiente'
+        });
+        await notificacion.save();
+       });
+        await Promise.all(userIds);
+        return { success: true, message: 'Notificaciones creadas en la base de datos' };
+    } catch (error) {
+        console.error('Error al enviar notificaciones de nuevo curso:', error);
+        throw error;
+    }
+};
+
+// consultar por invitacion_ID y quitarla si esta rechazada o aceptada
+const getNotificacionesEstado = async (invitaciones) => {
+    try {
+        const resultados = await Promise.all(
+            invitaciones.map(async (inv) => {
+
+                if (!inv.invitacion_ID) {
+                    return inv;
+                }
+
+                // Consultamos en BD
+                const invitacionRecord = await dbInstance.InvitacionCurso.findByPk(inv.invitacion_ID);
+
+                if (invitacionRecord) {
+                    const estado = invitacionRecord.estado; // 'aceptada', 'rechazada', 'pendiente'
+
+                    if (estado === 'aceptada' || estado === 'rechazada') {
+                        await dbInstance.Notificacion.destroy({
+                            where: { id: inv.ID }
+                        });
+                        return null; // la quitamos
+                    }
+                }
+
+
+                return inv;
+            })
+        );
+
+        const invitacionesFiltradas = resultados.filter(inv => inv !== null);
+
+        return invitacionesFiltradas;
+    } catch (error) {
+        console.error('Error al consultar estado de asignación a curso:', error);
+        throw error;
+    }
+};
+
+const createNotificacionMaterialApoyo = async (remitente_ID, emails, curso) => {
+    try {
+        
+        const users = await dbInstance.Usuario.findAll({
+            where: {
+                email: {
+                    [Op.in]: emails
+                }
+            }
+        });
+        const userID = users.map( async user =>{
+
+            const title = `Marial de apoyo del curso - ${curso.dataValues.nombre_curso}`;
+            const message = `
+            Notificación de Nuevo Curso
+            Estimado(a) ${user.nombres} ${user.apellidos}, Nos complace informarle que un se subio el material de apoyo del curso:
+            <br>
+            <br>
+            Curso: ${curso.dataValues.nombre_curso}
+            <br>
+            <br>
+            Fecha de Inicio: ${new Date(curso.dataValues.fecha_inicio).toLocaleDateString()}
+            <br>
+            <br>
+            Fecha de Fin: ${new Date(curso.dataValues.fecha_fin).toLocaleDateString()}
+            <br>
+            <br>
+            Le invitamos a revisarla.
+            <br>
+            <br>
+            Saludos cordiales, SGFC
+        `;
+            const notificacion = await dbInstance.Notificacion.create({
+                remitente_ID: remitente_ID,
+                destinatario_ID: user.ID,
+                tipo: 'nuevo_curso',
+                titulo: title,
+                mensaje: message,
+                fecha_envio: new Date(),
+                estado: 'pendiente'
+            });
+            await notificacion.save();
+        })
+        await Promise.all(userID)
+        return { success: true, message: 'Notificaciones creadas en la base de datos' };
+    } catch (error){
+        return console.log("error al cargar las notificaciones", error)
+    }
+}
+
+
 module.exports = {
     setDb,
     sendNotification,
-    sendAbsenceNotifications
+    sendAbsenceNotifications,
+    sendCourseRequestStatusEmail,
+    sendNotifiCursoApi,
+    getNotificacionesEstado,
+    createNotificacionMaterialApoyo
 }; 

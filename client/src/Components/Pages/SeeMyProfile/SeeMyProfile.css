@@ -34,11 +34,45 @@
     border-radius: 25%;
 }
 
-.container_profile>p {
-    width: 100%;
-    height: auto;
-    font-size: 16px;
-    text-align: center;
+.container_profile > p {
+  width: 100%;
+  height: auto;
+  font-size: 16px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.input_updateData {
+  width: 100%;
+  max-width: 12rem;
+  height: 2.2rem;
+  padding: 0.6rem 0.8rem;
+  background-color: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 0.8rem;
+  color: #fff   ;
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 0.3rem;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.input_updateData:disabled {
+  background-color: rgba(255, 255, 255, 0.7);
+  color: #333;
+  opacity: 1; /* evita que se vea demasiado apagado */
+  cursor: not-allowed;
 }
 
 .container_data_company {
@@ -75,21 +109,22 @@
 
 
 .data_company {
-    width: 30%;
-    height: 100%;
-    display: flex;
-    border-radius: 20px;
-    justify-content: center;
-    flex-wrap: wrap;
-    align-items: center;
-    background-color: #00843e3f;
+  width: 30%;
+  /* deja que crezca según el contenido */
+  height: auto;
+  display: flex;
+  flex-direction: column; /* apila inputs en columna */
+  gap: 12px; /* espacio entre cada <p> */
+  border-radius: 20px;
+  padding: 20px;
+  background-color: #00843e3f;
+  box-sizing: border-box; /* asegura que padding se incluya dentro del ancho */
 }
-
-.data_company>p {
-    width: 100%;
-    height: auto;
-    font-size: 16px;
-    text-align: center;
+.data_company > p {
+  width: 100%;
+  height: auto;
+  font-size: 16px;
+  text-align: center;
 }
 
 
@@ -141,19 +176,16 @@
 }
 
 .updateProfile {
-    position: absolute;
-
-    z-index: 999999999;
-    top: 6.1rem;
-    right: 3rem;
-    width: 4rem;
-    height: 4rem;
-    background-color: #b0b0b0;
-    border-radius: 10px;
-    border-style: none;
-    background: center / 70% no-repeat url('../../../assets/Icons/buttonEdit.png'),
-        #b0b0b0;
-
+  position: absolute;
+  z-index: 0;
+  top: 6.1rem;
+  right: 3rem;
+  width: 4rem;
+  height: 4rem;
+  background-color: #b0b0b0;
+  border-radius: 10px;
+  border-style: none;
+  background: center / 70% no-repeat url("../../../assets/Icons/buttonEdit.png"), #b0b0b0;
 }
 
 .updateProfile.cancel {
@@ -194,14 +226,15 @@
 }
 
 .status-company {
-    width: 7rem;
-    height: 7rem;
-    background-color: #00843e3f;
-    border-radius: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.5rem;
+  width: 7rem;
+  height: 7rem;
+  background-color: #00843e3f;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  z-index: 0;
 }
 
 .color_status {
@@ -257,4 +290,3 @@
     text-align: center;
     margin-top: 0.5rem;
 }
-

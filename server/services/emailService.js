@@ -12,12 +12,15 @@ const transporter = nodemailer.createTransport({
 		user: process.env.EMAIL_USER,
 		pass: process.env.GOOGLE_APP_PASSWORD,
 	},
+	tls: {
+		rejectUnauthorized: false,
+	},
 });
 
 // Función genérica para enviar cualquier tipo de email
 const sendEmail = async (email, subject, htmlContent) => {
 	const mailOptions = {
-		from: process.env.EMAIL_USER,
+		from: `"SGFC" <${process.env.EMAIL_USER}>`,
 		to: email,
 		subject: subject,
 		html: htmlContent,
@@ -68,6 +71,7 @@ const sendRequestCourseEmail = async (req, res) => {
 		fs.writeFileSync(pdfPath, pdfBuffer);
 
 		// Registrar la solicitud en la base de datos
+		console.log("id curso", curso_ID);
 		await Actas.create({
 			fecha_acta: fechaSolicitud,
 			estado_acta: "pendiente",
@@ -91,10 +95,8 @@ const sendRequestCourseEmail = async (req, res) => {
 		});
 
 		await transporter.sendMail({
-			from: `"SGFC" <${
-				process.env.EMAIL_USER || "tabordasantiago350@gmail.com"
-			}>`,
-			to: "tabordasantiago350@gmail.com",
+			from: `"SGFC" <${process.env.EMAIL_USER}>`,
+			to: process.env.EMAIL_USER,
 			subject: "Nueva Solicitud de Curso",
 			html: `<p>Solicitud de curso: ${nombreCurso}</p>`,
 			attachments: [
@@ -117,15 +119,103 @@ const sendRequestCourseEmail = async (req, res) => {
 	}
 };
 
+const sendRequestCourseEmailAp = async (req, res) => {
+	try {
+		const {
+			nombreCurso,
+			fechaInicio,
+			fechaFin,
+			aprendiz,
+			id,
+			curso_ID,
+			gestor_ID,
+			administrador_ID,
+			instructor_ID,
+		} = req.body;
+		const pdfBuffer = req.file.buffer;
+
+		const fs = require("fs");
+		const path = require("path");
+		const pdfFileName = `solicitud_curso_aprendiz_${Date.now()}.pdf`;
+		const pdfPath = path.join(
+			__dirname,
+			"../uploads/solicitudes",
+			pdfFileName
+		);
+
+		fs.mkdirSync(path.dirname(pdfPath), { recursive: true });
+		fs.writeFileSync(pdfPath, pdfBuffer);
+
+		// Registrar la solicitud en la base de datos
+		await Actas.create({
+			fecha_acta: fechaSolicitud,
+			estado_acta: "pendiente",
+			fecha_respuesta: null,
+			empresa_ID: id || null, // Usa el ID recibido o el del objeto empresa
+			curso_ID: curso_ID || null,
+			gestor_ID: gestor_ID || null,
+			administrador_ID: administrador_ID || null,
+			instructor_ID: instructor_ID || null,
+			tipo_acta: "Solicitud",
+			pdf_acta: pdfFileName,
+		});
+
+		let transporter = nodemailer.createTransport({
+			service: "Gmail",
+			auth: {
+				user: process.env.EMAIL_USER,
+				pass: process.env.GOOGLE_APP_PASSWORD,
+			},
+		});
+
+		await transporter.sendMail({
+			from: `"SGFC" <${process.env.EMAIL_USER}>`,
+			to: process.env.EMAIL_USER,
+			subject: "Nueva Solicitud de Curso",
+			html: `<p>Solicitud de curso: ${nombreCurso}</p>`,
+			attachments: [
+				{
+					filename: "solicitud_curso.pdf",
+					content: pdfBuffer,
+				},
+			],
+		});
+
+		res.status(200).json({
+			message:
+				"Solicitud del aprendiz enviada y registrada correctamente.",
+			pdf_acta: pdfFileName,
+		});
+	} catch (error) {
+		console.error(error);
+		return res
+			.status(500)
+			.json({ message: "Error al procesar la solicitud del aprendiz." });
+	}
+};
+
 // Función para enviar el correo de verificación
-const sendVerificationEmail = async (email, token) => {
+const sendVerificationEmail = async (
+	email,
+	token,
+	newPassword,
+	accountType
+) => {
 	const enlaceVerificacion = `http://localhost:5173/verificarCorreo?token=${token}`;
 	const fs = require("fs");
 	const path = require("path");
 	const logoPath = path.join(__dirname, "../Img/sena.png");
 
+	// ⭐⭐ NUEVO: Mensaje específico para Aprendiz ⭐⭐
+	const mensajeEspecifico =
+		accountType === "Aprendiz"
+			? `<p style="margin-bottom:.9375rem; background:#fff9e6; padding:10px; border-radius:5px; border-left:4px solid #F7941E;">
+         <strong>💡 Para Aprendices:</strong> Después de verificar tu correo, dirígete a tu perfil para completar tu información personal y comenzar a usar la plataforma.
+       </p>`
+			: "";
+
 	const mailOptions = {
-		from: process.env.EMAIL_USER,
+		from: `"SGFC" <${process.env.EMAIL_USER}>`,
 		to: email,
 		subject: "Verificación de correo electrónico",
 		attachments: [
@@ -155,13 +245,17 @@ const sendVerificationEmail = async (email, token) => {
             <table width="100%" cellpadding="0" cellspacing="0">
               <tr>
                 <td style="padding:1.25rem 0; line-height:1.6; color:#1A1A1A; font-size:1rem;">
-                  <p style="margin-bottom:.9375rem;">Gracias por registrarte. Para completar el proceso y activar tu cuenta, por favor haz clic en el siguiente enlace para verificar tu correo electrónico:</p>
+                  <p style="margin-bottom:.9375rem; display: flex; flex-direction: column; gap: 5px;">Gracias por registrarte. Para completar el proceso y activar tu cuenta, por favor haz clic en el siguiente enlace para verificar tu correo electrónico:</p>
+                  
+                  ${mensajeEspecifico} <!-- ⭐⭐ AQUÍ SE INSERTA EL MENSAJE ESPECÍFICO ⭐⭐ -->
+                  
                   <div style="text-align:center; padding:1.25rem 0;">
                     <a href="${enlaceVerificacion}" 
                       style="display:inline-block; background-color:#F7941E; color:#fff !important; padding:.75rem 1.5625rem; border-radius:.3125rem; text-decoration:none; font-weight:bold; font-family:Arial,sans-serif; font-size:1rem;">
                       Verificar correo
                     </a>
                   </div>
+                  
                   <p style="margin-bottom:.9375rem;">Si no te registraste en nuestros servicios, por favor ignora este correo.</p>
                   <p style="margin-bottom:0;">Saludos cordiales,<br>El equipo de Fábrica de Software CCT</p>
                 </td>
@@ -192,7 +286,6 @@ const sendVerificationEmail = async (email, token) => {
 		}
 	});
 };
-
 // Función para enviar el correo de recuperación de contraseña
 const sendPasswordResetEmail = (email, resetLink) => {
 	const fs = require("fs");
@@ -381,14 +474,74 @@ const sendPasswordChangeConfirmationEmail = (email, resetLink) => {
 };
 
 //Funcion para enviar correo de notificacion de curso creado
-const sendCourseCreatedEmail = (emails, nombre_curso, courseLink) => {
+const sendCourseCreatedEmail = (
+	emails,
+	nombre_curso,
+	courseLink,
+	descripcion,
+	estado
+) => {
+	const fs = require("fs");
+	const path = require("path");
+	const logoPath = path.join(__dirname, "../Img/sena.png");
+
 	const mailOptions = {
 		from: `"SGFC" <${process.env.EMAIL_USER}>`,
 		to: emails,
 		subject: "Nuevo curso en linea",
-		html: ` <h2>El nuevo curso: ${nombre_curso} ha creado</h2>
-            <p>Haz clic en el siguiente enlace para mas informacion del curso: </p>
-               <a href="${courseLink}">Nuevo curso</a>`,
+		attachments: [
+			{
+				filename: "logo.png",
+				path: logoPath,
+				cid: "logo",
+			},
+		],
+		html: `<table width="100%" bgcolor="#f4f4f4" cellpadding="0" cellspacing="0" style="font-family: Arial, sans-serif; margin:0; padding:0;">
+  <tr>
+    <td align="center">
+      <table width="100%" cellpadding="0" cellspacing="0" style="max-width:37.5rem; background:#fff; margin:1.25rem auto; border-radius:.5rem; box-shadow:0 0 .625rem rgba(0,0,0,0.1);">
+        <tr>
+          <td style="padding:1.875rem;">
+            <!-- Header -->
+            <table width="100%" cellpadding="0" cellspacing="0">
+              <tr>
+                <td align="center" style="padding-bottom:1.25rem; border-bottom:.0625rem solid #eee;">
+                  <img src="cid:logo" alt="Logo de Fábrica de Software CCT" style="width:5rem; height:auto; margin-bottom:.9375rem; display:block;">
+                  <h1 style="color:#00843D; margin:0; font-size:1.5rem; font-family:Arial,sans-serif;">El nuevo Curso: ${nombre_curso}</h1>
+                </td>
+              </tr>
+            </table>
+            <!-- Content -->
+            <table width="100%" cellpadding="0" cellspacing="0">
+              <tr>
+                <td style="padding:1.25rem 0; line-height:1.6; color:#1A1A1A; font-size:1rem;">
+                  <p style="margin-bottom:.9375rem;">Tipo de estado: ${estado}</p>
+                  <p style="margin-bottom:.9375rem;">${descripcion}</p>
+                  <div style="text-align:center; padding:1.25rem 0;">
+                    <a href="${courseLink}" 
+                      style="display:inline-block; background-color:#F7941E; color:#fff !important; padding:.75rem 1.5625rem; border-radius:.3125rem; text-decoration:none; font-weight:bold; font-family:Arial,sans-serif; font-size:1rem;">
+                      Inscribete ahora
+                    </a>
+                  </div>
+                  
+                  <p style="margin-bottom:0;">Saludos cordiales,<br>El equipo de Fábrica de Software CCT</p>
+                </td>
+              </tr>
+            </table>
+            <!-- Footer -->
+            <table width="100%" cellpadding="0" cellspacing="0">
+              <tr>
+                <td align="center" style="padding-top:1.25rem; border-top:.0625rem solid #eee; font-size:.75rem; color:#777;">
+                  <p style="margin:0;">Copyright © 2025 Fábrica de Software CCT - Regional Quindío</p>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>`,
 	};
 	console.log(emails, nombre_curso, courseLink);
 	return new Promise((resolve, reject) => {
@@ -407,6 +560,7 @@ const sendCourseCreatedEmail = (emails, nombre_curso, courseLink) => {
 
 // Enviar correo al instructor notificando su asignación
 const sendInstructorAssignedEmail = (email, curso) => {
+	console.log("Datos de email: ", email);
 	const mailOptions = {
 		from: `"SGFC" <${process.env.EMAIL_USER}>`,
 		to: email,
@@ -744,6 +898,77 @@ const sendTrainingPlaceActaEmail = async (req, res) => {
 		});
 	}
 };
+
+const sendCreateMaterialApoyo = (emails, nombre_curso, material_link) => {
+	const path = require("path");
+	const logoPath = path.join(__dirname, "../Img/sena.png");
+
+	const mailOptions = {
+		from: `"SGFC" <${process.env.EMAIL_USER}>`,
+		to: emails,
+		subject: "Nuevo Material de apoyo",
+		attachments: [
+			{
+				filename: "logo.png",
+				path: logoPath,
+				cid: "logo",
+			},
+		],
+		html: `<table width="100%" bgcolor="#f4f4f4" cellpadding="0" cellspacing="0" style="font-family: Arial, sans-serif; margin:0; padding:0;">
+  <tr>
+    <td align="center">
+      <table width="100%" cellpadding="0" cellspacing="0" style="max-width:37.5rem; background:#fff; margin:1.25rem auto; border-radius:.5rem; box-shadow:0 0 .625rem rgba(0,0,0,0.1);">
+        <tr>
+          <td style="padding:1.875rem;">
+            <!-- Header -->
+            <table width="100%" cellpadding="0" cellspacing="0">
+              <tr>
+                <td align="center" style="padding-bottom:1.25rem; border-bottom:.0625rem solid #eee;">
+                  <img src="cid:logo" alt="Logo de Fábrica de Software CCT" style="width:5rem; height:auto; margin-bottom:.9375rem; display:block;">
+                  <h1 style="color:#00843D; margin:0; font-size:1.5rem; font-family:Arial,sans-serif;">Nuevo material de apoyo de: ${nombre_curso}</h1>
+                </td>
+              </tr>
+            </table>
+            <!-- Content -->
+            <table width="100%" cellpadding="0" cellspacing="0">
+              <tr>
+                <td style="padding:1.25rem 0; line-height:1.6; color:#1A1A1A; font-size:1rem;">
+                  <p style="margin-bottom:.9375rem;">Puedes ver el material de apoyo en este siguiente link</p>
+                  <div style="text-align:center; padding:1.25rem 0;">
+                  </div>
+                  
+                  <p style="margin-bottom:0;">Saludos cordiales,<br>El equipo de Fábrica de Software CCT</p>
+                </td>
+              </tr>
+            </table>
+            <!-- Footer -->
+            <table width="100%" cellpadding="0" cellspacing="0">
+              <tr>
+                <td align="center" style="padding-top:1.25rem; border-top:.0625rem solid #eee; font-size:.75rem; color:#777;">
+                  <p style="margin:0;">Copyright © 2025 Fábrica de Software CCT - Regional Quindío</p>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>`,
+	};
+	return new Promise((resolve, reject) => {
+		transporter.sendMail(mailOptions, (err, info) => {
+			if (err) {
+				console.error("Error al enviar el correo:", err);
+				reject(err);
+			} else {
+				console.log("Correo enviado:", info.response);
+				resolve(info);
+				console.log("se ejecuto la funcion");
+			}
+		});
+	});
+};
 module.exports = {
 	sendEmail,
 	sendVerificationEmail,
@@ -756,4 +981,6 @@ module.exports = {
 	sendRequestCourseEmail,
 	sendConcertacionActaEmail,
 	sendTrainingPlaceActaEmail,
+	sendRequestCourseEmailAp,
+	sendCreateMaterialApoyo,
 };

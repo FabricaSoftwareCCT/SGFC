@@ -14,6 +14,9 @@ router.get('/empresa/:empresaId', cursoController.getCursosByEmpresaId);
 // Asignar curso a instructor
 router.post('/asignaciones', cursoController.asignarInstructorAlCurso);
 
+// Disponibilidad de instructor
+router.get('/instructores/:instructor_ID/disponibilidad', cursoController.verificarDisponibilidadInstructor);
+
 
 //ruta que requieren autorizacion
 router.use(authMiddleware);
@@ -35,6 +38,7 @@ router.put('/inscripciones', crearOActualizarInscripcion);
 //enviar invitacion de curso a instructor
 router.post('/enviarInvitacionCursoInstructor', cursoController.enviarInvitacionCurso);
 
+// cambiar el estado de la invitacion a un curso (instructor)
 router.put('/cambiarEstadoInvitacion/:invitacionId', cursoController.cambiarEstadoInvitacion);
 
 module.exports = router;

@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import "./UpdateGestor.css";
 import axiosInstance from "../../../../config/axiosInstance";
-import { Routes, Route, useNavigate } from "react-router-dom";
+import { validateEmail, validateNumber, validateText, createMensajeError } from "../../../../utils/Validators/formValidator";
+// import { useNavigate } from "react-router-dom";
 
 export const UpdateGestor = ({ gestor }) => {
 
@@ -13,7 +14,8 @@ export const UpdateGestor = ({ gestor }) => {
   const [formData, setFormData] = useState({ ...gestor });
 
   const closeModalUpdateGestor = () => {
-    document.getElementById("modal-overlayUpdateGestor").style.display = "none";
+    const overlay = document.getElementById("modal-overlayUpdateGestor");
+    overlay.style.display = "none";
   };
 
   const getImageSrc = (data) => {
@@ -58,6 +60,21 @@ export const UpdateGestor = ({ gestor }) => {
 
     // Guardar cambios
     try {
+      const validationGeneral = {
+          nombres: validateText(formData.nombres),
+          apellidos: validateText(formData.apellidos),
+          Cédula: validateNumber(formData.documento),
+          celular: validateNumber(formData.celular),
+          email: validateEmail(formData.email)
+      }
+         
+      const errores = await createMensajeError(validationGeneral);
+        if(errores !== null){
+          alert(errores);
+          return;
+        }
+
+
       const formDataToSend = new FormData();
       for (const key in formData) {
         if (formData.hasOwnProperty(key)) {

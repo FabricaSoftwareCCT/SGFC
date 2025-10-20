@@ -12,6 +12,7 @@ const fs = require('fs');
 const InscripcionCurso = require('../models/InscripcionCurso');
 const InvitacionCurso = require('../models/InvitacionCurso');
 const Usuario = require("../models/User");
+const { sendNotification, sendNotifiCursoApi } = require("../services/notificationService");
 
 
 let dbInstance;
@@ -37,6 +38,12 @@ const asignarInstructorAlCurso = async (req, res) => {
     if (!instructor || instructor.accountType !== "Instructor") {
       await transaction.rollback();
       return res.status(404).json({ message: "Instructor no encontrado o no válido" });
+    }
+
+    // Validar disponibilidad (estado activo)
+    if (instructor.estado !== 'activo') {
+      await transaction.rollback();
+      return res.status(409).json({ message: "El instructor no está disponible (estado inactivo)." });
     }
 
     // Validar existencia del curso
@@ -116,10 +123,11 @@ const obtenerCursosAsignadosAInstructor = async (req, res) => {
 // Crear un curso (solo para administradores)
 const createCurso = async (req, res) => {
   try {
-    const { accountType } = req.user;
-
-    if (accountType !== "Administrador") {
-      return res.status(403).json({ message: "No tienes permisos para crear cursos." });
+    const { accountType } = req.user; // ← ESTA LÍNEA TIENE EL PROBLEMA
+    console.log("Este es el tipo de cuenta", accountType);
+    
+    if (accountType !== "Administrador" && accountType !== "Gestor" && accountType !== "Instructor") {
+      return res.status(403).json({ message: "No tienes permisos para crear cursos" });
     }
 
     const {
@@ -228,10 +236,18 @@ const createCurso = async (req, res) => {
       attributes: ['email'],
     });
 
+    const Idcurso = await Curso.findByPk(nuevoCurso.ID, { attributes: ['ID'] }).then(c => c.ID);
+
+    if(Idcurso == null){
+      res.status(500).json({ message: "Error al obtener el curso recién creado." });
+      return;
+    }
+
     const emails = usuarios.map(user => user.email);
     if (emails.length > 0) {
-      const courseLink = `http://localhost:5173/cursos/${nuevoCurso.id}`;
-      await sendCourseCreatedEmail(emails, nombre_curso, courseLink);
+      const courseLink = `http://localhost:5173/cursos/${Idcurso}`;
+      await sendCourseCreatedEmail(emails, nombre_curso, courseLink, descripcion, estado);
+      await sendNotifiCursoApi(nombre_curso, emails, fecha_inicio, fecha_fin, estado);
     }
 
   } catch (error) {
@@ -249,7 +265,7 @@ const createCurso = async (req, res) => {
 const updateCurso = async (req, res) => {
   try {
     const { accountType } = req.user;
-    if (accountType !== "Administrador") {
+    if (accountType !== "Administrador" & accountType !== "Gestor") {
       return res
         .status(403)
         .json({ message: "No tienes permisos para actualizar cursos." });
@@ -377,6 +393,7 @@ const updateCurso = async (req, res) => {
 const getAllCursos = async (req, res) => {
   try {
     const cursos = await Curso.findAll(); // Obtener todos los cursos
+    console.log(cursos)
     res.status(200).json(cursos);
   } catch (error) {
     console.error("Error al obtener los cursos:", error);
@@ -581,6 +598,15 @@ const enviarInvitacionCurso = async (req, res) => {
       return res.status(409).json({ message: 'Ya existe una invitación pendiente para este instructor y curso.' });
     }
 
+    // Validar disponibilidad del instructor (solo se invita si está activo)
+    const instructor = await Usuario.findByPk(instructor_ID, { attributes: ['ID', 'estado', 'accountType'] });
+    if (!instructor || instructor.accountType !== 'Instructor') {
+      return res.status(404).json({ message: 'Instructor no encontrado o no válido.' });
+    }
+    if (instructor.estado !== 'activo') {
+      return res.status(409).json({ message: 'No se puede invitar. El instructor está inactivo.' });
+    }
+
     // Crear la invitación
     const nuevaInvitacion = await InvitacionCurso.create({
       instructor_ID: parseInt(instructor_ID),
@@ -590,7 +616,16 @@ const enviarInvitacionCurso = async (req, res) => {
       fecha_envio: new Date()
     });
 
-    console.log('✅ Invitación creada exitosamente:', nuevaInvitacion.id);
+    const findInstructor = await User.findByPk(instructor_ID, {attributes: ['email']})
+    const curso = await Curso.findOne({where: {ID: curso_ID}})
+
+    const email = findInstructor.dataValues.email;  
+    console.log("datos necesarios: ", {email, curso})
+
+    if(email.length > 0){
+      await sendInstructorAssignedEmail(email, curso);
+      console.log('✅ Invitación creada exitosamente:', nuevaInvitacion.id);
+    }
 
     res.status(201).json({
       message: 'Invitación enviada correctamente.',
@@ -602,34 +637,88 @@ const enviarInvitacionCurso = async (req, res) => {
     res.status(500).json({ message: 'Error al enviar la invitación.' });
   }
 };
+
+// Endpoint de disponibilidad de instructor por ID
+const verificarDisponibilidadInstructor = async (req, res) => {
+  try {
+    const { instructor_ID } = req.params;
+    if (!instructor_ID) {
+      return res.status(400).json({ message: 'El ID del instructor es obligatorio.' });
+    }
+    const instructor = await Usuario.findByPk(instructor_ID, { attributes: ['ID', 'estado', 'accountType', 'nombres', 'apellidos'] });
+    if (!instructor || instructor.accountType !== 'Instructor') {
+      return res.status(404).json({ message: 'Instructor no encontrado o no válido.' });
+    }
+    const disponible = instructor.estado === 'activo';
+    return res.status(200).json({ disponible, estado: instructor.estado, instructor: { ID: instructor.ID, nombres: instructor.nombres, apellidos: instructor.apellidos } });
+  } catch (error) {
+    console.error('Error al verificar disponibilidad del instructor:', error);
+    return res.status(500).json({ message: 'Error al verificar la disponibilidad del instructor.' });
+  }
+};
+
 const cambiarEstadoInvitacion = async (req, res) => {
+  const transaction = await dbInstance.sequelize.transaction();
+  
   try {
     const { invitacionId } = req.params;
     const { nuevoEstado } = req.body; // 'aceptada' o 'rechazada'
 
     // Validar estado permitido
     if (!['aceptada', 'rechazada'].includes(nuevoEstado)) {
+      await transaction.rollback();
       return res.status(400).json({ message: "El estado debe ser 'aceptada' o 'rechazada'." });
     }
 
-    // Buscar la invitación
-    const invitacion = await InvitacionCurso.findByPk(invitacionId);
+    // Buscar la invitación con transacción
+    const invitacion = await InvitacionCurso.findByPk(invitacionId, { transaction });
     if (!invitacion) {
+      await transaction.rollback();
       return res.status(404).json({ message: "Invitación no encontrada." });
     }
 
     // Si ya está en ese estado, no hacer nada
     if (invitacion.estado === nuevoEstado) {
+      await transaction.rollback();
       return res.status(200).json({ message: `La invitación ya está en estado '${nuevoEstado}'.` });
     }
 
-    // Cambiar el estado de la invitación seleccionada
-    invitacion.estado = nuevoEstado;
-    invitacion.fecha_estado = new Date();
-    await invitacion.save();
+    // Obtener el curso relacionado
+    const curso = await Curso.findByPk(invitacion.curso_ID, { transaction });
+    if (!curso) {
+      await transaction.rollback();
+      return res.status(404).json({ message: "Curso no encontrado." });
+    }
 
-    // Si se acepta, cancelar las demás invitaciones pendientes para ese curso
+    // Manejar el cambio de estado
     if (nuevoEstado === 'aceptada') {
+      // ASIGNAR INSTRUCTOR AL CURSO
+      
+      // 1. Verificar si ya existe una asignación activa
+      const asignacionExistente = await AsignacionCursoInstructor.findOne({
+        where: {
+          curso_ID: invitacion.curso_ID,
+          instructor_ID: invitacion.instructor_ID,
+          estado: 'aceptada'
+        },
+        transaction
+      });
+
+      if (!asignacionExistente) {
+        // Crear nueva asignación
+        await AsignacionCursoInstructor.create({
+          instructor_ID: invitacion.instructor_ID,
+          curso_ID: invitacion.curso_ID,
+          estado: 'aceptada',
+          fecha_asignacion: new Date()
+        }, { transaction });
+      }
+
+      // 2. Actualizar el curso con el nuevo instructor
+      curso.instructor_ID = invitacion.instructor_ID;
+      await curso.save({ transaction });
+
+      // 3. Cancelar otras invitaciones pendientes para este curso
       await InvitacionCurso.update(
         { estado: 'cancelada', fecha_estado: new Date() },
         {
@@ -637,18 +726,56 @@ const cambiarEstadoInvitacion = async (req, res) => {
             curso_ID: invitacion.curso_ID,
             id: { [Op.ne]: invitacion.id },
             estado: 'pendiente'
-          }
+          },
+          transaction
         }
       );
+
+    } else if (nuevoEstado === 'rechazada') {
+      // REMOVER ASIGNACIÓN SI CORRESPONDE
+      
+      // 1. Verificar si este instructor estaba asignado al curso
+      if (curso.instructor_ID === invitacion.instructor_ID) {
+        curso.instructor_ID = null;
+        await curso.save({ transaction });
+
+        // 2. Cambiar el estado de la asignación a rechazada
+        await AsignacionCursoInstructor.update(
+          { estado: 'rechazada' },
+          {
+            where: {
+              curso_ID: invitacion.curso_ID,
+              instructor_ID: invitacion.instructor_ID
+            },
+            transaction
+          }
+        );
+      }
     }
 
-    res.status(200).json({ message: `Invitación actualizada a estado '${nuevoEstado}'.` });
+    // Actualizar el estado de la invitación
+    invitacion.estado = nuevoEstado;
+    invitacion.fecha_estado = new Date();
+    await invitacion.save({ transaction });
+
+    // Confirmar la transacción
+    await transaction.commit();
+
+    res.status(200).json({ 
+      message: `Invitación actualizada a estado '${nuevoEstado}'.`,
+      cursoActualizado: {
+        instructor_ID: curso.instructor_ID,
+        nombre_curso: curso.nombre_curso
+      }
+    });
+
   } catch (error) {
+    // Revertir la transacción en caso de error
+    await transaction.rollback();
     console.error('Error al cambiar el estado de la invitación:', error);
     res.status(500).json({ message: 'Error al cambiar el estado de la invitación.' });
   }
 };
-
 module.exports = {
   setDb,
   createCurso,
@@ -662,5 +789,6 @@ module.exports = {
   getCursoById,
   getCursosByEmpresaId,
   enviarInvitacionCurso,
-  cambiarEstadoInvitacion
+  cambiarEstadoInvitacion,
+  verificarDisponibilidadInstructor
 };

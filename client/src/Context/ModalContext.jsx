@@ -17,6 +17,7 @@ export const ModalProvider = ({ children }) => {
   const [modalFailedContent, setModalFailedContent] = useState(null);
   const [modalGeneralContent, setModalGeneralContent] = useState(null);
   const [showDropdown, setShowDropdown] = useState(false);
+  const { setShowResetPassword} = useState(false);
 
 
 

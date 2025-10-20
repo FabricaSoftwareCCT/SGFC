@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./RequestCourseAp.css";
 import IconDescarga from "../../../../assets/Icons/IconDescarga.png";
 import { Header } from "../../../Layouts/Header/Header";
@@ -36,10 +36,26 @@ export const RequestCourseAp = () => {
 	const isLoggedIn = !!userSession;
 	const accountType = userSession?.accountType || null;
 
+	async function fetchAprendiz () {
+		const resp = await axiosInstance.get(`api/users/profile/${userSession.id}`)
+		try {
+			if (resp.data.ID) {
+				setAprendiz(resp.data)
+			} else {
+				throw resp.data
+			}
+		} catch (error) {
+			console.error(error)
+			alert("Ocurrió un error al obtener los datos del aprendiz")
+		}
+	}
+
 	useEffect(() => {
 		if (!isLoggedIn || accountType !== "Aprendiz") {
-			navigate("/no-autorizado");
+			navigate("/no-autorizado")
+			return
 		}
+		fetchAprendiz()
 	}, []);
 
 	const formatDate = (dateStr) => {
@@ -84,6 +100,20 @@ export const RequestCourseAp = () => {
 	};
 
 	const handleDownloadPDF = () => {
+		if (isEditing) {
+			alert("Se debe guardar antes de descargar el PDF")
+			return
+		}
+		if (isExporting)
+			return
+		if (nombreCurso.length === 0) {
+			alert("El nombre del curso es obligatorio")
+			return
+		}
+		if (!fechaInicio || !fechaFin) {
+			alert("Se debe seleccionar una fecha de inicio y fin")
+			return
+		}
 		setExportValues({
 			nombreCurso,
 			fechaInicio,
@@ -116,6 +146,20 @@ export const RequestCourseAp = () => {
 	const handleSave = () => setIsEditing(false);
 
 	const handleSendRequest = async () => {
+		if (isEditing) {
+			alert("Se debe guardar antes de enviar la solicitud")
+			return
+		}
+		if (isExporting)
+			return
+		if (nombreCurso.length === 0) {
+			alert("El nombre del curso es obligatorio")
+			return
+		}
+		if (!fechaInicio || !fechaFin) {
+			alert("Se debe seleccionar una fecha de inicio y fin")
+			return
+		}
 		try {
 			if (!pdfRef.current) return;
 
@@ -136,7 +180,7 @@ export const RequestCourseAp = () => {
 			formData.append("nombreCurso", nombreCurso);
 			formData.append("fechaInicio", fechaInicio);
 			formData.append("fechaFin", fechaFin);
-			formData.append("id", aprendiz?.id);
+			formData.append("id", aprendiz?.empresa_ID);
 			formData.append("aprendiz", JSON.stringify(aprendiz));
 
 			// 1. Enviar solicitud

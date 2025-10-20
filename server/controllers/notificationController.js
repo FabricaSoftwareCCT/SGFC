@@ -220,7 +220,7 @@ const crearNotificacionSolicitudCurso = async (req, res) => {
             notificaciones.push(notificacion);
         }
 
-        console.log("Notifcación registrada",notificaciones)
+        //console.log("Notifcación registrada",notificaciones)
 
         res.status(201).json({
             success: true,

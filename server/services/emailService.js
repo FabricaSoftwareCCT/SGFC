@@ -71,7 +71,7 @@ const sendRequestCourseEmail = async (req, res) => {
 		fs.writeFileSync(pdfPath, pdfBuffer);
 
 		// Registrar la solicitud en la base de datos
-		console.log("id curso", curso_ID);
+		//console.log("id curso", curso_ID);
 		await Actas.create({
 			fecha_acta: fechaSolicitud,
 			estado_acta: "pendiente",

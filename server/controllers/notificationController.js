@@ -196,6 +196,17 @@ const crearNotificacionSolicitudCurso = async (req, res) => {
         const { asunto, mensaje, archivo } = req.body;
         // El remitente es el usuario autenticado (empresa)
         const remitente_ID = req.user.id;
+        const { accountType } = req.user;
+
+		if (
+			accountType !== "Empresa" &&
+			accountType !== "Aprendiz"
+		) {
+			return res.status(403).json({
+				message: "No tienes permisos para realizar esta acción.",
+			});
+		}
+
 
         // Busca todos los usuarios tipo 'Administrador' y 'Gestor'
         const destinatarios = await User.findAll({

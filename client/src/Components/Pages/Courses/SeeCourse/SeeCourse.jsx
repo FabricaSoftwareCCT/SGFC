@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import './SeeCourse.css';
 import { useNavigate } from 'react-router-dom';
 import { Header } from '../../../Layouts/Header/Header';
@@ -18,28 +18,41 @@ export const SeeCourse = () => {
 	const [isViewCalendarOpen, setIsViewCalendarOpen] = useState(false);
 	const navigate = useNavigate();
 	const [showModal, setShowModal] = useState(false);
-	const [showMaterial, setShowMaterial] = useState(false); // Cambié el nombre para evitar conflicto con el import
+	//const [showMaterial, setShowMaterial] = useState(false); // Cambié el nombre para evitar conflicto con el import
+	const [empresa, setEmpresa] = useState()
 
-	const showModalAssignInstructor = () => {
+	/*const showModalAssignInstructor = () => {
 		console.log("Mostrando modal con ID:", curso?.ID);
 		setShowModal(true);
-	};
+	};*/
 
 	const userSession =
 		JSON.parse(localStorage.getItem('userSession')) ||
 		JSON.parse(sessionStorage.getItem('userSession'));
 
-	useEffect(() => {
-		const fetchCurso = async () => {
-			try {
-				const response = await axiosInstance.get(`api/courses/cursos/${id}`);
-				setCurso(response.data);
-			} catch (error) {
-				console.error("Error al obtener el curso:", error);
-			}
-		};
+	const fetchCurso = async () => {
+		try {
+			const response = await axiosInstance.get(`api/courses/cursos/${id}`);
+			setCurso(response.data);
+		} catch (error) {
+			console.error("Error al obtener el curso:", error);
+		}
+	};
 
+	const fetchEmpresa = async () => {
+		try {
+			const response = await axiosInstance.get(`api/users/empresa/id/${userSession.empresa_ID}`)
+			setEmpresa(response.data)
+		} catch (error) {
+			console.error("Error al obtener la empresa:", error);
+		}
+	};
+
+	useEffect(() => {
 		fetchCurso();
+		if (userSession && userSession.empresa_ID) {
+			fetchEmpresa()
+		}
 	}, [id]);
 
 	if (!curso) {
@@ -52,9 +65,9 @@ export const SeeCourse = () => {
 		slots_formacion: curso.slots_formacion ? JSON.parse(curso.slots_formacion) : []
 	};
 
-	const handleMaterialClick = () => {
-		navigate('/SupportMaterial')
-	}
+	// const handleMaterialClick = () => {
+	// 	navigate('/SupportMaterial')
+	// }
 
 	return (
 		<>
@@ -137,6 +150,13 @@ export const SeeCourse = () => {
 								{userSession && userSession.accountType === 'Empresa' && (
 									<button className='edit-btn' onClick={() => navigate(`/SolicitarCurso/${encodeURIComponent(curso.nombre_curso)}`)}>
 										Solicitar Curso
+									</button>
+								)}
+
+								{userSession && userSession.accountType === "Empresa" && empresa?.NIT && curso.Empresa.NIT === empresa.NIT && (
+									<button className='edit-btn' onClick={() => navigate(`/Cursos/ActualizarCurso/${id}`)}>
+										<img src={buttonEdit} alt="Editar" className="btn-icon" />
+										Editar Curso
 									</button>
 								)}
 

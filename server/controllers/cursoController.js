@@ -3,7 +3,7 @@ const User = require("../models/User");
 const Empresa = require('../models/empresa'); // Importar el modelo Empresa
 const path = require("path");
 const AsignacionCursoInstructor = require("../models/AsignacionCursoInstructor");
-const { sendCourseCreatedEmail } = require("../services/emailService");
+const { sendCourseCreatedEmail, sendCursoUpdatedByManagerNotification } = require("../services/emailService");
 const { Router } = require("express");
 const upload = require("../config/multer");
 const { sendCursoUpdatedNotification, sendInstructorAssignedEmail, sendStudentsInstructorAssignedEmail } = require('../services/emailService');
@@ -265,12 +265,7 @@ const createCurso = async (req, res) => {
 const updateCurso = async (req, res) => {
 	try {
 		const { accountType } = req.user;
-		if (accountType !== "Administrador" & accountType !== "Gestor") {
-			return res
-				.status(403)
-				.json({ message: "No tienes permisos para actualizar cursos." });
-		}
-
+		const userId = req.user.id;
 		const { id } = req.params;
 		const {
 			nombre_curso,
@@ -287,6 +282,19 @@ const updateCurso = async (req, res) => {
 			slots_formacion,
 			empresa_ID
 		} = req.body;
+
+		const userData = await User.findByPk(userId);
+		if (accountType === "Empresa") {
+			if (!userData.dataValues.empresa_ID)
+				return res.status(403).json({ message: "No tienes permisos para actualizar cursos sin una empresa." });
+			const cursoTemp = (await Curso.findByPk(id)).dataValues;
+			if (userData.dataValues.empresa_ID !== cursoTemp.empresa_ID)
+				return res.status(403).json({ message: "No tienes permisos para actualizar cursos de otra empresa." });
+		}
+		if (accountType !== "Administrador" & accountType !== "Gestor" && accountType !== "Empresa") {
+			return res.status(403).json({ message: "No tienes permisos para actualizar cursos." });
+		}
+		const isManager = accountType === "Empresa"
 
 		// Validar que el curso exista
 		const curso = await Curso.findByPk(id);
@@ -371,7 +379,11 @@ const updateCurso = async (req, res) => {
 
 		const emails = usuarios.map((user) => user.email);
 		if (emails.length > 0) {
-			await sendCursoUpdatedNotification(emails, curso);
+			await sendCursoUpdatedByManagerNotification(emails, curso);
+		}
+
+		if (isManager) {
+			await sendCursoUpdatedByManagerNotification(curso, userData.dataValues);
 		}
 
 		res.status(200).json({

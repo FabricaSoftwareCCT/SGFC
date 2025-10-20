@@ -393,6 +393,12 @@ const sendCursoUpdatedNotification = (email, curso) => {
 	});
 };
 
+const sendCursoUpdatedByManagerNotification = async (curso, gestor) => {
+	// TODO
+	// Recuerda solicitar los emails de todos los gestores y notificarlos
+	console.log(gestor)
+}
+
 // Función para enviar el correo de confirmación de cambio de contraseña
 const sendPasswordChangeConfirmationEmail = (email, resetLink) => {
 	const fs = require("fs");
@@ -983,4 +989,5 @@ module.exports = {
 	sendTrainingPlaceActaEmail,
 	sendRequestCourseEmailAp,
 	sendCreateMaterialApoyo,
+	sendCursoUpdatedByManagerNotification
 };

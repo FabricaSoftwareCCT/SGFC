@@ -849,6 +849,7 @@ const cambiarEstadoInvitacion = async (req, res) => {
 		res.status(500).json({ message: 'Error al cambiar el estado de la invitación.' });
 	}
 };
+
 module.exports = {
 	setDb,
 	createCurso,
@@ -863,5 +864,5 @@ module.exports = {
 	getCursosByEmpresaId,
 	enviarInvitacionCurso,
 	cambiarEstadoInvitacion,
-	verificarDisponibilidadInstructor
+	verificarDisponibilidadInstructor,
 };

@@ -98,8 +98,40 @@ export const NavBar = ({ children }) => {
 
 	const { setShowModalGeneral, setModalGeneralContent } = useModal()
 
-	const rechazarSolicitudCurso = (notif) => {
-		console.log(notif)
+	const rechazarSolicitudCurso = async (notif) => {
+		setProcessingSolicitud(true)
+		try {
+			const resp = await axiosInstance.post(`/api/actas/rechazar-solicitud-curso/${notif.ID}`)
+			if (resp.status == 200) {
+				alert("Se rechazó la solicitud")
+				setShowModalGeneral(false)
+				setProcessingSolicitud(false)
+				return
+			} else
+				throw resp.data
+		} catch (error) {
+			alert("Ocurrió un error al rechazar la solicitud")
+			console.error(error)
+			setProcessingSolicitud(false)
+		}
+	}
+
+	const aceptarSolicitudCurso = async (notif) => {
+		setProcessingSolicitud(true)
+		try {
+			const resp = await axiosInstance.post(`/api/actas/aceptar-solicitud-curso/${notif.ID}`)
+			if (resp.status == 200) {
+				navigate("/Cursos/CrearCurso")
+				setShowModalGeneral(false)
+				setProcessingSolicitud(false)
+				return
+			} else
+				throw resp.data
+		} catch (error) {
+			alert("Ocurrió un error al aceptar la solicitud")
+			console.error(error)
+			setProcessingSolicitud(false)
+		}
 	}
 
 	const handleNotificationClick = (notif) => {
@@ -152,7 +184,7 @@ export const NavBar = ({ children }) => {
 							href={`http://localhost:3001/uploads/solicitudes/${notif.archivo}`}
 							target="_blank"
 							rel="noopener noreferrer"
-							style={{ color: "#007bff", textDecoration: "underline" }}
+							style={{ color: "rgb(0 132 61)", textDecoration: "underline" }}
 						>
 							Ver PDF adjunto
 						</a>
@@ -162,20 +194,25 @@ export const NavBar = ({ children }) => {
 				{notif.tipo === "solicitud_curso" && notif.estado !== "leida" && (
 					<div className="notification-buttons-container">
 						<button
-							className={`notification-btn-accept`}
+							className={`notification-btn-accept ${processingSolicitud ? "disabled" : ""}`}
+							onClick={() => aceptarSolicitudCurso(notif)}
 						>
-							Aceptar
+							{processingSolicitud ? "Procesando..." : "Aceptar"}
 						</button>
 						<button
-							className={`notification-btn-reject`}
+							className={`notification-btn-reject ${processingSolicitud ? "disabled" : ""}`}
 							onClick={() => rechazarSolicitudCurso(notif)}
 						>
-							Rechazar
+							{processingSolicitud ? "Procesando..." : "Rechazar"}
 						</button>
 					</div>
 				)}
 				{notif.tipo === "solicitud_curso" && notif.estado === "leida" && (
-					<b>Se ha procesado esta solicitúd.</b>
+					<b
+						style={{
+							marginTop: "8%"
+						}}
+					>Se ha procesado esta solicitud.</b>
 				)}
 			</div>,
 		)

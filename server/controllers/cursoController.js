@@ -379,11 +379,11 @@ const updateCurso = async (req, res) => {
 
 		const emails = usuarios.map((user) => user.email);
 		if (emails.length > 0) {
-			await sendCursoUpdatedByManagerNotification(emails, curso);
+			await sendCursoUpdatedNotification(emails, curso);
 		}
 
 		if (isManager) {
-			await sendCursoUpdatedByManagerNotification(curso, userData.dataValues);
+			await sendCursoUpdatedByManagerNotification(curso.dataValues, userData.dataValues);
 		}
 
 		res.status(200).json({

@@ -3,6 +3,8 @@ const nodemailer = require("nodemailer");
 const Actas = require("../models/Actas"); // Asegúrate de importar el modelo
 
 const moment = require("moment-timezone");
+const Usuario = require("../models/User");
+const Notificacion = require("../models/Notificacion");
 const fechaSolicitud = new Date(
 	Date.now() - new Date().getTimezoneOffset() * 60000
 );
@@ -396,7 +398,38 @@ const sendCursoUpdatedNotification = (email, curso) => {
 const sendCursoUpdatedByManagerNotification = async (curso, gestor) => {
 	// TODO
 	// Recuerda solicitar los emails de todos los gestores y notificarlos
-	console.log(gestor)
+	const gestores = await Usuario.findAll({
+		where: {
+			accountType: "Gestor"
+		}
+	})
+	gestores.map((u) => {
+		const email = u.dataValues.email
+		const mailOptions = {
+			from: `"SGFC" <${process.env.EMAIL_USER}>`,
+			to: email,
+			subject: `El manager ${gestor.nombres} ${gestor.apellidos} realizó cambios en el curso ${curso.nombre_curso}`,
+			html: `
+<p>El manager <b>${gestor.nombres} ${gestor.apellidos}</b> ha realizado cambios en el curso <b>${curso.nombre_curso}</b> a el ${(new Date()).toLocaleString("es-CO")}</p>
+			`
+		}
+		Notificacion.create({
+			remitente_ID: gestor.ID, // ✅ Campo requerido
+			destinatario_ID: u.dataValues.ID, // ✅ Campo requerido
+			usuario_ID: u.dataValues.ID, // Si también necesitas este campo
+			tipo: "actualizacion_curso",
+			titulo: `El manager ${gestor.nombres} ${gestor.apellidos} realizó cambios en el curso ${curso.nombre_curso}`,
+			mensaje: `<p>El manager <b>${gestor.nombres} ${gestor.apellidos}</b> ha realizado cambios en el curso <b>${curso.nombre_curso}</b> a el ${(new Date()).toLocaleString("es-CO")}</p>`,
+			estado: "pendiente",
+		});
+		transporter.sendMail(mailOptions, (err, info) => {
+			if (err) {
+				console.error("Error al enviar el correo:", err);
+			} else {
+				console.log("Correo enviado:", info.response);
+			}
+		});
+	})
 }
 
 // Función para enviar el correo de confirmación de cambio de contraseña
@@ -558,7 +591,6 @@ const sendCourseCreatedEmail = (
 			} else {
 				console.log("Correo enviado:", info.response);
 				resolve(info);
-				console.log("se ejecuto la funcion");
 			}
 		});
 	});
@@ -970,7 +1002,6 @@ const sendCreateMaterialApoyo = (emails, nombre_curso, material_link) => {
 			} else {
 				console.log("Correo enviado:", info.response);
 				resolve(info);
-				console.log("se ejecuto la funcion");
 			}
 		});
 	});

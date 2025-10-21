@@ -292,7 +292,21 @@
   gap: 0.8rem;
 }
 
-.offer-button {
+.offer-button{
+  padding: 1rem 1.5rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(10px);
+  position: relative;
+  overflow: hidden;
+}
+
+.offer-button-cancel{
   padding: 1rem 1.5rem;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -316,8 +330,21 @@
   background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
   transition: left 0.4s;
 }
-
+.offer-button-cancel::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+  transition: left 0.4s;
+}
 .offer-button:hover::before {
+  left: 100%;
+}
+
+.offer-button-cancel:hover::before {
   left: 100%;
 }
 
@@ -327,8 +354,20 @@
   transform: translateY(-2px);
 }
 
+.offer-button-cancel:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: white;
+  transform: translateY(-2px);
+}
+
 .offer-button.active {
   background: #00843ea4;
+  color: white;
+  font-weight: 500;
+}
+
+.offer-button-cancel.active {
+  background: #f20f07a4;
   color: white;
   font-weight: 500;
 }

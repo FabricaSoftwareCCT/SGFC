@@ -27,6 +27,8 @@ export const UpdateCourse = () => {
     selectedSlots: [],
   });
 
+
+
   const { showAssignModal, setShowAssignModal } = useModal();
 
   // Estado para búsqueda y selección de empresa
@@ -323,6 +325,37 @@ export const UpdateCourse = () => {
                         type="button"
                       >
                         En oferta
+                      </button>
+                     <button 
+                        className={`offer-button-cancel ${curso.estado?.toLowerCase() === "cancelado" ? "active" : ""}`}
+                          onClick={(e) => {
+                          e.preventDefault();
+                            if (curso.estado?.toLowerCase() !== "cancelado") {
+                      const confirmar = window.confirm("¿Estás seguro de que deseas cancelar este curso? Esta acción no se puede deshacer.");
+                        if (confirmar) {
+                         setCurso({ ...curso, estado: "Cancelado" });
+                                  }
+                                }
+                             }}
+                            type="button"
+                          disabled={curso.estado?.toLowerCase() === "cancelado"}
+                        >
+                          Cancelado
+                      </button>
+                      <button
+                      className={`offer-button-cancel ${curso.estado?.toLowerCase() === "finalizado" ? "active" : ""}`}
+                          onClick={(e) => {
+                          e.preventDefault();
+                            if (curso.estado?.toLowerCase() !== "finalizado") {
+                      const confirmar = window.confirm("¿Estás seguro de que deseas finalizar este curso? Esta acción no se puede deshacer.");
+                        if (confirmar) {
+                         setCurso({ ...curso, estado: "finalizado" });
+                                  }
+                                }
+                             }}
+                            type="button"
+                          disabled={curso.estado?.toLowerCase() === "finalizado"}>
+                            Finalizado
                       </button>
                     </div>
                   </div>

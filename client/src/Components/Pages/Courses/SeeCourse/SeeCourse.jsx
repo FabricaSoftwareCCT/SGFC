@@ -153,12 +153,12 @@ export const SeeCourse = () => {
 									</button>
 								)}
 
-								{userSession && userSession.accountType === "Empresa" && empresa?.NIT && curso.Empresa.NIT === empresa.NIT && (
+								{/*userSession && userSession.accountType === "Empresa" && empresa?.NIT && curso.Empresa.NIT === empresa.NIT && (
 									<button className='edit-btn' onClick={() => navigate(`/Cursos/ActualizarCurso/${id}`)}>
 										<img src={buttonEdit} alt="Editar" className="btn-icon" />
 										Editar Curso
 									</button>
-								)}
+								)*/}
 
 								{userSession && userSession.accountType === "Aprendiz" &&(
 									<button className='edit-btn' onClick={() => navigate(`/SolicitarCursoAp/${encodeURIComponent(curso.nombre_curso)}`)}>

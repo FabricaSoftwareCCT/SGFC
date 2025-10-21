@@ -1,15 +1,16 @@
 .container_mainSeeMyProfile {
+    min-height: 100%;
     width: 100%;
     height: auto;
     display: flex;
     justify-content: center;
     gap: 1.5rem;
-    margin-top: 1rem;
+    margin-top: 1.5rem;
 }
 
 .container_profile {
     width: 17rem;
-    height: 30rem;
+    height: auto;
     background-color: #00843e3f;
     border-radius: 20px;
     display: flex;
@@ -77,7 +78,7 @@
 
 .container_data_company {
     width: 60%;
-    height: 30rem;
+    height: auto;
     border-radius: 20px;
     display: flex;
     flex-direction: column;
@@ -116,7 +117,7 @@
   flex-direction: column; /* apila inputs en columna */
   gap: 12px; /* espacio entre cada <p> */
   border-radius: 20px;
-  padding: 20px;
+  padding: 7px;
   background-color: #00843e3f;
   box-sizing: border-box; /* asegura que padding se incluya dentro del ancho */
 }

@@ -584,39 +584,75 @@ const getAprendices = async (req, res) => {
 };
 
 //Consultar lista de empresas
+// En tu userController.js - modificar getEmpresas
 const getEmpresas = async (req, res) => {
-    try {
-        const empresas = await User.findAll({
-            where: { accountType: 'Empresa' },
-            attributes: { exclude: ['password', 'token', 'resetPasswordToken', 'resetPasswordExpires'] }, // Excluir datos sensibles
-            include: [
+  try {
+    // Opción A: Traer ambas - usuarios empresa Y empresas sin usuario
+    const empresasConUsuario = await User.findAll({
+      where: { accountType: 'Empresa' },
+      attributes: { exclude: ['password', 'token', 'resetPasswordToken', 'resetPasswordExpires'] },
+      include: [
+        {
+          model: Empresa,
+          as: 'Empresa',
+          attributes: ['ID', 'NIT', 'email_empresa', 'nombre_empresa', 'direccion', 'estado', 'categoria', 'telefono', 'img_empresa', 'ciudad_ID'],
+          include: [
+            {
+              model: Ciudad,
+              as: 'Ciudad',
+              attributes: ['ID', 'nombre', 'departamento_ID'],
+              include: [
                 {
-                    model: Empresa,
-                    as: 'Empresa', // Alias definido en la relación
-                    attributes: ['ID', 'NIT', 'email_empresa', 'nombre_empresa', 'direccion', 'estado', 'categoria', 'telefono', 'img_empresa', 'ciudad_ID'], // Campos que deseas incluir
-                    include: [
-                        {
-                            model: Ciudad,
-                            as: 'Ciudad',
-                            attributes: ['ID', 'nombre', 'departamento_ID'],
-                            include: [
-                                {
-                                    model: Departamento,
-                                    as: 'Departamento',
-                                    attributes: ['ID', 'nombre']
-                                }
-                            ]
-                        }
-                    ]
-                },
-            ],
-        });
+                  model: Departamento,
+                  as: 'Departamento',
+                  attributes: ['ID', 'nombre']
+                }
+              ]
+            }
+          ]
+        },
+      ],
+    });
 
-        res.status(200).json(empresas);
-    } catch (error) {
-        console.error("Error al obtener la lista de empresas:", error);
-        res.status(500).json({ message: "Error al obtener la lista de empresas." });
-    }
+    // Traer empresas que no tienen usuario asociado
+    const empresasSinUsuario = await Empresa.findAll({
+      where: {
+        ID: {
+          [Op.notIn]: empresasConUsuario.map(emp => emp.Empresa?.ID).filter(Boolean)
+        }
+      },
+      include: [
+        {
+          model: Ciudad,
+          as: 'Ciudad',
+          attributes: ['ID', 'nombre', 'departamento_ID'],
+          include: [
+            {
+              model: Departamento,
+              as: 'Departamento',
+              attributes: ['ID', 'nombre']
+            }
+          ]
+        }
+      ]
+    });
+
+    // Combinar resultados
+    const empresasCombinadas = [
+      ...empresasConUsuario,
+      ...empresasSinUsuario.map(empresa => ({
+        ID: empresa.ID, // Usar ID de empresa como ID temporal
+        accountType: 'Empresa',
+        Empresa: empresa
+      }))
+    ];
+
+    res.status(200).json(empresasCombinadas);
+
+  } catch (error) {
+    console.error("Error al obtener la lista de empresas:", error);
+    res.status(500).json({ message: "Error al obtener la lista de empresas." });
+  }
 };
 
 //obtener empresa(activa) por ID 
@@ -1880,6 +1916,90 @@ const checkProfileComplete = async (req, res) => {
   }
 };
 
+const createEmpresa = async (req, res) => {
+    try {
+        const {
+            nombre_empresa,
+            NIT,
+            categoria,
+            direccion,
+            telefono,
+            email_empresa,
+            departamento_ID,
+            ciudad_ID,
+            estado = 'activo'
+        } = req.body;
+
+        // Validar datos obligatorios
+        if (!nombre_empresa || !NIT || !categoria || !direccion || !telefono || !email_empresa || !ciudad_ID) {
+            return res.status(400).json({ 
+                message: 'Todos los campos marcados con * son obligatorios' 
+            });
+        }
+
+        // Verificar si el NIT ya existe
+        const existingNIT = await Empresa.findOne({ where: { NIT } });
+        if (existingNIT) {
+            return res.status(400).json({ message: 'El NIT ya está registrado' });
+        }
+
+        // Verificar si el email de empresa ya existe
+        const existingEmail = await Empresa.findOne({ where: { email_empresa } });
+        if (existingEmail) {
+            return res.status(400).json({ message: 'El email de la empresa ya está registrado' });
+        }
+
+        // Procesar imagen si se sube
+        let img_empresa = null;
+        if (req.file) {
+            img_empresa = req.file.buffer.toString('base64');
+        } else if (req.body.img_empresa) {
+            img_empresa = req.body.img_empresa;
+        }
+
+        // Crear la empresa
+        const nuevaEmpresa = await Empresa.create({
+            NIT,
+            email_empresa,
+            nombre_empresa: nombre_empresa.trim(),
+            direccion: direccion.trim(),
+            estado,
+            categoria,
+            telefono,
+            img_empresa,
+            ciudad_ID,
+            departamento_ID
+        });
+
+        res.status(201).json({ 
+            message: 'Empresa creada con éxito',
+            empresa: nuevaEmpresa 
+        });
+
+    } catch (error) {
+        console.error('Error al crear empresa:', error);
+        
+        if (error.name === 'SequelizeValidationError') {
+            const errors = error.errors.map(err => err.message);
+            return res.status(400).json({ 
+                message: 'Error de validación', 
+                errors 
+            });
+        }
+        
+        if (error.name === 'SequelizeForeignKeyConstraintError') {
+            return res.status(400).json({ 
+                message: 'La ciudad o departamento seleccionado no existe' 
+            });
+        }
+
+        res.status(500).json({ 
+            message: 'Error al crear la empresa',
+            error: error.message 
+        });
+    }
+};
+
 module.exports = { 
     subirDocumentoIdentidad, 
     getEmpresaById, 
@@ -1910,5 +2030,6 @@ module.exports = {
     recordLogin,
     getAllEmpleadosForAdmin,
     getAllEmpresasForAdmin,
-    createEmpleadoForAdmin
+    createEmpleadoForAdmin,
+    createEmpresa
 };

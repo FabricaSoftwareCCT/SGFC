@@ -17,6 +17,7 @@ export const UpdateEmploye = ({ empleado }) => {
   // Actualizar formData cuando cambie el empleado
   useEffect(() => {
     if (empleado) {
+      console.log('🔍 EMPLEADO RECIBIDO:', empleado);
       setFormData({ ...empleado });
       setIsEditing(false); // Resetear modo edición
       setDocumentoPDF(null); // Limpiar PDF
@@ -50,6 +51,7 @@ export const UpdateEmploye = ({ empleado }) => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    console.log(`📝 Campo cambiado: ${name} = ${value}`);
   };
 
   const handleImageChange = (e) => {
@@ -59,11 +61,13 @@ export const UpdateEmploye = ({ empleado }) => {
         ...prev,
         foto_perfil: file,
       }));
+      console.log('🖼️ Imagen cambiada:', file.name);
     }
   };
 
   const handleEstadoChange = (estado) => {
     setFormData((prev) => ({ ...prev, estado }));
+    console.log(`🔄 Estado cambiado a: ${estado}`);
   };
 
   const handleButtonClick = async (e) => {
@@ -77,15 +81,40 @@ export const UpdateEmploye = ({ empleado }) => {
     try {
       // Paso 1: Actualizar perfil (foto, datos)
       const formDataToSend = new FormData();
-      for (const key in formData) {
-        if (Object.prototype.hasOwnProperty.call(formData, key)) {
-          if (key === "foto_perfil" && formData[key] instanceof File) {
-            formDataToSend.append(key, formData[key]);
-          } else {
-            formDataToSend.append(key, formData[key]);
-          }
+      
+      // DEBUG: Mostrar formData actual
+      console.log('📋 FORM DATA ACTUAL:', formData);
+      
+      // Incluir TODOS los campos del formulario explícitamente
+      const campos = [
+        'nombres', 'apellidos', 'tipoDocumento', 'documento', 
+        'celular', 'email', 'estado', 'ID'
+      ];
+      
+      campos.forEach(campo => {
+        if (formData[campo] !== undefined && formData[campo] !== null) {
+          formDataToSend.append(campo, formData[campo]);
+          console.log(`✅ Añadido al FormData: ${campo} = ${formData[campo]}`);
+        } else {
+          console.log(`❌ Campo ${campo} no encontrado o es nulo`);
         }
+      });
+
+      // Manejar la imagen de perfil por separado
+      if (formData.foto_perfil instanceof File) {
+        formDataToSend.append('foto_perfil', formData.foto_perfil);
+        console.log('✅ Imagen añadida al FormData');
+      } else if (formData.foto_perfil) {
+        console.log('ℹ️ foto_perfil no es un File:', typeof formData.foto_perfil, formData.foto_perfil);
       }
+
+      // DEBUG: Verificar qué se está enviando
+      console.log('🚀 DATOS A ENVIAR AL SERVIDOR:');
+      for (let pair of formDataToSend.entries()) {
+        console.log(`${pair[0]}:`, pair[1]);
+      }
+
+      console.log('📤 Enviando petición PUT a:', `/api/users/perfil/actualizar/${formData.ID}`);
 
       const updateResponse = await axiosInstance.put(
         `/api/users/perfil/actualizar/${formData.ID}`,
@@ -98,8 +127,11 @@ export const UpdateEmploye = ({ empleado }) => {
         }
       );
 
+      console.log('📥 RESPUESTA DEL SERVIDOR:', updateResponse.data);
+
       // Paso 2: Validar documento si hay PDF
       if (documentoPDF) {
+        console.log('📄 Procesando documento PDF...');
         const pdfData = new FormData();
         pdfData.append("pdf", documentoPDF);
 
@@ -109,10 +141,10 @@ export const UpdateEmploye = ({ empleado }) => {
               'Content-Type': 'multipart/form-data',
             },
           });
-          console.log('OCR resultado:', ocrResponse.data);
+          console.log('✅ OCR resultado:', ocrResponse.data);
           alert(`Tipo de documento: ${ocrResponse.data.tipoDetectado}\nNúmero: ${ocrResponse.data.documento}`);
         } catch (ocrError) {
-          console.error("Error al procesar documento:", ocrError);
+          console.error("❌ Error al procesar documento:", ocrError);
           alert("Empleado creado, pero hubo un problema al procesar el documento PDF.");
         }
       }
@@ -122,6 +154,7 @@ export const UpdateEmploye = ({ empleado }) => {
       
       // Actualizar formData con los datos actualizados del servidor
       if (updateResponse.data.empleado) {
+        console.log('🔄 Actualizando formData con datos del servidor:', updateResponse.data.empleado);
         setFormData({ ...updateResponse.data.empleado });
         // Actualizar también el empleado seleccionado en el componente padre
         if (window.updateSelectedEmploye) {
@@ -137,11 +170,14 @@ export const UpdateEmploye = ({ empleado }) => {
       closeModalUpdateEmploye();
 
     } catch (error) {
-      console.error("Error al actualizar el perfil:", error.response?.data || error.message);
-      alert("Hubo un error al actualizar el perfil. " + error.response?.data?.message);
+      console.error("❌ ERROR AL ACTUALIZAR PERFIL:", {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status
+      });
+      alert("Hubo un error al actualizar el perfil. " + (error.response?.data?.message || error.message));
     }
   };
-
 
   const getImageSrc = (data) => {
     
@@ -272,6 +308,7 @@ export const UpdateEmploye = ({ empleado }) => {
                         key={value}
                         className={`dropdown-option ${formData.tipoDocumento === value ? "selected" : ""}`}
                         onClick={() => {
+                          console.log(`📝 Tipo documento seleccionado: ${value}`);
                           setFormData({ ...formData, tipoDocumento: value });
                           setShowDropdown(false);
                         }}
@@ -288,10 +325,6 @@ export const UpdateEmploye = ({ empleado }) => {
               </span>
             )}
           </div>
-
-
-
-
 
           <p>
             <strong>Documento:</strong>{" "}

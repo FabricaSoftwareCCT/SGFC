@@ -481,19 +481,14 @@ export const SeeMyProfile = () => {
 							)}
 						</p>
 
-						{tipoCuenta === "Aprendiz" ||
-							(tipoCuenta === "Empresa" && (
-								<>
-									<button
-										className={`updateProfile ${
-											editMode ? "cancel" : ""
-										}`}
-										onClick={() =>
-											handleModelCancel(editMode)
-										}
-									>
-										{editMode ? "" : ""}
-									</button>
+                        {(tipoCuenta === 'Aprendiz'|| tipoCuenta === 'Empresa' || tipoCuenta === 'Instructor') &&  (
+                            <>
+                        <button
+                            className={`updateProfile ${editMode ? 'cancel' : ''}`}
+                            onClick={() => handleModelCancel(editMode)}
+                        >
+                            {editMode ? '' : ''}
+                        </button>
 
 									{editMode && (
 										<button

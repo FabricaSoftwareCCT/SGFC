@@ -105,6 +105,11 @@
     transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
+.input_updateData option{
+    color: #0e0d0d;
+    background-color: #e0e0e0;
+}
+
 .input_updateData:focus {
     outline: none;
     border-color: #00843d;

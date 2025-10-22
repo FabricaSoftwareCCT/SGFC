@@ -6,6 +6,7 @@ import "./GestionsCompany.css";
 import axiosInstance from "../../../config/axiosInstance";
 import { Footer } from "../../Layouts/Footer/Footer";
 import { ManageCompany } from "./ManageCompany/ManageCompany";
+import { CreateEmpresa } from "../CreateEmpresa/CreateEmpresa";
 import fotoPerfilDefect from "../../../assets/Icons/userDefect.png";
 
 export const GestionsCompany = () => {
@@ -17,6 +18,18 @@ export const GestionsCompany = () => {
   const [selectedEmpresa, setSelectedEmpresa] = useState(null);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isAtBottom, setIsAtBottom] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false); // Estado para controlar el modal
+  
+  // Función corregida para el botón añadir empresa
+  const handleAddCompany = () => {
+    setShowCreateModal(true);
+  };
+
+  // Función para cerrar el modal
+  const handleCloseModal = () => {
+    setShowCreateModal(false);
+  };
+
   const userSession = (() => {
     try {
       const raw = sessionStorage.getItem("userSession");
@@ -39,7 +52,6 @@ export const GestionsCompany = () => {
     };
     fetchEmpresas();
   }, []);
-
 
   // Filtrado por nombre/NIT y estado
   const empresasFiltradas = empresas.filter((empresa) => {
@@ -65,21 +77,17 @@ export const GestionsCompany = () => {
   const currentItems = empresasFiltradas.slice(start, start + pageSize);
 
   const getLogoSrc = (logo) => {
-    // Fallback inmediato si no hay valor
     if (!logo) return fotoPerfilDefect;
 
     if (typeof logo === "string") {
-      // Si ya viene como data URL o URL absoluta, úsala tal cual
       if (logo.startsWith('data:') || logo.startsWith('http')) {
         return logo;
       }
 
-      // Si en BD guardaron una ruta relativa (p.ej. ../Img/userDefect.png), usar por defecto
       if (/(\.png|\.jpg|\.jpeg|\.gif)$/i.test(logo)) {
         return fotoPerfilDefect;
       }
 
-      // Detectar tipo MIME por encabezado base64
       if (logo.startsWith('iVBOR')) {
         return `data:image/png;base64,${logo}`;
       }
@@ -87,12 +95,10 @@ export const GestionsCompany = () => {
         return `data:image/jpeg;base64,${logo}`;
       }
 
-      // Si la cadena es muy corta, probablemente no es una imagen base64 válida
       if (logo.length < 100) {
         return fotoPerfilDefect;
       }
 
-      // Último recurso: asumir jpeg
       return `data:image/jpeg;base64,${logo}`;
     }
     
@@ -101,7 +107,7 @@ export const GestionsCompany = () => {
 
   const handleScroll = (e) => {
     const { scrollTop, scrollHeight, clientHeight } = e.target;
-    const isAtBottomNow = scrollTop + clientHeight >= scrollHeight - 10; // 10px de tolerancia
+    const isAtBottomNow = scrollTop + clientHeight >= scrollHeight - 10;
     
     setIsScrolled(scrollTop > 0);
     setIsAtBottom(isAtBottomNow);
@@ -164,9 +170,13 @@ export const GestionsCompany = () => {
       <Main>
         <section className="sectionPrincipalGestionsCompany">
           <section className="sectionGestionsCompanyHeader">
-            <p className="tituloGestionsCompany">
-              Empresas <span className="tituloVerde">Registradas</span>
-            </p>
+            <div className="header-title-container">
+              <p className="tituloGestionsCompany">
+                Empresas <span className="tituloVerde">Registradas</span>
+              </p>
+              
+              
+            </div>
 
             <p className="paragraphGestionsCompany">
               Consulta y gestiona las empresas registradas en el sistema. Visualiza información clave como NIT, nombre, estado y datos de contacto. 
@@ -213,9 +223,11 @@ export const GestionsCompany = () => {
 
             {/* Resultados a la derecha */}
             <section className="resultTableGestionsCompany">
-              <label className="labelFilterOption12">
-                {total} Resultados · Página {pageClamped} de {totalPages}
-              </label>
+              <div className="results-header">
+                <label className="labelFilterOption12">
+                  {total} Resultados · Página {pageClamped} de {totalPages}
+                </label>
+              </div>
 
               <div 
                 className={`table-container ${isScrolled ? 'scrolled' : ''} ${isAtBottom ? 'at-bottom' : ''}`}
@@ -255,10 +267,22 @@ export const GestionsCompany = () => {
             {selectedEmpresa && (
               <ManageCompany empresa={selectedEmpresa} onClose={() => setSelectedEmpresa(null)} />
             )}
+            {/* Botón Añadir Empresa - CORREGIDO: en el header */}
+              <button 
+                className="btn-add-company"
+                onClick={handleAddCompany}
+              >
+                Añadir Empresa
+              </button>
           </section>
         </section>
       </Main>
       <Footer />
+
+      {/* Modal CreateEmpresa - se muestra encima del contenido */}
+      {showCreateModal && (
+        <CreateEmpresa onClose={handleCloseModal} />
+      )}
     </div>
   );
 };

@@ -18,7 +18,13 @@ export const SeeCourse = () => {
 	const [isViewCalendarOpen, setIsViewCalendarOpen] = useState(false);
 	const navigate = useNavigate();
 	const [showModal, setShowModal] = useState(false);
-	//const [showMaterial, setShowMaterial] = useState(false); // Cambié el nombre para evitar conflicto con el import
+	//const [showMaterial, setShowMaterial] = useState(false);
+	
+	// Estado para la duración del curso
+	const [duracionCurso, setDuracionCurso] = useState({
+		cantidad: "",
+		unidad: "horas"
+	});
 	const [empresa, setEmpresa] = useState()
 
 	const userSession =
@@ -112,6 +118,10 @@ export const SeeCourse = () => {
 								</div>
 
 								<div className='detail-row'>
+									<div className='detail-item'>
+										<span className='detail-label'>Duración:</span>
+										<span className='detail-value'>{formatearDuracion()}</span>
+									</div>
 									<div className='detail-item'>
 										<span className='detail-label'>Instructor:</span>
 										<span className='detail-value'>

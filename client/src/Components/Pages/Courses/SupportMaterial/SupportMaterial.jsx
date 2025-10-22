@@ -97,6 +97,26 @@ export const SupportMaterial = () => {
         }
     }
 
+    const truncarNombreArchivo = (nombre, maxLongitud = 15) => {
+  if (!nombre) return '';
+  
+  const ultimoPunto = nombre.lastIndexOf('.');
+  if (ultimoPunto === -1) {
+    return nombre.length > maxLongitud 
+      ? `${nombre.slice(0, maxLongitud)}...`
+      : nombre;
+  }
+
+  const nombreParte = nombre.slice(0, ultimoPunto);
+  const extension = nombre.slice(ultimoPunto);
+
+  if (nombreParte.length <= maxLongitud) {
+    return nombre;
+  }
+
+  return `${nombreParte.slice(0, maxLongitud)}... ${extension}`;
+};
+
     const esAprendiz =tipoUsuario === 'Aprendiz';
     const puedeSubirArchivos = !esAprendiz;
     const puedeEliminarArchivos = !esAprendiz;
@@ -154,7 +174,7 @@ export const SupportMaterial = () => {
                                         archivosEjemplo.map(archivo => (
                                             <div key={archivo.id} className='archivo-item'>
                                                 <div className='archivo-info'>
-                                                    <span className='archivo-nombre'>{archivo.nombre_original}</span>
+                                                    <span className='archivo-nombre'>{truncarNombreArchivo(archivo.nombre_original, 12)}</span>
                                                     <span className='archivo-detalles'>
                                                         {(archivo.tamanio / 1024 / 1024).toFixed(2)}MB - Subido el {archivo.fecha_subida}
                                                     </span>

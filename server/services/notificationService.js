@@ -1,4 +1,4 @@
-const { sendEmail } = require('./emailService');
+const { sendEmail, sendProfileUpdateEmail } = require('./emailService');
 const User = require("../models/User");
 const Curso = require('../models/curso');
 const Actas = require('../models/Actas');
@@ -34,7 +34,8 @@ const sendNotification = async (remitenteId, destinatarioId, type, title, messag
             mensaje: message,
             sesion_ID: sessionId,
             curso_ID: courseId,
-            estado: 'pendiente'
+            estado: 'pendiente',
+            fecha_envio: new Date()           // ✅ Asegurar que siempre se establezca la fecha
         });
 
         // Enviar el email
@@ -298,6 +299,66 @@ const createNotificacionMaterialApoyo = async (remitente_ID, emails, curso) => {
 }
 
 
+/**
+ * Envía notificación de actualización de perfil con correo personalizado
+ */
+const sendProfileUpdateNotification = async (remitenteId, destinatarioId, userData, changesList, photoChanged = false) => {
+    try {
+        // Obtener el usuario destinatario
+        const user = await dbInstance.Usuario.findByPk(destinatarioId);
+        if (!user) {
+            throw new Error('Usuario destinatario no encontrado');
+        }
+
+        const title = 'Tu perfil fue actualizado por un administrador';
+        const changesHtml = changesList.map(cf => `<li><strong>${cf.label}:</strong> ${cf.before ?? '—'} → ${cf.after ?? '—'}</li>`).join('');
+        
+        const photoSection = photoChanged ? `
+            <div style="background-color: rgba(0, 132, 61, 0.1); border-left: 4px solid #00843d; padding: 1rem; margin: 1rem 0; border-radius: 0.5rem;">
+                <p style="margin: 0.5rem 0; font-weight: 600; color: #00843d;">
+                    <strong>Foto de perfil:</strong> Se ha actualizado tu foto de perfil.
+                </p>
+                <p style="margin: 0.5rem 0; color: #666;">
+                    Puedes ver tu nueva foto en tu perfil de usuario.
+                </p>
+            </div>
+        ` : '';
+
+        const message = `
+            <h2>Actualización de Perfil</h2>
+            <p>Se realizaron los siguientes cambios en tu perfil:</p>
+            <ul>${changesHtml}</ul>
+            ${photoSection}
+            <p>Si no reconoces esta acción, por favor contacta soporte.</p>
+        `;
+
+        // Crear el registro de notificación
+        const notification = await dbInstance.Notificacion.create({
+            remitente_ID: remitenteId,
+            destinatario_ID: destinatarioId,
+            usuario_ID: destinatarioId,
+            tipo: 'perfil_actualizado',
+            titulo: title,
+            mensaje: message,
+            fecha_envio: new Date(),
+            estado: 'pendiente'
+        });
+
+        // Enviar el correo personalizado
+        try {
+            await sendProfileUpdateEmail(user.email, userData, changesList, photoChanged);
+            await notification.update({ estado: 'enviada' });
+            return { success: true, notification };
+        } catch (emailError) {
+            await notification.update({ estado: 'fallida' });
+            throw emailError;
+        }
+    } catch (error) {
+        console.error('Error al enviar notificación de actualización de perfil:', error);
+        throw error;
+    }
+};
+
 module.exports = {
     setDb,
     sendNotification,
@@ -305,5 +366,6 @@ module.exports = {
     sendCourseRequestStatusEmail,
     sendNotifiCursoApi,
     getNotificacionesEstado,
-    createNotificacionMaterialApoyo
+    createNotificacionMaterialApoyo,
+    sendProfileUpdateNotification
 }; 

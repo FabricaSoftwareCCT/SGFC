@@ -102,8 +102,25 @@ export const NavBar = ({ children }) => {
       <div className="notification-modal">
         <h2>{notif.titulo}</h2>
         <p>
-          <b>De:</b> {notif.remitente?.nombres ? `${notif.remitente.nombres} ${notif.remitente.apellidos}` : "SGFC"}
+          <b>De:</b> {(() => {
+            if (!notif.remitente?.nombres) return "SGFC";
+            if (notif.remitente.nombres === notif.remitente.apellidos) {
+              return notif.remitente.nombres;
+            }
+            return `${notif.remitente.nombres} ${notif.remitente.apellidos || ''}`.trim();
+          })()}
         </p>
+        {notif.fecha_envio && (
+          <p>
+            <b>Fecha:</b> {new Date(notif.fecha_envio).toLocaleDateString('es-ES', {
+              day: '2-digit',
+              month: '2-digit',
+              year: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit'
+            })}
+          </p>
+        )}
         <p>
           <b>Mensaje:</b>
         </p>
@@ -287,11 +304,26 @@ export const NavBar = ({ children }) => {
                         </div>
                         <div className="container-text-notifications">
                           <p className="notification-sender">
-                            {notif.remitente?.nombres
-                              ? `${notif.remitente.nombres} ${notif.remitente.apellidos}`
-                              : "SGFC"}
+                            {(() => {
+                              if (!notif.remitente?.nombres) return "SGFC";
+                              if (notif.remitente.nombres === notif.remitente.apellidos) {
+                                return notif.remitente.nombres;
+                              }
+                              return `${notif.remitente.nombres} ${notif.remitente.apellidos || ''}`.trim();
+                            })()}
                           </p>
                           <span className="notification-affair">{notif.titulo}</span>
+                          {notif.fecha_envio && (
+                            <span className="notification-date">
+                              {new Date(notif.fecha_envio).toLocaleDateString('es-ES', {
+                                day: '2-digit',
+                                month: '2-digit',
+                                year: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                              })}
+                            </span>
+                          )}
                         </div>
                       </div>
                     ))

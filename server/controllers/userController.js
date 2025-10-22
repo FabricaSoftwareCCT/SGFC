@@ -14,6 +14,7 @@ const vision = require('@google-cloud/vision');
 const pdfjsLib = require("pdfjs-dist/legacy/build/pdf.js")
 const { createCanvas } = require("canvas");
 const { UserServices } = require("../services/Userservices")
+const { sendNotification, sendProfileUpdateNotification } = require('../services/notificationService');
 
 
 // Registrar usuario
@@ -800,6 +801,19 @@ const updateUserProfile = async (req, res) => {
                 return val;
             };
 
+            // Snapshot de valores originales (para detectar cambios)
+            const originalValues = {
+                email: user.email,
+                nombres: user.nombres,
+                apellidos: user.apellidos,
+                celular: user.celular,
+                documento: user.documento,
+                estado: user.estado,
+                titulo_profesional: user.titulo_profesional,
+                tipoDocumento: user.tipoDocumento,
+                foto_perfil: user.foto_perfil,
+            };
+
             const nombresClean = cleanValue(nombres);
             const apellidosClean = cleanValue(apellidos);
             const celularClean = cleanValue(celular);
@@ -907,7 +921,65 @@ const updateUserProfile = async (req, res) => {
                     await user.Empresa.save();
                 }
 
+                // Detectar cambios comparando snapshot vs valores actuales
+                const changedFields = [];
+                const labels = {
+                    email: 'Correo',
+                    nombres: 'Nombres',
+                    apellidos: 'Apellidos',
+                    celular: 'Celular',
+                    documento: 'Documento',
+                    estado: 'Estado',
+                    titulo_profesional: 'Título profesional',
+                    tipoDocumento: 'Tipo de documento',
+                    foto_perfil: 'Foto de perfil',
+                };
+                
+                let photoChanged = false;
+                for (const key of Object.keys(originalValues)) {
+                    if (originalValues[key] !== user[key]) {
+                        if (key === 'foto_perfil') {
+                            photoChanged = true;
+                            // Para foto de perfil, solo indicar que cambió sin mostrar el contenido
+                            changedFields.push({ 
+                                key, 
+                                label: labels[key] || key, 
+                                before: originalValues[key] ? 'Imagen anterior' : 'Sin imagen', 
+                                after: user[key] ? 'Nueva imagen' : 'Sin imagen'
+                            });
+                        } else {
+                            changedFields.push({ 
+                                key, 
+                                label: labels[key] || key, 
+                                before: originalValues[key], 
+                                after: user[key]
+                            });
+                        }
+                    }
+                }
+
                 await user.save();
+
+                // Enviar notificación sólo si: el usuario objetivo es Gestor y hubo cambios
+                if (user.accountType === 'Gestor' && changedFields.length > 0) {
+                    try {
+                        await sendProfileUpdateNotification(
+                            Number(loggedInUser.id) || null, // remitente (admin)
+                            user.ID,                           // destinatario (gestor)
+                            {                                 // datos del usuario
+                                nombres: user.nombres,
+                                apellidos: user.apellidos,
+                                email: user.email
+                            },
+                            changedFields,                     // lista de cambios
+                            photoChanged                       // si cambió la foto
+                        );
+                    } catch (notifyErr) {
+                        console.error('Error al enviar notificación de actualización de perfil:', notifyErr);
+                        // No romper la actualización del perfil por error de notificación
+                    }
+                }
+
                 return res.status(200).json({ message: "Perfil actualizado con éxito." });
         }
 

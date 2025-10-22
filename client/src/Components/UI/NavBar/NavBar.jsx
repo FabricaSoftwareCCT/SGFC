@@ -231,7 +231,6 @@ export const NavBar = ({ children }) => {
 									rechazarSolicitudCurso(notif)
 								else {
 									setJustifying(true)
-									setProcessingSolicitud(true)
 								}
 							}}
 						>
@@ -257,7 +256,7 @@ export const NavBar = ({ children }) => {
 			handleNotificationClick(activeNotification)
 		else
 			setShowModalGeneral(false)
-	}, [justifying, justificationDenial])
+	}, [justifying, justificationDenial, processingSolicitud])
 
 	const cambiarEstadoInvitacion = async (invitacionId, nuevoEstado) => {
 		// Si ya se está procesando esta invitación, no hacer nada

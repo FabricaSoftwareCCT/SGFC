@@ -70,13 +70,24 @@ const rejectCourseRequest = async (req, res) => {
 			return res.status(404).json({ message: 'No se encontró la notificación' })
 		}
 
+		const personWhoRequests = (await Usuario.findByPk(requestNotification.dataValues.remitente_ID)).dataValues
+
+		const message = `
+			<h2>Se ha rechazado la solicitud de curso</h2>
+			<p>Estimado(a) ${personWhoRequests.nombres} ${personWhoRequests.apellidos}, se ha rechazado su solicitud de creación de curso complementario.</p>
+			<br>
+			<b>Motivo:</b><p>${justification}</p>
+			<br>
+			<b>Fecha: ${new Date().toLocaleString("es-CO")}</b>	
+		`
+
 		await Notificacion.create({
 			remitente_ID: id,
 			destinatario_ID: requestNotification.dataValues.remitente_ID,
 			usuario_ID: requestNotification.dataValues.remitente_ID,
 			tipo: "otro",
-			titulo: "Se rechazó la solicitud de curso",
-			mensaje: `Se ha rechazado la solicitud de curso.<br><br><b>Motivo:</b> ${justification}`,
+			titulo: "Se ha rechazado la solicitud de curso",
+			mensaje: message, //`Se ha rechazado la solicitud de curso.<br><br><b>Motivo:</b> ${justification}`,
 			estado: "pendiente",
 		})
 
@@ -88,12 +99,10 @@ const rejectCourseRequest = async (req, res) => {
 			}
 		})
 
-		const personWhoRequests = (await Usuario.findByPk(requestNotification.dataValues.remitente_ID)).dataValues
-
 		await sendEmail(
 			personWhoRequests.email,
 			"Se rechazó la solicitud de curso",
-			`Un administrador ha rechazado tu solicitud de creación de curso.<br><b>Motivo: </b>${justification}`
+			message
 		)
 
 		res.status(200).json({ message: 'Se ha rechazado la solicitud con exito' })
@@ -106,7 +115,7 @@ const rejectCourseRequest = async (req, res) => {
 const acceptCourseRequest = async (req, res) => {
 	try {
 		const notifId = req.params.id
-		const { accountType } = req.user
+		const { accountType, id } = req.user
 
 		if (!accountType || accountType !== "Administrador") {
 			return res.status(403).json({ message: 'No tienes permisos para realizar esta acción' })
@@ -119,6 +128,15 @@ const acceptCourseRequest = async (req, res) => {
 
 		const personWhoRequests = (await Usuario.findByPk(requestNotification.dataValues.remitente_ID)).dataValues
 
+		const message = `
+			<h2>Se ha aceptado la solicitud de curso</h2>
+			<p>Estimado(a) ${personWhoRequests.nombres} ${personWhoRequests.apellidos}, se ha aceptado su solicitud de creación de curso complementario.</p>
+			<br>
+			<p>Se le va a notificar cuando el curso complementario se haya creado.</p>
+			<br>
+			<b>Fecha: ${new Date().toLocaleString("es-CO")}</b>	
+		`
+
 		await Notificacion.update({
 			estado: "leida"
 		}, {
@@ -127,10 +145,20 @@ const acceptCourseRequest = async (req, res) => {
 			}
 		})
 
+		await Notificacion.create({
+			remitente_ID: id,
+			destinatario_ID: requestNotification.dataValues.remitente_ID,
+			usuario_ID: requestNotification.dataValues.remitente_ID,
+			tipo: "otro",
+			titulo: "Se ha aceptado la solicitud de curso",
+			mensaje: message,
+			estado: "pendiente",
+		})
+
 		await sendEmail(
 			personWhoRequests.email,
 			"Se aceptó la solicitud de curso",
-			`Un administrador ha aceptado tu solicitud de creación de curso. Se le va a notificar una vez este sea creado.`
+			message
 		)
 
 		res.status(200).json({ message: 'Se ha aceptar la solicitud con exito' })

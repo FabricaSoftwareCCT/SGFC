@@ -143,7 +143,7 @@ const createCurso = async (req, res) => {
 			dias_formacion,
 			lugar_formacion,
 			slots_formacion,
-			cupo_maximo,
+			cupos_disponibles,
 			duracion_dias,
 			empresa_ID // Esperado solo si tipo_oferta es "Cerrada"
 		} = req.body;
@@ -226,7 +226,7 @@ const createCurso = async (req, res) => {
 			empresa_ID: finalEmpresaID,
 			slots_formacion: slotsFormacionString,
 			duracion_dias,
-			cupo_maximo
+			cupos_disponibles
 		});
 
 		res.status(201).json({ message: "Curso creado con éxito.", curso: nuevoCurso });
@@ -284,7 +284,8 @@ const updateCurso = async (req, res) => {
 			lugar_formacion,
 			estado,
 			slots_formacion,
-			empresa_ID
+			empresa_ID,
+			duracion_dias
 		} = req.body;
 
 		const userData = await User.findByPk(userId);
@@ -340,6 +341,7 @@ const updateCurso = async (req, res) => {
 			dias_formacion,
 			lugar_formacion,
 			estado,
+			duracion_dias,
 			empresa_ID: tipo_oferta === "Cerrada" ? finalEmpresaID : null, // ✅ Actualizar o limpiar
 		};
 

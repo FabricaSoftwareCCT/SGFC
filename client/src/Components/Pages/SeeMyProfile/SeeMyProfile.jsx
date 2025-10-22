@@ -121,8 +121,7 @@ export const SeeMyProfile = () => {
 			if (!cursos.data.success)
 				throw "No se pudo realizar"
 			setCursos(cursos.data.cursos)
-			setInstructores(cursos.data.cursos.map((c) => {
-				console.log(c)
+			setInstructores(cursos.data.cursos.filter((c) => c.Instructor).map((c) => {
 				return {
 					ID: c.Instructor.ID,
 					nombre_instructor: `${c.Instructor.nombres} ${c.Instructor.apellidos}`,
@@ -483,21 +482,21 @@ export const SeeMyProfile = () => {
 
                         {(tipoCuenta === 'Aprendiz'|| tipoCuenta === 'Empresa' || tipoCuenta === 'Instructor') &&  (
                             <>
-                        <button
-                            className={`updateProfile ${editMode ? 'cancel' : ''}`}
-                            onClick={() => handleModelCancel(editMode)}
-                        >
-                            {editMode ? '' : ''}
-                        </button>
+								<button
+									className={`updateProfile ${editMode ? 'cancel' : ''}`}
+									onClick={() => handleModelCancel(editMode)}
+								>
+									{editMode ? '' : ''}
+								</button>
 
-									{editMode && (
-										<button
-											className="updateProfile1"
-											onClick={handleSaveChanges}
-										></button>
-									)}
-								</>
-							))}
+								{editMode && (
+									<button
+										className="updateProfile1"
+										onClick={handleSaveChanges}
+									></button>
+								)}
+							</>
+						)}
 					</div>
 
 					{/* ADMINISTRADOR, INSTRUCTOR, GESTOR */}

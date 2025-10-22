@@ -69,7 +69,7 @@ class Curso extends Model {
 					type: DataTypes.TEXT('medium'), // Esto es MEDIUMTEXT en MySQL
 					allowNull: true,
 				},
-				cupo_maximo: {
+				cupos_disponibles: {
 					type: DataTypes.INTEGER.UNSIGNED,
 					defaultValue: 30
 				},

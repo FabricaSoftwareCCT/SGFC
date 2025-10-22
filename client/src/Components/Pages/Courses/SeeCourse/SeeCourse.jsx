@@ -119,10 +119,6 @@ export const SeeCourse = () => {
 
 								<div className='detail-row'>
 									<div className='detail-item'>
-										<span className='detail-label'>Duración:</span>
-										<span className='detail-value'>{formatearDuracion()}</span>
-									</div>
-									<div className='detail-item'>
 										<span className='detail-label'>Instructor:</span>
 										<span className='detail-value'>
 											{curso?.Instructor ? `${curso.Instructor.nombres} ${curso.Instructor.apellidos}` : "Sin asignar"}
@@ -150,9 +146,9 @@ export const SeeCourse = () => {
 
 								<div className='detail-row'>
 									<div className='detail-item'>
-										<span className='detail-label'>Cupo:</span>
+										<span className='detail-label'>Cupos:</span>
 										<span className='detail-value'>
-											{curso.cupos_usados ?? 0} / {curso.cupo_maximo} 
+											{curso.cupos_usados ?? 0} / {curso.cupos_disponibles} 
 										</span>
 									</div>
 								</div>

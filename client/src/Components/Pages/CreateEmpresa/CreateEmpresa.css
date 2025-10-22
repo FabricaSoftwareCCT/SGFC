@@ -121,7 +121,7 @@
 .tituloFiltrar {
   width: 100%;
   color: #aaa;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.5rem;
 }
 
 .filterOptionsGestionsCompany {
@@ -236,7 +236,6 @@
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
 }
 
 .results-header {
@@ -254,7 +253,7 @@
 .table-container {
   width: 100%;
   max-height: 60vh;
-  min-height: 243px;
+  min-height: 200px;
   overflow-y: auto;
   background: rgba(0,132,61,0.12);
   border-radius: 1rem;
@@ -505,8 +504,9 @@
   padding: 40px 20px;
   font-size: 14px;
 }
+
 /* ========================================
-   MODAL STYLES PARA CREATEEMPRESA
+   MODAL STYLES - REEMPLAZANDO modal-overlayCreateInstructor
    ======================================== */
 
 .modal-overlay-company {
@@ -593,13 +593,6 @@
   background: rgba(255,255,255,0.1);
   color: #fff;
   font-size: 14px;
-  transition: border-color 0.3s ease;
-}
-
-.form-group-company input:focus,
-.form-group-company select:focus {
-  outline: none;
-  border-color: #00843d;
 }
 
 .form-group-company input::placeholder {
@@ -622,7 +615,6 @@
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.3s ease;
-  font-size: 14px;
 }
 
 .btn-cancel-company:hover {
@@ -637,33 +629,11 @@
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.3s ease;
-  font-size: 14px;
 }
 
 .btn-save-company:hover {
   background: #006f33;
   border-color: #006f33;
-}
-
-/* Responsive para el modal */
-@media (max-width: 768px) {
-  .modal-content-company {
-    margin: 1rem;
-    max-height: 80vh;
-  }
-  
-  .modal-header-company h2 {
-    font-size: 1.25rem;
-  }
-  
-  .modal-footer-company {
-    flex-direction: column;
-  }
-  
-  .btn-cancel-company,
-  .btn-save-company {
-    width: 100%;
-  }
 }
 
 /* ========================================
@@ -746,6 +716,25 @@
     font-size: 10px;
     min-width: 80px;
   }
+
+  /* Modal responsive */
+  .modal-content-company {
+    margin: 1rem;
+    max-height: 80vh;
+  }
+  
+  .modal-header-company h2 {
+    font-size: 1.25rem;
+  }
+  
+  .modal-footer-company {
+    flex-direction: column;
+  }
+  
+  .btn-cancel-company,
+  .btn-save-company {
+    width: 100%;
+  }
 }
 
 @media (max-width: 480px) {
@@ -781,6 +770,20 @@
     padding: 6px 12px;
     font-size: 12px;
     min-width: 70px;
+  }
+
+  .modal-overlay-company {
+    padding: 0.5rem;
+  }
+  
+  .modal-content-company {
+    margin: 0.5rem;
+  }
+  
+  .modal-header-company,
+  .modal-body-company,
+  .modal-footer-company {
+    padding: 1rem;
   }
 }
 

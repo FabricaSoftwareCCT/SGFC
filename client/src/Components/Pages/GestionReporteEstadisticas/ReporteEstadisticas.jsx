@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect,useRef } from 'react';
 import './ReporteEstadisticas.css';
 import ReporteEstudiantes from './ReporteEstudiantes';
+import {getCursos} from '../../API/ApiRpeort';
 
 export default function ReporteEstadisticas() {
   const [pantallaActual, setPantallaActual] = useState('cursos');
@@ -48,28 +49,23 @@ export default function ReporteEstadisticas() {
   };
 }, [mostrarFiltro]);
 
-  const cursos = [
-  { id: 1, curso: "Programación Web con React", ficha: "FW-001", instructor: "María González", estado: "Activo", empleados: 15 },
-  { id: 2, curso: "Base de Datos Avanzadas", ficha: "DB-002", instructor: "Carlos Rodríguez", estado: "Activo", empleados: 8 },
-  { id: 3, curso: "Machine Learning Fundamentals", ficha: "ML-003", instructor: "Ana Martínez", estado: "Inactivo", empleados: 25 },
-  { id: 4, curso: "Desarrollo Mobile con Flutter", ficha: "MB-004", instructor: "Luis Sánchez", estado: "Activo", empleados: 12 },
-  { id: 5, curso: "Ciberseguridad Básica", ficha: "CS-005", instructor: "Elena Ramírez", estado: "Activo", empleados: 32 },
-  { id: 6, curso: "Cloud Computing con AWS", ficha: "CC-006", instructor: "Pedro López", estado: "Inactivo", empleados: 18 },
-  { id: 7, curso: "JavaScript Avanzado", ficha: "JS-007", instructor: "Laura Díaz", estado: "Activo", empleados: 22 },
-  { id: 8, curso: "Python para Ciencia de Datos", ficha: "PY-008", instructor: "Miguel Torres", estado: "Activo", empleados: 28 },
-  { id: 9, curso: "Diseño UX/UI", ficha: "DX-009", instructor: "Sofía Castro", estado: "Inactivo", empleados: 7 },
-  { id: 10, curso: "DevOps y CI/CD", ficha: "DV-010", instructor: "Javier Morales", estado: "Activo", empleados: 35 },
-  { id: 11, curso: "Blockchain Development", ficha: "BC-011", instructor: "Carmen Reyes", estado: "Activo", empleados: 14 },
-  { id: 12, curso: "Inteligencia Artificial", ficha: "IA-012", instructor: "Roberto Silva", estado: "Inactivo", empleados: 19 },
-  { id: 13, curso: "Angular Framework", ficha: "AG-013", instructor: "Patricia Navarro", estado: "Activo", empleados: 11 },
-  { id: 14, curso: "SQL y Optimización", ficha: "SQ-014", instructor: "Daniel Ortega", estado: "Activo", empleados: 26 },
-  { id: 15, curso: "React Native", ficha: "RN-015", instructor: "Gabriela Mendoza", estado: "Inactivo", empleados: 9 },
-  { id: 16, curso: "Testing Automatizado", ficha: "TA-016", instructor: "Fernando Rojas", estado: "Activo", empleados: 17 },
-  { id: 17, curso: "Microservicios con Docker", ficha: "MS-017", instructor: "Isabel Vargas", estado: "Activo", empleados: 38 },
-  { id: 18, curso: "Vue.js Fundamentals", ficha: "VJ-018", instructor: "Ricardo Peña", estado: "Inactivo", empleados: 6 },
-  { id: 19, curso: "Big Data Analytics", ficha: "BD-019", instructor: "Adriana Cruz", estado: "Activo", empleados: 31 },
-  { id: 20, curso: "TypeScript Profesional", ficha: "TS-020", instructor: "Oscar Herrera", estado: "Activo", empleados: 23 }
-];
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        //Cargar datos
+        const data = await getCursos(currentPage);
+
+        if(!data){
+          alert("Error al cargar datos")
+        }
+        //Acutalizar estado
+        setdatosCurso(data);
+      }catch(err){
+        alert(" Error en servidor ")
+      }
+    }
+    fetchData()
+  }, []);
 
   // Resetear página cuando cambien filtros
   useEffect(() => {
@@ -86,11 +82,11 @@ export default function ReporteEstadisticas() {
 
   // Función para aplicar todos los filtros - CORREGIDA
   const cursosFiltrados = useMemo(() => {
-    return cursos.filter(curso => {
+    return datosCurso?.filter(curso => {
       // Filtro por estado
       const estadosSeleccionados = [];
-      if (filtros.estado.activo) estadosSeleccionados.push('Activo');
-      if (filtros.estado.inactivo) estadosSeleccionados.push('Inactivo');
+      if (filtros.estado.activo) estadosSeleccionados.push('activo');
+      if (filtros.estado.inactivo) estadosSeleccionados.push('inactivo');
       
       if (estadosSeleccionados.length > 0 && !estadosSeleccionados.includes(curso.estado)) {
         return false;
@@ -118,12 +114,12 @@ export default function ReporteEstadisticas() {
       // Si pasa todos los filtros, incluir el curso
       return true;
     });
-  }, [filtros, cursos]);
+  }, [filtros, datosCurso]);
 
   // Cálculo para paginación
   const indexOfLastPost = currentPage * postsPerPage;
   const indexOfFirstPost = indexOfLastPost - postsPerPage;
-  const currentPosts = cursosFiltrados.slice(indexOfFirstPost, indexOfLastPost);
+  const currentPosts = cursosFiltrados?.slice(indexOfFirstPost, indexOfLastPost);
 
   // Función para manejar el clic en una fila
   const handleFilaClick = (curso) => {
@@ -181,7 +177,7 @@ export default function ReporteEstadisticas() {
 
   const generarReporte = () => {
     console.log('Generando reporte de cursos...');
-    const datosReporte = cursosFiltrados.length > 0 ? cursosFiltrados : cursos;
+    const datosReporte = cursosFiltrados.length > 0 ? cursosFiltrados : datosCurso;
     alert(`Reporte generado exitosamente\nTotal de cursos: ${datosReporte.length}`);
   };
  
@@ -305,7 +301,7 @@ export default function ReporteEstadisticas() {
             {/* Información de resultados */}
             <div className="filtro-info-estadisticas">
               <div className="filtro-resultados-estadisticas">
-                Resultados: {cursosFiltrados.length} de {cursos.length} cursos
+                Resultados: {cursosFiltrados.length} de {datosCurso.length} cursos
               </div>
             </div>
 
@@ -330,7 +326,7 @@ export default function ReporteEstadisticas() {
         </div>
 
         {/* Filas de datos filtrados y paginados */}
-        {currentPosts.length > 0 ? (
+        {currentPosts?.length > 0 ? (
           currentPosts.map((curso) => (
             <div 
               key={curso.id} 
@@ -354,7 +350,7 @@ export default function ReporteEstadisticas() {
       </div>
 
       {/* PAGINACIÓN */}
-      {cursosFiltrados.length > postsPerPage && (
+      {cursosFiltrados?.length > postsPerPage && (
         <>
           <Pagination
             postsPerPage={postsPerPage}

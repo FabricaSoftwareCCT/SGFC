@@ -7,7 +7,6 @@ import { Main } from '../../Layouts/Main/Main';
 import axiosInstance from '../../../config/axiosInstance';
 import html2pdf from 'html2pdf.js';
 import { ModalSignature } from '../../UI/Modal_Signature/ModalSignature';
-import { EditableList } from '../../UI/EditableList/EditableList';
 import { useNavigate } from 'react-router-dom';
 import { validateText, validateNumber,createMensajeError } from '../../../utils/Validators/formValidator';
 
@@ -17,9 +16,8 @@ export const ConcertationProceeding = () => {
 
   const [empresa, setEmpresa] = useState(null);
   const [manager, setManager] = useState(null);
-  const [usuarioLogueado, setUsuarioLogueado] = useState(null); // Para almacenar info completa del usuario
+  const [usuarioLogueado, setUsuarioLogueado] = useState(null);
 
-  // Inicializa el nombre del curso con el parámetro de la URL si existe
   const [nombreCurso, setNombreCurso] = useState(
     nombreCursoParam ? decodeURIComponent(nombreCursoParam) : ''
   );
@@ -28,7 +26,13 @@ export const ConcertationProceeding = () => {
   const [fechaFin, setFechaFin] = useState('');
   const [isEditing, setIsEditing] = useState(false);
 
-  // Validación de fechas
+  // NUEVOS ESTADOS PARA LOS CAMPOS FALTANTES
+  const [horarioInicio, setHorarioInicio] = useState('');
+  const [horarioFin, setHorarioFin] = useState('');
+  const [modalidad, setModalidad] = useState('Presencial');
+  const [notasRelevantes, setNotasRelevantes] = useState([]);
+  const [condicionesEspeciales, setCondicionesEspeciales] = useState([]);
+
   const [dateError, setDateError] = useState('');
   const [isExporting, setIsExporting] = useState(false);
   const [exportValues, setExportValues] = useState({
@@ -43,16 +47,15 @@ export const ConcertationProceeding = () => {
   const [showSignatureModal, setShowSignatureModal] = useState(false);
   const [firmaDigital, setFirmaDigital] = useState("");
   const [firmaArchivo, setFirmaArchivo] = useState(null);
-  const [firmaArchivoUrl, setFirmaArchivoUrl] = useState(""); // ✅ Nuevo estado
+  const [firmaArchivoUrl, setFirmaArchivoUrl] = useState("");
 
   const [instructores, setInstructores] = useState([]);
   const [instructoresAsignados, setInstructoresAsignados] = useState([]);
   const [participantes, setParticipantes] = useState([]);
-  const [coordinadorAcademico, setCoordinadorAcademico] = useState(''); // Nuevo estado
+  const [coordinadorAcademico, setCoordinadorAcademico] = useState('');
 
   const [generatedPdfName, setGeneratedPdfName] = useState('');
 
-  // ✅ Función para manejar cuando se sube un archivo de firma
   const handleUploadSignature = (file) => {
     setFirmaArchivo(file);
     const fileUrl = URL.createObjectURL(file);
@@ -64,23 +67,18 @@ export const ConcertationProceeding = () => {
     if (!session) return;
 
     const user = JSON.parse(session);
-    setUsuarioLogueado(user); // Guardar info completa del usuario
+    setUsuarioLogueado(user);
 
     axiosInstance.get(`/api/users/profile/${user.id}`)
       .then(res => {
         setManager(res.data);
         setEmpresa(res.data.Empresa);
 
-        // ✅ VERIFICAR TIPO DE CUENTA Y ASIGNAR CORRECTAMENTE
         if (user.accountType === 'Instructor') {
-          // Si es instructor, agregarlo a instructores asignados
           setInstructoresAsignados([res.data.nombres || user.name || '']);
-          setCoordinadorAcademico(''); // Dejar coordinador vacío
-          console.log('✅ Usuario instructor asignado:', res.data.nombres);
+          setCoordinadorAcademico('');
         } else if (user.accountType === 'Administrador' || user.accountType === 'Gestor') {
-          // Si es administrador o gestor, puede ser coordinador académico
           setCoordinadorAcademico(res.data.nombres || user.name || '');
-          console.log('✅ Usuario como coordinador:', res.data.nombres);
         }
       })
       .catch(err => {
@@ -88,32 +86,26 @@ export const ConcertationProceeding = () => {
       });
   }, []);
 
-    const handleValidation = async () => {
-      while(true){
-        const validationGeneral = {
-        nombreCurso: validateText(nombreCurso),
-        //Institucion: validateText(empresa?.nombre_empresa),
-        //Lugar: validateText(empresa?.Ciudad?.nombre),
-        CoordinadorAcademico: validateText(coordinadorAcademico),
-        Instructores: validateText(instructores[0]),
-        Instructor: validateText(instructoresAsignados[0]),
-        //numEmpleados: validateNumber(numEmpleados),
-        fechaInicio: validarFecha(fechaInicio),
-        fechaFin: validarFecha(fechaFin),
-        }
-
-        const errores = await createMensajeError(validationGeneral);
-        if(errores !== null){
-          console.log(errores);
-          alert(errores);
-          return true;
-        }
-
-        return false;
-      }
+  const handleValidation = async () => {
+    const validationGeneral = {
+      nombreCurso: validateText(nombreCurso),
+      CoordinadorAcademico: validateText(coordinadorAcademico),
+      Instructores: validateText(instructores[0]),
+      Instructor: validateText(instructoresAsignados[0]),
+      fechaInicio: validarFecha(fechaInicio),
+      fechaFin: validarFecha(fechaFin),
     }
 
-  // ✅ Cleanup function para liberar memory de las URLs creadas
+    const errores = await createMensajeError(validationGeneral);
+    if(errores !== null){
+      console.log(errores);
+      alert(errores);
+      return true;
+    }
+
+    return false;
+  }
+
   useEffect(() => {
     return () => {
       if (firmaArchivoUrl) {
@@ -128,7 +120,6 @@ export const ConcertationProceeding = () => {
     return date.toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' });
   };
 
-  // Validación de fechas
   const today = new Date().toISOString().split('T')[0];
 
   const handleFechaInicioChange = (e) => {
@@ -171,10 +162,16 @@ export const ConcertationProceeding = () => {
         const pdfFileName = 'acta_concertacion.pdf';
         html2pdf()
           .set({
-            margin: 10,
+            margin: [15, 15, 20, 15],
             filename: pdfFileName,
             html2canvas: { scale: 2 },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+            // NUEVAS OPCIONES PARA CONTROL DE PÁGINAS
+            pagebreak: { 
+              mode: ['avoid-all', 'css', 'legacy'], // Evitar cortes
+              before: '.page-break-before', // Clases para saltos
+              after: '.page-break-after' 
+            }
           })
           .from(pdfRef.current)
           .save()
@@ -191,10 +188,37 @@ export const ConcertationProceeding = () => {
   const handleEdit = () => setIsEditing(true);
   const handleSave = () => setIsEditing(false);
 
-  // Enviar el acta de concertación al backend
+  // Funciones para manejar las nuevas listas
+  const handleNotaChange = (index, value) => {
+    const nuevasNotas = [...notasRelevantes];
+    nuevasNotas[index] = value;
+    setNotasRelevantes(nuevasNotas);
+  };
+
+  const handleCondicionChange = (index, value) => {
+    const nuevasCondiciones = [...condicionesEspeciales];
+    nuevasCondiciones[index] = value;
+    setCondicionesEspeciales(nuevasCondiciones);
+  };
+
+  const addNota = () => {
+    setNotasRelevantes([...notasRelevantes, '']);
+  };
+
+  const addCondicion = () => {
+    setCondicionesEspeciales([...condicionesEspeciales, '']);
+  };
+
+  const removeNota = (index) => {
+    setNotasRelevantes(notasRelevantes.filter((_, i) => i !== index));
+  };
+
+  const removeCondicion = (index) => {
+    setCondicionesEspeciales(condicionesEspeciales.filter((_, i) => i !== index));
+  };
+
   const handleSendProceeding = async () => {
     try {
-
       const flag = await handleValidation();
       if(flag) return;
 
@@ -216,10 +240,8 @@ export const ConcertationProceeding = () => {
       formData.append('manager', JSON.stringify(manager));
       formData.append('fecha_acta', new Date().toISOString());
 
-      // ✅ Enviar el ID del usuario logueado como instructor
       if (usuarioLogueado && usuarioLogueado.id) {
         formData.append('instructor_ID', usuarioLogueado.id);
-        console.log('✅ Enviando instructor_ID:', usuarioLogueado.id);
       }
 
       if (empresa && empresa.ID) {
@@ -230,7 +252,6 @@ export const ConcertationProceeding = () => {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
 
-      // ✅ Si la respuesta es exitosa, redirigir
       if (response.status === 200) {
         setGeneratedPdfName(pdfFileName);
         alert('¡Acta de concertación enviada correctamente!');
@@ -243,7 +264,7 @@ export const ConcertationProceeding = () => {
     }
   };
 
-  return (
+ return (
     <>
       <Header />
       <Main>
@@ -253,7 +274,7 @@ export const ConcertationProceeding = () => {
           </h1>
           <p className="description-proceedings">
             Este documento permite a la empresa formalizar la solicitud de un curso ante el SENA. <br />
-            Escribe el nombre del curso, el número de empleados que lo tomarán y las fechas de inicio y fin del curso.
+            Complete todos los campos requeridos para generar el acta de concertación.
           </p>
 
           <div className="request-card-proceedings">
@@ -269,17 +290,54 @@ export const ConcertationProceeding = () => {
 
             <div className="letter-content-proceedings apa-style" ref={pdfRef}>
               <div className='date-proceeding'>
-                <p>Fecha de creación:  {new Date().toLocaleDateString()}</p>
+                <p>Fecha de creación: {new Date().toLocaleDateString()}</p>
               </div>
               <h2 className='title-concertation'>ACTA DE CONCERTACIÓN</h2>
               <p>
-                <b>1. Información General</b><br />
-                Nombre de la Institución: {(empresa?.nombre_empresa || '[Nombre de la entidad]')}<br />
-                Lugar de Concertación: {empresa?.Ciudad?.nombre || '[Ciudad]'}, {empresa?.direccion || '[Sede, modalidad]'}<br />
+                <b className='punto_name'>1. Información General</b><br />
+                
+                {/* NUEVO: INPUTS PARA NOMBRE DE INSTITUCIÓN Y LUGAR DE CONCERTACIÓN */}
+                Nombre de la Institución: {isEditing ? (
+                  <input
+                    type="text"
+                    className='input-solicitud-proceedings'
+                    value={empresa?.nombre_empresa || ''}
+                    onChange={e => setEmpresa(prev => ({...prev, nombre_empresa: e.target.value}))}
+                    placeholder="Nombre de la entidad"
+                    style={{ width: '300px', marginLeft: '10px' }}
+                  />
+                ) : (
+                  <b className='punto_name'>{(empresa?.nombre_empresa || '[Nombre de la entidad]')}</b>
+                )}<br />
+                
+                Lugar de Concertación: {isEditing ? (
+                  <>
+                    <input
+                      type="text"
+                      className='input-solicitud-proceedings'
+                      value={empresa?.Ciudad?.nombre || ''}
+                      onChange={e => setEmpresa(prev => ({...prev, Ciudad: {...prev.Ciudad, nombre: e.target.value}}))}
+                      placeholder="Ciudad"
+                      style={{ width: '150px', marginLeft: '10px' }}
+                    />
+                    , 
+                    <input
+                      type="text"
+                      className='input-solicitud-proceedings'
+                      value={empresa?.direccion || ''}
+                      onChange={e => setEmpresa(prev => ({...prev, direccion: e.target.value}))}
+                      placeholder="Sede, modalidad"
+                      style={{ width: '200px', marginLeft: '10px' }}
+                    />
+                  </>
+                ) : (
+                  <b className='punto_name'>{empresa?.Ciudad?.nombre || '[Ciudad]'}, {empresa?.direccion || '[Sede, modalidad]'}</b>
+                )}<br />
                 <br />
+                
                 <b>Responsables:</b><br />
 
-                {/* ✅ COORDINADOR ACADÉMICO - Solo si no es instructor */}
+                {/* COORDINADOR ACADÉMICO */}
                 • Coordinador Académico: {isEditing ? (
                   <input
                     type="text"
@@ -287,23 +345,66 @@ export const ConcertationProceeding = () => {
                     value={coordinadorAcademico}
                     onChange={e => setCoordinadorAcademico(e.target.value)}
                     placeholder="Nombre del coordinador académico"
-                    style={{ width: 180 }}
+                    style={{ width: '250px' }}
                   />
                 ) : (
                   coordinadorAcademico || '[Nombre del coordinador académico]'
                 )}<br />
 
+                {/* INSTRUCTORES PARTICIPANTES - CORREGIDO */}
                 • Instructor(es) Participante(s): {isEditing ? (
-                  <EditableList
-                    items={instructores}
-                    setItems={setInstructores}
-                    placeholder="Nombre del instructor participante"
-                  />
+                  <div style={{ display: 'inline-block', marginLeft: '10px' }}>
+                    {instructores.map((instructor, idx) => (
+                      <div key={idx} style={{ display: 'flex', alignItems: 'center', marginBottom: '5px' }}>
+                        <input
+                          type="text"
+                          value={instructor}
+                          onChange={e => {
+                            const newInstructores = [...instructores];
+                            newInstructores[idx] = e.target.value;
+                            setInstructores(newInstructores);
+                          }}
+                          placeholder="Nombre del instructor participante"
+                          className="input-solicitud-proceedings"
+                          style={{ width: '250px', marginRight: '5px' }}
+                        />
+                        <button 
+                          type="button" 
+                          onClick={() => setInstructores(instructores.filter((_, i) => i !== idx))}
+                          style={{ 
+                            background: 'none', 
+                            border: 'none', 
+                            color: '#dc3545', 
+                            cursor: 'pointer',
+                            fontSize: '16px',
+                            padding: '0 5px'
+                          }}
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ))}
+                    <button 
+                      type="button" 
+                      onClick={() => setInstructores([...instructores, ''])}
+                      style={{ 
+                        background: 'none', 
+                        border: 'none', 
+                        color: '#00843d', 
+                        cursor: 'pointer',
+                        fontWeight: 'bold',
+                        marginTop: '5px'
+                      }}
+                    >
+                      + Agregar instructor
+                    </button>
+                  </div>
                 ) : (
                   instructores.length > 0 ? instructores.map((i, idx) => <span key={idx}>{i}{idx < instructores.length - 1 ? ', ' : ''}</span>) : '[Nombre(s) de instructores participantes]'
                 )}<br />
                 <br />
-                <b>2. Detalle de Cursos Concertados</b><br />
+                
+                <b  className='punto_name'>2. Detalle de Cursos Concertados</b><br />
                 Curso: {isEditing ? (
                   <input
                     type="text"
@@ -311,16 +412,16 @@ export const ConcertationProceeding = () => {
                     value={nombreCurso}
                     onChange={e => setNombreCurso(e.target.value)}
                     placeholder="Nombre del curso"
-                    style={{ width: 180 }}
+                    style={{ width: '300px' }}
                     required
                   />
                 ) : isExporting ? (
-                  <b>{exportValues.nombreCurso || '[Nombre del curso]'}</b>
+                  <b className='punto_name'>{exportValues.nombreCurso || '[Nombre del curso]'}</b>
                 ) : (
-                  <b>{nombreCurso || '[Nombre del curso]'}</b>
+                  <b className='punto_name'>{nombreCurso || '[Nombre del curso]'}</b>
                 )}<br />
 
-                {/* ✅ INSTRUCTOR ASIGNADO - Aquí va el instructor logueado */}
+                {/* INSTRUCTOR ASIGNADO */}
                 Instructor Asignado: {isEditing ? (
                   <input
                     type="text"
@@ -328,10 +429,9 @@ export const ConcertationProceeding = () => {
                     value={instructoresAsignados[0] || ''}
                     onChange={e => setInstructoresAsignados([e.target.value])}
                     placeholder="Nombre instructor asignado"
-                    style={{ width: 180 }}
+                    style={{ width: '250px' }}
                     required
                   />
-
                 ) : (
                   instructoresAsignados.length > 0 ?
                     instructoresAsignados.map((i, idx) => <span key={idx}>{i}{idx < instructoresAsignados.length - 1 ? ', ' : ''}</span>)
@@ -352,6 +452,7 @@ export const ConcertationProceeding = () => {
                 ) : (
                   <b>{formatDate(fechaInicio) || '[dd/mm/yyyy]'}</b>
                 )}<br />
+                
                 Fecha de Fin: {isEditing ? (
                   <input
                     type="date"
@@ -366,30 +467,167 @@ export const ConcertationProceeding = () => {
                 ) : (
                   <b>{formatDate(fechaFin) || '[dd/mm/yyyy]'}</b>
                 )}<br />
-                Horario: [Hora inicio - fin]<br />
-                Modalidad: [Presencial/Virtual]<br />
+                
+                {/* HORARIO - NUEVO CAMPO */}
+                Horario: {isEditing ? (
+                  <>
+                    <input
+                      type="time"
+                      className='input-solicitud-time-proceedings'
+                      value={horarioInicio}
+                      onChange={e => setHorarioInicio(e.target.value)}
+                      style={{ width: '120px', marginRight: '10px' }}
+                    />
+                    a
+                    <input
+                      type="time"
+                      className='input-solicitud-time-proceedings'
+                      value={horarioFin}
+                      onChange={e => setHorarioFin(e.target.value)}
+                      style={{ width: '120px', marginLeft: '10px' }}
+                    />
+                  </>
+                ) : (
+                  horarioInicio && horarioFin ? `${horarioInicio} - ${horarioFin}` : '[Hora inicio - fin]'
+                )}<br />
                 <br />
-                <b>3. Participantes</b><br />
+                {/* MODALIDAD - NUEVO CAMPO */}
+                Modalidad: {isEditing ? (
+                  <select
+                    className='input-solicitud-select-proceedings'
+                    value={modalidad}
+                    onChange={e => setModalidad(e.target.value)}
+                    style={{ width: '200px' }}
+                  >
+                    <option value="Presencial">Presencial</option>
+                    <option value="Virtual">Virtual</option>
+                    <option value="Híbrido">Híbrido</option>
+                  </select>
+                ) : (
+                  modalidad || '[Presencial/Virtual]'
+                )}<br />
+                <br />
+                
+                {/* PARTICIPANTES - CORREGIDO */}
+                <b  className='punto_name'>3. Participantes</b><br />
                 {isEditing ? (
-                  <EditableList
-                    items={participantes}
-                    setItems={setParticipantes}
-                    placeholder="Nombre participante"
-                  />
+                  <div style={{ margin: '10px 0' }}>
+                    {participantes.map((participante, idx) => (
+                      <div key={idx} style={{ display: 'flex', alignItems: 'center', marginBottom: '5px' }}>
+                        <span style={{ marginRight: '8px' }}>•</span>
+                        <input
+                          type="text"
+                          value={participante}
+                          onChange={e => {
+                            const newParticipantes = [...participantes];
+                            newParticipantes[idx] = e.target.value;
+                            setParticipantes(newParticipantes);
+                          }}
+                          placeholder="Nombre participante"
+                          className="input-solicitud-proceedings"
+                          style={{ width: '250px', marginRight: '5px' }}
+                        />
+                        <button 
+                          type="button" 
+                          onClick={() => setParticipantes(participantes.filter((_, i) => i !== idx))}
+                          style={{ 
+                            background: 'none', 
+                            border: 'none', 
+                            color: '#dc3545', 
+                            cursor: 'pointer',
+                            fontSize: '16px',
+                            padding: '0 5px'
+                          }}
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ))}
+                    <button 
+                      type="button" 
+                      onClick={() => setParticipantes([...participantes, ''])}
+                      style={{ 
+                        background: 'none', 
+                        border: 'none', 
+                        color: '#00843d', 
+                        cursor: 'pointer',
+                        fontWeight: 'bold',
+                        marginLeft: '18px'
+                      }}
+                    >
+                      + Agregar participante
+                    </button>
+                  </div>
                 ) : (
                   participantes.length > 0 ? participantes.map((p, idx) => <span key={idx}>• {p}<br /></span>) : <span>• [Nombre participante 1]<br />• [Nombre participante 2]</span>
                 )}
                 <br />
-                <b>4. Notas Relevantes</b><br />
-                • [Ejemplo: Los cursos deben iniciar puntualmente según el horario establecido.]<br />
-                • [Ejemplo: Se acordó que los cursos virtuales serán grabados y compartidos.]<br />
-                • [Ejemplo: Las fechas propuestas están sujetas a confirmación por parte de los participantes.]<br />
+                
+                {/* 4. NOTAS RELEVANTES - CAMBIADO A TEXTAREA */}
+                <b  className='punto_name page-break-before'>4. Notas Relevantes</b><br />
+                {isEditing ? (
+                  <textarea
+                    className='textarea-proceedings'
+                    value={notasRelevantes.join('\n')}
+                    onChange={e => setNotasRelevantes(e.target.value.split('\n').filter(line => line.trim() !== ''))}
+                    placeholder="• Los cursos deben iniciar puntualmente según el horario establecido.
+                • Se acordó que los cursos virtuales serán grabados y compartidos.
+                • Las fechas propuestas están sujetas a confirmación por parte de los participantes."
+                    rows={5}
+                    style={{ 
+                      width: '100%', 
+                      padding: '1rem', 
+                      borderRadius: '5px', 
+                      border: '1px solid #ccc',
+                      fontSize: '1rem',
+                      fontFamily: 'Arial, sans-serif',
+                      lineHeight: '1.5',
+                      marginTop: '0.5rem',
+                      marginBottom: '1rem'
+                    }}
+                  />
+                ) : (
+                  <div style={{ marginTop: '0.5rem', marginBottom: '1rem' }}>
+                    {notasRelevantes.map((nota, index) => (
+                      <div key={index} style={{ marginBottom: '0.5rem' }}>• {nota || '[Nota relevante]'}</div>
+                    ))}
+                  </div>
+                )}
                 <br />
-                <b>5. Condiciones Especiales</b><br />
-                • [Condición 1: Se requiere disponibilidad de sala virtual con capacidad para 30 personas.]<br />
-                • [Condición 2: Entrega de material didáctico antes de la primera sesión.]<br />
+
+                {/* 5. CONDICIONES ESPECIALES - CAMBIADO A TEXTAREA */}
+                <b  className='punto_name'>5. Condiciones Especiales</b><br />
+                {isEditing ? (
+                  <textarea
+                    className='textarea-proceedings'
+                    value={condicionesEspeciales.join('\n')}
+                    onChange={e => setCondicionesEspeciales(e.target.value.split('\n').filter(line => line.trim() !== ''))}
+                    placeholder="• Se requiere disponibilidad de sala virtual con capacidad para 30 personas.
+                • Entrega de material didáctico antes de la primera sesión.
+                • Condiciones específicas de conectividad para modalidad virtual."
+                    rows={5}
+                    style={{ 
+                      width: '100%', 
+                      padding: '1rem', 
+                      borderRadius: '5px', 
+                      border: '1px solid #ccc',
+                      fontSize: '1rem',
+                      fontFamily: 'Arial, sans-serif',
+                      lineHeight: '1.5',
+                      marginTop: '0.5rem',
+                      marginBottom: '1rem'
+                    }}
+                  />
+                ) : (
+                  <div style={{ marginTop: '0.5rem', marginBottom: '1rem' }}>
+                    {condicionesEspeciales.map((condicion, index) => (
+                      <div key={index} style={{ marginBottom: '0.5rem' }}>• {condicion || '[Condición especial]'}</div>
+                    ))}
+                  </div>
+                )}
                 <br />
-                <b>6. Firma de los Participantes</b><br />
+                
+                <b  className='punto_name'>6. Firma de los Participantes</b><br />
                 <table className="table-acta">
                   <thead>
                     <tr>
@@ -399,13 +637,11 @@ export const ConcertationProceeding = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {/* ✅ Instructor Asignado en la tabla de firmas */}
                     {instructoresAsignados.length > 0 && instructoresAsignados.map((instructor, idx) => (
                       <tr key={`instructor-${idx}`}>
                         <td>{instructor}</td>
                         <td>Instructor Asignado</td>
                         <td style={{ padding: '10px'}}>
-                          {/* ✅ Mostrar firma para instructor asignado */}
                           {firmaDigital ? (
                             <img
                               src={firmaDigital}
@@ -443,35 +679,49 @@ export const ConcertationProceeding = () => {
                       </tr>
                     ))}
 
-                    {/* Coordinador académico si existe */}
                     {coordinadorAcademico && (
                       <tr>
                         <td>{coordinadorAcademico}</td>
-                        <td>Coordinador Académico</td>                     
+                        <td>Coordinador Académico</td>
+                        <td>
+                          <span style={{ display: 'inline-block', width: '120px', borderBottom: '1px solid #000' }}>
+                            &nbsp;
+                          </span>
+                        </td>
                       </tr>
                     )}
 
-                    {/* Instructores participantes */}
                     {instructores.length > 0 && instructores.map((instructor, idx) => (
                       <tr key={`participante-${idx}`}>
                         <td>{instructor}</td>
                         <td>Instructor Participante</td>
-                     
+                        <td>
+                          <span style={{ display: 'inline-block', width: '120px', borderBottom: '1px solid #000' }}>
+                            &nbsp;
+                          </span>
+                        </td>
                       </tr>
                     ))}
 
-                    {/* Participantes del curso */}
                     {participantes.length > 0 ? participantes.map((p, idx) => (
                       <tr key={`part-${idx}`}>
                         <td>{p}</td>
                         <td>Participante</td>
-                        
+                        <td>
+                          <span style={{ display: 'inline-block', width: '120px', borderBottom: '1px solid #000' }}>
+                            &nbsp;
+                          </span>
+                        </td>
                       </tr>
                     )) : (
                       <tr>
                         <td>[Nombre Participante]</td>
                         <td>Participante</td>
-                       
+                        <td>
+                          <span style={{ display: 'inline-block', width: '120px', borderBottom: '1px solid #000' }}>
+                            &nbsp;
+                          </span>
+                        </td>
                       </tr>
                     )}
                   </tbody>
@@ -497,7 +747,6 @@ export const ConcertationProceeding = () => {
               Generar acta
             </button>
 
-            {/* ✅ Botón para limpiar firma */}
             {(firmaDigital || firmaArchivoUrl) && (
               <button
                 className="submit-button-proceedings"
@@ -526,12 +775,11 @@ export const ConcertationProceeding = () => {
         <ModalSignature
           closeModal={() => setShowSignatureModal(false)}
           nombreCurso={nombreCurso}
-          editar ={isEditing}
+          editar={isEditing}
           tipoActa="Acta de Concertacion"
           onSignature={setFirmaDigital}
           onUpload={handleUploadSignature}
-        >
-        </ModalSignature>
+        />
       )}
     </>
   );

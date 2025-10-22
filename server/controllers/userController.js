@@ -821,13 +821,34 @@ const updateUserProfile = async (req, res) => {
             const emailClean = cleanValue(email);
             const tipoDocumentoClean = cleanValue(tipoDocumento);
 
-            // Validaciones de campos obligatorios para Administrador
-            const camposObligatorios = {
+            // Validaciones de campos obligatorios según el tipo de cuenta
+            let camposObligatorios = {};
+            
+            if (user.accountType === "Empresa") {
+                // Para empresas, ser más permisivo - solo validar si el campo tiene valor actual
+                camposObligatorios = {};
+                // Solo validar campos que ya tienen valor en la BD o que se están enviando con valor
+                if ((nombres !== undefined && nombresClean) || user.nombres) {
+                    camposObligatorios.nombres = nombresClean || user.nombres;
+                }
+                if ((apellidos !== undefined && apellidosClean) || user.apellidos) {
+                    camposObligatorios.apellidos = apellidosClean || user.apellidos;
+                }
+                if ((celular !== undefined && celularClean) || user.celular) {
+                    camposObligatorios.celular = celularClean || user.celular;
+                }
+                if ((email !== undefined && emailClean) || user.email) {
+                    camposObligatorios.email = emailClean || user.email;
+                }
+            } else {
+                // Para otros tipos de usuario (Administrador, Gestor, Instructor, Aprendiz)
+                camposObligatorios = {
                 nombres: nombresClean,
                 apellidos: apellidosClean,
                 celular: celularClean,
                 email: emailClean
             };
+            }
 
                 const camposVacios = [];
                 for (const [campo, valor] of Object.entries(camposObligatorios)) {

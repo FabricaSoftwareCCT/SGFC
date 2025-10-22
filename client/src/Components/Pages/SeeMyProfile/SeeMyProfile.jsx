@@ -545,7 +545,7 @@ export const SeeMyProfile = () => {
                       : ""
                   }`}
                 ></div>
-                <h3>Estado</h3>
+                <h3>Estado Manager</h3>
                 {editMode ? (
                   <select
                     name="estado"

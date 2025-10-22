@@ -247,6 +247,24 @@
   height: auto;
 }
 
+/* Estilos para errores de validación */
+.error-message {
+  color: #ff4444;
+  font-size: 12px;
+  margin-top: 4px;
+  display: block;
+}
+
+.input_updateData.error {
+  border: 2px solid #ff4444;
+  background-color: rgba(255, 68, 68, 0.1);
+}
+
+.input_updateData.error:focus {
+  border-color: #ff4444;
+  box-shadow: 0 0 5px rgba(255, 68, 68, 0.3);
+}
+
 
 .valor-campo {
   margin-left: 8px;

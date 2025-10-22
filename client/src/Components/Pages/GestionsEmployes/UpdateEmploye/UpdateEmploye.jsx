@@ -4,6 +4,7 @@ import "./UpdateEmploye.css";
 import axiosInstance from "../../../../config/axiosInstance";
 import { useModal } from "../../../../Context/ModalContext";
 import buttonEdit from '../../../../assets/Icons/buttonEdit.png';
+import { validateEmail, validateNumber, validateText, validateNIT } from "../../../../utils/Validators/formValidator";
 
 export const UpdateEmploye = ({ empleado }) => {
   const [isEditing, setIsEditing] = useState(false);
@@ -66,11 +67,63 @@ export const UpdateEmploye = ({ empleado }) => {
     setFormData((prev) => ({ ...prev, estado }));
   };
 
+  const validateFields = () => {
+    const errors = [];
+    
+    // Validar nombres
+    if (!formData.nombres || formData.nombres.trim() === '') {
+      errors.push('Los nombres son requeridos');
+    } else if (formData.nombres.trim().length < 2) {
+      errors.push('Los nombres deben tener al menos 2 caracteres');
+    }
+    
+    // Validar apellidos
+    if (!formData.apellidos || formData.apellidos.trim() === '') {
+      errors.push('Los apellidos son requeridos');
+    } else if (formData.apellidos.trim().length < 2) {
+      errors.push('Los apellidos deben tener al menos 2 caracteres');
+    }
+    
+    // Validar documento (solo números)
+    if (!formData.documento || formData.documento.trim() === '') {
+      errors.push('El número de documento es requerido');
+    } else if (!/^\d+$/.test(formData.documento.trim())) {
+      errors.push('El número de documento debe contener solo números');
+    } else if (formData.documento.trim().length < 6) {
+      errors.push('El número de documento debe tener al menos 6 dígitos');
+    }
+    
+    // Validar celular (solo números)
+    if (!formData.celular || formData.celular.trim() === '') {
+      errors.push('El número de celular es requerido');
+    } else if (!/^\d+$/.test(formData.celular.trim())) {
+      errors.push('El número de celular debe contener solo números');
+    } else if (formData.celular.trim().length < 10) {
+      errors.push('El número de celular debe tener al menos 10 dígitos');
+    }
+    
+    // Validar email
+    if (!formData.email || formData.email.trim() === '') {
+      errors.push('El email es requerido');
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) {
+      errors.push('Debe ingresar un email válido');
+    }
+    
+    return errors;
+  };
+
   const handleButtonClick = async (e) => {
     e.preventDefault();
 
     if (!isEditing) {
       setIsEditing(true);
+      return;
+    }
+
+    // Validar todos los campos antes de enviar
+    const errors = validateFields();
+    if (errors.length > 0) {
+      alert(`Por favor corrija los siguientes errores:\n\n${errors.join('\n')}`);
       return;
     }
 

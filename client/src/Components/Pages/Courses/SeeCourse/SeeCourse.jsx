@@ -21,11 +21,6 @@ export const SeeCourse = () => {
 	//const [showMaterial, setShowMaterial] = useState(false); // Cambié el nombre para evitar conflicto con el import
 	const [empresa, setEmpresa] = useState()
 
-	/*const showModalAssignInstructor = () => {
-		console.log("Mostrando modal con ID:", curso?.ID);
-		setShowModal(true);
-	};*/
-
 	const userSession =
 		JSON.parse(localStorage.getItem('userSession')) ||
 		JSON.parse(sessionStorage.getItem('userSession'));
@@ -121,6 +116,33 @@ export const SeeCourse = () => {
 										<span className='detail-label'>Instructor:</span>
 										<span className='detail-value'>
 											{curso?.Instructor ? `${curso.Instructor.nombres} ${curso.Instructor.apellidos}` : "Sin asignar"}
+										</span>
+									</div>
+								</div>
+								
+								<div className='detail-row'>
+									<div className='detail-item'>
+										<span className='detail-label'>Duración en días:</span>
+										<span className='detail-value'>
+											{curso?.duracion_dias ? `${curso.duracion_dias}` : "Sin determinar"}
+										</span>
+									</div>
+								</div>
+
+								<div className='detail-row'>
+									<div className='detail-item'>
+										<span className='detail-label'>Lugar de formación:</span>
+										<span className='detail-value'>
+											{curso?.lugar_formacion ? `${curso.lugar_formacion}` : "Sin especificar"}
+										</span>
+									</div>
+								</div>
+
+								<div className='detail-row'>
+									<div className='detail-item'>
+										<span className='detail-label'>Cupo:</span>
+										<span className='detail-value'>
+											{curso.cupos_usados ?? 0} / {curso.cupo_maximo} 
 										</span>
 									</div>
 								</div>

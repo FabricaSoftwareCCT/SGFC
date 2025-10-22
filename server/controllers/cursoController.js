@@ -143,6 +143,8 @@ const createCurso = async (req, res) => {
 			dias_formacion,
 			lugar_formacion,
 			slots_formacion,
+			cupo_maximo,
+			duracion_dias,
 			empresa_ID // Esperado solo si tipo_oferta es "Cerrada"
 		} = req.body;
 
@@ -222,7 +224,9 @@ const createCurso = async (req, res) => {
 			imagen: image,
 			sena_ID,
 			empresa_ID: finalEmpresaID,
-			slots_formacion: slotsFormacionString
+			slots_formacion: slotsFormacionString,
+			duracion_dias,
+			cupo_maximo
 		});
 
 		res.status(201).json({ message: "Curso creado con éxito.", curso: nuevoCurso });
@@ -590,6 +594,10 @@ const getCursoById = async (req, res) => {
 		if (!curso) {
 			return res.status(404).json({ message: "Curso no encontrado." });
 		}
+
+		curso.dataValues.cupos_usados = await InscripcionCurso.count({
+			curso_ID: id
+		})
 
 		res.status(200).json(curso);
 	} catch (error) {

@@ -5,6 +5,9 @@ const Actas = require("../models/Actas"); // Asegúrate de importar el modelo
 const moment = require("moment-timezone");
 const Usuario = require("../models/User");
 const Notificacion = require("../models/Notificacion");
+
+const fs = require("fs");
+const path = require("path");
 const fechaSolicitud = new Date(
 	Date.now() - new Date().getTimezoneOffset() * 60000
 );
@@ -26,6 +29,9 @@ const sendEmail = async (email, subject, htmlContent) => {
 		to: email,
 		subject: subject,
 		html: htmlContent,
+		attachments: [
+			logoAttachment
+		]
 	};
 
 	return new Promise((resolve, reject) => {
@@ -204,9 +210,6 @@ const sendVerificationEmail = async (
 	accountType
 ) => {
 	const enlaceVerificacion = `http://localhost:5173/verificarCorreo?token=${token}`;
-	const fs = require("fs");
-	const path = require("path");
-	const logoPath = path.join(__dirname, "../Img/sena.png");
 
 	// ⭐⭐ NUEVO: Mensaje específico para Aprendiz ⭐⭐
 	const mensajeEspecifico =
@@ -289,23 +292,8 @@ const sendVerificationEmail = async (
 	});
 };
 // Función para enviar el correo de recuperación de contraseña
-const sendPasswordResetEmail = (email, resetLink) => {
-	const fs = require("fs");
-	const path = require("path");
-	const logoPath = path.join(__dirname, "../Img/sena.png");
 
-	const mailOptions = {
-		from: `"SGFC" <${process.env.EMAIL_USER}>`,
-		to: email,
-		subject: "Recuperación de contraseña",
-		attachments: [
-			{
-				filename: "logo.png",
-				path: logoPath,
-				cid: "logo",
-			},
-		],
-		html: `
+const emailTemplate = `
 <table width="100%" bgcolor="#f4f4f4" cellpadding="0" cellspacing="0" style="font-family: Arial, sans-serif; margin:0; padding:0;">
   <tr>
     <td align="center">
@@ -317,28 +305,12 @@ const sendPasswordResetEmail = (email, resetLink) => {
               <tr>
                 <td align="center" style="padding-bottom:1.25rem; border-bottom:.0625rem solid #eee;">
                   <img src="cid:logo" alt="Logo de Fábrica de Software CCT" style="width:5rem; height:auto; margin-bottom:.9375rem; display:block;">
-                  <h1 style="color:#00843D; margin:0; font-size:1.5rem; font-family:Arial,sans-serif;">Restablecimiento de Contraseña</h1>
+                  <h1 style="color:#00843D; margin:0; font-size:1.5rem; font-family:Arial,sans-serif;">[title]</h1>
                 </td>
               </tr>
             </table>
             <!-- Content -->
-            <table width="100%" cellpadding="0" cellspacing="0">
-              <tr>
-                <td style="padding:1.25rem 0; line-height:1.6; color:#1A1A1A; font-size:1rem;">
-                  <p style="margin-bottom:.9375rem;">Hemos recibido una solicitud para restablecer la contraseña de tu cuenta.</p>
-                  <p style="margin-bottom:.9375rem;">Por favor, haz clic en el siguiente enlace para restablecer tu contraseña:</p>
-                  <div style="text-align:center; padding:1.25rem 0;">
-                    <a href="${resetLink}" 
-                      style="display:inline-block; background-color:#F7941E; color:#fff !important; padding:.75rem 1.5625rem; border-radius:.3125rem; text-decoration:none; font-weight:bold; font-family:Arial,sans-serif; font-size:1rem;">
-                      Restablecer contraseña
-                    </a>
-                  </div>
-                  <p style="margin-bottom:.9375rem;">Este enlace es válido por un tiempo limitado. Si no solicitaste un restablecimiento de contraseña, por favor ignora este correo.</p>
-                  <p style="margin-bottom:.9375rem;">Si tienes problemas para acceder a tu cuenta, por favor contacta a nuestro soporte.</p>
-                  <p style="margin-bottom:0;">Saludos cordiales,<br>El equipo de Fábrica de Software CCT</p>
-                </td>
-              </tr>
-            </table>
+			[content]
             <!-- Footer -->
             <table width="100%" cellpadding="0" cellspacing="0">
               <tr>
@@ -353,7 +325,49 @@ const sendPasswordResetEmail = (email, resetLink) => {
     </td>
   </tr>
 </table>
-`,
+`
+
+const logoPath = path.join(__dirname, "../Img/sena.png");
+
+const logoAttachment = {
+	filename: "logo.png",
+	path: logoPath,
+	cid: "logo",
+}
+
+const sendPasswordResetEmail = (email, resetLink) => {
+	const fs = require("fs");
+	const path = require("path");
+	const logoPath = path.join(__dirname, "../Img/sena.png");
+
+	const mailOptions = {
+		from: `"SGFC" <${process.env.EMAIL_USER}>`,
+		to: email,
+		subject: "Recuperación de contraseña",
+		attachments: [
+			logoAttachment,
+		],
+		html: emailTemplate
+			.replaceAll("[title]", "Restablecimiento de Contraseña")
+			.replaceAll("[content]", `
+				<table width="100%" cellpadding="0" cellspacing="0">
+					<tr>
+						<td style="padding:1.25rem 0; line-height:1.6; color:#1A1A1A; font-size:1rem;">
+						<p style="margin-bottom:.9375rem;">Hemos recibido una solicitud para restablecer la contraseña de tu cuenta.</p>
+						<p style="margin-bottom:.9375rem;">Por favor, haz clic en el siguiente enlace para restablecer tu contraseña:</p>
+						<div style="text-align:center; padding:1.25rem 0;">
+							<a href="${resetLink}" 
+							style="display:inline-block; background-color:#F7941E; color:#fff !important; padding:.75rem 1.5625rem; border-radius:.3125rem; text-decoration:none; font-weight:bold; font-family:Arial,sans-serif; font-size:1rem;">
+							Restablecer contraseña
+							</a>
+						</div>
+						<p style="margin-bottom:.9375rem;">Este enlace es válido por un tiempo limitado. Si no solicitaste un restablecimiento de contraseña, por favor ignora este correo.</p>
+						<p style="margin-bottom:.9375rem;">Si tienes problemas para acceder a tu cuenta, por favor contacta a nuestro soporte.</p>
+						<p style="margin-bottom:0;">Saludos cordiales,<br>El equipo de Fábrica de Software CCT</p>
+						</td>
+					</tr>
+				</table>	
+			`),
 	};
 
 	return new Promise((resolve, reject) => {
@@ -434,10 +448,6 @@ const sendCursoUpdatedByManagerNotification = async (curso, gestor) => {
 
 // Función para enviar el correo de confirmación de cambio de contraseña
 const sendPasswordChangeConfirmationEmail = (email, resetLink) => {
-	const fs = require("fs");
-	const path = require("path");
-	const logoPath = path.join(__dirname, "../Img/sena.png");
-
 	const mailOptions = {
 		from: `"SGFC" <${process.env.EMAIL_USER}>`,
 		to: email,
@@ -520,10 +530,6 @@ const sendCourseCreatedEmail = (
 	descripcion,
 	estado
 ) => {
-	const fs = require("fs");
-	const path = require("path");
-	const logoPath = path.join(__dirname, "../Img/sena.png");
-
 	const mailOptions = {
 		from: `"SGFC" <${process.env.EMAIL_USER}>`,
 		to: emails,
@@ -938,9 +944,6 @@ const sendTrainingPlaceActaEmail = async (req, res) => {
 };
 
 const sendCreateMaterialApoyo = (emails, nombre_curso, material_link) => {
-	const path = require("path");
-	const logoPath = path.join(__dirname, "../Img/sena.png");
-
 	const mailOptions = {
 		from: `"SGFC" <${process.env.EMAIL_USER}>`,
 		to: emails,
@@ -1020,5 +1023,7 @@ module.exports = {
 	sendTrainingPlaceActaEmail,
 	sendRequestCourseEmailAp,
 	sendCreateMaterialApoyo,
-	sendCursoUpdatedByManagerNotification
+	sendCursoUpdatedByManagerNotification,
+	emailTemplate,
+	logoAttachment
 };

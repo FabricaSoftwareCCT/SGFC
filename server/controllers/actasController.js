@@ -2,7 +2,7 @@ const Actas = require('../models/Actas');
 const path = require('path');
 const fs = require('fs');
 const Notificacion = require('../models/Notificacion');
-const { sendEmail } = require('../services/emailService');
+const { sendEmail, emailTemplate } = require('../services/emailService');
 const Usuario = require('../models/User');
 
 const getAllActas = async (req, res) => {
@@ -72,14 +72,22 @@ const rejectCourseRequest = async (req, res) => {
 
 		const personWhoRequests = (await Usuario.findByPk(requestNotification.dataValues.remitente_ID)).dataValues
 
-		const message = `
-			<h2>Se ha rechazado la solicitud de curso</h2>
-			<p>Estimado(a) ${personWhoRequests.nombres} ${personWhoRequests.apellidos}, se ha rechazado su solicitud de creación de curso complementario.</p>
-			<br>
-			<b>Motivo:</b><p>${justification}</p>
-			<br>
-			<b>Fecha: ${new Date().toLocaleString("es-CO")}</b>	
-		`
+		const message = emailTemplate
+			.replaceAll("[title]", "Se ha rechazado la solicitud de curso")
+			.replaceAll("[content]", `
+				<table width="100%" cellpadding="0" cellspacing="0">
+					<tr>
+						<p>Estimado(a) ${personWhoRequests.nombres} ${personWhoRequests.apellidos}, se ha rechazado su solicitud de creación de curso complementario.</p>
+						<br>
+						<b>Motivo:</b><p>${justification}</p>
+						<br>
+						<b>Fecha: </b><span>${new Date().toLocaleString("es-CO")}</span>
+						<br>
+						<p style="margin-bottom:0;">Saludos cordiales,<br>El equipo de Fábrica de Software CCT</p>
+						</td>
+					</tr>
+				</table>	
+			`)
 
 		await Notificacion.create({
 			remitente_ID: id,
@@ -87,7 +95,15 @@ const rejectCourseRequest = async (req, res) => {
 			usuario_ID: requestNotification.dataValues.remitente_ID,
 			tipo: "otro",
 			titulo: "Se ha rechazado la solicitud de curso",
-			mensaje: message, //`Se ha rechazado la solicitud de curso.<br><br><b>Motivo:</b> ${justification}`,
+			mensaje: `
+				<h2>Se ha rechazado la solicitud de curso</h2>
+				<p>Estimado(a) ${personWhoRequests.nombres} ${personWhoRequests.apellidos}, se ha rechazado su solicitud de creación de curso complementario.</p>
+				<br>
+				<b>Motivo:</b><p>${justification}</p>
+				<br>
+				<b>Fecha: ${new Date().toLocaleString("es-CO")}</b>	
+				<br>
+			`,
 			estado: "pendiente",
 		})
 
@@ -128,14 +144,23 @@ const acceptCourseRequest = async (req, res) => {
 
 		const personWhoRequests = (await Usuario.findByPk(requestNotification.dataValues.remitente_ID)).dataValues
 
-		const message = `
-			<h2>Se ha aceptado la solicitud de curso</h2>
-			<p>Estimado(a) ${personWhoRequests.nombres} ${personWhoRequests.apellidos}, se ha aceptado su solicitud de creación de curso complementario.</p>
-			<br>
-			<p>Se le va a notificar cuando el curso complementario se haya creado.</p>
-			<br>
-			<b>Fecha: ${new Date().toLocaleString("es-CO")}</b>	
-		`
+		const message = emailTemplate
+			.replaceAll("[title]", "Se ha aceptado la solicitud de curso")
+			.replaceAll("[content]", `
+				<table width="100%" cellpadding="0" cellspacing="0">
+					<tr>
+						<p>Estimado(a) ${personWhoRequests.nombres} ${personWhoRequests.apellidos}, se ha aceptado su solicitud de creación de curso complementario.</p>
+						<br>
+						<p>Se le va a notificar cuando el curso complementario se haya creado.</p>
+						<br>
+						<br>
+						<b>Fecha: </b><span>${new Date().toLocaleString("es-CO")}</span>
+						<br>
+						<p style="margin-bottom:0;">Saludos cordiales,<br>El equipo de Fábrica de Software CCT</p>
+						</td>
+					</tr>
+				</table>	
+			`)
 
 		await Notificacion.update({
 			estado: "leida"
@@ -151,7 +176,14 @@ const acceptCourseRequest = async (req, res) => {
 			usuario_ID: requestNotification.dataValues.remitente_ID,
 			tipo: "otro",
 			titulo: "Se ha aceptado la solicitud de curso",
-			mensaje: message,
+			mensaje: `
+				<h2>Se ha aceptado la solicitud de curso</h2>
+				<p>Estimado(a) ${personWhoRequests.nombres} ${personWhoRequests.apellidos}, se ha aceptado su solicitud de creación de curso complementario.</p>
+				<br>
+				<p>Se le va a notificar cuando el curso complementario se haya creado.</p>
+				<br>
+				<b>Fecha: ${new Date().toLocaleString("es-CO")}</b>	
+			`,
 			estado: "pendiente",
 		})
 

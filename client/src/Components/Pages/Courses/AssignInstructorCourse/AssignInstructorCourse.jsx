@@ -135,6 +135,7 @@ export const AssignInstructorCourse = ({ curso_ID, onClose }) => {
   return (
     <div id="modal-assingInstructorCourse">
       <div className="modal-bodyAssignInstructorCourse">
+        
         <h2 className="titleAssignInstructorCourse">
           Invitar <span className="complementary">Instructor</span>
         </h2>

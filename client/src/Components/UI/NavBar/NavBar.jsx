@@ -18,8 +18,11 @@ export const NavBar = ({ children }) => {
 	const { setShowSignIn } = useModal()
 	const [notificationsList, setNotificationsList] = useState([])
 	const [loadingNotifications, setLoadingNotifications] = useState(false)
+	const [justifying, setJustifying] = useState(false)
 	const [processingInvitation, setProcessingInvitation] = useState(null) // Nuevo estado para controlar procesamiento
 	const [processingSolicitud, setProcessingSolicitud] = useState(null)
+	const [justificationDenial, setJustificationDenial] = useState("")
+	const [activeNotification, setActiveNotification] = useState(null)
 
 	const userSession =
 		JSON.parse(localStorage.getItem("userSession")) || JSON.parse(sessionStorage.getItem("userSession"))
@@ -86,7 +89,6 @@ export const NavBar = ({ children }) => {
 				// no mostrar notificaciones aceptadas o rechazadas
 				res.data.notifications = res.data.notifications.filter(notif => notif.estado !== 'aceptada' && notif.estado !== 'rechazada');
 				setNotificationsList(res.data.notifications || []);
-				console.log(res.data.notifications);
 			} catch (err) {
 				setNotificationsList([])
 			}
@@ -99,13 +101,22 @@ export const NavBar = ({ children }) => {
 	const { setShowModalGeneral, setModalGeneralContent } = useModal()
 
 	const rechazarSolicitudCurso = async (notif) => {
+		if (justificationDenial.length < 1) {
+			alert("Se debe justificar el rechazo")
+			return
+		} 
 		setProcessingSolicitud(true)
 		try {
-			const resp = await axiosInstance.post(`/api/actas/rechazar-solicitud-curso/${notif.ID}`)
+			const resp = await axiosInstance.post(`/api/actas/rechazar-solicitud-curso/${notif.ID}`, {
+				justification: justificationDenial
+			})
 			if (resp.status == 200) {
 				alert("Se rechazó la solicitud")
 				setShowModalGeneral(false)
 				setProcessingSolicitud(false)
+				setJustificationDenial("")
+				setActiveNotification(null)
+				setJustifying(false)
 				return
 			} else
 				throw resp.data
@@ -118,6 +129,7 @@ export const NavBar = ({ children }) => {
 
 	const aceptarSolicitudCurso = async (notif) => {
 		setProcessingSolicitud(true)
+		setJustifying(false)
 		try {
 			const resp = await axiosInstance.post(`/api/actas/aceptar-solicitud-curso/${notif.ID}`)
 			if (resp.status == 200) {
@@ -135,6 +147,7 @@ export const NavBar = ({ children }) => {
 	}
 
 	const handleNotificationClick = (notif) => {
+		setActiveNotification(notif)
 		setModalGeneralContent(
 			<div className="notification-modal">
 				<h2>{notif.titulo}</h2>
@@ -191,6 +204,18 @@ export const NavBar = ({ children }) => {
 					</div>
 				)}
 
+				{justifying && (
+					<textarea
+						type="text"
+						className="search-input reason-textarea"
+						placeholder="Escriba el motivo por el que se rechazó la solicitud"
+						value={justificationDenial}
+						onChange={(e) => {
+							setJustificationDenial(e.target.value)
+						}}
+					/>
+				)}
+
 				{notif.tipo === "solicitud_curso" && notif.estado !== "leida" && (
 					<div className="notification-buttons-container">
 						<button
@@ -201,12 +226,20 @@ export const NavBar = ({ children }) => {
 						</button>
 						<button
 							className={`notification-btn-reject ${processingSolicitud ? "disabled" : ""}`}
-							onClick={() => rechazarSolicitudCurso(notif)}
+							onClick={() => {
+								if (justifying)
+									rechazarSolicitudCurso(notif)
+								else {
+									setJustifying(true)
+									setProcessingSolicitud(true)
+								}
+							}}
 						>
 							{processingSolicitud ? "Procesando..." : "Rechazar"}
 						</button>
 					</div>
 				)}
+
 				{notif.tipo === "solicitud_curso" && notif.estado === "leida" && (
 					<b
 						style={{
@@ -218,6 +251,13 @@ export const NavBar = ({ children }) => {
 		)
 		setShowModalGeneral(true)
 	}
+
+	useEffect(() => {
+		if (activeNotification)
+			handleNotificationClick(activeNotification)
+		else
+			setShowModalGeneral(false)
+	}, [justifying, justificationDenial])
 
 	const cambiarEstadoInvitacion = async (invitacionId, nuevoEstado) => {
 		// Si ya se está procesando esta invitación, no hacer nada

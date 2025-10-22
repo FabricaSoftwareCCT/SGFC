@@ -2,6 +2,8 @@ const Actas = require('../models/Actas');
 const path = require('path');
 const fs = require('fs');
 const Notificacion = require('../models/Notificacion');
+const { sendEmail } = require('../services/emailService');
+const Usuario = require('../models/User');
 
 const getAllActas = async (req, res) => {
 	try {
@@ -55,15 +57,28 @@ const updateEstadoActa = async (req, res) => {
 const rejectCourseRequest = async (req, res) => {
 	try {
 		const notifId = req.params.id
-		const { accountType } = req.user
+		const { accountType, id } = req.user
+		const { justification } = req.body
 
 		if (!accountType || accountType !== "Administrador") {
 			return res.status(403).json({ message: 'No tienes permisos para realizar esta acción' })
 		}
 
-		if (!(await Notificacion.findByPk(notifId))) {
+		const requestNotification = await Notificacion.findByPk(notifId)
+
+		if (!requestNotification) {
 			return res.status(404).json({ message: 'No se encontró la notificación' })
 		}
+
+		await Notificacion.create({
+			remitente_ID: id,
+			destinatario_ID: requestNotification.dataValues.remitente_ID,
+			usuario_ID: requestNotification.dataValues.remitente_ID,
+			tipo: "otro",
+			titulo: "Se rechazó la solicitud de curso",
+			mensaje: `Se ha rechazado la solicitud de curso.<br><br><b>Motivo:</b> ${justification}`,
+			estado: "pendiente",
+		})
 
 		await Notificacion.update({
 			estado: "leida"
@@ -72,6 +87,15 @@ const rejectCourseRequest = async (req, res) => {
 				ID: notifId
 			}
 		})
+
+		const personWhoRequests = (await Usuario.findByPk(requestNotification.dataValues.remitente_ID)).dataValues
+
+		await sendEmail(
+			personWhoRequests.email,
+			"Se rechazó la solicitud de curso",
+			`Un administrador ha rechazado tu solicitud de creación de curso.<br><b>Motivo: </b>${justification}`
+		)
+
 		res.status(200).json({ message: 'Se ha rechazado la solicitud con exito' })
 	} catch (error) {
 		console.log(error)
@@ -88,9 +112,12 @@ const acceptCourseRequest = async (req, res) => {
 			return res.status(403).json({ message: 'No tienes permisos para realizar esta acción' })
 		}
 
-		if (!(await Notificacion.findByPk(notifId))) {
+		const requestNotification = await Notificacion.findByPk(notifId)
+		if (!requestNotification) {
 			return res.status(404).json({ message: 'No se encontró la notificación' })
 		}
+
+		const personWhoRequests = (await Usuario.findByPk(requestNotification.dataValues.remitente_ID)).dataValues
 
 		await Notificacion.update({
 			estado: "leida"
@@ -99,6 +126,13 @@ const acceptCourseRequest = async (req, res) => {
 				ID: notifId
 			}
 		})
+
+		await sendEmail(
+			personWhoRequests.email,
+			"Se aceptó la solicitud de curso",
+			`Un administrador ha aceptado tu solicitud de creación de curso. Se le va a notificar una vez este sea creado.`
+		)
+
 		res.status(200).json({ message: 'Se ha aceptar la solicitud con exito' })
 	} catch (error) {
 		console.log(error)

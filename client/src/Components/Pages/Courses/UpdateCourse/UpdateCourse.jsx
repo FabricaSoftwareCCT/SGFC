@@ -13,7 +13,6 @@ import buttonEdit from '../../../../assets/Icons/buttonEdit.png';
 import { useModal } from "../../../../Context/ModalContext";
 import { AssignInstructorCourse } from "../AssignInstructorCourse/AssignInstructorCourse";
 
-
 export const UpdateCourse = () => {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -27,8 +26,6 @@ export const UpdateCourse = () => {
     selectedSlots: [],
   });
 
-
-
   const { showAssignModal, setShowAssignModal } = useModal();
 
   // Estado para búsqueda y selección de empresa
@@ -36,6 +33,15 @@ export const UpdateCourse = () => {
   const [resultadosEmpresa, setResultadosEmpresa] = useState([]);
   const [empresaSeleccionada, setEmpresaSeleccionada] = useState(null);
   const [showResultados, setShowResultados] = useState(false);
+
+  // Estado para la duración del curso
+  const [duracionCurso, setDuracionCurso] = useState({
+    cantidad: "",
+    unidad: "horas" // horas, dias, semanas, meses
+  });
+
+  // Estado para el lugar de formación
+  const [lugarFormacion, setLugarFormacion] = useState("");
 
   useEffect(() => {
     const fetchCurso = async () => {
@@ -56,6 +62,23 @@ export const UpdateCourse = () => {
         if (response.data.imagen) {
           setPreview(`data:image/png;base64,${response.data.imagen}`);
         }
+
+        // Si el curso tiene duración guardada, cargarla
+        if (response.data.duracion) {
+          try {
+            const duracionData = JSON.parse(response.data.duracion);
+            setDuracionCurso(duracionData);
+          } catch {
+            // Si no se puede parsear, mantener valores por defecto
+            setDuracionCurso({
+              cantidad: response.data.duracion || "",
+              unidad: "horas"
+            });
+          }
+        }
+
+        // Cargar lugar de formación
+        setLugarFormacion(response.data.lugar_formacion || "");
 
         setCalendarData({
           startDate: response.data.fecha_inicio?.split("T")[0] || "",
@@ -88,10 +111,29 @@ export const UpdateCourse = () => {
     setIsEditCalendarOpen(false);
   };
 
+  const handleDuracionChange = (field, value) => {
+    setDuracionCurso(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
   const handleUpdateCourse = async () => {
     try {
       if (curso.tipo_oferta === "Cerrada" && !empresaSeleccionada) {
         alert("Por favor selecciona una empresa válida.");
+        return;
+      }
+
+      // Validar que la duración esté completa
+      if (!duracionCurso.cantidad || !duracionCurso.unidad) {
+        alert("Por favor completa la duración del curso.");
+        return;
+      }
+
+      // Validar que el lugar de formación esté completo
+      if (!lugarFormacion.trim()) {
+        alert("Por favor ingresa el lugar de formación del curso.");
         return;
       }
 
@@ -130,8 +172,9 @@ export const UpdateCourse = () => {
         hora_inicio: horaInicio,
         hora_fin: horaFin,
         dias_formacion: JSON.stringify(diasSemana),
-        lugar_formacion: curso.lugar_formacion || "",
+        lugar_formacion: lugarFormacion, // Usar el estado del lugar de formación
         slots_formacion: JSON.stringify(calendarData.selectedSlots),
+        duracion: JSON.stringify(duracionCurso), // Guardar la duración como JSON
         empresa_ID:
           curso.tipo_oferta === "Cerrada"
             ? empresaSeleccionada?.ID || curso.empresa_ID
@@ -187,7 +230,6 @@ export const UpdateCourse = () => {
 
   if (!curso) return <p>Cargando...</p>;
 
-
   return (
     <>
       <Header />
@@ -213,29 +255,86 @@ export const UpdateCourse = () => {
               }}
               hidden
             />
-
-            <label
-              className="upload-area"
-              onClick={() => fileInputRef.current.click()}
-            >
-              {preview ? (
-                <img
-                  src={preview}
-                  alt="Vista previa"
-                  className="preview-image"
-                />
-              ) : (
-                <div className="upload-placeholder">
+            <div className="image-and-status">
+              <label
+                className="upload-area"
+                onClick={() => fileInputRef.current.click()}
+              >
+                {preview ? (
                   <img
-                    src={addIMG}
-                    alt="icono agregar imagen"
-                    className="icon"
+                    src={preview}
+                    alt="Vista previa"
+                    className="preview-image"
                   />
-                  <p>Arrastra o sube la foto del curso aquí.</p>
-                </div>
-              )}
-            </label>
+                ) : (
+                  <div className="upload-placeholder">
+                    <img
+                      src={addIMG}
+                      alt="icono agregar imagen"
+                      className="icon"
+                    />
+                    <p>Arrastra o sube la foto del curso aquí.</p>
+                  </div>
+                )}
+              </label>
 
+              <div className="offer-type-container">
+                <span>Estado:</span>
+                <div className="offer-options">
+                  <button
+                    className={`offer-button ${curso.estado?.toLowerCase() === "activo" ? "active" : ""}`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setCurso({ ...curso, estado: "Activo" });
+                    }}
+                    type="button"
+                  >
+                    Activo
+                  </button>
+                  <button
+                    className={`offer-button ${curso.estado?.toLowerCase() === "en oferta" ? "active" : ""}`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setCurso({ ...curso, estado: "En oferta" });
+                    }}
+                    type="button"
+                  >
+                    En oferta
+                  </button>
+                  <button 
+                    className={`offer-button-cancel ${curso.estado?.toLowerCase() === "cancelado" ? "active" : ""}`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      if (curso.estado?.toLowerCase() !== "cancelado") {
+                        const confirmar = window.confirm("¿Estás seguro de que deseas cancelar este curso? Esta acción no se puede deshacer.");
+                        if (confirmar) {
+                          setCurso({ ...curso, estado: "Cancelado" });
+                        }
+                      }
+                    }}
+                    type="button"
+                    disabled={curso.estado?.toLowerCase() === "cancelado"}
+                  >
+                    Cancelado
+                  </button>
+                  <button
+                    className={`offer-button-cancel ${curso.estado?.toLowerCase() === "finalizado" ? "active" : ""}`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      if (curso.estado?.toLowerCase() !== "finalizado") {
+                        const confirmar = window.confirm("¿Estás seguro de que deseas finalizar este curso? Esta acción no se puede deshacer.");
+                        if (confirmar) {
+                          setCurso({ ...curso, estado: "finalizado" });
+                        }
+                      }
+                    }}
+                    type="button"
+                    disabled={curso.estado?.toLowerCase() === "finalizado"}>
+                    Finalizado
+                  </button>
+                </div>
+              </div>
+            </div>
 
             <div className="containerDetails_course">
               <div id="containerInput_ficha">
@@ -261,10 +360,11 @@ export const UpdateCourse = () => {
                 <textarea
                   className='addDetails'
                   placeholder='Agregar descripción del curso (mínimo 300 caracteres)'
-                  value={curso.descripcion || ""}  // <- aquí estaba el error
+                  value={curso.descripcion || ""}
                   onChange={(e) => {
                     setCurso({ ...curso, descripcion: e.target.value });
-                  }} minLength={300}
+                  }} 
+                  minLength={300}
                   rows={6}
                   style={{ resize: "vertical", width: "99%" }}
                 />
@@ -274,7 +374,6 @@ export const UpdateCourse = () => {
                   {curso.descripcion.length} / 300 caracteres
                 </div>
               </div>
-
 
               <div className="containerDetails_course2">
                 <div className="Type_offer">
@@ -302,63 +401,45 @@ export const UpdateCourse = () => {
                         Abierta
                       </button>
                     </div>
-                  </div>
-                  <div className="offer-type-container">
-                    <span>Estado:</span>
-                    <div className="offer-options">
-                      <button
-                        className={`offer-button ${curso.estado?.toLowerCase() === "activo" ? "active" : ""}`}
-                        onClick={(e) => {
-                          e.preventDefault();
-                          setCurso({ ...curso, estado: "Activo" });
-                        }}
-                        type="button"
-                      >
-                        Activo
-                      </button>
-                      <button
-                        className={`offer-button ${curso.estado?.toLowerCase() === "en oferta" ? "active" : ""}`}
-                        onClick={(e) => {
-                          e.preventDefault();
-                          setCurso({ ...curso, estado: "En oferta" });
-                        }}
-                        type="button"
-                      >
-                        En oferta
-                      </button>
-                     <button 
-                        className={`offer-button-cancel ${curso.estado?.toLowerCase() === "cancelado" ? "active" : ""}`}
-                          onClick={(e) => {
-                          e.preventDefault();
-                            if (curso.estado?.toLowerCase() !== "cancelado") {
-                      const confirmar = window.confirm("¿Estás seguro de que deseas cancelar este curso? Esta acción no se puede deshacer.");
-                        if (confirmar) {
-                         setCurso({ ...curso, estado: "Cancelado" });
-                                  }
-                                }
-                             }}
-                            type="button"
-                          disabled={curso.estado?.toLowerCase() === "cancelado"}
+
+                    {/* Sección de duración del curso */}
+                    <div className="duracion">
+                      <span>Tiempo de duración:</span>
+                      <div className="duracion-inputs">
+                        <input
+                          className="time-duracion"
+                          type="number"
+                          placeholder="Cantidad"
+                          min="1"
+                          value={duracionCurso.cantidad}
+                          onChange={(e) => handleDuracionChange('cantidad', e.target.value)}
+                        />
+                        <select
+                          className="unidad-duracion"
+                          value={duracionCurso.unidad}
+                          onChange={(e) => handleDuracionChange('unidad', e.target.value)}
                         >
-                          Cancelado
-                      </button>
-                      <button
-                      className={`offer-button-cancel ${curso.estado?.toLowerCase() === "finalizado" ? "active" : ""}`}
-                          onClick={(e) => {
-                          e.preventDefault();
-                            if (curso.estado?.toLowerCase() !== "finalizado") {
-                      const confirmar = window.confirm("¿Estás seguro de que deseas finalizar este curso? Esta acción no se puede deshacer.");
-                        if (confirmar) {
-                         setCurso({ ...curso, estado: "finalizado" });
-                                  }
-                                }
-                             }}
-                            type="button"
-                          disabled={curso.estado?.toLowerCase() === "finalizado"}>
-                            Finalizado
-                      </button>
+                          <option value="horas">Horas</option>
+                          <option value="dias">Días</option>
+                          <option value="semanas">Semanas</option>
+                          <option value="meses">Meses</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    {/* Sección de lugar de formación */}
+                    <div className="lugar-formacion">
+                      <span>Lugar de formación:</span>
+                      <input
+                        className="input-lugar-formacion"
+                        type="text"
+                        placeholder="Ej: Centro de Formación SENA, Aula 101"
+                        value={lugarFormacion}
+                        onChange={(e) => setLugarFormacion(e.target.value)}
+                      />
                     </div>
                   </div>
+                  
                   {/* Mostrar campo empresa solo si la oferta es Cerrada */}
                   {curso.tipo_oferta === "Cerrada" && (
                     <div className='containerInput_company'>
@@ -422,7 +503,6 @@ export const UpdateCourse = () => {
 
                 <div className="details_Date_Instructor">
                   <p id='p_addInstructor'>
-
                     Instructor: {curso?.Instructor ? `${curso.Instructor.nombres} ${curso.Instructor.apellidos}` : "Sin asignar"}
                     <button
                       className='addInstructor'
@@ -430,9 +510,7 @@ export const UpdateCourse = () => {
                       onClick={() => setShowAssignModal(true)}
                     >
                       <img src={buttonEdit} alt="Invitar instructor" />
-
                     </button>
-
                   </p>
                   {showAssignModal && (
                     <AssignInstructorCourse
@@ -448,8 +526,6 @@ export const UpdateCourse = () => {
                     <img src={calendar} alt="" />
                     Editar fechas y horarios
                   </button>
-
-
                 </div>
               </div>
 

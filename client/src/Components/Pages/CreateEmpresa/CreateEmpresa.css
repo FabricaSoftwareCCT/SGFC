@@ -595,6 +595,10 @@
   font-size: 14px;
 }
 
+.form-group-company categoria{
+  color: #006f33;
+}
+
 .form-group-company input::placeholder {
   color: #aaa;
 }

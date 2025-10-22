@@ -18,7 +18,13 @@ export const SeeCourse = () => {
 	const [isViewCalendarOpen, setIsViewCalendarOpen] = useState(false);
 	const navigate = useNavigate();
 	const [showModal, setShowModal] = useState(false);
-	const [showMaterial, setShowMaterial] = useState(false); // Cambié el nombre para evitar conflicto con el import
+	const [showMaterial, setShowMaterial] = useState(false);
+	
+	// Estado para la duración del curso
+	const [duracionCurso, setDuracionCurso] = useState({
+		cantidad: "",
+		unidad: "horas"
+	});
 
 	const showModalAssignInstructor = () => {
 		console.log("Mostrando modal con ID:", curso?.ID);
@@ -34,6 +40,21 @@ export const SeeCourse = () => {
 			try {
 				const response = await axiosInstance.get(`api/courses/cursos/${id}`);
 				setCurso(response.data);
+				
+				// Cargar la duración del curso si existe
+				if (response.data.duracion) {
+					try {
+						const duracionData = JSON.parse(response.data.duracion);
+						setDuracionCurso(duracionData);
+					} catch (error) {
+						console.error("Error al parsear duración:", error);
+						// Si no se puede parsear, intentar cargar como string simple
+						setDuracionCurso({
+							cantidad: response.data.duracion || "",
+							unidad: "horas"
+						});
+					}
+				}
 			} catch (error) {
 				console.error("Error al obtener el curso:", error);
 			}
@@ -50,6 +71,20 @@ export const SeeCourse = () => {
 		startDate: curso.fecha_inicio ? curso.fecha_inicio.split('T')[0] : '',
 		endDate: curso.fecha_fin ? curso.fecha_fin.split('T')[0] : '',
 		slots_formacion: curso.slots_formacion ? JSON.parse(curso.slots_formacion) : []
+	};
+
+	// Función para formatear la duración para mostrar
+	const formatearDuracion = () => {
+		if (!duracionCurso.cantidad) return "No especificada";
+		
+		const unidadMap = {
+			'horas': 'hora' + (parseInt(duracionCurso.cantidad) !== 1 ? 's' : ''),
+			'dias': 'día' + (parseInt(duracionCurso.cantidad) !== 1 ? 's' : ''),
+			'semanas': 'semana' + (parseInt(duracionCurso.cantidad) !== 1 ? 's' : ''),
+			'meses': 'mes' + (parseInt(duracionCurso.cantidad) !== 1 ? 'es' : '')
+		};
+		
+		return `${duracionCurso.cantidad} ${unidadMap[duracionCurso.unidad] || duracionCurso.unidad}`;
 	};
 
 	const handleMaterialClick = () => {
@@ -105,10 +140,22 @@ export const SeeCourse = () => {
 
 								<div className='detail-row'>
 									<div className='detail-item'>
+										<span className='detail-label'>Duración:</span>
+										<span className='detail-value'>{formatearDuracion()}</span>
+									</div>
+									<div className='detail-item'>
 										<span className='detail-label'>Instructor:</span>
 										<span className='detail-value'>
 											{curso?.Instructor ? `${curso.Instructor.nombres} ${curso.Instructor.apellidos}` : "Sin asignar"}
 										</span>
+									</div>
+								</div>
+
+								{/* Nueva fila para Lugar de formación */}
+								<div className='detail-row'>
+									<div className='detail-item'>
+										<span className='detail-label'>Lugar de formación:</span>
+										<span className='detail-value'>{curso.lugar_formacion || "No especificado"}</span>
 									</div>
 								</div>
 							</div>

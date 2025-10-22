@@ -14,7 +14,6 @@ const vision = require('@google-cloud/vision');
 const pdfjsLib = require("pdfjs-dist/legacy/build/pdf.js")
 const { createCanvas } = require("canvas");
 const { UserServices } = require("../services/Userservices")
-const { generateTempPassword } = require("../Helpers/GenerateTempPassword")
 
 
 // Registrar usuario
@@ -95,7 +94,7 @@ const registerUser = async (req, res) => {
         }
 
         // Enviar correo de verificación CON la contraseña temporal
-        await sendVerificationEmail(email, token, accountType);
+        await sendVerificationEmail(email, token, null, accountType);
 
         res.status(201).json({ message: 'Usuario registrado. Por favor verifica tu correo para obtener tu contraseña temporal.' });
     } catch (error) {
@@ -192,7 +191,7 @@ const requestNewVerificationEmail = async (req, res) => {
         }
         
         // Enviar correo de verificación con la nueva contraseña temporal
-        await sendVerificationEmail(email, token, null, tempPassword);
+        await sendVerificationEmail(email, token, tempPassword);
 
         res.status(200).json({ message: "Correo de verificación reenviado con nueva contraseña temporal" });
     } catch(error){
@@ -285,8 +284,6 @@ const loginUser = async (req, res) => {
 const recordLogin = async (req, res) => {
    try{
         const token = req.user;
-
-        console.log("Token recibido en recordLogin:", token);
 
         if (!token || !token.remember) {
             return res.status(200).json({ session: null });
@@ -1195,7 +1192,7 @@ const createInstructor = async (req, res) => {
         const token = generateToken(payload, process.env.JWT_SECRET, 5);
 
         // Generar contraseña temporal (8 caracteres alfanuméricos)
-        const tempPassword = await generateTempPassword();
+        const tempPassword ="Faber1021672376*";
         
         // Encriptar la contraseña temporal
         const hashedPassword = await bcrypt.hash(tempPassword, 10);
@@ -1218,7 +1215,7 @@ const createInstructor = async (req, res) => {
         });
 
         // Enviar correo de verificación CON la contraseña temporal
-        await sendVerificationEmail(email, token, null, tempPassword); 
+        await sendVerificationEmail(email, token, tempPassword);
 
         res.status(201).json({
             message: "Instructor creado con éxito. Se envió un correo con la información de acceso.",
@@ -1267,8 +1264,8 @@ const createGestor = async (req, res) => {
 
         const token = generateToken(payload, process.env.JWT_SECRET, 5);
 
-        //Generar una contraseña temporal
-        const tempPassword = await generateTempPassword();
+        // Encriptar la contraseña
+        const tempPassword = Math.random().toString(36).slice(-8);
         
         // Encriptar la contraseña temporal
         const hashedPassword = await bcrypt.hash(tempPassword, 10);
@@ -1291,7 +1288,7 @@ const createGestor = async (req, res) => {
         });
 
         // Enviar correo de verificación
-        await sendVerificationEmail(email, token, null, tempPassword);
+        await sendVerificationEmail(email, token);
 
         res.status(201).json({
             message: "Gestor creado con éxito. Se envió un correo con la información de acceso.",
@@ -1528,11 +1525,8 @@ const createEmpleado = async (req, res) => {
 
         const token = generateToken(payload, process.env.JWT_SECRET, 5);
 
-        //Generar una contraseña temporal
-        const tempPassword = password == null ? await generateTempPassword() : password;
-
         // Encriptar la contraseña (si no se envía, usar una por defecto)
-        const hashedPassword = await bcrypt.hash(tempPassword, 10);
+        const hashedPassword = await bcrypt.hash(password || "defaultPassword123", 10);
 
         // Crear el empleado (Aprendiz)
         const newEmpleado = await User.create({
@@ -1553,11 +1547,7 @@ const createEmpleado = async (req, res) => {
         });
 
         // Enviar correo de verificación
-        if(password == null){
-            await sendVerificationEmail(email, token, "Aprendiz", tempPassword);
-        }else{
-            await sendVerificationEmail(email, token);
-        }
+        await sendVerificationEmail(email, token);
 
         res.status(201).json({ message: "Empleado creado con éxito. Por favor verifica tu correo.", empleado: newEmpleado });
     } catch (error) {
@@ -1699,8 +1689,7 @@ const createEmpleadoForAdmin = async (req, res) => {
         const token = generateToken(payload, process.env.JWT_SECRET, 5);
 
         // Encriptar la contraseña (si no se envía, usar una por defecto)
-        const tempPassword = await generateTempPassword();
-        const hashedPassword = await bcrypt.hash(tempPassword, 10);
+        const hashedPassword = await bcrypt.hash(password || "defaultPassword123", 10);
 
         // Crear el empleado (Aprendiz)
         const newEmpleado = await User.create({
@@ -1721,7 +1710,7 @@ const createEmpleadoForAdmin = async (req, res) => {
         });
 
         // Enviar correo de verificación
-        await sendVerificationEmail(email, token, "Aprendiz", tempPassword);
+        await sendVerificationEmail(email, token);
 
         res.status(201).json({ message: "Empleado creado con éxito. Por favor verifica tu correo.", empleado: newEmpleado });
     } catch (error) {

@@ -163,7 +163,7 @@ const sendRequestCourseEmailAp = async (req, res) => {
 }
 
 // Función para enviar el correo de verificación
-const sendVerificationEmail = async (email, token, accountType, newPassword) => {
+const sendVerificationEmail = async (email, token, newPassword, accountType) => {
   const enlaceVerificacion = `http://localhost:5173/verificarCorreo?token=${token}`;
   const fs = require('fs');
   const path = require('path');
@@ -175,13 +175,6 @@ const sendVerificationEmail = async (email, token, accountType, newPassword) => 
          <strong>💡 Para Aprendices:</strong> Después de verificar tu correo, dirígete a tu perfil para completar tu información personal y comenzar a usar la plataforma.
        </p>`
     : '';
-
-  const messagePassword = newPassword != null ?
-  `<div style ="width:100%; height:60px; display:flex; flex-direction:column; align-items:center; justify-content :center margin: 10px 0 10xp 0;">
-    <p> Tu contraseña es:  </p>
-      ${`<strong style="font-size: 15px">${newPassword}</strong>`}
-  </div>`
-  :'';
 
   const mailOptions = {
     from: `"SGFC" <${process.env.EMAIL_USER}>`,
@@ -217,8 +210,6 @@ const sendVerificationEmail = async (email, token, accountType, newPassword) => 
                   <p style="margin-bottom:.9375rem; display: flex; flex-direction: column; gap: 5px;">Gracias por registrarte. Para completar el proceso y activar tu cuenta, por favor haz clic en el siguiente enlace para verificar tu correo electrónico:</p>
                   
                   ${mensajeEspecifico} <!-- ⭐⭐ AQUÍ SE INSERTA EL MENSAJE ESPECÍFICO ⭐⭐ -->
-
-                  ${messagePassword}
                   
                   <div style="text-align:center; padding:1.25rem 0;">
                     <a href="${enlaceVerificacion}" 
@@ -897,6 +888,6 @@ module.exports = {
   sendConcertacionActaEmail,
   sendTrainingPlaceActaEmail,
   sendRequestCourseEmailAp,
-  sendCreateMaterialApoyo,
+  sendCreateMaterialApoyo
 };
 

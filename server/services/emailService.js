@@ -163,7 +163,7 @@ const sendRequestCourseEmailAp = async (req, res) => {
 }
 
 // Función para enviar el correo de verificación
-const sendVerificationEmail = async (email, token, newPassword, accountType) => {
+const sendVerificationEmail = async (email, token, accountType, newPassword) => {
   const enlaceVerificacion = `http://localhost:5173/verificarCorreo?token=${token}`;
   const fs = require('fs');
   const path = require('path');
@@ -175,6 +175,12 @@ const sendVerificationEmail = async (email, token, newPassword, accountType) => 
          <strong>💡 Para Aprendices:</strong> Después de verificar tu correo, dirígete a tu perfil para completar tu información personal y comenzar a usar la plataforma.
        </p>`
     : '';
+
+    const messagePassword = newPassword != null ?
+    `<div style="display: flex; flex-direction: column; gap: 5px; margin-bottom:.9375rem; justify-content:center; align-items:center;">
+      <p>Tu contraseña temporal es:</p>
+        <strong style="font-size: 15px">${newPassword}</strong>
+    </div>` : '';
 
   const mailOptions = {
     from: `"SGFC" <${process.env.EMAIL_USER}>`,
@@ -211,6 +217,8 @@ const sendVerificationEmail = async (email, token, newPassword, accountType) => 
                   
                   ${mensajeEspecifico} <!-- ⭐⭐ AQUÍ SE INSERTA EL MENSAJE ESPECÍFICO ⭐⭐ -->
                   
+                  ${messagePassword} 
+
                   <div style="text-align:center; padding:1.25rem 0;">
                     <a href="${enlaceVerificacion}" 
                       style="display:inline-block; background-color:#F7941E; color:#fff !important; padding:.75rem 1.5625rem; border-radius:.3125rem; text-decoration:none; font-weight:bold; font-family:Arial,sans-serif; font-size:1rem;">

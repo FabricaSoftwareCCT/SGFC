@@ -17,6 +17,7 @@ import {
 	validateNIT,
 	validateAddress,
 } from "../../../utils/Validators/formValidator";
+import { useModal } from "../../../Context/ModalContext";
 
 export const SeeMyProfile = () => {
 	const location = useLocation();
@@ -31,9 +32,11 @@ export const SeeMyProfile = () => {
 	const [editMode, setEditMode] = useState(false);
 	const [departamentos, setDepartamentos] = useState([]);
 	const [ciudades, setCiudades] = useState([]);
-	const [departamentoSeleccionado, setDepartamentoSeleccionado] =
-		useState("");
+	const [departamentoSeleccionado, setDepartamentoSeleccionado] = useState("");
 	const [ciudadSeleccionada, setCiudadSeleccionada] = useState("");
+	const [cursos, setCursos] = useState([]);
+	const [instructores, setInstructores] = useState([]);
+	const { setShowModalGeneral, setModalGeneralContent } = useModal()
 
 	const getImageSrcFromBase64 = (value) => {
 		// Fallback inmediato si no hay valor
@@ -97,6 +100,7 @@ export const SeeMyProfile = () => {
 					response.data.Empresa
 				) {
 					await cargarUbicaciones(response.data.Empresa);
+					await fetchCursos()
 				}
 			} catch (error) {
 				console.error("Error al obtener el perfil:", error);
@@ -106,7 +110,33 @@ export const SeeMyProfile = () => {
 		if (userId) {
 			fetchProfile();
 		}
-	}, [userId, requiresCompletion]); // ← AGREGAR requiresCompletion aquí
+	}, [userId, requiresCompletion]);
+
+	const fetchCursos = async () => {
+		const response = await axiosInstance.get(
+			`/api/users/profile/${userId}`
+		);
+		try {
+			const cursos = await axiosInstance.get(`/api/courses/empresa/${response.data.Empresa.ID}`)
+			if (!cursos.data.success)
+				throw "No se pudo realizar"
+			setCursos(cursos.data.cursos)
+			setInstructores(cursos.data.cursos.map((c) => {
+				console.log(c)
+				return {
+					ID: c.Instructor.ID,
+					nombre_instructor: `${c.Instructor.nombres} ${c.Instructor.apellidos}`,
+					nombre_curso: c.nombre_curso,
+					id_curso: c.ID,
+					numero: c.Instructor.celular,
+					email: c.Instructor.email
+				}
+			}))
+		} catch (error) {
+			alert("Ocurrió un error al consultar los cursos")
+			console.log(error)
+		}
+	}
 
 	const cargarUbicaciones = async (empresaData) => {
 		try {
@@ -357,8 +387,7 @@ export const SeeMyProfile = () => {
 	};
 
 	// Indicador simple de perfil incompleto (datos básicos)
-	const perfilIncompleto =
-		!perfil || !perfil.nombres || !perfil.apellidos || !perfil.email;
+	const perfilIncompleto = !perfil || !perfil.nombres || !perfil.apellidos || !perfil.email;
 
 	return (
 		<>
@@ -801,13 +830,56 @@ export const SeeMyProfile = () => {
 									</p>
 								</div>
 
+								{/* TODO */}
 								<div className="data_courses_instructor">
 									<div className="data_courses">
-										{/* Aquí puedes colocar cursos si los tienes disponibles */}
+										{cursos.length > 0 ?
+											<>
+												<b>CURSOS</b>
+												{...cursos.map((c) => {
+													return <div className='data_course_item'>
+														<span>{c.nombre_curso} (ficha {c.ficha})</span>
+														<button
+															className="button"
+															onClick={() => {
+																navigate(`/Cursos/${c.ID}`)
+															}}
+														>Ver curso</button>
+													</div>
+												})}
+											</>
+										:
+											<b
+												style={{
+													margin: "auto"
+												}}
+											>Aún no se han creado cursos complementarios...</b>
+										}
 									</div>
-									<div className="data_instructor">
-										{/* Aquí puedes colocar datos adicionales del instructor si aplica */}
-									</div>
+									{instructores.length > 0 && (
+										<div className="data_instructor">
+											<b>INSTRUCTORES</b>
+											{...instructores.map((i) => {
+												return <div className="data_course_item">
+													<span>{i.nombre_instructor} ({i.nombre_curso})</span>
+													<button
+														className="button"
+														onClick={() => {
+															setShowModalGeneral(true)
+															setModalGeneralContent(
+																<>
+																	<b>Número de telefono</b>
+																	<span>{i.numero}</span>
+																	<b>Email</b>
+																	<span>{i.email}</span>
+																</>
+															)
+														}}
+													>Ver contacto</button>
+												</div>
+											})}
+										</div>
+									)}
 								</div>
 							</div>
 						</div>

@@ -410,8 +410,6 @@ const sendCursoUpdatedNotification = (email, curso) => {
 };
 
 const sendCursoUpdatedByManagerNotification = async (curso, gestor) => {
-	// TODO
-	// Recuerda solicitar los emails de todos los gestores y notificarlos
 	const gestores = await Usuario.findAll({
 		where: {
 			accountType: "Gestor"

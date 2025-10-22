@@ -4,6 +4,7 @@ const { googleSignIn, googleSignUp } = require("../controllers/authGoogleControl
 const { authMiddleware, authorizeRoles } = require("../middlewares/authMiddleware");
 const router = express.Router();
 const upload = require("../config/multer"); // Importar configuración de multer
+const { cursosEmpresa } = require("../controllers/cursoController");
 
 router.post("/createUser", registerUser); // Ruta para registrar usuario
 router.get("/verificarCorreo", verifyEmail); // Ruta para verificar correo

@@ -620,6 +620,10 @@ const getCursosByEmpresaId = async (req, res) => {
 				{
 					model: Empresa,
 					as: 'Empresa'
+				},
+				{
+					model: Usuario,
+					as: "Instructor",
 				}
 			]
 		});

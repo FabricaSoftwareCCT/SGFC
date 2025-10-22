@@ -35,7 +35,7 @@ const sendNotification = async (remitenteId, destinatarioId, type, title, messag
             sesion_ID: sessionId,
             curso_ID: courseId,
             estado: 'pendiente',
-            fecha_envio: new Date()           // ✅ Asegurar que siempre se establezca la fecha
+            fecha_envio: new Date()
         });
 
         // Enviar el email

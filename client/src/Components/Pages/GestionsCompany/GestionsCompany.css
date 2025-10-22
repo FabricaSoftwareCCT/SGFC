@@ -58,6 +58,7 @@
   grid-template-columns: calc(30% - 1rem) calc(70% - 1rem);
   grid-template-rows: 1fr;
   gap: 2rem;
+  justify-items: center;
 }
 
 /* ========================================
@@ -222,7 +223,7 @@
 .table-container {
   width: 100%;
   max-height: 50vh;
-  min-height: 220px;
+  min-height: 228px;
   overflow-y: auto;
   background: rgba(0,132,61,0.12);
   border-radius: 1rem;

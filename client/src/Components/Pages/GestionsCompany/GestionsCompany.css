@@ -450,6 +450,8 @@
   letter-spacing: 0.8px;
   min-width: 90px;
   white-space: nowrap;
+  margin-top: 5px;
+  margin-bottom: 5px;
 }
 
 .manage-button:hover {

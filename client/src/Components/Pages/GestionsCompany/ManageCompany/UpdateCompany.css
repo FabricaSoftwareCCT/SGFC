@@ -17,7 +17,7 @@
 
 .modal-bodyUpdateInstructor {
   width: 740px;
-  height: 464px;
+  min-height: 464px;
   background-color: #1A1A1A;
   display: flex;
   justify-content: space-around;

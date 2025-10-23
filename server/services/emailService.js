@@ -203,13 +203,11 @@ const sendRequestCourseEmailAp = async (req, res) => {
 };
 
 // Función para enviar el correo de verificación
-const sendVerificationEmail = async (
-	email,
-	token,
-	newPassword,
-	accountType
-) => {
-	const enlaceVerificacion = `http://localhost:5173/verificarCorreo?token=${token}`;
+const sendVerificationEmail = async (email, token, accountType, newPassword) => {
+  const enlaceVerificacion = `http://localhost:5173/verificarCorreo?token=${token}`;
+  const fs = require('fs');
+  const path = require('path');
+  const logoPath = path.join(__dirname, '../Img/sena.png');
 
 	// ⭐⭐ NUEVO: Mensaje específico para Aprendiz ⭐⭐
 	const mensajeEspecifico =
@@ -219,18 +217,24 @@ const sendVerificationEmail = async (
        </p>`
 			: "";
 
-	const mailOptions = {
-		from: `"SGFC" <${process.env.EMAIL_USER}>`,
-		to: email,
-		subject: "Verificación de correo electrónico",
-		attachments: [
-			{
-				filename: "logo.png",
-				path: logoPath,
-				cid: "logo",
-			},
-		],
-		html: `
+    const messagePassword = newPassword != null ?
+    `<div style="display: flex; flex-direction: column; gap: 5px; margin-bottom:.9375rem; justify-content:center; align-items:center;">
+      <p>Tu contraseña temporal es:</p>
+        <strong style="font-size: 15px">${newPassword}</strong>
+    </div>` : '';
+
+  const mailOptions = {
+    from: `"SGFC" <${process.env.EMAIL_USER}>`,
+    to: email,
+    subject: "Verificación de correo electrónico",
+    attachments: [
+      {
+        filename: 'logo.png',
+        path: logoPath,
+        cid: 'logo'
+      }
+    ],
+    html: `
 <table width="100%" bgcolor="#f4f4f4" cellpadding="0" cellspacing="0" style="font-family: Arial, sans-serif; margin:0; padding:0;">
   <tr>
     <td align="center">
@@ -254,6 +258,8 @@ const sendVerificationEmail = async (
                   
                   ${mensajeEspecifico} <!-- ⭐⭐ AQUÍ SE INSERTA EL MENSAJE ESPECÍFICO ⭐⭐ -->
                   
+                  ${messagePassword} 
+
                   <div style="text-align:center; padding:1.25rem 0;">
                     <a href="${enlaceVerificacion}" 
                       style="display:inline-block; background-color:#F7941E; color:#fff !important; padding:.75rem 1.5625rem; border-radius:.3125rem; text-decoration:none; font-weight:bold; font-family:Arial,sans-serif; font-size:1rem;">

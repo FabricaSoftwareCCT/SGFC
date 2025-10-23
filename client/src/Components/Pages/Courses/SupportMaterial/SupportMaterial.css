@@ -126,7 +126,7 @@
 
 .archivos-section {
     height: auto;
-    overflow: scroll;
+    overflow-y: scroll;
     width: 80%;
     background: rgba(255, 255, 255, 0.05);
     border-radius: 15px;

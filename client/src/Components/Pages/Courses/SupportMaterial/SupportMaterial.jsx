@@ -4,78 +4,44 @@ import { Header } from '../../../Layouts/Header/Header';
 import { Footer } from '../../../Layouts/Footer/Footer';
 import { Main } from '../../../Layouts/Main/Main';
 import './SupportMaterial.css';
+import axiosInstance from '../../../../config/axiosInstance';
+import { useEffect } from 'react';
 
 export const SupportMaterial = () => {
 	const navigate = useNavigate();
 	const [cursoSeleccionado, setCursoSeleccionado] = useState(null);
+	const [editingMaterial, setEditingMaterial] = useState(false)
 	const [subiendoArchivo, setSubiendoArchivo] = useState(false);
 	const [showMaterialCreation, setShowMaterialCreation] = useState(false);
 	const [tipoUsuario, setTipoUsuario] = useState('');
 	const [materialType, setMaterialType] = useState("PDF");
-	const [material, setMaterial] = useState();
+	const [material, setMaterial] = useState("");
+	const [cursos, setCursos] = useState([]);
+	const [archivos, setArchivos] = useState([]);
 
-	const cursos = [
-		{
-			ID: 1,
-			nombre_curso: "Curso de React Básico",
-			ficha: "F2024001",
-			estado: "Activo"
-		},
-		{
-			ID: 2,
-			nombre_curso: "Curso de JavaScript Avanzado",
-			ficha: "F2024002",
-			estado: "Activo"
-		},
-		{
-			ID: 3,
-			nombre_curso: "Curso de Node.js",
-			ficha: "F2024003",
-			estado: "En progreso"
+	const fetchCursos = async () => {
+		try {
+			const resp = await axiosInstance.get("/api/courses/cursos")
+			setCursos(resp.data)
+		} catch (error) {
+			console.log(error)
+			alert("Ocurrió un error al consultar los cursos")
 		}
-	];
-	
-	const archivosEjemplo = [
-		{
-			id: 1,
-			nombre_original: "Guía de React.pdf",
-			tamanio: 2500000,
-			fecha_subida: "2024-01-15"
-		},
-		{
-			id: 2,
-			nombre_original: "Ejercicios prácticos.docx",
-			tamanio: 1500000,
-			fecha_subida: "2024-01-16"
-		},
-		{
-			id: 1,
-			nombre_original: "Guía de React.pdf",
-			tamanio: 2500000,
-			fecha_subida: "2024-01-15"
-		},
-		{
-			id: 2,
-			nombre_original: "Ejercicios prácticos.docx",
-			tamanio: 1500000,
-			fecha_subida: "2024-01-16"
-		},
-		{
-			id: 1,
-			nombre_original: "Guía de React.pdf",
-			tamanio: 2500000,
-			fecha_subida: "2024-01-15"
-		},
-		{
-			id: 2,
-			nombre_original: "Ejercicios prácticos.docx",
-			tamanio: 1500000,
-			fecha_subida: "2024-01-16"
+	}
+
+	const fetchMaterial = async (curso) => {
+		try {
+			const resp = await axiosInstance.get(`/api/material/${curso.ID}`)
+			setArchivos(resp.data.materiales)
+		} catch (error) {
+			console.log(error)
+			alert("Ocurrió un error al consultar el material de apoyo del curso")
 		}
-	];
+	}
 
 	const handleSeleccionarCurso = (curso) => {
 		setCursoSeleccionado(curso);
+		fetchMaterial(curso)
 	}
 
 	const handleFileUpload = (event) => {
@@ -120,9 +86,39 @@ export const SupportMaterial = () => {
 		return `${nombreParte.slice(0, maxLongitud)}... ${extension}`;
 	};
 
+	const crearMaterial = async (curso) => {
+		try {
+			switch (materialType) {
+				case "PDF":
+					break
+				case "Video":
+					break
+				case "Enlace":
+					if (material.length < 1) {
+						alert("Se debe proporcionar un enlace")
+						return
+					}
+					const resp = axiosInstance.post(`/api/material/create/${curso.ID}`, {
+						tipo: materialType.toLowerCase(),
+						link: material
+					})
+					fetchMaterial(curso)
+					alert(resp.data.message)
+					break
+			}
+		} catch (error) {
+			console.log(error)
+			alert("Ocurrió un error al crear el material de apoyo")
+		}
+	}
+
 	const esAprendiz =tipoUsuario === 'Aprendiz';
 	const puedeSubirArchivos = !esAprendiz;
 	const puedeEliminarArchivos = !esAprendiz;
+
+	useEffect(() => {
+		fetchCursos()
+	}, [])
 
 	return (
 		<>
@@ -162,25 +158,45 @@ export const SupportMaterial = () => {
 									)}  
 								</div>
 									<div className='archivos-list'>
-										{archivosEjemplo.length === 0 ? (
+										{archivos.length === 0 ? (
 											<p className='no-archivos'>No hay archivos subidos a este curso</p>
 										) : (
-											archivosEjemplo.map(archivo => (
+											archivos.map(archivo => (
 												<div key={archivo.id} className='archivo-item'>
 													<div className='archivo-info'>
-														<span className='archivo-nombre'>{truncarNombreArchivo(archivo.nombre_original, 12)}</span>
-														<span className='archivo-detalles'>
-															{(archivo.tamanio / 1024 / 1024).toFixed(2)}MB - Subido el {archivo.fecha_subida}
-														</span>
-													</div>   
-													<div className='archivo-actions'>
-														<button 
-															className='btn-descargar' 
-															onClick={() => handleDescargarArchivo(archivo)}
-														>
-															Descargar
-														</button>
-
+														{archivo.tipo_contenido != "link" ? (
+															<>
+																<span className='archivo-nombre'>{truncarNombreArchivo(archivo.nombre_original, 12)}</span>
+																<span className='archivo-detalles'>
+																	{(archivo.tamanio / 1024 / 1024).toFixed(2)}MB - Subido el {archivo.fecha_subida}
+																</span>
+															</>
+														) : (
+															<a
+																className="material-link"
+																href={archivo.contenido}
+																target="_blank"
+																rel="noopener noreferrer"
+															>{archivo.contenido}</a>
+														)}
+													</div>
+													<div className='archivo-actions'>   
+														{puedeEliminarArchivos && (
+															<button
+																className='btn-editar'
+																onClick={() => setEditingMaterial(archivo.ID)}
+															>Editar</button>
+														)}
+														{archivo.tipo_contenido != "link" && (
+															<>
+																<button 
+																	className='btn-descargar' 
+																	onClick={() => handleDescargarArchivo(archivo)}
+																>
+																	Descargar
+																</button>
+															</>
+														)}
 														{puedeEliminarArchivos && (
 															<button 
 																className='btn-eliminar' 
@@ -274,6 +290,7 @@ export const SupportMaterial = () => {
 							style={{
 								flex: "none"
 							}}
+							onClick={() => crearMaterial(cursoSeleccionado)}
 						>Crear material</button>
 					</div>
 				</div>

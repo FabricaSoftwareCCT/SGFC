@@ -599,8 +599,13 @@
   color: #006f33;
 }
 .form-group-company option{
-  color: #000000;
+  color: #ededed;
   font: condensed 100% sans-serif;
+  background-color: #1e1e1e;
+}
+
+.form-group-company option:hover{
+  background-color: #006f33;
 }
 
 .form-group-company input::placeholder {

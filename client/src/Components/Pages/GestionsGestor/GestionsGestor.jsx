@@ -191,7 +191,7 @@ export const GestionsGestor = () => {
                               <img
                                 src={getImageSrcFromBase64(gestor?.foto_perfil)}
                                 alt="gestor"
-                                className="carousel-image"
+                                className="carousel-image-results"
                               />                 
                             </div>
                           );
@@ -214,7 +214,7 @@ export const GestionsGestor = () => {
                               <img
                                 src={getImageSrcFromBase64(gestor?.foto_perfil)}
                                 alt="gestor"
-                                className="carousel-image"
+                                className="carousel-image-results"
                               />
                             </div>
                           );
@@ -226,7 +226,7 @@ export const GestionsGestor = () => {
 
                 {/* Mostrar información del gestor actual (centrado) */}
                 {filteredGestors.length > 0 && (() => {
-                  const centerIndex = current % filteredGestors.length;
+                  const centerIndex = (current + 1) % filteredGestors.length;
                   const currentGestor = filteredGestors[centerIndex];
                   return (
                     <div className="instructor-info">

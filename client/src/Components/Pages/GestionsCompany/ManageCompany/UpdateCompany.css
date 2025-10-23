@@ -201,15 +201,20 @@
 
 
 .upload-area-update {
-  width: 220px;
-  height: 250px;
-  border: 2px dotted #ccc;
-  border-radius: 15px;
-  display: flex;
-  justify-content: center;
-  text-align: center;
-  cursor: pointer;
-
+    width: 220px;
+    margin-bottom: 8%;
+    height: 300px;
+    border: 2px dotted #ccc;
+    border-radius: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: stretch;
+    text-align: center;
+    cursor: pointer;
+    box-sizing: border-box;
+    flex-direction: column;
+    flex-wrap: wrap;
+    align-content: center;
 }
 
 /* Inputs en modo solo lectura */

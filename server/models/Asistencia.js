@@ -45,7 +45,7 @@ class Asistencia extends Model {
                 modelName: 'Asistencia',
                 tableName: 'asistencias',
                 timestamps: false
-            }
+            },
         );
     }
 

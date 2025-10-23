@@ -17,12 +17,20 @@ class InscripcionCurso extends Model {
           type: DataTypes.ENUM('activo', 'rechazado', 'pendiente'),
           defaultValue: 'pendiente',
         },
+        estado_certificacion: {
+          type: DataTypes.ENUM("pendiente", "rechazado", "aprovado"),
+          defaultValue: "pendiente"
+        },
+        justificacion_rechazo: {
+          type: DataTypes.STRING(300),
+          allowNull: true
+        }
       },
       {
         sequelize,
         tableName: 'inscripcion_curso',
         timestamps: false,
-      }
+      },
     );
   }
 

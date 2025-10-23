@@ -14,6 +14,11 @@ const Asistencia = require("./Asistencia");
 const Notificacion = require("./Notificacion");
 const Actas = require("./Actas");
 const InvitacionCurso = require("./InvitacionCurso");
+const Criterio = require("./Criterio");
+const CursoTieneCriterio = require("./CursoTieneCriterio");
+const EdicionCriterio = require("./EdicionCriterio");
+const UsuarioTieneCriterios = require("./UsuarioTieneCriterios");
+const createTriggers = require("../utils/databaseTriggers");
 
 // Leer la URL de conexión (recomendada en producción)
 const DB_URL = process.env.DB_URL;
@@ -68,10 +73,14 @@ async function initializeDatabase() {
   Departamento.init(sequelize);
   AsignacionCursoInstructor.init(sequelize);
   InscripcionCurso.init(sequelize);
-  Asistencia.init(sequelize);
   Notificacion.init(sequelize);
   Actas.init(sequelize);
   InvitacionCurso.init(sequelize);
+  Criterio.init(sequelize);
+  CursoTieneCriterio.init(sequelize);
+  EdicionCriterio.init(sequelize);
+  UsuarioTieneCriterios.init(sequelize);
+  Asistencia.init(sequelize);
 
   // Asociar modelos
   const models = {
@@ -83,10 +92,14 @@ async function initializeDatabase() {
     Departamento,
     AsignacionCursoInstructor,
     InscripcionCurso,
-    Asistencia,
     Notificacion,
     Actas,
-    InvitacionCurso
+    InvitacionCurso,
+    Criterio,
+    CursoTieneCriterio,
+    EdicionCriterio,
+    UsuarioTieneCriterios,
+    Asistencia,
   };
 
   Object.values(models).forEach((model) => {
@@ -96,6 +109,17 @@ async function initializeDatabase() {
   // Sincronizar tablas
   await sequelize.sync({ alter: true });
   console.log("📂 Tablas sincronizadas con la base de datos.");
+
+  // Se añaden los triggers
+  console.log("Creando triggers...");
+  try {
+    await createTriggers(sequelize)
+  } catch (error) {
+    console.log("Ocurrió un error al crear los triggers")
+    console.error(error)
+    process.exit(1);
+  }
+  console.log("Triggers creados.")
 
   return {
     sequelize,

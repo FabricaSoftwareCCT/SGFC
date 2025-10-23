@@ -1,0 +1,29 @@
+.aprentice-cert-list {
+	color: white;
+	font-size: 16px;
+	padding: 15px;
+	padding-left: 25px;
+	padding-right: 25px;
+	display: flex;
+	align-items: center;
+}
+
+.aprentice-cert-list * {
+	display: inline-block;
+	width: 25%;
+	text-align: center;
+}
+
+.aprentice-cert-list-header span {
+	width: 25%;
+}
+
+.aprentice-cert-list button {
+	background-color: transparent;
+	text-decoration: underline;
+	border: none;
+	font-size: 16px;
+	text-align: center;
+	width: 20%;
+	padding-left: 7.5%;
+}

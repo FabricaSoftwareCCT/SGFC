@@ -22,6 +22,7 @@
 
 .criteria-item {
 	margin: 10px;
+	min-height: 35%;
 	background-color: #00843D;
 	border-radius: 10px;
 	display: flex;
@@ -29,8 +30,8 @@
 }
 
 .criteria-head {
-	min-width: 20%;
-	max-width: 20%;
+	min-width: 25%;
+	max-width: 25%;
 	background-color: #039d4b;
 	border-radius: 10px;
 	padding: 10px;
@@ -41,12 +42,12 @@
 
 .criteria-head span {
 	text-align: center;
-	font-size: 32px;
+	font-size: 24px;
 }
 
 .criteria-description {
 	padding: 15px;
-	font-size: 20px;
+	font-size: 16px;
 }
 
 .description-edition {
@@ -63,7 +64,7 @@
 	background-color: transparent;
 	border: none;
 	text-align: center;
-	font-size: 32px;
+	font-size: 24px;
 	text-decoration: underline;
 }
 
@@ -75,7 +76,7 @@
 .editing-criteria-values input {
 	width: 40%;
 	text-align: center;
-	font-size: 32px;
+	font-size: 24px;
 	background-color: transparent;
 	text-decoration: underline;
 	border: none;
@@ -94,6 +95,7 @@
 	text-align: end;
 	padding-right: 15px;
 	margin-bottom: 15px;
+	margin-top: auto;
 	font-weight: lighter;
 }
 
@@ -103,7 +105,7 @@
 }
 
 .bias-input span {
-	font-size: 20px;
+	font-size: 14px;
 }
 
 .bias-input input {
@@ -112,6 +114,6 @@
 	text-decoration: underline;
 	border: none;
 	font-weight: bold;
-	font-size: 20px;
+	font-size: 14px;
 	text-align: end;
 }

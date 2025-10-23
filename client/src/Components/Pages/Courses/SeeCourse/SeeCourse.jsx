@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import './SeeCourse.css';
 import { useNavigate } from 'react-router-dom';
 import { Header } from '../../../Layouts/Header/Header';
@@ -18,49 +18,42 @@ export const SeeCourse = () => {
 	const [isViewCalendarOpen, setIsViewCalendarOpen] = useState(false);
 	const navigate = useNavigate();
 	const [showModal, setShowModal] = useState(false);
-	const [showMaterial, setShowMaterial] = useState(false);
+	//const [showMaterial, setShowMaterial] = useState(false);
 	
 	// Estado para la duración del curso
 	const [duracionCurso, setDuracionCurso] = useState({
 		cantidad: "",
 		unidad: "horas"
 	});
-
-	const showModalAssignInstructor = () => {
-		console.log("Mostrando modal con ID:", curso?.ID);
-		setShowModal(true);
-	};
+	const [empresa, setEmpresa] = useState()
 
 	const userSession =
 		JSON.parse(localStorage.getItem('userSession')) ||
 		JSON.parse(sessionStorage.getItem('userSession'));
 
-	useEffect(() => {
-		const fetchCurso = async () => {
-			try {
-				const response = await axiosInstance.get(`api/courses/cursos/${id}`);
-				setCurso(response.data);
-				
-				// Cargar la duración del curso si existe
-				if (response.data.duracion) {
-					try {
-						const duracionData = JSON.parse(response.data.duracion);
-						setDuracionCurso(duracionData);
-					} catch (error) {
-						console.error("Error al parsear duración:", error);
-						// Si no se puede parsear, intentar cargar como string simple
-						setDuracionCurso({
-							cantidad: response.data.duracion || "",
-							unidad: "horas"
-						});
-					}
-				}
-			} catch (error) {
-				console.error("Error al obtener el curso:", error);
-			}
-		};
+	const fetchCurso = async () => {
+		try {
+			const response = await axiosInstance.get(`api/courses/cursos/${id}`);
+			setCurso(response.data);
+		} catch (error) {
+			console.error("Error al obtener el curso:", error);
+		}
+	};
 
+	const fetchEmpresa = async () => {
+		try {
+			const response = await axiosInstance.get(`api/users/empresa/id/${userSession.empresa_ID}`)
+			setEmpresa(response.data)
+		} catch (error) {
+			console.error("Error al obtener la empresa:", error);
+		}
+	};
+
+	useEffect(() => {
 		fetchCurso();
+		if (userSession && userSession.empresa_ID) {
+			fetchEmpresa()
+		}
 	}, [id]);
 
 	if (!curso) {
@@ -73,23 +66,9 @@ export const SeeCourse = () => {
 		slots_formacion: curso.slots_formacion ? JSON.parse(curso.slots_formacion) : []
 	};
 
-	// Función para formatear la duración para mostrar
-	const formatearDuracion = () => {
-		if (!duracionCurso.cantidad) return "No especificada";
-		
-		const unidadMap = {
-			'horas': 'hora' + (parseInt(duracionCurso.cantidad) !== 1 ? 's' : ''),
-			'dias': 'día' + (parseInt(duracionCurso.cantidad) !== 1 ? 's' : ''),
-			'semanas': 'semana' + (parseInt(duracionCurso.cantidad) !== 1 ? 's' : ''),
-			'meses': 'mes' + (parseInt(duracionCurso.cantidad) !== 1 ? 'es' : '')
-		};
-		
-		return `${duracionCurso.cantidad} ${unidadMap[duracionCurso.unidad] || duracionCurso.unidad}`;
-	};
-
-	const handleMaterialClick = () => {
-		navigate('/SupportMaterial')
-	}
+	// const handleMaterialClick = () => {
+	// 	navigate('/SupportMaterial')
+	// }
 
 	return (
 		<>
@@ -140,22 +119,37 @@ export const SeeCourse = () => {
 
 								<div className='detail-row'>
 									<div className='detail-item'>
-										<span className='detail-label'>Duración:</span>
-										<span className='detail-value'>{formatearDuracion()}</span>
-									</div>
-									<div className='detail-item'>
 										<span className='detail-label'>Instructor:</span>
 										<span className='detail-value'>
 											{curso?.Instructor ? `${curso.Instructor.nombres} ${curso.Instructor.apellidos}` : "Sin asignar"}
 										</span>
 									</div>
 								</div>
+								
+								<div className='detail-row'>
+									<div className='detail-item'>
+										<span className='detail-label'>Duración en días:</span>
+										<span className='detail-value'>
+											{curso?.duracion_dias ? `${curso.duracion_dias}` : "Sin determinar"}
+										</span>
+									</div>
+								</div>
 
-								{/* Nueva fila para Lugar de formación */}
 								<div className='detail-row'>
 									<div className='detail-item'>
 										<span className='detail-label'>Lugar de formación:</span>
-										<span className='detail-value'>{curso.lugar_formacion || "No especificado"}</span>
+										<span className='detail-value'>
+											{curso?.lugar_formacion ? `${curso.lugar_formacion}` : "Sin especificar"}
+										</span>
+									</div>
+								</div>
+
+								<div className='detail-row'>
+									<div className='detail-item'>
+										<span className='detail-label'>Cupos:</span>
+										<span className='detail-value'>
+											{curso.cupos_usados ?? 0} / {curso.cupos_disponibles} 
+										</span>
 									</div>
 								</div>
 							</div>
@@ -186,6 +180,13 @@ export const SeeCourse = () => {
 										Solicitar Curso
 									</button>
 								)}
+
+								{/*userSession && userSession.accountType === "Empresa" && empresa?.NIT && curso.Empresa.NIT === empresa.NIT && (
+									<button className='edit-btn' onClick={() => navigate(`/Cursos/ActualizarCurso/${id}`)}>
+										<img src={buttonEdit} alt="Editar" className="btn-icon" />
+										Editar Curso
+									</button>
+								)*/}
 
 								{userSession && userSession.accountType === "Aprendiz" &&(
 									<button className='edit-btn' onClick={() => navigate(`/SolicitarCursoAp/${encodeURIComponent(curso.nombre_curso)}`)}>

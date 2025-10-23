@@ -5,7 +5,7 @@ const { sendVerificationEmail, sendPasswordResetEmail, sendPasswordChangeConfirm
 const {generateToken} = require("../middlewares/generateToken_R")
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const { Op } = require("sequelize");
+const { Op, col, json } = require("sequelize");
 const xlsx = require("xlsx")
 const path = require('path');
 const fs = require('fs');
@@ -1358,7 +1358,7 @@ const createMasiveUsers = async (req, res) => {
     
     try {
         const {empresaId} = req.params;
-        console.log(empresaId)
+
         if (!empresaId) {
             return res.status(400).json({message : "No se tiene el id de la empresa"})
         }
@@ -1377,27 +1377,66 @@ const createMasiveUsers = async (req, res) => {
         if (!hoja) {
             return res.status(400).json({ message: 'El archivo no contiene hojas válidas.' });
         }
+       
         const usuarios = xlsx.utils.sheet_to_json(hoja)
+        if (usuarios === 0){
+            return res.status(400).json({message : "El archivo esta vacio o no contiene datos"})
+        }
+        console.log(usuarios)
         
+        // verificar las columnas necesarias
+        const columnasRequeridas = ["nombres", "apellidos", "email", "documento", "celular"]
+        const columnasArchivo = Object.keys(usuarios[0])
+
+        const columnasFaltantes = columnasRequeridas.filter(
+            (col) => !columnasArchivo.includes(col)
+        )
+
+        if (columnasFaltantes.length > 0) {
+            return res.status(400).json({
+                message: `Faltan columnas requeridas en el archivo o faltan datos: ${columnasFaltantes.join(", ")}`
+            })
+        }
+        
+        const filasFaltantes = usuarios.filter((u, index) =>{
+            return (
+                !u.nombres ||
+                !u.apellidos ||
+                !u.email ||
+                !u.documento ||
+                !u.celular ||
+                u.nombres.toString().trim() === "" ||
+                u.apellidos.toString().trim() === "" ||
+                u.email.toString().trim() === "" ||
+                u.documento.toString().trim() === "" ||
+                u.celular.toString().trim() === ""
+            )
+        })
+        
+        if (filasFaltantes.length > 0) {
+            return res.status(400).json({
+                message : "Algunas filas tienen datos incompletos",
+                ejemplo : filasFaltantes.slice(0,3)
+            })
+        }
        const usuariosLimpios = await Promise.all(
             usuarios.map(async (u) =>{
-                const hashedPassword = await bcrypt.hash(u.contraseña, 10)
+                const tempPassword = Math.random().toString(36).slice(-8);
+                console.log(tempPassword)
+                const hashedPassword = await bcrypt.hash(tempPassword, 10)
                 return {
                     nombres : u.nombres?.trim(),
                     apellidos : u.apellidos?.trim(),
                     email : u.email?.toLowerCase(),
                     documento : String(u.documento).trim(),
+                    celular : String(u.celular).trim(), 
                     password : hashedPassword,
                     accountType : "Aprendiz",
-                    empresa_ID : empresaId
+                    empresa_ID : empresaId,
+                    passwordP : tempPassword
                 }
             })
        )
-
-
-        if (usuariosLimpios.length === 0) {
-            return res.status(400).json({ message: 'El archivo no contiene datos' });
-        }
 
         // Verificar si hay usuarios duplicados en el archivo
         const duplicados = usuariosLimpios.filter((item, index) => usuariosLimpios.indexOf(item) !== index);
@@ -1417,7 +1456,8 @@ const createMasiveUsers = async (req, res) => {
         const emails = usuariosLimpios.map((e) =>{
             return {
                 email : e.email,
-                accountType : e.accountType
+                accountType : e.accountType,
+                password : e.passwordP
             }
         })
         
@@ -1429,11 +1469,13 @@ const createMasiveUsers = async (req, res) => {
                 return {
                     email : newEmail,
                     token : token,
-                    accountType : e.accountType
+                    accountType : e.accountType,
+                    password : e.password,
+                    masive: true
                 }
             })
         )
-        
+        delete usuariosLimpios.passwordP
         const emails2 = emails.map((e) =>{return e.email})
         const existingUsers = await User.findAll({ where: { email: emails2 } });
         if (existingUsers.length > 0) {
@@ -1448,7 +1490,7 @@ const createMasiveUsers = async (req, res) => {
 
         await Promise.all(
             emailList.map((list) =>{
-                sendVerificationEmail(list.email, list.token, list.accountType)
+                sendVerificationEmail(list.email, list.token, list.password , list.accountType, list.masive)
             })
         )
 

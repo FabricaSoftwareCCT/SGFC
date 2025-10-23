@@ -3,6 +3,7 @@
 const InscripcionCurso = require("../models/InscripcionCurso");
 const Curso = require("../models/curso");
 const Usuario = require("../models/User");
+const { json } = require("sequelize");
 
 const crearOActualizarInscripcion = async (req, res) => {
   const { curso_ID, aprendiz_ID, nuevoEstado } = req.body;
@@ -80,6 +81,93 @@ const crearOActualizarInscripcion = async (req, res) => {
   }
 };
 
+const inscripcionEmpleados = async (req, res ) => {
+    try{
+      const {empleados, curso_ID, gestor_ID} = req.body;
+      
+
+      if (Object.keys(empleados).length < 0) {
+        return res.status(400).json({
+          message : 'No se enviaron bien los datos de los empleados'
+        })
+      }
+
+      if (!curso_ID || !gestor_ID) {
+        return res.status(400).json({
+          message : 'No envio el curso o el gestor'
+        })
+      }
+
+      const curso = await Curso.findByPk(curso_ID, {
+        attributes : ['slots_formacion']
+      })
+      const cursoString = curso.dataValues.slots_formacion
+      const arrayCurso = JSON.parse(cursoString)
+      if (!curso) {
+        res.status(404).json({
+          message : "No se encontro el curso"
+        })
+      }
+
+      const aprendices = await Promise.all(
+        empleados.map(async (e) => {
+            const consult = await Usuario.findByPk(e.ID)
+            return consult
+        })
+      )
+     
+      if (aprendices.length < 0) {
+          return res.status(400).json({
+            message : 'No se encontraron los empleados'
+          })
+      }
+
+      const aprendicesInscritos = await Promise.all(
+        empleados.map(async (e) =>{
+          const consult = await InscripcionCurso.findAll({
+            where : {aprendiz_ID: e.ID}
+          })
+          return consult
+        })
+      )
+      if (aprendicesInscritos.length > 0) {
+       
+        const filtrar = aprendicesInscritos
+        .flat()
+        .filter(Boolean)
+        .map(item => item.dataValues);
+
+       const horiarioCursos = await Promise.all(
+          filtrar.map(async (f) =>{
+            const consult = await Curso.findByPk(f.curso_ID,{
+              attributes : ['slots_formacion']
+          })
+            return consult.dataValues
+          })
+       )
+       
+       const verificarCursos = await Promise.all(
+        horiarioCursos.map(async (h) =>{
+          const horarios = JSON.parse(h.slots_formacion)
+
+          const verificar = horarios.some(h => arrayCurso.includes(h))
+          return verificar
+        })
+       )
+       console.log(verificarCursos)
+      }
+      res.status(200).json({
+        message : 'melo'
+      })
+    } catch (error){
+      console.error('Error al inscribir los empleados', error)
+      return res.status(500).json({
+        message : 'Error al inscribir los empleados'
+      })
+    }
+}
+
 module.exports = {
   crearOActualizarInscripcion,
+  inscripcionEmpleados
 };

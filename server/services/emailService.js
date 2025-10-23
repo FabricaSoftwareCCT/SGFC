@@ -163,7 +163,7 @@ const sendRequestCourseEmailAp = async (req, res) => {
 }
 
 // Función para enviar el correo de verificación
-const sendVerificationEmail = async (email, token, newPassword, accountType) => {
+const sendVerificationEmail = async (email, token, newPassword, accountType, masive) => {
   const enlaceVerificacion = `http://localhost:5173/verificarCorreo?token=${token}`;
   const fs = require('fs');
   const path = require('path');
@@ -173,6 +173,12 @@ const sendVerificationEmail = async (email, token, newPassword, accountType) => 
   const mensajeEspecifico = accountType === 'Aprendiz' 
     ? `<p style="margin-bottom:.9375rem; background:#fff9e6; padding:10px; border-radius:5px; border-left:4px solid #F7941E;">
          <strong>💡 Para Aprendices:</strong> Después de verificar tu correo, dirígete a tu perfil para completar tu información personal y comenzar a usar la plataforma.
+       </p>`
+    : '';
+
+    const password = masive === true
+     ? `<p style="margin-bottom:.9375rem; background:#fff9e6; padding:10px; border-radius:5px; border-left:4px solid #F7941E;">
+         <strong>💡 Para Aprendices:</strong> Esta el la contraseña temporal que tendra para acceder al aplicativo (recomendable cambiarla): ${newPassword}.
        </p>`
     : '';
 
@@ -216,6 +222,7 @@ const sendVerificationEmail = async (email, token, newPassword, accountType) => 
                       style="display:inline-block; background-color:#F7941E; color:#fff !important; padding:.75rem 1.5625rem; border-radius:.3125rem; text-decoration:none; font-weight:bold; font-family:Arial,sans-serif; font-size:1rem;">
                       Verificar correo
                     </a>
+                    ${password}
                   </div>
                   
                   <p style="margin-bottom:.9375rem;">Si no te registraste en nuestros servicios, por favor ignora este correo.</p>

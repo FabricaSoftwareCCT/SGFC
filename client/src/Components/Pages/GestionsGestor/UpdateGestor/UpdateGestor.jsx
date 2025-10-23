@@ -115,8 +115,8 @@ export const UpdateGestor = ({ gestor, onClose }) => {
     const errors = validateFields();
     if (errors.length > 0) {
       alert(`Por favor corrija los siguientes errores:\n\n${errors.join('\n')}`);
-      return;
-    }
+          return;
+        }
 
     // Guardar cambios
     try {
@@ -165,7 +165,7 @@ export const UpdateGestor = ({ gestor, onClose }) => {
           alert(`Error: ${errorMsg}`);
         }
       } else {
-        alert("Hubo un error al actualizar el perfil.");
+      alert("Hubo un error al actualizar el perfil.");
       }
     }
   };

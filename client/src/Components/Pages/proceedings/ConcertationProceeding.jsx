@@ -8,7 +8,7 @@ import axiosInstance from '../../../config/axiosInstance';
 import html2pdf from 'html2pdf.js';
 import { ModalSignature } from '../../UI/Modal_Signature/ModalSignature';
 import { useNavigate } from 'react-router-dom';
-import { validateText, validateNumber,createMensajeError } from '../../../utils/Validators/formValidator';
+import { validateText, validateNumber, createMensajeError, validarFecha } from '../../../utils/Validators/formValidator';
 
 export const ConcertationProceeding = () => {
   const navigate = useNavigate();
@@ -48,6 +48,10 @@ export const ConcertationProceeding = () => {
   const [firmaDigital, setFirmaDigital] = useState("");
   const [firmaArchivo, setFirmaArchivo] = useState(null);
   const [firmaArchivoUrl, setFirmaArchivoUrl] = useState("");
+  
+  // Estados para firmas individuales por participante
+  const [firmasParticipantes, setFirmasParticipantes] = useState({});
+  const [participanteSeleccionado, setParticipanteSeleccionado] = useState(null);
 
   const [instructores, setInstructores] = useState([]);
   const [instructoresAsignados, setInstructoresAsignados] = useState([]);
@@ -60,6 +64,34 @@ export const ConcertationProceeding = () => {
     setFirmaArchivo(file);
     const fileUrl = URL.createObjectURL(file);
     setFirmaArchivoUrl(fileUrl);
+  };
+
+  // Funciones para manejar firmas individuales
+  const handleAbrirModalFirma = (participanteId, participanteNombre) => {
+    setParticipanteSeleccionado({ id: participanteId, nombre: participanteNombre });
+    setShowSignatureModal(true);
+  };
+
+  const handleAplicarFirma = (firmaData) => {
+    if (participanteSeleccionado) {
+      setFirmasParticipantes(prev => ({
+        ...prev,
+        [participanteSeleccionado.id]: {
+          nombre: participanteSeleccionado.nombre,
+          firma: firmaData
+        }
+      }));
+      setParticipanteSeleccionado(null);
+      setShowSignatureModal(false);
+    }
+  };
+
+  const handleLimpiarFirma = (participanteId) => {
+    setFirmasParticipantes(prev => {
+      const nuevasFirmas = { ...prev };
+      delete nuevasFirmas[participanteId];
+      return nuevasFirmas;
+    });
   };
 
   useEffect(() => {
@@ -146,8 +178,8 @@ export const ConcertationProceeding = () => {
     }
   };
 
-  const handleDownloadPDF = () => {
-    const flag = handleValidation();
+  const handleDownloadPDF = async () => {
+    const flag = await handleValidation();
     if(flag) return;
     
     setExportValues({
@@ -259,8 +291,32 @@ export const ConcertationProceeding = () => {
       }
 
     } catch (error) {
-      alert('Error al enviar el acta de concertación.');
       console.error('❌ Error completo:', error);
+      
+      // Mostrar información más detallada del error
+      let errorMessage = 'Error al enviar el acta de concertación.';
+      
+      if (error.response) {
+        // Error del servidor
+        const status = error.response.status;
+        const serverMessage = error.response.data?.message || 'Error del servidor';
+        
+        if (status === 400) {
+          errorMessage = `Error de validación: ${serverMessage}`;
+        } else if (status === 500) {
+          errorMessage = `Error del servidor: ${serverMessage}`;
+        } else {
+          errorMessage = `Error ${status}: ${serverMessage}`;
+        }
+      } else if (error.request) {
+        // Error de red
+        errorMessage = 'Error de conexión. Verifique su conexión a internet.';
+      } else {
+        // Otro tipo de error
+        errorMessage = `Error: ${error.message}`;
+      }
+      
+      alert(errorMessage);
     }
   };
 
@@ -569,7 +625,7 @@ export const ConcertationProceeding = () => {
                   <textarea
                     className='textarea-proceedings'
                     value={notasRelevantes.join('\n')}
-                    onChange={e => setNotasRelevantes(e.target.value.split('\n').filter(line => line.trim() !== ''))}
+                    onChange={e => setNotasRelevantes(e.target.value.split('\n'))}
                     placeholder="• Los cursos deben iniciar puntualmente según el horario establecido.
                 • Se acordó que los cursos virtuales serán grabados y compartidos.
                 • Las fechas propuestas están sujetas a confirmación por parte de los participantes."
@@ -587,10 +643,14 @@ export const ConcertationProceeding = () => {
                     }}
                   />
                 ) : (
-                  <div style={{ marginTop: '0.5rem', marginBottom: '1rem' }}>
-                    {notasRelevantes.map((nota, index) => (
-                      <div key={index} style={{ marginBottom: '0.5rem' }}>• {nota || '[Nota relevante]'}</div>
-                    ))}
+                  <div style={{ marginTop: '0.5rem', marginBottom: '1rem', color: '#333333' }}>
+                    {notasRelevantes.length > 0 ? notasRelevantes.map((nota, index) => (
+                      <div key={index} style={{ marginBottom: '0.5rem', color: '#333333' }}>
+                        {nota.trim() ? `• ${nota}` : <br />}
+                      </div>
+                    )) : (
+                      <div style={{ marginBottom: '0.5rem', color: '#333333' }}>• [Nota relevante]</div>
+                    )}
                   </div>
                 )}
                 <br />
@@ -601,7 +661,7 @@ export const ConcertationProceeding = () => {
                   <textarea
                     className='textarea-proceedings'
                     value={condicionesEspeciales.join('\n')}
-                    onChange={e => setCondicionesEspeciales(e.target.value.split('\n').filter(line => line.trim() !== ''))}
+                    onChange={e => setCondicionesEspeciales(e.target.value.split('\n'))}
                     placeholder="• Se requiere disponibilidad de sala virtual con capacidad para 30 personas.
                 • Entrega de material didáctico antes de la primera sesión.
                 • Condiciones específicas de conectividad para modalidad virtual."
@@ -619,10 +679,14 @@ export const ConcertationProceeding = () => {
                     }}
                   />
                 ) : (
-                  <div style={{ marginTop: '0.5rem', marginBottom: '1rem' }}>
-                    {condicionesEspeciales.map((condicion, index) => (
-                      <div key={index} style={{ marginBottom: '0.5rem' }}>• {condicion || '[Condición especial]'}</div>
-                    ))}
+                  <div style={{ marginTop: '0.5rem', marginBottom: '1rem', color: '#333333' }}>
+                    {condicionesEspeciales.length > 0 ? condicionesEspeciales.map((condicion, index) => (
+                      <div key={index} style={{ marginBottom: '0.5rem', color: '#333333' }}>
+                        {condicion.trim() ? `• ${condicion}` : <br />}
+                      </div>
+                    )) : (
+                      <div style={{ marginBottom: '0.5rem', color: '#333333' }}>• [Condición especial]</div>
+                    )}
                   </div>
                 )}
                 <br />
@@ -634,17 +698,21 @@ export const ConcertationProceeding = () => {
                       <th className="table-acta-th">Nombre Completo</th>
                       <th className="table-acta-th">Cargo</th>
                       <th className="table-acta-th">Firma</th>
+                      {isEditing && <th className="table-acta-th">Acciones</th>}
                     </tr>
                   </thead>
                   <tbody>
-                    {instructoresAsignados.length > 0 && instructoresAsignados.map((instructor, idx) => (
+                    {instructoresAsignados.length > 0 && instructoresAsignados.map((instructor, idx) => {
+                      const participanteId = `instructor-asignado-${idx}`;
+                      const firmaParticipante = firmasParticipantes[participanteId];
+                      return (
                       <tr key={`instructor-${idx}`}>
                         <td>{instructor}</td>
                         <td>Instructor Asignado</td>
                         <td style={{ padding: '10px'}}>
-                          {firmaDigital ? (
+                            {firmaParticipante?.firma ? (
                             <img
-                              src={firmaDigital}
+                                src={firmaParticipante.firma}
                               alt="Firma digital"
                               style={{
                                 width: 'auto',
@@ -656,10 +724,63 @@ export const ConcertationProceeding = () => {
                                 background: 'transparent'
                               }}
                             />
-                          ) : firmaArchivoUrl ? (
-                            <img
-                              src={firmaArchivoUrl}
-                              alt="Firma subida"
+                            ) : (
+                              <span style={{ display: 'inline-block', width: '120px', borderBottom: '1px solid #000' }}>
+                                &nbsp;
+                              </span>
+                            )}
+                          </td>
+                          {isEditing && (
+                            <td style={{ padding: '5px', textAlign: 'center' }}>
+                              {!firmaParticipante?.firma ? (
+                                <button
+                                  onClick={() => handleAbrirModalFirma(participanteId, instructor)}
+                                  style={{
+                                    backgroundColor: '#00843d',
+                                    color: 'white',
+                                    border: 'none',
+                                    padding: '5px 10px',
+                                    borderRadius: '3px',
+                                    cursor: 'pointer',
+                                    fontSize: '12px'
+                                  }}
+                                >
+                                  Agregar firma
+                                </button>
+                              ) : (
+                                <button
+                                  onClick={() => handleLimpiarFirma(participanteId)}
+                                  style={{
+                                    backgroundColor: '#dc3545',
+                                    color: 'white',
+                                    border: 'none',
+                                    padding: '5px 10px',
+                                    borderRadius: '3px',
+                                    cursor: 'pointer',
+                                    fontSize: '12px'
+                                  }}
+                                >
+                                  Limpiar firma
+                                </button>
+                              )}
+                            </td>
+                          )}
+                        </tr>
+                      );
+                    })}
+
+                    {coordinadorAcademico && (() => {
+                      const participanteId = 'coordinador-academico';
+                      const firmaParticipante = firmasParticipantes[participanteId];
+                      return (
+                        <tr>
+                          <td>{coordinadorAcademico}</td>
+                          <td>Coordinador Académico</td>
+                          <td style={{ padding: '10px'}}>
+                            {firmaParticipante?.firma ? (
+                              <img
+                                src={firmaParticipante.firma}
+                                alt="Firma digital"
                               style={{
                                 width: 'auto',
                                 maxWidth: '120px',
@@ -676,54 +797,178 @@ export const ConcertationProceeding = () => {
                             </span>
                           )}
                         </td>
+                        {isEditing && (
+                          <td style={{ padding: '5px', textAlign: 'center' }}>
+                            {!firmaParticipante?.firma ? (
+                              <button
+                                onClick={() => handleAbrirModalFirma(participanteId, coordinadorAcademico)}
+                                style={{
+                                  backgroundColor: '#00843d',
+                                  color: 'white',
+                                  border: 'none',
+                                  padding: '5px 10px',
+                                  borderRadius: '3px',
+                                  cursor: 'pointer',
+                                  fontSize: '12px'
+                                }}
+                              >
+                                Agregar firma
+                              </button>
+                            ) : (
+                              <button
+                                onClick={() => handleLimpiarFirma(participanteId)}
+                                style={{
+                                  backgroundColor: '#dc3545',
+                                  color: 'white',
+                                  border: 'none',
+                                  padding: '5px 10px',
+                                  borderRadius: '3px',
+                                  cursor: 'pointer',
+                                  fontSize: '12px'
+                                }}
+                              >
+                                Limpiar firma
+                              </button>
+                            )}
+                          </td>
+                        )}
                       </tr>
-                    ))}
+                      );
+                    })()}
 
-                    {coordinadorAcademico && (
-                      <tr>
-                        <td>{coordinadorAcademico}</td>
-                        <td>Coordinador Académico</td>
-                        <td>
-                          <span style={{ display: 'inline-block', width: '120px', borderBottom: '1px solid #000' }}>
-                            &nbsp;
-                          </span>
-                        </td>
-                      </tr>
-                    )}
-
-                    {instructores.length > 0 && instructores.map((instructor, idx) => (
+                    {instructores.length > 0 && instructores.map((instructor, idx) => {
+                      const participanteId = `instructor-participante-${idx}`;
+                      const firmaParticipante = firmasParticipantes[participanteId];
+                      return (
                       <tr key={`participante-${idx}`}>
                         <td>{instructor}</td>
                         <td>Instructor Participante</td>
                         <td>
+                            {firmaParticipante?.firma ? (
+                              <img
+                                src={firmaParticipante.firma}
+                                alt="Firma digital"
+                                style={{
+                                  width: 'auto',
+                                  maxWidth: '120px',
+                                  height: '40px',
+                                  display: 'block',                              
+                                  objectFit: 'contain',
+                                  border: 'none',
+                                  background: 'transparent'
+                                }}
+                              />
+                            ) : (
                           <span style={{ display: 'inline-block', width: '120px', borderBottom: '1px solid #000' }}>
                             &nbsp;
                           </span>
+                            )}
                         </td>
+                          {isEditing && (
+                            <td style={{ padding: '5px', textAlign: 'center' }}>
+                              {!firmaParticipante?.firma ? (
+                                <button
+                                  onClick={() => handleAbrirModalFirma(participanteId, instructor)}
+                                  style={{
+                                    backgroundColor: '#00843d',
+                                    color: 'white',
+                                    border: 'none',
+                                    padding: '5px 10px',
+                                    borderRadius: '3px',
+                                    cursor: 'pointer',
+                                    fontSize: '12px'
+                                  }}
+                                >
+                                  Agregar firma
+                                </button>
+                              ) : (
+                                <button
+                                  onClick={() => handleLimpiarFirma(participanteId)}
+                                  style={{
+                                    backgroundColor: '#dc3545',
+                                    color: 'white',
+                                    border: 'none',
+                                    padding: '5px 10px',
+                                    borderRadius: '3px',
+                                    cursor: 'pointer',
+                                    fontSize: '12px'
+                                  }}
+                                >
+                                  Limpiar firma
+                                </button>
+                              )}
+                            </td>
+                          )}
                       </tr>
-                    ))}
+                      );
+                    })}
 
-                    {participantes.length > 0 ? participantes.map((p, idx) => (
-                      <tr key={`part-${idx}`}>
+                    {participantes.length > 0 && participantes.map((p, idx) => {
+                      const participanteId = `participante-${idx}`;
+                      const firmaParticipante = firmasParticipantes[participanteId];
+                      return (
+                        <tr key={`part-${idx}`}>
                         <td>{p}</td>
                         <td>Participante</td>
                         <td>
+                            {firmaParticipante?.firma ? (
+                              <img
+                                src={firmaParticipante.firma}
+                                alt="Firma digital"
+                                style={{
+                                  width: 'auto',
+                                  maxWidth: '120px',
+                                  height: '40px',
+                                  display: 'block',                              
+                                  objectFit: 'contain',
+                                  border: 'none',
+                                  background: 'transparent'
+                                }}
+                              />
+                            ) : (
                           <span style={{ display: 'inline-block', width: '120px', borderBottom: '1px solid #000' }}>
                             &nbsp;
                           </span>
+                            )}
                         </td>
-                      </tr>
-                    )) : (
-                      <tr>
-                        <td>[Nombre Participante]</td>
-                        <td>Participante</td>
-                        <td>
-                          <span style={{ display: 'inline-block', width: '120px', borderBottom: '1px solid #000' }}>
-                            &nbsp;
-                          </span>
-                        </td>
-                      </tr>
-                    )}
+                          {isEditing && (
+                            <td style={{ padding: '5px', textAlign: 'center' }}>
+                              {!firmaParticipante?.firma ? (
+                                <button
+                                  onClick={() => handleAbrirModalFirma(participanteId, p)}
+                                  style={{
+                                    backgroundColor: '#00843d',
+                                    color: 'white',
+                                    border: 'none',
+                                    padding: '5px 10px',
+                                    borderRadius: '3px',
+                                    cursor: 'pointer',
+                                    fontSize: '12px'
+                                  }}
+                                >
+                                  Agregar firma
+                                </button>
+                              ) : (
+                                <button
+                                  onClick={() => handleLimpiarFirma(participanteId)}
+                                  style={{
+                                    backgroundColor: '#dc3545',
+                                    color: 'white',
+                                    border: 'none',
+                                    padding: '5px 10px',
+                                    borderRadius: '3px',
+                                    cursor: 'pointer',
+                                    fontSize: '12px'
+                                  }}
+                                >
+                                  Limpiar firma
+                                </button>
+                              )}
+                            </td>
+                          )}
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
                 <br />
@@ -746,24 +991,6 @@ export const ConcertationProceeding = () => {
             <button className="submit-button-proceedings" onClick={handleSendProceeding}>
               Generar acta
             </button>
-
-            {(firmaDigital || firmaArchivoUrl) && (
-              <button
-                className="submit-button-proceedings"
-                onClick={() => {
-                  setFirmaDigital("");
-                  setFirmaArchivo(null);
-                  setFirmaArchivoUrl("");
-                }}
-                style={{ backgroundColor: '#dc3545' }}
-              >
-                Limpiar firma
-              </button>
-            )}
-
-            <button className="submit-button-proceedings" onClick={() => setShowSignatureModal(true)}>
-              Agregar firma
-            </button>
             <button className="submit-button-proceedings-exportar" onClick={handleDownloadPDF}>
               Exportar
             </button>
@@ -773,12 +1000,16 @@ export const ConcertationProceeding = () => {
       <Footer />
       {showSignatureModal && (
         <ModalSignature
-          closeModal={() => setShowSignatureModal(false)}
+          closeModal={() => {
+            setShowSignatureModal(false);
+            setParticipanteSeleccionado(null);
+          }}
           nombreCurso={nombreCurso}
           editar={isEditing}
           tipoActa="Acta de Concertacion"
-          onSignature={setFirmaDigital}
-          onUpload={handleUploadSignature}
+          participanteSeleccionado={participanteSeleccionado}
+          onSignature={handleAplicarFirma}
+          onUpload={handleAplicarFirma}
         />
       )}
     </>

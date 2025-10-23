@@ -1,10 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./UpdateGestor.css";
 import axiosInstance from "../../../../config/axiosInstance";
-import { validateEmail, validateNumber, validateText, createMensajeError } from "../../../../utils/Validators/formValidator";
-// import { useNavigate } from "react-router-dom";
+import PropTypes from 'prop-types';
 
-export const UpdateGestor = ({ gestor }) => {
+export const UpdateGestor = ({ gestor, onClose }) => {
 
   // Validación de sesión de usuario y rol de administrador
   const userSessionString = sessionStorage.getItem("userSession");
@@ -13,9 +12,18 @@ export const UpdateGestor = ({ gestor }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({ ...gestor });
 
+  // Actualizar formData cuando cambie el gestor seleccionado
+  useEffect(() => {
+    if (gestor) {
+      setFormData({ ...gestor });
+      setIsEditing(false); // Resetear modo edición al cambiar de gestor
+    }
+  }, [gestor]);
+
   const closeModalUpdateGestor = () => {
-    const overlay = document.getElementById("modal-overlayUpdateGestor");
-    overlay.style.display = "none";
+    if (onClose) {
+      onClose();
+    }
   };
 
   const getImageSrc = (data) => {
@@ -49,6 +57,51 @@ export const UpdateGestor = ({ gestor }) => {
     setFormData((prev) => ({ ...prev, estado }));
   };
 
+  const validateFields = () => {
+    const errors = [];
+    
+    // Validar nombres
+    if (!formData.nombres || formData.nombres.trim() === '') {
+      errors.push('Los nombres son requeridos');
+    } else if (formData.nombres.trim().length < 2) {
+      errors.push('Los nombres deben tener al menos 2 caracteres');
+    }
+    
+    // Validar apellidos
+    if (!formData.apellidos || formData.apellidos.trim() === '') {
+      errors.push('Los apellidos son requeridos');
+    } else if (formData.apellidos.trim().length < 2) {
+      errors.push('Los apellidos deben tener al menos 2 caracteres');
+    }
+    
+    // Validar documento (solo números)
+    if (!formData.documento || formData.documento.trim() === '') {
+      errors.push('El número de documento es requerido');
+    } else if (!/^\d+$/.test(formData.documento.trim())) {
+      errors.push('El número de documento debe contener solo números');
+    } else if (formData.documento.trim().length < 6) {
+      errors.push('El número de documento debe tener al menos 6 dígitos');
+    }
+    
+    // Validar celular (solo números)
+    if (!formData.celular || formData.celular.trim() === '') {
+      errors.push('El número de celular es requerido');
+    } else if (!/^\d+$/.test(formData.celular.trim())) {
+      errors.push('El número de celular debe contener solo números');
+    } else if (formData.celular.trim().length < 10) {
+      errors.push('El número de celular debe tener al menos 10 dígitos');
+    }
+    
+    // Validar email
+    if (!formData.email || formData.email.trim() === '') {
+      errors.push('El email es requerido');
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) {
+      errors.push('Debe ingresar un email válido');
+    }
+    
+    return errors;
+  };
+
   const handleButtonClick = async (e) => {
     e.preventDefault();
 
@@ -58,21 +111,15 @@ export const UpdateGestor = ({ gestor }) => {
       return;
     }
 
-    // Guardar cambios
-    try {
-      const validationGeneral = {
-          nombres: validateText(formData.nombres),
-          apellidos: validateText(formData.apellidos),
-          Cédula: validateNumber(formData.documento),
-          celular: validateNumber(formData.celular),
-          email: validateEmail(formData.email)
-      }
-         
-      const errores = await createMensajeError(validationGeneral);
-        if(errores !== null){
-          alert(errores);
+    // Validar todos los campos antes de enviar
+    const errors = validateFields();
+    if (errors.length > 0) {
+      alert(`Por favor corrija los siguientes errores:\n\n${errors.join('\n')}`);
           return;
         }
+
+    // Guardar cambios
+    try {
 
 
       const formDataToSend = new FormData();
@@ -101,12 +148,29 @@ export const UpdateGestor = ({ gestor }) => {
       alert(response.data.message || 'Perfil actualizado');
       setIsEditing(false);
       window.location.reload();
-      document.getElementById("modal-overlayUpdateGestor").style.display = "none";
+      closeModalUpdateGestor();
     } catch (error) {
       console.error("Error al actualizar el perfil:", error.response?.data || error.message);
+      
+      // Manejar errores específicos del backend
+      if (error.response?.status === 400) {
+        const errorMsg = error.response?.data?.message;
+        if (errorMsg === "El correo electrónico ya está registrado.") {
+          alert("Error: El correo electrónico ya está registrado en el sistema. Por favor, use un correo diferente.");
+        } else if (errorMsg === "El documento ya está registrado.") {
+          alert("Error: El número de documento ya está registrado en el sistema. Por favor, verifique el documento.");
+        } else if (errorMsg === "El número de celular ya está registrado.") {
+          alert("Error: El número de celular ya está registrado en el sistema. Por favor, use un número diferente.");
+        } else {
+          alert(`Error: ${errorMsg}`);
+        }
+      } else {
       alert("Hubo un error al actualizar el perfil.");
+      }
     }
   };
+
+  if (!gestor) return null;
 
   return (
     <div id="modal-overlayUpdateGestor" style={{ display: "flex" }}>
@@ -190,7 +254,7 @@ export const UpdateGestor = ({ gestor }) => {
                   <button
                     key={estado}
                     type="button"
-                    className={`status ${formData.estado === estado ? "active" : ""}`}
+                    className={`status ${formData.estado?.toLowerCase() === estado.toLowerCase() ? "active" : ""}`}
                     onClick={() => handleEstadoChange(estado)}
                   >
                     {estado}
@@ -254,4 +318,9 @@ export const UpdateGestor = ({ gestor }) => {
     </div>
   );
 
+};
+
+UpdateGestor.propTypes = {
+  gestor: PropTypes.object,
+  onClose: PropTypes.func
 };

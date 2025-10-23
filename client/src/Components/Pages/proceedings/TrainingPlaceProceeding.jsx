@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import './trainingPlaceProceeding.css';
 import { Header } from "../../Layouts/Header/Header";
 import { Footer } from '../../Layouts/Footer/Footer';
@@ -8,7 +8,6 @@ import axiosInstance from '../../../config/axiosInstance';
 import html2pdf from 'html2pdf.js';
 import { ModalSignature } from '../../UI/Modal_Signature/ModalSignature';
 import { EditableList } from '../../UI/EditableList/EditableList';
-import { useNavigate } from 'react-router-dom';
 
 export const TrainingPlaceProceeding = () => {
 	const navigate = useNavigate();
@@ -51,12 +50,52 @@ export const TrainingPlaceProceeding = () => {
 	const [generatedPdfName, setGeneratedPdfName] = useState('');
 	const [cargo, setCargo] = useState("Inspector o Gestor")
 
+	// ESTADOS PARA GUARDAR LOS VALORES ORIGINALES AL EDITAR
+	const [originalValues, setOriginalValues] = useState({});
+
 	// Función para manejar cuando se sube un archivo de firma
 	const handleUploadSignature = (file) => {
 		setFirmaArchivo(file);
 		// Crear URL para mostrar la imagen subida
 		const fileUrl = URL.createObjectURL(file);
 		setFirmaArchivoUrl(fileUrl);
+	};
+
+	// FUNCIÓN PARA VOLVER A LA PÁGINA ANTERIOR
+	const handleGoBack = () => {
+		navigate(-1); // Esto lleva al usuario a la página anterior en el historial
+	};
+
+	// FUNCIÓN PARA GUARDAR LOS VALORES ACTUALES ANTES DE EDITAR
+	const handleEdit = () => {
+		// Guardar los valores actuales antes de permitir editar
+		setOriginalValues({
+			nombreCurso,
+			numEmpleados,
+			fechaInicio,
+			fechaFin,
+			observaciones,
+			cargo,
+			empresa: empresa ? {...empresa} : null,
+			manager: manager ? {...manager} : null
+		});
+		setIsEditing(true);
+	};
+
+	// FUNCIÓN PARA CANCELAR LOS CAMBIOS Y RESTABLECER LOS VALORES ORIGINALES
+	const handleCancel = () => {
+		// Restablecer todos los valores a los originales
+		if (originalValues.nombreCurso !== undefined) setNombreCurso(originalValues.nombreCurso);
+		if (originalValues.numEmpleados !== undefined) setNumEmpleados(originalValues.numEmpleados);
+		if (originalValues.fechaInicio !== undefined) setFechaInicio(originalValues.fechaInicio);
+		if (originalValues.fechaFin !== undefined) setFechaFin(originalValues.fechaFin);
+		if (originalValues.observaciones !== undefined) setObservaciones(originalValues.observaciones);
+		if (originalValues.cargo !== undefined) setCargo(originalValues.cargo);
+		if (originalValues.empresa !== undefined) setEmpresa(originalValues.empresa);
+		if (originalValues.manager !== undefined) setManager(originalValues.manager);
+		
+		setIsEditing(false);
+		setDateError('');
 	};
 
 	useEffect(() => {
@@ -153,7 +192,6 @@ export const TrainingPlaceProceeding = () => {
 		}, 100);
 	};
 
-	const handleEdit = () => setIsEditing(true);
 	const handleSave = () => setIsEditing(false);
 
 	// Enviar el acta de lugar de formación al backend
@@ -222,6 +260,15 @@ export const TrainingPlaceProceeding = () => {
 			<Header />
 			<Main>
 				<div className="training-place-proceeding-container">
+					{/* BOTÓN PARA VOLVER ATRÁS - SIEMPRE VISIBLE */}
+					<button 
+						className="button-volver" 
+						onClick={handleGoBack}
+						style={{ backgroundColor: '#00a144' }}
+					>
+						Volver Atrás
+					</button>
+					
 					<h1>
 						Acta de <span className="highlight-proceedings">Lugar de Formación</span>
 					</h1>
@@ -398,7 +445,18 @@ export const TrainingPlaceProceeding = () => {
 
 					<div className="training-place-proceeding-botones-solicitud">
 						{isEditing ? (
-							<button className="training-place-proceeding-submit-button" onClick={handleSave} disabled={!!dateError}>Guardar</button>
+							<>
+								<button className="training-place-proceeding-submit-button" onClick={handleSave} disabled={!!dateError}>
+									Guardar
+								</button>
+								<button 
+									className="training-place-proceeding-submit-button" 
+									onClick={handleCancel}
+									style={{ backgroundColor: '#d70c0cff' }}
+								>
+									Cancelar
+								</button>
+							</>
 						) : (
 							<button className="training-place-proceeding-submit-button" onClick={handleEdit}>Editar</button>
 						)}

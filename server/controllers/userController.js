@@ -19,6 +19,7 @@ const pdfjsLib = require("pdfjs-dist/legacy/build/pdf.js");
 const { createCanvas } = require("canvas");
 const { UserServices } = require("../services/Userservices")
 const { sendNotification, sendProfileUpdateNotification } = require('../services/notificationService');
+const { generateTempPassword } = require("../Helpers/GeneratePassword");
 
 
 // Registrar usuario

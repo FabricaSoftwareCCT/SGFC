@@ -299,22 +299,28 @@
 
 /* Resultado de búsqueda empresa */
 .resultados-empresa {
-  text-align: center;
-  list-style: none;
-  border-left: 1px solid #b0b0b0;
-  border-right: 1px solid #b0b0b0;
-  border-bottom: 1px solid #b0b0b0;
-  max-height: 120px; /* Reducido */
-  min-height: 32px; /* Reducido */
-  overflow-y: auto;
-  background-color: #1a1a1a;
-  position: absolute;
-  bottom: 4.5rem; /* Ajustado */
-  left: 34.9rem;
-  z-index: 10;
-  width: 50%;
-  height: auto;
-  font-size: 12px; /* Reducido */
+    border-bottom: 1px solid #b0b0b0;
+    margin-top: 22%;
+    display: flex;
+    text-align: center;
+    list-style: none;
+    border-left: 1px solid #b0b0b0;
+    border-right: 1px solid #b0b0b0;
+    max-height: 120px;
+    min-height: 32px;
+    overflow-y: auto;
+    background-color: #1a1a1a;
+    position: absolute;
+    left: 0.9rem;
+    z-index: 10;
+    width: auto;
+    height: auto;
+    font-size: 12px;
+    flex-direction: column;
+    flex-wrap: wrap;
+    align-content: center;
+    justify-content: center;
+    align-items: center;
 }
 
 .resultados-empresa li {

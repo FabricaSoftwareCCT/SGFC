@@ -878,6 +878,8 @@ const updateUserProfile = async (req, res) => {
                 if (estado) user.estado = estado;
                 if (titulo_profesional) user.titulo_profesional = titulo_profesional;
                 if (foto_perfil) user.foto_perfil = foto_perfil;
+                if (documento) user.documento = documento;
+                if (tipoDocumento) user.tipoDocumento = tipoDocumento;
 
                 // Si se envía información de empresa, permitir que el administrador la actualice también
                 if (req.body.empresa && user.Empresa) {

@@ -18,7 +18,7 @@ const vision = require("@google-cloud/vision");
 const pdfjsLib = require("pdfjs-dist/legacy/build/pdf.js");
 const { createCanvas } = require("canvas");
 const { UserServices } = require("../services/Userservices")
-const { generateTempPassword } = require("../Helpers/GeneratePassword");
+const { sendNotification, sendProfileUpdateNotification } = require('../services/notificationService');
 
 
 // Registrar usuario
@@ -929,18 +929,63 @@ const updateUserProfile = async (req, res) => {
 			}
 		}
 
-		// ADMINISTRADOR o GESTOR (mismas reglas)
-		if (
-			loggedInUser.accountType === "Administrador" ||
-			loggedInUser.accountType === "Gestor"
-		) {
-			// Validaciones de campos obligatorios para Administrador
-			const camposObligatorios = {
-				nombres: nombres,
-				apellidos: apellidos,
-				celular: celular,
-				email: email,
-			};
+        // ADMINISTRADOR o GESTOR (mismas reglas)
+            if (loggedInUser.accountType === "Administrador" || loggedInUser.accountType === "Gestor") {
+            // Limpiar valores "null" que vienen del FormData
+            const cleanValue = (val) => {
+                if (val === "null" || val === null || val === undefined) return null;
+                if (typeof val === "string" && val.trim() === "") return null;
+                return val;
+            };
+
+            // Snapshot de valores originales (para detectar cambios)
+            const originalValues = {
+                email: user.email,
+                nombres: user.nombres,
+                apellidos: user.apellidos,
+                celular: user.celular,
+                documento: user.documento,
+                estado: user.estado,
+                titulo_profesional: user.titulo_profesional,
+                tipoDocumento: user.tipoDocumento,
+                foto_perfil: user.foto_perfil,
+            };
+
+            const nombresClean = cleanValue(nombres);
+            const apellidosClean = cleanValue(apellidos);
+            const celularClean = cleanValue(celular);
+            const documentoClean = cleanValue(documento);
+            const emailClean = cleanValue(email);
+            const tipoDocumentoClean = cleanValue(tipoDocumento);
+
+            // Validaciones de campos obligatorios según el tipo de cuenta
+            let camposObligatorios = {};
+            
+            if (user.accountType === "Empresa") {
+                // Para empresas, ser más permisivo - solo validar si el campo tiene valor actual
+                camposObligatorios = {};
+                // Solo validar campos que ya tienen valor en la BD o que se están enviando con valor
+                if ((nombres !== undefined && nombresClean) || user.nombres) {
+                    camposObligatorios.nombres = nombresClean || user.nombres;
+                }
+                if ((apellidos !== undefined && apellidosClean) || user.apellidos) {
+                    camposObligatorios.apellidos = apellidosClean || user.apellidos;
+                }
+                if ((celular !== undefined && celularClean) || user.celular) {
+                    camposObligatorios.celular = celularClean || user.celular;
+                }
+                if ((email !== undefined && emailClean) || user.email) {
+                    camposObligatorios.email = emailClean || user.email;
+                }
+            } else {
+                // Para otros tipos de usuario (Administrador, Gestor, Instructor, Aprendiz)
+                camposObligatorios = {
+                nombres: nombresClean,
+                apellidos: apellidosClean,
+                celular: celularClean,
+                email: emailClean
+            };
+            }
 
 			const camposVacios = [];
 			for (const [campo, valor] of Object.entries(camposObligatorios)) {
@@ -960,50 +1005,36 @@ const updateUserProfile = async (req, res) => {
 				});
 			}
 
-			// Validaciones únicas
-			if (email && email !== user.email) {
-				const existingEmail = await User.findOne({ where: { email } });
-				if (existingEmail) {
-					return res
-						.status(400)
-						.json({
-							message:
-								"El correo electrónico ya está registrado.",
-						});
-				}
-			}
-			if (documento && documento !== user.documento) {
-				const existingDocumento = await User.findOne({
-					where: { documento },
-				});
-				if (existingDocumento) {
-					return res
-						.status(400)
-						.json({ message: "El documento ya está registrado." });
-				}
-			}
-			if (celular && celular !== user.celular) {
-				const existingCelular = await User.findOne({
-					where: { celular },
-				});
-				if (existingCelular) {
-					return res
-						.status(400)
-						.json({
-							message: "El número de celular ya está registrado.",
-						});
-				}
-			}
+                // Validaciones únicas
+                if (emailClean && emailClean !== user.email) {
+                    const existingEmail = await User.findOne({ where: { email: emailClean } });
+                    if (existingEmail) {
+                        return res.status(400).json({ message: "El correo electrónico ya está registrado." });
+                    }
+                }
+                if (documentoClean && documentoClean !== user.documento) {
+                    const existingDocumento = await User.findOne({ where: { documento: documentoClean } });
+                    if (existingDocumento) {
+                        return res.status(400).json({ message: "El documento ya está registrado." });
+                    }
+                }
+                if (celularClean && celularClean !== user.celular) {
+                    const existingCelular = await User.findOne({ where: { celular: celularClean } });
+                    if (existingCelular) {
+                        return res.status(400).json({ message: "El número de celular ya está registrado." });
+                    }
+                }
 
-			// Asignación directa de campos
-			if (email) user.email = email;
-			if (nombres) user.nombres = nombres;
-			if (apellidos) user.apellidos = apellidos;
-			if (celular) user.celular = celular;
-			if (estado) user.estado = estado;
-			if (titulo_profesional)
-				user.titulo_profesional = titulo_profesional;
-			if (foto_perfil) user.foto_perfil = foto_perfil;
+                // Asignación directa de campos
+                if (emailClean) user.email = emailClean;
+                if (nombresClean) user.nombres = nombresClean;
+                if (apellidosClean) user.apellidos = apellidosClean;
+                if (celularClean) user.celular = celularClean;
+                if (documentoClean) user.documento = documentoClean;
+                if (tipoDocumentoClean) user.tipoDocumento = tipoDocumentoClean;
+                if (estado) user.estado = estado;
+                if (titulo_profesional) user.titulo_profesional = titulo_profesional;
+                if (foto_perfil) user.foto_perfil = foto_perfil;
 
 			// Si se envía información de empresa, permitir que el administrador la actualice también
 			if (req.body.empresa && user.Empresa) {
@@ -1094,14 +1125,70 @@ const updateUserProfile = async (req, res) => {
 					user.Empresa.img_empresa = img_empresa;
 				}
 
-				await user.Empresa.save();
-			}
+                    await user.Empresa.save();
+                }
 
-			await user.save();
-			return res
-				.status(200)
-				.json({ message: "Perfil actualizado con éxito." });
-		}
+                // Detectar cambios comparando snapshot vs valores actuales
+                const changedFields = [];
+                const labels = {
+                    email: 'Correo',
+                    nombres: 'Nombres',
+                    apellidos: 'Apellidos',
+                    celular: 'Celular',
+                    documento: 'Documento',
+                    estado: 'Estado',
+                    titulo_profesional: 'Título profesional',
+                    tipoDocumento: 'Tipo de documento',
+                    foto_perfil: 'Foto de perfil',
+                };
+                
+                let photoChanged = false;
+                for (const key of Object.keys(originalValues)) {
+                    if (originalValues[key] !== user[key]) {
+                        if (key === 'foto_perfil') {
+                            photoChanged = true;
+                            // Para foto de perfil, solo indicar que cambió sin mostrar el contenido
+                            changedFields.push({ 
+                                key, 
+                                label: labels[key] || key, 
+                                before: originalValues[key] ? 'Imagen anterior' : 'Sin imagen', 
+                                after: user[key] ? 'Nueva imagen' : 'Sin imagen'
+                            });
+                        } else {
+                            changedFields.push({ 
+                                key, 
+                                label: labels[key] || key, 
+                                before: originalValues[key], 
+                                after: user[key]
+                            });
+                        }
+                    }
+                }
+
+                await user.save();
+
+                // Enviar notificación sólo si: el usuario objetivo es Gestor y hubo cambios
+                if (user.accountType === 'Gestor' && changedFields.length > 0) {
+                    try {
+                        await sendProfileUpdateNotification(
+                            Number(loggedInUser.id) || null, // remitente (admin)
+                            user.ID,                           // destinatario (gestor)
+                            {                                 // datos del usuario
+                                nombres: user.nombres,
+                                apellidos: user.apellidos,
+                                email: user.email
+                            },
+                            changedFields,                     // lista de cambios
+                            photoChanged                       // si cambió la foto
+                        );
+                    } catch (notifyErr) {
+                        console.error('Error al enviar notificación de actualización de perfil:', notifyErr);
+                        // No romper la actualización del perfil por error de notificación
+                    }
+                }
+
+                return res.status(200).json({ message: "Perfil actualizado con éxito." });
+        }
 
 		// EMPRESA puede actualizar su propio perfil - CORREGIDO
 		if (
@@ -1263,29 +1350,35 @@ const updateUserProfile = async (req, res) => {
 			});
 		}
 
-		// EMPRESA puede actualizar a sus empleados (Aprendiz)
-		if (
-			loggedInUser.accountType === "Empresa" &&
-			user.accountType === "Aprendiz"
-		) {
-			// Validar que el empleado pertenezca a la empresa logueada
-			if (user.empresa_ID !== loggedInUser.empresa_ID) {
-				return res
-					.status(403)
-					.json({
-						message:
-							"No tienes permiso para actualizar este empleado.",
-					});
-			}
+        // EMPRESA puede actualizar a sus empleados (Aprendiz)
+        if (loggedInUser.accountType === "Empresa" && user.accountType === "Aprendiz") {
+            // Validar que el empleado pertenezca a la empresa logueada
+            if (user.empresa_ID !== loggedInUser.empresa_ID) {
+                return res.status(403).json({ message: "No tienes permiso para actualizar este empleado." });
+            }
 
-			// Validaciones de campos obligatorios para empleados
-			const camposObligatorios = {
-				nombres: nombres,
-				apellidos: apellidos,
-				celular: celular,
-				documento: documento,
-				email: email,
-			};
+            // Limpiar valores "null" que vienen del FormData
+            const cleanValue = (val) => {
+                if (val === "null" || val === null || val === undefined) return null;
+                if (typeof val === "string" && val.trim() === "") return null;
+                return val;
+            };
+
+            const nombresClean = cleanValue(nombres);
+            const apellidosClean = cleanValue(apellidos);
+            const celularClean = cleanValue(celular);
+            const documentoClean = cleanValue(documento);
+            const emailClean = cleanValue(email);
+            const tipoDocumentoClean = cleanValue(tipoDocumento);
+
+            // Validaciones de campos obligatorios para empleados
+            const camposObligatorios = {
+                nombres: nombresClean,
+                apellidos: apellidosClean,
+                celular: celularClean,
+                documento: documentoClean,
+                email: emailClean
+            };
 
 			const camposVacios = [];
 			for (const [campo, valor] of Object.entries(camposObligatorios)) {
@@ -1305,50 +1398,35 @@ const updateUserProfile = async (req, res) => {
 				});
 			}
 
-			// Validaciones únicas
-			if (email && email !== user.email) {
-				const existingEmail = await User.findOne({ where: { email } });
-				if (existingEmail) {
-					return res
-						.status(400)
-						.json({
-							message:
-								"El correo electrónico ya está registrado.",
-						});
-				}
-			}
-			if (documento && documento !== user.documento) {
-				const existingDocumento = await User.findOne({
-					where: { documento },
-				});
-				if (existingDocumento) {
-					return res
-						.status(400)
-						.json({ message: "El documento ya está registrado." });
-				}
-			}
-			if (celular && celular !== user.celular) {
-				const existingCelular = await User.findOne({
-					where: { celular },
-				});
-				if (existingCelular) {
-					return res
-						.status(400)
-						.json({
-							message: "El número de celular ya está registrado.",
-						});
-				}
-			}
+            // Validaciones únicas
+            if (emailClean && emailClean !== user.email) {
+                const existingEmail = await User.findOne({ where: { email: emailClean } });
+                if (existingEmail) {
+                    return res.status(400).json({ message: "El correo electrónico ya está registrado." });
+                }
+            }
+            if (documentoClean && documentoClean !== user.documento) {
+                const existingDocumento = await User.findOne({ where: { documento: documentoClean } });
+                if (existingDocumento) {
+                    return res.status(400).json({ message: "El documento ya está registrado." });
+                }
+            }
+            if (celularClean && celularClean !== user.celular) {
+                const existingCelular = await User.findOne({ where: { celular: celularClean } });
+                if (existingCelular) {
+                    return res.status(400).json({ message: "El número de celular ya está registrado." });
+                }
+            }
 
-			// Asignación directa de campos
-			if (email) user.email = email;
-			if (nombres) user.nombres = nombres;
-			if (apellidos) user.apellidos = apellidos;
-			if (celular) user.celular = celular;
-			if (documento) user.documento = documento;
-			if (estado) user.estado = estado;
-			if (tipoDocumento) user.tipoDocumento = tipoDocumento;
-			if (foto_perfil) user.foto_perfil = foto_perfil;
+            // Asignación directa de campos
+            if (emailClean) user.email = emailClean;
+            if (nombresClean) user.nombres = nombresClean;
+            if (apellidosClean) user.apellidos = apellidosClean;
+            if (celularClean) user.celular = celularClean;
+            if (documentoClean) user.documento = documentoClean;
+            if (estado) user.estado = estado;
+            if (tipoDocumentoClean) user.tipoDocumento = tipoDocumentoClean;
+            if (foto_perfil) user.foto_perfil = foto_perfil;
 
 			await user.save();
 			return res
@@ -1829,40 +1907,38 @@ const createMasiveUsers = async (req, res) => {
 			}
 		}
 
-		// Verificar si hay usuarios repetidos en la base de datos antes de crear
-		const emails = usuariosLimpios.map((e) => {
-			return {
-				email: e.email,
-				accountType: e.accountType,
-			};
-		});
-
-		const emailList = await Promise.all(
-			emails.map(async (e) => {
-				const newEmail = e.email;
-				const payload = { data: { newEmail } };
-				const token = generateToken(payload, process.env.JWT_SECRET, 5);
-				return {
-					email: newEmail,
-					token: token,
-					accountType: e.accountType,
-				};
-			})
-		);
-
-		const emails2 = emails.map((e) => {
-			return e.email;
-		});
-		const existingUsers = await User.findAll({ where: { email: emails2 } });
-		if (existingUsers.length > 0) {
-			const repetidos = existingUsers.map((user) => user.email);
-			return res.status(409).json({
-				message: "Existen usuarios repetidos en la base de datos.",
-				repetidos,
-			});
-		}
-		// Crear usuarios con los datos extraídos
-		await User.bulkCreate(usuariosLimpios, { ignoreDuplicates: true });
+        // Verificar si hay usuarios repetidos en la base de datos antes de crear
+        const emails = usuariosLimpios.map((e) =>{
+            return {
+                email : e.email,
+                accountType : e.accountType
+            }
+        })
+        
+        const emailList = await Promise.all(
+            emails.map( async (e) =>{
+                const newEmail = e.email
+                const payload = { data: { newEmail } };
+                const  token = generateToken(payload, process.env.JWT_SECRET, 5)
+                return {
+                    email : newEmail,
+                    token : token,
+                    accountType : e.accountType
+                }
+            })
+        )
+        
+        const emails2 = emails.map((e) =>{return e.email})
+        const existingUsers = await User.findAll({ where: { email: emails2 } });
+        if (existingUsers.length > 0) {
+            const repetidos = existingUsers.map(user => user.email);
+            return res.status(409).json({
+                message: "Existen usuarios repetidos en la base de datos.",
+                repetidos
+            });
+        }
+        // Crear usuarios con los datos extraídos
+        await  User.bulkCreate(usuariosLimpios, {ignoreDuplicates : true})
 
 		await Promise.all(
 			emailList.map((list) => {
@@ -2399,16 +2475,16 @@ const checkProfileComplete = async (req, res) => {
 			isComplete = missingFields.length === 0;
 		}
 
-		res.json({
-			isComplete,
-			missingFields,
-			accountType: user.accountType,
-			userId: user.id,
-		});
-	} catch (error) {
-		console.error("Error verificando perfil:", error);
-		res.status(500).json({ message: "Error verificando perfil" });
-	}
+    res.json({ 
+      isComplete,
+      missingFields,
+      accountType: user.accountType,
+      userId: user.id
+    });
+  } catch (error) {
+    console.error("Error verificando perfil:", error);
+    res.status(500).json({ message: "Error verificando perfil" });
+    }
 };
 
 module.exports = {

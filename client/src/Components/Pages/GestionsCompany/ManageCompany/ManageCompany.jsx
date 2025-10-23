@@ -3,6 +3,7 @@ import "./UpdateCompany.css";
 import axiosInstance from "../../../../config/axiosInstance";
 import PropTypes from "prop-types";
 import fotoPerfilDefect from "../../../../assets/Icons/userDefect.png";
+import { validateEmail, validateNumber, validateText, validateAddress, validateNIT } from "../../../../utils/Validators/formValidator";
 
 // Modal para gestionar datos de una Empresa
 export const ManageCompany = ({ empresa, onClose }) => {
@@ -109,6 +110,38 @@ export const ManageCompany = ({ empresa, onClose }) => {
     setFormData((prev) => ({ ...prev, estado: estado.toLowerCase() }));
   };
 
+  const validateFields = () => {
+    const errors = [];
+    
+    // Validar nombre de empresa
+    if (formData.nombre_empresa.trim() === '') {
+      errors.push('El nombre de la empresa es obligatorio');
+    }
+    
+    // Validar NIT
+    const nitError = validateNIT(formData.NIT);
+    if (nitError) errors.push(nitError);
+    
+    // Validar categoría
+    if (formData.categoria.trim() === '') {
+      errors.push('La categoría es obligatoria');
+    }
+    
+    // Validar teléfono
+    const telefonoError = validateNumber(formData.telefono);
+    if (telefonoError) errors.push(telefonoError);
+    
+    // Validar dirección
+    const direccionError = validateAddress(formData.direccion);
+    if (direccionError) errors.push(direccionError);
+    
+    // Validar email de empresa
+    const emailError = validateEmail(formData.email_empresa);
+    if (emailError) errors.push(emailError);
+    
+    return errors;
+  };
+
   const getLogoSrc = (logo) => {
     // Fallback inmediato si no hay valor
     if (!logo) return fotoPerfilDefect;
@@ -155,11 +188,15 @@ export const ManageCompany = ({ empresa, onClose }) => {
 
     if (!formData.userId) {
       alert("No se pudo identificar el usuario de la empresa.");
-        return;
-     }
+      return;
+    }
 
-    // Validaciones deshabilitadas temporalmente para no bloquear el envío
-    // Reintroducir reglas puntuales si se requieren mensajes específicos
+    // Validar todos los campos antes de enviar
+    const errors = validateFields();
+    if (errors.length > 0) {
+      alert(`Por favor corrija los siguientes errores:\n\n${errors.join('\n')}`);
+      return;
+    }
 
     try {
       const body = new FormData();

@@ -146,117 +146,65 @@ export const NavBar = ({ children }) => {
 		}
 	}
 
-	const handleNotificationClick = (notif) => {
-		setActiveNotification(notif)
-		setModalGeneralContent(
-			<div className="notification-modal">
-				<h2>{notif.titulo}</h2>
-				<p>
-					<b>De:</b> {notif.remitente?.nombres ? `${notif.remitente.nombres} ${notif.remitente.apellidos}` : "SGFC"}
-				</p>
-				<p>
-					<b>Mensaje:</b>
-				</p>
-				<div className="notification-message" dangerouslySetInnerHTML={{ __html: notif.mensaje }} />
-				
-				{/* Mostrar estado actual si ya fue respondida */}
-				{notif.estadoInvitacion && notif.estadoInvitacion !== 'pendiente' && (
-					<div className="notification-status">
-						<p><b>Estado:</b> 
-							<span className={`status-${notif.estadoInvitacion}`}>
-								{notif.estadoInvitacion === 'aceptada' ? ' Aceptada' : ' Rechazada'}
-							</span>
-						</p>
-					</div>
-				)}
-				
-				{notif.tipo === "invitacion_cursoInstructor" && notif.invitacion_ID && (
-					<div className="notification-buttons-container">
-						<button
-							className={`notification-btn-accept ${notif.estadoInvitacion ? 'disabled' : ''}`}
-							onClick={() => cambiarEstadoInvitacion(notif.invitacion_ID, "aceptada")}
-							disabled={notif.estadoInvitacion || processingInvitation === notif.invitacion_ID}
-						>
-							{processingInvitation === notif.invitacion_ID ? 'Procesando...' : 
-							 notif.estadoInvitacion === 'aceptada' ? '✓ Aceptada' : 'Aceptar'}
-						</button>
-						<button
-							className={`notification-btn-reject ${notif.estadoInvitacion ? 'disabled' : ''}`}
-							onClick={() => cambiarEstadoInvitacion(notif.invitacion_ID, "rechazada")}
-							disabled={notif.estadoInvitacion || processingInvitation === notif.invitacion_ID}
-						>
-							{processingInvitation === notif.invitacion_ID ? 'Procesando...' : 
-							 notif.estadoInvitacion === 'rechazada' ? '✗ Rechazada' : 'Rechazar'}
-						</button>
-					</div>
-				)}
-
-				{notif.archivo && (
-					<div className="notification-attachment">
-						<a
-							href={`http://localhost:3001/uploads/solicitudes/${notif.archivo}`}
-							target="_blank"
-							rel="noopener noreferrer"
-							style={{ color: "rgb(0 132 61)", textDecoration: "underline" }}
-						>
-							Ver PDF adjunto
-						</a>
-					</div>
-				)}
-
-				{justifying && (
-					<textarea
-						type="text"
-						className="search-input reason-textarea"
-						placeholder="Escriba el motivo por el que se rechazó la solicitud"
-						value={justificationDenial}
-						onChange={(e) => {
-							setJustificationDenial(e.target.value)
-						}}
-					/>
-				)}
-
-				{notif.tipo === "solicitud_curso" && notif.estado !== "leida" && (
-					<div className="notification-buttons-container">
-						<button
-							className={`notification-btn-accept ${processingSolicitud ? "disabled" : ""}`}
-							onClick={() => aceptarSolicitudCurso(notif)}
-						>
-							{processingSolicitud ? "Procesando..." : "Aceptar"}
-						</button>
-						<button
-							className={`notification-btn-reject ${processingSolicitud ? "disabled" : ""}`}
-							onClick={() => {
-								if (justifying)
-									rechazarSolicitudCurso(notif)
-								else {
-									setJustifying(true)
-								}
-							}}
-						>
-							{processingSolicitud ? "Procesando..." : "Rechazar"}
-						</button>
-					</div>
-				)}
-
-				{notif.tipo === "solicitud_curso" && notif.estado === "leida" && (
-					<b
-						style={{
-							marginTop: "8%"
-						}}
-					>Se ha procesado esta solicitud.</b>
-				)}
-			</div>,
-		)
-		setShowModalGeneral(true)
-	}
-
-	useEffect(() => {
-		if (activeNotification)
-			handleNotificationClick(activeNotification)
-		else
-			setShowModalGeneral(false)
-	}, [justifying, justificationDenial, processingSolicitud])
+  const handleNotificationClick = (notif) => {
+    setModalGeneralContent(
+      <div className="notification-modal">
+        <h2>{notif.titulo}</h2>
+        <p>
+          <b>De:</b> {notif.remitente?.nombres ? `${notif.remitente.nombres} ${notif.remitente.apellidos}` : "SGFC"}
+        </p>
+        <p>
+          <b>Mensaje:</b>
+        </p>
+        <div className="notification-message" dangerouslySetInnerHTML={{ __html: notif.mensaje }} />
+        
+        {/* Mostrar estado actual si ya fue respondida */}
+        {notif.estadoInvitacion && notif.estadoInvitacion !== 'pendiente' && (
+          <div className="notification-status">
+            <p><b>Estado:</b> 
+              <span className={`status-${notif.estadoInvitacion}`}>
+                {notif.estadoInvitacion === 'aceptada' ? ' Aceptada' : ' Rechazada'}
+              </span>
+            </p>
+          </div>
+        )}
+        
+        {notif.tipo === "invitacion_cursoInstructor" && notif.invitacion_ID && (
+          <div className="notification-buttons-container">
+            <button
+              className={`notification-btn-accept ${notif.estadoInvitacion ? 'disabled' : ''}`}
+              onClick={() => cambiarEstadoInvitacion(notif.invitacion_ID, "aceptada")}
+              disabled={notif.estadoInvitacion || processingInvitation === notif.invitacion_ID}
+            >
+              {processingInvitation === notif.invitacion_ID ? 'Procesando...' : 
+               notif.estadoInvitacion === 'aceptada' ? '✓ Aceptada' : 'Aceptar'}
+            </button>
+            <button
+              className={`notification-btn-reject ${notif.estadoInvitacion ? 'disabled' : ''}`}
+              onClick={() => cambiarEstadoInvitacion(notif.invitacion_ID, "rechazada")}
+              disabled={notif.estadoInvitacion || processingInvitation === notif.invitacion_ID}
+            >
+              {processingInvitation === notif.invitacion_ID ? 'Procesando...' : 
+               notif.estadoInvitacion === 'rechazada' ? '✗ Rechazada' : 'Rechazar'}
+            </button>
+          </div>
+        )}
+        {notif.archivo && (
+          <div className="notification-attachment">
+            <a
+              href={`http://localhost:3001/uploads/solicitudes/${notif.archivo}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ color: "#007bff", textDecoration: "underline" }}
+            >
+              Ver PDF adjunto
+            </a>
+          </div>
+        )}
+      </div>,
+    )
+    setShowModalGeneral(true)
+  }
 
 	const cambiarEstadoInvitacion = async (invitacionId, nuevoEstado) => {
 		// Si ya se está procesando esta invitación, no hacer nada
@@ -364,42 +312,42 @@ export const NavBar = ({ children }) => {
 							<img src={settings} alt="Configuración" />
 						</button>
 
-						<div className="notifications-menu" ref={notificationsMenuRef}>
-							<button className="btn-notifications" onClick={() => setShowNotificationsMenu((prev) => !prev)}>
-								<img className="img_notifications" src={notifications} alt="Notificaciones" />
-							</button>
-							{showNotificationsMenu && (
-								<div className="dropdown-notifications">
-									<div className="arrow-up" />
-									{loadingNotifications ? (
-										<div className="notification-item">Cargando...</div>
-									) : notificationsList.length === 0 ? (
-										<div className="notification-item">Sin notificaciones</div>
-									) : (
-										notificationsList.map((notif) => (
-											<div
-												className="notification-item"
-												key={notif.ID}
-												style={{ cursor: "pointer" }}
-												onClick={() => handleNotificationClick(notif)}
-											>
-												<div className="container-img-notifications">
-													<img src={notif.estado === "sin_leer" ? noRead : ifRead} alt="" />
-												</div>
-												<div className="container-text-notifications">
-													<p className="notification-sender">
-														{notif.remitente?.nombres
-															? `${notif.remitente.nombres} ${notif.remitente.apellidos}`
-															: "SGFC"}
-													</p>
-													<span className="notification-affair">{notif.titulo}</span>
-												</div>
-											</div>
-										))
-									)}
-								</div>
-							)}
-						</div>
+            <div className="notifications-menu" ref={notificationsMenuRef}>
+              <button className="btn-notifications" onClick={() => setShowNotificationsMenu((prev) => !prev)}>
+                <img className="img_notifications" src={notifications} alt="Notificaciones" />
+              </button>
+              {showNotificationsMenu && (
+                <div className="dropdown-notifications">
+                  <div className="arrow-up" />
+                  {loadingNotifications ? (
+                    <div className="notification-item">Cargando...</div>
+                  ) : notificationsList.length === 0 ? (
+                    <div className="notification-item">Sin notificaciones</div>
+                  ) : (
+                    notificationsList.map((notif) => (
+                      <div
+                        className="notification-item"
+                        key={notif.ID}
+                        style={{ cursor: "pointer" }}
+                        onClick={() => handleNotificationClick(notif)}
+                      >
+                        <div className="container-img-notifications">
+                          <img src={notif.estado === "sin_leer" ? noRead : ifRead} alt="" />
+                        </div>
+                        <div className="container-text-notifications">
+                          <p className="notification-sender">
+                            {notif.remitente?.nombres
+                              ? `${notif.remitente.nombres} ${notif.remitente.apellidos}`
+                              : "SGFC"}
+                          </p>
+                          <span className="notification-affair">{notif.titulo}</span>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
+            </div>
 
 						<button id="btn_profile" onClick={handleProfileClick}>
 							<img src={profile} alt="Perfil" />

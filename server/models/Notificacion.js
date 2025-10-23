@@ -16,6 +16,7 @@ class Notificacion extends Model {
                         'actualizacion_curso',
                         'solicitud_curso',
                         'invitacion_cursoInstructor',
+                        'perfil_actualizado',
                         'otro'
                     ),
                     allowNull: false

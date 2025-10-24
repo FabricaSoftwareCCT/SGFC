@@ -3,3 +3,8 @@ node_modules
 config/sgfc-vision-key.json
 uploads/documentos
 uploads/solicitudes
+uploads/material
+
+!uploads/documentos/.gitkeep
+!uploads/solicitudes/.gitkeep
+!uploads/material/.gitkeep

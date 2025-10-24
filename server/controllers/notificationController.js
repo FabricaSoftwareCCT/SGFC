@@ -377,9 +377,10 @@ const crearNotificacionMaterialApoyo = async (req, res) => {
         const emails = usuarios.map(user => user.email);
         const material_link = `http://localhost:5173/cursos/`;
         
-        await sendCreateMaterialApoyo(emails, curso.dataValues.nombre_curso, material_link)
-        await createNotificacionMaterialApoyo(remitente_ID, emails, curso);
-
+        if (emails.length > 0) {
+            await sendCreateMaterialApoyo(emails, curso.dataValues.nombre_curso, material_link)
+            await createNotificacionMaterialApoyo(remitente_ID, emails, curso);
+        }
         return res.status(200).json({message: "se enviaron las notificaciones, del material de apoyo"})
         
     } catch (error) {

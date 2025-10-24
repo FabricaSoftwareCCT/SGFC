@@ -314,6 +314,7 @@
 	font-weight: 500;
 	width: auto;
 	height: auto;
+	text-decoration: none;
 }
 
 .btn-descargar:hover {

@@ -18,6 +18,7 @@ export const SupportMaterial = () => {
 	const [material, setMaterial] = useState("");
 	const [cursos, setCursos] = useState([]);
 	const [archivos, setArchivos] = useState([]);
+	const [uploadFile, setUploadFile] = useState()
 
 	const fetchCursos = async () => {
 		try {
@@ -47,17 +48,7 @@ export const SupportMaterial = () => {
 	const handleFileUpload = (event) => {
 		const file = event.target.files[0];
 		if (!file || !cursoSeleccionado) return;
-
-		setSubiendoArchivo(true);
-		// Simular subida de archivo
-		setTimeout(() => {
-			setSubiendoArchivo(false);
-			alert(`Archivo "${file.name}" subido exitosamente`);
-		}, 2000);
-	}
-			
-	const handleDescargarArchivo = (archivo) => {
-		alert(`Descargando: ${archivo.nombre_original}`);
+		setUploadFile(file)
 	}
 	
 	const handleEliminarArchivo = (archivoId) => {
@@ -87,18 +78,47 @@ export const SupportMaterial = () => {
 	};
 
 	const crearMaterial = async () => {
+		setSubiendoArchivo(true)
 		try {
+			const body = new FormData()
+			let resp
 			switch (materialType) {
 				case "PDF":
+					if (!uploadFile) {
+						alert("Se debe proporcionar un archivo PDF")
+						return
+					}
+					body.append("document_pdf", uploadFile)
+					body.append("tipo", materialType.toLowerCase())
+					resp = await axiosInstance.post(`/api/material/create/${cursoSeleccionado.ID}`, body, {
+						headers: { "Content-Type": "multipart/form-data" },
+					})
+					setShowMaterialCreation(false)
+					alert(resp.data.message)
+					setUploadFile(null)
+					fetchMaterial(cursoSeleccionado)
 					break
 				case "Video":
+					if (!uploadFile) {
+						alert("Se debe proporcionar un video MP4")
+						return
+					}
+					body.append("video", uploadFile)
+					body.append("tipo", materialType.toLowerCase())
+					resp = await axiosInstance.post(`/api/material/create/${cursoSeleccionado.ID}`, body, {
+						headers: { "Content-Type": "multipart/form-data" },
+					})
+					setShowMaterialCreation(false)
+					alert(resp.data.message)
+					setUploadFile(null)
+					fetchMaterial(cursoSeleccionado)
 					break
 				case "Enlace":
 					if (material.length < 1) {
 						alert("Se debe proporcionar un enlace")
 						return
 					}
-					const resp = await axiosInstance.post(`/api/material/create/${cursoSeleccionado.ID}`, {
+					resp = await axiosInstance.post(`/api/material/create/${cursoSeleccionado.ID}`, {
 						tipo: materialType.toLowerCase(),
 						link: material
 					})
@@ -108,9 +128,11 @@ export const SupportMaterial = () => {
 					alert(resp.data.message)
 					break
 			}
+			setSubiendoArchivo(false)
 		} catch (error) {
 			console.log(error)
 			alert("Ocurrió un error al crear el material de apoyo")
+			setSubiendoArchivo(false)
 		}
 	}
 
@@ -208,7 +230,7 @@ export const SupportMaterial = () => {
 															<>
 																<span className='archivo-nombre'>{truncarNombreArchivo(archivo.nombre_original, 12)}</span>
 																<span className='archivo-detalles'>
-																	{(archivo.tamanio / 1024 / 1024).toFixed(2)}MB - Subido el {archivo.fecha_subida}
+																	{(archivo.tamanio / 1024 / 1024).toFixed(2)}MB - Subido el {new Date(archivo.fecha_subida).toLocaleDateString("es-CO")}
 																</span>
 															</>
 														) : (
@@ -249,7 +271,7 @@ export const SupportMaterial = () => {
 															</>
 														:
 															<>
-																{puedeEliminarArchivos && (
+																{(puedeEliminarArchivos && archivo.tipo_contenido === "link") && (
 																	<button
 																		className='btn-editar'
 																		onClick={() => setEditingMaterial(archivo)}
@@ -257,12 +279,15 @@ export const SupportMaterial = () => {
 																)}
 																{archivo.tipo_contenido != "link" && (
 																	<>
-																		<button 
+																		<a 
 																			className='btn-descargar' 
-																			onClick={() => handleDescargarArchivo(archivo)}
+																			href={`http://localhost:3001${archivo.contenido}`} 
+																			target="_blank"
+																			rel="noopener noreferrer"
+																			download
 																		>
 																			Descargar
-																		</button>
+																		</a>
 																	</>
 																)}
 																{puedeEliminarArchivos && (
@@ -360,6 +385,7 @@ export const SupportMaterial = () => {
 							style={{
 								flex: "none"
 							}}
+							disabled={subiendoArchivo}
 							onClick={() => crearMaterial()}
 						>Crear material</button>
 					</div>

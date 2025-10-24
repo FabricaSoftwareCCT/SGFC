@@ -1,5 +1,7 @@
+const path = require("path");
 const CursoTieneMaterialDeApoyo = require("../models/CursoTieneMaterialDeApoyo");
 const MaterialDeApoyo = require("../models/MaterialDeApoyo");
+const { mkdirSync, writeFileAsync, writeFileSync } = require("fs");
 
 let dbInstance;
 
@@ -38,11 +40,11 @@ const obtenerMaterialCurso = async (req, res) => {
 
 const crearMaterial = async (req, res) => {
 	const { id } = req.params
-	const { tipo, link } = req.body
+	const { tipo } = req.body
 	const { accountType } = req.user;
 	const userId = req.user.id;
 
-	try {
+	//try {
 		if (
 			accountType !== "Administrador" &&
 			accountType !== "Instructor" &&
@@ -63,12 +65,40 @@ const crearMaterial = async (req, res) => {
 
 		switch (tipo) {
 			case "pdf":
+				let pdfFile = req.files.document_pdf[0]
+				const pdfName = `${new Date().getTime()}${pdfFile.fieldname}.pdf`
+				const pdfPath = path.join(__dirname, "../uploads/material", pdfName)
+
+				mkdirSync(path.dirname(pdfPath), { recursive: true })
+				writeFileSync(pdfPath, pdfFile.buffer)
+				
+				material = await MaterialDeApoyo.create({
+					nombre_original: pdfName,
+					tamanio: pdfFile.size,
+					tipo_contenido: "pdf",
+					creador_ID: userId,
+					contenido: `/uploads/material/${pdfName}`
+				})
 				break
 			case "video":
+				let videoFile = req.files.video[0]
+				const videoName = `${new Date().getTime()}${videoFile.fieldname}.mp4`
+				const videoPath = path.join(__dirname, "../uploads/material", videoName)
+
+				mkdirSync(path.dirname(videoPath), { recursive: true })
+				writeFileSync(videoPath, videoFile.buffer)
+				
+				material = await MaterialDeApoyo.create({
+					nombre_original: videoName,
+					tamanio: videoFile.size,
+					tipo_contenido: "video",
+					creador_ID: userId,
+					contenido: `/uploads/material/${videoName}`
+				})
 				break
 			case "enlace":
 				material = await MaterialDeApoyo.create({
-					contenido: link,
+					contenido: req.body.link,
 					tipo_contenido: "link",
 					creador_ID: userId
 				})
@@ -85,12 +115,12 @@ const crearMaterial = async (req, res) => {
 		return res.status(200).send({
 			message: "Se ha creado el criterio"
 		})
-	} catch (error) {
+	/*} catch (error) {
 		console.error(`Error al crear el material ${error}`)
 		res.status(500).send({
 			message: "Ocurrió un error interno al crear el material."
 		})
-	}
+	}*/
 }
 
 const actualizarMaterial = async (req, res) => {

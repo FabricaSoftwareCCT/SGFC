@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import './concertationProceeding.css';
 import { Header } from "../../Layouts/Header/Header";
 import { Footer } from '../../Layouts/Footer/Footer';
@@ -7,7 +7,6 @@ import { Main } from '../../Layouts/Main/Main';
 import axiosInstance from '../../../config/axiosInstance';
 import html2pdf from 'html2pdf.js';
 import { ModalSignature } from '../../UI/Modal_Signature/ModalSignature';
-import { useNavigate } from 'react-router-dom';
 import { validateText, validateNumber, createMensajeError, validarFecha } from '../../../utils/Validators/formValidator';
 
 export const ConcertationProceeding = () => {
@@ -220,6 +219,11 @@ export const ConcertationProceeding = () => {
   const handleEdit = () => setIsEditing(true);
   const handleSave = () => setIsEditing(false);
 
+  // FUNCIÓN PARA VOLVER A LA PÁGINA ANTERIOR
+  const handleGoBack = () => {
+    navigate(-1); // Esto lleva al usuario a la página anterior en el historial
+  };
+
   // Funciones para manejar las nuevas listas
   const handleNotaChange = (index, value) => {
     const nuevasNotas = [...notasRelevantes];
@@ -325,6 +329,13 @@ export const ConcertationProceeding = () => {
       <Header />
       <Main>
         <div className="course-request-container-proceedings">
+          <button 
+            className="button-volver" 
+            onClick={handleGoBack}
+            style={{ backgroundColor: '#00a144' }}
+          >
+            Volver Atrás
+          </button>
           <h1>
             Acta de <span className="highlight-proceedings">Concertación</span>
           </h1>

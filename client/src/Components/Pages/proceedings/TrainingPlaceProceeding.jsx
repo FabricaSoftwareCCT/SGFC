@@ -183,6 +183,11 @@ export const TrainingPlaceProceeding = () => {
     const handleEdit = () => setIsEditing(true);
     const handleSave = () => setIsEditing(false);
 
+    // FUNCIÓN PARA VOLVER A LA PÁGINA ANTERIOR
+    const handleGoBack = () => {
+        navigate(-1); // Esto lleva al usuario a la página anterior en el historial
+    };
+
     // Enviar el acta de lugar de formación al backend
     const handleSendProceeding = async () => {
         try {
@@ -246,6 +251,13 @@ export const TrainingPlaceProceeding = () => {
             <Header />
             <Main>
                 <div className="training-place-proceeding-container">
+                    <button 
+                        className="button-volver" 
+                        onClick={handleGoBack}
+                        style={{ backgroundColor: '#00a144' }}
+                    >
+                        Volver Atrás
+                    </button>
                     <h1>
                         Acta de <span className="highlight-proceedings">Lugar de Formación</span>
                     </h1>

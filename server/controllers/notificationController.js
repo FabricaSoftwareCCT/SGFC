@@ -1,6 +1,11 @@
+const { log } = require('console');
 const Notificacion = require('../models/Notificacion');
 const User = require("../models/User");
-const { sendNotification, sendAbsenceNotifications, sendCourseRequestStatusEmail} = require('../services/notificationService');
+const Curso = require("../models/curso")
+const { notify } = require('../routes/userRoutes');
+const {sendCreateMaterialApoyo} = require('../services/emailService')
+const { sendNotification, sendAbsenceNotifications, sendCourseRequestStatusEmail, getNotificacionesEstado, createNotificacionMaterialApoyo} = require('../services/notificationService');
+const { Op } = require('sequelize');
 let dbInstance;
 
 // Función para inyectar la instancia de la base de datos
@@ -14,7 +19,6 @@ const setDb = (databaseInstance) => {
 const getUserNotifications = async (req, res) => {
     try {
         const userId = req?.user?.id;
-        console.log(userId)
         if (!userId) {
             return res.status(401).json({
                 success: false,
@@ -54,10 +58,7 @@ const getUserNotifications = async (req, res) => {
             limit,
             offset
         });
-       notifications.forEach(notification => {
-        const invitacionID = notification.dataValues.invitacion_ID;
-        console.log('Invitacion ID:', invitacionID);
-       });
+       const results = await getNotificacionesEstado(notifications);
         res.status(200).json({
             success: true,
             notifications,
@@ -195,6 +196,17 @@ const crearNotificacionSolicitudCurso = async (req, res) => {
         const { asunto, mensaje, archivo } = req.body;
         // El remitente es el usuario autenticado (empresa)
         const remitente_ID = req.user.id;
+        const { accountType } = req.user;
+
+		if (
+			accountType !== "Empresa" &&
+			accountType !== "Aprendiz"
+		) {
+			return res.status(403).json({
+				message: "No tienes permisos para realizar esta acción.",
+			});
+		}
+
 
         // Busca todos los usuarios tipo 'Administrador' y 'Gestor'
         const destinatarios = await User.findAll({
@@ -219,7 +231,7 @@ const crearNotificacionSolicitudCurso = async (req, res) => {
             notificaciones.push(notificacion);
         }
 
-        console.log("Notifcación registrada",notificaciones)
+        //console.log("Notifcación registrada",notificaciones)
 
         res.status(201).json({
             success: true,
@@ -342,6 +354,41 @@ const createCourseRequestStatusNotification = async (req, res) => {
     }
 }
 
+// crear notificacion de material de apoyo subido para aprendices
+const crearNotificacionMaterialApoyo = async (req, res) => {
+    try {
+        const{ curso_ID} = req.body;
+
+        const remitente_ID = req.user.id;
+        
+        if (!remitente_ID || !curso_ID) {
+            return res.status(400). json({message: 'faltan datos requeridos.'});
+        }
+
+        const usuarios = await User.findAll({
+            where : {
+                verificacion_email : true,
+                accountType : {[Op.or] : ["Aprendiz"]}
+            },
+            attributes : ['email']
+        })
+
+        const curso = await Curso.findByPk(curso_ID)
+        const emails = usuarios.map(user => user.email);
+        const material_link = `http://localhost:5173/cursos/`;
+        
+        if (emails.length > 0) {
+            await sendCreateMaterialApoyo(emails, curso.dataValues.nombre_curso, material_link)
+            await createNotificacionMaterialApoyo(remitente_ID, emails, curso);
+        }
+        return res.status(200).json({message: "se enviaron las notificaciones, del material de apoyo"})
+        
+    } catch (error) {
+        console.error('Error al crear notificación de material de apoyo:', error);
+        res.status(500).json({ message: 'Error al crear la notificación' });
+    }
+}
+
 
 module.exports = {
     setDb,
@@ -350,5 +397,6 @@ module.exports = {
     sendManualAbsenceNotification,
     crearNotificacionSolicitudCurso,
     crearNotificacionInvitacionCursoInstructor,
-    createCourseRequestStatusNotification
+    createCourseRequestStatusNotification,
+    crearNotificacionMaterialApoyo
 }; 

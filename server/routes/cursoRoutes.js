@@ -3,7 +3,7 @@ const router = express.Router();
 const cursoController = require("../controllers/cursoController");
 const {authMiddleware} = require("../middlewares/authMiddleware");
 const upload = require("../config/multer");
-const { crearOActualizarInscripcion } = require('../controllers/inscripcionCursoController');
+const { crearOActualizarInscripcion, inscripcionEmpleados } = require('../controllers/inscripcionCursoController');
 // filepath: [userRoutes.js](http://_vscodecontentref_/2)
 
 // Rutas públicas (no requieren autenticación)
@@ -35,9 +35,13 @@ router.get('/cursos/:courseId/participants', cursoController.getCursoParticipant
 // Ruta para crear o actualizar el estado de una inscripción (solo administradores)
 router.put('/inscripciones', crearOActualizarInscripcion);
 
+// Ruta para inscribir empleados a un curso
+router.post('/inscripcionEmpleados', inscripcionEmpleados)
+
 //enviar invitacion de curso a instructor
 router.post('/enviarInvitacionCursoInstructor', cursoController.enviarInvitacionCurso);
 
+// cambiar el estado de la invitacion a un curso (instructor)
 router.put('/cambiarEstadoInvitacion/:invitacionId', cursoController.cambiarEstadoInvitacion);
 
 module.exports = router;

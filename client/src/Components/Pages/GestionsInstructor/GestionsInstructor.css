@@ -173,6 +173,7 @@
     user-select: none;
     width: auto;
     height: auto;
+    margin-top: -15%;
     transition: color 0.3s ease;
 }
 

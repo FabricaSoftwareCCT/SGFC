@@ -1,9 +1,10 @@
 const express = require("express");
-const { createEmpleado, getEmpleadosByEmpresaId, recordLogin, subirDocumentoIdentidad, getEmpresaById, refreshAccessToken, getAprendicesByEmpresa, registerUser, verifyEmail, loginUser,requestPasswordReset,resetPassword, getAllUsers, getUserProfile, getAprendices, getEmpresas, getInstructores, getGestores, updateUserProfile,createInstructor, createGestor,logoutUser, createMasiveUsers, getEmpresaByNIT, requestNewVerificationEmail } = require("../controllers/userController");
+const { createEmpleado, getEmpleadosByEmpresaId, recordLogin, subirDocumentoIdentidad, getEmpresaById, refreshAccessToken, getAprendicesByEmpresa, registerUser, verifyEmail, loginUser,requestPasswordReset,resetPassword, getAllUsers, getUserProfile, getAprendices, getEmpresas, createEmpresa, getInstructores, getGestores, updateUserProfile,createInstructor, createGestor,logoutUser, createMasiveUsers, getEmpresaByNIT, requestNewVerificationEmail, checkProfileComplete, getAllEmpleadosForAdmin, getAllEmpresasForAdmin, createEmpleadoForAdmin } = require("../controllers/userController");
 const { googleSignIn, googleSignUp } = require("../controllers/authGoogleController"); // Importar controlador de autenticación de Google
-const { authMiddleware } = require("../middlewares/authMiddleware");
+const { authMiddleware, authorizeRoles } = require("../middlewares/authMiddleware");
 const router = express.Router();
 const upload = require("../config/multer"); // Importar configuración de multer
+const { cursosEmpresa } = require("../controllers/cursoController");
 
 router.post("/createUser", registerUser); // Ruta para registrar usuario
 router.get("/verificarCorreo", verifyEmail); // Ruta para verificar correo
@@ -20,6 +21,7 @@ router.get('/aprendices', getAprendices); // Obtener todos los aprendices
 router.get('/empresas', getEmpresas); // Obtener todas las empresas
 router.get('/instructores', getInstructores); // Obtener todos los instructores
 router.get('/gestores', getGestores); // Obtener todos los gestores
+router.get("/check-profile", checkProfileComplete); // ✅ NUEVA RUTA - Verificar perfil completo
 router.put(
   '/perfil/actualizar/:id',
   authMiddleware, // ✅ AÑADIR EL MIDDLEWARE AQUÍ
@@ -32,13 +34,20 @@ router.put(
 router.post('/crearGestor', upload.single('foto_perfil'), createGestor);
 router.post("/logout", logoutUser);
 router.get("/empresa/empleados/:id", getAprendicesByEmpresa); // Obtener aprendices por ID de empresa
-router.post('/createMasiveUsers', upload.single('archivo_xlsx'), createMasiveUsers)
+router.post('/createMasiveUsers/:empresaId', upload.single('archivo_xlsx'), createMasiveUsers) // Crear empleados de manera masiva
 router.get("/empresa/:NIT", getEmpresaByNIT); // Obtener empresa por ID
 router.post("/refresh", refreshAccessToken);
 router.get("/empresa/:empresaId/empleados", getEmpleadosByEmpresaId); // Obtener empleados (aprendices) por empresa_ID
 router.post('/empresa/:empresaId/empleados', upload.single('foto_perfil'), createEmpleado); // Crear empleado (aprendiz) asociado a una empresa
 router.get('/empresa/id/:id', getEmpresaById);
 router.post('/:id/documento', upload.single('pdf'), subirDocumentoIdentidad);
+router.post('/empresas', authMiddleware, upload.single('img_empresa'), createEmpresa);
+
+// Rutas para administradores
+// Permitir Administrador y Gestor
+router.get('/admin/empleados', authMiddleware, authorizeRoles(['Administrador', 'Gestor']), getAllEmpleadosForAdmin);
+router.get('/admin/empresas', authMiddleware, authorizeRoles(['Administrador', 'Gestor']), getAllEmpresasForAdmin);
+router.post('/admin/empleados', authMiddleware, authorizeRoles(['Administrador', 'Gestor']), upload.single('foto_perfil'), createEmpleadoForAdmin);
 
 
 router.get("/", (req, res) => {
@@ -46,4 +55,4 @@ router.get("/", (req, res) => {
   });
   
 
-module.exports = router;  
+module.exports = router;

@@ -16,7 +16,9 @@ const attendanceRoutes = require("./routes/attendanceRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
 const ubicacionesRoutesFactory = require("./routes/ubicacionesRoutes");
 const actasRoutes = require("./routes/actasRoutes");
-const reporteRoutes = require("./routes/reporteRoutes");
+const reporteRoutes = require("./routes/ReporteRoutes");
+const certificationCriteriaRoutes = require("./routes/certificationCriteriaRoutes")
+const materialRoutes = require("./routes/materialRoutes")
 
 // libreria para programar tareas
 const cron = require('node-cron');
@@ -83,6 +85,11 @@ app.use("/api/ubicaciones", (req, res, next) => {
 });
 app.use("/api/actas", actasRoutes);
 app.use("/api/reports", reporteRoutes);
+app.use("/api/certification", certificationCriteriaRoutes)
+app.use("/api/material", materialRoutes)
+
+// Importar utilidades para gestión de índices
+const { ensureIndexesSmart, dropDuplicateIndexes } = require('./utils/indexManagement');
 
 async function startServer() {
   try {
@@ -95,15 +102,28 @@ async function startServer() {
     const cursoController = require('./controllers/cursoController');
     const notificationService = require('./services/notificationService');
     const notificationController = require('./controllers/notificationController');
+    const certificationCriteriaController = require("./controllers/certificationCriteriaController")
+    const materialController = require("./controllers/materialController");
 
     attendanceController.setDb(db);
     cursoController.setDb(db);
     notificationService.setDb(db);
     notificationController.setDb(db);
+    certificationCriteriaController.setDb(db);
+    materialController.setDb(db);
 
     // Montar rutas de ubicaciones con acceso a la DB
     const ubicacionesRoutes = ubicacionesRoutesFactory(db);
     app.use("/api/ubicaciones", ubicacionesRoutes);
+
+    // Limpiar índices duplicados y asegurar índices faltantes
+    console.log("Limpiando índices duplicados...");
+    await dropDuplicateIndexes(db.sequelize);
+    console.log("Limpieza de índices duplicados completada.");
+    
+    console.log("Asegurando índices faltantes...");
+    await ensureIndexesSmart(db.sequelize);
+    console.log("Aseguramiento de índices completado.");
 
     // Crear datos por defecto
     await db.Departamento.createDefaultDeparment();

@@ -13,88 +13,138 @@ import ifRead from "../../../assets/Icons/mensaje-leido.png"
 import { useModal } from "../../../Context/ModalContext"
 
 export const NavBar = ({ children }) => {
-  const navigate = useNavigate()
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const { setShowSignIn } = useModal()
-  const [notificationsList, setNotificationsList] = useState([])
-  const [loadingNotifications, setLoadingNotifications] = useState(false)
-  const [processingInvitation, setProcessingInvitation] = useState(null) // Nuevo estado para controlar procesamiento
+	const navigate = useNavigate()
+	const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+	const { setShowSignIn } = useModal()
+	const [notificationsList, setNotificationsList] = useState([])
+	const [loadingNotifications, setLoadingNotifications] = useState(false)
+	const [justifying, setJustifying] = useState(false)
+	const [processingInvitation, setProcessingInvitation] = useState(null) // Nuevo estado para controlar procesamiento
+	const [processingSolicitud, setProcessingSolicitud] = useState(null)
+	const [justificationDenial, setJustificationDenial] = useState("")
+	const [activeNotification, setActiveNotification] = useState(null)
 
-  const userSession =
-    JSON.parse(localStorage.getItem("userSession")) || JSON.parse(sessionStorage.getItem("userSession"))
+	const userSession =
+		JSON.parse(localStorage.getItem("userSession")) || JSON.parse(sessionStorage.getItem("userSession"))
 
-  const isLoggedIn = !!userSession
+	const isLoggedIn = !!userSession
 
-  const handleProfileClick = () => {
-    if (userSession?.id) {
-      navigate("/MiPerfil", { state: { userId: userSession.id } })
-    }
-  }
+	const handleProfileClick = () => {
+		if (userSession?.id) {
+			navigate("/MiPerfil", { state: { userId: userSession.id } })
+		}
+	}
 
-  const handleLogout = async () => {
-    try {
-      const response = await axiosInstance.post(
-        "/api/users/logout",
-        {},
-        {
-          withCredentials: true,
-          headers: {
-            "Content-Type": "application/json",
-          },
-        },
-      )
+	const handleLogout = async () => {
+		try {
+			const response = await axiosInstance.post(
+				"/api/users/logout",
+				{},
+				{
+					withCredentials: true,
+					headers: {
+						"Content-Type": "application/json",
+					},
+				},
+			)
 
-      if (response.status === 200) {
-        localStorage.removeItem("userSession")
-        sessionStorage.removeItem("userSession")
-        navigate("/")
-      }
-    } catch (error) {
-      console.error("Error al cerrar sesión:", error)
-      localStorage.removeItem("userSession")
-      sessionStorage.removeItem("userSession")
-      navigate("/")
-    }
-  }
+			if (response.status === 200) {
+				localStorage.removeItem("userSession")
+				sessionStorage.removeItem("userSession")
+				navigate("/")
+			}
+		} catch (error) {
+			console.error("Error al cerrar sesión:", error)
+			localStorage.removeItem("userSession")
+			sessionStorage.removeItem("userSession")
+			navigate("/")
+		}
+	}
 
-  const handleSignIn = () => {
-    setShowSignIn(true)
-  }
+	const handleSignIn = () => {
+		setShowSignIn(true)
+	}
 
-  const [showNotificationsMenu, setShowNotificationsMenu] = useState(false)
-  const notificationsMenuRef = useRef(null)
+	const [showNotificationsMenu, setShowNotificationsMenu] = useState(false)
+	const notificationsMenuRef = useRef(null)
 
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (notificationsMenuRef.current && !notificationsMenuRef.current.contains(event.target)) {
-        setShowNotificationsMenu(false)
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside)
-    return () => document.removeEventListener("mousedown", handleClickOutside)
-  }, [])
+	useEffect(() => {
+		const handleClickOutside = (event) => {
+			if (notificationsMenuRef.current && !notificationsMenuRef.current.contains(event.target)) {
+				setShowNotificationsMenu(false)
+			}
+		}
+		document.addEventListener("mousedown", handleClickOutside)
+		return () => document.removeEventListener("mousedown", handleClickOutside)
+	}, [])
 
-  useEffect(() => {
-    if (!isLoggedIn) return
-    if (!showNotificationsMenu) return
+	useEffect(() => {
+		if (!isLoggedIn) return
+		if (!showNotificationsMenu) return
 
-    const fetchNotifications = async () => {
-      setLoadingNotifications(true)
-      try {
-        const res = await axiosInstance.get('/api/notifications?limit=5');
-        // no mostrar notificaciones aceptadas o rechazadas
-        res.data.notifications = res.data.notifications.filter(notif => notif.estado !== 'aceptada' && notif.estado !== 'rechazada');
-        setNotificationsList(res.data.notifications || []);
-      } catch (err) {
-        setNotificationsList([])
-      }
-      setLoadingNotifications(false)
-    }
+		const fetchNotifications = async () => {
+			setLoadingNotifications(true)
+			try {
+				const res = await axiosInstance.get('/api/notifications?limit=5');
+				// no mostrar notificaciones aceptadas o rechazadas
+				res.data.notifications = res.data.notifications.filter(notif => notif.estado !== 'aceptada' && notif.estado !== 'rechazada');
+				setNotificationsList(res.data.notifications || []);
+			} catch (err) {
+				setNotificationsList([])
+			}
+			setLoadingNotifications(false)
+		}
 
-    fetchNotifications()
-  }, [showNotificationsMenu, isLoggedIn])
+		fetchNotifications()
+	}, [showNotificationsMenu, isLoggedIn])
 
-  const { setShowModalGeneral, setModalGeneralContent } = useModal()
+	const { setShowModalGeneral, setModalGeneralContent } = useModal()
+
+	const rechazarSolicitudCurso = async (notif) => {
+		if (justificationDenial.length < 1) {
+			alert("Se debe justificar el rechazo")
+			return
+		} 
+		setProcessingSolicitud(true)
+		try {
+			const resp = await axiosInstance.post(`/api/actas/rechazar-solicitud-curso/${notif.ID}`, {
+				justification: justificationDenial
+			})
+			if (resp.status == 200) {
+				alert("Se rechazó la solicitud")
+				setShowModalGeneral(false)
+				setProcessingSolicitud(false)
+				setJustificationDenial("")
+				setActiveNotification(null)
+				setJustifying(false)
+				return
+			} else
+				throw resp.data
+		} catch (error) {
+			alert("Ocurrió un error al rechazar la solicitud")
+			console.error(error)
+			setProcessingSolicitud(false)
+		}
+	}
+
+	const aceptarSolicitudCurso = async (notif) => {
+		setProcessingSolicitud(true)
+		setJustifying(false)
+		try {
+			const resp = await axiosInstance.post(`/api/actas/aceptar-solicitud-curso/${notif.ID}`)
+			if (resp.status == 200) {
+				navigate("/Cursos/CrearCurso")
+				setShowModalGeneral(false)
+				setProcessingSolicitud(false)
+				return
+			} else
+				throw resp.data
+		} catch (error) {
+			alert("Ocurrió un error al aceptar la solicitud")
+			console.error(error)
+			setProcessingSolicitud(false)
+		}
+	}
 
   const handleNotificationClick = (notif) => {
     setModalGeneralContent(
@@ -156,111 +206,111 @@ export const NavBar = ({ children }) => {
     setShowModalGeneral(true)
   }
 
-  const cambiarEstadoInvitacion = async (invitacionId, nuevoEstado) => {
-    // Si ya se está procesando esta invitación, no hacer nada
-    if (processingInvitation === invitacionId) return
-    
-    setProcessingInvitation(invitacionId)
+	const cambiarEstadoInvitacion = async (invitacionId, nuevoEstado) => {
+		// Si ya se está procesando esta invitación, no hacer nada
+		if (processingInvitation === invitacionId) return
+		
+		setProcessingInvitation(invitacionId)
 
-    try {
-      const response = await axiosInstance.put(`/api/courses/cambiarEstadoInvitacion/${invitacionId}`, { nuevoEstado })
-      
-      // Actualizar el estado local de las notificaciones
-      setNotificationsList(prevNotifications => 
-        prevNotifications.map(notif => 
-          notif.invitacion_ID === invitacionId 
-            ? { ...notif, estadoInvitacion: nuevoEstado }
-            : notif
-        )
-      )
+		try {
+			const response = await axiosInstance.put(`/api/courses/cambiarEstadoInvitacion/${invitacionId}`, { nuevoEstado })
+			
+			// Actualizar el estado local de las notificaciones
+			setNotificationsList(prevNotifications => 
+				prevNotifications.map(notif => 
+					notif.invitacion_ID === invitacionId 
+						? { ...notif, estadoInvitacion: nuevoEstado }
+						: notif
+				)
+			)
 
-      alert(response.data.message || "Estado actualizado correctamente")
+			alert(response.data.message || "Estado actualizado correctamente")
 
-      // Si fue aceptada, asigna el curso al instructor
-      if (nuevoEstado === "aceptada") {
-        const notif = notificationsList.find((n) => n.invitacion_ID === invitacionId)
-        if (notif) {
-          try {
-            const asignacionResponse = await axiosInstance.post("/api/courses/asignaciones", {
-              instructor_ID: notif.destinatario_ID,
-              curso_ID: notif.curso_ID,
-            })
-            alert(asignacionResponse.data.message || "Curso asignado correctamente al instructor.")
-          } catch (asignacionError) {
-            console.error("Error al asignar instructor:", asignacionError)
-            alert(asignacionError.response?.data?.message || "Error al asignar el instructor al curso.")
-          }
-        }
-      }
+			// Si fue aceptada, asigna el curso al instructor
+			if (nuevoEstado === "aceptada") {
+				const notif = notificationsList.find((n) => n.invitacion_ID === invitacionId)
+				if (notif) {
+					try {
+						const asignacionResponse = await axiosInstance.post("/api/courses/asignaciones", {
+							instructor_ID: notif.destinatario_ID,
+							curso_ID: notif.curso_ID,
+						})
+						alert(asignacionResponse.data.message || "Curso asignado correctamente al instructor.")
+					} catch (asignacionError) {
+						console.error("Error al asignar instructor:", asignacionError)
+						alert(asignacionError.response?.data?.message || "Error al asignar el instructor al curso.")
+					}
+				}
+			}
 
-      setShowModalGeneral(false)
-      
-    } catch (error) {
-      console.error("Error al cambiar estado de invitación:", error)
-      alert(error.response?.data?.message || "Error al actualizar el estado de la invitación.")
-    } finally {
-      setProcessingInvitation(null)
-    }
-  }
+			setShowModalGeneral(false)
+			
+		} catch (error) {
+			console.error("Error al cambiar estado de invitación:", error)
+			alert(error.response?.data?.message || "Error al actualizar el estado de la invitación.")
+		} finally {
+			setProcessingInvitation(null)
+		}
+	}
 
-  return (
-    <div className="navBar">
-      <div className="logo">SGFC</div>
+	return (
+		<div className="navBar">
+			<div className="logo">SGFC</div>
 
-      <button className="hamburger-btn" onClick={() => setIsMobileMenuOpen((prev) => !prev)}>
-        ☰
-      </button>
+			<button className="hamburger-btn" onClick={() => setIsMobileMenuOpen((prev) => !prev)}>
+				☰
+			</button>
 
-      {/* Contenido móvil */}
-      <div className={`mobile-menu ${isMobileMenuOpen ? "open" : "closed"}`}>
-        <div className="container_options">{children}</div>
+			{/* Contenido móvil */}
+			<div className={`mobile-menu ${isMobileMenuOpen ? "open" : "closed"}`}>
+				<div className="container_options">{children}</div>
 
-        {!isLoggedIn && (
-          <button className="button_signIn" onClick={handleSignIn}>
-            Iniciar sesión
-          </button>
-        )}
+				{!isLoggedIn && (
+					<button className="button_signIn" onClick={handleSignIn}>
+						Iniciar sesión
+					</button>
+				)}
 
-        {isLoggedIn && (
-          <div className="container_options_profile">
-            <button className="mobile-profile-btn">
-              <span className="mobile-label">Configuración</span>
-              <img className="desktop-icon" src={settings} alt="Configuración" />
-            </button>
+				{isLoggedIn && (
+					<div className="container_options_profile">
+						<button className="mobile-profile-btn">
+							<span className="mobile-label">Configuración</span>
+							<img className="desktop-icon" src={settings} alt="Configuración" />
+						</button>
 
-            <button className="mobile-profile-btn" onClick={() => setShowNotificationsMenu((prev) => !prev)}>
-              <span className="mobile-label">Notificaciones</span>
-              <img className="desktop-icon" src={notifications} alt="Notificaciones" />
-            </button>
+						<button className="mobile-profile-btn" onClick={() => setShowNotificationsMenu((prev) => !prev)}>
+							<span className="mobile-label">Notificaciones</span>
+							<img className="desktop-icon" src={notifications} alt="Notificaciones" />
+						</button>
 
-            <button className="mobile-profile-btn" id="btn_profile" onClick={handleProfileClick}>
-              <span className="mobile-label">Perfil</span>
-              <img className="desktop-icon" src={profile} alt="Perfil" />
-            </button>
+						<button className="mobile-profile-btn" id="btn_profile" onClick={handleProfileClick}>
+							<span className="mobile-label">Perfil</span>
+							<img className="desktop-icon" src={profile} alt="Perfil" />
+						</button>
 
-            <button className="mobile-profile-btn" onClick={handleLogout}>
-              <span className="mobile-label">Cerrar sesión</span>
-              <img className="desktop-icon" src={logout} alt="Cerrar sesión" />
-            </button>
-          </div>
-        )}
-      </div>
+						<button className="mobile-profile-btn" onClick={handleLogout}>
+							<span className="mobile-label">Cerrar sesión</span>
+							<img className="desktop-icon" src={logout} alt="Cerrar sesión" />
+						</button>
+					</div>
+				)}
+			</div>
 
-      {/* Contenido escritorio */}
-      <div className="desktop-options">
-        <div className="container_options">{children}</div>
+			{/* Contenido escritorio */}
+			<div className="desktop-options">
+				<div className="container_options">{children}</div>
 
-        {!isLoggedIn && (
-          <button className="button_signIn" onClick={handleSignIn}>
-            Iniciar sesión
-          </button>
-        )}
+				{!isLoggedIn && (
+					<button className="button_signIn" onClick={handleSignIn}>
+						Iniciar sesión
+					</button>
+				)}
 
-        {isLoggedIn && (
-          <div className="container_options_profile">
-            <button>
-              <img src={settings} alt="Configuración" />
-            </button>
+				{isLoggedIn && (
+					<div className="container_options_profile">
+						<button>
+							<img src={settings} alt="Configuración" />
+						</button>
 
             <div className="notifications-menu" ref={notificationsMenuRef}>
               <button className="btn-notifications" onClick={() => setShowNotificationsMenu((prev) => !prev)}>
@@ -299,16 +349,16 @@ export const NavBar = ({ children }) => {
               )}
             </div>
 
-            <button id="btn_profile" onClick={handleProfileClick}>
-              <img src={profile} alt="Perfil" />
-            </button>
+						<button id="btn_profile" onClick={handleProfileClick}>
+							<img src={profile} alt="Perfil" />
+						</button>
 
-            <button onClick={handleLogout}>
-              <img src={logout} alt="Cerrar sesión" />
-            </button>
-          </div>
-        )}
-      </div>
-    </div>
-  )
+						<button onClick={handleLogout}>
+							<img src={logout} alt="Cerrar sesión" />
+						</button>
+					</div>
+				)}
+			</div>
+		</div>
+	)
 }

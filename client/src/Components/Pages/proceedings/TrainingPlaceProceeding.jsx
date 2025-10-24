@@ -50,6 +50,38 @@ export const TrainingPlaceProceeding = () => {
     const [participantes, setParticipantes] = useState([]);
     const [generatedPdfName, setGeneratedPdfName] = useState('');
 
+    //  Estados para manejo individual de firmas
+    const [firmasParticipantes, setFirmasParticipantes] = useState({});
+    const [participanteSeleccionado, setParticipanteSeleccionado] = useState(null);
+
+    //  Funciones para manejo individual de firmas
+    const handleAbrirModalFirma = (participanteId, participanteNombre) => {
+        setParticipanteSeleccionado({ id: participanteId, nombre: participanteNombre });
+        setShowSignatureModal(true);
+    };
+
+    const handleAplicarFirma = (firmaData) => {
+        if (participanteSeleccionado) {
+            setFirmasParticipantes(prev => ({
+                ...prev,
+                [participanteSeleccionado.id]: {
+                    nombre: participanteSeleccionado.nombre,
+                    firma: firmaData
+                }
+            }));
+            setParticipanteSeleccionado(null);
+            setShowSignatureModal(false);
+        }
+    };
+
+    const handleLimpiarFirma = (participanteId) => {
+        setFirmasParticipantes(prev => {
+            const nuevasFirmas = { ...prev };
+            delete nuevasFirmas[participanteId];
+            return nuevasFirmas;
+        });
+    };
+
     // Función para manejar cuando se sube un archivo de firma
     const handleUploadSignature = (file) => {
         setFirmaArchivo(file);
@@ -151,6 +183,11 @@ export const TrainingPlaceProceeding = () => {
     const handleEdit = () => setIsEditing(true);
     const handleSave = () => setIsEditing(false);
 
+    // FUNCIÓN PARA VOLVER A LA PÁGINA ANTERIOR
+    const handleGoBack = () => {
+        navigate(-1); // Esto lleva al usuario a la página anterior en el historial
+    };
+
     // Enviar el acta de lugar de formación al backend
     const handleSendProceeding = async () => {
         try {
@@ -214,6 +251,13 @@ export const TrainingPlaceProceeding = () => {
             <Header />
             <Main>
                 <div className="training-place-proceeding-container">
+                    <button 
+                        className="button-volver" 
+                        onClick={handleGoBack}
+                        style={{ backgroundColor: '#00a144' }}
+                    >
+                        Volver Atrás
+                    </button>
                     <h1>
                         Acta de <span className="highlight-proceedings">Lugar de Formación</span>
                     </h1>
@@ -319,9 +363,14 @@ export const TrainingPlaceProceeding = () => {
                                             <th className="table-acta-th">Nombre Completo</th>
                                             <th className="table-acta-th">Cargo</th>
                                             <th className="table-acta-th">Firma</th>
+                                            {isEditing && <th className="table-acta-th">Acciones</th>}
                                         </tr>
                                     </thead>
                                     <tbody>
+                                        {(() => {
+                                            const participanteId = 'inspector-gestor';
+                                            const firmaParticipante = firmasParticipantes[participanteId];
+                                            return (
                                         <tr>
                                             <td>{isEditing ? (
                                                 <input
@@ -337,29 +386,18 @@ export const TrainingPlaceProceeding = () => {
                                             )}</td>
                                             <td>Inspector o Gestor</td>
                                             <td style={{ padding: '10px' }}>
-                                                {/* ✅ Estilos corregidos para mostrar la firma */}
-                                                {firmaDigital ? (
+                                                        {firmaParticipante?.firma ? (
                                                     <img
-                                                        src={firmaDigital}
+                                                                src={firmaParticipante.firma}
                                                         alt="Firma digital"
                                                         style={{
-                                                            width: '120px',        // ✅ Ancho fijo en lugar de maxWidth
-                                                            height: '40px',        // ✅ Alto fijo en lugar de maxHeight  
-                                                            display: 'block',      // ✅ Asegurar que se muestre como bloque                                                         
-                                                            objectFit: 'contain',  // ✅ Mantener proporción
-                                                            backgroundColor: 'transparent'
-                                                        }}
-                                                    />
-                                                ) : firmaArchivoUrl ? (
-                                                    <img
-                                                        src={firmaArchivoUrl}
-                                                        alt="Firma subida"
-                                                        style={{
-                                                            width: '120px',        // ✅ Ancho fijo
-                                                            height: '40px',        // ✅ Alto fijo                                                            
-                                                            display: 'block',      // ✅ Mostrar como bloque                                                        
-                                                            objectFit: 'contain',  // ✅ Mantener proporción
-                                                            backgroundColor: 'transparent'
+                                                                    width: 'auto',
+                                                                    maxWidth: '120px',
+                                                                    height: '40px',
+                                                                    display: 'block',                              
+                                                                    objectFit: 'contain',
+                                                                    border: 'none',
+                                                                    background: 'transparent'
                                                         }}
                                                     />
                                                 ) : (
@@ -368,7 +406,44 @@ export const TrainingPlaceProceeding = () => {
                                                     </span>
                                                 )}
                                             </td>
+                                                    {isEditing && (
+                                                        <td style={{ padding: '5px', textAlign: 'center' }}>
+                                                            {!firmaParticipante?.firma ? (
+                                                                <button
+                                                                    onClick={() => handleAbrirModalFirma(participanteId, manager?.nombres || 'Inspector')}
+                                                                    style={{
+                                                                        backgroundColor: '#00843d',
+                                                                        color: 'white',
+                                                                        border: 'none',
+                                                                        padding: '5px 10px',
+                                                                        borderRadius: '3px',
+                                                                        cursor: 'pointer',
+                                                                        fontSize: '12px'
+                                                                    }}
+                                                                >
+                                                                    Agregar firma
+                                                                </button>
+                                                            ) : (
+                                                                <button
+                                                                    onClick={() => handleLimpiarFirma(participanteId)}
+                                                                    style={{
+                                                                        backgroundColor: '#dc3545',
+                                                                        color: 'white',
+                                                                        border: 'none',
+                                                                        padding: '5px 10px',
+                                                                        borderRadius: '3px',
+                                                                        cursor: 'pointer',
+                                                                        fontSize: '12px'
+                                                                    }}
+                                                                >
+                                                                    Limpiar firma
+                                                                </button>
+                                                            )}
+                                                        </td>
+                                                    )}
                                         </tr>
+                                            );
+                                        })()}
                                     </tbody>
                                 </table>
                                 <br />
@@ -386,21 +461,6 @@ export const TrainingPlaceProceeding = () => {
                         )}
 
                         <button className="training-place-proceeding-submit-button" onClick={handleSendProceeding}>Generar acta</button>
-                        {/* ✅ Botón para limpiar firma */}
-                        {(firmaDigital || firmaArchivoUrl) && (
-                            <button
-                                className="submit-button-proceedings"
-                                onClick={() => {
-                                    setFirmaDigital("");
-                                    setFirmaArchivo(null);
-                                    setFirmaArchivoUrl("");
-                                }}
-                                style={{ backgroundColor: '#dc3545' }}
-                            >
-                                Limpiar firma
-                            </button>
-                        )}
-                        <button className="training-place-proceeding-submit-button" onClick={() => setShowSignatureModal(true)}>Agregar firma</button>
                         <button className="training-place-proceeding-submit-button-exportar" onClick={handleDownloadPDF}>Exportar</button>
                     </div>
 
@@ -409,11 +469,16 @@ export const TrainingPlaceProceeding = () => {
             <Footer />
             {showSignatureModal && (
                 <ModalSignature
-                    closeModal={() => setShowSignatureModal(false)}
-                    nombreCurso={nombreCurso}
+                    closeModal={() => {
+                        setShowSignatureModal(false);
+                        setParticipanteSeleccionado(null);
+                    }}
+                    nombreActa={nombreCurso}
                     tipoActa="Acta de Lugar de formación"
-                    onSignature={setFirmaDigital}
-                    onUpload={handleUploadSignature} // ✅ Usa la nueva función
+                    participanteSeleccionado={participanteSeleccionado}
+                    editar={isEditing}
+                    onSignature={handleAplicarFirma}
+                    onUpload={handleAplicarFirma}
                 >
                 </ModalSignature>
             )}

@@ -1,4 +1,4 @@
-#modal-overlayUpdateInstructor {
+#modal-overlayUpdateEmpresa {
   position: fixed;
   top: 50%;
   left: 50%;
@@ -17,145 +17,84 @@
 
 .modal-bodyUpdateInstructor {
   width: 740px;
-  height: 464px;
+  min-height: 464px;
   background-color: #1A1A1A;
   display: flex;
   justify-content: space-around;
-  align-items: center;
+  align-items: center; /* Cambiado a center para centrar verticalmente */
   border-radius: 15px;
   overflow: hidden;
   position: relative;
+  padding: 30px; /* Aumentado el padding */
+  gap: 40px; /* Aumentado el gap */
 }
 
-
 .modal-left-update {
-  width: auto;
-  height: auto;
+  width: 60%;
+  min-height: 400px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 20px;
+  gap: 15px;
+  flex-shrink: 0;
 }
 
-.modal-right-update {
-  width: auto;
-  height: auto;
+.modal-right {
+  width: 35%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 30px;
+  justify-content: center; /* Centrado vertical */
+  gap: 25px; /* Espacio consistente */
+  flex-shrink: 0;
+  height: 100%; /* Ocupa toda la altura disponible */
+  padding: 20px 0; /* Padding vertical */
 }
 
-.profile-photo-container {
-  width: 220px;
-  height: 300px;
-  position: relative;
-}
-
-.profile-photo-container img {
+/* Área de carga de imagen - MEJORADO */
+.upload-area-update {
   width: 100%;
-  height: 100%;
-  border-radius: 20px;
-  object-fit: cover;
-}
-
-.edit-photo-btn {
-  width: 35px;
-  height: 35px;
-  position: absolute;
-  bottom: 10px;
-  right: 10px;
-  background-color: #00843d;
-  color: white;
-  border: none;
-  border-radius: 50%;
-  font-size: 16px;
-  cursor: pointer;
-}
-
-.status-container {
-  width: 100%;
-  height: auto;
-  color: white;
+  max-width: 220px;
+  height: 220px; /* Altura cuadrada para mejor proporción */
+  border: 2px dotted #ccc;
+  border-radius: 15px;
   display: flex;
-  gap: 10px;
   justify-content: center;
   align-items: center;
-}
-
-.status-container span {
-  font-size: 16px;
-  font-weight: bold;
-  color: white;
-  width: auto;
-  height: auto;
-}
-
-.status-buttons {
-  display: flex;
-  gap: 10px;
-  width: auto;
-  height: auto;
-}
-
-.status {
-  padding: 5px 10px;
-  border: none;
-  border-radius: 15px;
-  background-color: #b0b0b028;
-  color: white;
-  cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.2s ease;
-  width: auto;
-  height: auto;
-}
-
-.status:hover {
-  background-color: #444;
-  transform: scale(1.05);
-
-}
-
-.status.active {
-  background-color: #00843d;
-  color: white;
-  transform: scale(1.1);
-  width: auto;
-  height: auto;
-}
-
-
-
-.courses-container {
-  width: 100%;
-  height: auto;
   text-align: center;
-  color: white;
-  font-size: 14px;
-}
-
-.courses-container a {
-  color: #00843d;
-  margin-left: 5px;
-  text-decoration: none;
-  width: auto;
-  height: auto;
-}
-
-.save-button {
-  width: 140px;
-  height: 45px;
-  background-color: #00843d;
-  color: white;
-  border: none;
-  border-radius: 15px;
-  font-size: 16px;
   cursor: pointer;
+  overflow: hidden;
+  background-color: #2A2A2A;
+  transition: all 0.3s ease;
+  margin: 0 auto; /* Centrado horizontal */
 }
 
+.upload-area-update:hover {
+  border-color: #00843d;
+  transform: scale(1.02); /* Efecto sutil al hover */
+}
 
-.edit-button-updateInstructor {
-  width: 180px;
+.upload-area-update.read-only-border {
+  border: 2px solid #444;
+  cursor: default;
+}
+
+.upload-area-update.read-only-border:hover {
+  border-color: #444;
+  transform: none; /* Sin efecto en modo lectura */
+}
+
+.preview-image-update {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+/* Botón de editar/guardar - MEJORADO */
+.edit-button-updateEmpresa {
+  width: 100%;
+  max-width: 200px;
   height: 44px;
   background-color: #00843d;
   border: none;
@@ -164,10 +103,89 @@
   font-weight: bold;
   font-size: 1rem;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
+  margin: 0 auto; /* Centrado horizontal */
 }
 
-.container_return_UpdateInstructor {
+.edit-button-updateEmpresa:hover {
+  background-color: #006f32;
+  transform: translateY(-2px); /* Efecto sutil al hover */
+}
+
+/* Resto del CSS se mantiene igual */
+.modal-left-update > p {
+  width: 100%;
+  min-height: 40px;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 8px 0;
+  border-bottom: 1px solid #333;
+}
+
+.modal-left-update > p > strong,
+.modal-left-update > p > span {
+  width: auto;
+  height: auto;
+  flex-shrink: 0;
+}
+
+.input_updateData {
+  width: 100%;
+  max-width: 250px;
+  height: 35px;
+  padding: 8px 12px;
+  background-color: #2A2A2A;
+  border: 1px solid #444;
+  border-radius: 8px;
+  color: white;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  flex: 1;
+}
+
+.input_updateData:focus {
+  outline: none;
+  border-color: #00843d;
+  box-shadow: 0 0 5px rgba(0, 132, 61, 0.3);
+}
+
+.status-buttons {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  max-width: 250px;
+  height: auto;
+  flex-wrap: wrap;
+}
+
+.status {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 15px;
+  background-color: #b0b0b028;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  font-size: 14px;
+  flex: 1;
+  min-width: 80px;
+}
+
+.status:hover {
+  background-color: #444;
+  transform: scale(1.05);
+}
+
+.status.active {
+  background-color: #00843d;
+  color: white;
+  transform: scale(1.05);
+}
+
+.container_return_UpdateEmpresa {
   width: 142px;
   height: 142px;
   display: flex;
@@ -179,7 +197,7 @@
   z-index: 1000;
 }
 
-.container_return_UpdateInstructor>h5 {
+.container_return_UpdateEmpresa > h5 {
   width: auto;
   height: auto;
   position: relative;
@@ -191,64 +209,48 @@
   cursor: pointer;
 }
 
-
-.preview-image-update {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 12px;
-}
-
-
-.upload-area-update {
-  width: 220px;
-  height: 250px;
-  border: 2px dotted #ccc;
-  border-radius: 15px;
-  display: flex;
-  justify-content: center;
-  text-align: center;
-  cursor: pointer;
-
-}
-
-/* Inputs en modo solo lectura */
-.read-only {
-  border: none !important;
-  font-size: 1.1rem;
-  background-color: transparent;
-  color: #333;
-  pointer-events: none;
-}
-
-.read-only-border {
-  border: none !important;
-  cursor: default;
-}
-
-.cursosAsignados {
-  width: auto;
-  height: auto;
-
-}
-
-.modal-left-update>p {
-  width: auto;
-  height: auto;
-  font-size: 16px;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.modal-left-update>p>strong,
-.modal-left-update>p>span {
-  width: auto;
-  height: auto;
-}
-
-
 .valor-campo {
   margin-left: 8px;
   display: inline-block;
+  color: #ccc;
+  min-width: 150px;
+  word-break: break-word;
+}
+
+.modal-bodyUpdateEmpresa::-webkit-scrollbar {
+  width: 8px;
+}
+
+.modal-bodyUpdateEmpresa::-webkit-scrollbar-track {
+  background: #2A2A2A;
+  border-radius: 4px;
+}
+
+.modal-bodyUpdateEmpresa::-webkit-scrollbar-thumb {
+  background: #00843d;
+  border-radius: 4px;
+}
+
+.modal-bodyUpdateEmpresa::-webkit-scrollbar-thumb:hover {
+  background: #006f32;
+}
+
+@media (max-height: 600px) {
+  .modal-bodyUpdateEmpresa {
+    max-height: 95vh;
+  }
+  
+  .modal-left-update,
+  .modal-right {
+    min-height: 300px;
+  }
+}
+
+select.input_updateData {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='white' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 12px;
+  padding-right: 35px;
 }

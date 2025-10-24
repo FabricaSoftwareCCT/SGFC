@@ -139,6 +139,15 @@
   line-height: 1.4;
 }
 
+.image-and-status{
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    align-content: center;
+    justify-content: center;
+    align-items: center;
+}
+
 .preview-image {
   width: 100%;
   height: 100%;
@@ -155,8 +164,59 @@
 .containerDetails_course {
   display: flex;
   flex-direction: column;
-  gap: 2.5rem;
+  gap: 1.5rem;
   width: 100%;
+}
+
+/* Estilos para lugar de formación */
+.lugar-formacion {
+    margin-top: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    height: 0%;
+}
+
+.lugar-formacion span {
+  font-weight: bold;
+  color: white;
+  font-size: 1.2rem;
+}
+
+.input-lugar-formacion {
+  width: 100%;
+  padding: 0.8rem 2rem;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.01) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  color: white;
+  font-size: 1rem;
+  font-weight: 300;
+  outline: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(15px);
+}
+
+.input-lugar-formacion::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.input-lugar-formacion:focus {
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+}
+
+.input-lugar-formacion:hover {
+  border-color: rgba(255, 255, 255, 0.15);
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.02) 100%);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .lugar-formacion span {
+    font-size: 1.1rem;
+  }
 }
 
 /* Input del nombre del curso - más grande y destacado */
@@ -277,6 +337,98 @@
   gap: 1rem;
 }
 
+.duracion {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.duracion span {
+  font-weight: bold;
+  color: white;
+  font-size: 1.2rem;
+}
+
+.duracion-inputs {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+.time-duracion {
+  width: 100%;
+  padding: 0.8rem 2rem;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.01) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  color: white;
+  font-size: 1rem;
+  font-weight: 300;
+  outline: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(15px);
+  flex: 1;
+}
+
+.time-duracion::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.time-duracion:focus {
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+}
+
+.unidad-duracion {
+  padding: 1.8rem 2rem;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.01) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  color: white;
+  font-size: 1.2rem;
+  font-weight: 300;
+  outline: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(15px);
+  min-width: 150px;
+  cursor: pointer;
+}
+
+.unidad-duracion option {
+  background: #2a2a2a;
+  color: white;
+}
+
+.unidad-duracion:focus {
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+}
+
+/* Efectos hover */
+.time-duracion:hover,
+.unidad-duracion:hover {
+  border-color: rgba(255, 255, 255, 0.15);
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.02) 100%);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .duracion-inputs {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .time-duracion,
+  .unidad-duracion {
+    width: 100%;
+  }
+  
+  .duracion span {
+    font-size: 1.1rem;
+  }
+}
+
 .offer-type-container span {
   color: rgba(255, 255, 255, 0.7);
   font-size: 0.95rem;
@@ -292,7 +444,21 @@
   gap: 0.8rem;
 }
 
-.offer-button {
+.offer-button{
+  padding: 1rem 1.5rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(10px);
+  position: relative;
+  overflow: hidden;
+}
+
+.offer-button-cancel{
   padding: 1rem 1.5rem;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -316,8 +482,21 @@
   background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
   transition: left 0.4s;
 }
-
+.offer-button-cancel::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+  transition: left 0.4s;
+}
 .offer-button:hover::before {
+  left: 100%;
+}
+
+.offer-button-cancel:hover::before {
   left: 100%;
 }
 
@@ -327,8 +506,20 @@
   transform: translateY(-2px);
 }
 
+.offer-button-cancel:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: white;
+  transform: translateY(-2px);
+}
+
 .offer-button.active {
   background: #00843ea4;
+  color: white;
+  font-weight: 500;
+}
+
+.offer-button-cancel.active {
+  background: #f20f07a4;
   color: white;
   font-weight: 500;
 }
@@ -352,24 +543,26 @@
 }
 
 .containerInput_company input {
-  width: 100%;
-  padding: 1.2rem 1.5rem;
-  background: linear-gradient(145deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
-  color: white;
-  font-size: 1rem;
-  outline: none;
-  transition: all 0.3s ease;
-  backdrop-filter: blur(15px);
+    width: 100%;
+    padding: 0.8rem 2rem;
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.01) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 18px;
+    color: white;
+    font-size: 1rem;
+    font-weight: 300;
+    outline: none;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(15px);
+    flex: 1;
 }
 
-.containerInput_company input:focus {
-  border-color: rgba(0, 196, 110, 0.4);
-  background: linear-gradient(145deg, rgba(0, 196, 110, 0.05) 0%, rgba(0, 132, 61, 0.02) 100%);
-  box-shadow: 0 0 0 3px rgba(0, 196, 110, 0.1);
-}
 
+.containerInput_company  input:focus{
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.15);
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.02) 100%);
+}
 /* Sección de información */
 .course-info-section {
   display: flex;

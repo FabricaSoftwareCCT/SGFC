@@ -135,6 +135,7 @@ export const AssignInstructorCourse = ({ curso_ID, onClose }) => {
   return (
     <div id="modal-assingInstructorCourse">
       <div className="modal-bodyAssignInstructorCourse">
+        
         <h2 className="titleAssignInstructorCourse">
           Invitar <span className="complementary">Instructor</span>
         </h2>
@@ -233,14 +234,13 @@ export const AssignInstructorCourse = ({ curso_ID, onClose }) => {
                   <p>
                     Estado: {estadoTexto}{availability[currentId]?.disponible === false && ' (No disponible)'}
                   </p>
-                  {disponible && (
-                    <button
-                      className="profile-btn"
-                      onClick={() => invitarInstructor(currentId)}
-                    >
-                      Invitar Instructor
-                    </button>
-                  )}
+                  <button
+                  className="profile-btn"
+                  disabled={!disponible}
+                  onClick={() => invitarInstructor(currentId)}
+                >
+                  Invitar Instructor
+                </button>
                 </div>
               );
             })()}

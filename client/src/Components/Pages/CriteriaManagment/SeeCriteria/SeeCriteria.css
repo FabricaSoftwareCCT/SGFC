@@ -1,0 +1,191 @@
+.container-see-criteria {
+	width: 100%;
+	height: auto;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.container-see-criteria {
+	width: 100%;
+	height: auto;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.container-see-criteria > h2 {
+	width: 100%;
+	height: auto;
+	color: #fff;
+	font-size: 40px;
+	text-align: center;
+	margin: 3rem 0 2rem 0;
+	font-weight: bold;
+}
+
+.container-see-criteria > p {
+	width: auto;
+	height: auto;
+	font-size: 16px;
+	text-align: center;
+	color: #fff;
+}
+
+.container-see-criteria .complementary {
+	color: #00843d;
+}
+
+.container-see-criteria {
+	width: 100%;
+	height: auto;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.buttons {
+	width: 70%;
+	display: flex;
+	justify-content: space-between;
+}
+
+.see-criteria-button {
+	background-color: #ffaa00;
+}
+
+.criteria-aprentice-filter-dropdown {
+	background-color: grey;
+	color: black;
+}
+
+.aprentice-list-container {
+	width: 70%;
+}
+
+.aprentice-list-header {
+	display: flex;
+	justify-content: space-evenly;
+	background-color: #00843d;
+	color: white;
+	font-size: 20px;
+	padding: 10px;
+	margin-top: 20px;
+	align-items: center;
+}
+
+.aprentice-list-header span {
+	min-width: 20%;
+	text-align: center;
+}
+
+.no-aprentices-list {
+	background-color: #606060;
+	color: white;
+	font-size: 18px;
+	padding: 15px;
+	padding-left: 25px;
+	padding-right: 25px;
+}
+
+.search-aprentice {
+	flex-direction: column;
+	align-items: start;
+	position: absolute;
+	background-color: #383737;
+	margin-top: 11.5%;
+	right: 15%;
+}
+
+.search-aprentice label {
+	color: white;
+	font-weight: bold;
+}
+
+.end-button {
+	font-size: 20px;
+}
+
+.end-button button {
+	margin-left: 5px;
+	margin-right: 5px;
+}
+
+.new-criteria-space {
+	padding-top: 15%;
+	padding-bottom: 15%;
+	width: 90%;
+}
+
+.aprentice-list {
+	color: white;
+	font-size: 16px;
+	padding: 15px;
+	padding-left: 25px;
+	padding-right: 25px;
+	display: flex;
+	align-items: center;
+}
+
+.aprentice-list * {
+	display: inline-block;
+	width: 20%;
+	text-align: center;
+}
+
+.aprentice-list button {
+	background-color: transparent;
+	text-decoration: underline;
+	border: none;
+	font-size: 16px;
+	text-align: center;
+	width: 20%;
+	padding-left: 2.5%;
+}
+
+.person-criteria-container {
+	width: 85%;
+	display: flex;
+	flex-direction: column;
+	overflow-y: scroll;
+	margin-top: 20px;
+}
+
+.person-criteria-container label {
+	font-weight: bold;
+	color: #bbbbbb;
+	margin-bottom: 10px;
+}
+
+.person-criteria-container span {
+	font-weight: bold;
+	color: white;
+	margin-bottom: 10px;
+}
+
+.person-criteria-container button {
+	margin-bottom: 10px;
+}
+
+div.person-criteria-value span:first-child {
+	color: #00843d;
+}
+
+.reason-textarea {
+	margin-top: 10px;
+	margin-bottom: 10px;
+	overflow-y: scroll;
+	overflow-x: hidden;
+	min-height: 100px;
+	resize: none;
+}
+
+.certification-status {
+	width: 100%;
+	display: flex;
+	justify-content: space-evenly;
+}
+
+.certification-status button {
+	background-color: #b0b0b031;
+}

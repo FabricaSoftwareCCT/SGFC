@@ -15,8 +15,9 @@
 }
 
 .signature-modal {
+    position: static;
     width: 400px;
-    height: 550px;
+    height: 575px;
     background-color: #1a1a1a;
     border-radius: 15px;
     display: flex;
@@ -172,6 +173,7 @@
     width: 100%;
     height: auto;
     text-align: start;
+    color: #ffffff;
 }
 
 .signature-type {
@@ -179,6 +181,7 @@
     height: auto;
     margin-bottom: 16px;
     text-align: start;
+    color: #ffffff;
 }
 
 /* Sección subir firma */
@@ -239,11 +242,13 @@
     width: 100%;
     height: auto;
     margin-bottom: 1rem;
+    color: #ffffff;
 }
 
 .signature-upload-text {
     width: 100%;
     height: auto;
+    color: #ffffff;
 }
 
 .container-button-firmar {

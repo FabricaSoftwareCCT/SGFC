@@ -4,7 +4,8 @@ import addIMG from "../../../../assets/Icons/addImg.png";
 import axiosInstance from "../../../../config/axiosInstance";
 import { useNavigate } from "react-router-dom";
 import fotoPerfilDefect from "../../../../assets/Icons/userDefect.png";
-import { useModal } from "../../../../Context/ModalContext"
+import { useModal } from "../../../../Context/ModalContext";
+import { validateEmail, validateNumber, validateText } from "../../../../utils/Validators/formValidator";
 
 export const CreateGestor = ({ onClose }) => {
   // 1. Todos los Hooks al inicio del componente
@@ -59,8 +60,60 @@ export const CreateGestor = ({ onClose }) => {
     }
   };
 
+  const validateFields = () => {
+    const errors = [];
+    
+    // Validar nombres
+    if (!formData.nombres || formData.nombres.trim() === '') {
+      errors.push('Los nombres son requeridos');
+    } else if (formData.nombres.trim().length < 2) {
+      errors.push('Los nombres deben tener al menos 2 caracteres');
+    }
+    
+    // Validar apellidos
+    if (!formData.apellidos || formData.apellidos.trim() === '') {
+      errors.push('Los apellidos son requeridos');
+    } else if (formData.apellidos.trim().length < 2) {
+      errors.push('Los apellidos deben tener al menos 2 caracteres');
+    }
+    
+    // Validar documento (solo números)
+    if (!formData.documento || formData.documento.trim() === '') {
+      errors.push('El número de documento es requerido');
+    } else if (!/^\d+$/.test(formData.documento.trim())) {
+      errors.push('El número de documento debe contener solo números');
+    } else if (formData.documento.trim().length < 6) {
+      errors.push('El número de documento debe tener al menos 6 dígitos');
+    }
+    
+    // Validar celular (solo números)
+    if (!formData.celular || formData.celular.trim() === '') {
+      errors.push('El número de celular es requerido');
+    } else if (!/^\d+$/.test(formData.celular.trim())) {
+      errors.push('El número de celular debe contener solo números');
+    } else if (formData.celular.trim().length < 10) {
+      errors.push('El número de celular debe tener al menos 10 dígitos');
+    }
+    
+    // Validar email
+    if (!formData.email || formData.email.trim() === '') {
+      errors.push('El email es requerido');
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) {
+      errors.push('Debe ingresar un email válido');
+    }
+    
+    return errors;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Validar todos los campos antes de enviar
+    const errors = validateFields();
+    if (errors.length > 0) {
+      alert(`Por favor corrija los siguientes errores:\n\n${errors.join('\n')}`);
+      return;
+    }
 
     const data = new FormData();
     // Si no se subió archivo, usa la imagen por defecto
@@ -93,8 +146,24 @@ export const CreateGestor = ({ onClose }) => {
       window.location.reload();
     } catch (error) {
       console.error("Error al crear el gestor:", error);
-      const errorMsg = error.response?.data?.message || "Hubo un problema al crear el gestor.";
-      alert(`Error: ${errorMsg}`);
+      
+      // Manejar errores específicos del backend
+      if (error.response?.status === 400) {
+        const errorMsg = error.response?.data?.message;
+        if (errorMsg === "El correo ya está registrado.") {
+          alert("Error: El correo electrónico ya está registrado en el sistema. Por favor, use un correo diferente.");
+        } else if (errorMsg === "El documento ya está registrado.") {
+          alert("Error: El número de documento ya está registrado en el sistema. Por favor, verifique el documento.");
+        } else {
+          alert(`Error: ${errorMsg}`);
+        }
+      } else if (error.response?.status === 409) {
+        const errorMsg = error.response?.data?.message;
+        alert(`Error: ${errorMsg}`);
+      } else {
+        const errorMsg = error.response?.data?.message || "Hubo un problema al crear el gestor.";
+        alert(`Error: ${errorMsg}`);
+      }
     }
   };
 

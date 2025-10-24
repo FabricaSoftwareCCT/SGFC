@@ -34,7 +34,7 @@ router.put(
 router.post('/crearGestor', upload.single('foto_perfil'), createGestor);
 router.post("/logout", logoutUser);
 router.get("/empresa/empleados/:id", getAprendicesByEmpresa); // Obtener aprendices por ID de empresa
-router.post('/createMasiveUsers/:empresaId', upload.single('archivo_xlsx'), createMasiveUsers)
+router.post('/createMasiveUsers/:empresaId', upload.single('archivo_xlsx'), createMasiveUsers) // Crear empleados de manera masiva
 router.get("/empresa/:NIT", getEmpresaByNIT); // Obtener empresa por ID
 router.post("/refresh", refreshAccessToken);
 router.get("/empresa/:empresaId/empleados", getEmpleadosByEmpresaId); // Obtener empleados (aprendices) por empresa_ID

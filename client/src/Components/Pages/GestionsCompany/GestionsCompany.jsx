@@ -289,13 +289,6 @@ export const GestionsCompany = () => {
 							<ManageManager data={selectedManager} isAdmin={isAdmin} onClose={() => setSelectedManager(null)} update={() => fetchEmpresas()}/>
 						)}
 
-						{/* Botón Añadir Empresa - CORREGIDO: en el header */}
-							<button 
-								className="btn-add-company"
-								onClick={handleAddCompany}
-							>
-								Añadir Empresa
-							</button>
 					</section>
 				</section>
 			</Main>
@@ -303,7 +296,9 @@ export const GestionsCompany = () => {
 
 			{/* Modal CreateEmpresa - se muestra encima del contenido */}
 			{showCreateModal && (
-				<CreateEmpresa onClose={handleCloseModal} />
+				<CreateEmpresa onClose={handleCloseModal} onCompanyCreated={() => {
+					fetchEmpresas()
+				}} />
 			)}
 		</div>
 	);

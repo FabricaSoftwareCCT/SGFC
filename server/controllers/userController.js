@@ -2423,6 +2423,90 @@ const checkProfileComplete = async (req, res) => {
 	}
 };
 
+const createEmpresa = async (req, res) => {
+    try {
+        const {
+            nombre_empresa,
+            NIT,
+            categoria,
+            direccion,
+            telefono,
+            email_empresa,
+            departamento_ID,
+            ciudad_ID,
+            estado = 'activo'
+        } = req.body;
+
+        // Validar datos obligatorios
+        if (!nombre_empresa || !NIT || !categoria || !direccion || !telefono || !email_empresa || !ciudad_ID) {
+            return res.status(400).json({ 
+                message: 'Todos los campos marcados con * son obligatorios' 
+            });
+        }
+
+        // Verificar si el NIT ya existe
+        const existingNIT = await Empresa.findOne({ where: { NIT } });
+        if (existingNIT) {
+            return res.status(400).json({ message: 'El NIT ya está registrado' });
+        }
+
+        // Verificar si el email de empresa ya existe
+        const existingEmail = await Empresa.findOne({ where: { email_empresa } });
+        if (existingEmail) {
+            return res.status(400).json({ message: 'El email de la empresa ya está registrado' });
+        }
+
+        // Procesar imagen si se sube
+        let img_empresa = null;
+        if (req.file) {
+            img_empresa = req.file.buffer.toString('base64');
+        } else if (req.body.img_empresa) {
+            img_empresa = req.body.img_empresa;
+        }
+
+        // Crear la empresa
+        const nuevaEmpresa = await Empresa.create({
+            NIT,
+            email_empresa,
+            nombre_empresa: nombre_empresa.trim(),
+            direccion: direccion.trim(),
+            estado,
+            categoria,
+            telefono,
+            img_empresa,
+            ciudad_ID,
+            departamento_ID
+        });
+
+        res.status(201).json({ 
+            message: 'Empresa creada con éxito',
+            empresa: nuevaEmpresa 
+        });
+
+    } catch (error) {
+        console.error('Error al crear empresa:', error);
+        
+        if (error.name === 'SequelizeValidationError') {
+            const errors = error.errors.map(err => err.message);
+            return res.status(400).json({ 
+                message: 'Error de validación', 
+                errors 
+            });
+        }
+        
+        if (error.name === 'SequelizeForeignKeyConstraintError') {
+            return res.status(400).json({ 
+                message: 'La ciudad o departamento seleccionado no existe' 
+            });
+        }
+
+        res.status(500).json({ 
+            message: 'Error al crear la empresa',
+            error: error.message 
+        });
+    }
+};
+
 module.exports = {
 	subirDocumentoIdentidad,
 	getEmpresaById,

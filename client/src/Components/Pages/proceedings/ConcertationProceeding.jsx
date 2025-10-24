@@ -7,7 +7,6 @@ import { Main } from '../../Layouts/Main/Main';
 import axiosInstance from '../../../config/axiosInstance';
 import html2pdf from 'html2pdf.js';
 import { ModalSignature } from '../../UI/Modal_Signature/ModalSignature';
-/*import { useNavigate } from 'react-router-dom';*/
 import { validateText, validateNumber, createMensajeError, validarFecha } from '../../../utils/Validators/formValidator';
 
 export const ConcertationProceeding = () => {
@@ -59,9 +58,6 @@ export const ConcertationProceeding = () => {
   const [coordinadorAcademico, setCoordinadorAcademico] = useState('');
 
   const [generatedPdfName, setGeneratedPdfName] = useState('');
-
-  // ESTADOS PARA GUARDAR LOS VALORES ORIGINALES AL EDITAR
-  const [originalValues, setOriginalValues] = useState({});
 
   const handleUploadSignature = (file) => {
     setFirmaArchivo(file);
@@ -220,55 +216,12 @@ export const ConcertationProceeding = () => {
     }, 100);
   };
 
+  const handleEdit = () => setIsEditing(true);
+  const handleSave = () => setIsEditing(false);
+
   // FUNCIÓN PARA VOLVER A LA PÁGINA ANTERIOR
   const handleGoBack = () => {
     navigate(-1); // Esto lleva al usuario a la página anterior en el historial
-  };
-
-  // FUNCIÓN PARA GUARDAR LOS VALORES ACTUALES ANTES DE EDITAR
-  const handleEdit = () => {
-    // Guardar los valores actuales antes de permitir editar
-    setOriginalValues({
-      nombreCurso,
-      numEmpleados,
-      fechaInicio,
-      fechaFin,
-      horarioInicio,
-      horarioFin,
-      modalidad,
-      notasRelevantes: [...notasRelevantes],
-      condicionesEspeciales: [...condicionesEspeciales],
-      instructores: [...instructores],
-      instructoresAsignados: [...instructoresAsignados],
-      participantes: [...participantes],
-      coordinadorAcademico,
-      empresa: empresa ? {...empresa} : null
-    });
-    setIsEditing(true);
-  };
-
-  const handleSave = () => setIsEditing(false);
-
-  // FUNCIÓN PARA CANCELAR LOS CAMBIOS Y RESTABLECER LOS VALORES ORIGINALES
-  const handleCancel = () => {
-    // Restablecer todos los valores a los originales
-    if (originalValues.nombreCurso !== undefined) setNombreCurso(originalValues.nombreCurso);
-    if (originalValues.numEmpleados !== undefined) setNumEmpleados(originalValues.numEmpleados);
-    if (originalValues.fechaInicio !== undefined) setFechaInicio(originalValues.fechaInicio);
-    if (originalValues.fechaFin !== undefined) setFechaFin(originalValues.fechaFin);
-    if (originalValues.horarioInicio !== undefined) setHorarioInicio(originalValues.horarioInicio);
-    if (originalValues.horarioFin !== undefined) setHorarioFin(originalValues.horarioFin);
-    if (originalValues.modalidad !== undefined) setModalidad(originalValues.modalidad);
-    if (originalValues.notasRelevantes !== undefined) setNotasRelevantes([...originalValues.notasRelevantes]);
-    if (originalValues.condicionesEspeciales !== undefined) setCondicionesEspeciales([...originalValues.condicionesEspeciales]);
-    if (originalValues.instructores !== undefined) setInstructores([...originalValues.instructores]);
-    if (originalValues.instructoresAsignados !== undefined) setInstructoresAsignados([...originalValues.instructoresAsignados]);
-    if (originalValues.participantes !== undefined) setParticipantes([...originalValues.participantes]);
-    if (originalValues.coordinadorAcademico !== undefined) setCoordinadorAcademico(originalValues.coordinadorAcademico);
-    if (originalValues.empresa !== undefined) setEmpresa(originalValues.empresa);
-    
-    setIsEditing(false);
-    setDateError('');
   };
 
   // Funciones para manejar las nuevas listas
@@ -377,12 +330,12 @@ export const ConcertationProceeding = () => {
       <Main>
         <div className="course-request-container-proceedings">
           <button 
-              className="button-volver" 
-              onClick={handleGoBack}
-              style={{ backgroundColor: '#00a144' }}
-            >
-              Volver Atrás
-            </button>
+            className="button-volver" 
+            onClick={handleGoBack}
+            style={{ backgroundColor: '#00a144' }}
+          >
+            Volver Atrás
+          </button>
           <h1>
             Acta de <span className="highlight-proceedings">Concertación</span>
           </h1>
@@ -1036,20 +989,10 @@ export const ConcertationProceeding = () => {
           </div>
 
           <div className="botones-solicitud-proceedings">
-
             {isEditing ? (
-              <>
-                <button className="submit-button-proceedings" onClick={handleSave} disabled={!!dateError}>
-                  Guardar
-                </button>
-                <button 
-                  className="submit-button-proceedings" 
-                  onClick={handleCancel}
-                  style={{ backgroundColor: '#d70c0cff' }}
-                >
-                  Cancelar
-                </button>
-              </>
+              <button className="submit-button-proceedings" onClick={handleSave} disabled={!!dateError}>
+                Guardar
+              </button>
             ) : (
               <button className="submit-button-proceedings" onClick={handleEdit}>
                 Editar

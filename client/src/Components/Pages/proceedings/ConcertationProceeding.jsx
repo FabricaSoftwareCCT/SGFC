@@ -7,7 +7,7 @@ import { Main } from '../../Layouts/Main/Main';
 import axiosInstance from '../../../config/axiosInstance';
 import html2pdf from 'html2pdf.js';
 import { ModalSignature } from '../../UI/Modal_Signature/ModalSignature';
-import { useNavigate } from 'react-router-dom';
+/*import { useNavigate } from 'react-router-dom';*/
 import { validateText, validateNumber, createMensajeError, validarFecha } from '../../../utils/Validators/formValidator';
 
 export const ConcertationProceeding = () => {

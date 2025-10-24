@@ -129,6 +129,9 @@ export const SupportMaterial = () => {
 					break
 			}
 			setSubiendoArchivo(false)
+			await axiosInstance.post("/api/notifications/materialApoyo", {
+				curso_ID: cursoSeleccionado.ID
+			})
 		} catch (error) {
 			console.log(error)
 			alert("Ocurrió un error al crear el material de apoyo")

@@ -210,12 +210,17 @@ const sendVerificationEmail = async (email, token, newPassword, accountType, mas
   const logoPath = path.join(__dirname, '../Img/sena.png');
 
 	// ⭐⭐ NUEVO: Mensaje específico para Aprendiz ⭐⭐
-	const mensajeEspecifico =
-		accountType === "Aprendiz"
+	const mensajeEspecifico = accountType === "Aprendiz"
 			? `<p style="margin-bottom:.9375rem; background:#fff9e6; padding:10px; border-radius:5px; border-left:4px solid #F7941E;">
          <strong>💡 Para Aprendices:</strong> Después de verificar tu correo, dirígete a tu perfil para completar tu información personal y comenzar a usar la plataforma.
        </p>`
     : '';
+
+	const messagePassword = newPassword != null ?
+    `<div style="display: flex; flex-direction: column; gap: 5px; margin-bottom:.9375rem; justify-content:center; align-items:center;">
+      <p>Tu contraseña temporal es:</p>
+        <strong style="font-size: 15px">${newPassword}</strong>
+    </div>` : '';
 
     const password = masive === true
      ? `<p style="margin-bottom:.9375rem; background:#fff9e6; padding:10px; border-radius:5px; border-left:4px solid #F7941E;">

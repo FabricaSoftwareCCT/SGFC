@@ -13,11 +13,14 @@ const obtenerMaterialCurso = async (req, res) => {
 	try {
 		const materiales = await CursoTieneMaterialDeApoyo.findAll({
 			where: {
-				curso_ID: id
+				curso_ID: id,
 			},
 			include: [
 				{
 					model: MaterialDeApoyo,
+					where: {
+						estado: "activo"
+					}
 				}
 			]
 		})
@@ -85,7 +88,92 @@ const crearMaterial = async (req, res) => {
 	} catch (error) {
 		console.error(`Error al crear el material ${error}`)
 		res.status(500).send({
-			message: "Ocurrió un error al crear el material."
+			message: "Ocurrió un error interno al crear el material."
+		})
+	}
+}
+
+const actualizarMaterial = async (req, res) => {
+	const { id } = req.params
+	const { link } = req.body
+	const { accountType } = req.user
+
+	try {
+		if (
+			accountType !== "Administrador" &&
+			accountType !== "Instructor" &&
+			accountType !== "Gestor"
+		) {
+			return res.status(403).json({
+				message: "No tienes permisos para realizar esta acción.",
+			});
+		}
+
+		const material = await MaterialDeApoyo.findByPk(id)
+
+		if (!material) {
+			return res.status(404).json({
+				message: "No se encontró el material de apoyo"
+			})
+		}
+
+		switch (material.tipo_contenido.toLowerCase()) {
+			case "pdf":
+				break
+			case "video":
+				break
+			case "link":
+				await material.update({
+					contenido: link
+				})
+				break
+		}
+
+		return res.status(200).send({
+			message: "Se ha actualizado el criterio"
+		})
+	} catch (error) {
+		console.error(`Error al actualizar el material ${error}`)
+		res.status(500).send({
+			message: "Ocurrió un error interno al actualizar el material."
+		})
+	}
+}
+
+const eliminarMaterial = async (req, res) => {
+	try {
+		const { id } = req.params
+		const { accountType } = req.user
+
+		if (
+			accountType !== "Administrador" &&
+			accountType !== "Instructor" &&
+			accountType !== "Gestor"
+		) {
+			return res.status(403).json({
+				message: "No tienes permisos para realizar esta acción.",
+			});
+		}
+
+		const material = await MaterialDeApoyo.findByPk(id)
+
+		if (!material) {
+			return res.status(404).json({
+				message: "No se encontró el material de apoyo"
+			})
+		}
+
+		material.update({
+			estado: "inactivo"
+		})
+
+		return res.status(200).send({
+			message: "Se ha eliminado el criterio"
+		})
+	} catch (error) {
+		console.error(`Error al eliminar el material ${error}`)
+		res.status(500).send({
+			message: "Ocurrió un error interno al eliminar el material."
 		})
 	}
 }
@@ -93,5 +181,7 @@ const crearMaterial = async (req, res) => {
 module.exports = {
 	obtenerMaterialCurso,
 	crearMaterial,
+	actualizarMaterial,
+	eliminarMaterial,
 	setDb
 }

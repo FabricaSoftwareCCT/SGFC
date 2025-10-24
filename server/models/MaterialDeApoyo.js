@@ -28,6 +28,10 @@ class MaterialDeApoyo extends Model {
 				fecha_subida: {
 					type: DataTypes.DATE,
 					defaultValue: DataTypes.NOW
+				},
+				estado: {
+					type: DataTypes.ENUM("activo", "inactivo"),
+					defaultValue: "activo"
 				}
 			},
 			{

@@ -62,7 +62,7 @@ export const SupportMaterial = () => {
 	
 	const handleEliminarArchivo = (archivoId) => {
 		if (window.confirm('¿Estás seguro de que quieres eliminar este archivo?')) {
-			alert(`Archivo ${archivoId} eliminado (simulación)`);
+			eliminarMaterial(archivoId)
 		}
 	}
 
@@ -86,7 +86,7 @@ export const SupportMaterial = () => {
 		return `${nombreParte.slice(0, maxLongitud)}... ${extension}`;
 	};
 
-	const crearMaterial = async (curso) => {
+	const crearMaterial = async () => {
 		try {
 			switch (materialType) {
 				case "PDF":
@@ -98,17 +98,57 @@ export const SupportMaterial = () => {
 						alert("Se debe proporcionar un enlace")
 						return
 					}
-					const resp = axiosInstance.post(`/api/material/create/${curso.ID}`, {
+					const resp = await axiosInstance.post(`/api/material/create/${cursoSeleccionado.ID}`, {
 						tipo: materialType.toLowerCase(),
 						link: material
 					})
-					fetchMaterial(curso)
+					fetchMaterial(cursoSeleccionado)
+					setMaterial("")
+					setShowMaterialCreation(false)
 					alert(resp.data.message)
 					break
 			}
 		} catch (error) {
 			console.log(error)
 			alert("Ocurrió un error al crear el material de apoyo")
+		}
+	}
+
+	const editarMaterial = async () => {
+		try {
+			switch (editingMaterial.tipo_contenido) {
+				case "pdf":
+					break
+				case "video":
+					break
+				case "link":
+					if (editingMaterial.contenido.length < 1) {
+						alert("Se debe proporcionar un enlace")
+						return
+					}
+					const resp = await axiosInstance.put(`/api/material/update/${editingMaterial.ID}`, {
+						link: editingMaterial.contenido
+					})
+					fetchMaterial(cursoSeleccionado)
+					alert(resp.data.message)
+					setEditingMaterial(null)
+					break
+			}
+		} catch (error) {
+			console.log(error)
+			alert("Ocurrió un error al actualizar el material de apoyo")
+			setEditingMaterial(null)
+		}
+	}
+
+	const eliminarMaterial = async (id) => {
+		try {
+			const resp = await axiosInstance.delete(`/api/material/delete/${id}`)
+			fetchMaterial(cursoSeleccionado)
+			alert(resp.data.message)
+		} catch (error) {
+			console.log(error)
+			alert("Ocurrió un error al eliminar el material de apoyo")
 		}
 	}
 
@@ -172,39 +212,69 @@ export const SupportMaterial = () => {
 																</span>
 															</>
 														) : (
-															<a
-																className="material-link"
-																href={archivo.contenido}
-																target="_blank"
-																rel="noopener noreferrer"
-															>{archivo.contenido}</a>
+															editingMaterial && archivo.ID == editingMaterial.ID ?
+																<input
+																	className='material-link'
+																	type='text'
+																	value={editingMaterial.contenido}
+																	onChange={(e) => {
+																		setEditingMaterial({
+																			...editingMaterial,
+																			contenido: e.target.value
+																		})
+																	}}
+																/>
+															:
+																<a
+																	className="material-link"
+																	href={archivo.contenido}
+																	target="_blank"
+																	rel="noopener noreferrer"
+																>{archivo.contenido}</a>
 														)}
 													</div>
-													<div className='archivo-actions'>   
-														{puedeEliminarArchivos && (
-															<button
-																className='btn-editar'
-																onClick={() => setEditingMaterial(archivo.ID)}
-															>Editar</button>
-														)}
-														{archivo.tipo_contenido != "link" && (
+													<div className='archivo-actions'>  
+														{editingMaterial && archivo.ID == editingMaterial.ID ?
 															<>
+																<button
+																	className='btn-editar'
+																	onClick={() => editarMaterial()}
+																>Guardar</button>
 																<button 
-																	className='btn-descargar' 
-																	onClick={() => handleDescargarArchivo(archivo)}
+																	className='btn-eliminar' 
+																	onClick={() => setEditingMaterial(null)}
 																>
-																	Descargar
+																	Cancelar
 																</button>
 															</>
-														)}
-														{puedeEliminarArchivos && (
-															<button 
-																className='btn-eliminar' 
-																onClick={() => handleEliminarArchivo(archivo.id)}
-															>
-																Eliminar
-															</button>
-														)}
+														:
+															<>
+																{puedeEliminarArchivos && (
+																	<button
+																		className='btn-editar'
+																		onClick={() => setEditingMaterial(archivo)}
+																	>Editar</button>
+																)}
+																{archivo.tipo_contenido != "link" && (
+																	<>
+																		<button 
+																			className='btn-descargar' 
+																			onClick={() => handleDescargarArchivo(archivo)}
+																		>
+																			Descargar
+																		</button>
+																	</>
+																)}
+																{puedeEliminarArchivos && (
+																	<button 
+																		className='btn-eliminar' 
+																		onClick={() => handleEliminarArchivo(archivo.ID)}
+																	>
+																		Eliminar
+																	</button>
+																)}
+															</>	
+														}
 													</div>
 												</div>    
 											))
@@ -290,7 +360,7 @@ export const SupportMaterial = () => {
 							style={{
 								flex: "none"
 							}}
-							onClick={() => crearMaterial(cursoSeleccionado)}
+							onClick={() => crearMaterial()}
 						>Crear material</button>
 					</div>
 				</div>

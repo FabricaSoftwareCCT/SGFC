@@ -22,6 +22,7 @@
 	border-radius: 15px;
 	overflow: hidden;
 	gap: 5rem;
+    position: relative;
 }
 
 .modal-left {
@@ -167,15 +168,15 @@
 }
 
 .container_return_CreateGestor {
-	width: 101px;
-	height: 142px;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	position: absolute;
-	top: 44px;
-	right: 303px;
-	z-index: 1000;
+    width: auto;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
 }
 
 .container_return_CreateGestor > h5 {
@@ -202,4 +203,42 @@
 	color: #fff;
 	left: 4%;
 	cursor: pointer;
+}
+
+.upload-area {
+    cursor: pointer;
+    display: block;
+}
+
+.preview-image {
+    width: 220px;
+    height: 300px;
+    border-radius: 20px;
+    object-fit: cover;
+}
+
+.upload-placeholder {
+    width: 220px;
+    height: 300px;
+    border: 2px dashed #fff;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    text-align: center;
+}
+
+.upload-placeholder .icon {
+    width: 50px;
+    height: 50px;
+    margin-bottom: 10px;
+}
+
+.closeModal {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
 }

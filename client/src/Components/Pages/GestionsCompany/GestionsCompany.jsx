@@ -229,6 +229,13 @@ export const GestionsCompany = () => {
 									</section>
 								</div>
 							</article>
+               {/* Botón Añadir Empresa - CORREGIDO: en el header */}
+              <button 
+                className="btn-add-company"
+                onClick={handleAddCompany}
+              >
+                Añadir Empresa
+              </button>
 						</section>
 
 						{/* Resultados a la derecha */}

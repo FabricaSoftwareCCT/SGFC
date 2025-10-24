@@ -670,59 +670,75 @@ const getAprendices = async (req, res) => {
 };
 
 //Consultar lista de empresas
+// En tu userController.js - modificar getEmpresas
 const getEmpresas = async (req, res) => {
-	try {
-		const empresas = await User.findAll({
-			where: { accountType: "Empresa" },
-			attributes: {
-				exclude: [
-					"password",
-					"token",
-					"resetPasswordToken",
-					"resetPasswordExpires",
-				],
-			}, // Excluir datos sensibles
-			include: [
-				{
-					model: Empresa,
-					as: "Empresa", // Alias definido en la relación
-					attributes: [
-						"ID",
-						"NIT",
-						"email_empresa",
-						"nombre_empresa",
-						"direccion",
-						"estado",
-						"categoria",
-						"telefono",
-						"img_empresa",
-						"ciudad_ID",
-					], // Campos que deseas incluir
-					include: [
-						{
-							model: Ciudad,
-							as: "Ciudad",
-							attributes: ["ID", "nombre", "departamento_ID"],
-							include: [
-								{
-									model: Departamento,
-									as: "Departamento",
-									attributes: ["ID", "nombre"],
-								},
-							],
-						},
-					],
-				},
-			],
-		});
+  try {
+    // Opción A: Traer ambas - usuarios empresa Y empresas sin usuario
+    const empresasConUsuario = await User.findAll({
+      where: { accountType: 'Empresa' },
+      attributes: { exclude: ['password', 'token', 'resetPasswordToken', 'resetPasswordExpires'] },
+      include: [
+        {
+          model: Empresa,
+          as: 'Empresa',
+          attributes: ['ID', 'NIT', 'email_empresa', 'nombre_empresa', 'direccion', 'estado', 'categoria', 'telefono', 'img_empresa', 'ciudad_ID'],
+          include: [
+            {
+              model: Ciudad,
+              as: 'Ciudad',
+              attributes: ['ID', 'nombre', 'departamento_ID'],
+              include: [
+                {
+                  model: Departamento,
+                  as: 'Departamento',
+                  attributes: ['ID', 'nombre']
+                }
+              ]
+            }
+          ]
+        },
+      ],
+    });
 
-		res.status(200).json(empresas);
-	} catch (error) {
-		console.error("Error al obtener la lista de empresas:", error);
-		res.status(500).json({
-			message: "Error al obtener la lista de empresas.",
-		});
-	}
+    // Traer empresas que no tienen usuario asociado
+    const empresasSinUsuario = await Empresa.findAll({
+      where: {
+        ID: {
+          [Op.notIn]: empresasConUsuario.map(emp => emp.Empresa?.ID).filter(Boolean)
+        }
+      },
+      include: [
+        {
+          model: Ciudad,
+          as: 'Ciudad',
+          attributes: ['ID', 'nombre', 'departamento_ID'],
+          include: [
+            {
+              model: Departamento,
+              as: 'Departamento',
+              attributes: ['ID', 'nombre']
+            }
+          ]
+        }
+      ]
+    });
+
+    // Combinar resultados
+    const empresasCombinadas = [
+      ...empresasConUsuario,
+      ...empresasSinUsuario.map(empresa => ({
+        ID: empresa.ID, // Usar ID de empresa como ID temporal
+        accountType: 'Empresa',
+        Empresa: empresa
+      }))
+    ];
+
+    res.status(200).json(empresasCombinadas);
+
+  } catch (error) {
+    console.error("Error al obtener la lista de empresas:", error);
+    res.status(500).json({ message: "Error al obtener la lista de empresas." });
+  }
 };
 
 //obtener empresa(activa) por ID
@@ -995,15 +1011,16 @@ const updateUserProfile = async (req, res) => {
 				}
 			}
 
-			// Asignación directa de campos
-			if (email) user.email = email;
-			if (nombres) user.nombres = nombres;
-			if (apellidos) user.apellidos = apellidos;
-			if (celular) user.celular = celular;
-			if (estado) user.estado = estado;
-			if (titulo_profesional)
-				user.titulo_profesional = titulo_profesional;
-			if (foto_perfil) user.foto_perfil = foto_perfil;
+                // Asignación directa de campos
+                if (email) user.email = email;
+                if (nombres) user.nombres = nombres;
+                if (apellidos) user.apellidos = apellidos;
+                if (celular) user.celular = celular;
+                if (estado) user.estado = estado;
+                if (titulo_profesional) user.titulo_profesional = titulo_profesional;
+                if (foto_perfil) user.foto_perfil = foto_perfil;
+                if (documento) user.documento = documento;
+                if (tipoDocumento) user.tipoDocumento = tipoDocumento;
 
 			// Si se envía información de empresa, permitir que el administrador la actualice también
 			if (req.body.empresa && user.Empresa) {
@@ -2437,4 +2454,5 @@ module.exports = {
 	getAllEmpleadosForAdmin,
 	getAllEmpresasForAdmin,
 	createEmpleadoForAdmin,
+    createEmpresa
 };

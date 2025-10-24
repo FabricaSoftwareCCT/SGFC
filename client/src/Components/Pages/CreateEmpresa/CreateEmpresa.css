@@ -639,6 +639,52 @@
   background: #006f33;
   border-color: #006f33;
 }
+/* Agregar esto al archivo CreateEmpresa.css */
+
+.file-input-container {
+  position: relative;
+  width: 100%;
+}
+
+.file-input {
+  position: absolute;
+  opacity: 0;
+  width: 0.1px;
+  height: 0.1px;
+}
+
+.file-input-label {
+  display: block;
+  width: 100%;
+  padding: 0.75rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.2);
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+  font-size: 14px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.file-input-label:hover {
+  background: rgba(255,255,255,0.15);
+  border-color: rgba(255,255,255,0.3);
+}
+
+/* Estilos para selects deshabilitados */
+.form-group-company select:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Estilos para botones deshabilitados */
+.btn-cancel-company:disabled,
+.btn-save-company:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+}
 
 /* ========================================
    RESPONSIVE DESIGN

@@ -19,7 +19,7 @@
     max-width: 1000px;
     height: auto;
     min-height: 464px;
-    max-height: 90vh;
+    max-height: 103vh;
     background-color: #1A1A1A;
     display: flex;
     justify-content: space-around;
@@ -108,8 +108,8 @@ color: #00843d;
 }
 
 .TipoDocumento option {
-    color: #000000;
-    background-color: rgb(255, 255, 255);
+    color: #e0e0e0;
+    background-color: #1e1e1e;
 }
 
 .empresa-select {
@@ -127,8 +127,8 @@ color: #00843d;
 }
 
 .empresa-select option{
-    color: #1A1A1A;
-    background-color: #ffffff;
+    color: #e0e0e0;
+    background-color: #1e1e1e;
 }
 
 .edit-photo-btn {
@@ -246,7 +246,7 @@ color: #00843d;
     flex-direction: column;
     align-items: center;
     position: absolute;
-    top: -21px;
+    top: -19px;
     right: 0px;
     z-index: 1000;
     pointer-events: auto;

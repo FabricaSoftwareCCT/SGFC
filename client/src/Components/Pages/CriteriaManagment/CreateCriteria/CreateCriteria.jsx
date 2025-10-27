@@ -85,7 +85,7 @@ export const CreateCriteria = () => {
 		<>
 			<Header/>
 			<Main>
-				<div class="container-see-criteria">
+				<div className="container-see-criteria">
 					<GoBackArrow/>
 					<h2>Criterios de <span className="complementary">Certificación</span></h2>
 					<div className="new-criteria-space">

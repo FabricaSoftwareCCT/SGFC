@@ -3,7 +3,7 @@ const User = require("../models/User");
 const Empresa = require('../models/empresa'); // Importar el modelo Empresa
 const path = require("path");
 const AsignacionCursoInstructor = require("../models/AsignacionCursoInstructor");
-const { sendCourseCreatedEmail } = require("../services/emailService");
+const { sendCourseCreatedEmail, sendCursoUpdatedByManagerNotification } = require("../services/emailService");
 const { Router } = require("express");
 const upload = require("../config/multer");
 const { sendCursoUpdatedNotification, sendInstructorAssignedEmail, sendStudentsInstructorAssignedEmail } = require('../services/emailService');
@@ -143,6 +143,8 @@ const createCurso = async (req, res) => {
 			dias_formacion,
 			lugar_formacion,
 			slots_formacion,
+			cupos_disponibles,
+			duracion_dias,
 			empresa_ID // Esperado solo si tipo_oferta es "Cerrada"
 		} = req.body;
 
@@ -222,7 +224,9 @@ const createCurso = async (req, res) => {
 			imagen: image,
 			sena_ID,
 			empresa_ID: finalEmpresaID,
-			slots_formacion: slotsFormacionString
+			slots_formacion: slotsFormacionString,
+			duracion_dias,
+			cupos_disponibles
 		});
 
 		res.status(201).json({ message: "Curso creado con éxito.", curso: nuevoCurso });
@@ -265,12 +269,7 @@ const createCurso = async (req, res) => {
 const updateCurso = async (req, res) => {
 	try {
 		const { accountType } = req.user;
-		if (accountType !== "Administrador" & accountType !== "Gestor") {
-			return res
-				.status(403)
-				.json({ message: "No tienes permisos para actualizar cursos." });
-		}
-
+		const userId = req.user.id;
 		const { id } = req.params;
 		const {
 			nombre_curso,
@@ -285,8 +284,22 @@ const updateCurso = async (req, res) => {
 			lugar_formacion,
 			estado,
 			slots_formacion,
-			empresa_ID
+			empresa_ID,
+			duracion_dias
 		} = req.body;
+
+		const userData = await User.findByPk(userId);
+		if (accountType === "Empresa") {
+			if (!userData.dataValues.empresa_ID)
+				return res.status(403).json({ message: "No tienes permisos para actualizar cursos sin una empresa." });
+			const cursoTemp = (await Curso.findByPk(id)).dataValues;
+			if (userData.dataValues.empresa_ID !== cursoTemp.empresa_ID)
+				return res.status(403).json({ message: "No tienes permisos para actualizar cursos de otra empresa." });
+		}
+		if (accountType !== "Administrador" & accountType !== "Gestor" && accountType !== "Empresa") {
+			return res.status(403).json({ message: "No tienes permisos para actualizar cursos." });
+		}
+		const isManager = accountType === "Empresa"
 
 		// Validar que el curso exista
 		const curso = await Curso.findByPk(id);
@@ -328,6 +341,7 @@ const updateCurso = async (req, res) => {
 			dias_formacion,
 			lugar_formacion,
 			estado,
+			duracion_dias,
 			empresa_ID: tipo_oferta === "Cerrada" ? finalEmpresaID : null, // ✅ Actualizar o limpiar
 		};
 
@@ -372,6 +386,10 @@ const updateCurso = async (req, res) => {
 		const emails = usuarios.map((user) => user.email);
 		if (emails.length > 0) {
 			await sendCursoUpdatedNotification(emails, curso);
+		}
+
+		if (isManager) {
+			await sendCursoUpdatedByManagerNotification(curso.dataValues, userData.dataValues);
 		}
 
 		res.status(200).json({
@@ -579,6 +597,10 @@ const getCursoById = async (req, res) => {
 			return res.status(404).json({ message: "Curso no encontrado." });
 		}
 
+		curso.dataValues.cupos_usados = await InscripcionCurso.count({
+			curso_ID: id
+		})
+
 		res.status(200).json(curso);
 	} catch (error) {
 		console.error("Error al obtener el curso:", error);
@@ -608,6 +630,10 @@ const getCursosByEmpresaId = async (req, res) => {
 				{
 					model: Empresa,
 					as: 'Empresa'
+				},
+				{
+					model: Usuario,
+					as: "Instructor",
 				}
 			]
 		});
@@ -837,6 +863,7 @@ const cambiarEstadoInvitacion = async (req, res) => {
 		res.status(500).json({ message: 'Error al cambiar el estado de la invitación.' });
 	}
 };
+
 module.exports = {
 	setDb,
 	createCurso,
@@ -851,5 +878,5 @@ module.exports = {
 	getCursosByEmpresaId,
 	enviarInvitacionCurso,
 	cambiarEstadoInvitacion,
-	verificarDisponibilidadInstructor
+	verificarDisponibilidadInstructor,
 };

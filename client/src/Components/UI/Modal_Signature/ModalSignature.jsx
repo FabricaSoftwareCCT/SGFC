@@ -3,7 +3,7 @@ import SignatureCanvas from "react-signature-canvas";
 import cloudUpload from "../../../assets/Icons/cloud-upload.png";
 import "./modalSignature.css";
 
-export const ModalSignature = ({ children, closeModal, className, editar, nombreActa, tipoActa, onSignature, onUpload }) => {
+export const ModalSignature = ({ children, closeModal, className, editar, nombreActa, tipoActa, participanteSeleccionado, onSignature, onUpload }) => {
     const sigCanvas = useRef();
     const [uploadedFileName, setUploadedFileName] = useState("");
     const [firmaDigital, setFirmaDigital] = useState("");
@@ -13,7 +13,9 @@ export const ModalSignature = ({ children, closeModal, className, editar, nombre
     const clearSignature = () => {
         sigCanvas.current.clear();
         setFirmaDigital("");
-        if (onSignature) onSignature("");
+        setFirmaArchivo(null);
+        setUploadedFileName("");
+        // NO aplicar automáticamente - solo limpiar el canvas
     };
 
     const saveSignature = () => {
@@ -21,7 +23,7 @@ export const ModalSignature = ({ children, closeModal, className, editar, nombre
             const canvas = sigCanvas.current.getCanvas();
             const dataUrl = canvas.toDataURL("image/png");
             setFirmaDigital(dataUrl);
-            if (onSignature) onSignature(dataUrl);
+            // NO aplicar automáticamente - esperar hasta que presione "Aplicar firma"
         }
     };
 
@@ -30,17 +32,25 @@ export const ModalSignature = ({ children, closeModal, className, editar, nombre
             const file = e.target.files[0];
             setUploadedFileName(file.name);
             setFirmaArchivo(file);
-            if (onUpload) onUpload(file);
+            // Convertir archivo a data URL para consistencia pero NO aplicar automáticamente
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                setFirmaDigital(event.target.result);
+                // NO aplicar automáticamente - esperar hasta que presione "Aplicar firma"
+            };
+            reader.readAsDataURL(file);
         }
     };
 
-    // ✅ Función simplificada - solo aplica la firma al documento
+    // ✅ Función simplificada - solo aplica la firma al documento cuando presiona el botón
     const handleApplySignature = () => {
         // si no se está editada el acta cerrar modal
         if (!editar) {
             alert('Primero editar el documento, para luego aplicar la firma.');
             closeModal();
-        } else if (firmaDigital || firmaArchivo) {
+        } else if (firmaDigital) {
+            // Aplicar la firma solo cuando presiona el botón
+            if (onSignature) onSignature(firmaDigital);
             alert('¡Firma aplicada correctamente al documento!');
             closeModal();
         } else {
@@ -69,6 +79,18 @@ export const ModalSignature = ({ children, closeModal, className, editar, nombre
                     <h2 className="signature-title">Agregar firma</h2>
                     <h3 className="signature-title">{nombreActa}Acta#1</h3>
                     <h4 className="signature-type">{tipoActa}</h4>
+                    {participanteSeleccionado && (
+                        <div style={{ 
+                            backgroundColor: '#f8f9fa', 
+                            padding: '10px', 
+                            borderRadius: '5px', 
+                            marginBottom: '15px',
+                            border: '1px solid #dee2e6',
+                            color: '#333333'
+                        }}>
+                            <strong style={{ color: '#333333' }}>Participante:</strong> <span style={{ color: '#333333' }}>{participanteSeleccionado.nombre}</span>
+                        </div>
+                    )}
                     <div className="signature-container">
                         <span className="signature-label">Firme aquí:</span>
                         <div className="signature-area">

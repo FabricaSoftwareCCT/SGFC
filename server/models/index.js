@@ -19,6 +19,8 @@ const CursoTieneCriterio = require("./CursoTieneCriterio");
 const EdicionCriterio = require("./EdicionCriterio");
 const UsuarioTieneCriterios = require("./UsuarioTieneCriterios");
 const createTriggers = require("../utils/databaseTriggers");
+const MaterialDeApoyo = require("./MaterialDeApoyo");
+const CursoTieneMaterialDeApoyo = require("./CursoTieneMaterialDeApoyo");
 
 // Leer la URL de conexión (recomendada en producción)
 const DB_URL = process.env.DB_URL;
@@ -81,6 +83,8 @@ async function initializeDatabase() {
   EdicionCriterio.init(sequelize);
   UsuarioTieneCriterios.init(sequelize);
   Asistencia.init(sequelize);
+  MaterialDeApoyo.init(sequelize);
+  CursoTieneMaterialDeApoyo.init(sequelize);
 
   // Asociar modelos
   const models = {
@@ -100,6 +104,8 @@ async function initializeDatabase() {
     EdicionCriterio,
     UsuarioTieneCriterios,
     Asistencia,
+    MaterialDeApoyo,
+    CursoTieneMaterialDeApoyo
   };
 
   Object.values(models).forEach((model) => {

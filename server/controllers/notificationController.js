@@ -196,6 +196,17 @@ const crearNotificacionSolicitudCurso = async (req, res) => {
         const { asunto, mensaje, archivo } = req.body;
         // El remitente es el usuario autenticado (empresa)
         const remitente_ID = req.user.id;
+        const { accountType } = req.user;
+
+		if (
+			accountType !== "Empresa" &&
+			accountType !== "Aprendiz"
+		) {
+			return res.status(403).json({
+				message: "No tienes permisos para realizar esta acción.",
+			});
+		}
+
 
         // Busca todos los usuarios tipo 'Administrador' y 'Gestor'
         const destinatarios = await User.findAll({
@@ -220,7 +231,7 @@ const crearNotificacionSolicitudCurso = async (req, res) => {
             notificaciones.push(notificacion);
         }
 
-        console.log("Notifcación registrada",notificaciones)
+        //console.log("Notifcación registrada",notificaciones)
 
         res.status(201).json({
             success: true,
@@ -366,9 +377,10 @@ const crearNotificacionMaterialApoyo = async (req, res) => {
         const emails = usuarios.map(user => user.email);
         const material_link = `http://localhost:5173/cursos/`;
         
-        await sendCreateMaterialApoyo(emails, curso.dataValues.nombre_curso, material_link)
-        await createNotificacionMaterialApoyo(remitente_ID, emails, curso);
-
+        if (emails.length > 0) {
+            await sendCreateMaterialApoyo(emails, curso.dataValues.nombre_curso, material_link)
+            await createNotificacionMaterialApoyo(remitente_ID, emails, curso);
+        }
         return res.status(200).json({message: "se enviaron las notificaciones, del material de apoyo"})
         
     } catch (error) {

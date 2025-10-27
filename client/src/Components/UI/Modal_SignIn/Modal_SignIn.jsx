@@ -97,7 +97,7 @@ export const Modal_SignIn = () => {
     event.preventDefault();
     setLoginning(true);
 
-    axiosInstance.post("api/users/login", { email, password })
+    axiosInstance.post("api/users/login", { email, password, remember: rememberSession })
       .then(async (response) => {
         // Guardar sesión
         const sessionData = {

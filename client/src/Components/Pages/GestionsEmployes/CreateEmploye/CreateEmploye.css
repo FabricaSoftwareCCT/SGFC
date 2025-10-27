@@ -77,7 +77,9 @@
     gap: 30px;
     padding-top: 0;
 }
-
+.modal-right input{
+color: #00843d;
+}
 .profile-photo-container {
     width: 220px;
     height: 300px;
@@ -105,8 +107,9 @@
     box-sizing: border-box;
 }
 
-.option {
-    background-color: black;
+.TipoDocumento option {
+    color: #000000;
+    background-color: rgb(255, 255, 255);
 }
 
 .empresa-select {
@@ -121,6 +124,11 @@
     padding: 0 15px;
     font-size: 14px;
     box-sizing: border-box;
+}
+
+.empresa-select option{
+    color: #1A1A1A;
+    background-color: #ffffff;
 }
 
 .edit-photo-btn {
@@ -138,6 +146,7 @@
 }
 
 .status-container {
+    margin-right: 50%;
     width: 100%;
     height: auto;
     color: white;
@@ -269,6 +278,7 @@
 }
 
 .upload-area {
+    margin-right: 50%;
     width: 220px;
     height: 300px;
     border: 2px dotted #ccc;
@@ -293,11 +303,11 @@
 .upload-placeholder .icon {
     width: 50px;
     height: 50px;
-    margin-bottom: 10px;
+    margin-bottom: 60px;
 }
 
 .upload-placeholder p {
-    margin: 0;
+    margin-top: 160px;
     font-size: 14px;
 }
 

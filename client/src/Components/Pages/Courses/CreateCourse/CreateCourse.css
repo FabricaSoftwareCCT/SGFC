@@ -5,19 +5,43 @@
   flex-direction: column;
   align-items: center;
   margin-bottom: 15px;
-  overflow: visible; /* Agregar esto */
+  overflow: visible;
+  max-width: 1600px; /* ✅ AGREGADO: Limitar expansión en pantallas grandes */
+  margin: 0 auto; /* ✅ AGREGADO: Centrar contenido */
 }
 
 .container_createCourse>h2 {
   width: 100%;
   height: auto;
   color: #fff;
-  font-size: 36px; /* Reducido de 48px */
+  font-size: 36px;
   text-align: center;
-  margin-top: 1rem; /* Reducido de 2rem */
+  margin-top: 1rem !important; /* ✅ AGREGADO: !important para sobrescribir margin-top: auto */
   margin-bottom: 1rem;
+  font-weight: normal !important; /* ✅ AGREGADO: Sobrescribir font-weight: 200 */
+  letter-spacing: normal !important; /* ✅ AGREGADO: Sobrescribir letter-spacing */
 }
 
+/* ✅ AGREGADO: Media queries específicas para controlar márgenes en pantallas grandes */
+@media (min-width: 2000px) {
+  .container_createCourse > h2 {
+    margin-top: 0.5rem !important;
+  }
+}
+
+@media (min-width: 2400px) {
+  .container_createCourse > h2 {
+    margin-top: 0.3rem !important;
+  }
+}
+
+@media (min-width: 3000px) {
+  .container_createCourse > h2 {
+    margin-top: 0.1rem !important;
+  }
+}
+
+/* El resto de tu CSS permanece exactamente igual... */
 .containerInformation_CreateCourse {
   width: 90%;
   height: auto;
@@ -26,7 +50,7 @@
   align-items: flex-start;
   margin-top: 1rem;
   gap: 3rem;
-  overflow: visible; /* Agregar esto */
+  overflow: visible;
 }
 
 .containerInformation_CreateCourse>input {
@@ -46,7 +70,7 @@
 .descripcion-counter {
   width: auto;
   height: auto;
-  font-size: 0.85em; /* Reducido */
+  font-size: 0.85em;
   margin-top: 2px;
 }
 
@@ -59,8 +83,8 @@
 }
 
 .upload-area {
-  width: 200px; /* Reducido de 220px */
-  height: 230px; /* Reducido de 250px */
+  width: 200px;
+  height: 230px;
   border: 2px dotted #ccc;
   border-radius: 15px;
   display: flex;
@@ -78,13 +102,13 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  font-size: 13px; /* Reducido */
+  font-size: 13px;
 }
 
 .icon {
-  width: 70px; /* Reducido de 90px */
+  width: 70px;
   height: auto;
-  margin: 3rem 0 1.5rem 0; /* Ajustado */
+  margin: 3rem 0 1.5rem 0;
   opacity: 0.6;
 }
 
@@ -98,15 +122,15 @@
 .upload-placeholder>p {
   width: 10rem;
   height: auto;
-  font-size: 13px; /* Reducido */
+  font-size: 13px;
 }
 
 .containerDetails_course {
-  width: 55%; /* Ajustado de 50% */
+  width: 55%;
   height: 100%;
   display: flex;
   flex-direction: column;
-  gap: .5rem; /* Reducido de 1.7rem */
+  gap: .5rem;
   align-items: center;
 }
 
@@ -114,7 +138,7 @@
 .addDetails {
   width: 99%;
   height: 2rem;
-  margin-top: 0.5rem; /* Reducido de 1rem */
+  margin-top: 0.5rem;
   background-color: transparent;
   border-style: none;
   border: 1px solid #b0b0b0;
@@ -139,29 +163,29 @@
 }
 
 .addDetails {
-  height: 4rem; /* Reducido de 5rem */
+  height: 4rem;
   padding-top: 5px;
 }
 
 .buttonCreate_Course {
-  margin-top: 10px; /* Reducido de 30px */
-  width: 9rem; /* Reducido */
+  margin-top: 10px;
+  width: 9rem;
   height: auto;
   background-color: #00843D;
   list-style: none;
   border-style: none;
   border-radius: 15px;
   color: #fff;
-  font-size: 1.1rem; /* Reducido de 1.2rem */
+  font-size: 1.1rem;
   cursor: pointer;
-  padding: 0.4rem; /* Reducido */
+  padding: 0.4rem;
 }
 
 .offer-type-container {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 13px; /* Reducido de 14px */
+  font-size: 13px;
   width: auto;
   height: auto;
   justify-content: start;
@@ -170,18 +194,18 @@
 .offer-type-container>span {
   width: auto;
   height: auto;
-  font-size: 13px; /* Reducido */
+  font-size: 13px;
 }
 
 .offer-options {
   width: auto;
   height: auto;
   display: flex;
-  gap: 6px; /* Reducido de 8px */
+  gap: 6px;
 }
 
 .offer-button {
-  padding: 3px 10px; /* Reducido */
+  padding: 3px 10px;
   border-radius: 999px;
   width: auto;
   height: auto;
@@ -191,7 +215,7 @@
   background-color: #b0b0b01c;
   color: #ccc;
   transition: all 0.2s ease;
-  font-size: 13px; /* Reducido */
+  font-size: 13px;
 }
 
 .offer-button.active {
@@ -207,9 +231,9 @@
   height: auto;
   display: flex;
   flex-direction: column;
-  font-size: 13px; /* Reducido de 14px */
-  gap: 0.3rem; /* Reducido de 0.5rem */
-  margin-bottom: 0.3rem; /* Reducido */
+  font-size: 13px;
+  gap: 0.3rem;
+  margin-bottom: 0.3rem;
 }
 
 .containerInput_ficha label,
@@ -217,18 +241,18 @@
   width: auto;
   height: auto;
   color: #fff;
-  font-size: 13px; /* Reducido */
+  font-size: 13px;
 }
 
 .input-field {
   width: 99%;
-  height: 1.8rem; /* Reducido de 2rem */
+  height: 1.8rem;
   background-color: transparent;
   border: 1px solid #b0b0b0;
   border-radius: 10px;
   padding-left: 5px;
   outline: none;
-  font-size: 13px; /* Reducido de 14px */
+  font-size: 13px;
   transition: border 0.2s ease-in-out;
 }
 
@@ -240,7 +264,7 @@
 #p_addInstructor {
   width: auto;
   height: auto;
-  font-size: 13px; /* Reducido */
+  font-size: 13px;
   text-align: start;
   display: flex;
   align-items: center;
@@ -255,7 +279,7 @@
 }
 
 #p_addInstructor>button>img {
-  width: 1.3rem; /* Reducido de 1.5rem */
+  width: 1.3rem;
   height: auto;
 }
 
@@ -265,8 +289,8 @@
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  gap: 0.8rem; /* Reducido de 1rem */
-  margin: 0.3rem 0 0.8rem 0; /* Reducido */
+  gap: 0.8rem;
+  margin: 0.3rem 0 0.8rem 0;
 }
 
 .containerDetails_course2>div {
@@ -274,7 +298,7 @@
   height: auto;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem; /* Reducido de 0.7rem */
+  gap: 0.5rem;
 }
 
 .addDate {
@@ -288,13 +312,13 @@
   align-items: center;
   color: #00843D;
   cursor: pointer;
-  font-size: 13px; /* Reducido */
+  font-size: 13px;
 }
 
 .addDate>img {
-  width: 1.8rem; /* Reducido de 2rem */
+  width: 1.8rem;
   height: auto;
-  margin: 0.5rem 0 0.3rem 0; /* Reducido */
+  margin: 0.5rem 0 0.3rem 0;
 }
 
 /* Resultado de búsqueda empresa */
@@ -304,26 +328,26 @@
   border-left: 1px solid #b0b0b0;
   border-right: 1px solid #b0b0b0;
   border-bottom: 1px solid #b0b0b0;
-  max-height: 120px; /* Reducido */
-  min-height: 32px; /* Reducido */
+  max-height: 120px;
+  min-height: 32px;
   overflow-y: auto;
   background-color: #1a1a1a;
   position: absolute;
-  bottom: 4.5rem; /* Ajustado */
+  bottom: 4.5rem;
   left: 34.9rem;
   z-index: 10;
   width: 50%;
   height: auto;
-  font-size: 12px; /* Reducido */
+  font-size: 12px;
 }
 
 .resultados-empresa li {
-  padding: 15px 6px 6px 6px; /* Reducido */
+  padding: 15px 6px 6px 6px;
   cursor: pointer;
   transition: background 0.2s ease;
   width: auto;
   height: auto;
-  font-size: 12px; /* Reducido */
+  font-size: 12px;
 }
 
 .resultados-empresa li:hover {
@@ -335,13 +359,13 @@
   height: auto;
   display: flex;
   align-items: center;
-  gap: 6px; /* Reducido */
+  gap: 6px;
 }
 
 .nombre_empresaSeleccionada{
   width: auto;
   height: auto;
-  font-size: 13px; /* Reducido */
+  font-size: 13px;
   color: #fff;
   margin: 0;
 }
@@ -354,12 +378,12 @@
   cursor: pointer;
   padding: 0;
   color: #00843D;
-  font-size: 13px; /* Reducido */
+  font-size: 13px;
 }
 
 .buttonEditEmpresa img {
-  width: 18px; /* Reducido de 20px */
-  height: 18px; /* Reducido de 20px */
+  width: 18px;
+  height: 18px;
 }
 
 /* Media queries para ajustes adicionales */

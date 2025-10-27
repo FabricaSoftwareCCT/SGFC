@@ -4,6 +4,7 @@ import "./UpdateEmploye.css";
 import axiosInstance from "../../../../config/axiosInstance";
 import { useModal } from "../../../../Context/ModalContext";
 import buttonEdit from '../../../../assets/Icons/buttonEdit.png';
+import { validateEmail, validateNumber, validateText, validateNIT } from "../../../../utils/Validators/formValidator";
 
 export const UpdateEmploye = ({ empleado }) => {
   const [isEditing, setIsEditing] = useState(false);
@@ -18,9 +19,9 @@ export const UpdateEmploye = ({ empleado }) => {
   useEffect(() => {
     if (empleado) {
       setFormData({ ...empleado });
-      setIsEditing(false); // Resetear modo edición
-      setDocumentoPDF(null); // Limpiar PDF
-      setPdfFileName(''); // Limpiar nombre del archivo
+      setIsEditing(false);
+      setDocumentoPDF(null);
+      setPdfFileName('');
     }
   }, [empleado]);
 
@@ -36,8 +37,8 @@ export const UpdateEmploye = ({ empleado }) => {
     const selectedPDF = e.target.files[0];
     if (!selectedPDF) return;
 
-    setDocumentoPDF(selectedPDF); // Ya lo estás usando para enviarlo
-    setPdfFileName(selectedPDF.name); // Guardar nombre del archivo
+    setDocumentoPDF(selectedPDF);
+    setPdfFileName(selectedPDF.name);
   };
 
   const closeModalUpdateEmploye = () => {
@@ -66,6 +67,51 @@ export const UpdateEmploye = ({ empleado }) => {
     setFormData((prev) => ({ ...prev, estado }));
   };
 
+  const validateFields = () => {
+    const errors = [];
+    
+    // Validar nombres
+    if (!formData.nombres || formData.nombres.trim() === '') {
+      errors.push('Los nombres son requeridos');
+    } else if (formData.nombres.trim().length < 2) {
+      errors.push('Los nombres deben tener al menos 2 caracteres');
+    }
+    
+    // Validar apellidos
+    if (!formData.apellidos || formData.apellidos.trim() === '') {
+      errors.push('Los apellidos son requeridos');
+    } else if (formData.apellidos.trim().length < 2) {
+      errors.push('Los apellidos deben tener al menos 2 caracteres');
+    }
+    
+    // Validar documento (solo números)
+    if (!formData.documento || formData.documento.trim() === '') {
+      errors.push('El número de documento es requerido');
+    } else if (!/^\d+$/.test(formData.documento.trim())) {
+      errors.push('El número de documento debe contener solo números');
+    } else if (formData.documento.trim().length < 6) {
+      errors.push('El número de documento debe tener al menos 6 dígitos');
+    }
+    
+    // Validar celular (solo números)
+    if (!formData.celular || formData.celular.trim() === '') {
+      errors.push('El número de celular es requerido');
+    } else if (!/^\d+$/.test(formData.celular.trim())) {
+      errors.push('El número de celular debe contener solo números');
+    } else if (formData.celular.trim().length < 10) {
+      errors.push('El número de celular debe tener al menos 10 dígitos');
+    }
+    
+    // Validar email
+    if (!formData.email || formData.email.trim() === '') {
+      errors.push('El email es requerido');
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) {
+      errors.push('Debe ingresar un email válido');
+    }
+    
+    return errors;
+  };
+
   const handleButtonClick = async (e) => {
     e.preventDefault();
 
@@ -74,17 +120,29 @@ export const UpdateEmploye = ({ empleado }) => {
       return;
     }
 
+    // Validar todos los campos antes de enviar
+    const errors = validateFields();
+    if (errors.length > 0) {
+      alert(`Por favor corrija los siguientes errores:\n\n${errors.join('\n')}`);
+      return;
+    }
+
     try {
-      // Paso 1: Actualizar perfil (foto, datos)
       const formDataToSend = new FormData();
-      for (const key in formData) {
-        if (Object.prototype.hasOwnProperty.call(formData, key)) {
-          if (key === "foto_perfil" && formData[key] instanceof File) {
-            formDataToSend.append(key, formData[key]);
-          } else {
-            formDataToSend.append(key, formData[key]);
-          }
+      
+      const campos = [
+        'nombres', 'apellidos', 'tipoDocumento', 'documento', 
+        'celular', 'email', 'estado', 'ID'
+      ];
+      
+      campos.forEach(campo => {
+        if (formData[campo] !== undefined && formData[campo] !== null) {
+          formDataToSend.append(campo, formData[campo]);
         }
+      });
+
+      if (formData.foto_perfil instanceof File) {
+        formDataToSend.append('foto_perfil', formData.foto_perfil);
       }
 
       const updateResponse = await axiosInstance.put(
@@ -98,7 +156,6 @@ export const UpdateEmploye = ({ empleado }) => {
         }
       );
 
-      // Paso 2: Validar documento si hay PDF
       if (documentoPDF) {
         const pdfData = new FormData();
         pdfData.append("pdf", documentoPDF);
@@ -109,10 +166,8 @@ export const UpdateEmploye = ({ empleado }) => {
               'Content-Type': 'multipart/form-data',
             },
           });
-          console.log('OCR resultado:', ocrResponse.data);
           alert(`Tipo de documento: ${ocrResponse.data.tipoDetectado}\nNúmero: ${ocrResponse.data.documento}`);
         } catch (ocrError) {
-          console.error("Error al procesar documento:", ocrError);
           alert("Empleado creado, pero hubo un problema al procesar el documento PDF.");
         }
       }
@@ -120,16 +175,13 @@ export const UpdateEmploye = ({ empleado }) => {
       alert(updateResponse.data.message || "Perfil actualizado correctamente");
       setIsEditing(false);
       
-      // Actualizar formData con los datos actualizados del servidor
       if (updateResponse.data.empleado) {
         setFormData({ ...updateResponse.data.empleado });
-        // Actualizar también el empleado seleccionado en el componente padre
         if (window.updateSelectedEmploye) {
           window.updateSelectedEmploye(updateResponse.data.empleado);
         }
       }
       
-      // Actualizar la lista de empleados sin recargar la página
       if (window.refreshEmployesList) {
         window.refreshEmployesList();
       }
@@ -137,50 +189,38 @@ export const UpdateEmploye = ({ empleado }) => {
       closeModalUpdateEmploye();
 
     } catch (error) {
-      console.error("Error al actualizar el perfil:", error.response?.data || error.message);
-      alert("Hubo un error al actualizar el perfil. " + error.response?.data?.message);
+      alert("Hubo un error al actualizar el perfil. " + (error.response?.data?.message || error.message));
     }
   };
 
-
   const getImageSrc = (data) => {
-    
-    // Si no hay datos de imagen, usar imagen por defecto
     if (!data) {  
       return "/src/assets/Icons/userDefect.png";
     }
     
-    // Si es base64
     if (typeof data === 'string') {
-      // Verificar si ya es una URL de datos completa
       if (data.startsWith("data:")) {
-        return data; // Ya es una URL de datos
+        return data;
       }
       
-      // Verificar si es PNG base64
       if (data.startsWith("iVBORw0KGgo") || data.startsWith("iVBOR")) {
         return `data:image/png;base64,${data}`;
       }
       
-      // Verificar si es JPEG base64
       if (data.startsWith("/9j/")) {
         return `data:image/jpeg;base64,${data}`;
       }
       
-      // Verificar si es una cadena muy larga (probablemente base64)
       if (data.length > 1000) {
-      return `data:image/jpeg;base64,${data}`;
+        return `data:image/jpeg;base64,${data}`;
       }
       
-      // Verificar si contiene caracteres base64 válidos
-      const base64Regex = /^[A-Za-z0-9+/=]+$/
+      const base64Regex = /^[A-Za-z0-9+/=]+$/;
       if (data.length > 50 && base64Regex.test(data)) {
-      return `data:image/jpeg;base64,${data}`;
-    }
+        return `data:image/jpeg;base64,${data}`;
+      }
       
-      // Si es una ruta de archivo (empieza con ../ o /) - solo después de verificar base64
       if (data.startsWith('../') || data.startsWith('/')) {
-        // Convertir ruta relativa a ruta absoluta
         if (data.startsWith('../Img/')) {
           const newPath = data.replace('../Img/', '/src/assets/Icons/');
           return newPath;
@@ -229,7 +269,6 @@ export const UpdateEmploye = ({ empleado }) => {
 
           <p id='p_addInstructor'>
             <strong style={{ fontSize: 16 }}>Documento de identidad:</strong>{" "}
-
             {isEditing ? (
               <>
                 {pdfFileName && <span id="pdf-file-name">{pdfFileName}</span>}
@@ -240,7 +279,6 @@ export const UpdateEmploye = ({ empleado }) => {
                 >
                   <img src={buttonEdit} alt="Subir documento" />
                 </button>
-
                 <input
                   type="file"
                   accept="application/pdf"
@@ -253,7 +291,6 @@ export const UpdateEmploye = ({ empleado }) => {
               <span className="valor-campo">{formData.pdf_documento || ""}</span>
             )}
           </p>
-
 
           <div className="campo-tipo-documento">
             <strong>Tipo documento:</strong>
@@ -288,10 +325,6 @@ export const UpdateEmploye = ({ empleado }) => {
               </span>
             )}
           </div>
-
-
-
-
 
           <p>
             <strong>Documento:</strong>{" "}

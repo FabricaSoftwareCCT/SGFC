@@ -42,7 +42,7 @@ const sendNotification = async (
 			mensaje: message,
 			sesion_ID: sessionId,
 			curso_ID: courseId,
-			estado: "pendiente",,
+			estado: "pendiente",
             fecha_envio: new Date()
 		});
 

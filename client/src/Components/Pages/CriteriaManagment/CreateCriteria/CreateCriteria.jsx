@@ -3,8 +3,9 @@ import "./CreateCriteria.css"
 import { useNavigate, useParams } from "react-router-dom"
 import { Header } from "../../../Layouts/Header/Header"
 import { Main } from "../../../Layouts/Main/Main"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { GoBackArrow } from "../../../UI/GoBackArrow/GoBackArrow"
+import axiosInstance from "../../../../config/axiosInstance"
 
 export const CreateCriteria = () => {
 	const { id } = useParams()
@@ -17,16 +18,74 @@ export const CreateCriteria = () => {
 	const [description, setDescription] = useState("")
 	const [showTypeModal, setShowTypeModal] = useState(false)
 	const [criteriaType, setCriteriaType] = useState()
+	const [bias, setBias] = useState()
 
 	async function save () {
-		navigate(`/Gestiones/Criterios/Curso/${id}`)
+		try {
+			if (!criteriaType) {
+				alert("Se debe especificar el tipo de criterio");
+				return
+			}
+
+			if (title.length < 1) {
+				alert("Se debe darle nombre al criterio")
+				return
+			}
+			if (description.length < 1) {
+				alert("Se debe escribir la descripción del criterio")
+				return
+			}
+			if (isNaN(min) && !!criteriaType) {
+				alert("El valor mínimo debe ser un número")
+				return
+			}
+			
+			let body = {}
+			body.title = title
+			if (!!criteriaType)
+				body.min = min
+			body.description = description
+			body.type = criteriaType
+			body.has_value = !!criteriaType
+			body.course = id
+			if (!!bias)
+				body.bias = bias
+
+			const response = await axiosInstance.post("/api/certification/create", body)
+
+			if (response.data.criterio_ID != undefined) {
+				navigate(`/Gestiones/Criterios/Curso/${id}`)
+				alert(response.data.message)
+			} else {
+				if (response.data.message)
+					alert(response.data.message)
+			}
+		} catch (error) {
+			if (error.response?.data?.message)
+				alert(error.response.data.message)
+			else 
+				alert("Ocurrió un error al crear el criterio de certificación")
+		}
+		//navigate(`/Gestiones/Criterios/Curso/${id}`)
 	}
+
+	const userSession = JSON.parse(localStorage.getItem("userSession")) || JSON.parse(sessionStorage.getItem("userSession"))
+	const isLoggedIn = !!userSession
+	const accountType = userSession?.accountType || null
+
+	useEffect(() => {
+		if (isLoggedIn && (accountType === "Instructor" || accountType == "Administrador" || accountType === "Gestor")) {
+
+		} else {
+			navigate("/no-autorizado");
+		}
+	}, [id])
 
 	return(
 		<>
 			<Header/>
 			<Main>
-				<div class="container-see-criteria">
+				<div className="container-see-criteria">
 					<GoBackArrow/>
 					<h2>Criterios de <span className="complementary">Certificación</span></h2>
 					<div className="new-criteria-space">
@@ -96,12 +155,12 @@ export const CreateCriteria = () => {
 								width: "90%"
 							}}
 						>
-							<button
+							{/*<button
 								className={`status-btn ${criteriaType == undefined || criteriaType.lenght < 1 ? 'selected' : ''}`}
 								onClick={() => setCriteriaType()}
 							>
 								Ninguno
-							</button>
+							</button>*/}
 							<button
 								className={`status-btn ${criteriaType == "Asistencias" ? 'selected' : ''}`}
 								onClick={() => setCriteriaType("Asistencias")}
@@ -112,9 +171,9 @@ export const CreateCriteria = () => {
 								className={`status-btn ${criteriaType == "Calificacion" ? 'selected' : ''}`}
 								onClick={() => setCriteriaType("Calificacion")}
 							>
-								Calificación
+								Actividades
 							</button>
-							<button
+							{/*<button
 								className={`status-btn ${criteriaType == "Horas" ? 'selected' : ''}`}
 								onClick={() => setCriteriaType("Horas")}
 							>
@@ -125,7 +184,7 @@ export const CreateCriteria = () => {
 								onClick={() => setCriteriaType("Documentos")}
 							>
 								Subida de documentos
-							</button>
+							</button>*/}
 						</div>
 						{criteriaType != undefined &&
 							<div
@@ -149,8 +208,8 @@ export const CreateCriteria = () => {
 								type="number"
 								className="search-input"
 								placeholder="0"
-								value={min}
-								onChange={(e) => setMin(e.target.value)}
+								value={bias}
+								onChange={(e) => setBias(e.target.value)}
 							/>%
 						</div>
 						<button

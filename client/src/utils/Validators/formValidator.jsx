@@ -41,10 +41,11 @@ export const validateNumber = (phoneNumber) => {
 }
 
 export const validateText = (text, fieldName = "Este campo") => {
-    if (!text) return `${fieldName} no puede estar vacío`;
+    /*if (!text) return `${fieldName} no puede estar vacío`;
     const regex = /^[a-zA-ZÀ-ÿ\s'-]+$/;
     if (!regex.test(text)) return `${fieldName} contiene caracteres inválidos`;
-    return ""; // Siempre retornar string vacío en éxito
+    return "";*/ // Siempre retornar string vacío en éxito
+    return "";
 }
 
 export const validateAddress = (address) => {

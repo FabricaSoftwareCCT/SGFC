@@ -368,7 +368,7 @@ export const GestionsActas = () => {
                         className={`statusOptionActas ${categoriasSeleccionadas.includes(categoria) ? "selected" : ""}`}
                         onClick={() => handleCategoriaClick(categoria)}
                       >
-                        {categoria}
+                        {categoria.replaceAll("_", " ")}
                       </p>
                     ))}
                   </section>

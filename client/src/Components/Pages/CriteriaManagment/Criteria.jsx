@@ -20,18 +20,38 @@ export const CriteriaManagement = () => {
 
 	async function fetchCourses () {
 		let response = null
-		if (accountType === "Administrador") {
-			response = await axiosInstance.get("/api/courses/cursos")
-		} else if (accountType === "Instructor") {
-			const instructorId = userSession.ID || userSession.id;
-			response = await axiosInstance.get(`/api/courses/cursos-asignados/${instructorId}`);
+		let courses = []
+		try {
+			switch (accountType) {
+				case "Administrador":
+					response = await axiosInstance.get("/api/courses/cursos")
+					courses = response.data
+					break
+				case "Instructor":
+					const instructorId = userSession.ID || userSession.id;
+					response = await axiosInstance.get(`/api/courses/cursos-asignados/${instructorId}`)
+					courses = response.data.map((curso) => ({
+						...curso.Curso
+					}))
+					break
+				case "Gestor":
+					response = await axiosInstance.get("/api/courses/cursos")
+					courses = response.data
+					break
+			}
+			if (response.status != 200 && response.status != 304) {
+				throw response.data
+			}
+			const todosLosCursos = courses.map(curso => ({
+				...curso,
+				ID: curso.ID || curso.id,
+			}));
+			setCursos(todosLosCursos)
+			setLoading(false)
+		} catch (e) {
+			console.log(e)
+			alert("Ocurrió un error al cargar los cursos")
 		}
-		const todosLosCursos = response.data.map(curso => ({
-			...curso,
-			ID: curso.ID || curso.id,
-		}));
-		setCursos(todosLosCursos)
-		setLoading(false)
 	}
 
 	function getCurso () {
@@ -40,16 +60,15 @@ export const CriteriaManagement = () => {
     };
 
 	function seeCourseCriteria () {
-		console.log(getCurso())
 		navigate(`/Gestiones/Criterios/Ver/${getCurso().ID}`)
 	}
 
 	function seeCourseCriteriaHistorial () {
-
+		navigate(`/Gestiones/Criterios/Historial/${getCurso().ID}`)
 	}
 
 	useEffect(() => {
-		if (accountType === "Instructor" || accountType == "Administrador") {
+		if (isLoggedIn && (accountType === "Instructor" || accountType == "Administrador" || accountType === "Gestor")) {
 			fetchCourses()
 		} else {
 			navigate("/no-autorizado");

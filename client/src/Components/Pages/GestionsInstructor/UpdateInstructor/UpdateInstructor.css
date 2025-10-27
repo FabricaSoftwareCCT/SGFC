@@ -105,6 +105,11 @@
     transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
+.input_updateData option{
+    color: #0e0d0d;
+    background-color: #e0e0e0;
+}
+
 .input_updateData:focus {
     outline: none;
     border-color: #00843d;
@@ -218,11 +223,15 @@
 }
 
 .container_return_UpdateInstructor > h5 {
-    font-size: 16px;
+    width: auto;
+    height: auto;
+    position: relative;
+    top: 27%;
+    font-size: 18px;
     font-weight: 400;
-    color: #ccc;
-    cursor: pointer;
-    transition: color 0.3s ease;
+    color: #fff;
+    left: 4%;
+    cursor: pointer
 }
 
 .container_return_UpdateInstructor > h5:hover {

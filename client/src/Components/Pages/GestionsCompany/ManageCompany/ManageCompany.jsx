@@ -80,7 +80,7 @@ export const ManageCompany = ({ empresa, onClose }) => {
 
   const closeModal = () => {
     if (onClose) onClose();
-    const overlay = document.getElementById("modal-overlayUpdateInstructor");
+    const overlay = document.getElementById("modal-overlayUpdateEmpresa");
     if (overlay) overlay.style.display = "none";
   };
 
@@ -238,7 +238,7 @@ export const ManageCompany = ({ empresa, onClose }) => {
   };
 
   return (
-    <div id="modal-overlayUpdateInstructor" style={{ display: "flex" }}>
+		<div id="modal-overlayUpdateInstructor" style={{ display: "flex" }}>
       <form className="modal-bodyUpdateInstructor" onSubmit={handleSubmit}>
         <div className="modal-left-update">
           <p>
@@ -401,12 +401,12 @@ export const ManageCompany = ({ empresa, onClose }) => {
             })()}
           </label>
 
-          <button type="submit" className="edit-button-updateInstructor">
+          <button type="submit" className="edit-button-updateEmpresa">
             {isEditing ? "Guardar Cambios" : "Editar Empresa"}
           </button>
         </div>
 
-        <div className="container_return_UpdateInstructor">
+        <div className="container_return_UpdateEmpresa">
           <h5>Volver</h5>
           <button type="button" onClick={closeModal} className="closeModal"></button>
         </div>

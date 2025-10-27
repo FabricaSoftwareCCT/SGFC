@@ -224,14 +224,14 @@
 
 .container_return_UpdateInstructor > h5 {
     width: auto;
-    height: auto;
-    position: relative;
-    top: 27%;
-    font-size: 18px;
-    font-weight: 400;
-    color: #fff;
-    left: 4%;
-    cursor: pointer
+  height: auto;
+  position: relative;
+  top: 27%;
+  font-size: 18px;
+  font-weight: 400;
+  color: #fff;
+  left: 4%;
+  cursor: pointer;
 }
 
 .container_return_UpdateInstructor > h5:hover {

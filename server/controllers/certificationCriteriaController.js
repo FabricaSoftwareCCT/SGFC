@@ -2,11 +2,12 @@ const Curso = require("../models/curso");
 const CursoTieneCriterio = require("../models/CursoTieneCriterio");
 const Criterio = require("../models/Criterio");
 const Usuario = require("../models/User");
-const EdicionCriterio = require("../models/EdicionCriterio");
 const UsuarioTieneCriterios = require("../models/UsuarioTieneCriterios");
 const { Op } = require("sequelize");
 const InscripcionCurso = require("../models/InscripcionCurso");
 const { sendNotification } = require("../services/notificationService");
+const UsuarioEdita = require("../models/UsuarioEdita");
+const { addHistorial } = require("./historialController");
 
 let dbInstance;
 
@@ -220,6 +221,8 @@ const updateCriteria = async (req, res) => {
 		const { title, min, description, bias, course } = req.body;
 		const { id, accountType } = req.user;
 
+		let whatWasEdited = ""
+
 		if (
 			accountType !== "Administrador" &&
 			accountType !== "Instructor" &&
@@ -241,6 +244,7 @@ const updateCriteria = async (req, res) => {
 				...updatedData,
 				title,
 			};
+			whatWasEdited = "el titulo"
 		}
 
 		if (!isNaN(min) && min > 0) {
@@ -248,6 +252,7 @@ const updateCriteria = async (req, res) => {
 				...updatedData,
 				min,
 			};
+			whatWasEdited = "el mínimo de aprovación"
 		}
 
 		if (description?.length > 0) {
@@ -255,6 +260,7 @@ const updateCriteria = async (req, res) => {
 				...updatedData,
 				description,
 			};
+			whatWasEdited = "la descripción"
 		}
 
 		if (!isNaN(bias)) {
@@ -271,6 +277,7 @@ const updateCriteria = async (req, res) => {
 				...updatedData,
 				bias,
 			};
+			whatWasEdited = "la ponderación"
 		}
 
 		await Criterio.update(updatedData, {
@@ -279,10 +286,10 @@ const updateCriteria = async (req, res) => {
 			},
 		});
 
-		await EdicionCriterio.create({
-			usuario_ID: id,
-			criterio_ID: course,
-		});
+		addHistorial(id, {
+			curso: course,
+			criterio: criteria
+		}, `El usuario [nombre] ([id]) ha editado ${whatWasEdited} del criterio "[criterio]" ([criterio_id]) del curso "[curso]" ([curso_id])`)
 
 		return res.status(200).json({ message: "Criterio actualizado" });
 	} catch (error) {

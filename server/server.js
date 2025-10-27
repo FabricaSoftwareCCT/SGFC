@@ -104,6 +104,7 @@ async function startServer() {
     const notificationController = require('./controllers/notificationController');
     const certificationCriteriaController = require("./controllers/certificationCriteriaController")
     const materialController = require("./controllers/materialController");
+    const historialController = require("./controllers/historialController")
 
     attendanceController.setDb(db);
     cursoController.setDb(db);
@@ -111,6 +112,7 @@ async function startServer() {
     notificationController.setDb(db);
     certificationCriteriaController.setDb(db);
     materialController.setDb(db);
+    historialController.setDb(db)
 
     // Montar rutas de ubicaciones con acceso a la DB
     const ubicacionesRoutes = ubicacionesRoutesFactory(db);

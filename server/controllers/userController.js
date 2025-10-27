@@ -9,7 +9,7 @@ const {
 const { generateToken } = require("../middlewares/generateToken_R");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const { Op } = require("sequelize");
+const { Op, col, json } = require("sequelize");
 const xlsx = require("xlsx");
 const path = require("path");
 const fs = require("fs");
@@ -1899,19 +1899,16 @@ const getAprendicesByEmpresa = async (req, res) => {
 
 // Crear múltiples usuarios desde un archivo Excel
 const createMasiveUsers = async (req, res) => {
-	try {
-		const { empresaId } = req.params;
-		console.log(empresaId);
-		if (!empresaId) {
-			return res
-				.status(400)
-				.json({ message: "No se tiene el id de la empresa" });
-		}
-		if (!req.file || !req.file.buffer) {
-			return res
-				.status(400)
-				.json({ message: "No se ha subido ningún archivo." });
-		}
+    
+    try {
+        const {empresaId} = req.params;
+
+        if (!empresaId) {
+            return res.status(400).json({message : "No se tiene el id de la empresa"})
+        }
+        if (!req.file || !req.file.buffer) {
+            return res.status(400).json({ message: 'No se ha subido ningún archivo.' });
+        }
 
 		const Archivo = req.file.buffer;
 		// Leer el archivo con xlsx
@@ -1921,43 +1918,75 @@ const createMasiveUsers = async (req, res) => {
 		const nombrePrimeraHoja = workbook.SheetNames[0];
 		const hoja = workbook.Sheets[nombrePrimeraHoja];
 
-		if (!hoja) {
-			return res
-				.status(400)
-				.json({ message: "El archivo no contiene hojas válidas." });
-		}
-		const usuarios = xlsx.utils.sheet_to_json(hoja);
+        if (!hoja) {
+            return res.status(400).json({ message: 'El archivo no contiene hojas válidas.' });
+        }
+       
+        const usuarios = xlsx.utils.sheet_to_json(hoja)
+        if (usuarios === 0){
+            return res.status(400).json({message : "El archivo esta vacio o no contiene datos"})
+        }
+        console.log(usuarios)
+        
+        // verificar las columnas necesarias
+        const columnasRequeridas = ["nombres", "apellidos", "email", "documento", "celular"]
+        const columnasArchivo = Object.keys(usuarios[0])
 
-		const usuariosLimpios = await Promise.all(
-			usuarios.map(async (u) => {
-				const hashedPassword = await bcrypt.hash(u.contraseña, 10);
-				return {
-					nombres: u.nombres?.trim(),
-					apellidos: u.apellidos?.trim(),
-					email: u.email?.toLowerCase(),
-					documento: String(u.documento).trim(),
-					password: hashedPassword,
-					accountType: "Aprendiz",
-					empresa_ID: empresaId,
-				};
-			})
-		);
+        const columnasFaltantes = columnasRequeridas.filter(
+            (col) => !columnasArchivo.includes(col)
+        )
 
-		if (usuariosLimpios.length === 0) {
-			return res
-				.status(400)
-				.json({ message: "El archivo no contiene datos" });
-		}
+        if (columnasFaltantes.length > 0) {
+            return res.status(400).json({
+                message: `Faltan columnas requeridas en el archivo o faltan datos: ${columnasFaltantes.join(", ")}`
+            })
+        }
+        
+        const filasFaltantes = usuarios.filter((u, index) =>{
+            return (
+                !u.nombres ||
+                !u.apellidos ||
+                !u.email ||
+                !u.documento ||
+                !u.celular ||
+                u.nombres.toString().trim() === "" ||
+                u.apellidos.toString().trim() === "" ||
+                u.email.toString().trim() === "" ||
+                u.documento.toString().trim() === "" ||
+                u.celular.toString().trim() === ""
+            )
+        })
+        
+        if (filasFaltantes.length > 0) {
+            return res.status(400).json({
+                message : "Algunas filas tienen datos incompletos",
+                ejemplo : filasFaltantes.slice(0,3)
+            })
+        }
+       const usuariosLimpios = await Promise.all(
+            usuarios.map(async (u) =>{
+                const tempPassword = Math.random().toString(36).slice(-8);
+                console.log(tempPassword)
+                const hashedPassword = await bcrypt.hash(tempPassword, 10)
+                return {
+                    nombres : u.nombres?.trim(),
+                    apellidos : u.apellidos?.trim(),
+                    email : u.email?.toLowerCase(),
+                    documento : String(u.documento).trim(),
+                    celular : String(u.celular).trim(), 
+                    password : hashedPassword,
+                    accountType : "Aprendiz",
+                    empresa_ID : empresaId,
+                    passwordP : tempPassword
+                }
+            })
+       )
 
-		// Verificar si hay usuarios duplicados en el archivo
-		const duplicados = usuariosLimpios.filter(
-			(item, index) => usuariosLimpios.indexOf(item) !== index
-		);
-		if (duplicados.length > 0) {
-			// Excepción: permitir duplicados si son valores vacíos ("")
-			const duplicadosFiltrados = duplicados.filter(
-				(item) => item !== ""
-			);
+        // Verificar si hay usuarios duplicados en el archivo
+        const duplicados = usuariosLimpios.filter((item, index) => usuariosLimpios.indexOf(item) !== index);
+        if (duplicados.length > 0) {
+            // Excepción: permitir duplicados si son valores vacíos ("")
+            const duplicadosFiltrados = duplicados.filter(item => item !== "");
 
 			if (duplicadosFiltrados.length > 0) {
 				return res.status(400).json({
@@ -1968,44 +1997,45 @@ const createMasiveUsers = async (req, res) => {
 			}
 		}
 
-		// Verificar si hay usuarios repetidos en la base de datos antes de crear
-		const emails = usuariosLimpios.map((e) => {
-			return {
-				email: e.email,
-				accountType: e.accountType,
-			};
-		});
-
-		const emailList = await Promise.all(
-			emails.map(async (e) => {
-				const newEmail = e.email;
-				const payload = { data: { newEmail } };
-				const token = generateToken(payload, process.env.JWT_SECRET, 5);
-				return {
-					email: newEmail,
-					token: token,
-					accountType: e.accountType,
-				};
-			})
-		);
-
-		const emails2 = emails.map((e) => {
-			return e.email;
-		});
-		const existingUsers = await User.findAll({ where: { email: emails2 } });
-		if (existingUsers.length > 0) {
-			const repetidos = existingUsers.map((user) => user.email);
-			return res.status(409).json({
-				message: "Existen usuarios repetidos en la base de datos.",
-				repetidos,
-			});
-		}
-		// Crear usuarios con los datos extraídos
-		await User.bulkCreate(usuariosLimpios, { ignoreDuplicates: true });
+        // Verificar si hay usuarios repetidos en la base de datos antes de crear
+        const emails = usuariosLimpios.map((e) =>{
+            return {
+                email : e.email,
+                accountType : e.accountType,
+                password : e.passwordP
+            }
+        })
+        
+        const emailList = await Promise.all(
+            emails.map( async (e) =>{
+                const newEmail = e.email
+                const payload = { data: { newEmail } };
+                const  token = generateToken(payload, process.env.JWT_SECRET, 5)
+                return {
+                    email : newEmail,
+                    token : token,
+                    accountType : e.accountType,
+                    password : e.password,
+                    masive: true
+                }
+            })
+        )
+        delete usuariosLimpios.passwordP
+        const emails2 = emails.map((e) =>{return e.email})
+        const existingUsers = await User.findAll({ where: { email: emails2 } });
+        if (existingUsers.length > 0) {
+            const repetidos = existingUsers.map(user => user.email);
+            return res.status(409).json({
+                message: "Existen usuarios repetidos en la base de datos.",
+                repetidos
+            });
+        }
+        // Crear usuarios con los datos extraídos 
+        await  User.bulkCreate(usuariosLimpios, {ignoreDuplicates : true})
 
 		await Promise.all(
 			emailList.map((list) => {
-				sendVerificationEmail(list.email, list.token, list.accountType);
+				sendVerificationEmail(list.email, list.token, list.password , list.accountType, list.masive);
 			})
 		);
 

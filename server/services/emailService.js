@@ -203,7 +203,7 @@ const sendRequestCourseEmailAp = async (req, res) => {
 };
 
 // Función para enviar el correo de verificación
-const sendVerificationEmail = async (email, token, accountType, newPassword) => {
+const sendVerificationEmail = async (email, token, accountType, newPassword, masive) => {
   const enlaceVerificacion = `http://localhost:5173/verificarCorreo?token=${token}`;
   const fs = require('fs');
   const path = require('path');
@@ -222,6 +222,12 @@ const sendVerificationEmail = async (email, token, accountType, newPassword) => 
       <p>Tu contraseña temporal es:</p>
         <strong style="font-size: 15px">${newPassword}</strong>
     </div>` : '';
+
+    const password = masive === true
+     ? `<p style="margin-bottom:.9375rem; background:#fff9e6; padding:10px; border-radius:5px; border-left:4px solid #F7941E;">
+         <strong>💡 Para Aprendices:</strong> Esta el la contraseña temporal que tendra para acceder al aplicativo (recomendable cambiarla): ${newPassword}.
+       </p>`
+    : '';
 
 	const mailOptions = {
 		from: `"SGFC" <${process.env.EMAIL_USER}>`,
@@ -265,6 +271,7 @@ const sendVerificationEmail = async (email, token, accountType, newPassword) => 
                       style="display:inline-block; background-color:#F7941E; color:#fff !important; padding:.75rem 1.5625rem; border-radius:.3125rem; text-decoration:none; font-weight:bold; font-family:Arial,sans-serif; font-size:1rem;">
                       Verificar correo
                     </a>
+                    ${password}
                   </div>
                   
                   <p style="margin-bottom:.9375rem;">Si no te registraste en nuestros servicios, por favor ignora este correo.</p>

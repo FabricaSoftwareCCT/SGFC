@@ -36,7 +36,7 @@
     padding: 0.8rem 1.5rem;
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(0, 131, 61, 0.4);
-    border-radius: 8px;
+    border-radius: 15px;
     color: white;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -105,7 +105,7 @@
     color: white;
     border: none;
     font-size: 1.1rem;
-    border-radius: 25px;
+    border-radius: 20px;
     cursor: pointer;
     transition: all 0.3s 
 ease;
@@ -209,33 +209,40 @@ ease;
 
 .btn-descargar {
     padding: 0.6rem 1.2rem;
-    background: #007bff;
-    color: white;
+    background: #00843d; /* Verde institucional */
+    color: #ffffff;
     border: none;
-    border-radius: 6px;
+    border-radius: 15px;
     cursor: pointer;
     font-size: 0.9rem;
     transition: all 0.3s ease;
     font-weight: 500;
+    box-shadow: 0 0 10px rgba(0, 132, 61, 0.3);
 }
 
 .btn-descargar:hover {
-    background: #0056b3;
+    background: #00a74b; /* Verde un poco más brillante */
     transform: translateY(-1px);
+    box-shadow: 0 0 15px rgba(0, 167, 75, 0.4);
 }
 
+/* === BOTÓN ELIMINAR === */
 .btn-eliminar {
-    padding: 0.6rem 1.2rem;
-    background: #dc3545;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    transition: all 0.3s ease;
-    font-weight: 500;
+  padding: 0.6rem 1.2rem;
+  background: #2a2a2a;
+  color: #00a74b;
+  border: 1px solid #00a74b;
+  border-radius: 15px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
 }
-
+.btn-eliminar:hover {
+  background: #00a74b;
+  color: #fff;
+  transform: translateY(-1px);
+}
 .archivo-detalles-c {
     color: rgba(255, 255, 255, 0.7);
     font-size: 0.9rem;
@@ -245,10 +252,7 @@ ease;
     align-items: center;
 }
 
-.btn-eliminar:hover {
-    background: #c82333;
-    transform: translateY(-1px);
-}
+
 
 .no-archivos {
     color: rgba(255, 255, 255, 0.7);

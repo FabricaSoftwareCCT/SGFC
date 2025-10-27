@@ -56,6 +56,7 @@ import { SeeCourseCriteria } from './Components/Pages/CriteriaManagment/SeeCrite
 import { CreateCriteria } from './Components/Pages/CriteriaManagment/CreateCriteria/CreateCriteria';
 import { SeeAllCourseCriteria } from './Components/Pages/CriteriaManagment/SeeCourseCriteria/SeeCourseCriteria';
 import { SeeCertificationHistorial } from './Components/Pages/CriteriaManagment/SeeCertificationHistorial/SeeCertificationHistorial';
+import { GestionUsuarios } from './Components/Pages/GestionUsuarios/GestionUsuarios';
 
 // Crear un componente Layout que envuelva las páginas con Header y Footer
 const Layout = ({ children, setShowSignIn, setShowSignUp, setShowModalGeneral }) => {
@@ -303,6 +304,7 @@ function App() {
 					} />
 					<Route path="/Gestiones/Empresas" element={<GestionsCompany />} />
 					<Route path="/Gestiones/Actas" element={<GestionsActas />} />
+					<Route path="/Gestiones/Usuarios" element={<GestionUsuarios/>} />
 					<Route path="/Gestiones/Criterios" element={<CriteriaManagement/>} />
 					<Route path="/Gestiones/Criterios/Ver/:id" element={<SeeCourseCriteria/>}/>
 					<Route path="/Gestiones/Criterios/Curso/:id" element={<SeeAllCourseCriteria/>}/>

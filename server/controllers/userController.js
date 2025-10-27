@@ -9,7 +9,7 @@ const {
 const { generateToken } = require("../middlewares/generateToken_R");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const { Op, col, json } = require("sequelize");
+const { Op, col, json, Sequelize } = require("sequelize");
 const xlsx = require("xlsx");
 const path = require("path");
 const fs = require("fs");
@@ -574,7 +574,9 @@ const cleanExpiredTokens = async () => {
 // Obtener todos los usuarios
 const getAllUsers = async (req, res) => {
 	try {
-		const users = await User.findAll({
+		const { page, name, doc } = req.query
+
+		let conditions = {
 			attributes: {
 				exclude: [
 					"password",
@@ -582,10 +584,44 @@ const getAllUsers = async (req, res) => {
 					"resetPasswordToken",
 					"resetPasswordExpires",
 				],
-			}, // para no enviar datos sensibles
-		});
+			},
+		}
 
-		res.status(200).json(users);
+		if (page) {
+			conditions = {
+				...conditions,
+				offset: parseInt(page) * 10,
+				limit: 10
+			}
+		}
+
+		if (name) {
+			conditions = {
+				...conditions,
+				where: Sequelize.where(
+					Sequelize.fn('CONCAT', Sequelize.col('nombres'), ' ', Sequelize.col('apellidos')),
+					{ [Op.like]: `%${name}%` }
+				),
+			}
+		}
+
+		if (doc) {
+			conditions = {
+				...conditions,
+				where: {
+					documento: {
+						[Op.like]: `%${doc}%`
+					}
+				},
+			}
+		}
+
+		const users = await User.findAndCountAll(conditions);
+
+		res.status(200).json({
+			total: users.count,
+			usuarios: users.rows
+		});
 	} catch (error) {
 		console.error("Error al obtener los usuarios:", error);
 		res.status(500).json({ message: "Error al obtener los usuarios" });

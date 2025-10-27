@@ -382,6 +382,22 @@ export const Header = ({
 								>
 									Gestión de Empleados
 								</button>
+								<button
+									className={
+										location.pathname.startsWith(
+											"/Gestiones/Usuarios"
+										)
+											? "active"
+											: ""
+									}
+									onClick={() =>
+										handleMenuClick(
+											"/Gestiones/Usuarios"
+										)
+									}
+								>
+									Gestión de Usuarios
+								</button>
 							</div>
 						)}
 					</div>

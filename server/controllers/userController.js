@@ -19,6 +19,7 @@ const pdfjsLib = require("pdfjs-dist/legacy/build/pdf.js");
 const { createCanvas } = require("canvas");
 const { UserServices } = require("../services/Userservices");
 const { sendNotification, sendProfileUpdateNotification } = require('../services/notificationService');
+const { generateTempPassword } = require("../Helpers/GeneratePassword");
 
 
 // Registrar usuario
@@ -119,7 +120,7 @@ const registerUser = async (req, res) => {
 		}
 
 		// Enviar correo de verificación CON la contraseña temporal
-		await sendVerificationEmail(email, token, null, accountType);
+		await sendVerificationEmail(email, token, accountType);
 
 		res.status(201).json({
 			message:
@@ -205,7 +206,7 @@ const requestNewVerificationEmail = async (req, res) => {
 		}
 
 		// Generar nueva contraseña temporal
-		const tempPassword = Math.random().toString(36).slice(-8);
+		const tempPassword = await generateTempPassword();
 		const hashedPassword = await bcrypt.hash(tempPassword, 10);
 
 		// Generar nuevo token
@@ -222,7 +223,7 @@ const requestNewVerificationEmail = async (req, res) => {
 		}
 
 		// Enviar correo de verificación con la nueva contraseña temporal
-		await sendVerificationEmail(email, token, tempPassword);
+		await sendVerificationEmail(email, token, null ,tempPassword);
 
 		res.status(200).json({
 			message:
@@ -1685,7 +1686,7 @@ const createInstructor = async (req, res) => {
 		const token = generateToken(payload, process.env.JWT_SECRET, 5);
 
 		// Generar contraseña temporal (8 caracteres alfanuméricos)
-		const tempPassword = "Faber1021672376*";
+		const tempPassword =  await generateTempPassword();
 
 		// Encriptar la contraseña temporal
 		const hashedPassword = await bcrypt.hash(tempPassword, 10);
@@ -1708,7 +1709,7 @@ const createInstructor = async (req, res) => {
 		});
 
 		// Enviar correo de verificación CON la contraseña temporal
-		await sendVerificationEmail(email, token, tempPassword);
+		await sendVerificationEmail(email, token, null, tempPassword);
 
 		res.status(201).json({
 			message:
@@ -1772,8 +1773,8 @@ const createGestor = async (req, res) => {
 
 		const token = generateToken(payload, process.env.JWT_SECRET, 5);
 
-		// Encriptar la contraseña
-		const tempPassword = Math.random().toString(36).slice(-8);
+		//Generar la contraseña temporal
+		const tempPassword =  await generateTempPassword();
 
 		// Encriptar la contraseña temporal
 		const hashedPassword = await bcrypt.hash(tempPassword, 10);
@@ -1796,7 +1797,7 @@ const createGestor = async (req, res) => {
 		});
 
 		// Enviar correo de verificación
-		await sendVerificationEmail(email, token);
+		await sendVerificationEmail(email, token, null, tempPassword);
 
 		res.status(201).json({
 			message:
@@ -2118,9 +2119,12 @@ const createEmpleado = async (req, res) => {
 
 		const token = generateToken(payload, process.env.JWT_SECRET, 5);
 
+        //Generar contraseña temporal
+        const tempPassword = password == null || password == undefined ? await generateTempPassword() : password;
+
 		// Encriptar la contraseña (si no se envía, usar una por defecto)
 		const hashedPassword = await bcrypt.hash(
-			password || "defaultPassword123",
+			tempPassword,
 			10
 		);
 
@@ -2143,7 +2147,12 @@ const createEmpleado = async (req, res) => {
 		});
 
 		// Enviar correo de verificación
-		await sendVerificationEmail(email, token);
+        if(password == null || password == undefined){
+            await sendVerificationEmail(email, token, "Aprendiz", tempPassword);
+        }else{
+    		await sendVerificationEmail(email, token);
+        }
+            
 
 		res.status(201).json({
 			message: "Empleado creado con éxito. Por favor verifica tu correo.",
@@ -2320,9 +2329,12 @@ const createEmpleadoForAdmin = async (req, res) => {
 		const payload = { email };
 		const token = generateToken(payload, process.env.JWT_SECRET, 5);
 
+        //Generar contraseña temporal
+        const tempPassword = await generateTempPassword();
+
 		// Encriptar la contraseña (si no se envía, usar una por defecto)
 		const hashedPassword = await bcrypt.hash(
-			password || "defaultPassword123",
+			tempPassword,
 			10
 		);
 
@@ -2345,7 +2357,7 @@ const createEmpleadoForAdmin = async (req, res) => {
 		});
 
 		// Enviar correo de verificación
-		await sendVerificationEmail(email, token);
+		await sendVerificationEmail(email, token, "Aprendiz", tempPassword);
 
 		res.status(201).json({
 			message: "Empleado creado con éxito. Por favor verifica tu correo.",

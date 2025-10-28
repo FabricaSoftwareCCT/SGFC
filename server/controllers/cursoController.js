@@ -100,9 +100,13 @@ const obtenerCursosAsignadosAInstructor = async (req, res) => {
 				.status(400)
 				.json({ mensaje: "El ID del instructor es obligatorio" });
 		}
-
 		const asignaciones = await AsignacionCursoInstructor.findAll({
-			where: { instructor_ID },
+			where: {
+				[Sequelize.Op.and]: [
+					{instructor_ID: instructor_ID},
+					{estado: "aceptada"}
+				]
+			},
 			include: [
 				{
 					model: Curso,
@@ -110,7 +114,6 @@ const obtenerCursosAsignadosAInstructor = async (req, res) => {
 				}
 			]
 		});
-
 		res.status(200).json(asignaciones);
 	} catch (error) {
 		console.error("Error al obtener los cursos asignados:", error);

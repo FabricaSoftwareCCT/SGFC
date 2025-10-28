@@ -1,36 +1,48 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import "./UpdateInstructor.css";
 import axiosInstance from "../../../../config/axiosInstance"; // Asegúrate de ajustar esta ruta según la estructura de tu proyecto
 import { createMensajeError, validateNumber, validateText, validateEmail } from "../../../../utils/Validators/formValidator";
 
 export const UpdateInstructor = ({ instructor, onClose }) => {
+  const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({ ...instructor });
   const [cantidadCursos, setCantidadCursos] = useState(0);
+  const [cursosAsignados, setCursosAsignados] = useState([]);
 
+  // Resetear datos cuando cambia el instructor
+  useEffect(() => {
+    setCantidadCursos(0);
+    setCursosAsignados([]);
+    setFormData({ ...instructor });
+    setIsEditing(false);
+  }, [instructor?.ID]);
+
+  // Obtener cursos asignados cuando cambia el instructor
   useEffect(() => {
     const obtenerCursosAsignados = async () => {
-      try {
+      if (!instructor?.ID) return;
 
-        //Obtener cursos asginados al instructor seleccionado
+      try {
         const response = await axiosInstance.get(
           `/api/courses/cursos-asignados/${instructor.ID}`
         );
         if (Array.isArray(response.data)) {
           setCantidadCursos(response.data.length);
+          setCursosAsignados(response.data);
         } else {
           setCantidadCursos(0);
+          setCursosAsignados([]);
         }
       } catch (error) {
-        console.error("Error al obtener los cursos asignados:", error);
         setCantidadCursos(0);
+        setCursosAsignados([]);
       }
     };
 
-    if (instructor.ID) {
-      obtenerCursosAsignados();
-    }
-  }, [instructor]);
+    obtenerCursosAsignados();
+  }, [instructor?.ID]); // Dependencia optimizada: solo se ejecuta cuando cambia el ID
 
   const closeModalUpdateInstructor = () => {
     if (onClose) onClose();
@@ -236,8 +248,33 @@ export const UpdateInstructor = ({ instructor, onClose }) => {
         </p>
 
         <p className="cursosAsignados">
-          <strong>Cursos Asignados:</strong> {cantidadCursos}
+          <strong>Cursos Asignados:</strong> 
+          <span className="valor-campo">{cantidadCursos}</span>
         </p>
+        {cursosAsignados && cursosAsignados.length > 0 && (
+          <ul className="lista-cursos-asignados">
+            {cursosAsignados.map((curso) => {
+              const courseName = (curso && curso.Curso && curso.Curso.nombre_curso)
+                || curso.nombre_curso
+                || `Curso ${curso.curso_ID || curso.ID || ''}`;
+              const courseId = (curso && curso.Curso && curso.Curso.ID)
+                || curso.curso_ID
+                || curso.ID;
+              return (
+                <li key={`${courseId}-${courseName}`} className="curso-item">
+                  <button
+                    type="button"
+                    className="curso-link"
+                    title={courseName}
+                    onClick={() => navigate(`/Cursos/${courseId}`)}
+                  >
+                    {courseName}
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        )}
       </div>
 
       <div className="modal-right">

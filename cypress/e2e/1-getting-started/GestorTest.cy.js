@@ -78,7 +78,7 @@ describe('Prueba de modulo de gestión de gestores', ()=>{
         
 
     it.skip("Crear Curso",()=>{
-         cy.visit("http://localhost:5173/") 
+        cy.visit("http://localhost:5173/") 
         cy.get(".button_signIn").first().click({force : true})
 
         //Ingresar credenciales con el rol de gestor

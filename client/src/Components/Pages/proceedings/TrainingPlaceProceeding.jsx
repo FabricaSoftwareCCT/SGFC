@@ -341,6 +341,7 @@ export const TrainingPlaceProceeding = () => {
                                 <b>2. Observaciones de la Inspección</b><br />
                                 {isEditing ? (
                                     <textarea
+                                        id="observaciones-inspeccion"
                                         className='training-place-proceeding-input'
                                         value={empresa?.observacionesInspeccion || ''}
                                         onChange={e => setEmpresa({ ...empresa, observacionesInspeccion: e.target.value })}
@@ -354,6 +355,7 @@ export const TrainingPlaceProceeding = () => {
                                 <b>3. Documentos/Imágenes de Respaldo</b><br />
                                 {isEditing ? (
                                     <textarea
+                                        id="documentos-respaldo"
                                         className='training-place-proceeding-input'
                                         value={empresa?.documentosRespaldo || ''}
                                         onChange={e => setEmpresa({ ...empresa, documentosRespaldo: e.target.value })}

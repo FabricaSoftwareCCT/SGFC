@@ -216,16 +216,19 @@ export const UpdateInstructor = ({ instructor, onClose }) => {
           <strong>Estado:</strong>{" "}
           {isEditing ? (
             <div className="status-buttons">
-              {["Activo", "Inactivo"].map((estado) => (
-                <button
-                  key={estado}
-                  type="button"
-                  className={`status ${formData.estado === estado ? "active" : ""}`}
-                  onClick={() => handleEstadoChange(estado)}
-                >
-                  {estado}
-                </button>
-              ))}
+              {["Activo", "Inactivo"].map((estado) => {
+                const isSelected = (formData.estado || "").toLowerCase() === estado.toLowerCase();
+                return (
+                  <button
+                    key={estado}
+                    type="button"
+                    className={`status ${isSelected ? "active" : ""}`}
+                    onClick={() => handleEstadoChange(estado)}
+                  >
+                    {estado}
+                  </button>
+                );
+              })}
             </div>
           ) : (
             <span className="valor-campo">{formData.estado}</span>

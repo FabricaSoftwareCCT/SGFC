@@ -21,6 +21,7 @@ export const GestionUsuarios = () => {
 	const [name, setName] = useState("")
 	const [document, setDocument] = useState("")
 	const [selectedUser, setSelectedUser] = useState(null)
+	const [selectedUserBackup, setSelectedUserBackup] = useState(null)
 	const [editing, setEditing] = useState(false)
 	
 	const isLoggedIn = !!userSession
@@ -113,6 +114,7 @@ export const GestionUsuarios = () => {
 						onClick={() => {
 							//console.log(user)
 							setSelectedUser(user)
+							setSelectedUserBackup(user)
 						}}
 						data-adblock-bypass="true"
 						aria-label="Ver manager"
@@ -128,6 +130,9 @@ export const GestionUsuarios = () => {
 			return
 		}
 
+		if (selectedUser == selectedUserBackup)
+			return
+
 		try {
 			const resp = await axiosInstance.put(`/api/users/perfil/actualizar/${selectedUser.ID}`, {
 				email: selectedUser.email,
@@ -142,6 +147,12 @@ export const GestionUsuarios = () => {
 			} else {
 				alert("No se pudo actualizar el manager.");
 				return;
+			}
+
+			if (selectedUser.accountType != selectedUserBackup.accountType) {
+				const resp2 = await axiosInstance.put(`/api/users/admin/changerole/${selectedUser.ID}`, {
+					role: selectedUser.accountType
+				})
 			}
 
 			setEditing(false)

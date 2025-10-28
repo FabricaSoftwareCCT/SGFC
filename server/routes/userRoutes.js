@@ -1,5 +1,5 @@
 const express = require("express");
-const { createEmpleado, getEmpleadosByEmpresaId, recordLogin, subirDocumentoIdentidad, getEmpresaById, refreshAccessToken, getAprendicesByEmpresa, registerUser, verifyEmail, loginUser,requestPasswordReset,resetPassword, getAllUsers, getUserProfile, getAprendices, getEmpresas, createEmpresa, getInstructores, getGestores, updateUserProfile,createInstructor, createGestor,logoutUser, createMasiveUsers, getEmpresaByNIT, requestNewVerificationEmail, checkProfileComplete, getAllEmpleadosForAdmin, getAllEmpresasForAdmin, createEmpleadoForAdmin } = require("../controllers/userController");
+const { createEmpleado, getEmpleadosByEmpresaId, recordLogin, subirDocumentoIdentidad, getEmpresaById, refreshAccessToken, getAprendicesByEmpresa, registerUser, verifyEmail, loginUser,requestPasswordReset,resetPassword, getAllUsers, getUserProfile, getAprendices, getEmpresas, createEmpresa, getInstructores, getGestores, updateUserProfile,createInstructor, createGestor,logoutUser, createMasiveUsers, getEmpresaByNIT, requestNewVerificationEmail, checkProfileComplete, getAllEmpleadosForAdmin, getAllEmpresasForAdmin, createEmpleadoForAdmin, changeRole } = require("../controllers/userController");
 const { googleSignIn, googleSignUp } = require("../controllers/authGoogleController"); // Importar controlador de autenticación de Google
 const { authMiddleware, authorizeRoles } = require("../middlewares/authMiddleware");
 const router = express.Router();
@@ -48,11 +48,11 @@ router.post('/empresas', authMiddleware, upload.single('img_empresa'), createEmp
 router.get('/admin/empleados', authMiddleware, authorizeRoles(['Administrador', 'Gestor']), getAllEmpleadosForAdmin);
 router.get('/admin/empresas', authMiddleware, authorizeRoles(['Administrador', 'Gestor']), getAllEmpresasForAdmin);
 router.post('/admin/empleados', authMiddleware, authorizeRoles(['Administrador', 'Gestor']), upload.single('foto_perfil'), createEmpleadoForAdmin);
-
+router.put("/admin/changerole/:id", authMiddleware, authorizeRoles(["Administrador"]), changeRole)
 
 router.get("/", (req, res) => {
-    res.send("🚀 API funcionando correctamente");
-  });
+  res.send("🚀 API funcionando correctamente");
+});
   
 
 module.exports = router;

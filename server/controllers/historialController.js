@@ -23,7 +23,7 @@ const addHistorial = async (autor, edicion, mensaje) => {
 		criterio = await (await Criterio.findByPk(edicion.criterio)).dataValues
 
 	if (edicion.usuario)
-		usuario = (await Criterio.findByPk(edicion.usuario)).dataValues
+		usuario = (await Usuario.findByPk(edicion.usuario)).dataValues
 
 	const msg = mensaje
 		.replaceAll("[nombre]", `${autorData.accountType === "Administrador" ? "Administrador" : `${autor.nombres} ${autorData.apellidos}`}`)
@@ -38,7 +38,8 @@ const addHistorial = async (autor, edicion, mensaje) => {
 	console.log(`${new Date().toLocaleString("es-CO")}: ${msg}`)
 
 	let editData = {
-		descripcion: msg,	
+		descripcion: msg,
+		autor_ID: autor
 	}
 
 	if (curso) {
@@ -65,7 +66,29 @@ const addHistorial = async (autor, edicion, mensaje) => {
 	await UsuarioEdita.create(editData)
 }
 
+const getHistorial = async (req, res) => {
+	try {
+		const { page } = req.query
+
+		const historialData = await UsuarioEdita.findAndCountAll({
+			limit: 10,
+			offset: 10 * (page ?? 0)
+		})
+
+		res.status(200).json({
+			total: historialData.count,
+			historial: historialData.rows
+		})
+	} catch (err) {
+		console.log(err)
+		res.status(500).json({
+			message: "Ocurrió un error interno al consultar el historial"
+		})
+	}
+}
+
 module.exports = {
 	setDb,
-	addHistorial
+	addHistorial,
+	getHistorial
 }

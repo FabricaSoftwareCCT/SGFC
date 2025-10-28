@@ -468,16 +468,26 @@ export const Header = ({
 					</NavLink>
 				)}
 
-				{/* Empresas (solo Administrador) */}
+				{/* (solo Administrador) */}
 				{isLoggedIn && accountType === "Administrador" && (
-					<NavLink
-						to="/Gestiones/Empresas"
-						className={({ isActive }) =>
-							isActive ? "empresas active" : "empresas"
-						}
-					>
-						Empresas
-					</NavLink>
+					<>
+						<NavLink
+							to="/Gestiones/Empresas"
+							className={({ isActive }) =>
+								isActive ? "empresas active" : "empresas"
+							}
+						>
+							Empresas
+						</NavLink>					
+						<NavLink
+							to="/Gestiones/Historial"
+							className={({ isActive }) =>
+								isActive ? "empresas active" : "empresas"
+							}
+						>
+							Historial
+						</NavLink>
+					</>
 				)}
 
 				{/* Empleados (solo Empresa) */}
@@ -485,7 +495,7 @@ export const Header = ({
 					<NavLink
 						to="/Empleados/MisEmpleados"
 						className={({ isActive }) =>
-							isActive ? "empleados active" : "empleados"
+							isActive ? "historial active" : "historial"
 						}
 					>
 						Empleados

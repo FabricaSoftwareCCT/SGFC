@@ -57,6 +57,7 @@ import { CreateCriteria } from './Components/Pages/CriteriaManagment/CreateCrite
 import { SeeAllCourseCriteria } from './Components/Pages/CriteriaManagment/SeeCourseCriteria/SeeCourseCriteria';
 import { SeeCertificationHistorial } from './Components/Pages/CriteriaManagment/SeeCertificationHistorial/SeeCertificationHistorial';
 import { GestionUsuarios } from './Components/Pages/GestionUsuarios/GestionUsuarios';
+import { Historial } from './Components/Pages/Historial/Historial';
 
 // Crear un componente Layout que envuelva las páginas con Header y Footer
 const Layout = ({ children, setShowSignIn, setShowSignUp, setShowModalGeneral }) => {
@@ -310,6 +311,7 @@ function App() {
 					<Route path="/Gestiones/Criterios/Curso/:id" element={<SeeAllCourseCriteria/>}/>
 					<Route path="/Gestiones/Criterios/Crear/:id" element={<CreateCriteria/>}/>
 					<Route path="/Gestiones/Criterios/Historial/:id" element={<SeeCertificationHistorial/>}/>
+					<Route path="/Gestiones/Historial" element={<Historial/>}/>
 					{/* NUEVA RUTA PARA REPORTE Y ESTADÍSTICAS */}
 					<Route path="/GestionReporteEstadisticas/ReporteEstadisticas" element={
 						<Layout

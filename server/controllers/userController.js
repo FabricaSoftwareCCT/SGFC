@@ -27,6 +27,8 @@ const Empresa = require("../models/empresa"); // Importar el modelo Empresa
 const Sena = require("../models/sena"); // Importar el modelo Sena
 const Departamento = require("../models/departamento"); // Importar el modelo Departamento
 const Ciudad = require("../models/ciudad"); // Importar el modelo Ciudad
+const Usuario = require("../models/User");
+const { addHistorial } = require("./historialController");
 const fotoDefectPerfil = "../Img/userDefect.png"; // Importar la imagen por defecto
 
 //registrar usuario (empresa o aprendiz)
@@ -2700,11 +2702,45 @@ const createEmpresa = async (req, res) => {
         }
 
         res.status(500).json({ 
-            message: 'Error al crear la empresa',
+            message: 'Error interno al crear la empresa',
             error: error.message 
         });
       }
 };
+
+const changeRole = async (req, res) => {
+	try {
+		const { id } = req.params
+		const { role } = req.body
+		const adminId = req.user.id
+
+		const user = await Usuario.findByPk(id)
+
+		if (!user) {
+			return res.status(200).json({
+				message: "El usuario no existe"
+			})
+		}
+
+		user.update({
+			accountType: role
+		})
+
+		addHistorial(adminId, {
+			usuario: id
+		}, `El administrador [nombre] ([id]) ha cambiado el rol de "[usuario]" ([usuario_id]) a ${role}`)
+
+		res.status(200).json({
+			message: "Se ha actualizado el usuario con exito"
+		})
+	} catch (error) {
+		console.log(error)
+		res.status(500).json({
+			message: "Error interno al cambiar el rol del usuario",
+			error: error.message
+		})		
+	}
+}
 
 module.exports = {
 	subirDocumentoIdentidad,
@@ -2737,5 +2773,6 @@ module.exports = {
 	getAllEmpleadosForAdmin,
 	getAllEmpresasForAdmin,
 	createEmpleadoForAdmin,
-    createEmpresa
+    createEmpresa,
+	changeRole
 };

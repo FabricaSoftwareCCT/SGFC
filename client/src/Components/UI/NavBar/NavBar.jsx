@@ -19,7 +19,7 @@ export const NavBar = ({ children }) => {
 	const [notificationsList, setNotificationsList] = useState([])
 	const [loadingNotifications, setLoadingNotifications] = useState(false)
 	const [justifying, setJustifying] = useState(false)
-	const [processingInvitation, setProcessingInvitation] = useState(null) // Nuevo estado para controlar procesamiento
+	const [processingInvitation, setProcessingInvitation] = useState(null)
 	const [processingSolicitud, setProcessingSolicitud] = useState(null)
 	const [justificationDenial, setJustificationDenial] = useState("")
 	const [activeNotification, setActiveNotification] = useState(null)
@@ -86,7 +86,6 @@ export const NavBar = ({ children }) => {
 			setLoadingNotifications(true)
 			try {
 				const res = await axiosInstance.get('/api/notifications?limit=5');
-				// no mostrar notificaciones aceptadas o rechazadas
 				res.data.notifications = res.data.notifications.filter(notif => notif.estado !== 'aceptada' && notif.estado !== 'rechazada');
 				setNotificationsList(res.data.notifications || []);
 			} catch (err) {
@@ -159,7 +158,6 @@ export const NavBar = ({ children }) => {
 				</p>
 				<div className="notification-message" dangerouslySetInnerHTML={{ __html: notif.mensaje }} />
 				
-				{/* Mostrar estado actual si ya fue respondida */}
 				{notif.estadoInvitacion && notif.estadoInvitacion !== 'pendiente' && (
 					<div className="notification-status">
 						<p><b>Estado:</b> 
@@ -259,7 +257,6 @@ export const NavBar = ({ children }) => {
 	}, [justifying, justificationDenial, processingSolicitud])
 
 	const cambiarEstadoInvitacion = async (invitacionId, nuevoEstado) => {
-		// Si ya se está procesando esta invitación, no hacer nada
 		if (processingInvitation === invitacionId) return
 		
 		setProcessingInvitation(invitacionId)
@@ -267,7 +264,6 @@ export const NavBar = ({ children }) => {
 		try {
 			const response = await axiosInstance.put(`/api/courses/cambiarEstadoInvitacion/${invitacionId}`, { nuevoEstado })
 			
-			// Actualizar el estado local de las notificaciones
 			setNotificationsList(prevNotifications => 
 				prevNotifications.map(notif => 
 					notif.invitacion_ID === invitacionId 
@@ -278,7 +274,6 @@ export const NavBar = ({ children }) => {
 
 			alert(response.data.message || "Estado actualizado correctamente")
 
-			// Si fue aceptada, asigna el curso al instructor
 			if (nuevoEstado === "aceptada") {
 				const notif = notificationsList.find((n) => n.invitacion_ID === invitacionId)
 				if (notif) {
@@ -307,109 +302,119 @@ export const NavBar = ({ children }) => {
 
 	return (
 		<div className="navBar">
-			<div className="logo">SGFC</div>
+			<div className="nav-content">
+				<div className="logo">SGFC</div>
 
-			<button className="hamburger-btn" onClick={() => setIsMobileMenuOpen((prev) => !prev)}>
-				☰
-			</button>
+				{/* Contenido escritorio - CENTRADO */}
+				<div className="desktop-options">
+					<div className="container_options">{children}</div>
+
+					{!isLoggedIn && (
+						<button className="button_signIn" onClick={handleSignIn}>
+							Iniciar sesión
+						</button>
+					)}
+
+					{isLoggedIn && (
+						<div className="container_options_profile">
+							<button>
+								<img src={settings} alt="Configuración" />
+							</button>
+
+							<div className="notifications-menu" ref={notificationsMenuRef}>
+								<button className="btn-notifications" onClick={() => setShowNotificationsMenu((prev) => !prev)}>
+									<img className="img_notifications" src={notifications} alt="Notificaciones" />
+								</button>
+								{showNotificationsMenu && (
+									<div className="dropdown-notifications">
+										<div className="arrow-up" />
+										{loadingNotifications ? (
+											<div className="notification-item">Cargando...</div>
+										) : notificationsList.length === 0 ? (
+											<div className="notification-item">Sin notificaciones</div>
+										) : (
+											notificationsList.map((notif) => (
+												<div
+													className="notification-item"
+													key={notif.ID}
+													style={{ cursor: "pointer" }}
+													onClick={() => handleNotificationClick(notif)}
+												>
+													<div className="container-img-notifications">
+														<img src={notif.estado === "sin_leer" ? noRead : ifRead} alt="" />
+													</div>
+													<div className="container-text-notifications">
+														<p className="notification-sender">
+															{notif.remitente?.nombres
+																? `${notif.remitente.nombres} ${notif.remitente.apellidos}`
+																: "SGFC"}
+														</p>
+														<span className="notification-affair">{notif.titulo}</span>
+													</div>
+												</div>
+											))
+										)}
+									</div>
+								)}
+							</div>
+
+							<button id="btn_profile" onClick={handleProfileClick}>
+								<img src={profile} alt="Perfil" />
+							</button>
+
+							<button onClick={handleLogout}>
+								<img src={logout} alt="Cerrar sesión" />
+							</button>
+						</div>
+					)}
+				</div>
+
+				{/* Botón hamburguesa */}
+				<button 
+					className={`hamburger-btn ${isMobileMenuOpen ? 'open' : ''}`} 
+					onClick={() => setIsMobileMenuOpen((prev) => !prev)}
+				>
+					<span></span>
+					<span></span>
+					<span></span>
+				</button>
+			</div>
 
 			{/* Contenido móvil */}
 			<div className={`mobile-menu ${isMobileMenuOpen ? "open" : "closed"}`}>
-				<div className="container_options">{children}</div>
+				<div className="mobile-menu-content">
+					<div className="container_options">{children}</div>
 
-				{!isLoggedIn && (
-					<button className="button_signIn" onClick={handleSignIn}>
-						Iniciar sesión
-					</button>
-				)}
-
-				{isLoggedIn && (
-					<div className="container_options_profile">
-						<button className="mobile-profile-btn">
-							<span className="mobile-label">Configuración</span>
-							<img className="desktop-icon" src={settings} alt="Configuración" />
+					{!isLoggedIn && (
+						<button className="button_signIn" onClick={handleSignIn}>
+							Iniciar sesión
 						</button>
+					)}
 
-						<button className="mobile-profile-btn" onClick={() => setShowNotificationsMenu((prev) => !prev)}>
-							<span className="mobile-label">Notificaciones</span>
-							<img className="desktop-icon" src={notifications} alt="Notificaciones" />
-						</button>
-
-						<button className="mobile-profile-btn" id="btn_profile" onClick={handleProfileClick}>
-							<span className="mobile-label">Perfil</span>
-							<img className="desktop-icon" src={profile} alt="Perfil" />
-						</button>
-
-						<button className="mobile-profile-btn" onClick={handleLogout}>
-							<span className="mobile-label">Cerrar sesión</span>
-							<img className="desktop-icon" src={logout} alt="Cerrar sesión" />
-						</button>
-					</div>
-				)}
-			</div>
-
-			{/* Contenido escritorio */}
-			<div className="desktop-options">
-				<div className="container_options">{children}</div>
-
-				{!isLoggedIn && (
-					<button className="button_signIn" onClick={handleSignIn}>
-						Iniciar sesión
-					</button>
-				)}
-
-				{isLoggedIn && (
-					<div className="container_options_profile">
-						<button>
-							<img src={settings} alt="Configuración" />
-						</button>
-
-						<div className="notifications-menu" ref={notificationsMenuRef}>
-							<button className="btn-notifications" onClick={() => setShowNotificationsMenu((prev) => !prev)}>
-								<img className="img_notifications" src={notifications} alt="Notificaciones" />
+					{isLoggedIn && (
+						<div className="container_options_profile">
+							<button className="mobile-profile-btn">
+								<span className="mobile-label">Configuración</span>
+								<img className="desktop-icon" src={settings} alt="Configuración" />
 							</button>
-							{showNotificationsMenu && (
-								<div className="dropdown-notifications">
-									<div className="arrow-up" />
-									{loadingNotifications ? (
-										<div className="notification-item">Cargando...</div>
-									) : notificationsList.length === 0 ? (
-										<div className="notification-item">Sin notificaciones</div>
-									) : (
-										notificationsList.map((notif) => (
-											<div
-												className="notification-item"
-												key={notif.ID}
-												style={{ cursor: "pointer" }}
-												onClick={() => handleNotificationClick(notif)}
-											>
-												<div className="container-img-notifications">
-													<img src={notif.estado === "sin_leer" ? noRead : ifRead} alt="" />
-												</div>
-												<div className="container-text-notifications">
-													<p className="notification-sender">
-														{notif.remitente?.nombres
-															? `${notif.remitente.nombres} ${notif.remitente.apellidos}`
-															: "SGFC"}
-													</p>
-													<span className="notification-affair">{notif.titulo}</span>
-												</div>
-											</div>
-										))
-									)}
-								</div>
-							)}
+
+							<button className="mobile-profile-btn" onClick={() => setShowNotificationsMenu((prev) => !prev)}>
+								<span className="mobile-label">Notificaciones</span>
+								<img className="desktop-icon" src={notifications} alt="Notificaciones" />
+							</button>
+
+							<button className="mobile-profile-btn" id="btn_profile" onClick={handleProfileClick}>
+								<span className="mobile-label">Perfil</span>
+								<img className="desktop-icon" src={profile} alt="Perfil" />
+							</button>
+
+							<button className="mobile-profile-btn" onClick={handleLogout}>
+								<span className="mobile-label">Cerrar sesión</span>
+								<img className="desktop-icon" src={logout} alt="Cerrar sesión" />
+							</button>
 						</div>
-
-						<button id="btn_profile" onClick={handleProfileClick}>
-							<img src={profile} alt="Perfil" />
-						</button>
-
-						<button onClick={handleLogout}>
-							<img src={logout} alt="Cerrar sesión" />
-						</button>
-					</div>
-				)}
+					)}
+				</div>
 			</div>
 		</div>
 	)

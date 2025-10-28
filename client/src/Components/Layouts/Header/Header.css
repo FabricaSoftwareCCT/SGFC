@@ -1,9 +1,7 @@
 * {
     margin: 0;
     padding: 0;
-    width: 0;
-    height: 0;
-    color: #fff;
+    box-sizing: border-box;
 }
 
 .header {
@@ -14,8 +12,7 @@
     justify-content: center;
     position: fixed;
     z-index: 999;
-        border-radius: 0 0 8rem 8rem;
-
+    border-radius: 0 0 8rem 8rem;
 }
 
 .startOption,
@@ -25,10 +22,10 @@
 .empresas, .empleados {
     width: auto;
     height: auto;
-    padding: 5px 15px 5px 15px;
+    padding: 5px 15px;
     text-decoration: none;
     border-radius: 15px;
-
+    color: #fff; /* Color blanco específico para los enlaces */
 }
 
 .startOption:hover,
@@ -36,7 +33,6 @@
 .courses:hover {
     background-color: #00843D;
 }
-
 
 .startOption.active,
 .whoWeAre.active,
@@ -70,14 +66,11 @@
     transition: background 0.3s ease;
 }
 
-
-
 .courses:hover,
 .courses.active,
 .gestiones:hover,
 .gestiones.active {
     background-color: #006c30;
-    width: auto;
 }
 
 .dropdown-courses,
@@ -93,7 +86,7 @@
     padding: 0.5rem 0;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
     z-index: 100;
-    width: 160px;
+    width: 200px;
     height: auto;
 }
 
@@ -108,8 +101,7 @@
     font-size: 14px;
     cursor: pointer;
     transition: background 0.2s ease;
-    width: auto;
-    height: auto;
+    width: 100%;
 }
 
 .dropdown-courses button:hover,
@@ -132,7 +124,7 @@
 
 @media (max-width: 768px) {
     .header {
-        width: 412px;
+        width: 100%; /* Eliminado el width fijo de 412px */
     }
 
     .startOption.active,
@@ -144,5 +136,17 @@
         background-color: #1a1a1a;
     }
 
+    .dropdown-courses,
+    .dropdown-gestiones,
+    .dropdown-empleados {
+        position: static;
+        width: 100%;
+        margin-top: 0.5rem;
+        box-shadow: none;
+        border-radius: 0.5rem;
+    }
 
+    .arrow-up {
+        display: none;
+    }
 }

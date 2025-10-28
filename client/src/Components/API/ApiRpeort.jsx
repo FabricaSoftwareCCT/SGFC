@@ -12,7 +12,7 @@ export const getCursos = async (page) => {
         ficha: curso.ficha,
         estado: curso.estado,
         instructor: curso.nombre_instructor,
-        empleados: 0
+        empleados: curso.empleados
         })
     )
     

@@ -29,6 +29,8 @@ const Departamento = require("../models/departamento"); // Importar el modelo De
 const Ciudad = require("../models/ciudad"); // Importar el modelo Ciudad
 const Usuario = require("../models/User");
 const { addHistorial } = require("./historialController");
+const Curso = require("../models/curso");
+const InscripcionCurso = require("../models/InscripcionCurso");
 const fotoDefectPerfil = "../Img/userDefect.png"; // Importar la imagen por defecto
 
 //registrar usuario (empresa o aprendiz)
@@ -2301,9 +2303,28 @@ const getAllEmpleadosForAdmin = async (req, res) => {
 
 		const totalPages = Math.ceil(count / limit);
 
+		let listaEmpleados = []
+
+		for (let empleado of empleados) {
+			/*console.log(
+				(await InscripcionCurso.findAll({
+					where: {
+						aprendiz_ID: empleado.ID
+					},
+					include: [
+						{
+							model: Curso,
+							attributes: ["nombre_curso"]
+						}
+					]
+				})).map((c) => c.dataValues)
+			)*/
+			listaEmpleados.push(empleado)
+		}
+
 		res.status(200).json({
 			success: true,
-			empleados,
+			empleados: listaEmpleados,// TODO,
 			pagination: {
 				currentPage: parseInt(page),
 				totalPages,

@@ -107,10 +107,10 @@ export const UpdateCourse = () => {
 			}
 
 			// Validar que la duración esté completa
-			if (duracionCurso < 1) {
+			/*if (duracionCurso < 1) {
 				alert("Por favor completa la duración del curso.");
 				return;
-			}
+			}*/
 
 			// Validar que el lugar de formación esté completo
 			if (!lugarFormacion.trim()) {

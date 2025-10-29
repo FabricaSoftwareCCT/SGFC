@@ -8,6 +8,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { PageMover } from "../../../UI/PageMover/PageMover";
 import axiosInstance from "../../../../config/axiosInstance";
+import { generarExcel } from "../../../../utils/Reports/Criterios";
 
 export const SeeCertificationHistorial = () => {
 	const navigate = useNavigate();
@@ -18,9 +19,8 @@ export const SeeCertificationHistorial = () => {
 	const [filterName, setFilterName] = useState("");
 	//const [filterDate, setFilterDate] = useState();
 	const [filterId, setFilterId] = useState("");
-
-	const [showingDownloadOptions, setShowingDownloadingOptions] =
-		useState(false);
+	const [showingDownloadOptions, setShowingDownloadingOptions] = useState(false);
+	const [curso, setCurso] = useState();
 	const [aprentices, setAprentices] = useState([]);
 	const [reportType, setReportType] = useState("pdf");
 	const [page, setPage] = useState(0);
@@ -30,6 +30,7 @@ export const SeeCertificationHistorial = () => {
 	const [showAprenticeCriteria, setShowAprenticeCriteria] = useState(false);
 	const [certificationState, setCertificationState] = useState("");
 	const [certificationDenial, setCertificationDenial] = useState("");
+	const [doneGenerating, setDoneGenerating] = useState(false)
 
 	const userSession =
 		JSON.parse(localStorage.getItem("userSession")) ||
@@ -84,6 +85,17 @@ export const SeeCertificationHistorial = () => {
 		setShowFilters(false);
 	}
 
+	async function fetchCourse() {
+		try {
+			const response = await axiosInstance.get(
+				`api/courses/cursos/${id}`
+			);
+			setCurso(response.data);
+		} catch (error) {
+			console.error("Error al obtener el curso:", error);
+		}
+	}
+
 	useEffect(() => {
 		if (
 			isLoggedIn &&
@@ -92,6 +104,7 @@ export const SeeCertificationHistorial = () => {
 				accountType === "Gestor")
 		) {
 			fetchAprentices();
+			fetchCourse()
 		} else {
 			navigate("/no-autorizado");
 		}
@@ -282,17 +295,43 @@ export const SeeCertificationHistorial = () => {
 									Excel
 								</button>
 							</div>
-							<button
-								className="button"
-								style={{
-									marginTop: "20px",
-								}}
-								onClick={() =>
-									setShowingDownloadingOptions(false)
-								}
-							>
-								Descargar reporte
-							</button>
+							{reportType === "excel" ?
+								<button
+									className="button"
+									style={{
+										marginTop: "20px",
+									}}
+									onClick={() => generarExcel(aprentices, curso, id, () => setShowingDownloadingOptions(false))}
+								>
+									Descargar reporte
+								</button>	
+							:
+								<>
+									<button
+										className="button"
+										style={{
+											marginTop: "20px",
+										}}
+										onClick={() => {}}
+									>
+										Generar reporte
+									</button>
+									{doneGenerating && (
+										<a
+											className="button"
+											href={reportContent}
+											target="_blank"
+											rel="noopener noreferrer"
+											style={{
+												marginTop: "20px",
+												textDecoration: "none"
+											}}
+										>
+											Descargar
+										</a>
+									)}
+								</>
+							}
 						</div>
 					</div>
 				)}

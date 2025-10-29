@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axiosInstance from "../../../../config/axiosInstance";
 import { PageMover } from "../../../UI/PageMover/PageMover";
-import * as xlsx from "xlsx"
+import { generarExcel } from "../../../../utils/Reports/Criterios";
 
 export const SeeCourseCriteria = () => {
 	const navigate = useNavigate();
@@ -181,37 +181,6 @@ export const SeeCourseCriteria = () => {
 
 	const generarPdf = async () => {
 
-	}
-
-	const generarExcel = async () => {
-		try {
-			let aprenticesData = []
-			for (let a of aprentices) {
-				const aprenticeFullData = (await axiosInstance.get(`/api/users/profile/${a.id}`)).data
-				const criteriaAprentice = (await axiosInstance.get(`/api/certification/course/${id}/aprendiz/${a.id}`)).data
-				let ap = {
-					"Nombre": `${aprenticeFullData.nombres} ${aprenticeFullData.apellidos}`,
-					"Documento": aprenticeFullData.documento,
-					"Numero": aprenticeFullData.celular,
-					"Email": aprenticeFullData.email,
-					"Estado": aprenticeFullData.estado,
-					"Empresa": aprenticeFullData.Empresa.nombre_empresa,
-					"Estado de certificación": criteriaAprentice.certification_status,
-				}
-				for (let c of criteriaAprentice.criteria) {
-					ap[c.title] = `${c.value} / ${c.min}`
-				}
-				aprenticesData.push(ap)
-			}
-			
-			let workBook = xlsx.utils.book_new()
-			xlsx.utils.book_append_sheet(workBook, xlsx.utils.json_to_sheet(aprenticesData))
-			xlsx.writeFile(workBook, `Reporte del curso ${curso.nombre_curso} - ${curso.ficha}.xlsx`, { compression: true })
-			setShowingDownloadingOptions(false)
-		} catch (error) {
-			console.log(error)
-			alert("Ocurrió un error al general el excel")
-		}
 	}
 
 	return (
@@ -401,7 +370,7 @@ export const SeeCourseCriteria = () => {
 									style={{
 										marginTop: "20px",
 									}}
-									onClick={() => generarExcel()}
+									onClick={() => generarExcel(aprentices, curso, id, () => setShowingDownloadingOptions(false))}
 								>
 									Descargar reporte
 								</button>	

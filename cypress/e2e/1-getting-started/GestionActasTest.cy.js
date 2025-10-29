@@ -165,5 +165,16 @@ describe('Gestion de Actas', ()=>{
 
         cy.get('.training-place-proceeding-input').get('textarea[id="observaciones-inspeccion"]').type('Observaciones de prueba para el acta de lugar de formación.')
         cy.get('.training-place-proceeding-input').get('textarea[id="documentos-respaldo"]').type('Observaciones de prueba para el acta de lugar de formación.')
+        cy.get('.training-place-proceeding-input').get('input[placeholder="Nombre del Inspector"]').type('Edgar Hincapié')
+
+        //Agregar firma
+        cy.contains('button', 'Agregar firma').click()       
+        cy.wait(5000);
+        cy.get('.submit-button-proceedings-firmar').click();
+        cy.wait(1000);
+
+        //Guardar y Generar Acta
+        cy.get('.training-place-proceeding-submit-button').contains('button', 'Guardar').click({force:true})
+        cy.get('.training-place-proceeding-submit-button').contains('button', 'Generar acta').click({force:true})
     })    
 })

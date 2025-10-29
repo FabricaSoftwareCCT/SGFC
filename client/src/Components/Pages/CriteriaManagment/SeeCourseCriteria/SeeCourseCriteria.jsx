@@ -297,6 +297,7 @@ export const SeeAllCourseCriteria = () => {
 							onChange={(e) => setSearchAuthor(e.target.value)}
 						/>
 						<button
+							id="filtrar-button"
 							className="button"
 							style={{
 								alignSelf: "center",

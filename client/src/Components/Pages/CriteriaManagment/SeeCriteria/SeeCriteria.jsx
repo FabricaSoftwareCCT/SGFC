@@ -190,7 +190,7 @@ export const SeeCourseCriteria = () => {
 						<button
 							className="button see-criteria-button"
 							onClick={() =>
-								navigate("/Gestiones/Criterios/Curso/1")
+								navigate(`/Gestiones/Criterios/Curso/${id}`)
 							}
 						>
 							Ver criterios

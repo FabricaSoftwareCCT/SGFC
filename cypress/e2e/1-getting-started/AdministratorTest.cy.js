@@ -76,7 +76,7 @@ describe('Probar el modulo de administrador', ()=>{
 
     })
 
-    it.skip('Crear Curso',()=>{
+    it('Crear Curso',()=>{
         cy.visit("http://localhost:5173/") 
         cy.get(".button_signIn").first().click({force : true})
 
@@ -110,7 +110,7 @@ describe('Probar el modulo de administrador', ()=>{
         cy.get('.addDate').first().click()
 
         //Ingresar Fechas
-        cy.get('.organized-date-inputs').contains('label', 'Fecha inicio:').find('input[type="date"]').type('2025-10-29')
+        cy.get('.organized-date-inputs').contains('label', 'Fecha inicio:').find('input[type="date"]').type('2025-10-30')
         cy.get('.organized-date-inputs').contains('label', 'Fecha fin:').find('input[type="date"]').type('2025-10-31')
 
         //Seleccionar horario de curso
@@ -305,4 +305,254 @@ describe('Probar el modulo de administrador', ()=>{
         cy.get('.modal-left-update').find('input[name="nombres"]').first().clear({force:true}).type('David Alejandro')
         cy.get('.edit-button-updateInstructor').first().click({force:true})
     })
+
+    it.skip('Modulo de Criterios de Certificación',()=>{
+        cy.visit("http://localhost:5173/") 
+        cy.get(".button_signIn").first().click({force : true})
+
+        //Ingresar credenciales del rol administrador
+        cy.get('input[type="email"]').first()
+            .type('administrador@gmail.com')
+        cy.get('input[type="password"]')
+            .type('Admin1234*')
+            
+        //Iniciar sesión
+        cy.get(".button_register").click()
+
+        // Click forzado en el botón Gestiones
+        cy.get('.container_options').get('.gestiones').first().click({force:true})
+
+        //Entrar a Gestión de Criterios de Certificación
+        cy.get('.dropdown-gestiones').contains('button', 'Criterios de certificación').first().click({force:true})
+
+        //Ver criterios de un curso
+        cy.contains('button', 'Ver criterios').first().click({force:true})
+        cy.contains('button', 'Ver criterios').first().click({force:true})
+        
+        //Agregar Criterios
+        cy.contains('button', '+').click()
+        cy.get('.new-criteria-space').find('input[placeholder="Añadir un titulo"]').type('Asistencias')
+        cy.get('.criteria-head').find('.select-criteria-type').click()
+        cy.contains('button', 'Asistencias').click()
+        cy.get('input[placeholder="0"]').first().clear().type('80')
+        cy.get('input[placeholder="0"]').eq(1).clear().type('100')
+
+        //Guardar Criterio
+        cy.get('.modal-background').contains('button', 'Guardar').click({force:true})
+
+        //Añadir descripción al criterio y guardar
+        cy.get('.criteria-data').find('textarea[placeholder="Añadir una descripción..."]').type('El participante debe cumplir con el 80% de asistencias para certificar el curso.')
+        cy.get('.end-button').contains('button', 'Guardar').click({force:true})
+    })
+
+    it.skip('modificar y eliminar criterio de certificación',()=>{
+        cy.visit("http://localhost:5173/") 
+        cy.get(".button_signIn").first().click({force : true})
+
+        //Ingresar credenciales del rol administrador
+        cy.get('input[type="email"]').first()
+            .type('administrador@gmail.com')
+        cy.get('input[type="password"]')
+            .type('Admin1234*')
+            
+        //Iniciar sesión
+        cy.get(".button_register").click()
+
+        // Click forzado en el botón Gestiones
+        cy.get('.container_options').get('.gestiones').first().click({force:true})
+
+        //Entrar a Gestión de Criterios de Certificación
+        cy.get('.dropdown-gestiones').contains('button', 'Criterios de certificación').first().click({force:true})
+        
+        //Ver criterios de un curso
+        cy.contains('button', 'Ver criterios').first().click({force:true})
+        cy.contains('button', 'Ver criterios').first().click({force:true})
+        cy.contains('button', 'Editar').first().click({force:true})
+        cy.get('textarea.description-edition.criteria-description').first().clear().type('Nueva descripción editada para el primer criterio')
+        cy.get('.buttons-right').contains('button', 'Guardar').first().click({force:true})
+    })
+
+    it.skip('Filtrado de Criterios de Certificación',()=>{
+        cy.visit("http://localhost:5173/") 
+        cy.get(".button_signIn").first().click({force : true})
+
+        //Ingresar credenciales del rol administrador
+        cy.get('input[type="email"]').first()
+            .type('administrador@gmail.com')
+        cy.get('input[type="password"]')
+            .type('Admin1234*')
+            
+        //Iniciar sesión
+        cy.get(".button_register").click()
+
+        // Click forzado en el botón Gestiones
+        cy.get('.container_options').get('.gestiones').first().click({force:true})
+
+        //Entrar a Gestión de Criterios de Certificación
+        cy.get('.dropdown-gestiones').contains('button', 'Criterios de certificación').first().click({force:true})
+        
+        //Ver criterios de un curso
+        cy.contains('button', 'Ver criterios').first().click({force:true})
+        cy.contains('button', 'Ver criterios').first().click({force:true})
+
+        //Filtrar criterios
+        cy.contains('button', 'Filtrar').click({force:true})
+        cy.get('input[placeholder="Nombre..."]').first().type('Asistencias')
+        cy.get('button[id="filtrar-button"').click({force:true})
+        cy.contains('button', 'Filtrar').click({force:true})
+        cy.contains('button', 'Descargar').click({force:true})
+    })
+
+    it.skip('visitar modulo Gestión de Empresas', ()=>{
+        cy.visit("http://localhost:5173/") 
+        cy.get(".button_signIn").first().click({force : true})
+
+        //Ingresar credenciales del rol administrador
+        cy.get('input[type="email"]').first()
+            .type('administrador@gmail.com')
+        cy.get('input[type="password"]')
+            .type('Admin1234*')
+            
+        //Iniciar sesión
+        cy.get(".button_register").click()
+
+        // Click forzado en el botón Empresas
+        cy.get('.container_options').get('.empresas').first().click({force:true})
+
+    })
+
+    it.skip('Añadir una nueva empresa', ()=>{
+        cy.visit("http://localhost:5173/") 
+        cy.get(".button_signIn").first().click({force : true})
+
+        //Ingresar credenciales del rol administrador
+        cy.get('input[type="email"]').first()
+            .type('administrador@gmail.com')
+        cy.get('input[type="password"]')
+            .type('Admin1234*')
+            
+        //Iniciar sesión
+        cy.get(".button_register").click()
+
+        // Click forzado en el botón Empresas
+        cy.get('.container_options').get('.empresas').first().click({force:true})
+        cy.contains('button', 'Añadir Empresa').click({force:true})
+
+        //Llenar datos de la empresa
+        cy.get('.modal-body-company').find('input[placeholder="Ingrese el nombre de la empresa"]').type('Tech Solutions')
+        cy.get('.modal-body-company').find('input[placeholder="Ingrese el NIT"]').type('900123456')
+        cy.get('select[name="categoria"]').select('tecnologia');
+        cy.get('.modal-body-company').find('input[placeholder="Ingrese la dirección completa"]').type('Calle 123 #45-67, Ciudad')
+        cy.get('.modal-body-company').find('input[placeholder="Ingrese el teléfono"]').type('3001234567')
+        cy.get('.modal-body-company').find('input[placeholder="Ingrese el email corporativo"]').type('Techno@gmail.com')
+        cy.get('select[name="departamento_ID"]').select('Quindío');
+        cy.get('select[name="ciudad_ID"]').select('Armenia');
+        cy.contains('button', 'Crear Empresa').click({force:true})
+    })
+
+    it.skip('Visualizar empresa y manager', ()=>{
+        cy.visit("http://localhost:5173/") 
+        cy.get(".button_signIn").first().click({force : true})
+
+        //Ingresar credenciales del rol administrador
+        cy.get('input[type="email"]').first()
+            .type('administrador@gmail.com')
+        cy.get('input[type="password"]')
+            .type('Admin1234*')
+            
+        //Iniciar sesión
+        cy.get(".button_register").click()
+
+        // Click forzado en el botón Empresas
+        cy.get('.container_options').get('.empresas').first().click({force:true})
+
+        //Agregarle manager a la empresa
+        cy.contains('button', 'Ver manager').first().click({force:true})
+        cy.contains('button', 'Editar Manager').first().click({force:true})
+
+        //Rellenar Formulario del manager
+        cy.get('input[name="nombres_manager"]').type('Carlos Andrés')
+        cy.get('input[name="apellidos_manager"]').type('Ramírez López')
+        cy.get('input[name="celular_manager"]').type('3115556677')
+        cy.get('input[name="documento_manager"]').first().type('1122334455')
+        cy.get('input[name="documento_manager"]').eq(1).type('jawixav282@filipx.com')
+        cy.get('.status-buttons').get('button[id="Activo"]').click({force:true})
+        cy.contains('button', 'Guardar Cambios').click({force:true})
+        
+        //Gestionar Empresa 
+        cy.contains('button', 'Gestionar').first().click({force:true})
+        cy.contains('button', 'Editar Empresa').first().click({force:true})
+
+        //Modificar datos de la empresa
+        cy.get('input[name="nombre_empresa"').clear().type('Tech Solutions Updated')
+
+        //Guardar cambios
+        cy.contains('button', 'Guardar Cambios').click({force:true})
+        
+    })
+
+    it.skip('Gestión de Empleados', ()=>{
+        cy.visit("http://localhost:5173/") 
+        cy.get(".button_signIn").first().click({force : true})
+
+        //Ingresar credenciales del rol administrador
+        cy.get('input[type="email"]').first()
+            .type('administrador@gmail.com')
+        cy.get('input[type="password"]')
+            .type('Admin1234*')
+            
+        //Iniciar sesión
+        cy.get(".button_register").click()
+
+         //dar click a Gestiones
+        cy.get('.container_options').get('.gestiones-menu').contains('button', 'Gestiones').first().click({force : true})
+        cy.get('.dropdown-gestiones').contains('button', 'Gestión de Empleados').first().click({force : true})
+
+
+        //Agregar Empleado
+        cy.get('.btn_createEmploye').click()
+        cy.get('.modal-bodyCreateEmploye').find('input[name="nombres"]').first().type('Marco')
+        cy.get('.modal-left input[name="apellidos"]').first().type('Polo')
+        cy.get('select.TipoDocumento[name="tipoDocumento"]').select('CedulaCiudadania')
+        cy.get('.modal-left').find('input[name="cedula"]').type(92837467)
+        cy.get('.modal-left').find('input[name="celular"]').first().type(3214567980)
+        cy.get('.modal-left').find('input[name="email"]').first().type('canajef689@nrlord.com')
+        cy.get('select[name="empresaId"].empresa-select').select('Tech Solutions - 900123456')
+        cy.get('.status-container').find('.status-buttons').contains('button', 'Activo').first().click({force:true})
+        cy.get('.save-button').first().click({force:true})
+
+        
+    })
+
+    it.skip('Editar Empleado', ()=>{
+        cy.visit("http://localhost:5173/") 
+        cy.get(".button_signIn").first().click({force : true})
+
+        //Ingresar credenciales del rol administrador
+        cy.get('input[type="email"]').first()
+            .type('administrador@gmail.com')
+        cy.get('input[type="password"]')
+            .type('Admin1234*')
+            
+        //Iniciar sesión
+        cy.get(".button_register").click()
+
+         //dar click a Gestiones
+        cy.get('.container_options').get('.gestiones-menu').contains('button', 'Gestiones').first().click({force : true})
+        cy.get('.dropdown-gestiones').contains('button', 'Gestión de Empleados').first().click({force : true})
+
+        //Actualizar información del empleado
+        cy.get('.profile-btn').first().click({force:true})
+        cy.get('.edit-button-updateInstructor').first().click({force:true})
+        cy.get('.modal-left-update').find('input[type="text"]').clear().first().type('San Martin')
+        cy.get('.modal-left-update').find('input[name="apellidos"]').clear().type('De Napolés')
+        cy.get('img[alt="Subir documento"]').click()
+        cy.get('.custom-dropdown').click();
+        cy.contains('.dropdown-option', 'Cédula de ciudadanía').click();
+        cy.get('.modal-left-update').find('input[name="documento"]').clear().type(45567867)
+        cy.get('.modal-left-update').find('.status-buttons').contains('button', 'activo').first().click({force:true})
+        cy.get('.edit-button-updateInstructor').click({force:true})
+
+    })
+
 })

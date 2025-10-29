@@ -1,7 +1,7 @@
 import * as xlsx from "xlsx"
 import axiosInstance from "../../config/axiosInstance"
 
-export const generarExcel = async (aprentices, curso, id, done) => {
+export const generarExcelHistorial = async (aprentices, curso, id, done) => {
 	try {
 		let aprenticesData = []
 		for (let a of aprentices) {
@@ -25,6 +25,28 @@ export const generarExcel = async (aprentices, curso, id, done) => {
 		let workBook = xlsx.utils.book_new()
 		xlsx.utils.book_append_sheet(workBook, xlsx.utils.json_to_sheet(aprenticesData))
 		xlsx.writeFile(workBook, `Reporte del curso ${curso.nombre_curso} - ${curso.ficha}.xlsx`, { compression: true })
+		done()
+	} catch (error) {
+		console.log(error)
+		alert("Ocurrió un error al general el excel")
+	}
+}
+
+export const generarExcelCriterios = async (id, curso, done) => {
+	try {
+		const criteria = (await axiosInstance.get(`/api/certification/course/${id}?limit=9999`)).data.criteria
+		console.log(criteria)
+		const criteriaData = criteria.map((c) => ({
+			"Criterio": c.title,
+			"Descripción": c.description,
+			"Mínimo": c.min,
+			"Tipo": c.type,
+			"Fecha de creación": `${c.creation.date} ${c.creation.hour}`,
+			"Creador": c.author 
+		}))
+		let workBook = xlsx.utils.book_new()
+		xlsx.utils.book_append_sheet(workBook, xlsx.utils.json_to_sheet(criteriaData))
+		xlsx.writeFile(workBook, `Criterios de certificación del curso ${curso.nombre_curso} - ${curso.ficha}.xlsx`, { compression: true })
 		done()
 	} catch (error) {
 		console.log(error)

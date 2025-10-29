@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axiosInstance from "../../../../config/axiosInstance";
 import { PageMover } from "../../../UI/PageMover/PageMover";
-import { generarExcel } from "../../../../utils/Reports/Criterios";
+import { generarExcelHistorial } from "../../../../utils/Reports/Criterios";
 import { ReportCertification } from "../ReportCertification.jsx/ReportCertification";
 import { useRef } from "react";
 import html2pdf from "html2pdf.js"
@@ -398,7 +398,7 @@ export const SeeCourseCriteria = () => {
 									style={{
 										marginTop: "20px",
 									}}
-									onClick={() => generarExcel(aprentices, curso, id, () => setShowingDownloadingOptions(false))}
+									onClick={() => generarExcelHistorial(aprentices, curso, id, () => setShowingDownloadingOptions(false))}
 								>
 									Descargar reporte
 								</button>	

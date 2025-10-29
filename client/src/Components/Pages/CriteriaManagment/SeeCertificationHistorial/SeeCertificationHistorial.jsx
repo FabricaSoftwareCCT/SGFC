@@ -8,7 +8,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { PageMover } from "../../../UI/PageMover/PageMover";
 import axiosInstance from "../../../../config/axiosInstance";
-import { generarExcel } from "../../../../utils/Reports/Criterios";
+import { generarExcelHistorial } from "../../../../utils/Reports/Criterios";
 import html2pdf from "html2pdf.js"
 import { useRef } from "react";
 import { ReportCertification } from "../ReportCertification.jsx/ReportCertification";
@@ -331,7 +331,7 @@ export const SeeCertificationHistorial = () => {
 									style={{
 										marginTop: "20px",
 									}}
-									onClick={() => generarExcel(aprentices, curso, id, () => setShowingDownloadingOptions(false))}
+									onClick={() => generarExcelHistorial(aprentices, curso, id, () => setShowingDownloadingOptions(false))}
 								>
 									Descargar reporte
 								</button>	

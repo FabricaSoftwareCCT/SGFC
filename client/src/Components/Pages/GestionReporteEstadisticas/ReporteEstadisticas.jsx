@@ -187,7 +187,7 @@ export default function ReporteEstadisticas() {
 		});
 	};
 
-	const generarExcel = async () => {
+	const generarExcelHistorial = async () => {
 		let cursosIds = (cursosFiltrados.length > 0 ? cursosFiltrados : datosCurso).map((c) => c.id)
 		let cursosData = []
 		let empleadosData = []
@@ -495,7 +495,7 @@ export default function ReporteEstadisticas() {
 							onClick={() => {
 								setGenerating(true)
 								if (reportType === "excel")
-									generarExcel()
+									generarExcelHistorial()
 							}}
 							disabled={generating}
 						>

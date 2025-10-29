@@ -92,8 +92,8 @@ const obtenerCriteriosCertificacionCurso = async (req, res) => {
 							where: whereTerms,
 						},
 				  ],
-			limit: limit,
-			offset: limit * page,
+			limit: parseInt(limit),
+			offset: parseInt(limit) * parseInt(page),
 		});
 
 		for (let c of criteriosCurso) {
@@ -112,7 +112,17 @@ const obtenerCriteriosCertificacionCurso = async (req, res) => {
 					attributes: ["nombres", "apellidos", "accountType"],
 				})
 			).dataValues;
-			criteria.push({
+
+			const lastEdit = await UsuarioEdita.findOne({
+				where: {
+					criterio_ID: c.Criterio.ID
+				},
+				include: {
+					all: true
+				}
+			})
+
+			let cData = {
 				id: c.Criterio.ID,
 				title: c.Criterio.title,
 				description: c.Criterio.description,
@@ -127,7 +137,28 @@ const obtenerCriteriosCertificacionCurso = async (req, res) => {
 				author: author.nombres
 					? `${author.nombres} ${author.apellidos}`
 					: author.accountType,
-			});
+			}
+
+			if (lastEdit) {
+				const editAuthor = (
+					await Usuario.findOne({
+						where: {
+							ID: lastEdit.dataValues.autor_ID,
+						},
+						attributes: ["nombres", "apellidos"],
+					})
+				).dataValues;
+				cData = {
+					...cData,
+					last_edit: {
+						date: new Date(lastEdit.dataValues.fecha).toLocaleDateString("es-CO"),
+						hour: new Date(lastEdit.dataValues.fecha).toLocaleTimeString("es-CO"),
+						author: lastEdit.dataValues.autor_ID == 1 ? "Administrador" : `${editAuthor.nombres} ${editAuthor.apellidos}`
+					}
+				}
+			}
+
+			criteria.push(cData);
 		}
 
 		const totalAmount = await Criterio.count();

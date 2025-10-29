@@ -1,6 +1,6 @@
 const express = require("express");
 const { createEmpleado, getEmpleadosByEmpresaId, recordLogin, subirDocumentoIdentidad, getEmpresaById, refreshAccessToken, getAprendicesByEmpresa, registerUser, verifyEmail, loginUser,requestPasswordReset,resetPassword, getAllUsers, getUserProfile, getAprendices, getEmpresas, createEmpresa, getInstructores, getGestores, updateUserProfile,createInstructor, createGestor,logoutUser, createMasiveUsers, getEmpresaByNIT, requestNewVerificationEmail, checkProfileComplete, getAllEmpleadosForAdmin, getAllEmpresasForAdmin, createEmpleadoForAdmin } = require("../controllers/userController");
-const {registrarHorarios_instructor} = require('../controllers/horariosIntructoresController')
+const {registrarHorarios_instructor, getAllHorariosInstructores, updateHorariosInstructores, deleteHorariosInstructor} = require('../controllers/horariosIntructoresController')
 const { googleSignIn, googleSignUp } = require("../controllers/authGoogleController"); // Importar controlador de autenticación de Google
 const { authMiddleware, authorizeRoles } = require("../middlewares/authMiddleware");
 const router = express.Router();
@@ -44,6 +44,9 @@ router.get('/empresa/id/:id', getEmpresaById);
 router.post('/:id/documento', upload.single('pdf'), subirDocumentoIdentidad);
 router.post('/empresas', authMiddleware, upload.single('img_empresa'), createEmpresa);
 router.post('/addHorariosInstructores', registrarHorarios_instructor )
+router.get('/getAllHorariosInstructores/:instructor_ID', getAllHorariosInstructores )
+router.put('/updeateHorariosInstructores', updateHorariosInstructores)
+router.delete('/deleteHorariosInstructor/:instructor_ID', deleteHorariosInstructor)
 
 // Rutas para administradores
 // Permitir Administrador y Gestor

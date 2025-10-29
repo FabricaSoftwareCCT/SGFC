@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axiosInstance from "../../../../config/axiosInstance";
 import { PageMover } from "../../../UI/PageMover/PageMover";
+import * as xlsx from "xlsx"
 
 export const SeeCourseCriteria = () => {
 	const navigate = useNavigate();
@@ -13,9 +14,10 @@ export const SeeCourseCriteria = () => {
 	const { id } = useParams();
 
 	const [showFilters, setShowFilters] = useState(false);
-	const [showingDownloadOptions, setShowingDownloadingOptions] =
-		useState(false);
+	const [showingDownloadOptions, setShowingDownloadingOptions] = useState(false);
 	const [showAprenticeCriteria, setShowAprenticeCriteria] = useState(false);
+	const [doneGenerating, setDoneGenerating] = useState(false)
+	const [reportContent, setReportContent] = useState(false)
 
 	const [curso, setCurso] = useState();
 	const [aprentices, setAprentices] = useState([]);
@@ -177,6 +179,41 @@ export const SeeCourseCriteria = () => {
 		}
 	}, [page]);
 
+	const generarPdf = async () => {
+
+	}
+
+	const generarExcel = async () => {
+		try {
+			let aprenticesData = []
+			for (let a of aprentices) {
+				const aprenticeFullData = (await axiosInstance.get(`/api/users/profile/${a.id}`)).data
+				const criteriaAprentice = (await axiosInstance.get(`/api/certification/course/${id}/aprendiz/${a.id}`)).data
+				let ap = {
+					"Nombre": `${aprenticeFullData.nombres} ${aprenticeFullData.apellidos}`,
+					"Documento": aprenticeFullData.documento,
+					"Numero": aprenticeFullData.celular,
+					"Email": aprenticeFullData.email,
+					"Estado": aprenticeFullData.estado,
+					"Empresa": aprenticeFullData.Empresa.nombre_empresa,
+					"Estado de certificación": criteriaAprentice.certification_status,
+				}
+				for (let c of criteriaAprentice.criteria) {
+					ap[c.title] = `${c.value} / ${c.min}`
+				}
+				aprenticesData.push(ap)
+			}
+			
+			let workBook = xlsx.utils.book_new()
+			xlsx.utils.book_append_sheet(workBook, xlsx.utils.json_to_sheet(aprenticesData))
+			xlsx.writeFile(workBook, `Reporte del curso ${curso.nombre_curso} - ${curso.ficha}.xlsx`, { compression: true })
+			setShowingDownloadingOptions(false)
+		} catch (error) {
+			console.log(error)
+			alert("Ocurrió un error al general el excel")
+		}
+	}
+
 	return (
 		<>
 			<Header />
@@ -190,7 +227,7 @@ export const SeeCourseCriteria = () => {
 						<button
 							className="button see-criteria-button"
 							onClick={() =>
-								navigate("/Gestiones/Criterios/Curso/1")
+								navigate(`/Gestiones/Criterios/Curso/${id}`)
 							}
 						>
 							Ver criterios
@@ -358,17 +395,43 @@ export const SeeCourseCriteria = () => {
 									Excel
 								</button>
 							</div>
-							<button
-								className="button"
-								style={{
-									marginTop: "20px",
-								}}
-								onClick={() =>
-									setShowingDownloadingOptions(false)
-								}
-							>
-								Descargar reporte
-							</button>
+							{reportType === "excel" ?
+								<button
+									className="button"
+									style={{
+										marginTop: "20px",
+									}}
+									onClick={() => generarExcel()}
+								>
+									Descargar reporte
+								</button>	
+							:
+								<>
+									<button
+										className="button"
+										style={{
+											marginTop: "20px",
+										}}
+										onClick={() => generarPdf()}
+									>
+										Generar reporte
+									</button>
+									{doneGenerating && (
+										<a
+											className="button"
+											href={reportContent}
+											target="_blank"
+											rel="noopener noreferrer"
+											style={{
+												marginTop: "20px",
+												textDecoration: "none"
+											}}
+										>
+											Descargar
+										</a>
+									)}
+								</>
+							}
 						</div>
 					</div>
 				)}

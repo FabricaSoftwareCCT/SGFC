@@ -4,6 +4,9 @@ import ReporteEstudiantes from './ReporteEstudiantes';
 import {getCursos} from '../../API/ApiRpeort';
 import html2pdf from "html2pdf.js"
 import { FormatCourse } from './FormatCourse/FormatCourse';
+import axiosInstance from '../../../config/axiosInstance';
+import * as xlsx from "xlsx"
+
 
 export default function ReporteEstadisticas() {
 	const [pantallaActual, setPantallaActual] = useState('cursos');
@@ -184,12 +187,52 @@ export default function ReporteEstadisticas() {
 		});
 	};
 
-	const generarReporte = async () => {
-		if (!pdfContent.current)
-			return
+	const generarExcel = async () => {
+		let cursosIds = (cursosFiltrados.length > 0 ? cursosFiltrados : datosCurso).map((c) => c.id)
+		let cursosData = []
+		let empleadosData = []
 
-		switch (reportType) {
-			case "pdf": 
+		console.log("Consultando cursos...")
+		for (let cursoId of cursosIds) {
+			let curso = (await axiosInstance.get(`/api/courses/cursos/${cursoId}`)).data
+			cursosData.push({
+				"Curso": curso.nombre_curso,
+				"Tipo": curso.tipo_oferta,
+				"Estado": curso.estado,
+				"Ficha": curso.ficha,
+				"Inicio": new Date(curso.fecha_inicio).toLocaleDateString("es-CO"),
+				"Fin": new Date(curso.fecha_fin).toLocaleDateString("es-CO"),
+				"Duración en días": curso.duracion_dias ?? "Sin determinar",
+				"Lugar de formación": curso.lugar_formacion ?? "Sin especificar",
+				"Instructor": curso.Instructor ? `${curso.Instructor.nombres} ${curso.Instructor.apellidos}` : "Pendiente",
+				"Cantidad de aprendices": curso.cupos_usados
+			})
+		}
+
+		console.log("Consultando empleados...")
+		const empleados = (await axiosInstance.get(`/api/users/admin/empleados?limit=99999`)).data.empleados
+		empleadosData = empleados.map((e) => ({
+			"Nombre": `${e.nombres} ${e.apellidos}`,
+			"Documento": e.documento,
+			"Numero teléfonico": e.celular,
+			"Email": e.email,
+			"Estado": e.estado,
+			"Cursos": e.cursos.join("\n"),
+			"Empresa": e.Empresa.nombre_empresa
+		}))
+
+		let workBook = xlsx.utils.book_new()
+		xlsx.utils.book_append_sheet(workBook, xlsx.utils.json_to_sheet(cursosData), "Cursos")
+		xlsx.utils.book_append_sheet(workBook, xlsx.utils.json_to_sheet(empleadosData), "Empleados")
+		xlsx.writeFile(workBook, "reporte.xlsx", { compression: true })
+		setGenerating(false)
+	}
+
+	const generarReporte = async () => {
+		try {
+			if (reportType === "pdf") {
+				if (!pdfContent.current)
+					return
 				const worker = html2pdf().set({
 					margin: 10,
 					filename: "reporte_cursos.pdf",
@@ -199,12 +242,15 @@ export default function ReporteEstadisticas() {
 				setGenerating(false)
 				setDoneGenerating(true)
 				setReportContent(await worker.output("bloburl"))
-				break
-			case "excel":
-				break
+			}
+		} catch (err) {
+			console.log(err)
+			alert("Ocurrió un error al generar el reporte")
+			setDoneGenerating(false)
+			setGenerating(false)
 		}
 	};
- 
+
 	// Contador de filtros activos
 	const filtrosActivos = () => {
 		let count = 0;
@@ -448,12 +494,14 @@ export default function ReporteEstadisticas() {
 							}}
 							onClick={() => {
 								setGenerating(true)
+								if (reportType === "excel")
+									generarExcel()
 							}}
 							disabled={generating}
 						>
 							{generating ? "Generando..." : "Generar reporte"}
 						</button>
-						{generating && (
+						{(generating  && reportType === "pdf") && (
 							<FormatCourse
 								contentKey={pdfContent}
 								cursos={(cursosFiltrados.length > 0 ? cursosFiltrados : datosCurso).map((c) => c.id)}

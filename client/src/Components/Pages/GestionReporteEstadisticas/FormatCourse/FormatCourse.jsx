@@ -14,21 +14,18 @@ export const FormatCourse = ({ contentKey, cursos, done }) => {
 		setCursosData(cursosList)
 		const eResp = await axiosInstance.get(`/api/users/admin/empleados?limit=99999`)
 		setEmployeeData(eResp.data.empleados)
+		setTimeout(() => done(), 100)
 	}
 
 	useEffect(() => {
-		/*const timer = setTimeout(() => {
-			done()
-		}, 1000)
-		return () => clearTimeout(timer)*/
-
 		loadData()
 	}, [])
 
 	const tdStyle = {
 		color: "#000",
 		border: "1px solid",
-		fontSize: "10px"
+		fontSize: "10px",
+		padding: "5px"
 	}
 
 	return (
@@ -144,7 +141,6 @@ export const FormatCourse = ({ contentKey, cursos, done }) => {
 				</thead>
 				<tbody>
 					{employeeData.map((e) => {
-						console.log(e)
 						return (
 							<tr>
 								<td
@@ -162,7 +158,21 @@ export const FormatCourse = ({ contentKey, cursos, done }) => {
 								<td
 									style={tdStyle}
 								>{e.estado}</td>
-								
+								<td
+									style={tdStyle}
+								>{e.cursos.map((c) => 
+									<>
+										<span 
+											style={{
+												color: "#000"
+											}}
+										>{c}</span>
+										<br/>
+									</>
+								)}</td>
+								<td
+									style={tdStyle}
+								>{e.Empresa.nombre_empresa}</td>
 							</tr>
 						)
 					})}

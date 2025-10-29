@@ -2306,7 +2306,7 @@ const getAllEmpleadosForAdmin = async (req, res) => {
 		let listaEmpleados = []
 
 		for (let empleado of empleados) {
-			/*console.log(
+			const cursos =
 				(await InscripcionCurso.findAll({
 					where: {
 						aprendiz_ID: empleado.ID
@@ -2317,9 +2317,11 @@ const getAllEmpleadosForAdmin = async (req, res) => {
 							attributes: ["nombre_curso"]
 						}
 					]
-				})).map((c) => c.dataValues)
-			)*/
-			listaEmpleados.push(empleado)
+				})).map((c) => c.dataValues.Curso.dataValues.nombre_curso)
+			listaEmpleados.push({
+				...empleado.dataValues,
+				cursos
+			})
 		}
 
 		res.status(200).json({

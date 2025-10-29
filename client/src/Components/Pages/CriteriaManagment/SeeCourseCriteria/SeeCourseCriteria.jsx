@@ -8,6 +8,8 @@ import { GoBackArrow } from "../../../UI/GoBackArrow/GoBackArrow"
 import { PageMover } from "../../../UI/PageMover/PageMover"
 import axiosInstance from "../../../../config/axiosInstance"
 import { generarExcelCriterios } from "../../../../utils/Reports/Criterios"
+import { ReportCriteria } from "./ReportCriteria/ReportCriteria"
+import html2pdf from "html2pdf.js"
 
 export const SeeAllCourseCriteria = () => {
 	const { id } = useParams()
@@ -214,6 +216,29 @@ export const SeeAllCourseCriteria = () => {
 		}
 	}, [page])
 
+	const generarReporte = async () => {
+		try {
+			if (reportType === "pdf") {
+				if (!pdfContent.current)
+					return
+				const worker = html2pdf().set({
+					margin: 10,
+					filename: "reporte_cursos.pdf",
+					html2canvas: { scale: 2 },
+					jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+				}).from(pdfContent.current)
+				setGenerating(false)
+				setDoneGenerating(true)
+				setReportContent(await worker.output("bloburl"))
+			}
+		} catch (error) {
+			console.log(error)
+			alert("Ocurrió un error al generar el reporte")
+			setDoneGenerating(false)
+			setGenerating(false)
+		}
+	}
+
 	return (
 		<>
 			<Header/>
@@ -403,15 +428,15 @@ export const SeeAllCourseCriteria = () => {
 										style={{
 											marginTop: "20px",
 										}}
-										onClick={() => generarPdf()}
+										onClick={() => setGenerating(true)}
 									>
 										Generar reporte
 									</button>
 									{generating &&
-										<ReportCertification
+										<ReportCriteria
 											contentKey={pdfContent}
 											curso={curso}
-											aprendices={aprentices}
+											criterios={criteria}
 											done={() => {
 												generarReporte()
 											}}

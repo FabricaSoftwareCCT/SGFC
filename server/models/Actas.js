@@ -33,6 +33,10 @@ class Actas extends Model {
           type: DataTypes.ENUM('Solicitud', 'Concertacion', 'Lugar_formacion', 'Matricula'),
           allowNull: false,
         },
+        observacion: {
+          type: DataTypes.TEXT,
+          allowNull: true
+        }
       },
       {
         sequelize,

@@ -10,7 +10,7 @@
     left: 50%;
     width: 100%;
     height: 100%;
-    background: rgb(0, 0, 0);
+    background: rgba(0, 0, 0, 0.579);
     display: none;
     justify-content: center;
     align-items: center;
@@ -259,7 +259,8 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
-    max-height: 160px;               /* Evita que el modal crezca demasiado */
+    /* Mostrar máximo 3 items visibles; resto via scroll */
+    max-height: 126px;               /* 3 * 36px item + 2 * 8px gap = 124px aprox */
     overflow-y: auto;                 /* Scroll si hay muchos cursos */
     min-width: 0;  
     width: 100%                   /* Permite que los hijos calculen ellipsis */

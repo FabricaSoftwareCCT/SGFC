@@ -9,6 +9,9 @@ import { useEffect, useState } from "react";
 import { PageMover } from "../../../UI/PageMover/PageMover";
 import axiosInstance from "../../../../config/axiosInstance";
 import { generarExcel } from "../../../../utils/Reports/Criterios";
+import html2pdf from "html2pdf.js"
+import { useRef } from "react";
+import { ReportCertification } from "../ReportCertification.jsx/ReportCertification";
 
 export const SeeCertificationHistorial = () => {
 	const navigate = useNavigate();
@@ -31,6 +34,10 @@ export const SeeCertificationHistorial = () => {
 	const [certificationState, setCertificationState] = useState("");
 	const [certificationDenial, setCertificationDenial] = useState("");
 	const [doneGenerating, setDoneGenerating] = useState(false)
+	const [generating, setGenerating] = useState(false)
+	const [reportContent, setReportContent] = useState(false)
+
+	const pdfContent = useRef()
 
 	const userSession =
 		JSON.parse(localStorage.getItem("userSession")) ||
@@ -131,6 +138,29 @@ export const SeeCertificationHistorial = () => {
 
 	function showCert() {
 		alert("Aún no implementado");
+	}
+
+	const generarReporte = async () => {
+		try {
+			if (reportType === "pdf") {
+				if (!pdfContent.current)
+					return
+				const worker = html2pdf().set({
+					margin: 10,
+					filename: "reporte_cursos.pdf",
+					html2canvas: { scale: 2 },
+					jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+				}).from(pdfContent.current)
+				setGenerating(false)
+				setDoneGenerating(true)
+				setReportContent(await worker.output("bloburl"))
+			}
+		} catch (error) {
+			console.log(error)
+			alert("Ocurrió un error al generar el reporte")
+			setDoneGenerating(false)
+			setGenerating(false)
+		}
 	}
 
 	return (
@@ -312,10 +342,21 @@ export const SeeCertificationHistorial = () => {
 										style={{
 											marginTop: "20px",
 										}}
-										onClick={() => {}}
+										onClick={() => setGenerating(true)}
+										disabled={generating}
 									>
 										Generar reporte
 									</button>
+									{generating &&
+										<ReportCertification
+											contentKey={pdfContent}
+											curso={curso}
+											aprendices={aprentices}
+											done={() => {
+												generarReporte()
+											}}
+										/>
+									}
 									{doneGenerating && (
 										<a
 											className="button"

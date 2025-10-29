@@ -7,6 +7,9 @@ import { useNavigate, useParams } from "react-router-dom";
 import axiosInstance from "../../../../config/axiosInstance";
 import { PageMover } from "../../../UI/PageMover/PageMover";
 import { generarExcel } from "../../../../utils/Reports/Criterios";
+import { ReportCertification } from "../ReportCertification.jsx/ReportCertification";
+import { useRef } from "react";
+import html2pdf from "html2pdf.js"
 
 export const SeeCourseCriteria = () => {
 	const navigate = useNavigate();
@@ -17,6 +20,7 @@ export const SeeCourseCriteria = () => {
 	const [showingDownloadOptions, setShowingDownloadingOptions] = useState(false);
 	const [showAprenticeCriteria, setShowAprenticeCriteria] = useState(false);
 	const [doneGenerating, setDoneGenerating] = useState(false)
+	const [generating, setGenerating] = useState(false)
 	const [reportContent, setReportContent] = useState(false)
 
 	const [curso, setCurso] = useState();
@@ -30,8 +34,9 @@ export const SeeCourseCriteria = () => {
 	const [selectedAprentice, setSelectedAprentice] = useState();
 	const [aprenticeCriteria, setAprenticeCriteria] = useState([]);
 	const [certificationStatus, setCertificationStatus] = useState("pendiente");
-	const [certificationDenialReason, setCertificationDenialStatus] =
-		useState("");
+	const [certificationDenialReason, setCertificationDenialStatus] = useState("");
+	
+	const pdfContent = useRef()
 
 	async function fetchCourse() {
 		try {
@@ -180,7 +185,30 @@ export const SeeCourseCriteria = () => {
 	}, [page]);
 
 	const generarPdf = async () => {
+		setGenerating(true)
+	}
 
+	const generarReporte = async () => {
+		try {
+			if (reportType === "pdf") {
+				if (!pdfContent.current)
+					return
+				const worker = html2pdf().set({
+					margin: 10,
+					filename: "reporte_cursos.pdf",
+					html2canvas: { scale: 2 },
+					jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+				}).from(pdfContent.current)
+				setGenerating(false)
+				setDoneGenerating(true)
+				setReportContent(await worker.output("bloburl"))
+			}
+		} catch (error) {
+			console.log(error)
+			alert("Ocurrió un error al generar el reporte")
+			setDoneGenerating(false)
+			setGenerating(false)
+		}
 	}
 
 	return (
@@ -385,6 +413,16 @@ export const SeeCourseCriteria = () => {
 									>
 										Generar reporte
 									</button>
+									{generating &&
+										<ReportCertification
+											contentKey={pdfContent}
+											curso={curso}
+											aprendices={aprentices}
+											done={() => {
+												generarReporte()
+											}}
+										/>
+									}
 									{doneGenerating && (
 										<a
 											className="button"

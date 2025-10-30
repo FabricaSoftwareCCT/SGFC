@@ -11,9 +11,6 @@ describe('Probar el modulo de administrador', ()=>{
             
         //Iniciar sesión
         cy.get(".button_register").click()
-
-        //Ingresar al modulo de cursos
-        cy.get('.courses-menu').get('.courses').first().click({force:true})
     })
 
     it.skip("Ingresar a mis cursos", ()=>{

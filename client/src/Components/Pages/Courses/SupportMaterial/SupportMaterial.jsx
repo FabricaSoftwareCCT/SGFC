@@ -20,6 +20,9 @@ export const SupportMaterial = () => {
 	const [archivos, setArchivos] = useState([]);
 	const [uploadFile, setUploadFile] = useState()
 
+	const userSession = JSON.parse(localStorage.getItem('userSession')) || JSON.parse(sessionStorage.getItem('userSession'))
+	const accountType = userSession?.accountType
+
 	const fetchCursos = async () => {
 		try {
 			const resp = await axiosInstance.get("/api/courses/cursos")
@@ -177,9 +180,9 @@ export const SupportMaterial = () => {
 		}
 	}
 
-	const esAprendiz =tipoUsuario === 'Aprendiz';
-	const puedeSubirArchivos = !esAprendiz;
-	const puedeEliminarArchivos = !esAprendiz;
+	const esAprendiz = accountType === 'Aprendiz';
+	const puedeSubirArchivos = (accountType == "Administrador" || accountType == "Instructor");
+	const puedeEliminarArchivos = (accountType == "Administrador" || accountType == "Instructor");
 
 	useEffect(() => {
 		fetchCursos()
@@ -383,15 +386,16 @@ export const SupportMaterial = () => {
 							</div>
 						)}
 						<br/>
-						<button
-							id="createx"
-							className='upload-btn'
-							style={{
-								flex: "none"
-							}}
-							disabled={subiendoArchivo}
-							onClick={() => crearMaterial()}
-						>Crear material</button>
+						{puedeSubirArchivos && (
+							<button
+								className='upload-btn'
+								style={{
+									flex: "none"
+								}}
+								disabled={subiendoArchivo}
+								onClick={() => crearMaterial()}
+							>Crear material</button>
+						)}
 					</div>
 				</div>
 			)}

@@ -9,7 +9,7 @@ const {
 const { generateToken } = require("../middlewares/generateToken_R");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const { Op, col, json } = require("sequelize");
+const { Op, col, json, Sequelize } = require("sequelize");
 const xlsx = require("xlsx");
 const path = require("path");
 const fs = require("fs");
@@ -27,6 +27,10 @@ const Empresa = require("../models/empresa"); // Importar el modelo Empresa
 const Sena = require("../models/sena"); // Importar el modelo Sena
 const Departamento = require("../models/departamento"); // Importar el modelo Departamento
 const Ciudad = require("../models/ciudad"); // Importar el modelo Ciudad
+const Usuario = require("../models/User");
+const { addHistorial } = require("./historialController");
+const Curso = require("../models/curso");
+const InscripcionCurso = require("../models/InscripcionCurso");
 const fotoDefectPerfil = "../Img/userDefect.png"; // Importar la imagen por defecto
 
 //registrar usuario (empresa o aprendiz)
@@ -574,7 +578,9 @@ const cleanExpiredTokens = async () => {
 // Obtener todos los usuarios
 const getAllUsers = async (req, res) => {
 	try {
-		const users = await User.findAll({
+		const { page, name, doc } = req.query
+
+		let conditions = {
 			attributes: {
 				exclude: [
 					"password",
@@ -582,10 +588,44 @@ const getAllUsers = async (req, res) => {
 					"resetPasswordToken",
 					"resetPasswordExpires",
 				],
-			}, // para no enviar datos sensibles
-		});
+			},
+		}
 
-		res.status(200).json(users);
+		if (page) {
+			conditions = {
+				...conditions,
+				offset: parseInt(page) * 10,
+				limit: 10
+			}
+		}
+
+		if (name) {
+			conditions = {
+				...conditions,
+				where: Sequelize.where(
+					Sequelize.fn('CONCAT', Sequelize.col('nombres'), ' ', Sequelize.col('apellidos')),
+					{ [Op.like]: `%${name}%` }
+				),
+			}
+		}
+
+		if (doc) {
+			conditions = {
+				...conditions,
+				where: {
+					documento: {
+						[Op.like]: `%${doc}%`
+					}
+				},
+			}
+		}
+
+		const users = await User.findAndCountAll(conditions);
+
+		res.status(200).json({
+			total: users.count,
+			usuarios: users.rows
+		});
 	} catch (error) {
 		console.error("Error al obtener los usuarios:", error);
 		res.status(500).json({ message: "Error al obtener los usuarios" });
@@ -2263,9 +2303,30 @@ const getAllEmpleadosForAdmin = async (req, res) => {
 
 		const totalPages = Math.ceil(count / limit);
 
+		let listaEmpleados = []
+
+		for (let empleado of empleados) {
+			const cursos =
+				(await InscripcionCurso.findAll({
+					where: {
+						aprendiz_ID: empleado.ID
+					},
+					include: [
+						{
+							model: Curso,
+							attributes: ["nombre_curso"]
+						}
+					]
+				})).map((c) => c.dataValues.Curso.dataValues.nombre_curso)
+			listaEmpleados.push({
+				...empleado.dataValues,
+				cursos
+			})
+		}
+
 		res.status(200).json({
 			success: true,
-			empleados,
+			empleados: listaEmpleados,// TODO,
 			pagination: {
 				currentPage: parseInt(page),
 				totalPages,
@@ -2664,11 +2725,45 @@ const createEmpresa = async (req, res) => {
         }
 
         res.status(500).json({ 
-            message: 'Error al crear la empresa',
+            message: 'Error interno al crear la empresa',
             error: error.message 
         });
       }
 };
+
+const changeRole = async (req, res) => {
+	try {
+		const { id } = req.params
+		const { role } = req.body
+		const adminId = req.user.id
+
+		const user = await Usuario.findByPk(id)
+
+		if (!user) {
+			return res.status(200).json({
+				message: "El usuario no existe"
+			})
+		}
+
+		user.update({
+			accountType: role
+		})
+
+		addHistorial(adminId, {
+			usuario: id
+		}, `El administrador [nombre] ([id]) ha cambiado el rol de "[usuario]" ([usuario_id]) a ${role}`)
+
+		res.status(200).json({
+			message: "Se ha actualizado el usuario con exito"
+		})
+	} catch (error) {
+		console.log(error)
+		res.status(500).json({
+			message: "Error interno al cambiar el rol del usuario",
+			error: error.message
+		})		
+	}
+}
 
 module.exports = {
 	subirDocumentoIdentidad,
@@ -2701,5 +2796,6 @@ module.exports = {
 	getAllEmpleadosForAdmin,
 	getAllEmpresasForAdmin,
 	createEmpleadoForAdmin,
-    createEmpresa
+    createEmpresa,
+	changeRole
 };

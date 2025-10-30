@@ -309,7 +309,6 @@ export const GestionsActas = () => {
 					{/* Mensaje informativo para no administradores */}
 					{!esAdministrador() && (
 						<>
-							{/* // TODO */}
 							<div style={{
 								textAlign: "center",
 								padding: "1rem",
@@ -320,6 +319,12 @@ export const GestionsActas = () => {
 							}}>
 								Solo los administradores pueden cambiar el estado del acta
 							</div>
+							{acta.observacion && (
+								<>
+									<b>Observación</b>
+									<p>{acta.observacion}</p>
+								</>
+							)}
 						</>
 					)}
 				</div>

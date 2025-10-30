@@ -167,9 +167,10 @@ export const ManageManager = ({ data, isAdmin, onClose, update }) => {
 					<p>
 						<strong>Estado:</strong>
 						{isEditing ?
-							<div className="status-buttons">
+							<div id="valor1" className="status-buttons">
 								{["Activo", "Inactivo"].map((estado) => (
 									<button
+										id={estado}
 										key={estado}
 										type="button"
 										className={`status ${manager.estado === estado.toLowerCase() ? "active" : ""}`}

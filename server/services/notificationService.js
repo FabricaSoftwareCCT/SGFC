@@ -1,4 +1,4 @@
-const { sendEmail, sendProfileUpdateEmail } = require('./emailService');
+const { sendEmail, sendProfileUpdateEmail } = require("./emailService");
 const User = require("../models/User");
 const Curso = require("../models/curso");
 const Actas = require("../models/Actas");
@@ -32,19 +32,19 @@ const sendNotification = async (
 			throw new Error("Usuario destinatario no encontrado");
 		}
 
-        // ✅ Crear el registro con TODOS los campos requeridos
-        const notification = await dbInstance.Notificacion.create({
-            remitente_ID: remitenteId,        // ✅ Campo requerido
-            destinatario_ID: destinatarioId,  // ✅ Campo requerido
-            usuario_ID: destinatarioId,       // Si también necesitas este campo
-            tipo: type,
-            titulo: title,
-            mensaje: message,
-            sesion_ID: sessionId,
-            curso_ID: courseId,
-            estado: 'pendiente',
+		// ✅ Crear el registro con TODOS los campos requeridos
+		const notification = await dbInstance.Notificacion.create({
+			remitente_ID: remitenteId, // ✅ Campo requerido
+			destinatario_ID: destinatarioId, // ✅ Campo requerido
+			usuario_ID: destinatarioId, // Si también necesitas este campo
+			tipo: type,
+			titulo: title,
+			mensaje: message,
+			sesion_ID: sessionId,
+			curso_ID: courseId,
+			estado: "pendiente",
             fecha_envio: new Date()
-        });
+		});
 
 		// Enviar el email
 		try {
@@ -323,28 +323,27 @@ const createNotificacionMaterialApoyo = async (remitente_ID, emails, curso) => {
             <br>
             Saludos cordiales, SGFC
         `;
-            const notificacion = await dbInstance.Notificacion.create({
-                remitente_ID: remitente_ID,
-                destinatario_ID: user.ID,
-                tipo: 'nuevo_curso',
-                titulo: title,
-                mensaje: message,
-                fecha_envio: new Date(),
-                estado: 'pendiente'
-            });
-            await notificacion.save();
-        })
-        await Promise.all(userID)
-        return { success: true, message: 'Notificaciones creadas en la base de datos' };
-    } catch (error){
-        return console.log("error al cargar las notificaciones", error)
-    }
-}
+			const notificacion = await dbInstance.Notificacion.create({
+				remitente_ID: remitente_ID,
+				destinatario_ID: user.ID,
+				tipo: "nuevo_curso",
+				titulo: title,
+				mensaje: message,
+				fecha_envio: new Date(),
+				estado: "pendiente",
+			});
+			await notificacion.save();
+		});
+		await Promise.all(userID);
+		return {
+			success: true,
+			message: "Notificaciones creadas en la base de datos",
+		};
+	} catch (error) {
+		return console.log("error al cargar las notificaciones", error);
+	}
+};
 
-
-/**
- * Envía notificación de actualización de perfil con correo personalizado
- */
 const sendProfileUpdateNotification = async (remitenteId, destinatarioId, userData, changesList, photoChanged = false) => {
     try {
         // Obtener el usuario destinatario
@@ -402,13 +401,14 @@ const sendProfileUpdateNotification = async (remitenteId, destinatarioId, userDa
     }
 };
 
+
 module.exports = {
-    setDb,
-    sendNotification,
-    sendAbsenceNotifications,
-    sendCourseRequestStatusEmail,
-    sendNotifiCursoApi,
-    getNotificacionesEstado,
-    createNotificacionMaterialApoyo,
+	setDb,
+	sendNotification,
+	sendAbsenceNotifications,
+	sendCourseRequestStatusEmail,
+	sendNotifiCursoApi,
+	getNotificacionesEstado,
+	createNotificacionMaterialApoyo,
     sendProfileUpdateNotification
-}; 
+};

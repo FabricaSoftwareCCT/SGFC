@@ -203,20 +203,21 @@ const sendRequestCourseEmailAp = async (req, res) => {
 };
 
 // Función para enviar el correo de verificación
-const sendVerificationEmail = async (email, token, newPassword, accountType, masive) => {
+const sendVerificationEmail = async (email, token, accountType, newPassword, masive) => {
   const enlaceVerificacion = `http://localhost:5173/verificarCorreo?token=${token}`;
   const fs = require('fs');
   const path = require('path');
   const logoPath = path.join(__dirname, '../Img/sena.png');
 
 	// ⭐⭐ NUEVO: Mensaje específico para Aprendiz ⭐⭐
-	const mensajeEspecifico = accountType === "Aprendiz"
+	const mensajeEspecifico =
+		accountType === "Aprendiz"
 			? `<p style="margin-bottom:.9375rem; background:#fff9e6; padding:10px; border-radius:5px; border-left:4px solid #F7941E;">
          <strong>💡 Para Aprendices:</strong> Después de verificar tu correo, dirígete a tu perfil para completar tu información personal y comenzar a usar la plataforma.
        </p>`
-    : '';
+			: "";
 
-	const messagePassword = newPassword != null ?
+    const messagePassword = newPassword != null ?
     `<div style="display: flex; flex-direction: column; gap: 5px; margin-bottom:.9375rem; justify-content:center; align-items:center;">
       <p>Tu contraseña temporal es:</p>
         <strong style="font-size: 15px">${newPassword}</strong>
@@ -228,18 +229,18 @@ const sendVerificationEmail = async (email, token, newPassword, accountType, mas
        </p>`
     : '';
 
-  const mailOptions = {
-    from: `"SGFC" <${process.env.EMAIL_USER}>`,
-    to: email,
-    subject: "Verificación de correo electrónico",
-    attachments: [
-      {
-        filename: 'logo.png',
-        path: logoPath,
-        cid: 'logo'
-      }
-    ],
-    html: `
+	const mailOptions = {
+		from: `"SGFC" <${process.env.EMAIL_USER}>`,
+		to: email,
+		subject: "Verificación de correo electrónico",
+		attachments: [
+			{
+				filename: "logo.png",
+				path: logoPath,
+				cid: "logo",
+			},
+		],
+		html: `
 <table width="100%" bgcolor="#f4f4f4" cellpadding="0" cellspacing="0" style="font-family: Arial, sans-serif; margin:0; padding:0;">
   <tr>
     <td align="center">
@@ -1006,20 +1007,19 @@ const sendCreateMaterialApoyo = (emails, nombre_curso, material_link) => {
     </td>
   </tr>
 </table>`,
-  }
-  return new Promise((resolve, reject) => {
-    transporter.sendMail(mailOptions, (err, info) => {
-      if (err) {
-        console.error("Error al enviar el correo:", err);
-        reject(err);
-      } else {
-        console.log("Correo enviado:", info.response);
-        resolve(info);
-        console.log('se ejecuto la funcion')
-      }
-    })
-  })
-}
+	};
+	return new Promise((resolve, reject) => {
+		transporter.sendMail(mailOptions, (err, info) => {
+			if (err) {
+				console.error("Error al enviar el correo:", err);
+				reject(err);
+			} else {
+				console.log("Correo enviado:", info.response);
+				resolve(info);
+			}
+		});
+	});
+};
 // Función para enviar correo de actualización de perfil
 const sendProfileUpdateEmail = async (email, userData, changesList, photoChanged = false) => {
   const fs = require('fs');
@@ -1123,18 +1123,21 @@ const sendProfileUpdateEmail = async (email, userData, changesList, photoChanged
 };
 
 module.exports = {
-  sendEmail,
-  sendVerificationEmail,
-  sendPasswordResetEmail,
-  sendPasswordChangeConfirmationEmail,
-  sendCourseCreatedEmail,
-  sendCursoUpdatedNotification,
-  sendStudentsInstructorAssignedEmail,
-  sendInstructorAssignedEmail,
-  sendRequestCourseEmail,
-  sendConcertacionActaEmail,
-  sendTrainingPlaceActaEmail,
-  sendRequestCourseEmailAp,
-  sendCreateMaterialApoyo,
+	sendEmail,
+	sendVerificationEmail,
+	sendPasswordResetEmail,
+	sendPasswordChangeConfirmationEmail,
+	sendCourseCreatedEmail,
+	sendCursoUpdatedNotification,
+	sendStudentsInstructorAssignedEmail,
+	sendInstructorAssignedEmail,
+	sendRequestCourseEmail,
+	sendConcertacionActaEmail,
+	sendTrainingPlaceActaEmail,
+	sendRequestCourseEmailAp,
+	sendCreateMaterialApoyo,
+	sendCursoUpdatedByManagerNotification,
+	emailTemplate,
+	logoAttachment,
   sendProfileUpdateEmail
 };

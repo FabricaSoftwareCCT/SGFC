@@ -654,39 +654,43 @@ export const SeeMyProfile = () => {
 									</div>
 								</div>
 
-              {/* Estado */}
-              <div className="status-company">
-                <div
-                  className={`color_status ${
-                    perfil?.estado === "activo"
-                      ? "status-green"
-                      : perfil?.estado === "inactivo"
-                      ? "status-red"
-                      : ""
-                  }`}
-                ></div>
-                <h3>Estado Manager</h3>
-                {editMode ? (
-                  <select
-                    name="estado"
-                    className="input_updateStatus"
-                    value={perfil?.estado || ""}
-                    onChange={handleInputChange}
-                  >
-                    <option value="activo">Activo</option>
-                    <option value="inactivo">Inactivo</option>
-                  </select>
-                ) : (
-                  <h4>
-                    {perfil?.estado === "activo"
-                      ? "Activo"
-                      : perfil?.estado === "inactivo"
-                      ? "Inactivo"
-                      : "-"}
-                  </h4>
-                )}
-              </div>
-            </div>
+								{/* Estado */}
+								<div className="status-company">
+									<div
+										className={`color_status ${
+											perfil?.estado === "activo"
+												? "status-green"
+												: perfil?.estado === "inactivo"
+												? "status-red"
+												: ""
+										}`}
+									></div>
+									<h3>Estado Manager</h3>
+									{editMode ? (
+										<select
+											name="estado"
+											className="input_updateStatus"
+											value={perfil?.estado || ""}
+											onChange={handleInputChange}
+										>
+											<option value="activo">
+												Activo
+											</option>
+											<option value="inactivo">
+												Inactivo
+											</option>
+										</select>
+									) : (
+										<h4>
+											{perfil?.estado === "activo"
+												? "Activo"
+												: perfil?.estado === "inactivo"
+												? "Inactivo"
+												: "-"}
+										</h4>
+									)}
+								</div>
+							</div>
 
 							<div className="container_data">
 								<div className="data_company">

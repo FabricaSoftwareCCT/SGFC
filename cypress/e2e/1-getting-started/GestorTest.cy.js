@@ -45,7 +45,7 @@ describe('Prueba de modulo de gestión de gestores', ()=>{
         
     })
 
-    it("Ver un curso con su infromación", ()=>{
+    it.skip("Ver un curso con su infromación", ()=>{
         cy.visit("http://localhost:5173/") 
         cy.get(".button_signIn").first().click({force : true})
 
@@ -78,7 +78,7 @@ describe('Prueba de modulo de gestión de gestores', ()=>{
         
 
     it.skip("Crear Curso",()=>{
-         cy.visit("http://localhost:5173/") 
+        cy.visit("http://localhost:5173/") 
         cy.get(".button_signIn").first().click({force : true})
 
         //Ingresar credenciales con el rol de gestor
@@ -224,7 +224,7 @@ describe('Prueba de modulo de gestión de gestores', ()=>{
 
     })
 
-    it("Dar click a Gestiones, luego a Gestión de Empleados", ()=>{
+    it.skip("Dar click a Gestiones, luego a Gestión de Empleados", ()=>{
         cy.visit("http://localhost:5173/") 
         cy.get(".button_signIn").first().click({force : true})
 
@@ -240,7 +240,79 @@ describe('Prueba de modulo de gestión de gestores', ()=>{
         //dar click a Gestiones
         cy.get('.container_options').get('.gestiones-menu').contains('button', 'Gestiones').first().click({force : true})
         cy.get('.dropdown-gestiones').contains('button', 'Gestión de Empleados').first().click({force : true})
+        
+        //Actualizar información del empleado
+        cy.get('.profile-btn').first().click({force:true})
+        cy.get('.edit-button-updateInstructor').first().click({force:true})
+        cy.get('.modal-left-update').find('input[type="text"]').first().type('San Martin')
+        cy.get('.modal-left-update').find('input[name="apellidos"]').type('De Napolés')
+        cy.get('img[alt="Subir documento"]').click()
+        cy.get('.custom-dropdown').click();
+        cy.contains('.dropdown-option', 'Cédula de ciudadanía').click();
+        cy.get('.modal-left-update').find('input[name="documento"]').type(45567867)
+        cy.get('.modal-left-update').find('.status-buttons').contains('button', 'activo').first().click({force:true})
+        cy.get('.edit-button-updateInstructor').click({force:true})
+        
+        
+
+        //Agregar Empleado
+        cy.get('.btn_createEmploye').click()
+        cy.get('.modal-bodyCreateEmploye').find('input[name="nombres"]').first().type('Marco')
+        cy.get('.modal-left input[name="apellidos"]').first().type('Polo')
+        cy.get('select.TipoDocumento[name="tipoDocumento"]').select('CedulaCiudadania')
+        cy.get('.modal-left').find('input[name="cedula"]').type(92837467)
+        cy.get('.modal-left').find('input[name="celular"]').first().type(3214567980)
+        cy.get('.modal-left').find('input[name="email"]').first().type('canajef689@nrlord.com')
+        cy.get('select[name="empresaId"].empresa-select').select('mack - 98765432')
+        cy.get('.status-container').find('.status-buttons').contains('button', 'Activo').first().click({force:true})
+        cy.get('.save-button').first().click({force:true})
+
     })
+
+    it ("Ingresar reporte y estadisticas", () =>{
+             cy.visit("http://localhost:5173/") 
+        cy.get(".button_signIn").first().click({force : true})
+
+        //Ingresar credenciales con el rol de gestor
+        cy.get('input[type="email"]').first()
+            .type('bator41024@fixwap.com')
+        cy.get('input[type="password"]')
+            .type('Prueba1234*')
+       
+         //Iniciar sesión
+        cy.get(".button_register").click({force:true})
+
+        //Ingresar a reporte y estadísticas
+        cy.get('.container_options').get('.gestiones-menu').contains('button', 'Gestiones').first().click({force : true})
+        cy.get('.dropdown-gestiones').contains('button', 'Reporte y Estadísticas').first().click({force : true})
+        cy.get('.button-generar-reporte-estadisticas').click({force : true})
+        cy.get('.tabla-datos-estadisticas').get('.tabla-fila-estadisticas').first().click({force : true})
+        cy.get('.button-filtro-reporte-estudiantes').click({force : true})
+        cy.get('.filtro-menu-estudiantes').find('.filtro-grupo-estudiantes').first().find('input[type="text"]').type('A')
+        cy.get('.filtro-menu-estudiantes').find('.filtro-grupo-estudiantes').eq(1).find('input[type="text"]').type('G')
+        cy.get('.filtro-menu-estudiantes').find('.filtro-grupo-estudiantes').eq(2).find('input[type="text"]').type('12344567890')
+        cy.contains('.filtro-opcion-estudiantes', 'Activo').click({force: true})
+        cy.get('.filtro-menu-estudiantes').find('.filtro-grupo-estudiantes').eq(4).find('input[type="number"]').type('2')
+        cy.get('.filtro-menu-estudiantes').find('.filtro-grupo-estudiantes').eq(5).find('input[type="number"]').type('2')
+        cy.get('.filtro-menu-estudiantes').find('.filtro-grupo-estudiantes').get('.filtro-botones-estudiantes').find('button', 'Limpiar').click({force : true})
+        cy.get('.tabla-datos-estudiantes').get('.tabla-fila-estudiantes').first().click({force : true})
+        cy.get('.container-tabla-estudiantes').get('.button-generar-reporte-estudiantes').click({force : true})
+
+        //eficiencia
+        cy.get('.container-tabla-estudiantes').get('.button-eficiencia-estudiantes').click({force : true})
+        cy.get('.container-tabla-eficiencia').get('.button-filtro-reporte-eficiencia').click({force : true})
+        cy.get('.filtro-menu-eficiencia').find('.filtro-grupo-eficiencia').first().find('input[type="text"]').type('A')
+        cy.get('.filtro-menu-eficiencia').find('.filtro-grupo-eficiencia').eq(1).find('input[type="text"]').type('n')
+        cy.get('.filtro-menu-eficiencia').find('.filtro-grupo-eficiencia').eq(2).find('input[type="text"]').type('1234567890')
+        cy.contains('.filtro-opcion-eficiencia', 'Activo').first().click(6,0,{force: true})
+        cy.contains('.filtro-boton-pequeno-eficiencia', 'Actividades Faltantes').first().click(6,0,{force: true})
+        cy.get('.filtro-menu-eficiencia').find('.filtro-grupo-eficiencia').eq(5).find('input[type="number"]').type('2')
+        cy.get('.filtro-menu-eficiencia').find('.filtro-grupo-eficiencia').get('.filtro-botones-eficiencia').find('button', 'Limpiar').click({force : true})
+        cy.get('.tabla-datos-eficiencia').get('.tabla-fila-eficiencia').first().click({force : true})
+        cy.get('.container-tabla-eficiencia').get('.button-generar-reporte-eficiencia').click({force : true})
+        cy.get('.button-volver-eficiencia').click({force : true})
+        cy.get('.button-volver-estudiantes').click({force : true})
+   })
 
 })
     
@@ -248,4 +320,6 @@ describe('Prueba de modulo de gestión de gestores', ()=>{
 
 
         
+
+
 

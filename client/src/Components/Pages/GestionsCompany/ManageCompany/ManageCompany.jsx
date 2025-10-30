@@ -238,8 +238,8 @@ export const ManageCompany = ({ empresa, onClose }) => {
   };
 
   return (
-    <div id="modal-overlayUpdateEmpresa" style={{ display: "flex" }}>
-      <form className="modal-bodyUpdateEmpresa" onSubmit={handleSubmit}>
+		<div id="modal-overlayUpdateInstructor" style={{ display: "flex" }}>
+      <form className="modal-bodyUpdateInstructor" onSubmit={handleSubmit}>
         <div className="modal-left-update">
           <p>
             <strong>Nombre:</strong>{" "}

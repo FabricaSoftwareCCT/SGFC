@@ -11,44 +11,44 @@ import { EditableList } from '../../UI/EditableList/EditableList';
 import { useNavigate } from 'react-router-dom';
 
 export const TrainingPlaceProceeding = () => {
-    const navigate = useNavigate();
-    const { nombreCurso: nombreCursoParam } = useParams();
+	const navigate = useNavigate();
+	const { nombreCurso: nombreCursoParam } = useParams();
 
-    const [empresa, setEmpresa] = useState(null);
-    const [manager, setManager] = useState(null);
-    const [usuarioLogueado, setUsuarioLogueado] = useState(null); // Para almacenar info completa del usuario
+	const [empresa, setEmpresa] = useState(null);
+	const [manager, setManager] = useState(null);
+	const [usuarioLogueado, setUsuarioLogueado] = useState(null); // Para almacenar info completa del usuario
 
-    // Inicializa el nombre del curso con el parámetro de la URL si existe
-    const [nombreCurso, setNombreCurso] = useState(
-        nombreCursoParam ? decodeURIComponent(nombreCursoParam) : ''
-    );
-    const [numEmpleados, setNumEmpleados] = useState('');
-    const [fechaInicio, setFechaInicio] = useState('');
-    const [fechaFin, setFechaFin] = useState('');
-    const [isEditing, setIsEditing] = useState(false);
+	// Inicializa el nombre del curso con el parámetro de la URL si existe
+	const [nombreCurso, setNombreCurso] = useState(
+		nombreCursoParam ? decodeURIComponent(nombreCursoParam) : ''
+	);
+	const [numEmpleados, setNumEmpleados] = useState('');
+	const [fechaInicio, setFechaInicio] = useState('');
+	const [fechaFin, setFechaFin] = useState('');
+	const [isEditing, setIsEditing] = useState(false);
 
-    // Validación de fechas
-    const [dateError, setDateError] = useState('');
-    const [isExporting, setIsExporting] = useState(false);
-    const [exportValues, setExportValues] = useState({
-        nombreCurso: '',
-        numEmpleados: '',
-        fechaInicio: '',
-        fechaFin: ''
-    });
+	// Validación de fechas
+	const [dateError, setDateError] = useState('');
+	const [isExporting, setIsExporting] = useState(false);
+	const [exportValues, setExportValues] = useState({
+		nombreCurso: '',
+		numEmpleados: '',
+		fechaInicio: '',
+		fechaFin: ''
+	});
 
-    const [observaciones, setObservaciones] = useState("");
+	const [observaciones, setObservaciones] = useState("");
 
-    const pdfRef = useRef();
+	const pdfRef = useRef();
 
-    const [showSignatureModal, setShowSignatureModal] = useState(false);
-    const [firmaDigital, setFirmaDigital] = useState("");
-    const [firmaArchivo, setFirmaArchivo] = useState(null);
-    const [firmaArchivoUrl, setFirmaArchivoUrl] = useState(""); // Nuevo estado
-    const [instructores, setInstructores] = useState([]);
-    const [instructoresAsignados, setInstructoresAsignados] = useState([]);
-    const [participantes, setParticipantes] = useState([]);
-    const [generatedPdfName, setGeneratedPdfName] = useState('');
+	const [showSignatureModal, setShowSignatureModal] = useState(false);
+	const [firmaDigital, setFirmaDigital] = useState("");
+	const [firmaArchivo, setFirmaArchivo] = useState(null);
+	const [firmaArchivoUrl, setFirmaArchivoUrl] = useState(""); // Nuevo estado
+	const [instructores, setInstructores] = useState([]);
+	const [instructoresAsignados, setInstructoresAsignados] = useState([]);
+	const [participantes, setParticipantes] = useState([]);
+	const [generatedPdfName, setGeneratedPdfName] = useState('');
 
     //  Estados para manejo individual de firmas
     const [firmasParticipantes, setFirmasParticipantes] = useState({});
@@ -81,176 +81,184 @@ export const TrainingPlaceProceeding = () => {
             return nuevasFirmas;
         });
     };
+	const [cargo, setCargo] = useState("Inspector o Gestor")
 
-    // Función para manejar cuando se sube un archivo de firma
-    const handleUploadSignature = (file) => {
-        setFirmaArchivo(file);
-        // Crear URL para mostrar la imagen subida
-        const fileUrl = URL.createObjectURL(file);
-        setFirmaArchivoUrl(fileUrl);
-    };
+	// Función para manejar cuando se sube un archivo de firma
+	const handleUploadSignature = (file) => {
+		setFirmaArchivo(file);
+		// Crear URL para mostrar la imagen subida
+		const fileUrl = URL.createObjectURL(file);
+		setFirmaArchivoUrl(fileUrl);
+	};
 
-    useEffect(() => {
-        const session = localStorage.getItem("userSession") || sessionStorage.getItem("userSession");
-        if (!session) return;
+	useEffect(() => {
+		const user = JSON.parse(localStorage.getItem("userSession")) || JSON.parse(sessionStorage.getItem("userSession"))
 
-        const user = JSON.parse(session);
-        setUsuarioLogueado(user); // Guardar info completa del usuario
+		setUsuarioLogueado(user); // Guardar info completa del usuario
 
-        axiosInstance.get(`/api/users/profile/${user.id}`)
-            .then(res => {
-                setManager(res.data);
-                setEmpresa(res.data.Empresa);
+		if (user.accountType !== "Instructor" && user.accountType !== "Administrador" && user.accountType !== "Gestor") {
+			navigate("/no-autorizado");
+		}
 
-                // ✅ VERIFICAR TIPO DE CUENTA Y ASIGNAR CORRECTAMENTE
-                if (user.accountType === 'Instructor') {
-                    // Si es instructor, agregarlo a instructores asignados
-                    setInstructoresAsignados([res.data.nombres || user.name || '']);
-                    console.log('✅ Usuario instructor asignado:', res.data.nombres);
-                } else if (user.accountType === 'Administrador' || user.accountType === 'Gestor') {
-                    // Si es administrador o gestor, puede ser inspector
-                    console.log('✅ Usuario como inspector:', res.data.nombres);
-                }
-            })
-            .catch(err => {
-                console.error("Error al obtener datos:", err);
-            });
-    }, []);
+		if (!user) return;
 
-    const formatDate = (dateStr) => {
-        if (!dateStr) return '';
-        const date = new Date(dateStr);
-        return date.toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' });
-    };
+		axiosInstance.get(`/api/users/profile/${user.id}`)
+			.then(res => {
+				setManager(res.data);
+				setEmpresa(res.data.Empresa);
 
-    // Validación de fechas
-    const today = new Date().toISOString().split('T')[0];
+				// ✅ VERIFICAR TIPO DE CUENTA Y ASIGNAR CORRECTAMENTE
+				if (user.accountType === 'Instructor') {
+					// Si es instructor, agregarlo a instructores asignados
+					setInstructoresAsignados([res.data.nombres || user.name || '']);
+					console.log('✅ Usuario instructor asignado:', res.data.nombres);
+				} else if (user.accountType === 'Administrador' || user.accountType === 'Gestor') {
+					// Si es administrador o gestor, puede ser inspector
+					console.log('✅ Usuario como inspector:', res.data.nombres);
+				}
+			})
+			.catch(err => {
+				console.error("Error al obtener datos:", err);
+			});
+	}, []);
 
-    const handleFechaInicioChange = (e) => {
-        const value = e.target.value;
-        setFechaInicio(value);
+	const formatDate = (dateStr) => {
+		if (!dateStr) return '';
+		const date = new Date(dateStr);
+		return date.toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' });
+	};
 
-        if (value < today) {
-            setDateError('La fecha de inicio no puede ser anterior a hoy.');
-        } else if (fechaFin && value > fechaFin) {
-            setDateError('La fecha de inicio no puede ser posterior a la fecha de fin.');
-        } else {
-            setDateError('');
-        }
-    };
+	// Validación de fechas
+	const today = new Date().toISOString().split('T')[0];
 
-    const handleFechaFinChange = (e) => {
-        const value = e.target.value;
-        setFechaFin(value);
+	const handleFechaInicioChange = (e) => {
+		const value = e.target.value;
+		setFechaInicio(value);
 
-        if (fechaInicio && value < fechaInicio) {
-            setDateError('La fecha de fin no puede ser anterior a la fecha de inicio.');
-        } else {
-            setDateError('');
-        }
-    };
+		if (value < today) {
+			setDateError('La fecha de inicio no puede ser anterior a hoy.');
+		} else if (fechaFin && value > fechaFin) {
+			setDateError('La fecha de inicio no puede ser posterior a la fecha de fin.');
+		} else {
+			setDateError('');
+		}
+	};
 
-    const handleDownloadPDF = () => {
-        setExportValues({
-            nombreCurso,
-            numEmpleados,
-            fechaInicio,
-            fechaFin
-        });
-        setIsExporting(true);
-        setTimeout(() => {
-            if (pdfRef.current) {
-                const pdfFileName = 'acta_lugar_formacion.pdf';
-                html2pdf()
-                    .set({
-                        margin: 10,
-                        filename: pdfFileName,
-                        html2canvas: { scale: 2 },
-                        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-                    })
-                    .from(pdfRef.current)
-                    .save()
-                    .then(() => {
-                        setIsExporting(false);
-                        setGeneratedPdfName(pdfFileName);
-                    });
-            } else {
-                setIsExporting(false);
-            }
-        }, 100);
-    };
+	const handleFechaFinChange = (e) => {
+		const value = e.target.value;
+		setFechaFin(value);
 
-    const handleEdit = () => setIsEditing(true);
-    const handleSave = () => setIsEditing(false);
+		if (fechaInicio && value < fechaInicio) {
+			setDateError('La fecha de fin no puede ser anterior a la fecha de inicio.');
+		} else {
+			setDateError('');
+		}
+	};
+
+	const handleDownloadPDF = () => {
+		setExportValues({
+			nombreCurso,
+			numEmpleados,
+			fechaInicio,
+			fechaFin
+		});
+		setIsExporting(true);
+		setTimeout(() => {
+			if (pdfRef.current) {
+				const pdfFileName = 'acta_lugar_formacion.pdf';
+				html2pdf()
+					.set({
+						margin: 10,
+						filename: pdfFileName,
+						html2canvas: { scale: 2 },
+						jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+					})
+					.from(pdfRef.current)
+					.save()
+					.then(() => {
+						setIsExporting(false);
+						setGeneratedPdfName(pdfFileName);
+					});
+			} else {
+				setIsExporting(false);
+			}
+		}, 100);
+	};
+
+	const handleEdit = () => setIsEditing(true);
+	const handleSave = () => setIsEditing(false);
 
     // FUNCIÓN PARA VOLVER A LA PÁGINA ANTERIOR
     const handleGoBack = () => {
         navigate(-1); // Esto lleva al usuario a la página anterior en el historial
     };
 
-    // Enviar el acta de lugar de formación al backend
-    const handleSendProceeding = async () => {
-        try {
-            if (!pdfRef.current) return;
+	// Enviar el acta de lugar de formación al backend
+	const handleSendProceeding = async () => {
+		try {
+			if (!pdfRef.current) return;
 
-            const pdfFileName = 'acta_lugar_formacion.pdf';
-            const opt = {
-                margin: 10,
-                filename: pdfFileName,
-                html2canvas: { scale: 2 },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
+			const pdfFileName = 'acta_lugar_formacion.pdf';
+			const opt = {
+				margin: 10,
+				filename: pdfFileName,
+				html2canvas: { scale: 2 },
+				jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+			};
 
-            const worker = html2pdf().set(opt).from(pdfRef.current);
-            const pdfBlob = await worker.output('blob');
+			const worker = html2pdf().set(opt).from(pdfRef.current);
+			const pdfBlob = await worker.output('blob');
 
-            const formData = new FormData();
-            formData.append('pdf', pdfBlob, pdfFileName);
-            formData.append('empresa', JSON.stringify(empresa));
-            formData.append('manager', JSON.stringify(manager));
-            formData.append('fecha_acta', new Date().toISOString());
+			const formData = new FormData();
+			formData.append('pdf', pdfBlob, pdfFileName);
+			formData.append('empresa', JSON.stringify(empresa));
+			formData.append('manager', JSON.stringify(manager));
+			formData.append('fecha_acta', new Date().toISOString());
 
-            // ✅ Enviar el ID del usuario logueado como instructor
-            if (usuarioLogueado && usuarioLogueado.id) {
-                formData.append('instructor_ID', usuarioLogueado.id);
-                console.log('✅ Enviando instructor_ID:', usuarioLogueado.id);
-            }
+			// ✅ Enviar el ID del usuario logueado como instructor
+			if (usuarioLogueado && usuarioLogueado.id) {
+				formData.append('instructor_ID', usuarioLogueado.id);
+				console.log('✅ Enviando instructor_ID:', usuarioLogueado.id);
+			}
 
-            if (empresa && empresa.ID) {
-                formData.append('empresa_ID', empresa.ID);
-            }
+			if (empresa && empresa.ID) {
+				formData.append('empresa_ID', empresa.ID);
+			}
 
-            const response = await axiosInstance.post('/api/actas/lugar-formacion-acta', formData, {
-                headers: { 'Content-Type': 'multipart/form-data' }
-            });
+			const response = await axiosInstance.post('/api/actas/lugar-formacion-acta', formData, {
+				headers: { 'Content-Type': 'multipart/form-data' }
+			});
 
-            // ✅ Si la respuesta es exitosa, redirigir
-            if (response.status === 200) {
-                setGeneratedPdfName(pdfFileName);
-                alert('¡Acta de lugar de formación enviada correctamente!');
+			// ✅ Si la respuesta es exitosa, redirigir
+			if (response.status === 200) {
+				setGeneratedPdfName(pdfFileName);
+				alert('¡Acta de lugar de formación enviada correctamente!');
 
-                // ✅ REDIRECCIÓN AUTOMÁTICA
-                navigate('/Gestiones/Actas');
-            }
+				// ✅ REDIRECCIÓN AUTOMÁTICA
+				navigate('/Gestiones/Actas');
+			}
 
-        } catch (error) {
-            alert('Error al enviar el acta de lugar de formación.');
-            console.error('❌ Error completo:', error);
-        }
-    };
-    useEffect(() => {
-        // Cleanup function para liberar memory de las URLs creadas
-        return () => {
-            if (firmaArchivoUrl) {
-                URL.revokeObjectURL(firmaArchivoUrl);
-            }
-        };
-    }, [firmaArchivoUrl]);
-    return (
-        <>
-            <Header />
-            <Main>
-                <div className="training-place-proceeding-container">
+		} catch (error) {
+			alert('Error al enviar el acta de lugar de formación.');
+			console.error('❌ Error completo:', error);
+		}
+	};
+	useEffect(() => {
+		// Cleanup function para liberar memory de las URLs creadas
+		return () => {
+			if (firmaArchivoUrl) {
+				URL.revokeObjectURL(firmaArchivoUrl);
+			}
+		};
+	}, [firmaArchivoUrl]);
+
+	console.log(usuarioLogueado)
+
+	return (
+		<>
+			<Header />
+			<Main>
+				<div className="training-place-proceeding-container">
                     <button 
                         className="button-volver" 
                         onClick={handleGoBack}
@@ -258,24 +266,24 @@ export const TrainingPlaceProceeding = () => {
                     >
                         Volver Atrás
                     </button>
-                    <h1>
-                        Acta de <span className="highlight-proceedings">Lugar de Formación</span>
-                    </h1>
-                    <p className="description-proceedings">
-                        Este documento permite a la empresa formalizar la solicitud de un curso ante el SENA. <br />
-                        Escribe el nombre del curso, el número de empleados que lo tomarán y las fechas de inicio y fin del curso.
-                    </p>
+					<h1>
+						Acta de <span className="highlight-proceedings">Lugar de Formación</span>
+					</h1>
+					<p className="description-proceedings">
+						Este documento permite a la empresa formalizar la solicitud de un curso ante el SENA. <br />
+						Escribe el nombre del curso, el número de empleados que lo tomarán y las fechas de inicio y fin del curso.
+					</p>
 
-                    <div className="training-place-proceeding-card">
-                        {!isEditing && (
-                            <img
-                                className="download-icon-proceedings"
-                                src="/src/assets/Icons/IconDescarga.png"
-                                alt="Icono de descarga"
-                                style={{ cursor: "pointer" }}
-                                onClick={handleDownloadPDF}
-                            />
-                        )}
+					<div className="training-place-proceeding-card">
+						{!isEditing && (
+							<img
+								className="download-icon-proceedings"
+								src="/src/assets/Icons/IconDescarga.png"
+								alt="Icono de descarga"
+								style={{ cursor: "pointer" }}
+								onClick={handleDownloadPDF}
+							/>
+						)}
 
                         <div className="training-place-proceeding-letter-content apa-style" ref={pdfRef}>
                             <div className='date-proceeding'>
@@ -333,6 +341,7 @@ export const TrainingPlaceProceeding = () => {
                                 <b>2. Observaciones de la Inspección</b><br />
                                 {isEditing ? (
                                     <textarea
+                                        id="observaciones-inspeccion"
                                         className='training-place-proceeding-input'
                                         value={empresa?.observacionesInspeccion || ''}
                                         onChange={e => setEmpresa({ ...empresa, observacionesInspeccion: e.target.value })}
@@ -346,6 +355,7 @@ export const TrainingPlaceProceeding = () => {
                                 <b>3. Documentos/Imágenes de Respaldo</b><br />
                                 {isEditing ? (
                                     <textarea
+                                        id="documentos-respaldo"
                                         className='training-place-proceeding-input'
                                         value={empresa?.documentosRespaldo || ''}
                                         onChange={e => setEmpresa({ ...empresa, documentosRespaldo: e.target.value })}
@@ -451,37 +461,37 @@ export const TrainingPlaceProceeding = () => {
                             </p>
                         </div>
 
-                    </div>
+					</div>
 
-                    <div className="training-place-proceeding-botones-solicitud">
-                        {isEditing ? (
-                            <button className="training-place-proceeding-submit-button" onClick={handleSave} disabled={!!dateError}>Guardar</button>
-                        ) : (
-                            <button className="training-place-proceeding-submit-button" onClick={handleEdit}>Editar</button>
-                        )}
+					<div className="training-place-proceeding-botones-solicitud">
+						{isEditing ? (
+							<button className="training-place-proceeding-submit-button" onClick={handleSave} disabled={!!dateError}>Guardar</button>
+						) : (
+							<button className="training-place-proceeding-submit-button" onClick={handleEdit}>Editar</button>
+						)}
 
                         <button className="training-place-proceeding-submit-button" onClick={handleSendProceeding}>Generar acta</button>
                         <button className="training-place-proceeding-submit-button-exportar" onClick={handleDownloadPDF}>Exportar</button>
                     </div>
 
-                </div>
-            </Main>
-            <Footer />
-            {showSignatureModal && (
-                <ModalSignature
-                    closeModal={() => {
+				</div>
+			</Main>
+			<Footer />
+			{showSignatureModal && (
+				<ModalSignature
+					closeModal={() => {
                         setShowSignatureModal(false);
                         setParticipanteSeleccionado(null);
                     }}
-                    nombreActa={nombreCurso}
-                    tipoActa="Acta de Lugar de formación"
+					nombreActa={nombreCurso}
+					tipoActa="Acta de Lugar de formación"
                     participanteSeleccionado={participanteSeleccionado}
                     editar={isEditing}
-                    onSignature={handleAplicarFirma}
-                    onUpload={handleAplicarFirma}
-                >
-                </ModalSignature>
-            )}
-        </>
-    );
+					onSignature={handleAplicarFirma}
+					onUpload={handleAplicarFirma}
+				>
+				</ModalSignature>
+			)}
+		</>
+	);
 };

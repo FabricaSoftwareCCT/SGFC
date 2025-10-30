@@ -994,7 +994,7 @@ export const ConcertationProceeding = () => {
                 Guardar
               </button>
             ) : (
-              <button className="submit-button-proceedings" onClick={handleEdit}>
+              <button id="editar1" className="submit-button-proceedings" onClick={handleEdit}>
                 Editar
               </button>
             )}

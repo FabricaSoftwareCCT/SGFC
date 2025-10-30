@@ -10,14 +10,14 @@ const { generateToken } = require("../middlewares/generateToken_R");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const { Op, col, json } = require("sequelize");
-const xlsx = require("xlsx")
-const path = require('path');
-const fs = require('fs');
-const Tesseract = require('tesseract.js');
-const vision = require('@google-cloud/vision');
-const pdfjsLib = require("pdfjs-dist/legacy/build/pdf.js")
+const xlsx = require("xlsx");
+const path = require("path");
+const fs = require("fs");
+const Tesseract = require("tesseract.js");
+const vision = require("@google-cloud/vision");
+const pdfjsLib = require("pdfjs-dist/legacy/build/pdf.js");
 const { createCanvas } = require("canvas");
-const { UserServices } = require("../services/Userservices")
+const { UserServices } = require("../services/Userservices");
 const { sendNotification, sendProfileUpdateNotification } = require('../services/notificationService');
 const { generateTempPassword } = require("../Helpers/GeneratePassword");
 
@@ -119,8 +119,8 @@ const registerUser = async (req, res) => {
 			await newUser.save();
 		}
 
-        // Enviar correo de verificación CON la contraseña temporal
-        await sendVerificationEmail(email, token, accountType);
+		// Enviar correo de verificación CON la contraseña temporal
+		await sendVerificationEmail(email, token, accountType);
 
 		res.status(201).json({
 			message:
@@ -192,36 +192,38 @@ const verifyEmail = async (req, res) => {
 };
 
 const requestNewVerificationEmail = async (req, res) => {
-    try{
-        const { email } = req.body;
-        if (!email) {
-            return res.status(400).json({ message: "El correo es obligatorio" });
-        }
-        
-        const user = await User.findOne({ where: { email } });
-        if (!user) {
-            return res.status(404).json({ message: "Usuario no encontrado" });
-        }
-        
-        // Generar nueva contraseña temporal
-        const tempPassword = await generateTempPassword();
-        const hashedPassword = await bcrypt.hash(tempPassword, 10);
-        
-        // Generar nuevo token
-        const token = generateToken({email}, process.env.JWT_SECRET, 5);
-        
-        // Actualizar usuario con nuevo token y nueva contraseña temporal
-        try {
-            await user.update({ 
-                token: token,
-                password: hashedPassword
-            });
-        } catch (error) {
-            console.error("Error al actualizar el usuario:", error);
-        }
-        
-        // Enviar correo de verificación con la nueva contraseña temporal
-        await sendVerificationEmail(email, token, null ,tempPassword);
+	try {
+		const { email } = req.body;
+		if (!email) {
+			return res
+				.status(400)
+				.json({ message: "El correo es obligatorio" });
+		}
+
+		const user = await User.findOne({ where: { email } });
+		if (!user) {
+			return res.status(404).json({ message: "Usuario no encontrado" });
+		}
+
+		// Generar nueva contraseña temporal
+		const tempPassword = await generateTempPassword();
+		const hashedPassword = await bcrypt.hash(tempPassword, 10);
+
+		// Generar nuevo token
+		const token = generateToken({ email }, process.env.JWT_SECRET, 5);
+
+		// Actualizar usuario con nuevo token y nueva contraseña temporal
+		try {
+			await user.update({
+				token: token,
+				password: hashedPassword,
+			});
+		} catch (error) {
+			console.error("Error al actualizar el usuario:", error);
+		}
+
+		// Enviar correo de verificación con la nueva contraseña temporal
+		await sendVerificationEmail(email, token, null ,tempPassword);
 
 		res.status(200).json({
 			message:
@@ -1022,25 +1024,40 @@ const updateUserProfile = async (req, res) => {
 				});
 			}
 
-                // Validaciones únicas
-                if (emailClean && emailClean !== user.email) {
-                    const existingEmail = await User.findOne({ where: { email: emailClean } });
-                    if (existingEmail) {
-                        return res.status(400).json({ message: "El correo electrónico ya está registrado." });
-                    }
-                }
-                if (documentoClean && documentoClean !== user.documento) {
-                    const existingDocumento = await User.findOne({ where: { documento: documentoClean } });
-                    if (existingDocumento) {
-                        return res.status(400).json({ message: "El documento ya está registrado." });
-                    }
-                }
-                if (celularClean && celularClean !== user.celular) {
-                    const existingCelular = await User.findOne({ where: { celular: celularClean } });
-                    if (existingCelular) {
-                        return res.status(400).json({ message: "El número de celular ya está registrado." });
-                    }
-                }
+			// Validaciones únicas
+			if (emailClean && emailClean !== user.email) {
+				const existingEmail = await User.findOne({ where: { email: emailClean } });
+				if (existingEmail) {
+					return res
+						.status(400)
+						.json({
+							message:
+								"El correo electrónico ya está registrado.",
+						});
+				}
+			}
+			if (documentoClean && documentoClean !== user.documento) {
+				const existingDocumento = await User.findOne({
+					where: { documento: documentoClean },
+				});
+				if (existingDocumento) {
+					return res
+						.status(400)
+						.json({ message: "El documento ya está registrado." });
+				}
+			}
+			if (celularClean && celularClean !== user.celular) {
+				const existingCelular = await User.findOne({
+					where: { celular: celularClean },
+				});
+				if (existingCelular) {
+					return res
+						.status(400)
+						.json({
+							message: "El número de celular ya está registrado.",
+						});
+				}
+			}
 
                 // Asignación directa de campos
                 if (emailClean) user.email = emailClean;
@@ -1144,8 +1161,8 @@ const updateUserProfile = async (req, res) => {
 					user.Empresa.img_empresa = img_empresa;
 				}
 
-                    await user.Empresa.save();
-                }
+				await user.Empresa.save();
+			}
 
                 // Detectar cambios comparando snapshot vs valores actuales
                 const changedFields = [];
@@ -1184,7 +1201,7 @@ const updateUserProfile = async (req, res) => {
                     }
                 }
 
-                await user.save();
+			await user.save();
 
                 // Enviar notificación sólo si: el usuario objetivo es Gestor y hubo cambios
                 if (user.accountType === 'Gestor' && changedFields.length > 0) {
@@ -1206,8 +1223,10 @@ const updateUserProfile = async (req, res) => {
                     }
                 }
 
-                return res.status(200).json({ message: "Perfil actualizado con éxito." });
-        }
+			return res
+				.status(200)
+				.json({ message: "Perfil actualizado con éxito." });
+		}
 
 		// EMPRESA puede actualizar su propio perfil - CORREGIDO
 		if (
@@ -1369,12 +1388,20 @@ const updateUserProfile = async (req, res) => {
 			});
 		}
 
-        // EMPRESA puede actualizar a sus empleados (Aprendiz)
-        if (loggedInUser.accountType === "Empresa" && user.accountType === "Aprendiz") {
-            // Validar que el empleado pertenezca a la empresa logueada
-            if (user.empresa_ID !== loggedInUser.empresa_ID) {
-                return res.status(403).json({ message: "No tienes permiso para actualizar este empleado." });
-            }
+		// EMPRESA puede actualizar a sus empleados (Aprendiz)
+		if (
+			loggedInUser.accountType === "Empresa" &&
+			user.accountType === "Aprendiz"
+		) {
+			// Validar que el empleado pertenezca a la empresa logueada
+			if (user.empresa_ID !== loggedInUser.empresa_ID) {
+				return res
+					.status(403)
+					.json({
+						message:
+							"No tienes permiso para actualizar este empleado.",
+					});
+			}
 
             // Limpiar valores "null" que vienen del FormData
             const cleanValue = (val) => {
@@ -1390,14 +1417,14 @@ const updateUserProfile = async (req, res) => {
             const emailClean = cleanValue(email);
             const tipoDocumentoClean = cleanValue(tipoDocumento);
 
-            // Validaciones de campos obligatorios para empleados
-            const camposObligatorios = {
-                nombres: nombresClean,
-                apellidos: apellidosClean,
-                celular: celularClean,
-                documento: documentoClean,
-                email: emailClean
-            };
+			// Validaciones de campos obligatorios para empleados
+			const camposObligatorios = {
+				nombres: nombresClean,
+				apellidos: apellidosClean,
+				celular: celularClean,
+				documento: documentoClean,
+				email: emailClean,
+			};
 
 			const camposVacios = [];
 			for (const [campo, valor] of Object.entries(camposObligatorios)) {
@@ -1417,25 +1444,40 @@ const updateUserProfile = async (req, res) => {
 				});
 			}
 
-            // Validaciones únicas
-            if (emailClean && emailClean !== user.email) {
-                const existingEmail = await User.findOne({ where: { email: emailClean } });
-                if (existingEmail) {
-                    return res.status(400).json({ message: "El correo electrónico ya está registrado." });
-                }
-            }
-            if (documentoClean && documentoClean !== user.documento) {
-                const existingDocumento = await User.findOne({ where: { documento: documentoClean } });
-                if (existingDocumento) {
-                    return res.status(400).json({ message: "El documento ya está registrado." });
-                }
-            }
-            if (celularClean && celularClean !== user.celular) {
-                const existingCelular = await User.findOne({ where: { celular: celularClean } });
-                if (existingCelular) {
-                    return res.status(400).json({ message: "El número de celular ya está registrado." });
-                }
-            }
+			// Validaciones únicas
+			if (emailClean && emailClean !== user.email) {
+				const existingEmail = await User.findOne({ where: { email: emailClean } });
+				if (existingEmail) {
+					return res
+						.status(400)
+						.json({
+							message:
+								"El correo electrónico ya está registrado.",
+						});
+				}
+			}
+			if (documentoClean && documentoClean !== user.documento) {
+				const existingDocumento = await User.findOne({
+					where: { documento: documentoClean },
+				});
+				if (existingDocumento) {
+					return res
+						.status(400)
+						.json({ message: "El documento ya está registrado." });
+				}
+			}
+			if (celularClean && celularClean !== user.celular) {
+				const existingCelular = await User.findOne({
+					where: { celular: celularClean },
+				});
+				if (existingCelular) {
+					return res
+						.status(400)
+						.json({
+							message: "El número de celular ya está registrado.",
+						});
+				}
+			}
 
             // Asignación directa de campos
             if (emailClean) user.email = emailClean;
@@ -1643,11 +1685,11 @@ const createInstructor = async (req, res) => {
 		const payload = { email };
 		const token = generateToken(payload, process.env.JWT_SECRET, 5);
 
-        // Generar contraseña temporal (8 caracteres alfanuméricos)
-        const tempPassword = await generateTempPassword();
-        
-        // Encriptar la contraseña temporal
-        const hashedPassword = await bcrypt.hash(tempPassword, 10);
+		// Generar contraseña temporal (8 caracteres alfanuméricos)
+		const tempPassword =  await generateTempPassword();
+
+		// Encriptar la contraseña temporal
+		const hashedPassword = await bcrypt.hash(tempPassword, 10);
 
 		// Crear el instructor
 		const newInstructor = await User.create({
@@ -1666,8 +1708,8 @@ const createInstructor = async (req, res) => {
 			token, // Token de verificación
 		});
 
-        // Enviar correo de verificación CON la contraseña temporal
-        await sendVerificationEmail(email, token, null, tempPassword);
+		// Enviar correo de verificación CON la contraseña temporal
+		await sendVerificationEmail(email, token, null, tempPassword);
 
 		res.status(201).json({
 			message:
@@ -1731,11 +1773,11 @@ const createGestor = async (req, res) => {
 
 		const token = generateToken(payload, process.env.JWT_SECRET, 5);
 
-        //Generar la contraseña temporal
-        const tempPassword =  await generateTempPassword();
-        
-        // Encriptar la contraseña temporal
-        const hashedPassword = await bcrypt.hash(tempPassword, 10);
+		//Generar la contraseña temporal
+		const tempPassword =  await generateTempPassword();
+
+		// Encriptar la contraseña temporal
+		const hashedPassword = await bcrypt.hash(tempPassword, 10);
 
 		// Crear el gestor
 		const newGestor = await User.create({
@@ -1754,8 +1796,8 @@ const createGestor = async (req, res) => {
 			token, // Token de verificación
 		});
 
-        // Enviar correo de verificación
-        await sendVerificationEmail(email, token, null, tempPassword);
+		// Enviar correo de verificación
+		await sendVerificationEmail(email, token, null, tempPassword);
 
 		res.status(201).json({
 			message:
@@ -1988,14 +2030,14 @@ const createMasiveUsers = async (req, res) => {
                 repetidos
             });
         }
-        // Crear usuarios con los datos extraídos
+        // Crear usuarios con los datos extraídos 
         await  User.bulkCreate(usuariosLimpios, {ignoreDuplicates : true})
 
-        await Promise.all(
-            emailList.map((list) =>{
-                sendVerificationEmail(list.email, list.token, list.password , list.accountType, list.masive)
-            })
-        )
+		await Promise.all(
+			emailList.map((list) => {
+				sendVerificationEmail(list.email, list.token, list.password , list.accountType, list.masive);
+			})
+		);
 
 		return res
 			.status(200)
@@ -2105,13 +2147,16 @@ const createEmpleado = async (req, res) => {
 		// Generar token de verificación
 		const payload = { email };
 
-        const token = generateToken(payload, process.env.JWT_SECRET, 5);
+		const token = generateToken(payload, process.env.JWT_SECRET, 5);
 
         //Generar contraseña temporal
         const tempPassword = password == null || password == undefined ? await generateTempPassword() : password;
 
-        // Encriptar la contraseña (si no se envía, usar una por defecto)
-        const hashedPassword = await bcrypt.hash(tempPassword, 10);
+		// Encriptar la contraseña (si no se envía, usar una por defecto)
+		const hashedPassword = await bcrypt.hash(
+			tempPassword,
+			10
+		);
 
 		// Crear el empleado (Aprendiz)
 		const newEmpleado = await User.create({
@@ -2131,11 +2176,11 @@ const createEmpleado = async (req, res) => {
 			token,
 		});
 
-        // Enviar correo de verificación
+		// Enviar correo de verificación
         if(password == null || password == undefined){
             await sendVerificationEmail(email, token, "Aprendiz", tempPassword);
         }else{
-            await sendVerificationEmail(email, token);
+    		await sendVerificationEmail(email, token);
         }
             
 
@@ -2310,15 +2355,18 @@ const createEmpleadoForAdmin = async (req, res) => {
 			foto_perfil = req.file.buffer.toString("base64");
 		}
 
-        // Generar token de verificación
-        const payload = { email };
-        const token = generateToken(payload, process.env.JWT_SECRET, 5);
+		// Generar token de verificación
+		const payload = { email };
+		const token = generateToken(payload, process.env.JWT_SECRET, 5);
 
         //Generar contraseña temporal
         const tempPassword = await generateTempPassword();
 
-        // Encriptar la contraseña (si no se envía, usar una por defecto)
-        const hashedPassword = await bcrypt.hash(tempPassword, 10);
+		// Encriptar la contraseña (si no se envía, usar una por defecto)
+		const hashedPassword = await bcrypt.hash(
+			tempPassword,
+			10
+		);
 
 		// Crear el empleado (Aprendiz)
 		const newEmpleado = await User.create({
@@ -2338,8 +2386,8 @@ const createEmpleadoForAdmin = async (req, res) => {
 			token,
 		});
 
-        // Enviar correo de verificación
-        await sendVerificationEmail(email, token, "Aprendiz", tempPassword);
+		// Enviar correo de verificación
+		await sendVerificationEmail(email, token, "Aprendiz", tempPassword);
 
 		res.status(201).json({
 			message: "Empleado creado con éxito. Por favor verifica tu correo.",
@@ -2526,16 +2574,16 @@ const checkProfileComplete = async (req, res) => {
 			isComplete = missingFields.length === 0;
 		}
 
-    res.json({ 
-      isComplete,
-      missingFields,
-      accountType: user.accountType,
-      userId: user.id
-    });
-  } catch (error) {
-    console.error("Error verificando perfil:", error);
-    res.status(500).json({ message: "Error verificando perfil" });
-  }
+		res.json({
+			isComplete,
+			missingFields,
+			accountType: user.accountType,
+			userId: user.id,
+		});
+	} catch (error) {
+		console.error("Error verificando perfil:", error);
+		res.status(500).json({ message: "Error verificando perfil" });
+	}
 };
 
 const createEmpresa = async (req, res) => {
@@ -2619,39 +2667,39 @@ const createEmpresa = async (req, res) => {
             message: 'Error al crear la empresa',
             error: error.message 
         });
-    }
+      }
 };
 
-module.exports = { 
-    subirDocumentoIdentidad, 
-    getEmpresaById, 
-    createEmpleado, 
-    getEmpleadosByEmpresaId, 
-    refreshAccessToken, 
-    getAprendicesByEmpresa, 
-    registerUser, 
-    verifyEmail, 
-    loginUser, 
-    requestPasswordReset, 
-    resetPassword, 
-    getAllUsers, 
-    getUserProfile, 
-    getAprendices, 
-    getEmpresas, 
-    getInstructores, 
-    getGestores, 
-    updateUserProfile, 
-    createInstructor, 
-    createGestor, 
-    logoutUser, 
-    cleanExpiredTokens, 
-    createMasiveUsers, 
-    getEmpresaByNIT,
-    requestNewVerificationEmail,
-    checkProfileComplete,
-    recordLogin,
-    getAllEmpleadosForAdmin,
-    getAllEmpresasForAdmin,
-    createEmpleadoForAdmin,
+module.exports = {
+	subirDocumentoIdentidad,
+	getEmpresaById,
+	createEmpleado,
+	getEmpleadosByEmpresaId,
+	refreshAccessToken,
+	getAprendicesByEmpresa,
+	registerUser,
+	verifyEmail,
+	loginUser,
+	requestPasswordReset,
+	resetPassword,
+	getAllUsers,
+	getUserProfile,
+	getAprendices,
+	getEmpresas,
+	getInstructores,
+	getGestores,
+	updateUserProfile,
+	createInstructor,
+	createGestor,
+	logoutUser,
+	cleanExpiredTokens,
+	createMasiveUsers,
+	getEmpresaByNIT,
+	requestNewVerificationEmail,
+	checkProfileComplete,
+	recordLogin,
+	getAllEmpleadosForAdmin,
+	getAllEmpresasForAdmin,
+	createEmpleadoForAdmin,
     createEmpresa
 };

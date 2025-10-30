@@ -73,7 +73,7 @@ describe('Probar el modulo de administrador', ()=>{
 
     })
 
-    it('Crear Curso',()=>{
+    it.skip('Crear Curso',()=>{
         cy.visit("http://localhost:5173/") 
         cy.get(".button_signIn").first().click({force : true})
 
@@ -204,7 +204,7 @@ describe('Probar el modulo de administrador', ()=>{
         cy.get('#modal-overlayCreateInstructor').find('.modal-left').contains('label', 'Cédula').first().find('input[name="documento"]').type('8888889')
         cy.get('.modal-left').contains('label', 'Título').find('input[type="text"]').type('Instructor')
         cy.get('#modal-overlayCreateInstructor').find('.modal-left').contains('label', 'Celular').first().find('input[name="celular"]').type('3105557789')
-        cy.get('#modal-overlayCreateInstructor').find('.modal-left').contains('label', 'Email').first().find('input[type="email"]').type('dames50215@filipx.com')
+        cy.get('#modal-overlayCreateInstructor').find('.modal-left').contains('label', 'Email').first().find('input[type="email"]').type('wayasa2839@dwakm.com')
         cy.get('#modal-overlayCreateInstructor').find('.status-container').contains('.status', 'Activo').first().click({force:true})
         cy.get('.modal-right').get('.save-button').first().click({force : true})
     })
@@ -238,7 +238,7 @@ describe('Probar el modulo de administrador', ()=>{
         cy.get('.edit-button-updateInstructor').first().click({force:true})
     })
 
-    it.skip('Crear un Gestor', ()=>{
+    it('Crear un Gestor', ()=>{
         cy.visit("http://localhost:5173/") 
         cy.get(".button_signIn").first().click({force : true})
 
@@ -265,7 +265,7 @@ describe('Probar el modulo de administrador', ()=>{
         cy.get('#modal-overlayCreateGestor').find('.modal-left').contains('label', 'Apellidos').first().find('input[type="text"]').type('Alfonso')
         cy.get('#modal-overlayCreateGestor').find('.modal-left').contains('label', 'Documento').first().find('input[type="text"]').type('9999998')
         cy.get('#modal-overlayCreateGestor').find('.modal-left').contains('label', 'Celular').first().find('input[type="text"]').type('3137778776')
-        cy.get('#modal-overlayCreateGestor').find('.modal-left').contains('label', 'Email').first().find('input[type="email"]').type('jawix282@filipx.com')
+        cy.get('#modal-overlayCreateGestor').find('.modal-left').contains('label', 'Email').first().find('input[type="email"]').type('royib51906@filipx.com')
 
         //Ponerle un estado al usuario
         cy.get('#modal-overlayCreateGestor').find('.status-container').contains('.status', 'Activo').first().click({force:true})

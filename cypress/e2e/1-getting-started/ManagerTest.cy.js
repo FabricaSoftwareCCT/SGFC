@@ -203,6 +203,7 @@ describe('Prueba manager', () =>{
         //Cerrar sesión
         cy.get('.container_options_profile').find('img[alt="Cerrar sesión"]').first().click({force : true})
     })
-        
+    
+    
 })  
     

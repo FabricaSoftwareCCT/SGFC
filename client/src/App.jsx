@@ -15,6 +15,7 @@ import { CreateCourse } from './Components/Pages/Courses/CreateCourse/CreateCour
 import { ConsultCourses } from './Components/Pages/Courses/Consult/ConsultCourses';
 import { SeeCourse } from './Components/Pages/Courses/SeeCourse/SeeCourse';
 import { UpdateCourse } from './Components/Pages/Courses/UpdateCourse/UpdateCourse';
+import {RegistrationsGestor} from './Components/Pages/GestionsGestor/RegistrationsGestor/RegistrationsGestor'
 import { MisCursos } from './Components/Pages/Courses/MisCursos/MisCursos';
 import { GestionsInstructor } from './Components/Pages/GestionsInstructor/GestionsInstructor';
 import { GestionsGestor } from './Components/Pages/GestionsGestor/GestionsGestor';
@@ -284,6 +285,10 @@ function App() {
 					<Route
 						path="/Cursos/ActualizarCurso/:id"
 						element={<UpdateCourse />}
+					/>
+					<Route
+						path="/Cursos/Inscripciones/:id"
+						element={<RegistrationsGestor/>}
 					/>
 					<Route
 						path="/Gestiones/Instructor"

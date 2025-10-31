@@ -31,7 +31,8 @@ router.put(
     { name: 'img_empresa', maxCount: 1 }
   ]),
   updateUserProfile
-);router.post('/crearInstructor', upload.single('foto_perfil'), createInstructor);
+);
+router.post('/crearInstructor', upload.single('foto_perfil'), createInstructor);
 router.post('/crearGestor', upload.single('foto_perfil'), createGestor);
 router.post("/logout", logoutUser);
 router.get("/empresa/empleados/:id", getAprendicesByEmpresa); // Obtener aprendices por ID de empresa

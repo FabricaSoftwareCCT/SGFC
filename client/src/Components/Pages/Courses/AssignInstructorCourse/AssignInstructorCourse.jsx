@@ -253,7 +253,7 @@ export const AssignInstructorCourse = ({ curso_ID, onClose }) => {
         </div>
 
         <div className="container_return_AssignInstructor">
-          <h5>Volver</h5>
+          <h5 onClick={onClose} style={{ cursor: "pointer" }}>Volver</h5>
           <button
             type="button"
             onClick={onClose}

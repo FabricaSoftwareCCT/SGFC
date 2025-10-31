@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Header } from '../../../Layouts/Header/Header';
 import { Footer } from '../../../Layouts/Footer/Footer';
@@ -18,7 +18,10 @@ export const SupportMaterial = () => {
 	const [material, setMaterial] = useState("");
 	const [cursos, setCursos] = useState([]);
 	const [archivos, setArchivos] = useState([]);
-	const [uploadFile, setUploadFile] = useState()
+    const [uploadFile, setUploadFile] = useState()
+    const [pendingFiles, setPendingFiles] = useState([]); // archivos seleccionados aún no enviados
+    const [pendingLinks, setPendingLinks] = useState([]); // enlaces agregados aún no enviados
+    const fileInputRef = useRef(null);
 
 	const userSession = JSON.parse(localStorage.getItem('userSession')) || JSON.parse(sessionStorage.getItem('userSession'))
 	const accountType = userSession?.accountType
@@ -48,11 +51,13 @@ export const SupportMaterial = () => {
 		fetchMaterial(curso)
 	}
 
-	const handleFileUpload = (event) => {
-		const file = event.target.files[0];
-		if (!file || !cursoSeleccionado) return;
-		setUploadFile(file)
-	}
+    const handleFileUpload = (event) => {
+        const files = Array.from(event.target.files || []);
+        if (!cursoSeleccionado || files.length === 0) return;
+        setPendingFiles((prev) => [...prev, ...files]);
+        event.target.value = '';
+        if (fileInputRef.current) fileInputRef.current.value = '';
+    }
 	
 	const handleEliminarArchivo = (archivoId) => {
 		if (window.confirm('¿Estás seguro de que quieres eliminar este archivo?')) {
@@ -80,57 +85,51 @@ export const SupportMaterial = () => {
 		return `${nombreParte.slice(0, maxLongitud)}... ${extension}`;
 	};
 
-	const crearMaterial = async () => {
+    const crearMaterial = async () => {
 		setSubiendoArchivo(true)
 		try {
-			const body = new FormData()
-			let resp
-			switch (materialType) {
-				case "PDF":
-					if (!uploadFile) {
-						alert("Se debe proporcionar un archivo PDF")
-						return
-					}
-					body.append("document_pdf", uploadFile)
-					body.append("tipo", materialType.toLowerCase())
-					resp = await axiosInstance.post(`/api/material/create/${cursoSeleccionado.ID}`, body, {
-						headers: { "Content-Type": "multipart/form-data" },
-					})
-					setShowMaterialCreation(false)
-					alert(resp.data.message)
-					setUploadFile(null)
-					fetchMaterial(cursoSeleccionado)
-					break
-				case "Video":
-					if (!uploadFile) {
-						alert("Se debe proporcionar un video MP4")
-						return
-					}
-					body.append("video", uploadFile)
-					body.append("tipo", materialType.toLowerCase())
-					resp = await axiosInstance.post(`/api/material/create/${cursoSeleccionado.ID}`, body, {
-						headers: { "Content-Type": "multipart/form-data" },
-					})
-					setShowMaterialCreation(false)
-					alert(resp.data.message)
-					setUploadFile(null)
-					fetchMaterial(cursoSeleccionado)
-					break
-				case "Enlace":
-					if (material.length < 1) {
-						alert("Se debe proporcionar un enlace")
-						return
-					}
-					resp = await axiosInstance.post(`/api/material/create/${cursoSeleccionado.ID}`, {
-						tipo: materialType.toLowerCase(),
-						link: material
-					})
-					fetchMaterial(cursoSeleccionado)
-					setMaterial("")
-					setShowMaterialCreation(false)
-					alert(resp.data.message)
-					break
-			}
+            let requests = [];
+            if (materialType === "PDF" || materialType === "Video") {
+                const fieldName = materialType === "PDF" ? "document_pdf" : "video";
+                const tipo = materialType.toLowerCase();
+                if (pendingFiles.length === 0) {
+                    alert(`Selecciona uno o más archivos ${materialType}`);
+                    setSubiendoArchivo(false);
+                    return;
+                }
+                requests = pendingFiles.map((file) => {
+                    const body = new FormData();
+                    body.append(fieldName, file);
+                    body.append("tipo", tipo);
+                    return axiosInstance.post(`/api/material/create/${cursoSeleccionado.ID}`, body, {
+                        headers: { "Content-Type": "multipart/form-data" },
+                    });
+                });
+            } else if (materialType === "Enlace") {
+                const linksToSend = pendingLinks.filter((l) => (l || "").trim().length > 0);
+                if (linksToSend.length === 0 && material.length > 0) {
+                    linksToSend.push(material);
+                }
+                if (linksToSend.length === 0) {
+                    alert("Agrega uno o más enlaces");
+                    setSubiendoArchivo(false);
+                    return;
+                }
+                requests = linksToSend.map((link) => axiosInstance.post(`/api/material/create/${cursoSeleccionado.ID}`, {
+                    tipo: 'enlace',
+                    link
+                }));
+            }
+
+            const responses = await Promise.all(requests);
+            const firstMsg = responses[0]?.data?.message;
+            if (firstMsg) alert(firstMsg);
+            setShowMaterialCreation(false)
+            setUploadFile(null)
+            setPendingFiles([])
+            setPendingLinks([])
+            setMaterial("")
+            fetchMaterial(cursoSeleccionado)
 			setSubiendoArchivo(false)
 			await axiosInstance.post("/api/notifications/materialApoyo", {
 				curso_ID: cursoSeleccionado.ID
@@ -351,50 +350,112 @@ export const SupportMaterial = () => {
 						<span>Material</span>
 						{(materialType === "PDF" || materialType === "Video") && (
 							<>
-								<label
+                        <label
 									htmlFor='file-upload'
 									className='upload-btn'
 									style={{
 										flex: "none"
 									}}
 								>
-									Subir archivo
+									Subir archivo(s)
 								</label>
-								<input
+                                <input
 									id="file-upload"
 									type="file"
+                            multiple
 									onChange={handleFileUpload}
-									disabled={subiendoArchivo}
+                                    disabled={subiendoArchivo}
+                                    ref={fileInputRef}
 									style={{ display: 'none' }}
 								/>
 							</>
 						)}
 						{materialType === "Enlace" && (
-							<div
-								className='statusButtons'
-								style={{
-									width: "90%"
-								}}
-							>
-								<input
-									className="inputFilterOptionText"
-									type="text"
-									placeholder='Ponga aquí el enlace al material...'
-									onChange={(e) => setMaterial(e.target.value)}
-									value={material}
-								/>
-							</div>
+                        <div className='statusButtons' style={{ width: "90%", gap: 8, flexDirection: 'column' }}>
+                            <div style={{ display: 'flex', gap: 8 }}>
+                                <input
+                                    className="inputFilterOptionText"
+                                    type="text"
+                                    placeholder='Ponga aquí el enlace al material...'
+                                    onChange={(e) => setMaterial(e.target.value)}
+                                    value={material}
+                                />
+                                <button type='button' className='upload-btn' style={{ flex: 'none', height: 44 }} onClick={() => {
+                                    if ((material || '').trim().length > 0) {
+                                        setPendingLinks((prev)=> [...prev, material.trim()]);
+                                        setMaterial('');
+                                    }
+                                }}>Agregar</button>
+                            </div>
+                            {pendingLinks.length > 0 && (
+                                <ul style={{
+                                    listStyle: 'none',
+                                    padding: 8,
+                                    margin: 0,
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    gap: 6,
+                                    maxHeight: 180,
+                                    overflowY: 'auto',
+                                    background: 'rgba(255,255,255,0.06)',
+                                    border: '1px solid rgba(255,255,255,0.12)',
+                                    borderRadius: 8,
+                                    position: 'relative',
+                                    zIndex: 5,
+                                    pointerEvents: 'auto'
+                                }}>
+                                    {pendingLinks.map((l, idx) => (
+                                        <li key={`${idx}-${l}`} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                            <input className='inputFilterOptionText' type='text' value={l} onChange={(e)=> {
+                                                const copy = [...pendingLinks];
+                                                copy[idx] = e.target.value;
+                                                setPendingLinks(copy);
+                                            }} />
+                                            <button type='button' className='btn-eliminar' onClick={()=> setPendingLinks((prev)=> prev.filter((_,i)=> i!==idx))}>X</button>
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+                        </div>
 						)}
-						<br/>
+                        {(materialType === "PDF" || materialType === "Video") && pendingFiles.length > 0 && (
+                            <div style={{ width: '90%', marginTop: 12, maxHeight: 20 }}>
+                                <span style={{ color: '#cfe9da' }}>Archivos seleccionados ({pendingFiles.length}):</span>
+                                <ul style={{
+                                    listStyle: 'none',
+                                    padding: 8,
+                                    marginTop: 6,
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    gap: 6,
+                                    maxHeight: 84,
+                                    overflowY: 'auto',
+                                    background: 'rgba(255,255,255,0.06)',
+                                    border: '1px solid rgba(255,255,255,0.12)',
+                                    borderRadius: 8,
+                                    position: 'relative',
+                                    zIndex: 5,
+                                    pointerEvents: 'auto'
+                                }}>
+                                    {pendingFiles.map((f, idx) => (
+                                        <li key={`${idx}-${f.name}`} style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#fff' }}>
+                                            <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{f.name}</span>
+                                            <button type='button' className='btn-eliminar' onClick={() => setPendingFiles((prev)=> prev.filter((_,i)=> i!==idx))}>X</button>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
+                        <br/>
 						{puedeSubirArchivos && (
-							<button
-								className='upload-btn'
-								style={{
-									flex: "none"
-								}}
-								disabled={subiendoArchivo}
-								onClick={() => crearMaterial()}
-							>Crear material</button>
+	                        <button
+	                            className='upload-btn'
+	                            style={{
+	                                flex: "none"
+	                            }}
+	                            disabled={subiendoArchivo}
+	                            onClick={() => crearMaterial()}
+	                        >Crear material</button>
 						)}
 					</div>
 				</div>

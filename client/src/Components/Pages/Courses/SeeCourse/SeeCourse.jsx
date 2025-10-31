@@ -162,7 +162,7 @@ export const SeeCourse = () => {
 								</button>
 
 								{/* Botón de Material */}
-								<button className='material-btn' onClick={()=> navigate(`/SupportMaterialCourse`)}>
+                                <button className='material-btn' onClick={()=> navigate(`/SupportMaterialCourse/${id}`)}>
 									<img src={materialIcon} alt="Material del curso" className="btn-icon" />
 									Ver Material
 								</button>

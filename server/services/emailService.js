@@ -642,6 +642,49 @@ const sendInstructorAssignedEmail = (email, curso) => {
 	});
 };
 
+// Enviar correo al instructor notificando que fue removido de un curso (diseño mejorado)
+const sendInstructorUnassignedEmail = (email, curso) => {
+  const title = `Has sido removido del curso`;
+  const content = `
+    <table width="100%" cellpadding="0" cellspacing="0">
+      <tr>
+        <td style="padding:1.25rem 0; line-height:1.6; color:#1A1A1A; font-size:1rem;">
+          <p style="margin-bottom:.9375rem;">Hola,</p>
+          <p style="margin-bottom:.9375rem;">Se te ha removido del curso <strong>${curso.nombre_curso}</strong>.</p>
+          <div style="background-color: rgba(247, 148, 30, 0.08); border-left: 4px solid #F7941E; padding: 1rem; margin: 1rem 0; border-radius: 0.5rem;">
+            <p style="margin: 0.5rem 0; color: #5c5c5c;">
+              Si consideras que es un error, por favor contacta al administrador o gestor para mayor información.
+            </p>
+          </div>
+          <p style="margin-bottom:0;">Saludos cordiales,<br>El equipo de SGFC</p>
+        </td>
+      </tr>
+    </table>
+  `;
+
+  const mailOptions = {
+    from: `"SGFC" <${process.env.EMAIL_USER}>`,
+    to: email,
+    subject: `Has sido removido del curso: ${curso.nombre_curso}`,
+    attachments: [logoAttachment],
+    html: emailTemplate
+      .replaceAll('[title]', title)
+      .replaceAll('[content]', content),
+  };
+
+  return new Promise((resolve, reject) => {
+    transporter.sendMail(mailOptions, (err, info) => {
+      if (err) {
+        console.error("Error al enviar correo de desasignación al instructor:", err);
+        reject(err);
+      } else {
+        console.log("Correo de desasignación enviado al instructor:", info.response);
+        resolve(info);
+      }
+    });
+  });
+};
+
 // Enviar correo al aprendiz notificando su instructor asignado
 const sendStudentsInstructorAssignedEmail = (
 	emails,
@@ -1131,6 +1174,7 @@ module.exports = {
 	sendCursoUpdatedNotification,
 	sendStudentsInstructorAssignedEmail,
 	sendInstructorAssignedEmail,
+  sendInstructorUnassignedEmail,
 	sendRequestCourseEmail,
 	sendConcertacionActaEmail,
 	sendTrainingPlaceActaEmail,

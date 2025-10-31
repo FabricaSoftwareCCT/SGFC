@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "./UpdateInstructor.css";
 import axiosInstance from "../../../../config/axiosInstance"; // Asegúrate de ajustar esta ruta según la estructura de tu proyecto
 import { createMensajeError, validateNumber, validateText, validateEmail } from "../../../../utils/Validators/formValidator";
+import { ModalManageCourses } from "../../../UI/Modal_ManageCourses/ModalManageCourses";
 
 export const UpdateInstructor = ({ instructor, onClose }) => {
   const navigate = useNavigate();
@@ -10,6 +11,7 @@ export const UpdateInstructor = ({ instructor, onClose }) => {
   const [formData, setFormData] = useState({ ...instructor });
   const [cantidadCursos, setCantidadCursos] = useState(0);
   const [cursosAsignados, setCursosAsignados] = useState([]);
+  const [showManageCourses, setShowManageCourses] = useState(false);
 
   // Resetear datos cuando cambia el instructor
   useEffect(() => {
@@ -43,6 +45,17 @@ export const UpdateInstructor = ({ instructor, onClose }) => {
 
     obtenerCursosAsignados();
   }, [instructor?.ID]); // Dependencia optimizada: solo se ejecuta cuando cambia el ID
+
+  const refetchCursosAsignados = async () => {
+    if (!instructor?.ID) return;
+    try {
+      const response = await axiosInstance.get(`/api/courses/cursos-asignados/${instructor.ID}`);
+      if (Array.isArray(response.data)) {
+        setCantidadCursos(response.data.length);
+        setCursosAsignados(response.data);
+      }
+    } catch {}
+  };
 
   const closeModalUpdateInstructor = () => {
     if (onClose) onClose();
@@ -275,6 +288,15 @@ export const UpdateInstructor = ({ instructor, onClose }) => {
             })}
           </ul>
         )}
+        <div style={{ marginTop: "8px" }}>
+          <button
+            type="button"
+            className="edit-button-updateInstructor"
+            onClick={() => setShowManageCourses(true)}
+          >
+            Gestionar cursos asignados
+          </button>
+        </div>
       </div>
 
       <div className="modal-right">
@@ -324,7 +346,34 @@ export const UpdateInstructor = ({ instructor, onClose }) => {
         ></button>
       </div>
     </form>
+    {showManageCourses && (
+      <ModalManageCourses
+        instructorId={instructor?.ID}
+        instructorEstado={formData?.estado}
+        cursosAsignadosIniciales={cursosAsignados}
+        onClose={() => setShowManageCourses(false)}
+        onChanged={({ removedId } = {}) => {
+          if (removedId != null) {
+            setCursosAsignados(prev => prev.filter(c => Number(c.Curso?.ID ?? c.curso_ID ?? c.ID) !== Number(removedId)));
+            setCantidadCursos(prev => Math.max(0, prev - 1));
+          }
+          refetchCursosAsignados();
+        }}
+      />
+    )}
   </div>
 );
 
+};
+
+// Render del modal de gestión (fuera para mantener JSX claro)
+export const UpdateInstructorWithManage = (props) => {
+  return (
+    <>
+      <UpdateInstructor {...props} />
+      {props.instructor && props.instructor.ID && (
+        <></>
+      )}
+    </>
+  );
 };

@@ -47,6 +47,7 @@
     border-radius: 50%;
     filter: blur(160px);
     z-index: 0;
+    pointer-events: none; /* Evita bloquear clics dentro del modal */
 }
 
 .modal-bodyUpdateInstructor::before {

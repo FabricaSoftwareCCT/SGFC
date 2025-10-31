@@ -25,6 +25,8 @@ export const GestionsActas = () => {
 	const { setShowModalGeneral, setModalGeneralContent } = useModal();
 	const [showTipoActaModal, setShowTipoActaModal] = useState(false);
 	const [tipoActaSeleccionada, setTipoActaSeleccionada] = useState(null);
+  const [Date, setDate] = useState("");
+  const [DateFin, setDateFin] = useState("");
 	const [observation, setObservation] = useState()
 	const [selectedActa, setSelectedActa] = useState()
 	const [newState, setNewState] = useState("")
@@ -110,8 +112,13 @@ export const GestionsActas = () => {
 		const idMatch = filtro === "" || String(acta.ID).includes(filtro);
 		const estadoMatch = estadosSeleccionados.length === 0 || estadosSeleccionados.includes(acta.estado_acta);
 		const categoriaMatch = categoriasSeleccionadas.length === 0 || categoriasSeleccionadas.includes(acta.tipo_acta);
-		return idMatch && estadoMatch && categoriaMatch;
+    const dateMatch = !Date && !DateFin || (acta.fecha_acta >= Date && acta.fecha_acta <= DateFin);
+		return idMatch && estadoMatch && categoriaMatch && dateMatch;
 	});
+
+  console.log(actasFiltradas)
+
+  
 
 	const handleVerOpcionesPDF = (acta) => {
 		if (!newState)
@@ -381,6 +388,26 @@ export const GestionsActas = () => {
 										/>
 									</div>
 								</div>
+                <div className="ContentOptionDate">
+                  <div className="contentInputDate"> 
+                    <label>Fecha: </label>
+                    <input 
+                      className="inputDateFilter"
+                      type="date"
+                      value={Date}
+                      onChange={(e) => setDate(e.target.value)}
+                    />
+                  </div>
+                  <div className="contentInputDate">
+                    <label>Fecha Fin: </label>
+                    <input 
+                      className="inputDateFilter"
+                      type="date"
+                      value={DateFin}
+                      onChange={(e) => setDateFin(e.target.value)}
+                    />
+                  </div>
+                </div>
 								<div className="courseStatusFilte">
 									<label
 										className="labelFilterOption1"

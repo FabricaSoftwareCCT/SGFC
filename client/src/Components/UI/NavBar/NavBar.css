@@ -75,7 +75,7 @@
 
 .notifications-menu {
   position: relative;
-  width: auto;
+  width: 25%;
   height: auto;
 }
 
@@ -97,44 +97,57 @@
 }
 
 .dropdown-notifications {
+  width: 33%;
+  height: 100vh;
+  background-color: #1a1a1a;
   position: absolute;
-  top: 2.8rem;
-  left: -14px;
-  background-color: #007736;
-  border-radius: 1rem;
-  display: flex;
-  flex-direction: column;
-  padding: 0.5rem 0;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-  z-index: 100;
-  width: 280px;
-  max-height: 400px;
+  top: 4.5rem;
+  right: 0;
+  border-radius: 0.3rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   overflow-y: auto;
+  overflow-x: hidden;
+  z-index: 10000;
+  opacity: 0.85;
 }
 
 .dropdown-notifications > .notification-item {
-  width: 100%;
-  min-height: 60px;
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  padding: 0.5rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  transition: background-color 0.2s ease;
-}
-
-.dropdown-notifications > .notification-item:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+    position: relative;
+    top: calc(100% / 7);
+    width: 100%;
+    height: 100%;
+    padding: 0.5rem;
+    background: black;
 }
 
 .dropdown-notifications > .notification-item:last-child {
   border-bottom: none;
 }
 
+.notification{
+  width: 100%;
+  height: 10%;
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border: #fff 1px solid;
+  border-radius: 1rem;
+}
+
+.SubContentNotif{
+  width: 100%;
+  height: auto;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+}
+
+
 .container-img-notifications {
   width: 2rem;
   height: 2rem;
-  background-color: #b0b0b0;
+  background-color: #ffffff;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -152,7 +165,8 @@
   height: auto;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
+  justify-content: center;
   padding: 0.5rem 0.5rem;
   gap: 0.2rem;
 }
@@ -180,6 +194,117 @@
   color: rgba(255, 255, 255, 0.7);
   margin-top: 0.2rem;
 }
+
+.titleNotification{
+  width: 20%;
+  height: auto;
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-left: 1rem;
+  padding: 0 0.5rem;
+}
+
+.content-SearchNotification{
+  width: auto;
+  height: 12%;
+  display: flex;
+  flex-direction: column; 
+  margin: 1rem 0;
+  gap: 0.5rem;
+}
+
+.search-notification {
+  width: 100%;
+  height: 40%;
+  border-radius: 1.5rem;
+  border: none;
+  padding: 0 1rem;
+  font-size: 14px;
+  display: flex;
+  flex-direction: start;
+  margin-left: 0.5rem;
+}
+
+.inputSesarch{
+  width: 70%;
+  height: 1.5rem;
+  border-radius: 0.7rem;
+  border: none;
+  padding: 0 1rem;
+  font-size: 14px;
+  color: #1a1a1a;
+}
+
+.content-state {
+  width: 100%;
+  height: auto;
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+  font-size: 14px;
+  padding: 0 1.4rem;
+}
+
+.btnNotificationState{
+ display: flex;
+ height: 2rem;
+ flex-shrink: 0;
+ cursor: pointer;
+ align-items: center;
+ background-color: #00843d;
+ border-radius: 1rem;
+ padding: 0.7rem;
+ border-style: none;
+}
+
+.btnNotificationState:hover {
+  background-color: #08b358;
+  scale: 1.3;
+  transition: 300ms;
+}
+
+.content-date{
+  width: auto;
+  height: 12%;
+  display: flex;
+  flex-direction: column;
+  margin: 1rem 0;
+  gap: 1rem;
+}
+
+.SubtitleNotification{
+  width: 40%;
+  height: auto;
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 0 0.5rem; 
+  display: flex;
+  margin-left:1rem ;
+}
+
+.SubContentDate {
+  width: 100%;
+  height: auto;
+  display: flex;
+  gap: 2rem;
+  flex-direction: row;
+  margin-left: 1rem;
+}
+
+.notificationsDate{
+  width: auto;
+  height: 20%;
+  padding: 0.75rem 0 0.75rem 0;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  border-radius: 6px;
+  background: #fff;
+  color: #1a1a1a;
+  justify-content: center;
+  margin-left: 0.5rem;
+}
+
 
 .hamburger-btn {
   width: auto;

@@ -130,9 +130,18 @@ export const SeeMyProfile = () => {
 
   const fetchCursosInstructor = async () => {
     try {
-      const response = await axiosInstance.get(`/api/courses/instructor/${userId}`)
-      if (response.data.success) {
-        setCursos(response.data.cursos || [])
+      const response = await axiosInstance.get(`/api/courses/cursos-asignados/${userId}`)
+      console.log("Respuesta de cursos asignados:", response.data)
+      
+      if (response.data && Array.isArray(response.data)) {
+        // Mapear las asignaciones para extraer los cursos
+        const cursosAsignados = response.data
+          .filter(asignacion => asignacion.Curso) // Filtrar solo asignaciones con curso
+          .map(asignacion => asignacion.Curso) // Extraer el curso de cada asignación
+        
+        setCursos(cursosAsignados)
+      } else {
+        setCursos([])
       }
     } catch (error) {
       console.error("Error al consultar los cursos del instructor:", error)
@@ -548,38 +557,43 @@ export const SeeMyProfile = () => {
                 </div>
 
                 {tipoCuenta === "Instructor" && (
-                  <div className="admin_cursos_section">
-                    <h3 className="section_title">Cursos Asignados</h3>
-                    <div className="cursos_table">
-                      {cursos.length > 0 ? (
-                        <>
-                          {cursos.map((c) => (
-                            <div key={c.ID} className="curso_row">
-                              <div className="curso_info">
-                                <span className="curso_nombre">{c.nombre_curso}</span>
-                                <span className="curso_descripcion">
-                                  {c.descripcion || "Lorem Ipsum is simply dummy text of the printing and..."}
-                                </span>
-                              </div>
-                              <button
-                                className="btn_ver_detalles"
-                                onClick={() => {
-                                  navigate(`/Cursos/${c.ID}`)
-                                }}
-                              >
-                                Ver detalles
-                              </button>
+                <div className="admin_cursos_section">
+                  <h3 className="section_title">Cursos Asignados</h3>
+                  <div className="cursos_table">
+                    {cursos.length > 0 ? (
+                      <>
+                        {cursos.map((c) => (
+                          <div key={c.ID} className="curso_row">
+                            <div className="curso_info">
+                              <span className="curso_nombre">{c.nombre_curso}</span>
+                              <span className="curso_descripcion">
+                                {c.descripcion 
+                                  ? (c.descripcion.length > 120 
+                                      ? `${c.descripcion.substring(0, 120)}...` 
+                                      : c.descripcion)
+                                  : "Descripción no disponible"
+                                }
+                              </span>
                             </div>
-                          ))}
-                        </>
-                      ) : (
-                        <div className="cursos_empty">
-                          <p>Aún no tienes cursos asignados...</p>
-                        </div>
-                      )}
-                    </div>
+                            <button
+                              className="btn_ver_detalles"
+                              onClick={() => {
+                                navigate(`/Cursos/${c.ID}`)
+                              }}
+                            >
+                              Ver detalles
+                            </button>
+                          </div>
+                        ))}
+                      </>
+                    ) : (
+                      <div className="cursos_empty">
+                        <p>Aún no tienes cursos asignados...</p>
+                      </div>
+                    )}
                   </div>
-                )}
+                </div>
+              )}
               </div>
             )}
 
@@ -763,7 +777,7 @@ export const SeeMyProfile = () => {
 
               {/* Cursos Complementarios */}
               <div className="empresa_cursos_section">
-                <h3 className="section_title">Cursos Complemetarios</h3>
+                <h3 className="section_title">Cursos Complementarios</h3>
                 <div className="cursos_table">
                   {cursos.length > 0 ? (
                     <>
@@ -772,7 +786,7 @@ export const SeeMyProfile = () => {
                           <div className="curso_info">
                             <span className="curso_nombre">{c.nombre_curso}</span>
                             <span className="curso_descripcion">
-                              Lorem Ipsum is simply dummy text of the printing and...
+                              {c.descripcion || "Lorem Ipsum is simply dummy text of the printing and..."}
                             </span>
                           </div>
                           <button

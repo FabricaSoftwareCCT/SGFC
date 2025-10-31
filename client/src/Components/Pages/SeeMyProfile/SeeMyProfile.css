@@ -162,11 +162,11 @@
 .updateProfile.cancel {
   background-image: url("../../../assets/Icons/cerca.png");
   background-size: 60%;
-  background-color: #ef3c3c;
+  background-color: #a80000;
 }
 
 .updateProfile.cancel:hover {
-  background-color: #d32f2f;
+  background-color: #db1010;
 }
 
 .updateProfile1 {
@@ -176,16 +176,16 @@
   right: 3rem;
   width: 4rem;
   height: 4rem;
-  background-color: #00843e;
+  background-color: #00843d;
   border-radius: 10px;
   border-style: none;
-  background: center / 70% no-repeat url("../../../assets/Icons/marca-de-verificacion.png"), #00843e;
+  background: center / 70% no-repeat url("../../../assets/Icons/marca-de-verificacion.png"), #234433;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .updateProfile1:hover {
-  background-color: #006b32;
+  background-color: #163524;
   transform: scale(1.05);
 }
 
@@ -314,12 +314,12 @@
 }
 
 .btn_guardar {
-  background-color: #39ff14;
+  background-color: #00843d;
   color: #000000;
 }
 
 .btn_guardar:hover {
-  background-color: #2ecc11;
+  background-color: #00843d;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(57, 255, 20, 0.4);
 }
@@ -547,6 +547,7 @@
   border-radius: 15px;
 }
 
+/* Estilos mejorados para curso_row */
 .cursos_table {
   display: flex;
   flex-direction: column;
@@ -556,55 +557,72 @@
 .curso_row {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  padding: 1.25rem;
+  align-items: flex-start;
+  padding: 1.5rem;
   background-color: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 10px;
-  transition: all 0.2s ease;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  gap: 1.5rem;
 }
 
 .curso_row:hover {
   background-color: rgba(255, 255, 255, 0.05);
   border-color: rgba(57, 255, 20, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 132, 62, 0.1);
 }
 
 .curso_info {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.75rem;
   flex: 1;
+  min-width: 0;
 }
 
 .curso_nombre {
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 600;
   color: #ffffff;
+  line-height: 1.3;
 }
 
 .curso_descripcion {
   font-size: 14px;
   color: #b0b0b0;
+  line-height: 1.5;
+  /* Propiedad estándar primero para compatibilidad futura */
+  line-clamp: 2;
+  /* Propiedades WebKit para navegadores actuales */
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  display: -webkit-box;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-height: 3em;
 }
 
 .btn_ver_detalles {
-  padding: 0.5rem 1.5rem;
+  padding: 0.75rem 1.5rem;
   background-color: transparent;
   border: 1px solid #00843d;
-  border-radius: 6px;
+  border-radius: 8px;
   color: #00843d;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
   white-space: nowrap;
+  flex-shrink: 0;
+  min-width: 120px;
 }
 
 .btn_ver_detalles:hover {
   background-color: #00843d;
   color: #000000;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(17, 117, 1, 0);
+  box-shadow: 0 4px 12px rgba(0, 132, 61, 0.3);
 }
 
 .cursos_empty {
@@ -950,7 +968,7 @@
   margin-top: 0.5rem;
 }
 
-/* Responsive */
+/* Responsive mejorado */
 @media (max-width: 1024px) {
   .container_mainSeeMyProfile {
     flex-direction: column;
@@ -1004,12 +1022,19 @@
 
   .curso_row {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
     gap: 1rem;
   }
-
+  
   .btn_ver_detalles {
     width: 100%;
+    text-align: center;
+  }
+  
+  .curso_descripcion {
+    line-clamp: 3;
+    -webkit-line-clamp: 3;
+    max-height: 4.5em;
   }
 
   .aprendiz_datos_grid {

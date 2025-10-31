@@ -351,10 +351,12 @@ export const GestionUsuarios = () => {
 															key={estado}
 															type="button"
 															className={`status ${selectedUser.estado === estado.toLowerCase() ? "active" : ""}`}
-															onClick={() => setSelectedUser({
-																...selectedUser,
-																estado: selectedUser.toLowerCase()
-															})}
+															onClick={() => {
+																setSelectedUser({
+																	...selectedUser,
+																	estado: estado.toLowerCase()
+																})
+															}}
 														>
 															{estado}
 														</button>

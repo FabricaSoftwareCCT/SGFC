@@ -112,23 +112,37 @@
 }
 
 .dropdown-notifications > .notification-item {
-  width: 100%;
-  height: 9%;
-  display: flex;
-  justify-content: center;
-  padding: 0.5rem;
-  align-items: center;
-  background: black;
-}
-
-.dropdown-notifications > .notification-item:hover {
-  scale: 1.02;
-  transition: 1000ms;
+    position: relative;
+    top: calc(100% / 7);
+    width: 100%;
+    height: 100%;
+    padding: 0.5rem;
+    background: black;
 }
 
 .dropdown-notifications > .notification-item:last-child {
   border-bottom: none;
 }
+
+.notification{
+  width: 100%;
+  height: 10%;
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border: #fff 1px solid;
+  border-radius: 1rem;
+}
+
+.SubContentNotif{
+  width: 100%;
+  height: auto;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+}
+
 
 .container-img-notifications {
   width: 2rem;
@@ -248,6 +262,49 @@
   scale: 1.3;
   transition: 300ms;
 }
+
+.content-date{
+  width: auto;
+  height: 12%;
+  display: flex;
+  flex-direction: column;
+  margin: 1rem 0;
+  gap: 1rem;
+}
+
+.SubtitleNotification{
+  width: 40%;
+  height: auto;
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 0 0.5rem; 
+  display: flex;
+  margin-left:1rem ;
+}
+
+.SubContentDate {
+  width: 100%;
+  height: auto;
+  display: flex;
+  gap: 2rem;
+  flex-direction: row;
+  margin-left: 1rem;
+}
+
+.notificationsDate{
+  width: auto;
+  height: 20%;
+  padding: 0.75rem 0 0.75rem 0;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  border-radius: 6px;
+  background: #fff;
+  color: #1a1a1a;
+  justify-content: center;
+  margin-left: 0.5rem;
+}
+
 
 .hamburger-btn {
   width: auto;

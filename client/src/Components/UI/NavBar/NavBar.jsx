@@ -25,6 +25,8 @@ export const NavBar = ({ children }) => {
 	const [activeNotification, setActiveNotification] = useState(null)
 	const [Filter, setFilter] = useState([])
 	const [inputElement, setInputElement] = useState("")
+	const [Date, setDate] = useState("")
+	const [DateEnd, setDateEnd] = useState("")
 
 	const userSession =
 		JSON.parse(localStorage.getItem("userSession")) || JSON.parse(sessionStorage.getItem("userSession"))
@@ -277,10 +279,12 @@ export const NavBar = ({ children }) => {
 		setFilter(notificationsList)
 		setLoadingNotifications(true);
 		try{
+			setFilter(notificationsList)
 			const SearchName = notificationsList.filter((notif )=>  {
 				const charNotifications = notif.titulo.toLowerCase().includes(inputElement.toLowerCase());
 				const remitenteNotifications = notif.remitente?.nombres?.toLowerCase().includes(inputElement.toLowerCase());
-				return charNotifications || remitenteNotifications;
+				const dateMatch = !Date && !DateEnd || (notif.fecha_envio >= Date && notif.fecha_envio <= DateEnd);
+				return charNotifications || remitenteNotifications || dateMatch;
 		});
 			setFilter(SearchName)
 			setLoadingNotifications(false);
@@ -423,37 +427,55 @@ export const NavBar = ({ children }) => {
 											<button className="btnNotificationState" value="sin_leer" onClick={(e) => handleSearchState(e)}> Sin leer</button>
 											<button className="btnNotificationState" value="pendiente" onClick={(e) => handleSearchState(e)}> Pendiente </button>
 										</div>
-									</div>
-									
-									<div className="arrow-up" />
-									{loadingNotifications ? (
-										<div className="notification-item">Cargando...</div>
-									) : Filter.length === 0 ? (
-										<div className="notification-item">Sin notificaciones</div>
-									) : (
-										Filter.map((notif) => (
-											<div
-												className="notification-item"
-												key={notif.ID}
-												style={{ cursor: "pointer" }}
-												onClick={() => handleNotificationClick(notif)}
-											>
-												<div className="container-img-notifications">
-													<img src={notif.estado === "sin_leer" ? noRead : ifRead} alt="" />
+										<div className="content-date">
+											<h2 className="SubtitleNotification">Busar por fechas:</h2>
+											<div className="SubContentDate">
+												<div>	
+													<label> Fecha inicio: </label>
+													<input type="date" className="notificationsDate" placeholder="Ingrese fecha de inicio: " onChange={(e) => setDate(e.target.value)} />
 												</div>
-												<div className="container-text-notifications">
-													<p className="notification-sender">
-														{notif.remitente?.nombres
-															? `${notif.remitente.nombres} ${notif.remitente.apellidos}`
-															: "SGFC"}
-													</p>
-													<span className="notification-affair">{notif.titulo}</span>
+												<div>
+													<label> Fecha Fin: </label>
+													<input type="date" className="notificationsDate" placeholder="Ingrese fecha fin: " onChange={(e) => setDateEnd(e.target.value)} />
+												</div>
+											</div>										
+										</div>
+									</div>
+									<div className="notification-item">
+										{loadingNotifications ? (	
+										<div>Cargando...</div>
+											) : Filter.length === 0 ? (
+												<div>Sin notificaciones</div>
+											) : (
+											Filter.map((notif) => (
+											<div className="notification">
+												<div
+													className="SubContentNotif"
+													key={notif.ID}
+													style={{ cursor: "pointer" }}
+													onClick={() => handleNotificationClick(notif)}
+												>
+													<div className="container-img-notifications">
+														<img src={notif.estado === "sin_leer" ? noRead : ifRead} alt="" />
+													</div>
+													<div className="container-text-notifications">
+														<p className="notification-sender">
+															{notif.remitente?.nombres
+																? `${notif.remitente.nombres} ${notif.remitente.apellidos}`
+																: "SGFC"}
+														</p>
+														<span className="notification-affair">{notif.titulo}</span>
+													</div>
 												</div>
 											</div>
-										))
-									)}
+										
+											))
+									
+										)}
+									</div>
 								</div>
 							)}
+							
 
 						<button id="btn_profile" onClick={handleProfileClick}>
 							<img src={profile} alt="Perfil" />

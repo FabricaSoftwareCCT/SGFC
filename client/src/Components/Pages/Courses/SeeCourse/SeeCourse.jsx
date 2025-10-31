@@ -167,6 +167,7 @@ export const SeeCourse = () => {
 									Ver Material
 								</button>
 
+
 								{/* Botones condicionales */}
 								{userSession && (userSession.accountType === 'Administrador' || userSession.accountType === 'Gestor') && (
 									<button className='edit-btn' onClick={() => navigate(`/Cursos/ActualizarCurso/${id}`)}>
@@ -199,6 +200,11 @@ export const SeeCourse = () => {
 										Gestionar Asistencias
 									</button>
 								)}
+								{userSession && userSession.accountType === 'Gestor' && (
+									<button className='inscribe-btn' onClick={() => navigate()}>
+										Inscribir Aprendices
+									</button>
+								)}	
 							</div>
 						</div>
 					</div>

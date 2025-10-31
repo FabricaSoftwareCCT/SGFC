@@ -33,6 +33,7 @@ import { ConcertationProceeding } from './Components/Pages/proceedings/Concertat
 import { TrainingPlaceProceeding } from './Components/Pages/proceedings/TrainingPlaceProceeding';
 import { SupportMaterial } from './Components/Pages/Courses/SupportMaterial/SupportMaterial';
 import { SupportMaterialCourse } from './Components/Pages/Courses/SupportMaterialCourse/SupportMaterialCourse';
+import { InscribeEmployes } from './Components/Pages/GestionsEmployes/InscribeEmployes/InscribeEmployes';
 
 // Importación de modales
 import { NavBar } from './Components/UI/NavBar/NavBar';
@@ -327,6 +328,15 @@ function App() {
 						path="/Empleados/MisEmpleados"
 						element={<GestionsEmployes />}
 					/>
+					<Route path="/Empleados/InscribirEmpleados" element={
+						<Layout
+							setShowSignIn={setShowSignIn}
+							setShowSignUp={setShowSignUp}
+							setShowModalGeneral={setShowModalGeneral}
+						>
+							<InscribeEmployes />
+						</Layout>
+					} />
 
 					<Route path="/Empleados/CrearEmpleado" element={<CreateEmploye />} />
 					<Route

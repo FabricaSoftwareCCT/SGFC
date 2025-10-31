@@ -283,6 +283,20 @@
   height: auto !important;
 }
 
+.inscribe-btn {
+  padding: 1rem 2rem;
+  background: #006f2c;
+  border: none;
+  border-radius: 12px;
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: auto !important;
+  height: auto !important;
+}
+
 .course-page-container .edit-btn:hover {
   background: #00c26e;
   transform: translateY(-2px);

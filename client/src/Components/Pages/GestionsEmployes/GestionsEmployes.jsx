@@ -1,5 +1,5 @@
 "use client"
-
+import { useNavigate } from "react-router-dom" // ✅ Agregar esta importación
 import { useState, useEffect } from "react"
 import "./GestionsEmployes.css"
 import { Header } from "../../Layouts/Header/Header"
@@ -8,6 +8,7 @@ import { Main } from "../../../Components/Layouts/Main/Main"
 import { UpdateEmploye } from "./UpdateEmploye/UpdateEmploye"
 import axiosInstance from "../../../config/axiosInstance"
 import { useModal } from "../../../Context/ModalContext"
+import { InscribeEmployes } from "../GestionsEmployes/InscribeEmployes/InscribeEmployes"
 
 export const GestionsEmployes = () => {
   const [employes, setEmployes] = useState([])
@@ -26,6 +27,7 @@ export const GestionsEmployes = () => {
   const [loading, setLoading] = useState(false)
 
   const { setShowModalCreateEmployee } = useModal()
+  const navigate = useNavigate()
   const userSession =
     JSON.parse(localStorage.getItem("userSession")) || JSON.parse(sessionStorage.getItem("userSession"))
 
@@ -205,6 +207,10 @@ export const GestionsEmployes = () => {
     }, 100)
   }
 
+  const handleInscribeEmployes = () => {
+    navigate("/Empleados/InscribirEmpleados")
+  }
+
   const getImageSrcFromBase64 = (imageData) => {
     
     // Si no hay datos de imagen, usar imagen por defecto
@@ -330,6 +336,12 @@ export const GestionsEmployes = () => {
               <button className="btn_createEmploye" onClick={showModalCreateEmploye}>
                 Agregar Empleado
               </button>
+              <button 
+                  className="btn_inscribirEmpleados" 
+                  onClick={handleInscribeEmployes}
+                >
+                  Inscribir empleados a cursos
+                </button>
             </div>
 
             <div className="containerGestionsEmployeResults">
@@ -352,7 +364,7 @@ export const GestionsEmployes = () => {
                           return (
                             <div key={employe.ID} className="employee-card">
                               {/* Sección 1: Imagen */}
-                              <div className="employee-image-section">
+                              <div className="employee-image-section1">
                                 <img
                                   src={getImageSrcFromBase64(employe?.foto_perfil)}
                                   alt={`${employe.nombres || 'Sin nombre'} ${employe.apellidos || 'Sin apellido'}`}

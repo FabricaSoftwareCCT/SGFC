@@ -48,7 +48,6 @@
     height: auto;
     display: flex;
     flex-direction: column;
-    align-items: center;
     gap: 1rem;
 }
 
@@ -163,6 +162,22 @@
 }
 
 .btn_createEmploye {
+    width: 100%;
+    height: auto;
+    background-color: #00843d;
+    border-radius: 15px;
+    border-style: none;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    padding: 12px;
+    font-size: 16px;
+    color: #fff;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+  }
+
+  .btn_inscribirEmpleados{
     width: 100%;
     height: auto;
     background-color: #00843d;

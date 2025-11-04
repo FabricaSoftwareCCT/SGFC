@@ -511,6 +511,16 @@
   color: #b0b0b0;
 }
 
+.select-disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+.select-disabled:hover {
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
 .empresa_input {
   padding: 0.75rem 1rem;
   background-color: rgba(255, 255, 255, 0.05);
@@ -544,19 +554,18 @@
   transition: all 0.2s ease;
   width: 100%;
   cursor: pointer;
-
-  /* Quitar la flecha nativa */
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
-
-  /* Agregar flecha personalizada */
   background-image: url("data:image/svg+xml;utf8,<svg fill='white' height='10' width='14' xmlns='http://www.w3.org/2000/svg'><path d='M7 10L0 0h14z'/></svg>");
   background-repeat: no-repeat;
   background-position: right 1rem center;
   background-size: 12px 8px;
+  
+  /* Agregar esto */
+  position: relative;
+  z-index: 10;
 }
-
 /* Estado enfocado */
 .empresa_input-s:focus {
   border-color: #2F8EAC;

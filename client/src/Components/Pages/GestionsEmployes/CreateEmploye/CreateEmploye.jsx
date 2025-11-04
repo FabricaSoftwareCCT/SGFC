@@ -33,25 +33,33 @@ export const CreateEmploye = () => {
 
   // Obtener información del usuario y empresas
   useEffect(() => {
-    const userSession = JSON.parse(localStorage.getItem("userSession") || sessionStorage.getItem("userSession") || '{}');
-    const accountType = userSession.accountType;
-    const isAdminLike = accountType === 'Administrador' || accountType === 'Gestor';
-    setIsAdmin(isAdminLike);
+  const userSession = JSON.parse(localStorage.getItem("userSession") || sessionStorage.getItem("userSession") || '{}');
+  const accountType = userSession.accountType;
+  const adminStatus = accountType === 'Administrador' || accountType === 'Gestor';
+  setIsAdmin(adminStatus);
 
-    if (isAdminLike) {
-      fetchEmpresas();
-    }
-  }, []);
+  if (adminStatus) {
+    fetchEmpresas();
+  }
+}, []);
 
-  // Obtener empresas para administradores
-  const fetchEmpresas = async () => {
-    try {
-      const response = await axiosInstance.get('/api/users/admin/empresas');
-      setEmpresas(response.data.empresas || []);
-    } catch (error) {
-      console.error("Error al obtener las empresas:", error);
-    }
-  };
+const [loadingEmpresas, setLoadingEmpresas] = useState(false);
+
+const fetchEmpresas = async () => {
+  try {
+    setLoadingEmpresas(true);
+    const response = await axiosInstance.get('/api/users/admin/empresas');
+    console.log('Respuesta de empresas:', response.data);
+    
+    const empresasData = response.data.empresas || response.data.data || response.data || [];
+    setEmpresas(Array.isArray(empresasData) ? empresasData : []);
+  } catch (error) {
+    console.error("Error al obtener las empresas:", error);
+    setEmpresas([]);
+  } finally {
+    setLoadingEmpresas(false);
+  }
+};
 
   // Validaciones
   const validateForm = () => {
@@ -110,8 +118,10 @@ export const CreateEmploye = () => {
   };
 
   // Manejar cambios en los campos del formulario
+  // Manejar cambios en los campos del formulario
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+    console.log(`Campo cambiado: ${name} = ${value}`); // ← Para debug
     setFormData({ ...formData, [name]: value });
     
     // Limpiar error del campo cuando el usuario empiece a escribir
@@ -336,25 +346,36 @@ export const CreateEmploye = () => {
           </label>
           
           {isAdmin && (
-            <label>
-              Empresa
-              <select
-                name="empresaId"
-                value={formData.empresaId}
-                onChange={handleInputChange}
-                required
-                className={`empresa-select ${errors.empresaId ? 'error' : ''}`}
-              >
-                <option value="">Selecciona una empresa</option>
-                {empresas.map((empresa) => (
-                  <option key={empresa.ID} value={empresa.ID}>
-                    {empresa.nombre_empresa} - {empresa.NIT}
-                  </option>
-                ))}
-              </select>
-              {errors.empresaId && <span className="error-message">{errors.empresaId}</span>}
-          </label>
-          )}
+  <label>
+    Empresa
+    {loadingEmpresas ? (
+      <select disabled>
+        <option>Cargando empresas...</option>
+      </select>
+    ) : (
+      <select
+        name="empresaId"
+        value={formData.empresaId}
+        onChange={handleInputChange}
+        required
+        className={`empresa-select ${errors.empresaId ? 'error' : ''}`}
+      >
+        <option value="">Selecciona una empresa</option>
+        {empresas.map((empresa) => (
+          <option key={empresa.ID || empresa.id} value={empresa.ID || empresa.id}>
+            {empresa.nombre_empresa || empresa.nombre || empresa.razon_social} - {empresa.NIT || empresa.nit}
+          </option>
+        ))}
+      </select>
+    )}
+    {errors.empresaId && <span className="error-message">{errors.empresaId}</span>}
+    
+    {/* Debug info */}
+    <small style={{color: '#666', fontSize: '12px', display: 'block', marginTop: '5px'}}>
+      {empresas.length} empresas cargadas | Seleccionada: {formData.empresaId || 'Ninguna'}
+    </small>
+  </label>
+)}
         </div>
 
         <div className="modal-right">

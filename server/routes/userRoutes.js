@@ -45,8 +45,8 @@ router.post('/empresas', authMiddleware, upload.single('img_empresa'), createEmp
 
 // Rutas para administradores
 // Permitir Administrador y Gestor
-router.get('/admin/empleados', authMiddleware, authorizeRoles(['Administrador', 'Gestor']), getAllEmpleadosForAdmin);
-router.get('/admin/empresas', authMiddleware, authorizeRoles(['Administrador', 'Gestor']), getAllEmpresasForAdmin);
+router.get('/admin/empleados', authMiddleware, authorizeRoles(['Administrador', 'Gestor', "Empresa"]), getAllEmpleadosForAdmin);
+router.get('/admin/empresas', authMiddleware, authorizeRoles(['Administrador', 'Gestor', 'Empresa']), getAllEmpresasForAdmin);
 router.post('/admin/empleados', authMiddleware, authorizeRoles(['Administrador', 'Gestor']), upload.single('foto_perfil'), createEmpleadoForAdmin);
 router.put("/admin/changerole/:id", authMiddleware, authorizeRoles(["Administrador"]), changeRole)
 

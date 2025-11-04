@@ -150,41 +150,34 @@ export const SeeMyProfile = () => {
   }
 
   const cargarUbicaciones = async (empresaData) => {
-    try {
-      // Cargar departamentos
-      const departamentosRes = await axiosInstance.get("/api/ubicaciones/departamentos")
-      const departamentosData = Array.isArray(departamentosRes.data)
-        ? departamentosRes.data
-        : departamentosRes.data.data || []
-      setDepartamentos(departamentosData)
+  try {
+    const departamentosRes = await axiosInstance.get("/api/ubicaciones/departamentos")
+    const departamentosData = Array.isArray(departamentosRes.data)
+      ? departamentosRes.data
+      : departamentosRes.data.data || []
+    setDepartamentos(departamentosData)
 
-      // Si hay ciudad_ID, cargar ciudades del departamento correspondiente
-      if (empresaData.ciudad_ID) {
-        // Primero obtener la ciudad para saber su departamento
-        const ciudadRes = await axiosInstance.get(`/api/ubicaciones/ciudades/${empresaData.ciudad_ID}`)
-        const ciudadData = ciudadRes.data
+    if (empresaData.ciudad_ID) {
+      const ciudadRes = await axiosInstance.get(`/api/ubicaciones/ciudades/${empresaData.ciudad_ID}`)
+      const ciudadData = ciudadRes.data
 
-        if (ciudadData.departamento_ID) {
-          setDepartamentoSeleccionado(ciudadData.departamento_ID)
-          setCiudadSeleccionada(empresaData.ciudad_ID)
+      if (ciudadData.departamento_ID) {
+        // Establecer como string para los selects
+        setDepartamentoSeleccionado(ciudadData.departamento_ID.toString())
+        setCiudadSeleccionada(empresaData.ciudad_ID.toString())
 
-          // Cargar ciudades del departamento
-          const ciudadesRes = await axiosInstance.get(
-            `/api/ubicaciones/departamentos/${ciudadData.departamento_ID}/ciudades`,
-          )
-          const ciudadesData = Array.isArray(ciudadesRes.data) ? ciudadesRes.data : ciudadesRes.data.data || []
-          setCiudades(ciudadesData)
-        }
-      } else {
-        // Si no hay ciudad_ID, limpiar los selects
-        setDepartamentoSeleccionado("")
-        setCiudadSeleccionada("")
-        setCiudades([])
+        // Cargar ciudades del departamento
+        const ciudadesRes = await axiosInstance.get(
+          `/api/ubicaciones/departamentos/${ciudadData.departamento_ID}/ciudades`,
+        )
+        const ciudadesData = Array.isArray(ciudadesRes.data) ? ciudadesRes.data : ciudadesRes.data.data || []
+        setCiudades(ciudadesData)
       }
-    } catch (error) {
-      console.error("Error al cargar ubicaciones:", error)
     }
+  } catch (error) {
+    console.error("Error al cargar ubicaciones:", error)
   }
+}
 
   const handleInputChange = (e) => {
     const { name, value } = e.target
@@ -204,47 +197,47 @@ export const SeeMyProfile = () => {
   }
 
   const handleDepartamentoChange = async (e) => {
-    const departamentoId = e.target.value
-    setDepartamentoSeleccionado(departamentoId)
-    setCiudadSeleccionada("")
+  const departamentoId = e.target.value
+  setDepartamentoSeleccionado(departamentoId)
+  setCiudadSeleccionada("")
 
-    // Actualizar el perfil con el nuevo departamento
-    setPerfil((prev) => ({
-      ...prev,
-      Empresa: {
-        ...prev.Empresa,
-        departamento_ID: departamentoId,
-        ciudad_ID: null,
-      },
-    }))
+  // Actualizar el perfil inmediatamente
+  setPerfil((prev) => ({
+    ...prev,
+    Empresa: {
+      ...prev.Empresa,
+      departamento_ID: departamentoId ? Number.parseInt(departamentoId) : null,
+      ciudad_ID: null, // Resetear ciudad cuando cambia departamento
+    },
+  }))
 
-    if (departamentoId) {
-      try {
-        const ciudadesRes = await axiosInstance.get(`/api/ubicaciones/departamentos/${departamentoId}/ciudades`)
-        const ciudadesData = Array.isArray(ciudadesRes.data) ? ciudadesRes.data : ciudadesRes.data.data || []
-        setCiudades(ciudadesData)
-      } catch (error) {
-        console.error("Error al cargar ciudades:", error)
-        setCiudades([])
-      }
-    } else {
+  if (departamentoId) {
+    try {
+      const ciudadesRes = await axiosInstance.get(`/api/ubicaciones/departamentos/${departamentoId}/ciudades`)
+      const ciudadesData = Array.isArray(ciudadesRes.data) ? ciudadesRes.data : ciudadesRes.data.data || []
+      setCiudades(ciudadesData)
+    } catch (error) {
+      console.error("Error al cargar ciudades:", error)
       setCiudades([])
     }
+  } else {
+    setCiudades([])
   }
+}
 
-  const handleCiudadChange = (e) => {
-    const ciudadId = e.target.value
-    setCiudadSeleccionada(ciudadId)
+const handleCiudadChange = (e) => {
+  const ciudadId = e.target.value
+  setCiudadSeleccionada(ciudadId)
 
-    // Actualizar el perfil con la nueva ciudad
-    setPerfil((prev) => ({
-      ...prev,
-      Empresa: {
-        ...prev.Empresa,
-        ciudad_ID: ciudadId,
-      },
-    }))
-  }
+  // Actualizar el perfil inmediatamente
+  setPerfil((prev) => ({
+    ...prev,
+    Empresa: {
+      ...prev.Empresa,
+      ciudad_ID: ciudadId ? Number.parseInt(ciudadId) : null,
+    },
+  }))
+}
 
   const handleFileChange = (e, type) => {
     const file = e.target.files[0]
@@ -268,6 +261,12 @@ export const SeeMyProfile = () => {
     setEditMode(!model)
     setPerfil(perfilOriginal)
   }
+
+  console.log("Estado actual del perfil:", {
+  departamentoSeleccionado,
+  ciudadSeleccionada,
+  empresa: perfil?.Empresa
+})
 
   const handleSaveChanges = async () => {
     // Mezclar datos originales y actuales para evitar null/undefined
@@ -731,47 +730,46 @@ export const SeeMyProfile = () => {
                   </div>
 
                   <div className="empresa_field">
-                    <label>Departamento:</label>
-                    {editMode ? (
-                      <select
-                        name="departamento"
-                        className="empresa_input-s"
-                        value={departamentoSeleccionado}  
-                        onChange={handleDepartamentoChange}
-                      >
-                        {/* <option value="">Ingrese un departamento...</option> */}
-                        {departamentos.map((dep) => (
-                          <option key={dep.ID} value={dep.ID}>
-                            {dep.nombre}
-                          </option>
-                        ))}
-                      </select>
-                    ) : (
-                      <span className="empresa_value">{perfil?.Empresa?.Ciudad?.Departamento?.nombre || "-"}</span>
-                    )}
-                  </div>
+  <label>Departamento:</label>
+  {editMode ? (
+    <select
+      name="departamento"
+      className="empresa_input-s"
+      value={departamentoSeleccionado || ""}  
+      onChange={handleDepartamentoChange}
+    >
+      <option value="">Seleccione un departamento...</option>
+      {departamentos.map((dep) => (
+        <option key={dep.ID} value={dep.ID.toString()}> {/* Convertir a string */}
+          {dep.nombre}
+        </option>
+      ))}
+    </select>
+  ) : (
+    <span className="empresa_value">{perfil?.Empresa?.Ciudad?.Departamento?.nombre || "-"}</span>
+  )}
+</div>
 
-                  <div className="empresa_field">
-                    <label>Ciudad:</label>
-                    {editMode ? (
-                      <select
-                        name="ciudad"
-                        className="empresa_input-s"
-                        value={ciudadSeleccionada}
-                        onChange={handleCiudadChange}
-                        disabled={!departamentoSeleccionado}
-                      >
-                        {/* <option value="">Ingrese una ciudad...</option> */}
-                        {ciudades.map((ciudad) => (
-                          <option key={ciudad.ID} value={ciudad.ID}>
-                            {ciudad.nombre}
-                          </option>
-                        ))}
-                      </select>
-                    ) : (
-                      <span className="empresa_value">{perfil?.Empresa?.Ciudad?.nombre || "-"}</span>
-                    )}
-                  </div>
+<div className="empresa_field">
+  <label>Ciudad:</label>
+  {editMode ? (
+    <select
+      name="ciudad"
+      className={`empresa_input-s ${!departamentoSeleccionado ? 'select-disabled' : ''}`}
+      value={ciudadSeleccionada || ""}
+      onChange={handleCiudadChange}
+    >
+      <option value="">Seleccione una ciudad...</option>
+      {ciudades.map((ciudad) => (
+        <option key={ciudad.ID} value={ciudad.ID.toString()}> {/* Convertir a string */}
+          {ciudad.nombre}
+        </option>
+      ))}
+    </select>
+  ) : (
+    <span className="empresa_value">{perfil?.Empresa?.Ciudad?.nombre || "-"}</span>
+  )}
+</div>
                 </div>
               </div>
 

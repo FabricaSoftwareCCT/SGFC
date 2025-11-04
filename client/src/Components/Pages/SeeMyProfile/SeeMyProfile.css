@@ -532,6 +532,61 @@
   color: #666666;
 }
 
+/* ====== ESTILOS PARA LOS SELECTS ====== */
+.empresa_input-s {
+  padding: 0.75rem 1rem;
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.2s ease;
+  width: 100%;
+  cursor: pointer;
+
+  /* Quitar la flecha nativa */
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+
+  /* Agregar flecha personalizada */
+  background-image: url("data:image/svg+xml;utf8,<svg fill='white' height='10' width='14' xmlns='http://www.w3.org/2000/svg'><path d='M7 10L0 0h14z'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 12px 8px;
+}
+
+/* Estado enfocado */
+.empresa_input-s:focus {
+  border-color: #2F8EAC;
+  background-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 10px rgba(47, 142, 172, 0.3);
+}
+
+/* Color del texto del placeholder (primer option vacío) */
+.empresa_input-s option[value=""] {
+  color: #888;
+}
+
+/* Opciones dentro del desplegable */
+.empresa_input-s option {
+  background-color: #1c1c1c;
+  color: #ffffff;
+}
+
+/* Hover sobre las opciones (según navegador) */
+.empresa_input-s option:hover {
+  background-color: #2F8EAC;
+  color: #fff;
+}
+
+/* Estado deshabilitado */
+.empresa_input-s:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .empresa_value {
   padding: 0.75rem 1rem;
   background-color: rgba(255, 255, 255, 0.05);

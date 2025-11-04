@@ -735,11 +735,11 @@ export const SeeMyProfile = () => {
                     {editMode ? (
                       <select
                         name="departamento"
-                        className="empresa_input"
-                        value={departamentoSeleccionado}
+                        className="empresa_input-s"
+                        value={departamentoSeleccionado}  
                         onChange={handleDepartamentoChange}
                       >
-                        <option value="">Ingrese un departamento...</option>
+                        {/* <option value="">Ingrese un departamento...</option> */}
                         {departamentos.map((dep) => (
                           <option key={dep.ID} value={dep.ID}>
                             {dep.nombre}
@@ -756,12 +756,12 @@ export const SeeMyProfile = () => {
                     {editMode ? (
                       <select
                         name="ciudad"
-                        className="empresa_input"
+                        className="empresa_input-s"
                         value={ciudadSeleccionada}
                         onChange={handleCiudadChange}
                         disabled={!departamentoSeleccionado}
                       >
-                        <option value="">Ingrese una ciudad...</option>
+                        {/* <option value="">Ingrese una ciudad...</option> */}
                         {ciudades.map((ciudad) => (
                           <option key={ciudad.ID} value={ciudad.ID}>
                             {ciudad.nombre}

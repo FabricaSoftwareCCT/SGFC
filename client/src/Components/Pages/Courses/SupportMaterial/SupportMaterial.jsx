@@ -180,7 +180,7 @@ export const SupportMaterial = () => {
 	}
 
 	const esAprendiz = accountType === 'Aprendiz';
-	const puedeSubirArchivos = (accountType == "Administrador" || accountType == "Instructor");
+	const puedeSubirArchivos = (accountType == "Administrador" || accountType == "Instructor") && (accountType == "Instructor" ? cursoSeleccionado.instructor_ID === userSession.id : true);
 	const puedeEliminarArchivos = (accountType == "Administrador" || accountType == "Instructor");
 
 	useEffect(() => {

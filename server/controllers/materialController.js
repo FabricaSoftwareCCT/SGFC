@@ -2,6 +2,7 @@ const path = require("path");
 const CursoTieneMaterialDeApoyo = require("../models/CursoTieneMaterialDeApoyo");
 const MaterialDeApoyo = require("../models/MaterialDeApoyo");
 const { mkdirSync, writeFileAsync, writeFileSync } = require("fs");
+const Curso = require("../models/curso");
 
 let dbInstance;
 
@@ -44,7 +45,7 @@ const crearMaterial = async (req, res) => {
 	const { accountType } = req.user;
 	const userId = req.user.id;
 
-	//try {
+	try {
 		if (
 			accountType !== "Administrador" &&
 			accountType !== "Instructor" &&
@@ -57,7 +58,21 @@ const crearMaterial = async (req, res) => {
 
 		if ((!tipo) || (tipo !== "pdf" && tipo !== "video" && tipo !== "enlace")) {
 			return res.status(401).json({
-				message: "Tipo de material invalido"
+				message: "Tipo de material invalido."
+			})
+		}
+
+		const curso = await Curso.findByPk(id)
+
+		if (!curso) {
+			return res.status(404).json({
+				message: "No se encontró el curso."
+			})
+		}
+
+		if (accountType === "Instructor" && curso.dataValues.instructor_ID != userId) {
+			return res.status(403).json({
+				message: "No eres el instructor de este curso."
 			})
 		}
 
@@ -115,12 +130,12 @@ const crearMaterial = async (req, res) => {
 		return res.status(200).send({
 			message: "Se ha creado el criterio"
 		})
-	/*} catch (error) {
+	} catch (error) {
 		console.error(`Error al crear el material ${error}`)
 		res.status(500).send({
 			message: "Ocurrió un error interno al crear el material."
 		})
-	}*/
+	}
 }
 
 const actualizarMaterial = async (req, res) => {

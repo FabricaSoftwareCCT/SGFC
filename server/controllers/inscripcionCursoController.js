@@ -239,10 +239,7 @@ const getAllInscripciones = async (req, res) => {
           }
       })
     )
-    return res.status(200).json({
-      message : "melo",
-      consultar
-    })
+    return res.status(200).json(consultar)
   } catch (error) {
     console.error("No se pudo obtener todas las inscripciones", error)
     return res.status().json({

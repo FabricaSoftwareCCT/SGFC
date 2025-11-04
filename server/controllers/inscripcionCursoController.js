@@ -3,6 +3,7 @@
 const InscripcionCurso = require("../models/InscripcionCurso");
 const Curso = require("../models/curso");
 const Usuario = require("../models/User");
+const Empresa = require("../models/empresa")
 const { json } = require("sequelize");
 const e = require("express");
 
@@ -202,7 +203,56 @@ const inscripcionEmpleados = async (req, res ) => {
     }
 }
 
+const getAllInscripciones = async (req, res) => {
+  try {
+    const {curso_ID} = req.params
+    
+    if (!curso_ID) {
+        return res.status(400).json({
+          message : "No se envio el id del curso"
+        })
+    }
+
+    const curso = await Curso.findByPk(curso_ID)
+    if (!curso) {
+        return res.status(404).json({
+          message : "No se encontro el curso"
+        })
+    }
+    const inscribieron = await InscripcionCurso.findAll({
+      where : {
+        curso_ID : curso_ID
+      },
+      attributes : ['aprendiz_ID', 'fecha_inscripcion']
+    })
+    const consultar = await Promise.all(
+      inscribieron.map( async (i) =>{
+          const consult = await Usuario.findByPk(i.aprendiz_ID)
+          const consult1 = await Empresa.findByPk(consult.dataValues.empresa_ID)
+          return {
+            nombres : consult.dataValues.nombres,
+            empresa : consult1.dataValues.nombre_empresa,
+            celular : consult.dataValues.celular,
+            email : consult.dataValues.email,
+            apellidos : consult.dataValues.apellidos,
+            fecha_inscripcion : i.fecha_inscripcion
+          }
+      })
+    )
+    return res.status(200).json({
+      message : "melo",
+      consultar
+    })
+  } catch (error) {
+    console.error("No se pudo obtener todas las inscripciones", error)
+    return res.status().json({
+      message : "No se pudo obtener todas las inscripciones"
+    })
+  }
+}
+
 module.exports = {
   crearOActualizarInscripcion,
-  inscripcionEmpleados
+  inscripcionEmpleados,
+  getAllInscripciones
 };

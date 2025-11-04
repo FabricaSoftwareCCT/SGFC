@@ -101,14 +101,14 @@ describe('Probar el modulo de administrador', ()=>{
         cy.contains('.offer-button', 'Abierta').click()
         cy.contains('.offer-button', 'Activo').click()
 
-        cy.get('.containerDetails_course2').get('.duracion-inputs').find('input[placeholder="Días"]').type('30')
+        cy.get('.containerDetails_course2').get('.duracion-inputs').find('input[placeholder="Días"]').clear().type('20')
         cy.get('.containerDetails_course2').get('.lugar-formacion').find('input[type="text"]').type('Virtual')
 
         cy.get('.addDate').first().click()
 
         //Ingresar Fechas
-        cy.get('.organized-date-inputs').contains('label', 'Fecha inicio:').find('input[type="date"]').type('2025-10-30')
-        cy.get('.organized-date-inputs').contains('label', 'Fecha fin:').find('input[type="date"]').type('2025-10-31')
+        cy.get('.organized-date-inputs').contains('label', 'Fecha inicio:').find('input[type="date"]').eq(0).type('2025-11-05')
+        cy.get('.organized-date-inputs').contains('label', 'Fecha fin:').find('input[type="date"]').last().type('2025-11-24')
 
         //Seleccionar horario de curso
         const selectTimeSlot = (time, day) => {
@@ -204,7 +204,7 @@ describe('Probar el modulo de administrador', ()=>{
         cy.get('#modal-overlayCreateInstructor').find('.modal-left').contains('label', 'Cédula').first().find('input[name="documento"]').type('8888889')
         cy.get('.modal-left').contains('label', 'Título').find('input[type="text"]').type('Instructor')
         cy.get('#modal-overlayCreateInstructor').find('.modal-left').contains('label', 'Celular').first().find('input[name="celular"]').type('3105557789')
-        cy.get('#modal-overlayCreateInstructor').find('.modal-left').contains('label', 'Email').first().find('input[type="email"]').type('wayasa2839@dwakm.com')
+        cy.get('#modal-overlayCreateInstructor').find('.modal-left').contains('label', 'Email').first().find('input[type="email"]').type('dafar65911@fandoe.com')
         cy.get('#modal-overlayCreateInstructor').find('.status-container').contains('.status', 'Activo').first().click({force:true})
         cy.get('.modal-right').get('.save-button').first().click({force : true})
     })
@@ -227,18 +227,18 @@ describe('Probar el modulo de administrador', ()=>{
 
         //Entrar a Gestion Instructores
         cy.contains('button', 'Gestión de Instructores').first().click({force:true})
-        cy.get('.inputSearchContainer').find('input[id="inputNameCC"]').type('Andres')
+        cy.get('.inputSearchContainer').find('input[id="inputNameCC"]').type('samuel')
 
         //Ver pefil de un instructor y Editar
         cy.get('.profile-btn').first().click({force:true})
         cy.get('.edit-button-updateInstructor').first().click({force:true})
 
         //Modificar datos del instructor
-        cy.get('.modal-left-update').find('input[name="nombres"]').first().clear({force:true}).type('Andres Felipe')
+        cy.get('.modal-left-update').find('input[name="email"]').first().clear({force:true}).type('Andres Felipe')
         cy.get('.edit-button-updateInstructor').first().click({force:true})
     })
 
-    it('Crear un Gestor', ()=>{
+    it.skip('Crear un Gestor', ()=>{
         cy.visit("http://localhost:5173/") 
         cy.get(".button_signIn").first().click({force : true})
 

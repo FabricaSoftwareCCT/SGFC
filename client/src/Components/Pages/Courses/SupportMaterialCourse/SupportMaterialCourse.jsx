@@ -121,29 +121,18 @@ export const SupportMaterialCourse = () => {
                 <div className="material-container-c">
                     <div className="material-header">
                         <h1 className='title-material'>Material de Apoyo</h1>
-                        <button className='btn-back-c' onClick={() => navigate(-1)}>
-                            Volver al Curso
-                        </button>
                     </div>
-                    
+                     <div>
+                        <button className='btn-back-c' onClick={() => navigate(-1)}>Volver al Curso</button>
+                        </div>
                     <div className='material-content-c'>
+                        {/* Solo mostramos la sección de archivos */}
                         <div className='archivos-section-c'>
                             <div className='archivos-header-c'>
-                                <h2>{cursoActual?.nombre_curso || 'Curso'}</h2>
+                                <h2>Material de Apoyo - {cursoActual?.nombre_curso || 'Curso'}</h2>
 
-                                {puedeSubirArchivos && (
+                                {puedeSubirArchivos &&(
                                     <div className='upload-section-c'>
-                                        <label htmlFor='file-upload' className='upload-btn-c'>
-                                            {subiendoArchivo ? 'Subiendo...' : 'Subir Archivo'}
-                                        </label>
-                                        <input
-                                            id="file-upload"
-                                            type="file"
-                                            onChange={handleFileUpload}
-                                            disabled={subiendoArchivo}
-                                            style={{ display: 'none' }}
-                                        />
-                                    </div>
                                     <button className='upload-btn-c' onClick={() => setShowMaterialCreation(true)} disabled={subiendoArchivo}>
                                         {subiendoArchivo ? 'Subiendo...' : 'Crear material'}
                                     </button>

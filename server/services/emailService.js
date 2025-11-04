@@ -8,6 +8,7 @@ const Notificacion = require("../models/Notificacion");
 
 const fs = require("fs");
 const path = require("path");
+const { Sequelize, Op } = require("sequelize");
 const fechaSolicitud = new Date(
 	Date.now() - new Date().getTimezoneOffset() * 60000
 );
@@ -697,6 +698,8 @@ const sendConcertacionActaEmail = async (req, res) => {
 			nombreActa,
 		} = req.body;
 
+		const involucrados = JSON.parse(req.body.involucrados)
+
 		//  Parsear objetos JSON como respaldo
 		let empresaObj = null;
 		let managerObj = null;
@@ -752,51 +755,70 @@ const sendConcertacionActaEmail = async (req, res) => {
 			pdf_acta: pdfFileName,
 		});
 
-		//  Enviar correo con el acta adjunta
-		let transporter = nodemailer.createTransport({
-			service: "Gmail",
-			auth: {
-				user: "softwareccyt@gmail.com",
-				pass: process.env.GOOGLE_APP_PASSWORD,
-			},
-		});
+		try {
+			for (let i of involucrados) {
 
-		await transporter.sendMail({
-			from: `"SGFC" <${
-				process.env.EMAIL_USER || "softwareccyt@gmail.com"
-			}>`,
-			to: "softwareccyt@gmail.com",
-			subject: `Nueva Acta de Concertación: ${
-				nombreActa || "Sin Título"
-			}`,
-			html: `
-        <h2>Nueva Acta de Concertación</h2>
-        <p><strong>Instructor:</strong> ${
-			managerObj
-				? `${managerObj.nombres} ${managerObj.apellidos}`
-				: "No especificado"
-		}</p>
-        <p><strong>Email:</strong> ${
-			managerObj ? managerObj.email : "No especificado"
-		}</p>
-        <p><strong>Empresa:</strong> ${
-			empresaObj ? empresaObj.nombre_empresa : "No especificada"
-		}</p>
-        <p><strong>Fecha de creación:</strong> ${new Date(
-			fecha_acta
-		).toLocaleString()}</p>
-        <p><strong>ID del acta:</strong> ${nuevaActa.ID}</p>
-        <p>Se ha registrado una nueva acta de concertación en el sistema.</p>
-      `,
-			attachments: [
-				{
-					filename: pdfFileName,
-					content: pdfBuffer,
-				},
-			],
-		});
+				const involucrado = (await Usuario.findAll({
+					where: Sequelize.where(
+						Sequelize.fn('CONCAT', Sequelize.col('nombres'), ' ', Sequelize.col('apellidos')),
+						{ [Op.like]: `%${i}%` }
+					),
+					attributes: ["email"]
+				}))[0]
 
-		console.log("📧 Email enviado correctamente");
+				if (involucrado) {
+					const emailToSend = involucrado?.dataValues.email
+
+					//  Enviar correo con el acta adjunta
+					let transporter = nodemailer.createTransport({
+						service: "Gmail",
+						auth: {
+							user: "softwareccyt@gmail.com",
+							pass: process.env.GOOGLE_APP_PASSWORD,
+						},
+					});
+
+					await transporter.sendMail({
+						from: `"SGFC" <${
+							process.env.EMAIL_USER || "softwareccyt@gmail.com"
+						}>`,
+						to: emailToSend,
+						subject: `Nueva Acta de Concertación: ${
+							nombreActa || "Sin Título"
+						}`,
+						html: `
+						<h2>Nueva Acta de Concertación</h2>
+						<p><strong>Instructor:</strong> ${
+							managerObj
+								? `${managerObj.nombres} ${managerObj.apellidos}`
+								: "No especificado"
+						}</p>
+						<p><strong>Email:</strong> ${
+							managerObj ? managerObj.email : "No especificado"
+						}</p>
+						<p><strong>Empresa:</strong> ${
+							empresaObj ? empresaObj.nombre_empresa : "No especificada"
+						}</p>
+						<p><strong>Fecha de creación:</strong> ${new Date(
+							fecha_acta
+						).toLocaleString()}</p>
+						<p><strong>ID del acta:</strong> ${nuevaActa.ID}</p>
+						<p>Se ha registrado una nueva acta de concertación en el sistema.</p>
+						<a style="color: #00843d" href="http://localhost:3001/uploads/documentos/${pdfFileName}">Ver acta</a>
+					`, /* RECUERDA CAMBIAR ESTO */
+						attachments: [
+							{
+								filename: pdfFileName,
+								content: pdfBuffer,
+							},
+						],
+					});
+					console.log("Correo enviado a", emailToSend)
+				}
+			}
+		} catch (error) {
+			console.log(error)
+		}
 
 		//  Respuesta exitosa
 		res.status(200).json({

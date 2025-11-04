@@ -42,6 +42,7 @@ export const SupportMaterialCourse = () => {
             setArchivos([]);
         }
     };
+    // co
 
     const onLocalFilePicked = (e) => {
         const files = Array.from(e.target.files || []);

@@ -19,6 +19,7 @@ export default function ReporteEstadisticas() {
 	const [generating, setGenerating] = useState(false)
 	const [doneGenerating, setDoneGenerating] = useState(false)
 	const [reportContent, setReportContent] = useState(false)
+	const [reportFilename, setReportFilename] = useState("reporte_cursos.pdf")
 
 	const pdfContent = useRef()
 
@@ -284,11 +285,20 @@ const generarReporteDesdeElemento = async (targetElement) => {
                 pagebreak: { mode: [ 'css', 'avoid-all', 'legacy' ] }
             }).from(targetElement)
 
-            const blobUrl = await worker.output("bloburl")
+            // Generar blob y descargar automáticamente
+            const blob = await worker.output("blob")
+            const blobUrl = URL.createObjectURL(blob)
+            const filename = "reporte_cursos.pdf"
+            setReportFilename(filename)
             setReportContent(blobUrl)
+            // Auto-descarga
+            const a = document.createElement('a')
+            a.href = blobUrl
+            a.download = filename
+            document.body.appendChild(a)
+            a.click()
+            document.body.removeChild(a)
             setDoneGenerating(true)
-            // Abrir automáticamente en una nueva pestaña para evitar pantalla en blanco en la vista
-            window.open(blobUrl, "_blank", "noopener,noreferrer")
         }
     } catch (err) {
         console.error("Error generando PDF:", err)
@@ -558,12 +568,11 @@ const generarReporteDesdeElemento = async (targetElement) => {
                                 />
                             </div>
                         )}
-						{doneGenerating && (
+						{doneGenerating && reportContent && (
 							<a
 								className="button"
 								href={reportContent}
-								target="_blank"
-								rel="noopener noreferrer"
+								download={reportFilename}
 								style={{
 									marginTop: "20px",
 									textDecoration: "none"

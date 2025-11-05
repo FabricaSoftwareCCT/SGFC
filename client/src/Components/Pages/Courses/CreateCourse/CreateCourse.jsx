@@ -38,6 +38,11 @@ export const CreateCourse = ( ) => {
 		selectedSlots: [],
 	});
 
+	// New state for syllabus/temario
+	const [temario, setTemario] = useState([]);
+	const [nuevaFecha, setNuevaFecha] = useState("");
+	const [nuevoTema, setNuevoTema] = useState("");
+
 	const handleChange = (e) => {
 		const file = e.target.files[0];
 		if (!file) return;
@@ -65,6 +70,31 @@ export const CreateCourse = ( ) => {
 	const handleAssignInstructor = (instructorId) => {
 		setInstructor_ID(instructorId);
 		setShowAssignModal(false);
+	};
+
+	// Funciones para manejar el temario
+	const agregarTema = () => {
+		if (nuevaFecha && nuevoTema.trim()) {
+			const nuevoTemaObj = {
+				fecha: nuevaFecha,
+				tema: nuevoTema.trim()
+			};
+			setTemario([...temario, nuevoTemaObj]);
+			setNuevaFecha("");
+			setNuevoTema("");
+		}
+	};
+
+	const eliminarTema = (index) => {
+		const nuevoTemario = [...temario];
+		nuevoTemario.splice(index, 1);
+		setTemario(nuevoTemario);
+	};
+
+	const handleKeyPress = (e) => {
+		if (e.key === 'Enter') {
+			agregarTema();
+		}
 	};
 
 	// Función para manejar la creación del curso
@@ -107,6 +137,9 @@ export const CreateCourse = ( ) => {
 			formData.append("estado", selectedStatus);
 			formData.append("fecha_inicio", calendarData.startDate);
 			formData.append("fecha_fin", calendarData.endDate);
+
+			// Agregar temario al formData
+			formData.append("temario", JSON.stringify(temario));
 
 			// Procesar los slots para obtener horarios y días
 			const slotsByDay = {};
@@ -208,9 +241,6 @@ export const CreateCourse = ( ) => {
 			setShowResultados(false);
 		}
 	};
-
-	/*
-	const debouncedBuscarEmpresa = useRef(debounce(buscarEmpresaPorNIT, 500)).current;*/
 
 	useEffect(() => {
 		buscarEmpresaPorNIT(empresaNIT);
@@ -431,6 +461,66 @@ export const CreateCourse = ( ) => {
 										Agregar fechas y horarios
 									</button>
 								</div>
+							</div>
+
+							{/* Sección de Temario */}
+							<div className="temario-section">
+								<h3 className="temario-title">Temario del Curso</h3>
+								
+								<div className="agregar-tema-container">
+									<div className="input-tema-fecha">
+										<input
+											type="date"
+											className="input-fecha-tema"
+											value={nuevaFecha}
+											onChange={(e) => setNuevaFecha(e.target.value)}
+											placeholder="Fecha"
+										/>
+										<input
+											type="text"
+											className="input-tema"
+											value={nuevoTema}
+											onChange={(e) => setNuevoTema(e.target.value)}
+											onKeyPress={handleKeyPress}
+											placeholder="Agregar tema"
+										/>
+										<button 
+											className="btn-agregar-tema"
+											onClick={agregarTema}
+											disabled={!nuevaFecha || !nuevoTema.trim()}
+										>
+											+
+										</button>
+									</div>
+								</div>
+
+								{temario.length > 0 ? (
+									<div className="lista-temario">
+										<div className="temario-header">
+											<span className="header-fecha">FECHA</span>
+											<span className="header-tema">TEMAS</span>
+											<span className="header-acciones">ACCIONES</span>
+										</div>
+										<div className="temario-content">
+											{temario.map((item, index) => (
+												<div key={index} className="temario-item">
+													<span className="temario-fecha">{item.fecha}</span>
+													<span className="temario-tema">{item.tema}</span>
+													<button 
+														className="btn-eliminar-tema"
+														onClick={() => eliminarTema(index)}
+													>
+														×
+													</button>
+												</div>
+											))}
+										</div>
+									</div>
+								) : (
+									<div className="temario-vacio">
+										<p>No hay temas agregados al temario aún.</p>
+									</div>
+								)}
 							</div>
 
 							{/* Botón para crear el curso */}

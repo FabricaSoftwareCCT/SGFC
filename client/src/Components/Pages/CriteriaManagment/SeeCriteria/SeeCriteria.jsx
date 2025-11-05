@@ -6,6 +6,10 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axiosInstance from "../../../../config/axiosInstance";
 import { PageMover } from "../../../UI/PageMover/PageMover";
+import { generarExcelHistorial } from "../../../../utils/Reports/Criterios";
+import { ReportCertification } from "../ReportCertification.jsx/ReportCertification";
+import { useRef } from "react";
+import html2pdf from "html2pdf.js"
 
 export const SeeCourseCriteria = () => {
 	const navigate = useNavigate();
@@ -13,9 +17,11 @@ export const SeeCourseCriteria = () => {
 	const { id } = useParams();
 
 	const [showFilters, setShowFilters] = useState(false);
-	const [showingDownloadOptions, setShowingDownloadingOptions] =
-		useState(false);
+	const [showingDownloadOptions, setShowingDownloadingOptions] = useState(false);
 	const [showAprenticeCriteria, setShowAprenticeCriteria] = useState(false);
+	const [doneGenerating, setDoneGenerating] = useState(false)
+	const [generating, setGenerating] = useState(false)
+	const [reportContent, setReportContent] = useState(false)
 
 	const [curso, setCurso] = useState();
 	const [aprentices, setAprentices] = useState([]);
@@ -28,8 +34,9 @@ export const SeeCourseCriteria = () => {
 	const [selectedAprentice, setSelectedAprentice] = useState();
 	const [aprenticeCriteria, setAprenticeCriteria] = useState([]);
 	const [certificationStatus, setCertificationStatus] = useState("pendiente");
-	const [certificationDenialReason, setCertificationDenialStatus] =
-		useState("");
+	const [certificationDenialReason, setCertificationDenialStatus] = useState("");
+	
+	const pdfContent = useRef()
 
 	async function fetchCourse() {
 		try {
@@ -177,6 +184,33 @@ export const SeeCourseCriteria = () => {
 		}
 	}, [page]);
 
+	const generarPdf = async () => {
+		setGenerating(true)
+	}
+
+	const generarReporte = async () => {
+		try {
+			if (reportType === "pdf") {
+				if (!pdfContent.current)
+					return
+				const worker = html2pdf().set({
+					margin: 10,
+					filename: "reporte_cursos.pdf",
+					html2canvas: { scale: 2 },
+					jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+				}).from(pdfContent.current)
+				setGenerating(false)
+				setDoneGenerating(true)
+				setReportContent(await worker.output("bloburl"))
+			}
+		} catch (error) {
+			console.log(error)
+			alert("Ocurrió un error al generar el reporte")
+			setDoneGenerating(false)
+			setGenerating(false)
+		}
+	}
+
 	return (
 		<>
 			<Header />
@@ -190,7 +224,7 @@ export const SeeCourseCriteria = () => {
 						<button
 							className="button see-criteria-button"
 							onClick={() =>
-								navigate("/Gestiones/Criterios/Curso/1")
+								navigate(`/Gestiones/Criterios/Curso/${id}`)
 							}
 						>
 							Ver criterios
@@ -358,17 +392,53 @@ export const SeeCourseCriteria = () => {
 									Excel
 								</button>
 							</div>
-							<button
-								className="button"
-								style={{
-									marginTop: "20px",
-								}}
-								onClick={() =>
-									setShowingDownloadingOptions(false)
-								}
-							>
-								Descargar reporte
-							</button>
+							{reportType === "excel" ?
+								<button
+									className="button"
+									style={{
+										marginTop: "20px",
+									}}
+									onClick={() => generarExcelHistorial(aprentices, curso, id, () => setShowingDownloadingOptions(false))}
+								>
+									Descargar reporte
+								</button>	
+							:
+								<>
+									<button
+										className="button"
+										style={{
+											marginTop: "20px",
+										}}
+										onClick={() => generarPdf()}
+									>
+										Generar reporte
+									</button>
+									{generating &&
+										<ReportCertification
+											contentKey={pdfContent}
+											curso={curso}
+											aprendices={aprentices}
+											done={() => {
+												generarReporte()
+											}}
+										/>
+									}
+									{doneGenerating && (
+										<a
+											className="button"
+											href={reportContent}
+											target="_blank"
+											rel="noopener noreferrer"
+											style={{
+												marginTop: "20px",
+												textDecoration: "none"
+											}}
+										>
+											Descargar
+										</a>
+									)}
+								</>
+							}
 						</div>
 					</div>
 				)}

@@ -2,11 +2,12 @@ const Curso = require("../models/curso");
 const CursoTieneCriterio = require("../models/CursoTieneCriterio");
 const Criterio = require("../models/Criterio");
 const Usuario = require("../models/User");
-const EdicionCriterio = require("../models/EdicionCriterio");
 const UsuarioTieneCriterios = require("../models/UsuarioTieneCriterios");
 const { Op } = require("sequelize");
 const InscripcionCurso = require("../models/InscripcionCurso");
 const { sendNotification } = require("../services/notificationService");
+const UsuarioEdita = require("../models/UsuarioEdita");
+const { addHistorial } = require("./historialController");
 
 let dbInstance;
 
@@ -91,8 +92,8 @@ const obtenerCriteriosCertificacionCurso = async (req, res) => {
 							where: whereTerms,
 						},
 				  ],
-			limit: limit,
-			offset: limit * page,
+			limit: parseInt(limit),
+			offset: parseInt(limit) * parseInt(page),
 		});
 
 		for (let c of criteriosCurso) {
@@ -111,7 +112,17 @@ const obtenerCriteriosCertificacionCurso = async (req, res) => {
 					attributes: ["nombres", "apellidos", "accountType"],
 				})
 			).dataValues;
-			criteria.push({
+
+			const lastEdit = await UsuarioEdita.findOne({
+				where: {
+					criterio_ID: c.Criterio.ID
+				},
+				include: {
+					all: true
+				}
+			})
+
+			let cData = {
 				id: c.Criterio.ID,
 				title: c.Criterio.title,
 				description: c.Criterio.description,
@@ -126,11 +137,31 @@ const obtenerCriteriosCertificacionCurso = async (req, res) => {
 				author: author.nombres
 					? `${author.nombres} ${author.apellidos}`
 					: author.accountType,
-			});
+			}
+
+			if (lastEdit) {
+				const editAuthor = (
+					await Usuario.findOne({
+						where: {
+							ID: lastEdit.dataValues.autor_ID,
+						},
+						attributes: ["nombres", "apellidos"],
+					})
+				).dataValues;
+				cData = {
+					...cData,
+					last_edit: {
+						date: new Date(lastEdit.dataValues.fecha).toLocaleDateString("es-CO"),
+						hour: new Date(lastEdit.dataValues.fecha).toLocaleTimeString("es-CO"),
+						author: lastEdit.dataValues.autor_ID == 1 ? "Administrador" : `${editAuthor.nombres} ${editAuthor.apellidos}`
+					}
+				}
+			}
+
+			criteria.push(cData);
 		}
 
 		const totalAmount = await Criterio.count();
-
 		res.status(200).json({
 			criteria,
 			page,
@@ -220,6 +251,8 @@ const updateCriteria = async (req, res) => {
 		const { title, min, description, bias, course } = req.body;
 		const { id, accountType } = req.user;
 
+		let whatWasEdited = ""
+
 		if (
 			accountType !== "Administrador" &&
 			accountType !== "Instructor" &&
@@ -241,6 +274,7 @@ const updateCriteria = async (req, res) => {
 				...updatedData,
 				title,
 			};
+			whatWasEdited = "el titulo"
 		}
 
 		if (!isNaN(min) && min > 0) {
@@ -248,6 +282,7 @@ const updateCriteria = async (req, res) => {
 				...updatedData,
 				min,
 			};
+			whatWasEdited = "el mínimo de aprovación"
 		}
 
 		if (description?.length > 0) {
@@ -255,6 +290,7 @@ const updateCriteria = async (req, res) => {
 				...updatedData,
 				description,
 			};
+			whatWasEdited = "la descripción"
 		}
 
 		if (!isNaN(bias)) {
@@ -271,6 +307,7 @@ const updateCriteria = async (req, res) => {
 				...updatedData,
 				bias,
 			};
+			whatWasEdited = "la ponderación"
 		}
 
 		await Criterio.update(updatedData, {
@@ -279,10 +316,10 @@ const updateCriteria = async (req, res) => {
 			},
 		});
 
-		await EdicionCriterio.create({
-			usuario_ID: id,
-			criterio_ID: course,
-		});
+		addHistorial(id, {
+			curso: course,
+			criterio: criteria
+		}, `El usuario [nombre] ([id]) ha editado ${whatWasEdited} del criterio "[criterio]" ([criterio_id]) del curso "[curso]" ([curso_id])`)
 
 		return res.status(200).json({ message: "Criterio actualizado" });
 	} catch (error) {

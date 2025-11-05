@@ -283,6 +283,20 @@
   height: auto !important;
 }
 
+.inscribe-btn {
+  padding: 1rem 2rem;
+  background: #006f2c;
+  border: none;
+  border-radius: 12px;
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: auto !important;
+  height: auto !important;
+}
+
 .course-page-container .edit-btn:hover {
   background: #00c26e;
   transform: translateY(-2px);
@@ -468,4 +482,16 @@
   background: #00a65a;
   transform: translateY(-2px);
   box-shadow: 0 4px 20px rgba(0, 196, 110, 0.3);
+}
+/* Separación superior para móviles */
+@media (max-width: 768px) {
+  .course-page-container {
+    padding-top: 3rem !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .course-page-container {
+    padding-top: 2rem !important;
+  }
 }

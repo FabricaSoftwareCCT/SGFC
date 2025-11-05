@@ -4,26 +4,33 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-
+    padding: 1rem;
+    box-sizing: border-box;
 }
 
 .container_GestionsGestor>h2 {
     width: 100%;
     height: auto;
     color: #fff;
-    font-size: 40px;
+    font-size: 2.5rem;
     text-align: center;
-    margin: 3rem 0 2rem 0;
+    margin: 3rem 0 1.5rem 0;
+    font-weight: 300;
+}
+
+.complementary {
+    color: #00843d;
 }
 
 .containerGestionsGestorOptions {
-    width: auto;
+    width: 100%;
+    max-width: 1200px;
     height: auto;
     display: flex;
     justify-content: center;
-    align-items: center;
-    gap: 10rem;
-
+    align-items: flex-start;
+    gap: 3rem;
+    flex-wrap: wrap;
 }
 
 .containerGestionsGestorResults {
@@ -32,71 +39,79 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    position: relative;
 }
 
 .containerConsultGestor {
-    width: auto;
+    width: 100%;
+    max-width: 300px;
     height: auto;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 1rem;
-
+    gap: 1.5rem;
 }
 
 .containerConsultGestor>p {
     width: 100%;
     height: auto;
-    font-size: 18px;
+    font-size: 1.2rem;
     text-align: start;
+    color: #fff;
+    margin: 0;
 }
 
 .containerFiltersGestor {
-    width: 260px;
+    width: 100%;
     height: auto;
-    padding: 1rem;
+    padding: 1.5rem;
     background-color: #2b2b2b;
     border-radius: 16px;
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 1.2rem;
     color: #fff;
 }
 
 .containerFiltersGestor>label {
-    font-size: 16px;
+    font-size: 1rem;
     width: auto;
     height: auto;
-
+    color: #fff;
 }
 
 .inputSearchContainer {
     width: 100%;
-    height: 40px;
+    height: 45px;
     display: flex;
     align-items: center;
     background-color: #1c1c1c;
     border-radius: 20px;
     overflow: hidden;
+    border: 1px solid #444;
 }
 
 .inputSearchContainer input {
     flex: 1;
     height: 100%;
-    padding: 0 1rem;
+    padding: 0 1.2rem;
     border: none;
     background: transparent;
     color: #fff;
-    font-size: 0.85rem;
+    font-size: 0.9rem;
 }
 
 .inputSearchContainer input::placeholder {
     color: #aaa;
 }
 
+.inputSearchContainer input:focus {
+    outline: none;
+}
+
 .searchButton {
-    width: 30px;
-    height: 30px;
+    width: 35px;
+    height: 35px;
     background-color: #00843d;
     border-radius: 50%;
     border: none;
@@ -104,51 +119,195 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    margin-right: 5px;
+    margin-right: 8px;
+    transition: background-color 0.3s ease;
+}
+
+.searchButton:hover {
+    background-color: #00c26e;
 }
 
 .searchButton>img {
-    width: 70%;
-    height: 70%;
+    width: 60%;
+    height: 60%;
+    filter: brightness(0) invert(1);
 }
 
 .statusButtons {
     width: 100%;
-    height: 40px;
-    background-color: #1c1c1c;
+    height: 45px;
     border-radius: 20px;
     display: flex;
     overflow: hidden;
-    gap: 0.5rem;
+    gap: 0.8rem;
     justify-content: center;
     align-items: center;
+    padding: 0 0.5rem;
+    box-sizing: border-box;
 }
+
 .statusButtons button {
-    padding: 6px 10px;
+    padding: 8px 16px;
     border: none;
     border-radius: 10px;
     cursor: pointer;
-    margin-right: 10px;
     width: auto;
     height: auto;
-    font-size: 14px;
-    background-color: #b0b0b031; /* Fondo predeterminado para todos los botones */
-    color: white; /* Color del texto predeterminado */
-    transition: background-color 0.3s ease, transform 0.2s ease;
+    font-size: 0.9rem;
+    background-color: #b0b0b031;
+    color: #fff;
+    transition: all 0.3s ease;
+    flex: 1;
+    text-align: center;
+    margin: 0;
+}
+
+.statusButtons .inactive {
+    margin-left: 0;
+}
+
+.statusButtons button:hover {
+    transform: translateY(-2px);
 }
 
 .statusButtons .inactive.selected {
-    background-color: #00843d; /* Rojo para el botón seleccionado de "Inactivos" */
-    color: white;
+    background-color: #00843d;
+    color: #fff;
     transform: scale(1.05);
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 0 15px rgba(0, 132, 61, 0.4);
+    margin-left: 0;
 }
 
 .statusButtons .active.selected {
-    background-color: #00843d; /* Verde para el botón seleccionado de "Activos" */
-    color: white;
+    background-color: #00843d;
+    color: #fff;
     transform: scale(1.05);
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 0 15px rgba(0, 132, 61, 0.4);
+}
+
+.carousel-container_2-results {
+    width: auto;
+    height: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1.5rem;
+    flex-direction: column;
+    min-width: 300px;
+}
+
+.arrow-results {
+    font-size: 2rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.8rem;
+    user-select: none;
+    width: auto;
+    height: auto;
+    color: #fff;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.arrow-results:hover {
+    color: #00843d;
+    transform: scale(1.1);
+}
+
+.carousel-track-results {
+    display: flex;
+    overflow: hidden;
+    width: auto;
+    height: 14rem;
+    justify-content: center;
+    align-items: center;
+    transition: transform 0.3s ease;
+    gap: 1rem;
+}
+
+.carousel-card-results {
+    text-align: center;
+    background-color: #1e1e1e;
+    border-radius: 12px;
+    width: auto;
+    height: auto;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    transition: all 0.4s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+.carousel-image-results {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 12px;
+}
+
+.carousel-card-results>img {
+    width: 8rem;
+    height: 11rem;
+    object-fit: cover;
+}
+
+.carousel-card-results.card-center {
+    transform: scale(1.1);
+    z-index: 2;
+    display: flex;
+}
+
+.carousel-card-results.card-side {
+    transform: scale(0.9);
+    opacity: 0.7;
+    display: flex;
+}
+
+.instructor-info {
+    text-align: center;
+    color: #fff;
+    margin-top: 1.5rem;
+    width: 100%;
+    height: auto;
+}
+
+.instructor-info h3 {
+    font-size: 1.3rem;
+    margin-bottom: 0.5rem;
+    width: auto;
+    height: auto;
+    color: #fff;
+}
+
+.instructor-info p {
+    font-size: 0.9rem;
+    color: #aaa;
+    margin-bottom: 1rem;
+    width: auto;
+    height: auto;
+}
+
+.profile-btn {
+    background-color: #00843d;
+    border: none;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    width: auto;
+    height: auto;
+    margin-top: 1rem;
+    transition: all 0.3s ease;
+}
+
+.profile-btn:hover {
+    background-color: #00c26e;
+    transform: translateY(-2px);
 }
 
 .btn_createGestor {
@@ -160,7 +319,218 @@
     justify-content: center;
     align-items: center;
     cursor: pointer;
-    padding: 10px;
-    font-size: 16px;
+    padding: 12px 20px;
+    font-size: 1rem;
+    color: #fff;
+    transition: all 0.3s ease;
+    margin-top: 0.5rem;
 }
 
+.btn_createGestor:hover {
+    background-color: #00c26e;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 194, 110, 0.3);
+}
+
+.no-results {
+    color: #aaa;
+    text-align: center;
+    font-size: 1.1rem;
+    padding: 2rem;
+    width: 100%;
+}
+
+/* ========== RESPONSIVE ========== */
+
+/* Tablets grandes */
+@media (max-width: 1024px) {
+    .containerGestionsGestorOptions {
+        gap: 2rem;
+    }
+    
+    .container_GestionsGestor>h2 {
+        font-size: 2.2rem;
+        margin: 2.5rem 0 1rem 0;
+    }
+    
+    .carousel-track-results {
+        height: 12rem;
+    }
+    
+    .carousel-card-results>img {
+        width: 7rem;
+        height: 10rem;
+    }
+}
+
+/* Tablets */
+@media (max-width: 768px) {
+    .container_GestionsGestor {
+        padding: 0.8rem;
+    }
+    
+    .container_GestionsGestor>h2 {
+        font-size: 2rem;
+        margin: 2rem 0 1rem 0;
+    }
+    
+    .containerGestionsGestorOptions {
+        flex-direction: column;
+        align-items: center;
+        gap: 2rem;
+    }
+    
+    .containerConsultGestor {
+        max-width: 400px;
+        order: 2;
+    }
+    
+    .containerGestionsGestorResults {
+        order: 1;
+        width: 100%;
+    }
+    
+    .carousel-container_2-results {
+        min-width: 250px;
+    }
+    
+    .carousel-track-results {
+        height: 11rem;
+    }
+    
+    .carousel-card-results>img {
+        width: 6rem;
+        height: 9rem;
+    }
+    
+    .arrow-results {
+        font-size: 1.8rem;
+        padding: 0.6rem;
+    }
+    
+    .instructor-info h3 {
+        font-size: 1.2rem;
+    }
+}
+
+/* Móviles grandes */
+@media (max-width: 480px) {
+    .container_GestionsGestor {
+        padding: 0.5rem;
+    }
+    
+    .container_GestionsGestor>h2 {
+        font-size: 1.8rem;
+        margin: 2.5rem 0 1rem 0;
+    }
+    
+    .containerConsultGestor {
+        max-width: 100%;
+    }
+    
+    .containerFiltersGestor {
+        padding: 1.2rem;
+    }
+    
+    .carousel-track-results {
+        height: 10rem;
+        gap: 0.5rem;
+    }
+    
+    .carousel-card-results>img {
+        width: 5rem;
+        height: 8rem;
+    }
+    
+    .arrow-results {
+        font-size: 1.5rem;
+        padding: 0.5rem;
+    }
+    
+    .carousel-container_2-results {
+        padding: 1rem;
+    }
+    
+    .instructor-info h3 {
+        font-size: 1.1rem;
+    }
+    
+    .instructor-info p {
+        font-size: 0.85rem;
+    }
+    
+    .profile-btn {
+        padding: 8px 16px;
+        font-size: 0.85rem;
+    }
+    
+    .btn_createGestor {
+        padding: 10px 16px;
+        font-size: 0.9rem;
+    }
+    
+    .statusButtons {
+        height: 40px;
+    }
+    
+    .statusButtons button {
+        padding: 6px 12px;
+        font-size: 0.85rem;
+    }
+}
+
+/* Móviles pequeños */
+@media (max-width: 360px) {
+    .container_GestionsGestor>h2 {
+        font-size: 1.6rem;
+        margin: 2rem 0 1rem 0;
+    }
+    
+    .carousel-track-results {
+        height: 9rem;
+    }
+    
+    .carousel-card-results>img {
+        width: 4.5rem;
+        height: 7rem;
+    }
+    
+    .containerFiltersGestor {
+        padding: 1rem;
+    }
+    
+    .inputSearchContainer {
+        height: 40px;
+    }
+    
+    .inputSearchContainer input {
+        padding: 0 1rem;
+        font-size: 0.85rem;
+    }
+}
+
+/* Landscape en móviles */
+@media (max-height: 500px) and (orientation: landscape) {
+    .container_GestionsGestor {
+        padding: 0.5rem;
+        min-height: auto;
+    }
+    
+    .container_GestionsGestor>h2 {
+        margin: 1.5rem 0 0.5rem 0;
+        font-size: 1.8rem;
+    }
+    
+    .containerGestionsGestorOptions {
+        gap: 1.5rem;
+    }
+    
+    .carousel-track-results {
+        height: 8rem;
+    }
+    
+    .carousel-card-results>img {
+        width: 4rem;
+        height: 6rem;
+    }
+}

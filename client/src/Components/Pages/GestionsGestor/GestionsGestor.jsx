@@ -158,7 +158,7 @@ export const GestionsGestor = () => {
 
               </div>
 
-              <div className="containerGestionsInstructorResults">
+              <div className="containerGestionsGestorResults">
                 {/* Mostrar flecha izquierda solo si hay más de un resultado */}
                 {filteredGestors.length > 1 && (
                   <button className="arrow-results left" onClick={prev}>❮</button>

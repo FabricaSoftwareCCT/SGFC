@@ -34,7 +34,8 @@
     "react-select": "^5.10.2",
     "react-signature-canvas": "^1.1.0-alpha.2",
     "swiper": "^11.2.8",
-    "trim-canvas": "^0.1.2"
+    "trim-canvas": "^0.1.2",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@types/react": "^18.2.66",

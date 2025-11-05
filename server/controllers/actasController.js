@@ -42,9 +42,9 @@ const uploadPdfRadicado = async (req, res) => {
 const updateEstadoActa = async (req, res) => {
 	try {
 		const actaId = req.params.id;
-		const { estado_acta } = req.body;
+		const { estado_acta, observacion } = req.body;
 		await Actas.update(
-			{ estado_acta },
+			{ estado_acta, observacion },
 			{ where: { ID: actaId } }
 		);
 		const actaActualizada = await Actas.findOne({ where: { ID: actaId } });

@@ -11,8 +11,7 @@ router.get("/cursos", cursoController.getAllCursos);
 router.get('/searchCurso', cursoController.getCursoByNameOrFicha)
 router.get("/cursos/:id", cursoController.getCursoById); // Obtener curso por ID
 router.get('/empresa/:empresaId', cursoController.getCursosByEmpresaId);
-// Asignar curso a instructor
-router.post('/asignaciones', cursoController.asignarInstructorAlCurso);
+// Asignación/Eliminación protegidas por auth
 
 // Disponibilidad de instructor
 router.get('/instructores/:instructor_ID/disponibilidad', cursoController.verificarDisponibilidadInstructor);
@@ -41,10 +40,18 @@ router.post('/inscripcionEmpleados', inscripcionEmpleados)
 // Ruta para trater empleados inscriptos a un curso
 router.get('/getAllInscripciones/:curso_ID', getAllInscripciones)
 
+// Ruta para cambiar el estado de la inscipcion
+
 //enviar invitacion de curso a instructor
 router.post('/enviarInvitacionCursoInstructor', cursoController.enviarInvitacionCurso);
 
 // cambiar el estado de la invitacion a un curso (instructor)
 router.put('/cambiarEstadoInvitacion/:invitacionId', cursoController.cambiarEstadoInvitacion);
+
+// Asignar curso a instructor (protegido)
+router.post('/asignaciones', cursoController.asignarInstructorAlCurso);
+
+// Eliminar asignación curso-instructor (protegido)
+router.delete('/asignaciones/:instructor_ID/:curso_ID', cursoController.eliminarAsignacionCursoInstructor);
 
 module.exports = router;

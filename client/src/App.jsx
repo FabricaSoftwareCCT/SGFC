@@ -34,6 +34,7 @@ import { ConcertationProceeding } from './Components/Pages/proceedings/Concertat
 import { TrainingPlaceProceeding } from './Components/Pages/proceedings/TrainingPlaceProceeding';
 import { SupportMaterial } from './Components/Pages/Courses/SupportMaterial/SupportMaterial';
 import { SupportMaterialCourse } from './Components/Pages/Courses/SupportMaterialCourse/SupportMaterialCourse';
+import { InscribeEmployes } from './Components/Pages/GestionsEmployes/InscribeEmployes/InscribeEmployes';
 
 // Importación de modales
 import { NavBar } from './Components/UI/NavBar/NavBar';
@@ -57,6 +58,8 @@ import { SeeCourseCriteria } from './Components/Pages/CriteriaManagment/SeeCrite
 import { CreateCriteria } from './Components/Pages/CriteriaManagment/CreateCriteria/CreateCriteria';
 import { SeeAllCourseCriteria } from './Components/Pages/CriteriaManagment/SeeCourseCriteria/SeeCourseCriteria';
 import { SeeCertificationHistorial } from './Components/Pages/CriteriaManagment/SeeCertificationHistorial/SeeCertificationHistorial';
+import { GestionUsuarios } from './Components/Pages/GestionUsuarios/GestionUsuarios';
+import { Historial } from './Components/Pages/Historial/Historial';
 
 // Crear un componente Layout que envuelva las páginas con Header y Footer
 const Layout = ({ children, setShowSignIn, setShowSignUp, setShowModalGeneral }) => {
@@ -308,11 +311,13 @@ function App() {
 					} />
 					<Route path="/Gestiones/Empresas" element={<GestionsCompany />} />
 					<Route path="/Gestiones/Actas" element={<GestionsActas />} />
+					<Route path="/Gestiones/Usuarios" element={<GestionUsuarios/>} />
 					<Route path="/Gestiones/Criterios" element={<CriteriaManagement/>} />
 					<Route path="/Gestiones/Criterios/Ver/:id" element={<SeeCourseCriteria/>}/>
 					<Route path="/Gestiones/Criterios/Curso/:id" element={<SeeAllCourseCriteria/>}/>
 					<Route path="/Gestiones/Criterios/Crear/:id" element={<CreateCriteria/>}/>
 					<Route path="/Gestiones/Criterios/Historial/:id" element={<SeeCertificationHistorial/>}/>
+					<Route path="/Gestiones/Historial" element={<Historial/>}/>
 					{/* NUEVA RUTA PARA REPORTE Y ESTADÍSTICAS */}
 					<Route path="/GestionReporteEstadisticas/ReporteEstadisticas" element={
 						<Layout
@@ -328,6 +333,15 @@ function App() {
 						path="/Empleados/MisEmpleados"
 						element={<GestionsEmployes />}
 					/>
+					<Route path="/Empleados/InscribirEmpleados" element={
+						<Layout
+							setShowSignIn={setShowSignIn}
+							setShowSignUp={setShowSignUp}
+							setShowModalGeneral={setShowModalGeneral}
+						>
+							<InscribeEmployes />
+						</Layout>
+					} />
 
 					<Route path="/Empleados/CrearEmpleado" element={<CreateEmploye />} />
 					<Route
@@ -349,7 +363,7 @@ function App() {
 					<Route path="/SolicitarCurso" element={<RequestCourse />} />        
 			 
 					<Route path="/SupportMaterial" element={<SupportMaterial/>}/>
-					<Route path="/SupportMaterialCourse" element={<SupportMaterialCourse/>}/>
+                    <Route path="/SupportMaterialCourse/:id" element={<SupportMaterialCourse/>}/>
 	
 					<Route path='/SolicitarCursoAp' element={<RequestCourseAp />} />
 				</Routes>

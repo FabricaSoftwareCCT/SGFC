@@ -8,7 +8,7 @@
   position: relative;
   width: 100%;
   min-height: 100vh;
-  padding: 3rem 2rem 1rem; /* Padding bottom reducido */
+  padding: 3rem 2rem 1rem;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -48,6 +48,7 @@
   gap: 2rem;
   position: sticky;
   top: 2rem;
+  align-items: center;
 }
 
 /* Ficha en la parte superior derecha */
@@ -66,22 +67,23 @@
   z-index: 10;
 }
 
-/* Área de imagen mejorada */
+/* Área de imagen mejorada - CENTRADA */
 .upload-area {
- margin-top: 37px;
-    position: relative;
-    width: 85%;
-    height: 444px;
-    background: linear-gradient(145deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%);
-    border: 2px dashed rgba(255, 255, 255, 0.15);
-    border-radius: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    backdrop-filter: blur(20px);
-    overflow: hidden;
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+  height: 444px;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%);
+  border: 2px dashed rgba(255, 255, 255, 0.15);
+  border-radius: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(20px);
+  overflow: hidden;
+  margin: 37px auto 0 auto;
 }
 
 .upload-area:hover {
@@ -105,16 +107,6 @@
 .upload-area:hover::before {
   left: 100%;
 }
-/*
-.upload-placeholder {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1.5rem;
-  text-align: center;
-  padding: 2rem;
-  z-index: 2;
-}*/
 
 .upload-placeholder .icon {
   width: 56px;
@@ -123,7 +115,6 @@
   filter: brightness(0) invert(1);
   transition: all 0.3s ease;
   margin: auto;
-  position: absolute;
 }
 
 .upload-area:hover .upload-placeholder .icon {
@@ -137,15 +128,15 @@
   font-size: 1rem;
   margin: 80px;
   line-height: 1.4;
+  text-align: center;
 }
 
 .image-and-status{
     display: flex;
     flex-direction: column;
-    flex-wrap: nowrap;
-    align-content: center;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
+    width: 100%;
 }
 
 .preview-image {
@@ -153,6 +144,7 @@
   height: 100%;
   object-fit: cover;
   border-radius: 22px;
+  display: block;
 }
 
 /* Input de ficha oculto (se muestra en la esquina) */
@@ -170,10 +162,15 @@
 
 /* Estilos para lugar de formación */
 .lugar-formacion {
-  margin-top: 15px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+    margin-top: 15px;
+    display: flex;
+    flex-direction: column;
+  align-items: center;
+  text-align: center;
+    gap: 10px;
+  width: 100%;
+    width: 100%;
+    height: 0%;
 }
 
 .lugar-formacion span {
@@ -184,7 +181,7 @@
 
 .input-lugar-formacion {
   width: 100%;
-  padding: 1.8rem 2rem;
+  padding: 0.8rem 2rem;
   background: linear-gradient(145deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.01) 100%);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 18px;
@@ -194,6 +191,7 @@
   outline: none;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   backdrop-filter: blur(15px);
+  text-align: center;
 }
 
 .input-lugar-formacion::placeholder {
@@ -208,13 +206,6 @@
 .input-lugar-formacion:hover {
   border-color: rgba(255, 255, 255, 0.15);
   background: linear-gradient(145deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.02) 100%);
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .lugar-formacion span {
-    font-size: 1.1rem;
-  }
 }
 
 /* Input del nombre del curso - más grande y destacado */
@@ -317,10 +308,15 @@
   gap: 1rem;
   align-items: center;
 }
+
 .Type_offer{
     display: flex;
     align-items: start;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
 }
+
 /* Sección de controles */
 .course-controls-section {
   display: flex;
@@ -332,14 +328,20 @@
 .offer-type-container {
   display: flex;
   flex-direction: column;
+  align-items: center;
+  text-align: center;
   gap: 1rem;
+  width: 100%;
 }
 
 .duracion {
   display: flex;
   flex-direction: column;
+  align-items: center;
+  text-align: center;
   gap: 10px;
   margin-top: 15px;
+  width: 100%;
 }
 
 .duracion span {
@@ -352,11 +354,13 @@
   display: flex;
   gap: 15px;
   align-items: center;
+  justify-content: center;
+  width: 100%;
 }
 
 .time-duracion {
   width: 100%;
-  padding: 1.8rem 2rem;
+  padding: 0.8rem 2rem;
   background: linear-gradient(145deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.01) 100%);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 18px;
@@ -366,7 +370,7 @@
   outline: none;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   backdrop-filter: blur(15px);
-  flex: 1;
+  text-align: center;
 }
 
 .time-duracion::placeholder {
@@ -408,23 +412,6 @@
 .unidad-duracion:hover {
   border-color: rgba(255, 255, 255, 0.15);
   background: linear-gradient(145deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.02) 100%);
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .duracion-inputs {
-    flex-direction: column;
-    gap: 10px;
-  }
-  
-  .time-duracion,
-  .unidad-duracion {
-    width: 100%;
-  }
-  
-  .duracion span {
-    font-size: 1.1rem;
-  }
 }
 
 .offer-type-container span {
@@ -526,6 +513,7 @@
 .containerInput_company {
   position: relative;
   margin-top: 1rem;
+  width: 100%;
 }
 
 .containerInput_company label {
@@ -541,30 +529,32 @@
 }
 
 .containerInput_company input {
-  width: 100%;
-  padding: 1.2rem 1.5rem;
-  background: linear-gradient(145deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
-  color: white;
-  font-size: 1rem;
-  outline: none;
-  transition: all 0.3s ease;
-  backdrop-filter: blur(15px);
+    width: 100%;
+    padding: 0.8rem 2rem;
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.01) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 18px;
+    color: white;
+    font-size: 1rem;
+    font-weight: 300;
+    outline: none;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(15px);
+    flex: 1;
 }
 
-.containerInput_company input:focus {
-  border-color: rgba(0, 196, 110, 0.4);
-  background: linear-gradient(145deg, rgba(0, 196, 110, 0.05) 0%, rgba(0, 132, 61, 0.02) 100%);
-  box-shadow: 0 0 0 3px rgba(0, 196, 110, 0.1);
-}
 
+.containerInput_company  input:focus{
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.15);
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.02) 100%);
+}
 /* Sección de información */
 .course-info-section {
   display: flex;
   flex-direction: column;
   gap: 2rem;
-  margin-bottom: 0; /* Eliminado el margin-bottom */
+  margin-bottom: 0;
 }
 
 /* Información del instructor mejorada */
@@ -661,7 +651,7 @@
 
 .buttonCreate_Course:hover {
   background: #00843ebe;
-  transform: translateY(-4rem) translateY(-2px); /* Mantiene la posición Y y añade el efecto hover */
+  transform: translateY(-4rem) translateY(-2px);
   box-shadow: 0 10px 25px rgba(0, 132, 62, 0.4);
 }
 
@@ -681,7 +671,7 @@
 }
 
 .buttonCreate_Course:active {
-  transform: translateY(-4rem) translateY(0); /* Mantiene la posición base al hacer click */
+  transform: translateY(-4rem) translateY(0);
 }
 
 /* Scrollbar global mejorada */
@@ -709,18 +699,14 @@
   background: linear-gradient(45deg, #00a65a, #00e67e);
 }
 
-/* Responsividad mejorada */
-@media (max-width: 1200px) {
-  .containerInformation_CreateCourse {
-    grid-template-columns: 350px 1fr;
-    gap: 3rem;
-  }
-}
+/* ========== RESPONSIVE ========== */
 
+/* Tablets */
 @media (max-width: 1024px) {
   .containerInformation_CreateCourse {
     grid-template-columns: 1fr;
-    gap: 3rem;
+    gap: 2rem;
+    width: 90%;
   }
   
   .course-left-section {
@@ -735,66 +721,150 @@
   }
   
   .container_createCourse {
-    padding: 2rem 1.5rem 0.5rem; /* Padding bottom muy reducido */
+    padding: 2rem 1.5rem 0.5rem;
+  }
+  
+  .image-and-status {
+    order: -1;
+  }
+  
+  .upload-area {
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+  }
+  
+  .Type_offer {
+    width: 100%;
+  }
+  
+  .details_Date_Instructor {
+    width: 100%;
   }
 }
 
+/* Móviles grandes */
 @media (max-width: 768px) {
+  .container_createCourse {
+    padding: 2rem 1rem;
+  }
+  
   .container_createCourse h2 {
-    font-size: 2.5rem;
-    margin-bottom: 3rem;
+    font-size: 2.2rem;
+    margin-bottom: 2rem;
   }
   
   .containerInformation_CreateCourse {
+    width: 95%;
     gap: 2rem;
+  }
+  
+  .upload-area {
+    height: 300px;
+  }
+  
+  .addName {
+    font-size: 1.1rem;
+    padding: 1.2rem 1.5rem;
+  }
+  
+  .addDetails {
+    padding: 1.5rem;
+    font-size: 1rem;
   }
   
   .offer-options {
     grid-template-columns: 1fr;
   }
   
-  .upload-area {
-    height: 250px;
-  }
-  
-  .addDetails {
-    min-height: 150px;
-    padding: 1.5rem;
-  }
-  
   .buttonCreate_Course {
-    width: 70%;
+    width: 80%;
+    margin-left: 0;
+    transform: none;
+    margin-top: 1rem;
+  }
+  
+  .buttonCreate_Course:hover {
+    transform: translateY(-2px);
   }
 }
 
+/* Móviles pequeños */
 @media (max-width: 480px) {
   .container_createCourse {
-    padding: 1.5rem 1rem 0.5rem; /* Padding bottom mínimo */
+    padding: 1.5rem 0.5rem;
   }
   
   .container_createCourse h2 {
-    font-size: 2rem;
-  }
-  
-  .addName {
-    font-size: 1.2rem;
-    padding: 1.5rem;
+    font-size: 1.8rem;
   }
   
   .upload-area {
-    height: 220px;
+    height: 250px;
+    margin-top: 0;
   }
   
-  .course-ficha-display {
+  .upload-placeholder p {
+    margin: 60px 1rem;
+    font-size: 0.9rem;
+  }
+  
+  .addName {
+    padding: 1rem 1.2rem;
+    font-size: 1rem;
+  }
+  
+  .addDetails {
+    padding: 1.2rem;
+    min-height: 120px;
+  }
+  
+  .descripcion-counter {
     position: relative;
-    top: 0;
+    bottom: auto;
     right: auto;
-    margin-bottom: 1rem;
+    margin-top: 0.5rem;
+    text-align: center;
+  }
+  
+  .duracion-inputs {
+    flex-direction: column;
+  }
+  
+  .time-duracion,
+  .input-lugar-formacion {
+    padding: 1.2rem 1.5rem;
+  }
+  
+  .details_Date_Instructor {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  #p_addInstructor {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
   }
   
   .buttonCreate_Course {
-    width: 80%;
-    padding: 1.2rem 1.5rem;
+    width: 90%;
+    padding: 1.1rem 1.5rem;
     font-size: 1.1rem;
+  }
+}
+
+/* Landscape en móviles */
+@media (max-height: 500px) and (orientation: landscape) {
+  .container_createCourse {
+    padding: 1rem 0.5rem;
+  }
+  
+  .upload-area {
+    height: 200px;
+  }
+  
+  .containerInformation_CreateCourse {
+    gap: 1rem;
   }
 }

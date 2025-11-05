@@ -15,8 +15,9 @@
 }
 
 .signature-modal {
+    position: static;
     width: 400px;
-    height: 550px;
+    height: 575px;
     background-color: #1a1a1a;
     border-radius: 15px;
     display: flex;

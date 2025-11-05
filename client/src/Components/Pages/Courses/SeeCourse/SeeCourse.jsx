@@ -162,10 +162,11 @@ export const SeeCourse = () => {
 								</button>
 
 								{/* Botón de Material */}
-								<button className='material-btn' onClick={()=> navigate(`/SupportMaterialCourse`)}>
+                                <button className='material-btn' onClick={()=> navigate(`/SupportMaterialCourse/${id}`)}>
 									<img src={materialIcon} alt="Material del curso" className="btn-icon" />
 									Ver Material
 								</button>
+
 
 								{/* Botones condicionales */}
 								{userSession && (userSession.accountType === 'Administrador' || userSession.accountType === 'Gestor') && (
@@ -205,6 +206,11 @@ export const SeeCourse = () => {
 										Gestionar Asistencias
 									</button>
 								)}
+								{userSession && userSession.accountType === 'Gestor' && (
+									<button className='inscribe-btn' onClick={() => navigate()}>
+										Inscribir Aprendices
+									</button>
+								)}	
 							</div>
 						</div>
 					</div>

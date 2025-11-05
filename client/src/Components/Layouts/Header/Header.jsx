@@ -382,6 +382,22 @@ export const Header = ({
 								>
 									Gestión de Empleados
 								</button>
+								<button
+									className={
+										location.pathname.startsWith(
+											"/Gestiones/Usuarios"
+										)
+											? "active"
+											: ""
+									}
+									onClick={() =>
+										handleMenuClick(
+											"/Gestiones/Usuarios"
+										)
+									}
+								>
+									Gestión de Usuarios
+								</button>
 							</div>
 						)}
 					</div>
@@ -403,6 +419,20 @@ export const Header = ({
 						{showGestionesMenu && (
 							<div className="dropdown-gestiones">
 								<div className="arrow-up" />
+								<button
+									className={
+										location.pathname.startsWith(
+											"/Gestiones/Instructor"
+										)
+											? "active"
+											: ""
+									}
+									onClick={() =>
+										handleMenuClick("/Gestiones/Instructor")
+									}
+								>
+									Gestión de Instructores
+								</button>
 								<button
 									className={
 										location.pathname.startsWith(
@@ -452,16 +482,26 @@ export const Header = ({
 					</NavLink>
 				)}
 
-				{/* Empresas (solo Administrador) */}
+				{/* (solo Administrador) */}
 				{isLoggedIn && accountType === "Administrador" && (
-					<NavLink
-						to="/Gestiones/Empresas"
-						className={({ isActive }) =>
-							isActive ? "empresas active" : "empresas"
-						}
-					>
-						Empresas
-					</NavLink>
+					<>
+						<NavLink
+							to="/Gestiones/Empresas"
+							className={({ isActive }) =>
+								isActive ? "empresas active" : "empresas"
+							}
+						>
+							Empresas
+						</NavLink>					
+						<NavLink
+							to="/Gestiones/Historial"
+							className={({ isActive }) =>
+								isActive ? "empresas active" : "empresas"
+							}
+						>
+							Historial
+						</NavLink>
+					</>
 				)}
 
 				{/* Empleados (solo Empresa) */}
@@ -469,7 +509,7 @@ export const Header = ({
 					<NavLink
 						to="/Empleados/MisEmpleados"
 						className={({ isActive }) =>
-							isActive ? "empleados active" : "empleados"
+							isActive ? "historial active" : "historial"
 						}
 					>
 						Empleados

@@ -223,19 +223,21 @@ const getAllInscripciones = async (req, res) => {
       where : {
         curso_ID : curso_ID
       },
-      attributes : ['aprendiz_ID', 'fecha_inscripcion']
+      attributes : ['ID','aprendiz_ID', 'fecha_inscripcion', 'estado_inscripcion']
     })
     const consultar = await Promise.all(
       inscribieron.map( async (i) =>{
           const consult = await Usuario.findByPk(i.aprendiz_ID)
           const consult1 = await Empresa.findByPk(consult.dataValues.empresa_ID)
           return {
+            id : i.ID,
             nombres : consult.dataValues.nombres,
             apellidos : consult.dataValues.apellidos,
             empresa : consult1.dataValues.nombre_empresa,
             celular : consult.dataValues.celular,
             email : consult.dataValues.email,
-            fecha_inscripcion : i.fecha_inscripcion
+            fecha_inscripcion : i.fecha_inscripcion,
+            estado : i.estado_inscripcion
           }
       })
     )

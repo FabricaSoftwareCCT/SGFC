@@ -209,14 +209,13 @@ export const CreateCourse = ( ) => {
 		}
 	};
 
-	// Debounce para evitar llamadas en cada tecla
-	const debouncedBuscarEmpresa = useRef(debounce(buscarEmpresaPorNIT, 500)).current;
+	/*
+	const debouncedBuscarEmpresa = useRef(debounce(buscarEmpresaPorNIT, 500)).current;*/
 
 	useEffect(() => {
-		debouncedBuscarEmpresa(empresaNIT);
+		buscarEmpresaPorNIT(empresaNIT);
 		return () => {
 			console.log("empresa", empresaNIT)
-			debouncedBuscarEmpresa.cancel();
 		};
 	}, [empresaNIT]);
 

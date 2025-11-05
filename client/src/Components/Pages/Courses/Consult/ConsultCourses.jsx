@@ -43,6 +43,8 @@ export const ConsultCourses = () => {
           );
         }
 
+        console.log(cursosFiltrados)
+
         setCursos(cursosFiltrados);
         setAllCursos(cursosFiltrados);
         setErrorMessage("");

@@ -225,8 +225,22 @@
   height: auto;
 }
 
-.containerInput_company,
-.containerInput_ficha {
+.input-field{
+    width: 100%;
+    padding: 0.8rem 2rem;
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.01) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 18px;
+    color: white;
+    font-size: 1rem;
+    font-weight: 300;
+    outline: none;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(15px);
+    flex: 1;
+}
+
+.containerInput_company, .containerInput_ficha{
   width: 100%;
   height: auto;
   display: flex;
@@ -257,9 +271,16 @@
 }
 
 .input-field:focus {
-  border: 1px solid #2F8EAC;
-  box-shadow: 0 0 3px rgba(47, 142, 172, 0.6);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.15);
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.02) 100%);
 }
+
+.input-field:hover{
+  border-color: rgba(255, 255, 255, 0.15);
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.02) 100%);
+}
+
 
 #p_addInstructor {
   width: auto;

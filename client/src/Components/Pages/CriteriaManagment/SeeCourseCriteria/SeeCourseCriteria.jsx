@@ -3,10 +3,13 @@ import "./SeeCourseCriteria.css"
 import { useNavigate, useParams } from "react-router-dom"
 import { Header } from "../../../Layouts/Header/Header"
 import { Main } from "../../../Layouts/Main/Main"
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { GoBackArrow } from "../../../UI/GoBackArrow/GoBackArrow"
 import { PageMover } from "../../../UI/PageMover/PageMover"
 import axiosInstance from "../../../../config/axiosInstance"
+import { generarExcelCriterios } from "../../../../utils/Reports/Criterios"
+import { ReportCriteria } from "./ReportCriteria/ReportCriteria"
+import html2pdf from "html2pdf.js"
 
 export const SeeAllCourseCriteria = () => {
 	const { id } = useParams()
@@ -17,6 +20,7 @@ export const SeeAllCourseCriteria = () => {
 	const [loading, setLoading] = useState(true)
 	const [criteria, setCriteria] = useState([])
 	const [criteriaBackup, setCriteriaBackup] = useState([])
+	const [curso, setCurso] = useState()
 
 	const [filtering, setFiltering] = useState(false)
 	const [searchName, setSearchName] = useState("")
@@ -24,9 +28,17 @@ export const SeeAllCourseCriteria = () => {
 	const [searchAuthor, setSearchAuthor] = useState("")
 	const [totalAmount, setTotalAmount] = useState(0)
 	const [editedCriteria, setEditedCriteria] = useState([])
+
+	const [generating, setGenerating] = useState(false)
+	const [doneGenerating, setDoneGenerating] = useState(false)
+	const [showingDownloadOptions, setShowingDownloadingOptions] = useState(false);
+	const [reportContent, setReportContent] = useState(false)
+	const [reportType, setReportType] = useState("pdf");
 	
 	const [page, setPage] = useState(0)
 	const [pages, setPages] = useState(1)
+
+	const pdfContent = useRef()
 
 	const CourseCriteria = (criteriaData) => {
 		if (editing) {
@@ -171,6 +183,17 @@ export const SeeAllCourseCriteria = () => {
 		}
 	}
 
+	async function fetchCourse() {
+		try {
+			const response = await axiosInstance.get(
+				`api/courses/cursos/${id}`
+			);
+			setCurso(response.data);
+		} catch (error) {
+			console.error("Error al obtener el curso:", error);
+		}
+	}
+
 	const userSession = JSON.parse(localStorage.getItem("userSession")) || JSON.parse(sessionStorage.getItem("userSession"))
 	const isLoggedIn = !!userSession
 	const accountType = userSession?.accountType || null
@@ -178,6 +201,7 @@ export const SeeAllCourseCriteria = () => {
 	useEffect(() => {
 		if (isLoggedIn && (accountType === "Instructor" || accountType == "Administrador" || accountType === "Gestor")) {
 			fetchCriteria()
+			fetchCourse()
 		} else {
 			navigate("/no-autorizado");
 		}
@@ -191,6 +215,29 @@ export const SeeAllCourseCriteria = () => {
 			navigate("/no-autorizado");
 		}
 	}, [page])
+
+	const generarReporte = async () => {
+		try {
+			if (reportType === "pdf") {
+				if (!pdfContent.current)
+					return
+				const worker = html2pdf().set({
+					margin: 10,
+					filename: "reporte_cursos.pdf",
+					html2canvas: { scale: 2 },
+					jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+				}).from(pdfContent.current)
+				setGenerating(false)
+				setDoneGenerating(true)
+				setReportContent(await worker.output("bloburl"))
+			}
+		} catch (error) {
+			console.log(error)
+			alert("Ocurrió un error al generar el reporte")
+			setDoneGenerating(false)
+			setGenerating(false)
+		}
+	}
 
 	return (
 		<>
@@ -264,7 +311,10 @@ export const SeeAllCourseCriteria = () => {
 							setPage(page - 1)
 						}}
 					/>
-					<button className="button end-button">Descargar</button>
+					<button
+						className="button end-button"
+						onClick={() => setShowingDownloadingOptions(true)}	
+					>Descargar</button>
 				</div>
 				{filtering &&
 					<div
@@ -297,6 +347,7 @@ export const SeeAllCourseCriteria = () => {
 							onChange={(e) => setSearchAuthor(e.target.value)}
 						/>
 						<button
+							id="filtrar-button"
 							className="button"
 							style={{
 								alignSelf: "center",
@@ -308,6 +359,109 @@ export const SeeAllCourseCriteria = () => {
 						</button>
 					</div>
 				}
+				{showingDownloadOptions && (
+					<div className="modal-overlay">
+						<div
+							className="modal-background"
+							style={{
+								height: "fit-content",
+								paddingBottom: "20px",
+								width: "35%",
+								minHeight: "fit-content",
+							}}
+						>
+							<div className="container_return_EditCalendar">
+								<h5
+									onClick={() =>
+										setShowingDownloadingOptions(false)
+									}
+									style={{ cursor: "pointer" }}
+								>
+									Volver
+								</h5>
+								<button
+									onClick={() =>
+										setShowingDownloadingOptions(false)
+									}
+									className="closeModal"
+								></button>
+							</div>
+							<h2 className="modal-title-edit-calendar">
+								Tipo de reporte
+							</h2>
+							<div
+								className="statusButtons"
+								style={{
+									width: "90%",
+								}}
+							>
+								<button
+									className={`status-btn ${
+										reportType == "pdf" && "selected"
+									}`}
+									onClick={() => setReportType("pdf")}
+								>
+									PDF
+								</button>
+								<button
+									className={`status-btn ${
+										reportType == "excel" && "selected"
+									}`}
+									onClick={() => setReportType("excel")}
+								>
+									Excel
+								</button>
+							</div>
+							{reportType === "excel" ?
+								<button
+									className="button"
+									style={{
+										marginTop: "20px",
+									}}
+									onClick={() => generarExcelCriterios(id, curso, () => setShowingDownloadingOptions(false))}
+								>
+									Descargar reporte
+								</button>	
+							:
+								<>
+									<button
+										className="button"
+										style={{
+											marginTop: "20px",
+										}}
+										onClick={() => setGenerating(true)}
+									>
+										Generar reporte
+									</button>
+									{generating &&
+										<ReportCriteria
+											contentKey={pdfContent}
+											curso={curso}
+											criterios={criteria}
+											done={() => {
+												generarReporte()
+											}}
+										/>
+									}
+									{doneGenerating && (
+										<a
+											className="button"
+											href={reportContent}
+											target="_blank"
+											rel="noopener noreferrer"
+											style={{
+												marginTop: "20px",
+												textDecoration: "none"
+											}}
+										>
+											Descargar
+										</a>
+									)}
+								</>
+							}
+						</div>
+					</div>
+				)}
 			</Main>
 		</>
 	)

@@ -9,6 +9,8 @@ import { useModal } from "../../../Context/ModalContext";
 import { NavLink, useNavigate } from "react-router-dom";
 import { Modal_General } from '../../UI/Modal_General/Modal_General';
 import agregarArchivo from '../../../assets/Icons/agregar-archivo.png';
+import Swal from 'sweetalert2';
+import 'sweetalert2/themes/bulma.css'
 
 const categoriasDisponibles = [
 	'Solicitud', 'Concertacion', 'Lugar_formacion', 'Matricula'
@@ -60,16 +62,33 @@ export const GestionsActas = () => {
 				setActas([]);
 				setActasOriginales([]);
 				console.error("Error al cargar actas:", error);
+				await Swal.fire({
+          icon: "error",
+          title: "Error al cargar actas",
+          text: "Ha ocurrido un error al cargar el acta, por favor vuelva a intentarlo más tarde",
+          confirmButtonText: "Entendido",
+          confirmButtonColor: "#d33",
+                theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+        });
 			}
 		};
 
 		// Obtener información del usuario logueado
-		const obtenerUsuarioLogueado = () => {
+		const obtenerUsuarioLogueado = async () => {
 			try {
 				const userData = JSON.parse(sessionStorage.getItem('userSession') || '{}');
 				setUsuarioLogueado(userData);
 			} catch (error) {
 				console.error('Error al obtener datos del usuario:', error);
+			await Swal.fire({
+          icon: 'error',
+          title: 'Error de sesión',
+          text: 'No se pudieron cargar los datos del usuario. Por favor, inicie sesión nuevamente.',
+          confirmButtonColor: '#d33',
+                theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+        });
 				setUsuarioLogueado(null);
 			}
 		};
@@ -130,7 +149,17 @@ export const GestionsActas = () => {
 
 		const handleChangeEstado = async () => {
 			if (!esAdministrador()) {
-				alert('Solo los administradores pueden cambiar el estado del acta');
+        await Swal.fire({
+          icon: "info",
+          title: "No tiene permiso",
+          text: "Solo los administradores pueden cambiar el estado del acta",
+          confirmButtonText: "Okay",
+          confirmButtonColor: "#3085d6",
+          timer: 3500,
+          timerProgressBar: true,
+                theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+        });
 				return;
 			}
 
@@ -147,15 +176,52 @@ export const GestionsActas = () => {
 						actaID : acta.ID,
 						estado: updatedEstado, 
 					})
-					alert('Notificación de estado de solicitud de curso enviada correctamente');
-				} catch (error) {
-					console.error('Error al enviar notificación de estado de solicitud de curso:', error);
-				}
-				alert('Estado actualizado correctamente');
-				setShowModalGeneral(false);
-				window.location.reload();
-			} catch (error) {
-				alert('Error al actualizar el estado');
+					await Swal.fire({
+            icon: "success",
+            title: "¡Éxito!",
+            text: "Notificación de estado de solicitud de curso enviada correctamente",
+            confirmButtonText: "Entiendo",
+            confirmButtonColor: "#3085d6",
+            timer: 3000,
+            timerProgressBar: true,
+                  theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+          });
+        } catch (error) {
+          console.error('Error al enviar notificación de estado de solicitud de curso:', error);
+          await Swal.fire({
+            icon: "error",
+            title: "Error al enviar notificación",
+            text: "Ha ocurrido un error al enviar una notificación de estado de solicitud de curso, por favor, intentelo más tarde.",
+            confirmButtonText: "Okay",
+            confirmButtonColor: "#d33",
+                  theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+          });
+        }
+
+        await Swal.fire({
+          icon: "success",
+          title: "¡Éxito!",
+          text: "Estado actualizado correctamente",
+          confirmButtonColor: "#05ab13",
+          timer: 3000,
+          timerProgressBar: true,
+                theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+        });
+        
+        setShowModalGeneral(false);
+        window.location.reload();
+      } catch (error) {
+        await Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Error al actualizar el estado del acta",
+          confirmButtonColor: "#d33",
+                theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+        });
 			}
 		};
 
@@ -348,11 +414,28 @@ export const GestionsActas = () => {
 			await axiosInstance.post(`/api/actas/${actaId}/upload-radicado`, formData, {
 				headers: { 'Content-Type': 'multipart/form-data' }
 			});
-			alert('PDF radicado subido correctamente');
-			setShowModalGeneral(false);
-			window.location.reload();
-		} catch (error) {
-			alert('Error al subir el PDF radicado');
+      await Swal.fire({
+        icon: "success",
+        title: "¡Éxito!",
+        text: "PDF radicado subido correctamente",
+        confirmButtonColor: "#3085d6",
+        timer: 3000,
+        timerProgressBar: true,
+              theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+      });
+      
+      setShowModalGeneral(false);
+      window.location.reload();
+    } catch (error) {
+      await Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Error al subir el PDF radicado",
+        confirmButtonColor: "#d33",
+              theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+      });
 		}
 	};
 

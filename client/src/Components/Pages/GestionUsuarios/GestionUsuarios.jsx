@@ -8,6 +8,8 @@ import { useEffect } from "react"
 import { PageMover } from "../../UI/PageMover/PageMover"
 
 import fotoPerfilDefect from "../../../assets/Icons/userDefect.png"
+import Swal from 'sweetalert2';
+import 'sweetalert2/themes/bulma.css'
 
 export const GestionUsuarios = () => {
 	const navigate = useNavigate()

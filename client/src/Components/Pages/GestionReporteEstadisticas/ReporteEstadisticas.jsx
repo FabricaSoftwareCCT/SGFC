@@ -6,6 +6,8 @@ import html2pdf from "html2pdf.js"
 import { FormatCourse } from './FormatCourse/FormatCourse';
 import axiosInstance from '../../../config/axiosInstance';
 import * as xlsx from "xlsx"
+import Swal from 'sweetalert2';
+import 'sweetalert2/themes/bulma.css'
 
 
 export default function ReporteEstadisticas() {
@@ -68,12 +70,28 @@ export default function ReporteEstadisticas() {
 				const data = await getCursos(currentPage);
 
 				if(!data){
-					alert("Error al cargar datos")
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Error al cargar datos',
+            confirmButtonText: 'Aceptar',
+            confirmButtonColor: '#d33',
+            theme:"bulma",
+                customClass: { confirmButton: 'centered-swal-button' }
+          });
 				}
 				//Acutalizar estado
 				setdatosCurso(data);
 			}catch(err){
-				alert(" Error en servidor ")
+        Swal.fire({
+          icon: 'error',
+          title: 'Error del servidor',
+          text: 'Error en servidor',
+          confirmButtonText: 'Aceptar',
+          confirmButtonColor: '#d33',
+                theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+        });
 			}
 		}
 		fetchData()
@@ -245,7 +263,15 @@ export default function ReporteEstadisticas() {
 			}
 		} catch (err) {
 			console.log(err)
-			alert("Ocurrió un error al generar el reporte")
+			Swal.fire({
+			icon:"error",
+			title: 'Error al generar reporte',
+          text: 'Ocurrió un error al generar el reporte',
+          confirmButtonText: 'Okay',
+          confirmButtonColor: '#d33',
+                theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+			})
 			setDoneGenerating(false)
 			setGenerating(false)
 		}

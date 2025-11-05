@@ -1,6 +1,8 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react'; // ← AGREGAR useRef y useEffect
 import EficienciaReporte from './Eficiencia-reporte';
 import './ReporteEstudiantes.css';
+import Swal from 'sweetalert2';
+import 'sweetalert2/themes/bulma.css'
 
 export default function ReporteEstudiantes({ cursoSeleccionado, onVolver }) {
   const [mostrarFiltro, setMostrarFiltro] = useState(false);
@@ -172,7 +174,15 @@ export default function ReporteEstudiantes({ cursoSeleccionado, onVolver }) {
   const generarReporte = () => {
     console.log('Generando reporte de estudiantes...');
     const datosReporte = estudiantesFiltrados.length > 0 ? estudiantesFiltrados : datosEstudiantes;
-    alert(`Reporte generado exitosamente\nTotal de estudiantes: ${datosReporte.length}`);
+    Swal.fire({
+      icon: 'success',
+      title: 'Reporte generado',
+      html: `Reporte generado exitosamente<br><strong>Total de estudiantes: ${datosReporte.length}</strong>`,
+      confirmButtonText: 'Aceptar',
+      confirmButtonColor: '#049019',
+            theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+    });
   };
 
   // Contador de filtros activos

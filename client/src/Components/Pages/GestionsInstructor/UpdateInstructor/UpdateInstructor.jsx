@@ -4,6 +4,8 @@ import "./UpdateInstructor.css";
 import axiosInstance from "../../../../config/axiosInstance"; // Asegúrate de ajustar esta ruta según la estructura de tu proyecto
 import { createMensajeError, validateNumber, validateText, validateEmail } from "../../../../utils/Validators/formValidator";
 import { ModalManageCourses } from "../../../UI/Modal_ManageCourses/ModalManageCourses";
+import Swal from 'sweetalert2';
+import 'sweetalert2/themes/bulma.css'
 
 export const UpdateInstructor = ({ instructor, onClose }) => {
   const navigate = useNavigate();
@@ -105,7 +107,24 @@ export const UpdateInstructor = ({ instructor, onClose }) => {
 
      const errores = await createMensajeError(validationGeneral);
      if(errores !== null){
-        alert(errores);
+        await Swal.fire({
+          icon: "warning",
+          title: "Errores de validación",
+          html: `
+            <div style="text-align: left;">
+              <p>Por favor corrija los siguientes errores:</p>
+              <div style="background: #f8f9fa; padding: 10px; border-radius: 5px; margin-top: 10px;">
+                ${errores.split('\n').map(error => `<div style="margin-bottom: 5px;">• ${error}</div>`).join('')}
+              </div>
+            </div>
+          `,
+          confirmButtonText: "Entendido",
+          confirmButtonColor: "#3085d6",
+          theme: "bulma", // Añadido tema Bulma
+          customClass: {
+            confirmButton: 'centered-swal-button'
+          }
+        });
         return;
      }
 
@@ -132,7 +151,18 @@ export const UpdateInstructor = ({ instructor, onClose }) => {
         }
       );
 
-      alert(response.data.message || "Perfil actualizado");
+      await Swal.fire({
+        icon: "success",
+        title: "¡Éxito!",
+        text: response.data.message || "Perfil actualizado correctamente",
+        confirmButtonColor: "#3085d6",
+        timer: 3000,
+        timerProgressBar: true,
+        theme: "bulma", // Añadido tema Bulma
+        customClass: {
+          confirmButton: 'centered-swal-button'
+        }
+      });
       setIsEditing(false);
 
       //Recargar la página para reflejar cambios
@@ -145,7 +175,16 @@ export const UpdateInstructor = ({ instructor, onClose }) => {
         "Error al actualizar el perfil:",
         error.response.data || error.message
       );
-      alert("Hubo un error al actualizar el perfil.");
+      await Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Hubo un error al actualizar el perfil. Por favor, inténtelo de nuevo.",
+        confirmButtonColor: "#d33",
+        theme: "bulma", // Añadido tema Bulma
+        customClass: {
+          confirmButton: 'centered-swal-button'
+        }
+      });
     }
   };
 

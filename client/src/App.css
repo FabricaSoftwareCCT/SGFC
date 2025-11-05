@@ -1,0 +1,7 @@
+.centered-swal-button {
+  display: flex !important;
+  justify-content: center !important;
+  margin: 0 auto !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}

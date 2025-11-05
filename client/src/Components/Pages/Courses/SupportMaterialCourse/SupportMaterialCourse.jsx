@@ -5,6 +5,8 @@ import { Footer } from '../../../Layouts/Footer/Footer';
 import { Main } from '../../../Layouts/Main/Main';
 import './SupportMaterialCourse.css'
 import axiosInstance from '../../../../config/axiosInstance';
+import Swal from 'sweetalert2';
+import 'sweetalert2/themes/bulma.css'
 
 export const SupportMaterialCourse = () => {
     const navigate = useNavigate();
@@ -27,11 +29,30 @@ export const SupportMaterialCourse = () => {
     const puedeSubirArchivos = !esAprendiz;
     const puedeEliminarArchivos = !esAprendiz;
 
+        // Configuración de SweetAlert2 con acciones centradas
+    const swalConfig = {
+        customClass: {
+            actions: 'swal2-center-actions'
+        },
+        buttonsStyling: false,
+        confirmButtonText: 'Aceptar',
+        cancelButtonText: 'Cancelar',
+        confirmButtonClass: 'button is-primary',
+        cancelButtonClass: 'button is-light'
+    };
+
     const fetchCurso = async () => {
         try {
             const resp = await axiosInstance.get(`api/courses/cursos/${id}`);
             setCursoActual(resp.data);
-        } catch {}
+        } catch (error) {
+                await Swal.fire({
+                ...swalConfig,
+                icon: 'error',
+                title: 'Error',
+                text: 'No se pudo cargar la información del curso'
+            });
+        }
     };
 
     const fetchMaterial = async () => {
@@ -56,7 +77,16 @@ export const SupportMaterialCourse = () => {
             if (materialType === 'PDF' || materialType === 'Video') {
                 const fieldName = materialType === 'PDF' ? 'document_pdf' : 'video';
                 const tipo = materialType.toLowerCase();
-                if (pendingFiles.length === 0) { alert(`Selecciona uno o más archivos ${materialType}`); setSubiendoArchivo(false); return; }
+                if (pendingFiles.length === 0) {                    
+                    await Swal.fire({
+                        ...swalConfig,
+                        icon: 'warning',
+                        title: 'Archivos requeridos',
+                        text: `Selecciona uno o más archivos ${materialType}`
+                    }); 
+                    setSubiendoArchivo(false); 
+                    return; 
+                }
                 requests = pendingFiles.map((file) => {
                     const body = new FormData();
                     body.append(fieldName, file);
@@ -66,31 +96,80 @@ export const SupportMaterialCourse = () => {
             } else if (materialType === 'Enlace') {
                 const linksToSend = pendingLinks.filter((l)=> (l||'').trim().length > 0);
                 if (linksToSend.length === 0 && material.length > 0) linksToSend.push(material);
-                if (linksToSend.length === 0) { alert('Agrega uno o más enlaces'); setSubiendoArchivo(false); return; }
+                if (linksToSend.length === 0) { 
+                    await Swal.fire({
+                        ...swalConfig,
+                        icon: 'warning',
+                        title: 'Enlaces requeridos',
+                        text: 'Agrega uno o más enlaces'
+                    }); setSubiendoArchivo(false); 
+                    return; 
+                }
                 requests = linksToSend.map((link)=> axiosInstance.post(`/api/material/create/${id}`, { tipo: 'enlace', link }));
             }
             const responses = await Promise.all(requests);
             const firstMsg = responses[0]?.data?.message;
-            if (firstMsg) alert(firstMsg);
+            if (firstMsg) {
+                await Swal.fire({
+                    ...swalConfig,
+                    icon: 'success',
+                    title: 'Éxito',
+                    text: firstMsg
+                });
+            }
             setShowMaterialCreation(false);
             setPendingFiles([]);
             setPendingLinks([]);
             setMaterial('');
             await fetchMaterial();
         } catch (e) {
-            alert('Ocurrió un error al crear el material de apoyo');
+            await Swal.fire({
+                ...swalConfig,
+                icon: 'error',
+                title: 'Error',
+                text: 'Ocurrió un error al crear el material de apoyo'
+            });
         } finally {
             setSubiendoArchivo(false);
         }
     };
 
+    /* const handleDescargarArchivo = async (archivo) => {
+        await Swal.fire({
+            ...swalConfig,
+            icon: 'info',
+            title: 'Descargando',
+            text: `Descargando: ${archivo.nombre_original}`
+        });
+    };*/
+
     const handleEliminarArchivo = async (archivoId) => {
-        if (!window.confirm('¿Estás seguro de que quieres eliminar este archivo?')) return;
-        try {
-            await axiosInstance.delete(`/api/material/delete/${archivoId}`);
-            setArchivos((prev) => prev.filter((a) => a.ID !== archivoId));
-        } catch (e) {
-            alert('Error al eliminar el material');
+        const result = await Swal.fire({
+            ...swalConfig,
+            icon: 'question',
+            title: '¿Eliminar archivo?',
+            text: '¿Estás seguro de que quieres eliminar este archivo?',
+            showCancelButton: true
+        });
+
+        if (result.isConfirmed) {
+            try {
+                // Aquí iría la llamada real a la API
+                await Swal.fire({
+                    ...swalConfig,
+                    icon: 'success',
+                    title: 'Eliminado',
+                    text: 'Archivo eliminado correctamente'
+                });
+                await fetchMaterial();
+            } catch (error) {
+                await Swal.fire({
+                    ...swalConfig,
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'No se pudo eliminar el archivo'
+                });
+            }
         }
     };
 

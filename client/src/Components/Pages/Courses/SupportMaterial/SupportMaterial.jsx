@@ -6,6 +6,8 @@ import { Main } from '../../../Layouts/Main/Main';
 import './SupportMaterial.css';
 import axiosInstance from '../../../../config/axiosInstance';
 import { useEffect } from 'react';
+import Swal from 'sweetalert2';
+import 'sweetalert2/themes/bulma.css'
 
 export const SupportMaterial = () => {
 	const navigate = useNavigate();
@@ -23,6 +25,19 @@ export const SupportMaterial = () => {
     const [pendingLinks, setPendingLinks] = useState([]); // enlaces agregados aún no enviados
     const fileInputRef = useRef(null);
 
+	const swalConfig = {
+        theme: 'bulma',
+        customClass: {
+            confirmButton: 'button is-primary',
+            cancelButton: 'button is-light',
+            actions: 'swal2-actions-centered',
+            popup: 'swal2-popup-centered'
+        },
+        buttonsStyling: false,
+        confirmButtonText: 'Aceptar',
+        cancelButtonText: 'Cancelar'
+    };
+
 	const userSession = JSON.parse(localStorage.getItem('userSession')) || JSON.parse(sessionStorage.getItem('userSession'))
 	const accountType = userSession?.accountType
 
@@ -32,7 +47,12 @@ export const SupportMaterial = () => {
 			setCursos(resp.data)
 		} catch (error) {
 			console.log(error)
-			alert("Ocurrió un error al consultar los cursos")
+			Swal.fire({
+				...swalConfig,
+				icon: 'error',
+				title: 'Error',
+				text: 'Ocurrió un error al consultar los cursos'
+			});
 		}
 	}
 
@@ -42,7 +62,12 @@ export const SupportMaterial = () => {
 			setArchivos(resp.data.materiales)
 		} catch (error) {
 			console.log(error)
-			alert("Ocurrió un error al consultar el material de apoyo del curso")
+			Swal.fire({
+				...swalConfig,
+				icon: 'error',
+				title: 'Error',
+				text: 'Ocurrió un error al consultar el material de apoyo del curso'
+			});
 		}
 	}
 
@@ -60,9 +85,19 @@ export const SupportMaterial = () => {
     }
 	
 	const handleEliminarArchivo = (archivoId) => {
-		if (window.confirm('¿Estás seguro de que quieres eliminar este archivo?')) {
-			eliminarMaterial(archivoId)
-		}
+		Swal.fire({
+			...swalConfig,
+			title: '¿Estás seguro?',
+			text: "¿Quieres eliminar este archivo? Esta acción no se puede deshacer.",
+			icon: 'warning',
+			showCancelButton: true,
+			confirmButtonText: 'Sí, eliminar',
+			cancelButtonText: 'Cancelar'
+		}).then((result) => {
+			if (result.isConfirmed) {
+				eliminarMaterial(archivoId)
+			}
+		});
 	}
 
 	const truncarNombreArchivo = (nombre, maxLongitud = 15) => {
@@ -93,7 +128,12 @@ export const SupportMaterial = () => {
                 const fieldName = materialType === "PDF" ? "document_pdf" : "video";
                 const tipo = materialType.toLowerCase();
                 if (pendingFiles.length === 0) {
-                    alert(`Selecciona uno o más archivos ${materialType}`);
+                    Swal.fire({
+                        ...swalConfig,
+                        icon: 'warning',
+                        title: 'Archivo requerido',
+                        text: `Selecciona uno o más archivos ${materialType}`
+                    });
                     setSubiendoArchivo(false);
                     return;
                 }
@@ -111,7 +151,12 @@ export const SupportMaterial = () => {
                     linksToSend.push(material);
                 }
                 if (linksToSend.length === 0) {
-                    alert("Agrega uno o más enlaces");
+                    Swal.fire({
+                        ...swalConfig,
+                        icon: 'warning',
+                        title: 'Enlace requerido',
+                        text: 'Agrega uno o más enlaces'
+                    });
                     setSubiendoArchivo(false);
                     return;
                 }
@@ -123,7 +168,14 @@ export const SupportMaterial = () => {
 
             const responses = await Promise.all(requests);
             const firstMsg = responses[0]?.data?.message;
-            if (firstMsg) alert(firstMsg);
+            if (firstMsg) {
+				Swal.fire({
+                    ...swalConfig,
+                    icon: 'success',
+                    title: 'Éxito',
+                    text: firstMsg
+                });
+			}
             setShowMaterialCreation(false)
             setUploadFile(null)
             setPendingFiles([])
@@ -136,7 +188,12 @@ export const SupportMaterial = () => {
 			})
 		} catch (error) {
 			console.log(error)
-			alert("Ocurrió un error al crear el material de apoyo")
+			Swal.fire({
+				...swalConfig,
+				icon: 'error',
+				title: 'Error',
+				text: 'Ocurrió un error al crear el material de apoyo'
+			});
 			setSubiendoArchivo(false)
 		}
 	}
@@ -150,20 +207,35 @@ export const SupportMaterial = () => {
 					break
 				case "link":
 					if (editingMaterial.contenido.length < 1) {
-						alert("Se debe proporcionar un enlace")
+							Swal.fire({
+							...swalConfig,
+							icon: 'warning',
+							title: 'Enlace requerido',
+							text: 'Se debe proporcionar un enlace'
+						});
 						return
 					}
 					const resp = await axiosInstance.put(`/api/material/update/${editingMaterial.ID}`, {
 						link: editingMaterial.contenido
 					})
 					fetchMaterial(cursoSeleccionado)
-					alert(resp.data.message)
+					Swal.fire({
+						...swalConfig,
+						icon: 'success',
+						title: 'Éxito',
+						text: resp.data.message
+					});
 					setEditingMaterial(null)
 					break
 			}
 		} catch (error) {
 			console.log(error)
-			alert("Ocurrió un error al actualizar el material de apoyo")
+			Swal.fire({
+				...swalConfig,
+				icon: 'error',
+				title: 'Error',
+				text: 'Ocurrió un error al actualizar el material de apoyo'
+			});
 			setEditingMaterial(null)
 		}
 	}
@@ -172,10 +244,20 @@ export const SupportMaterial = () => {
 		try {
 			const resp = await axiosInstance.delete(`/api/material/delete/${id}`)
 			fetchMaterial(cursoSeleccionado)
-			alert(resp.data.message)
+			Swal.fire({
+				...swalConfig,
+				icon: 'success',
+				title: 'Eliminado',
+				text: resp.data.message
+			});
 		} catch (error) {
 			console.log(error)
-			alert("Ocurrió un error al eliminar el material de apoyo")
+			Swal.fire({
+				...swalConfig,
+				icon: 'error',
+				title: 'Error',
+				text: 'Ocurrió un error al eliminar el material de apoyo'
+			});
 		}
 	}
 

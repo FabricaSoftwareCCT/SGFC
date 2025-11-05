@@ -21,6 +21,33 @@ export default function ReporteEstadisticas() {
 	const [reportContent, setReportContent] = useState(false)
 
 	const pdfContent = useRef()
+
+	// Helper para formatear errores con contexto detallado
+	const formatDetailedError = (error) => {
+		// Axios error con response
+		const statusCode = error?.response?.status
+		const statusText = error?.response?.statusText
+		const responseData = error?.response?.data
+		const requestUrl = error?.config?.url
+		const method = error?.config?.method
+		const baseMessage = error?.message || "Error desconocido"
+		try {
+			const responsePreview = typeof responseData === "string" ? responseData : JSON.stringify(responseData)
+			return [
+				`Mensaje: ${baseMessage}`,
+				requestUrl ? `Endpoint: [${method?.toUpperCase()}] ${requestUrl}` : undefined,
+				statusCode ? `HTTP: ${statusCode} ${statusText || ""}`.trim() : undefined,
+				responseData ? `Respuesta: ${responsePreview}` : undefined,
+			].filter(Boolean).join("\n")
+		} catch (_) {
+			return [
+				`Mensaje: ${baseMessage}`,
+				requestUrl ? `Endpoint: [${method?.toUpperCase()}] ${requestUrl}` : undefined,
+				statusCode ? `HTTP: ${statusCode} ${statusText || ""}`.trim() : undefined,
+				responseData ? `Respuesta: [no serializable]` : undefined,
+			].filter(Boolean).join("\n")
+		}
+	}
 	
 	// Estados de paginación
 	const [currentPage, setCurrentPage] = useState(1);
@@ -187,69 +214,90 @@ export default function ReporteEstadisticas() {
 		});
 	};
 
-	const generarExcelHistorial = async () => {
-		let cursosIds = (cursosFiltrados.length > 0 ? cursosFiltrados : datosCurso).map((c) => c.id)
-		let cursosData = []
-		let empleadosData = []
+const generarExcelHistorial = async () => {
+    try {
+        let cursosIds = (cursosFiltrados.length > 0 ? cursosFiltrados : datosCurso).map((c) => c.id)
+        let cursosData = []
+        let empleadosData = []
 
-		console.log("Consultando cursos...")
-		for (let cursoId of cursosIds) {
-			let curso = (await axiosInstance.get(`/api/courses/cursos/${cursoId}`)).data
-			cursosData.push({
-				"Curso": curso.nombre_curso,
-				"Tipo": curso.tipo_oferta,
-				"Estado": curso.estado,
-				"Ficha": curso.ficha,
-				"Inicio": new Date(curso.fecha_inicio).toLocaleDateString("es-CO"),
-				"Fin": new Date(curso.fecha_fin).toLocaleDateString("es-CO"),
-				"Duración en días": curso.duracion_dias ?? "Sin determinar",
-				"Lugar de formación": curso.lugar_formacion ?? "Sin especificar",
-				"Instructor": curso.Instructor ? `${curso.Instructor.nombres} ${curso.Instructor.apellidos}` : "Pendiente",
-				"Cantidad de aprendices": curso.cupos_usados
-			})
-		}
+        console.log("Consultando cursos...")
+        for (let cursoId of cursosIds) {
+            const curso = (await axiosInstance.get(`/api/courses/cursos/${cursoId}`)).data
+            cursosData.push({
+                "Curso": curso.nombre_curso,
+                "Tipo": curso.tipo_oferta,
+                "Estado": curso.estado,
+                "Ficha": curso.ficha,
+                "Inicio": new Date(curso.fecha_inicio).toLocaleDateString("es-CO"),
+                "Fin": new Date(curso.fecha_fin).toLocaleDateString("es-CO"),
+                "Duración en días": curso.duracion_dias ?? "Sin determinar",
+                "Lugar de formación": curso.lugar_formacion ?? "Sin especificar",
+                "Instructor": curso.Instructor ? `${curso.Instructor.nombres} ${curso.Instructor.apellidos}` : "Pendiente",
+                "Cantidad de aprendices": curso.cupos_usados
+            })
+        }
 
-		console.log("Consultando empleados...")
-		const empleados = (await axiosInstance.get(`/api/users/admin/empleados?limit=99999`)).data.empleados
-		empleadosData = empleados.map((e) => ({
-			"Nombre": `${e.nombres} ${e.apellidos}`,
-			"Documento": e.documento,
-			"Numero teléfonico": e.celular,
-			"Email": e.email,
-			"Estado": e.estado,
-			"Cursos": e.cursos.join("\n"),
-			"Empresa": e.Empresa.nombre_empresa
-		}))
+        console.log("Consultando empleados...")
+        const empleados = (await axiosInstance.get(`/api/users/admin/empleados?limit=99999`)).data.empleados
+        empleadosData = empleados.map((e) => ({
+            "Nombre": `${e.nombres} ${e.apellidos}`,
+            "Documento": e.documento,
+            "Numero teléfonico": e.celular,
+            "Email": e.email,
+            "Estado": e.estado,
+            "Cursos": Array.isArray(e.cursos) ? e.cursos.join("\n") : "",
+            "Empresa": e?.Empresa?.nombre_empresa || "Sin empresa"
+        }))
 
-		let workBook = xlsx.utils.book_new()
-		xlsx.utils.book_append_sheet(workBook, xlsx.utils.json_to_sheet(cursosData), "Cursos")
-		xlsx.utils.book_append_sheet(workBook, xlsx.utils.json_to_sheet(empleadosData), "Empleados")
-		xlsx.writeFile(workBook, "reporte.xlsx", { compression: true })
-		setGenerating(false)
-	}
+        const workBook = xlsx.utils.book_new()
+        xlsx.utils.book_append_sheet(workBook, xlsx.utils.json_to_sheet(cursosData), "Cursos")
+        xlsx.utils.book_append_sheet(workBook, xlsx.utils.json_to_sheet(empleadosData), "Empleados")
+        xlsx.writeFile(workBook, "reporte.xlsx", { compression: true })
+    } catch (error) {
+        console.error("Error generando Excel:", error)
+        alert(`Error al generar Excel\n\n${formatDetailedError(error)}`)
+    } finally {
+        setGenerating(false)
+    }
+}
 
-	const generarReporte = async () => {
-		try {
-			if (reportType === "pdf") {
-				if (!pdfContent.current)
-					return
-				const worker = html2pdf().set({
-					margin: 10,
-					filename: "reporte_cursos.pdf",
-					html2canvas: { scale: 2 },
-					jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-				}).from(pdfContent.current)
-				setGenerating(false)
-				setDoneGenerating(true)
-				setReportContent(await worker.output("bloburl"))
-			}
-		} catch (err) {
-			console.log(err)
-			alert("Ocurrió un error al generar el reporte")
-			setDoneGenerating(false)
-			setGenerating(false)
-		}
-	};
+const generarReporteDesdeElemento = async (targetElement) => {
+    try {
+        if (reportType === "pdf") {
+            if (!targetElement) throw new Error("No hay contenido para generar el PDF")
+
+            // Forzar reflow y pequeña espera para layout estable
+            // eslint-disable-next-line no-unused-expressions
+            targetElement.offsetHeight
+            await new Promise(r => setTimeout(r, 150))
+
+            const worker = html2pdf().set({
+                margin: 10,
+                filename: "reporte_cursos.pdf",
+                html2canvas: {
+                    scale: 2,
+                    useCORS: true,
+                    allowTaint: true,
+                    backgroundColor: '#FFFFFF',
+                },
+                jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+                pagebreak: { mode: [ 'css', 'avoid-all', 'legacy' ] }
+            }).from(targetElement)
+
+            const blobUrl = await worker.output("bloburl")
+            setReportContent(blobUrl)
+            setDoneGenerating(true)
+            // Abrir automáticamente en una nueva pestaña para evitar pantalla en blanco en la vista
+            window.open(blobUrl, "_blank", "noopener,noreferrer")
+        }
+    } catch (err) {
+        console.error("Error generando PDF:", err)
+        alert(`Error al generar PDF\n\n${formatDetailedError(err)}`)
+        setDoneGenerating(false)
+    } finally {
+        setGenerating(false)
+    }
+};
 
 	// Contador de filtros activos
 	const filtrosActivos = () => {
@@ -501,15 +549,15 @@ export default function ReporteEstadisticas() {
 						>
 							{generating ? "Generando..." : "Generar reporte"}
 						</button>
-						{(generating  && reportType === "pdf") && (
-							<FormatCourse
-								contentKey={pdfContent}
-								cursos={(cursosFiltrados.length > 0 ? cursosFiltrados : datosCurso).map((c) => c.id)}
-								done={() => {
-									generarReporte()
-								}}
-							/>
-						)}
+                        {(generating  && reportType === "pdf") && (
+                            <div style={{ position: "absolute", left: "-10000px", top: 0 }}>
+                                <FormatCourse
+                                    contentKey={pdfContent}
+                                    cursos={(cursosFiltrados.length > 0 ? cursosFiltrados : datosCurso).map((c) => c.id)}
+                                    onReady={(el) => generarReporteDesdeElemento(el)}
+                                />
+                            </div>
+                        )}
 						{doneGenerating && (
 							<a
 								className="button"

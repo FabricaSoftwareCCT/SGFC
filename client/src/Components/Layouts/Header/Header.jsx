@@ -398,6 +398,22 @@ export const Header = ({
 								>
 									Gestión de Usuarios
 								</button>
+								<button
+									className={
+										location.pathname.startsWith(
+											"/GestionReporteEstadisticas/ReporteEstadisticas"
+										)
+											? "active"
+											: ""
+									}
+									onClick={() =>
+										handleMenuClick(
+											"/GestionReporteEstadisticas/ReporteEstadisticas"
+										)
+									}
+								>
+									Reporte y Estadísticas
+								</button>
 							</div>
 						)}
 					</div>

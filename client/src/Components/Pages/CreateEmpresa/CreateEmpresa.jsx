@@ -126,7 +126,6 @@ export const CreateEmpresa = ({ onClose, onCompanyCreated }) => {
       // Llamada a la API para crear empresa
       const response = await axiosInstance.post("/api/users/empresas", empresaData);
       
-      console.log("Empresa creada:", response.data);
       
       // Notificar al componente padre
       if (onCompanyCreated) {

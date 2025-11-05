@@ -55,8 +55,8 @@ const updateEstadoActa = async (req, res) => {
 			const titleActa = `${actaActualizada.tipo_acta.toLowerCase().replaceAll("_", "")} #${actaActualizada.ID}`
 			const title = 
 				estado_acta === "aprobada" ? `Se ha aprovado el acta de ${titleActa}`
-				: estado_acta === "rechazada" ? `Se ha rechazado el acta #${titleActa}`
-				: `Se ha dejado el acta #${titleActa} como pendiente`
+				: estado_acta === "rechazada" ? `Se ha rechazado el acta ${titleActa}`
+				: `Se ha dejado el acta ${titleActa} como pendiente`
 			const message = emailTemplate
 			.replaceAll("[title]", title).replaceAll("[content]", `
 				<table width="100%" cellpadding="0" cellspacing="0">

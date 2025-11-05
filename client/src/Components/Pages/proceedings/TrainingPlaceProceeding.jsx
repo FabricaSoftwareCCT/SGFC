@@ -26,6 +26,7 @@ export const TrainingPlaceProceeding = () => {
 	const [fechaInicio, setFechaInicio] = useState('');
 	const [fechaFin, setFechaFin] = useState('');
 	const [isEditing, setIsEditing] = useState(false);
+	const [isGenerating, setIsGenerating] = useState(false)
 
 	// Validación de fechas
 	const [dateError, setDateError] = useState('');
@@ -50,37 +51,37 @@ export const TrainingPlaceProceeding = () => {
 	const [participantes, setParticipantes] = useState([]);
 	const [generatedPdfName, setGeneratedPdfName] = useState('');
 
-    //  Estados para manejo individual de firmas
-    const [firmasParticipantes, setFirmasParticipantes] = useState({});
-    const [participanteSeleccionado, setParticipanteSeleccionado] = useState(null);
+	//  Estados para manejo individual de firmas
+	const [firmasParticipantes, setFirmasParticipantes] = useState({});
+	const [participanteSeleccionado, setParticipanteSeleccionado] = useState(null);
 
-    //  Funciones para manejo individual de firmas
-    const handleAbrirModalFirma = (participanteId, participanteNombre) => {
-        setParticipanteSeleccionado({ id: participanteId, nombre: participanteNombre });
-        setShowSignatureModal(true);
-    };
+	//  Funciones para manejo individual de firmas
+	const handleAbrirModalFirma = (participanteId, participanteNombre) => {
+		setParticipanteSeleccionado({ id: participanteId, nombre: participanteNombre });
+		setShowSignatureModal(true);
+	};
 
-    const handleAplicarFirma = (firmaData) => {
-        if (participanteSeleccionado) {
-            setFirmasParticipantes(prev => ({
-                ...prev,
-                [participanteSeleccionado.id]: {
-                    nombre: participanteSeleccionado.nombre,
-                    firma: firmaData
-                }
-            }));
-            setParticipanteSeleccionado(null);
-            setShowSignatureModal(false);
-        }
-    };
+	const handleAplicarFirma = (firmaData) => {
+		if (participanteSeleccionado) {
+			setFirmasParticipantes(prev => ({
+				...prev,
+				[participanteSeleccionado.id]: {
+					nombre: participanteSeleccionado.nombre,
+					firma: firmaData
+				}
+			}));
+			setParticipanteSeleccionado(null);
+			setShowSignatureModal(false);
+		}
+	};
 
-    const handleLimpiarFirma = (participanteId) => {
-        setFirmasParticipantes(prev => {
-            const nuevasFirmas = { ...prev };
-            delete nuevasFirmas[participanteId];
-            return nuevasFirmas;
-        });
-    };
+	const handleLimpiarFirma = (participanteId) => {
+		setFirmasParticipantes(prev => {
+			const nuevasFirmas = { ...prev };
+			delete nuevasFirmas[participanteId];
+			return nuevasFirmas;
+		});
+	};
 	const [cargo, setCargo] = useState("Inspector o Gestor")
 
 	// Función para manejar cuando se sube un archivo de firma
@@ -188,15 +189,17 @@ export const TrainingPlaceProceeding = () => {
 	const handleEdit = () => setIsEditing(true);
 	const handleSave = () => setIsEditing(false);
 
-    // FUNCIÓN PARA VOLVER A LA PÁGINA ANTERIOR
-    const handleGoBack = () => {
-        navigate(-1); // Esto lleva al usuario a la página anterior en el historial
-    };
+	// FUNCIÓN PARA VOLVER A LA PÁGINA ANTERIOR
+	const handleGoBack = () => {
+		navigate(-1); // Esto lleva al usuario a la página anterior en el historial
+	};
 
 	// Enviar el acta de lugar de formación al backend
 	const handleSendProceeding = async () => {
 		try {
 			if (!pdfRef.current) return;
+
+			setIsExporting(true)
 
 			const pdfFileName = 'acta_lugar_formacion.pdf';
 			const opt = {
@@ -215,10 +218,18 @@ export const TrainingPlaceProceeding = () => {
 			formData.append('manager', JSON.stringify(manager));
 			formData.append('fecha_acta', new Date().toISOString());
 
-			// ✅ Enviar el ID del usuario logueado como instructor
 			if (usuarioLogueado && usuarioLogueado.id) {
-				formData.append('instructor_ID', usuarioLogueado.id);
-				console.log('✅ Enviando instructor_ID:', usuarioLogueado.id);
+				switch (usuarioLogueado.accountType) {
+					case "Gestor":
+						formData.append('gestor_ID', usuarioLogueado.id);
+						break
+					case "Instructor":
+						formData.append('instructor_ID', usuarioLogueado.id);
+						break
+					case "Administrador":
+						formData.append("administrador_ID", usuarioLogueado.id);
+						break
+				}				
 			}
 
 			if (empresa && empresa.ID) {
@@ -231,14 +242,16 @@ export const TrainingPlaceProceeding = () => {
 
 			// ✅ Si la respuesta es exitosa, redirigir
 			if (response.status === 200) {
+				setIsExporting(false)
 				setGeneratedPdfName(pdfFileName);
 				alert('¡Acta de lugar de formación enviada correctamente!');
 
 				// ✅ REDIRECCIÓN AUTOMÁTICA
-				navigate('/Gestiones/Actas');
+				//navigate('/Gestiones/Actas');
 			}
 
 		} catch (error) {
+			setIsExporting(false)
 			alert('Error al enviar el acta de lugar de formación.');
 			console.error('❌ Error completo:', error);
 		}
@@ -252,20 +265,18 @@ export const TrainingPlaceProceeding = () => {
 		};
 	}, [firmaArchivoUrl]);
 
-	console.log(usuarioLogueado)
-
 	return (
 		<>
 			<Header />
 			<Main>
 				<div className="training-place-proceeding-container">
-                    <button 
-                        className="button-volver" 
-                        onClick={handleGoBack}
-                        style={{ backgroundColor: '#00a144' }}
-                    >
-                        Volver Atrás
-                    </button>
+					<button 
+						className="button-volver" 
+						onClick={handleGoBack}
+						style={{ backgroundColor: '#00a144' }}
+					>
+						Volver Atrás
+					</button>
 					<h1>
 						Acta de <span className="highlight-proceedings">Lugar de Formación</span>
 					</h1>
@@ -285,179 +296,179 @@ export const TrainingPlaceProceeding = () => {
 							/>
 						)}
 
-                        <div className="training-place-proceeding-letter-content apa-style" ref={pdfRef}>
-                            <div className='date-proceeding'>
-                                <p>Fecha de creación:  {new Date().toLocaleDateString()}</p>
-                            </div>
-                            <h2 className='title-concertation'>ACTA DE LUGAR DE FORMACIÓN</h2>
-                            <p>
-                                <b>1. Información del Lugar</b><br />
-                                Ubicación: {isEditing ? (
-                                    <input
-                                        type="text"
-                                        className='training-place-proceeding-input'
-                                        value={empresa?.direccion || ''}
-                                        onChange={e => setEmpresa({ ...empresa, direccion: e.target.value })}
-                                        placeholder="Dirección completa del lugar"
-                                        style={{ width: 300 }}
-                                    />
-                                ) : (
-                                    empresa?.direccion || '[Dirección completa del lugar]'
-                                )}<br />
-                                Capacidad: {isEditing ? (
-                                    <input
-                                        type="number"
-                                        className='training-place-proceeding-input'
-                                        value={empresa?.capacidad || ''}
-                                        onChange={e => setEmpresa({ ...empresa, capacidad: e.target.value })}
-                                        placeholder="Número de personas que puede albergar"
-                                        style={{ width: 120 }}
-                                    />
-                                ) : (
-                                    empresa?.capacidad || '[Número de personas que puede albergar]'
-                                )}<br />
-                                Infraestructura: {isEditing ? (
-                                    <input
-                                        type="text"
-                                        className='training-place-proceeding-input'
-                                        value={empresa?.infraestructura || ''}
-                                        onChange={e => setEmpresa({ ...empresa, infraestructura: e.target.value })}
-                                        placeholder="Descripción de las instalaciones disponibles"
-                                        style={{ width: 300 }}
-                                    />
-                                ) : (
-                                    empresa?.infraestructura || '[Descripción de las instalaciones disponibles]'
-                                )}<br />
-                                Recursos Disponibles: {isEditing ? (
-                                    <EditableList
-                                        items={empresa?.recursos || []}
-                                        setItems={recursos => setEmpresa({ ...empresa, recursos })}
-                                        placeholder="Recurso disponible (ej. equipos, mobiliario, conectividad, etc.)"
-                                    />
-                                ) : (
-                                    empresa?.recursos && empresa.recursos.length > 0 ? empresa.recursos.map((r, idx) => <span key={idx}>{r}{idx < empresa.recursos.length - 1 ? ', ' : ''}</span>) : '[Lista de recursos como equipos, mobiliario, conectividad, etc.]'
-                                )}
-                                <br /><br />
-                                <b>2. Observaciones de la Inspección</b><br />
-                                {isEditing ? (
-                                    <textarea
-                                        className='training-place-proceeding-input'
-                                        value={empresa?.observacionesInspeccion || ''}
-                                        onChange={e => setEmpresa({ ...empresa, observacionesInspeccion: e.target.value })}
-                                        placeholder="Descripción detallada de lo observado durante la inspección. Ej. estado del lugar, accesibilidad, condiciones de seguridad, etc."
-                                        style={{ width: '100%', minHeight: 60 }}
-                                    />
-                                ) : (
-                                    empresa?.observacionesInspeccion || '[Descripción detallada de lo observado durante la inspección. Ej. estado del lugar, accesibilidad, condiciones de seguridad, etc.]'
-                                )}
-                                <br /><br />
-                                <b>3. Documentos/Imágenes de Respaldo</b><br />
-                                {isEditing ? (
-                                    <textarea
-                                        className='training-place-proceeding-input'
-                                        value={empresa?.documentosRespaldo || ''}
-                                        onChange={e => setEmpresa({ ...empresa, documentosRespaldo: e.target.value })}
-                                        placeholder="Adjuntar aquí los documentos o imágenes pertinentes o indicar que se encuentran anexos al acta."
-                                        style={{ width: '100%', minHeight: 40 }}
-                                    />
-                                ) : (
-                                    empresa?.documentosRespaldo || '[Adjuntar aquí los documentos o imágenes pertinentes o indicar que se encuentran anexos al acta.]'
-                                )}
-                                <br /><br />
-                                <b>4. Firma de los Responsables</b><br />
-                                <table className="table-acta">
-                                    <thead>
-                                        <tr>
-                                            <th className="table-acta-th">Nombre Completo</th>
-                                            <th className="table-acta-th">Cargo</th>
-                                            <th className="table-acta-th">Firma</th>
-                                            {isEditing && <th className="table-acta-th">Acciones</th>}
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {(() => {
-                                            const participanteId = 'inspector-gestor';
-                                            const firmaParticipante = firmasParticipantes[participanteId];
-                                            return (
-                                        <tr>
-                                            <td>{isEditing ? (
-                                                <input
-                                                    type="text"
-                                                    className='training-place-proceeding-input'
-                                                    value={manager?.nombres || ''}
-                                                    onChange={e => setManager({ ...manager, nombres: e.target.value })}
-                                                    placeholder="Nombre del Inspector"
-                                                    style={{ width: 200 }}
-                                                />
-                                            ) : (
-                                                manager?.nombres || '[Nombre del Inspector]'
-                                            )}</td>
-                                            <td>Inspector o Gestor</td>
-                                            <td style={{ padding: '10px' }}>
-                                                        {firmaParticipante?.firma ? (
-                                                    <img
-                                                                src={firmaParticipante.firma}
-                                                        alt="Firma digital"
-                                                        style={{
-                                                                    width: 'auto',
-                                                                    maxWidth: '120px',
-                                                                    height: '40px',
-                                                                    display: 'block',                              
-                                                                    objectFit: 'contain',
-                                                                    border: 'none',
-                                                                    background: 'transparent'
-                                                        }}
-                                                    />
-                                                ) : (
-                                                    <span style={{ display: 'inline-block', width: '120px', borderBottom: '1px solid #000' }}>
-                                                        &nbsp;
-                                                    </span>
-                                                )}
-                                            </td>
-                                                    {isEditing && (
-                                                        <td style={{ padding: '5px', textAlign: 'center' }}>
-                                                            {!firmaParticipante?.firma ? (
-                                                                <button
-                                                                    onClick={() => handleAbrirModalFirma(participanteId, manager?.nombres || 'Inspector')}
-                                                                    style={{
-                                                                        backgroundColor: '#00843d',
-                                                                        color: 'white',
-                                                                        border: 'none',
-                                                                        padding: '5px 10px',
-                                                                        borderRadius: '3px',
-                                                                        cursor: 'pointer',
-                                                                        fontSize: '12px'
-                                                                    }}
-                                                                >
-                                                                    Agregar firma
-                                                                </button>
-                                                            ) : (
-                                                                <button
-                                                                    onClick={() => handleLimpiarFirma(participanteId)}
-                                                                    style={{
-                                                                        backgroundColor: '#dc3545',
-                                                                        color: 'white',
-                                                                        border: 'none',
-                                                                        padding: '5px 10px',
-                                                                        borderRadius: '3px',
-                                                                        cursor: 'pointer',
-                                                                        fontSize: '12px'
-                                                                    }}
-                                                                >
-                                                                    Limpiar firma
-                                                                </button>
-                                                            )}
-                                                        </td>
-                                                    )}
-                                        </tr>
-                                            );
-                                        })()}
-                                    </tbody>
-                                </table>
-                                <br />
-                                {dateError && <div style={{ color: 'red', marginBottom: '10px' }}>{dateError}</div>}
-                            </p>
-                        </div>
+						<div className="training-place-proceeding-letter-content apa-style" ref={pdfRef}>
+							<div className='date-proceeding'>
+								<p>Fecha de creación:  {new Date().toLocaleDateString()}</p>
+							</div>
+							<h2 className='title-concertation'>ACTA DE LUGAR DE FORMACIÓN</h2>
+							<p>
+								<b>1. Información del Lugar</b><br />
+								Ubicación: {isEditing ? (
+									<input
+										type="text"
+										className='training-place-proceeding-input'
+										value={empresa?.direccion || ''}
+										onChange={e => setEmpresa({ ...empresa, direccion: e.target.value })}
+										placeholder="Dirección completa del lugar"
+										style={{ width: 300 }}
+									/>
+								) : (
+									empresa?.direccion || '[Dirección completa del lugar]'
+								)}<br />
+								Capacidad: {isEditing ? (
+									<input
+										type="number"
+										className='training-place-proceeding-input'
+										value={empresa?.capacidad || ''}
+										onChange={e => setEmpresa({ ...empresa, capacidad: e.target.value })}
+										placeholder="Número de personas que puede albergar"
+										style={{ width: 120 }}
+									/>
+								) : (
+									empresa?.capacidad || '[Número de personas que puede albergar]'
+								)}<br />
+								Infraestructura: {isEditing ? (
+									<input
+										type="text"
+										className='training-place-proceeding-input'
+										value={empresa?.infraestructura || ''}
+										onChange={e => setEmpresa({ ...empresa, infraestructura: e.target.value })}
+										placeholder="Descripción de las instalaciones disponibles"
+										style={{ width: 300 }}
+									/>
+								) : (
+									empresa?.infraestructura || '[Descripción de las instalaciones disponibles]'
+								)}<br />
+								Recursos Disponibles: {isEditing ? (
+									<EditableList
+										items={empresa?.recursos || []}
+										setItems={recursos => setEmpresa({ ...empresa, recursos })}
+										placeholder="Recurso disponible (ej. equipos, mobiliario, conectividad, etc.)"
+									/>
+								) : (
+									empresa?.recursos && empresa.recursos.length > 0 ? empresa.recursos.map((r, idx) => <span key={idx}>{r}{idx < empresa.recursos.length - 1 ? ', ' : ''}</span>) : '[Lista de recursos como equipos, mobiliario, conectividad, etc.]'
+								)}
+								<br /><br />
+								<b>2. Observaciones de la Inspección</b><br />
+								{isEditing ? (
+									<textarea
+										className='training-place-proceeding-input'
+										value={empresa?.observacionesInspeccion || ''}
+										onChange={e => setEmpresa({ ...empresa, observacionesInspeccion: e.target.value })}
+										placeholder="Descripción detallada de lo observado durante la inspección. Ej. estado del lugar, accesibilidad, condiciones de seguridad, etc."
+										style={{ width: '100%', minHeight: 60 }}
+									/>
+								) : (
+									empresa?.observacionesInspeccion || '[Descripción detallada de lo observado durante la inspección. Ej. estado del lugar, accesibilidad, condiciones de seguridad, etc.]'
+								)}
+								<br /><br />
+								<b>3. Documentos/Imágenes de Respaldo</b><br />
+								{isEditing ? (
+									<textarea
+										className='training-place-proceeding-input'
+										value={empresa?.documentosRespaldo || ''}
+										onChange={e => setEmpresa({ ...empresa, documentosRespaldo: e.target.value })}
+										placeholder="Adjuntar aquí los documentos o imágenes pertinentes o indicar que se encuentran anexos al acta."
+										style={{ width: '100%', minHeight: 40 }}
+									/>
+								) : (
+									empresa?.documentosRespaldo || '[Adjuntar aquí los documentos o imágenes pertinentes o indicar que se encuentran anexos al acta.]'
+								)}
+								<br /><br />
+								<b>4. Firma de los Responsables</b><br />
+								<table className="table-acta">
+									<thead>
+										<tr>
+											<th className="table-acta-th">Nombre Completo</th>
+											<th className="table-acta-th">Cargo</th>
+											<th className="table-acta-th">Firma</th>
+											{isEditing && <th className="table-acta-th">Acciones</th>}
+										</tr>
+									</thead>
+									<tbody>
+										{(() => {
+											const participanteId = 'inspector-gestor';
+											const firmaParticipante = firmasParticipantes[participanteId];
+											return (
+										<tr>
+											<td>{isEditing ? (
+												<input
+													type="text"
+													className='training-place-proceeding-input'
+													value={manager?.nombres || ''}
+													onChange={e => setManager({ ...manager, nombres: e.target.value })}
+													placeholder="Nombre del Inspector"
+													style={{ width: 200 }}
+												/>
+											) : (
+												manager?.nombres || '[Nombre del Inspector]'
+											)}</td>
+											<td>Inspector o Gestor</td>
+											<td style={{ padding: '10px' }}>
+														{firmaParticipante?.firma ? (
+													<img
+																src={firmaParticipante.firma}
+														alt="Firma digital"
+														style={{
+																	width: 'auto',
+																	maxWidth: '120px',
+																	height: '40px',
+																	display: 'block',                              
+																	objectFit: 'contain',
+																	border: 'none',
+																	background: 'transparent'
+														}}
+													/>
+												) : (
+													<span style={{ display: 'inline-block', width: '120px', borderBottom: '1px solid #000' }}>
+														&nbsp;
+													</span>
+												)}
+											</td>
+													{isEditing && (
+														<td style={{ padding: '5px', textAlign: 'center' }}>
+															{!firmaParticipante?.firma ? (
+																<button
+																	onClick={() => handleAbrirModalFirma(participanteId, manager?.nombres || 'Inspector')}
+																	style={{
+																		backgroundColor: '#00843d',
+																		color: 'white',
+																		border: 'none',
+																		padding: '5px 10px',
+																		borderRadius: '3px',
+																		cursor: 'pointer',
+																		fontSize: '12px'
+																	}}
+																>
+																	Agregar firma
+																</button>
+															) : (
+																<button
+																	onClick={() => handleLimpiarFirma(participanteId)}
+																	style={{
+																		backgroundColor: '#dc3545',
+																		color: 'white',
+																		border: 'none',
+																		padding: '5px 10px',
+																		borderRadius: '3px',
+																		cursor: 'pointer',
+																		fontSize: '12px'
+																	}}
+																>
+																	Limpiar firma
+																</button>
+															)}
+														</td>
+													)}
+										</tr>
+											);
+										})()}
+									</tbody>
+								</table>
+								<br />
+								{dateError && <div style={{ color: 'red', marginBottom: '10px' }}>{dateError}</div>}
+							</p>
+						</div>
 
 					</div>
 
@@ -468,9 +479,15 @@ export const TrainingPlaceProceeding = () => {
 							<button className="training-place-proceeding-submit-button" onClick={handleEdit}>Editar</button>
 						)}
 
-                        <button className="training-place-proceeding-submit-button" onClick={handleSendProceeding}>Generar acta</button>
-                        <button className="training-place-proceeding-submit-button-exportar" onClick={handleDownloadPDF}>Exportar</button>
-                    </div>
+						{!isEditing && (
+							<button
+								className="training-place-proceeding-submit-button"
+								onClick={handleSendProceeding}
+								disabled={isGenerating}
+							>Generar acta</button>
+						)}
+						<button className="training-place-proceeding-submit-button-exportar" onClick={handleDownloadPDF}>Exportar</button>
+					</div>
 
 				</div>
 			</Main>
@@ -478,13 +495,13 @@ export const TrainingPlaceProceeding = () => {
 			{showSignatureModal && (
 				<ModalSignature
 					closeModal={() => {
-                        setShowSignatureModal(false);
-                        setParticipanteSeleccionado(null);
-                    }}
+						setShowSignatureModal(false);
+						setParticipanteSeleccionado(null);
+					}}
 					nombreActa={nombreCurso}
 					tipoActa="Acta de Lugar de formación"
-                    participanteSeleccionado={participanteSeleccionado}
-                    editar={isEditing}
+					participanteSeleccionado={participanteSeleccionado}
+					editar={isEditing}
 					onSignature={handleAplicarFirma}
 					onUpload={handleAplicarFirma}
 				>

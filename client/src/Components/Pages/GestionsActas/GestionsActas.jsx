@@ -198,13 +198,13 @@ export const GestionsActas = () => {
 					>
 						Radicado
 					</NavLink>
-					{acta.tipo_acta == "Concertacion" && (
+					{/*acta.tipo_acta == "Concertacion" && (
 						<button
 							className={"Acta-Boton"}
 						>
 							Editar acta
 						</button>
-					)}
+					)*/}
 					<label
 						style={{
 							background: "#007bff",

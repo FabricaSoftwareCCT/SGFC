@@ -723,7 +723,7 @@ const sendConcertacionActaEmail = async (req, res) => {
 		//  Determinar los IDs finales
 		const finalEmpresaID =
 			empresa_ID || (empresaObj && empresaObj.ID) || null;
-		const finalInstructorID =
+		let finalInstructorID =
 			instructor_ID || (managerObj && managerObj.ID) || null;
 		const finalGestorID = gestor_ID || null; //  Siempre null en este caso
 
@@ -741,6 +741,18 @@ const sendConcertacionActaEmail = async (req, res) => {
 		fs.mkdirSync(path.dirname(pdfPath), { recursive: true });
 		fs.writeFileSync(pdfPath, pdfBuffer);
 
+		const instructor = (await Usuario.findAll({
+			where: Sequelize.where(
+				Sequelize.fn('CONCAT', Sequelize.col('nombres'), ' ', Sequelize.col('apellidos')),
+				{ [Op.like]: `%${involucrados.instructores[0]}%` }
+			),
+			attributes: ["ID"]
+		}))
+
+		if (instructor.length > 0) {
+			finalInstructorID = instructor[0].dataValues.ID
+		}
+
 		//  Crear el acta en la base de datos
 		const nuevaActa = await Actas.create({
 			fecha_acta: fecha_acta,
@@ -756,8 +768,11 @@ const sendConcertacionActaEmail = async (req, res) => {
 		});
 
 		try {
-			for (let i of involucrados) {
-
+			for (let i of [
+				...involucrados.participantes,
+				...involucrados.instructores,
+				involucrados.coordinadorAcademico
+			]) {
 				const involucrado = (await Usuario.findAll({
 					where: Sequelize.where(
 						Sequelize.fn('CONCAT', Sequelize.col('nombres'), ' ', Sequelize.col('apellidos')),
@@ -805,7 +820,7 @@ const sendConcertacionActaEmail = async (req, res) => {
 						<p><strong>ID del acta:</strong> ${nuevaActa.ID}</p>
 						<p>Se ha registrado una nueva acta de concertación en el sistema.</p>
 						<a style="color: #00843d" href="http://localhost:3001/uploads/documentos/${pdfFileName}">Ver acta</a>
-					`, /* RECUERDA CAMBIAR ESTO */
+					`, // RECUERDA CAMBIAR ESTO
 						attachments: [
 							{
 								filename: pdfFileName,
@@ -854,6 +869,7 @@ const sendTrainingPlaceActaEmail = async (req, res) => {
 			instructor_ID,
 			fecha_acta,
 			nombreActa,
+			manager
 		} = req.body;
 
 		//  Parsear objetos JSON como respaldo

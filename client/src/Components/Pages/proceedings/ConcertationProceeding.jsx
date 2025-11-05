@@ -277,14 +277,27 @@ export const ConcertationProceeding = () => {
 			formData.append('empresa', JSON.stringify(empresa));
 			formData.append('manager', JSON.stringify(manager));
 			formData.append('fecha_acta', new Date().toISOString());
-			formData.append('involucrados', JSON.stringify([
-				...instructores,
-				...participantes,
+			formData.append('involucrados', JSON.stringify({
+				instructores: [
+					instructoresAsignados[0],
+					...instructores
+				],
+				participantes,
 				coordinadorAcademico
-			]))
+			}))
 
 			if (usuarioLogueado && usuarioLogueado.id) {
-				formData.append('instructor_ID', usuarioLogueado.id);
+				switch (usuarioLogueado.accountType) {
+					case "Gestor":
+						formData.append('gestor_ID', usuarioLogueado.id);
+						break
+					case "Instructor":
+						formData.append('instructor_ID', usuarioLogueado.id);
+						break
+					case "Administrador":
+						formData.append("administrador_ID", usuarioLogueado.id);
+						break
+				}				
 			}
 
 			if (empresa && empresa.ID) {

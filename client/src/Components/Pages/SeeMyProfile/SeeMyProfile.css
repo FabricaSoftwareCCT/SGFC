@@ -1032,6 +1032,147 @@
   margin-top: 0.5rem;
 }
 
+/* ========================================
+   NUEVOS ESTILOS PARA CAMPOS ACTUALIZADOS
+   ======================================== */
+
+/* Campo de descripción completo */
+.empresa_field_full {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.empresa_field_full label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #b0b0b0;
+}
+
+.empresa_textarea {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.2s ease;
+  resize: vertical;
+  min-height: 100px;
+  font-family: inherit;
+  line-height: 1.5;
+}
+
+.empresa_textarea:focus {
+  border-color: #00843e3f;
+  background-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 10px rgba(57, 255, 20, 0.2);
+}
+
+.empresa_textarea::placeholder {
+  color: #666666;
+}
+
+.empresa_descripcion {
+  padding: 0.75rem 1rem;
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 14px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Sección de redes sociales */
+.empresa_redes_sociales {
+  grid-column: 1 / -1;
+  margin-top: 1.5rem;
+  padding: 1.5rem;
+  background-color: rgba(255, 255, 255, 0.03);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.redes_sociales_title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0 0 1rem 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.redes_sociales_grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem;
+}
+
+.red_social_item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.red_social_item label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #b0b0b0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.red_social_link {
+  padding: 0.75rem 1rem;
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: #00843d;
+  font-size: 14px;
+  text-decoration: none;
+  word-break: break-all;
+  transition: all 0.2s ease;
+}
+
+.red_social_link:hover {
+  background-color: rgba(0, 132, 61, 0.1);
+  border-color: #00843d;
+  color: #00c851;
+}
+
+/* Ajustes responsive para nuevos elementos */
+@media (max-width: 768px) {
+  .redes_sociales_grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .empresa_field_full {
+    margin-top: 1rem;
+  }
+  
+  .empresa_redes_sociales {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .red_social_item label {
+    font-size: 12px;
+  }
+  
+  .red_social_link {
+    font-size: 13px;
+    padding: 0.6rem 0.8rem;
+  }
+}
+
 /* Responsive mejorado */
 @media (max-width: 1024px) {
   .container_mainSeeMyProfile {

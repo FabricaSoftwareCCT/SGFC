@@ -231,10 +231,10 @@ const getAllInscripciones = async (req, res) => {
           const consult1 = await Empresa.findByPk(consult.dataValues.empresa_ID)
           return {
             nombres : consult.dataValues.nombres,
+            apellidos : consult.dataValues.apellidos,
             empresa : consult1.dataValues.nombre_empresa,
             celular : consult.dataValues.celular,
             email : consult.dataValues.email,
-            apellidos : consult.dataValues.apellidos,
             fecha_inscripcion : i.fecha_inscripcion
           }
       })

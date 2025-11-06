@@ -11,9 +11,8 @@ import imgDefectCourse from '../../../../assets/Icons/picDefectCourse.png';
 import axiosInstance from '../../../../config/axiosInstance';
 import { useNavigate } from 'react-router-dom';
 import { AssignInstructorCourse } from '../AssignInstructorCourse/AssignInstructorCourse';
-import debounce from 'lodash.debounce';
 
-export const CreateCourse = ( ) => {
+export const CreateCourse = () => {
 	const navigate = useNavigate();
 	const [preview, setPreview] = useState(null);
 	const fileInputRef = useRef(null);
@@ -31,17 +30,16 @@ export const CreateCourse = ( ) => {
 	const [duracionCurso, setDuracionCurso] = useState(0);
 	const [lugarFormacion, setLugarFormacion] = useState("");
 
-	// New state for calendar data
 	const [calendarData, setCalendarData] = useState({
 		startDate: "",
 		endDate: "",
 		selectedSlots: [],
 	});
 
-	// New state for syllabus/temario
 	const [temario, setTemario] = useState([]);
 	const [nuevaFecha, setNuevaFecha] = useState("");
 	const [nuevoTema, setNuevoTema] = useState("");
+	const [isEditCalendarOpen, setIsEditCalendarOpen] = useState(false);
 
 	const handleChange = (e) => {
 		const file = e.target.files[0];
@@ -54,14 +52,10 @@ export const CreateCourse = ( ) => {
 		reader.readAsDataURL(file);
 	};
 
-	// Función para abrir el modal general
-	const [isEditCalendarOpen, setIsEditCalendarOpen] = React.useState(false);
-
 	const showModalGeneral = () => {
 		setIsEditCalendarOpen(true);
 	};
 
-	// Callback to receive calendar data from EditCalendar
 	const handleCalendarSave = (data) => {
 		setCalendarData(data);
 		setIsEditCalendarOpen(false);
@@ -72,7 +66,6 @@ export const CreateCourse = ( ) => {
 		setShowAssignModal(false);
 	};
 
-	// Funciones para manejar el temario
 	const agregarTema = () => {
 		if (nuevaFecha && nuevoTema.trim()) {
 			const nuevoTemaObj = {
@@ -97,26 +90,22 @@ export const CreateCourse = ( ) => {
 		}
 	};
 
-	// Función para manejar la creación del curso
 	const handleCreateCourse = async () => {
 		if (!ficha || !nombreCurso || !descripcion || !selected || !selectedStatus) {
 			alert("Por favor, completa todos los campos requeridos.");
 			return;
 		}
 
-		// Validar que ficha sea un número
 		if (isNaN(Number(ficha))) {
 			alert("El campo ficha debe ser un número.");
 			return;
 		}
 
-		// Validar longitud mínima de la descripción
-		if (descripcion.length < 300) {
-			alert("La descripción debe tener mínimo 300 caracteres.");
+		if (descripcion.length < 100) {
+			alert("La descripción debe tener mínimo 100 caracteres.");
 			return;
 		}
 
-		// Validar que se hayan seleccionado fechas y horarios
 		if (!calendarData.startDate || !calendarData.endDate || calendarData.selectedSlots.length === 0) {
 			alert("Por favor, selecciona las fechas y horarios del curso.");
 			return;
@@ -124,24 +113,20 @@ export const CreateCourse = ( ) => {
 
 		try {
 			const formData = new FormData();
-			// Agrega el campo empresa_NIT al formData si hay empresa seleccionada
+
 			if (empresaSeleccionada) {
-				formData.append("empresa_ID", empresaSeleccionada.ID); // usa el nombre exacto del campo
+				formData.append("empresa_ID", empresaSeleccionada.ID);
 			}
 
-			formData.append("ficha", ficha); 
-			// Enviar el nombre del curso en mayúsculas
+			formData.append("ficha", ficha);
 			formData.append("nombre_curso", nombreCurso.toUpperCase());
 			formData.append("descripcion", descripcion);
 			formData.append("tipo_oferta", selected);
 			formData.append("estado", selectedStatus);
 			formData.append("fecha_inicio", calendarData.startDate);
 			formData.append("fecha_fin", calendarData.endDate);
-
-			// Agregar temario al formData
 			formData.append("temario", JSON.stringify(temario));
 
-			// Procesar los slots para obtener horarios y días
 			const slotsByDay = {};
 			calendarData.selectedSlots.forEach(slot => {
 				const [dia, hora] = slot.split('-');
@@ -151,7 +136,6 @@ export const CreateCourse = ( ) => {
 				slotsByDay[dia].push(hora);
 			});
 
-			// Obtener la primera hora de inicio y la última hora de fin
 			let horaInicio = '23:59';
 			let horaFin = '00:00';
 			Object.values(slotsByDay).flat().forEach(hora => {
@@ -159,14 +143,12 @@ export const CreateCourse = ( ) => {
 				if (hora > horaFin) horaFin = hora;
 			});
 
-			// Asegurarse de que las horas tengan el formato correcto (HH:mm)
 			horaInicio = horaInicio.padStart(5, '0');
 			horaFin = horaFin.padStart(5, '0');
 
 			formData.append("hora_inicio", horaInicio);
 			formData.append("hora_fin", horaFin);
 
-			// Obtener los días únicos y asegurarse de que estén en formato completo
 			const diasMapping = {
 				'Lun': 'Lunes',
 				'Mar': 'Martes',
@@ -177,15 +159,11 @@ export const CreateCourse = ( ) => {
 			};
 			const diasSemana = Object.keys(slotsByDay).map(dia => diasMapping[dia] || dia);
 			formData.append("dias_formacion", JSON.stringify(diasSemana));
-
-			// --- GUARDAR LOS SLOTS SELECCIONADOS ---
 			formData.append("slots_formacion", JSON.stringify(calendarData.selectedSlots));
 
-			// Imagen: si no se subió, usar la imagen por defecto
 			if (fileInputRef.current.files[0]) {
 				formData.append("imagen", fileInputRef.current.files[0]);
 			} else {
-				// Convertir la imagen por defecto a blob y agregarla al formData
 				const response = await fetch(imgDefectCourse);
 				const blob = await response.blob();
 				formData.append("imagen", blob, "imgDefectCourse.png");
@@ -202,20 +180,19 @@ export const CreateCourse = ( ) => {
 			if (duracionCurso) {
 				formData.append("duracion_dias", duracionCurso)
 			}
-			
+
 			const response = await axiosInstance.post("/api/courses/cursos", formData, {
 				headers: {
 					"Content-Type": "multipart/form-data",
 				},
 			});
 
-			alert("Curso creado con éxito");  
+			alert("Curso creado con éxito");
 
-			// Redirigir al usuario a la página del curso creado
 			if (response.data.curso && response.data.curso.ID) {
 				navigate('/Cursos/MisCursos');
-			} 
-			
+			}
+
 		} catch (error) {
 			console.error("Error al crear el curso:", error);
 			if (error.response?.data?.message) {
@@ -226,7 +203,6 @@ export const CreateCourse = ( ) => {
 		}
 	};
 
-	// Función para buscar empresa por NIT
 	const buscarEmpresaPorNIT = async (nit) => {
 		if (!nit.trim()) {
 			setResultadosEmpresa([]);
@@ -234,7 +210,7 @@ export const CreateCourse = ( ) => {
 		}
 		try {
 			const response = await axiosInstance.get(`/api/users/empresa/${nit}`);
-			setResultadosEmpresa([response.data]); // se espera una sola empresa activa
+			setResultadosEmpresa([response.data]);
 			setShowResultados(true);
 		} catch (error) {
 			setResultadosEmpresa([]);
@@ -244,294 +220,274 @@ export const CreateCourse = ( ) => {
 
 	useEffect(() => {
 		buscarEmpresaPorNIT(empresaNIT);
-		return () => {
-			console.log("empresa", empresaNIT)
-		};
 	}, [empresaNIT]);
-
 
 	return (
 		<>
 			<Main>
-				<div className="container_createCourse">
-					<h2>
-						Crear
-						<span className="complementary"> Curso</span>
-					</h2>
-
-					<div className="containerInformation_CreateCourse">
-						<input
-							type="file"
-							accept="image/*"
-							ref={fileInputRef}
-							onChange={handleChange}
-							hidden
-						/>
-
-						<label
-							className="upload-area"
-							onClick={() => fileInputRef.current.click()}
-						>
-							{preview ? (
-								<img
-									src={preview}
-									alt="Vista previa"
-									className="preview-image"
+				<div className="create-course-container">
+					{/* Header */}
+					<div className="course-header">
+						<div className="header-content">
+							<h1>Crear <span>Curso</span></h1>
+							<div className="ficha-container">
+								<label>Ficha N°</label>
+								<input
+									type="number"
+									placeholder="000000"
+									value={ficha}
+									onChange={(e) => setFicha(e.target.value)}
 								/>
-							) : (
-								<div className="upload-placeholder">
-									<img
-										src={addIMG}
-										alt="icono agregar imagen"
-										className="icon"
-									/>
-									<p>Arrastra o sube la foto del curso aquí.</p>
-								</div>
-							)}
-						</label>
+							</div>
+						</div>
+					</div>
 
-						<div className='containerDetails_course '>
-							<input
-								className='addName'
-								type="text"
-								placeholder='Agregar nombre del curso'
-								value={nombreCurso}
-								onChange={(e) => setNombreCurso(e.target.value)}
-							/>
-							<div className='containerInput_description_course'>
-								<textarea
-									className='addDetails'
-									placeholder='Agregar descripción del curso (mínimo 300 caracteres)'
-									value={descripcion}
-									onChange={(e) => setDescripcion(e.target.value)}
-									minLength={300}
-									rows={6}
-									style={{ resize: "vertical", width: "99%" }}
+					{/* Grid Principal */}
+					<div className="course-grid">
+						{/* Columna Izquierda - Imagen e Info */}
+						<div className="side-panel">
+							<div className="image-upload">
+								<input
+									type="file"
+									accept="image/*"
+									ref={fileInputRef}
+									onChange={handleChange}
+									hidden
 								/>
-								<div
-									className={`descripcion-counter ${descripcion.length < 300 ? 'rojo' : 'verde'}`}
-								>
-									{descripcion.length} / 300 caracteres
-								</div>
+								<label className="upload-box" onClick={() => fileInputRef.current.click()}>
+									{preview ? (
+										<img src={preview} alt="Vista previa" className="preview-image" />
+									) : (
+										<>
+											<img src={addIMG} alt="Agregar imagen" className="upload-icon" />
+											<span className="upload-text">Sube la foto del curso</span>
+										</>
+									)}
+								</label>
 							</div>
 
-							<div className='containerDetails_course2'>
-								<div>
-									{/* Campo Ficha - Siempre visible */}
-									<div className='containerInput_ficha'>
-										<label htmlFor="fichaCourse">Ficha: </label>
-										<input
-											className='input-field'
-											id='fichaCourse'
-											type="number"
-											placeholder='N° ficha'
-											value={ficha}
-											onChange={(e) => setFicha(e.target.value)}
-										/>
-									</div>
+							<div className="quick-info">
+								<div className="info-item">
+									<label>Duración del Curso</label>
+									<input
+										type="number"
+										placeholder="Número de días"
+										min="1"
+										value={duracionCurso}
+										onChange={(e) => setDuracionCurso(e.target.value)}
+									/>
+								</div>
+								<div className="info-item">
+									<label>Lugar de Formación</label>
+									<input
+										type="text"
+										placeholder="Sena Agropecuario"
+										value={lugarFormacion}
+										onChange={(e) => setLugarFormacion(e.target.value)}
+									/>
+								</div>
+								<button className="schedule-btn" onClick={showModalGeneral}>
+									<img src={calendar} alt="Calendario" />
+									Seleccionar Horarios
+								</button>
+							</div>
+						</div>
 
-									<div className="offer-type-container">
-										<span>Tipo de oferta:</span>
-										<div className="offer-options">
-											<button
-												className={`offer-button ${selected === 'Cerrada' ? 'active' : ''}`}
-												onClick={() => setSelected('Cerrada')}
-												type="button"
-											>
-												Cerrada
-											</button>
-											<button
-												className={`offer-button ${selected === 'Abierta' ? 'active' : ''}`}
-												onClick={() => setSelected('Abierta')}
-												type="button"
-											>
-												Abierta
-											</button>
+						{/* Columna Central - Formulario Principal */}
+						<div className="main-form">
+							<div className="form-group">
+								<label>Nombre del Curso</label>
+								<input
+									className="form-input"
+									type="text"
+									placeholder="Ingresa el nombre del curso"
+									value={nombreCurso}
+									onChange={(e) => setNombreCurso(e.target.value)}
+								/>
+							</div>
+							<section className='text-create'>
+
+								<div className="form-group">
+									<label>Descripción del Curso</label>
+									<div className="textarea-container">
+										<textarea
+											className="form-textarea"
+											placeholder="Describe el curso en detalle (mínimo 100 caracteres)"
+											value={descripcion}
+											onChange={(e) => setDescripcion(e.target.value)}
+											minLength={100}
+											rows={5}
+										/>
+										<div className={`char-counter ${descripcion.length < 100 ? 'min' : 'ok'}`}>
+											{descripcion.length} / 100 caracteres
 										</div>
 									</div>
-									<div className="offer-type-container">
-										<span>Estado:</span>
-										<div className="offer-options">
-											<button
-												className={`offer-button ${selectedStatus === 'Activo' ? 'active' : ''}`}
-												onClick={() => setSelectedStatus('Activo')}
-												type="button"
-											>
-												Activo
-											</button>
-											<button
-												className={`offer-button ${selectedStatus === 'En oferta' ? 'active' : ''}`}
-												onClick={() => setSelectedStatus('En oferta')}
-												type="button"
-											>
-												En oferta
-											</button>
+								</div>
+
+								<div className="form-group">
+									<label>Configuración del Curso</label>
+									<div className="offer-options-grid">
+										<div>
+											<label style={{ fontSize: '0.8rem', display: 'block', marginBottom: '0.5rem', color: '#b0b0b0' }}>Estado del Curso</label>
+											<div className="option-buttons">
+												<button
+													className={`option-btn ${selectedStatus === "Activo" ? "active" : ""}`}
+													onClick={() => setSelectedStatus("Activo")}
+												>
+													Activo
+												</button>
+												<button
+													className={`option-btn ${selectedStatus === "En oferta" ? "active" : ""}`}
+													onClick={() => setSelectedStatus("En oferta")}
+												>
+													En Oferta
+												</button>
+											</div>
+										</div>
+										<div>
+											<label style={{ fontSize: '0.8rem', display: 'block', marginBottom: '0.5rem', color: '#b0b0b0' }}>Tipo de Oferta</label>
+											<div className="option-buttons">
+												<button
+													className={`option-btn ${selected === "Cerrada" ? "active" : ""}`}
+													onClick={() => setSelected("Cerrada")}
+												>
+													Cerrada
+												</button>
+												<button
+													className={`option-btn ${selected === "Abierta" ? "active" : ""}`}
+													onClick={() => setSelected("Abierta")}
+												>
+													Abierta
+												</button>
+											</div>
 										</div>
 									</div>
-									{/* Mostrar campo empresa solo si la oferta es Cerrada */}
-									{selected === 'Cerrada' && (
-										<div className='containerInput_company'>
-											<label htmlFor="nit_company">Empresa</label>
-											{empresaSeleccionada ? (
-												<div className='empresa-seleccionada'>
-													<p className='nombre_empresaSeleccionada'>{empresaSeleccionada.nombre_empresa}</p>
-													<button
-														type="button"
-														className='buttonEditEmpresa'
-														onClick={() => {
-															setEmpresaSeleccionada(null);
-															setEmpresaNIT('');
-															setShowResultados(false);
-														}}
-													>
-														<img src={buttonEdit} alt="Editar empresa" style={{ width: 20, height: 20 }} />
-													</button>
-												</div>
-											) : (
-												<>
-													<input
-														className='input-field'
-														id='nit_company'
-														type="text"
-														placeholder='NIT de la empresa'
-														value={empresaNIT}
-														onChange={(e) => {
-															setEmpresaNIT(e.target.value);
-															setShowResultados(true);
-														}}
-														autoComplete="off"
-													/>
-													{empresaNIT.trim() !== '' && (
-														<ul className="resultados-empresa">
-															{showResultados && resultadosEmpresa.length > 0 ? (
-																resultadosEmpresa.map((empresa) => (
-																	<li
-																		key={empresa.ID}
-																		onClick={() => {
-																			setEmpresaSeleccionada(empresa);
-																			setEmpresaNIT('');
-																			setShowResultados(false);
-																		}}
-																	>
-																		{empresa.nombre_empresa}
-																	</li>
-																))
-															) : (
-																<li style={{ color: '#d32f2f' }}>No hay resultados</li>
-															)}
-														</ul>
+								</div>
+							</section>
+
+						</div>
+
+						{/* Columna Derecha - Temario y Acciones */}
+						<div className="side-actions">
+							{selected === "Cerrada" && (
+								<div className="company-section">
+									<label>Empresa Asociada</label>
+									{empresaSeleccionada ? (
+										<div className="company-selected">
+											<span className="company-name">{empresaSeleccionada.nombre_empresa}</span>
+											<button
+												className="edit-company"
+												onClick={() => {
+													setEmpresaSeleccionada(null)
+													setEmpresaNIT("")
+													setShowResultados(false)
+												}}
+											>
+												<img src={buttonEdit} alt="Editar empresa" />
+											</button>
+										</div>
+									) : (
+										<div style={{ position: 'relative' }}>
+											<input
+												className="form-input"
+												type="text"
+												placeholder="Buscar por NIT de empresa"
+												value={empresaNIT}
+												onChange={(e) => {
+													setEmpresaNIT(e.target.value)
+													setShowResultados(true)
+												}}
+												autoComplete="off"
+											/>
+											{empresaNIT.trim() !== "" && showResultados && (
+												<ul className="company-results">
+													{resultadosEmpresa.length > 0 ? (
+														resultadosEmpresa.map((empresa) => (
+															<li
+																key={empresa.ID}
+																onClick={() => {
+																	setEmpresaSeleccionada(empresa)
+																	setEmpresaNIT("")
+																	setShowResultados(false)
+																}}
+															>
+																{empresa.nombre_empresa}
+															</li>
+														))
+													) : (
+														<li style={{ color: "#ff6b6b" }}>No se encontraron empresas</li>
 													)}
-												</>
+												</ul>
 											)}
 										</div>
 									)}
-
-									{/* Sección de duración del curso */}
-									<div className="duracion">
-										<span>Duración en días:</span>
-										<div className="duracion-inputs">
-											<input
-												className="time-duracion"
-												type="number"
-												placeholder="Días"
-												min="1"
-												value={duracionCurso}
-												onChange={(e) => setDuracionCurso(e.target.value)}
-											/>
-										</div>
-									</div>
-
-									{/* Sección de lugar de formación */}
-									<div className="lugar-formacion">
-										<span>Lugar de formación:</span>
-										<input
-											className="input-lugar-formacion"
-											type="text"
-											placeholder="Ej: Centro de Formación SENA, Aula 101"
-											value={lugarFormacion}
-											onChange={(e) => setLugarFormacion(e.target.value)}
-										/>
-									</div>
 								</div>
+							)}
 
-								<div>
-									{/* Botón para abrir el modal general */}
-									<button className='addDate' type="button" onClick={showModalGeneral}>
-										<img src={calendar} alt="" />
-										Agregar fechas y horarios
+							<div className="syllabus-section">
+								<label>Temario del Curso</label>
+
+								<div className="syllabus-inputs">
+									<input
+										type="date"
+										value={nuevaFecha}
+										onChange={(e) => setNuevaFecha(e.target.value)}
+									/>
+									<textarea
+										className='form-textarea-right'
+										type="text"
+										placeholder="Agregar nuevo tema"
+										value={nuevoTema}
+										onChange={(e) => setNuevoTema(e.target.value)}
+										onKeyPress={handleKeyPress}
+									/>
+									<button
+										className="add-topic-btn"
+										onClick={agregarTema}
+										disabled={!nuevaFecha || !nuevoTema.trim()}
+									>
+										+
 									</button>
-								</div>
-							</div>
-
-							{/* Sección de Temario */}
-							<div className="temario-section">
-								<h3 className="temario-title">Temario del Curso</h3>
-								
-								<div className="agregar-tema-container">
-									<div className="input-tema-fecha">
-										<input
-											type="date"
-											className="input-fecha-tema"
-											value={nuevaFecha}
-											onChange={(e) => setNuevaFecha(e.target.value)}
-											placeholder="Fecha"
-										/>
-										<input
-											type="text"
-											className="input-tema"
-											value={nuevoTema}
-											onChange={(e) => setNuevoTema(e.target.value)}
-											onKeyPress={handleKeyPress}
-											placeholder="Agregar tema"
-										/>
-										<button 
-											className="btn-agregar-tema"
-											onClick={agregarTema}
-											disabled={!nuevaFecha || !nuevoTema.trim()}
-										>
-											+
-										</button>
-									</div>
 								</div>
 
 								{temario.length > 0 ? (
-									<div className="lista-temario">
-										<div className="temario-header">
-											<span className="header-fecha">FECHA</span>
-											<span className="header-tema">TEMAS</span>
-											<span className="header-acciones">ACCIONES</span>
+									<div className="syllabus-list">
+										<div className="syllabus-header">
+											<span>FECHA</span>
+											<span>CONTENIDO</span>
+											<span></span>
 										</div>
-										<div className="temario-content">
-											{temario.map((item, index) => (
-												<div key={index} className="temario-item">
-													<span className="temario-fecha">{item.fecha}</span>
-													<span className="temario-tema">{item.tema}</span>
-													<button 
-														className="btn-eliminar-tema"
-														onClick={() => eliminarTema(index)}
-													>
-														×
-													</button>
-												</div>
-											))}
-										</div>
+										{temario.map((item, index) => (
+											<div key={index} className="syllabus-item">
+												<span className="syllabus-date">{item.fecha}</span>
+												<span className="syllabus-topic">{item.tema}</span>
+												<button
+													className="delete-topic"
+													onClick={() => eliminarTema(index)}
+												>
+													×
+												</button>
+											</div>
+										))}
 									</div>
 								) : (
-									<div className="temario-vacio">
-										<p>No hay temas agregados al temario aún.</p>
+									<div className="empty-syllabus">
+										No hay temas agregados al temario aún.
 									</div>
 								)}
 							</div>
 
-							{/* Botón para crear el curso */}
-							<button className='buttonCreate_Course' type="button" onClick={handleCreateCourse}>
-								Crear curso
-							</button>
+							<div className="create-btn-container">
+								<button className="create-btn" onClick={handleCreateCourse}>
+									Crear Curso
+								</button>
+							</div>
 						</div>
 					</div>
 				</div>
 			</Main>
 			<Footer />
+
 			{showAssignModal && (
 				<AssignInstructorCourse
 					curso_ID={null}
@@ -540,7 +496,6 @@ export const CreateCourse = ( ) => {
 				/>
 			)}
 
-			{/* Edit Calendar Modal */}
 			{isEditCalendarOpen && (
 				<EditCalendar
 					show={isEditCalendarOpen}

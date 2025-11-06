@@ -1,0 +1,283 @@
+.reporte-ap-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 1.5rem auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  --radius: 10px;
+}
+
+.reporte-ap_header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #1a1a1a;
+  border-radius: var(--radius);
+  padding: 1rem 1.5rem;
+}
+
+.reporte-ap_title {
+  color: #ffffff;
+  margin: 0;
+}
+
+.reporte-ap_actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn_toggle_filters,
+.btn_generate,
+.btn_pdf,
+.btn_xlsx,
+.btn_print {
+  padding: 0.6rem 1rem;
+  border-radius: var(--radius);
+  border: 1px solid #00843d;
+  background: transparent;
+  color: #00843d;
+  cursor: pointer;
+}
+
+.btn_generate {
+  background: linear-gradient(180deg, #10a15a 0%, #0d8a4f 100%);
+  color: #ffffff;
+  border: none;
+  font-weight: 600;
+  letter-spacing: .2px;
+  padding: .8rem 1.6rem;
+  border-radius: var(--radius);
+  box-shadow: 0 6px 16px rgba(16, 161, 90, .25);
+  transition: transform .15s ease, box-shadow .2s ease, filter .2s ease;
+  display: inline-flex;           /* alinear ícono/texto */
+  align-items: center;
+  gap: 8px;
+}
+
+.btn_generate:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(16, 161, 90, .35);
+  filter: brightness(1.03);
+}
+
+.btn_generate:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 12px rgba(16, 161, 90, .25);
+}
+
+.btn_generate:focus-visible {
+  outline: 2px solid rgba(16, 161, 90, .65);
+  outline-offset: 2px;
+}
+
+.btn_pdf,
+.btn_xlsx,
+.btn_print {
+  border: 2px solid #8ccfe6; /* borde más visible y contrastado */
+  color: #e2f2f7;
+  transition: background-color .15s ease, border-color .15s ease, color .15s ease;
+}
+
+.btn_pdf:hover,
+.btn_xlsx:hover,
+.btn_print:hover {
+  background-color: rgba(140, 207, 230, 0.18);
+  border-color: #a3def0;
+}
+
+.btn_pdf:disabled,
+.btn_xlsx:disabled,
+.btn_print:disabled,
+.btn_generate:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  border-color: #404a50 !important;
+  color: #7b848a !important;
+}
+
+.reporte-ap_filters {
+  background-color: #2a2a2a;
+  border-radius: var(--radius);
+  padding: 1rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.filter_row {
+  display: grid;
+  /* Aprendiz | Curso (flex) | Desde | Hasta */
+  grid-template-columns: 1fr minmax(260px, 3fr) 180px 180px;
+  gap: 1rem;
+  align-items: end;
+}
+
+.filter_field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.filter_field label {
+  color: #b0b0b0;
+  font-size: 13px;
+}
+
+.filter_field select,
+.filter_field input[type="date"] {
+  padding: 0.6rem 0.8rem;
+  background-color: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: var(--radius);
+  color: #ffffff;
+  outline: none;
+  transition: all 0.2s ease;
+  height: 44px;
+}
+
+/* Curso: que ocupe todo el espacio disponible y se contraiga si es necesario */
+.filter_row .filter_field:nth-child(2) select {
+  width: 100%;
+}
+
+/* Fechas: ancho fijo para evitar desborde */
+.filter_field input[type="date"] {
+  width: 100%;
+  min-width: 140px;
+  max-width: 160px;
+  color-scheme: dark;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%23b0b0b0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='4' width='18' height='18' rx='2' ry='2'/><line x1='16' y1='2' x2='16' y2='6'/><line x1='8' y1='2' x2='8' y2='6'/><line x1='3' y1='10' x2='21' y2='10'/></svg>");
+  background-repeat: no-repeat;
+  background-position: 10px center;
+  padding-left: 2.2rem;
+}
+
+/* Estilos oscuros y efecto hover/focus similares a SeeMyProfile */
+.filter_field select:hover,
+.filter_field input[type="date"]:hover {
+  border-color: #00843e3f;
+}
+
+.filter_field select:focus,
+.filter_field input[type="date"]:focus {
+  border-color: #00843e3f;
+  background-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 10px rgba(57, 255, 20, 0.2);
+}
+
+/* Forzar tema oscuro en date inputs (soporta navegadores modernos) */
+/* Visibilidad del icono del date picker en WebKit */
+.filter_field input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1) opacity(0.8);
+}
+
+/* Dropdown options en oscuro (soporte variable por navegador) */
+.filter_field select option {
+  background-color: #1c1c1c;
+  color: #ffffff;
+}
+
+.filter_actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.filters_hint {
+  color: #b0b0b0;
+  font-size: 13px;
+}
+
+.error_box {
+  background-color: rgba(239, 60, 60, 0.08);
+  border: 1px solid rgba(239, 60, 60, 0.22);
+  color: #ef3c3c;
+  border-radius: var(--radius);
+  padding: 0.5rem 0.75rem;
+}
+
+.reporte-ap_preview_header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: .5rem; /* menos espacio vertical */
+  padding-top: .75rem;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+
+.reporte-ap_preview {
+  background-color: #2a2a2a; /* consistente con filtros */
+  border-radius: var(--radius);
+  padding: 1rem;
+}
+
+.empty_state {
+  color: #b0b0b0;
+  text-align: center;
+  padding: 2.5rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .75rem;
+}
+
+.empty_state svg {
+  width: 64px;
+  height: 64px;
+  opacity: .8;
+}
+
+.empty_state .empty_title {
+  color: #e5e5e5;
+  font-weight: 600;
+}
+
+.empty_state .empty_help {
+  color: #a5a5a5;
+  font-size: 14px;
+}
+
+.preview_table {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.preview_table_head,
+.preview_table_row {
+  display: grid;
+  grid-template-columns: 2fr 1.5fr 2fr 1fr 1.5fr 1.5fr;
+  gap: 0.5rem;
+}
+
+.preview_table_head {
+  color: #ffffff;
+  font-weight: 600;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.preview_table_row {
+  padding: 0.6rem 0;
+  color: #e5e5e5;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+@media (max-width: 1200px) {
+  .filter_row { grid-template-columns: 1fr minmax(220px, 2fr) 160px 160px; }
+}
+
+@media (max-width: 992px) {
+  .filter_row { grid-template-columns: repeat(2, 1fr); }
+  .preview_table_head,
+  .preview_table_row { grid-template-columns: 1.5fr 1fr 1.5fr 1fr 1fr 1fr; }
+}
+
+@media (max-width: 640px) {
+  .filter_row { grid-template-columns: 1fr; }
+  .preview_table_head,
+  .preview_table_row { grid-template-columns: 1fr 1fr; }
+}
+
+

@@ -360,3 +360,16 @@
 	border: 1px solid rgba(255,255,255,0.1);
 	margin-bottom: 0.5rem;
 }
+
+.Acta-Boton {
+	background: #00843d;
+	color: #fff;
+	padding: 0.5rem 1rem;
+	border-radius: 5px;
+	text-decoration: none;
+	font-weight: bold;
+	width: auto;
+	height: auto;
+	border-width: 0px;
+	font-size: 16px;
+}

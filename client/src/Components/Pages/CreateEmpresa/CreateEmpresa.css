@@ -1,626 +1,556 @@
 /* ========================================
-   GESTIONS COMPANY - MAIN LAYOUT
+   MODAL DUAL FORM STYLES - OPTIMIZED DESIGN
    ======================================== */
 
-.pantallaGestionsCompany {
-  width: 100%;
-  min-height: 100vh;
-}
-
-.sectionPrincipalGestionsCompany {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  min-height: 100vh;
-  align-items: center;
-  padding: 1rem;
-  box-sizing: border-box;
-}
-
-/* ========================================
-   HEADER SECTION
-   ======================================== */
-
-.sectionGestionsCompanyHeader {
-  width: 100%;
-  max-width: 1200px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 2rem;
-}
-
-.header-title-container {
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 1rem;
-  margin-bottom: 1rem;
-}
-
-.tituloGestionsCompany {
-  text-align: center;
-  padding-bottom: 0;
-  font-size: 36px;
-  font-weight: bolder;
-  margin: 0;
-  flex: 1;
-  min-width: 300px;
-}
-
-.tituloVerde {
-  color: #00843d;
-}
-
-.paragraphGestionsCompany {
-  width: 100%;
-  text-align: center;
-  margin-bottom: 2rem;
-  line-height: 1.5;
-}
-
-/* ========================================
-   ADD COMPANY BUTTON
-   ======================================== */
-
-.btn-add-company {
-  padding: 12px 24px;
-  border-radius: 25px;
-  border: 2px solid #00843d;
-  background: #00843d;
-  color: #ffffff;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 700;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(0, 132, 61, 0.3);
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-  min-width: 160px;
-  white-space: nowrap;
-}
-
-.btn-add-company:hover {
-  background: #006f33;
-  border-color: #006f33;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0, 132, 61, 0.4);
-}
-
-.btn-add-company:active {
-  transform: translateY(0);
-}
-
-/* ========================================
-   BODY SECTION
-   ======================================== */
-
-.sectionGestionsCompanyBody {
-  width: 100%;
-  max-width: 1200px;
-  display: grid;
-  grid-template-columns: minmax(300px, 1fr) minmax(400px, 2fr);
-  gap: 2rem;
-  align-items: start;
-}
-
-/* ========================================
-   FILTER SECTION
-   ======================================== */
-
-.filterGestionsCompany {
-  width: 100%;
-  height: fit-content;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.tituloFiltrar {
-  width: 100%;
-  color: #aaa;
-  margin-bottom: 0.5rem;
-}
-
-.filterOptionsGestionsCompany {
-  width: 100%;
-  padding: 1.5rem;
-  border-radius: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  background: rgba(176, 176, 176, 0.15);
-  border: 1px solid rgba(255,255,255,0.1);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-}
-
-.filterOptionName {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-}
-
-.labelFilterOption1 {
-  width: 100%;
-  color: #fff;
-  font-size: 14px;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-}
-
-.inputFilterOption1 {
-  width: 100%;
-  display: flex;
-  background: rgba(34, 34, 34, 0.8);
-  justify-content: space-between;
-  align-items: center;
-  border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.1);
-  transition: all 0.3s ease;
-}
-
-.inputFilterOption1:focus-within {
-  border-color: rgba(0, 132, 61, 0.5);
-  box-shadow: 0 0 0 2px rgba(0, 132, 61, 0.2);
-}
-
-.inputFilterOptionText {
-  width: 100%;
-  background: transparent;
-  border-radius: 8px;
-  padding: 0.75rem 1rem;
-  outline: none;
-  font-size: 14px;
-  border: none;
-  color: #fff;
-}
-
-.inputFilterOptionText::placeholder {
-  color: #aaa;
-  font-size: 14px;
-}
-
-.courseStatusFilte {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.sectionStatusFilter {
-  border-radius: 12px;
-  padding: 0.75rem;
-  width: 100%;
-  background: rgba(34, 34, 34, 0.8);
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  border: 1px solid rgba(255,255,255,0.1);
-}
-
-.statusOption {
-  width: fit-content;
-  background-color: rgba(43, 43, 43, 0.8);
-  color: #ddd;
-  font-size: 13px;
-  font-weight: 500;
-  padding: 0.5rem 1rem;
-  border-radius: 20px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  border: 1px solid rgba(255,255,255,0.1);
-  min-width: 60px;
-  text-align: center;
-}
-
-.statusOption:hover {
-  background-color: rgba(58, 58, 58, 0.9);
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-}
-
-.statusOption.selected {
-  background-color: #00843d;
-  color: #fff;
-  border-color: #00843d;
-  box-shadow: 0 2px 8px rgba(0, 132, 61, 0.3);
-}
-
-/* ========================================
-   RESULTS TABLE SECTION
-   ======================================== */
-
-.resultTableGestionsCompany {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-}
-
-.results-header {
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.75rem;
-}
-
-.labelFilterOption12 {
-  color: #aaa;
-}
-
-.table-container {
-  width: 100%;
-  max-height: 60vh;
-  min-height: 200px;
-  overflow-y: auto;
-  background: rgba(0,132,61,0.12);
-  border-radius: 1rem;
-  padding: 0;
-  border: 1px solid rgba(255,255,255,0.1);
-  position: relative;
-}
-
-.table-container::-webkit-scrollbar {
-  width: 8px;
-}
-
-.table-container::-webkit-scrollbar-thumb {
-  background: rgba(255,255,255,0.3);
-  border-radius: 10px;
-}
-
-.table-container::-webkit-scrollbar-track {
-  background: rgba(0,0,0,0.2);
-  border-radius: 10px;
-}
-
-/* ========================================
-   TABLE STYLES
-   ======================================== */
-
-.companies-table {
-  width: 100%;
-  border-collapse: collapse;
-  background: transparent;
-  border-radius: 12px;
-  overflow: hidden;
-  min-width: 600px;
-}
-
-.table-heade {
-  background: rgba(0,0,0,0.95);
-  position: sticky;
-  top: 0;
-  z-index: 20;
-  border-bottom: 2px solid rgba(255,255,255,0.3);
-}
-
-.table-heade th {
-  padding: 16px 8px;
-  text-align: center;
-  font-weight: 600;
-  color: #fff;
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.header-logo {
-  width: 60px;
-}
-
-.header-name {
-  min-width: 120px;
-  text-align: left;
-}
-
-.header-nit {
-  width: 100px;
-  text-align: center;
-}
-
-.header-category {
-  width: 120px;
-  text-align: center;
-}
-
-.header-status {
-  width: 100px;
-  text-align: center;
-}
-
-.header-actions {
-  width: 120px;
-  text-align: center;
-}
-
-/* ========================================
-   TABLE ROWS AND CELLS
-   ======================================== */
-
-.company-row {
-  border-bottom: 1px solid rgba(255,255,255,0.08);
-  transition: all 0.3s ease;
-  background: rgba(255,255,255,0.02);
-}
-
-.company-row:hover {
-  background: rgba(255,255,255,0.08);
-}
-
-.company-row td {
-  padding: 12px 8px;
-  text-align: center;
-  vertical-align: middle;
-  font-size: 13px;
-}
-
-.company-logo-cell {
-  width: 60px;
-}
-
-.company-logo {
-  width: 35px;
-  height: 35px;
-  border-radius: 8px;
-  object-fit: cover;
-  border: 1px solid rgba(255,255,255,0.1);
-}
-
-.company-name-cell {
-  text-align: left;
-  font-weight: 600;
-  color: #fff;
-  line-height: 1.3;
-  word-break: break-word;
-}
-
-.company-nit-cell {
-  text-align: center;
-  color: #bbb;
-  font-family: 'Courier New', monospace;
-  background: rgba(255,255,255,0.05);
-  padding: 6px 8px;
-  border-radius: 6px;
-  border: 1px solid rgba(255,255,255,0.1);
-}
-
-.company-category-cell {
-  text-align: center;
-  color: #ccc;
-  background: rgba(255,255,255,0.03);
-  padding: 4px 8px;
-  border-radius: 4px;
-  word-break: break-word;
-}
-
-.status-pill {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 6px 12px;
-  border-radius: 25px;
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-  border: 1px solid rgba(255,255,255,0.1);
-  min-width: 70px;
-}
-
-.status-active {
-  background: linear-gradient(135deg, #00c851, #00a844);
-  color: #fff;
-}
-
-.status-inactive {
-  background: linear-gradient(135deg, #ff4444, #cc0000);
-  color: #fff;
-}
-
-.status-unknown {
-  background: linear-gradient(135deg, #6c757d, #495057);
-  color: #fff;
-}
-
-/* ========================================
-   BUTTON STYLES
-   ======================================== */
-
-.company-actions-cell {
-  text-align: center;
-}
-
-.manage-button {
-  padding: 8px 16px;
-  border-radius: 20px;
-  border: 2px solid #00843d;
-  background: #00843d;
-  color: #ffffff;
-  cursor: pointer;
-  font-size: 11px;
-  font-weight: 700;
-  transition: all 0.3s ease;
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-  min-width: 90px;
-  white-space: nowrap;
-}
-
-.manage-button:hover {
-  background: #006f33;
-  transform: translateY(-1px);
-}
-
-/* ========================================
-   PAGINATION
-   ======================================== */
-
-.pagination-container {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 1rem;
-  margin-top: 1rem;
-  padding: 1rem 0;
-  flex-wrap: wrap;
-}
-
-.btn-inline {
-  padding: 8px 16px;
-  border-radius: 8px;
-  border: 1px solid #3a3a3a;
-  background: #222;
-  color: #fff;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  min-width: 80px;
-  font-size: 13px;
-}
-
-.btn-inline:hover:not(:disabled) {
-  background: #333;
-  border-color: #555;
-}
-
-.btn-inline:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.pagination-info {
-  font-size: 13px;
-  color: #bbb;
-  font-weight: 500;
-}
-
-.no-results {
-  text-align: center;
-  color: #aaa;
-  padding: 40px 20px;
-  font-size: 14px;
-}
-
-/* ========================================
-   MODAL STYLES - REEMPLAZANDO modal-overlayCreateInstructor
-   ======================================== */
-
-.modal-overlay-company {
+.modal-overlay-dual {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.8);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
   padding: 1rem;
+  backdrop-filter: blur(5px);
 }
 
-.modal-content-company {
-  background: #1e1e1e;
-  border-radius: 12px;
+.modal-content-dual {
+  background: linear-gradient(135deg, #1e1e1e 0%, #2a2a2a 100%);
+  border-radius: 16px;
   width: 100%;
-  max-width: 500px;
+  max-width: 1100px;
   max-height: 90vh;
   overflow-y: auto;
-  border: 1px solid rgba(255,255,255,0.1);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-}
-
-.modal-header-company {
-  padding: 1.5rem;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.15);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.5);
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: rgba(0, 132, 61, 0.1);
+  flex-direction: column;
 }
 
-.modal-header-company h2 {
+.modal-header-dual {
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  background: rgba(0, 132, 61, 0.15);
+  backdrop-filter: blur(10px);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.modal-header-dual h2 {
   margin: 0;
   color: #fff;
   font-size: 1.5rem;
+  font-weight: 700;
+  text-align: center;
 }
 
-.close-button-company {
-  background: none;
+.close-button-dual {
+  position: absolute;
+  right: 1.5rem;
+  top: 1.5rem;
+  background: rgba(255,255,255,0.1);
   border: none;
   color: #fff;
-  font-size: 2rem;
+  font-size: 1.5rem;
   cursor: pointer;
   padding: 0;
-  width: 30px;
-  height: 30px;
+  width: 35px;
+  height: 35px;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  transition: background 0.3s ease;
+  transition: all 0.3s ease;
 }
 
-.close-button-company:hover {
-  background: rgba(255,255,255,0.1);
+.close-button-dual:hover {
+  background: rgba(255,255,255,0.2);
+  transform: rotate(90deg);
 }
 
-.modal-body-company {
+/* ========================================
+   DUAL FORM CONTAINER - COMPACT LAYOUT
+   ======================================== */
+
+.dual-form-container {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 0;
+  min-height: 500px;
+  padding: 0;
+}
+
+.form-section {
   padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow-y: auto;
+  max-height: 60vh;
 }
 
-.form-group-company {
+/* Manager Section */
+.manager-section {
+  background: rgba(0, 132, 61, 0.05);
+  border-right: 1px solid rgba(0, 132, 61, 0.3);
+  padding-right: 1.5rem;
+}
+
+.manager-section::before {
+  content: "👤 Manager";
+  position: sticky;
+  top: 0;
+  background: #00843d;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  z-index: 5;
   margin-bottom: 1rem;
+  text-align: center;
 }
 
-.form-group-company label {
+/* Empresa Section */
+.empresa-section {
+  background: rgba(255,255,255,0.02);
+  padding-left: 1.5rem;
+}
+
+.empresa-section::before {
+  content: "🏢 Empresa";
+  position: sticky;
+  top: 0;
+  background: #00843d;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  z-index: 5;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+/* ========================================
+   COMPACT FORM GRID SYSTEM
+   ======================================== */
+
+.form-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  flex: 1;
+}
+
+.form-row {
+  display: grid;
+  gap: 1rem;
+}
+
+/* Optimized grid layouts */
+.form-row-2 {
+  grid-template-columns: 1fr 1fr;
+}
+
+.form-row-3 {
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+/* ========================================
+   COMPACT FORM GROUP STYLES
+   ======================================== */
+
+.form-group-dual {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group-dual label {
   display: block;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.4rem;
   color: #fff;
   font-weight: 600;
+  font-size: 0.85rem;
 }
 
-.form-group-company input,
-.form-group-company select {
+.form-group-dual .label-optional {
+  color: #888;
+  font-weight: 400;
+  font-size: 0.75rem;
+}
+
+.form-group-dual input,
+.form-group-dual select,
+.form-group-dual textarea {
   width: 100%;
   padding: 0.75rem;
   border-radius: 8px;
   border: 1px solid rgba(255,255,255,0.2);
-  background: rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.08);
   color: #fff;
-  font-size: 14px;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  font-family: inherit;
 }
 
-.form-group-company categoria{
-  color: #006f33;
-}
-.form-group-company option{
-  color: #ededed;
-  font: condensed 100% sans-serif;
-  background-color: #1e1e1e;
+.form-group-dual textarea {
+  resize: vertical;
+  min-height: 70px;
+  line-height: 1.4;
+  font-size: 0.85rem;
 }
 
-.form-group-company option:hover{
-  background-color: #006f33;
+.form-group-dual input:focus,
+.form-group-dual select:focus,
+.form-group-dual textarea:focus {
+  outline: none;
+  border-color: #00843d;
+  background: rgba(255,255,255,0.12);
+  box-shadow: 0 0 0 2px rgba(0, 132, 61, 0.2);
 }
 
-.form-group-company input::placeholder {
+.form-group-dual input::placeholder,
+.form-group-dual textarea::placeholder {
   color: #aaa;
+  font-size: 0.85rem;
 }
 
-.modal-footer-company {
-  padding: 1.5rem;
+/* ========================================
+   SELECT DROPDOWN STYLING FIX
+   ======================================== */
+
+/* Estilos para el dropdown del select */
+.form-group-dual select {
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1rem;
+  padding-right: 2.5rem;
+  cursor: pointer;
+}
+
+/* Estilos para las opciones del select */
+.form-group-dual select option {
+  background-color: #2a2a2a !important;
+  color: #ffffff !important;
+  padding: 0.75rem !important;
+  font-size: 0.9rem !important;
+  border: none !important;
+  border-bottom: 1px solid rgba(255,255,255,0.1) !important;
+}
+
+.form-group-dual select option:hover {
+  background-color: #00843d !important;
+  color: #ffffff !important;
+}
+
+.form-group-dual select option:checked {
+  background-color: #00843d !important;
+  color: #ffffff !important;
+}
+
+.form-group-dual select option:focus {
+  background-color: #006f33 !important;
+}
+
+/* Para navegadores WebKit (Chrome, Safari) */
+.form-group-dual select::-webkit-scrollbar {
+  width: 8px;
+}
+
+.form-group-dual select::-webkit-scrollbar-track {
+  background: rgba(255,255,255,0.05);
+  border-radius: 4px;
+}
+
+.form-group-dual select::-webkit-scrollbar-thumb {
+  background: rgba(0, 132, 61, 0.5);
+  border-radius: 4px;
+}
+
+.form-group-dual select::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 132, 61, 0.7);
+}
+
+/* Para Firefox */
+@-moz-document url-prefix() {
+  .form-group-dual select {
+    color: #ffffff;
+    text-shadow: 0 0 0 #ffffff;
+  }
+  
+  .form-group-dual select option {
+    background-color: #2a2a2a;
+    color: #ffffff;
+  }
+}
+
+/* Estilos para selects deshabilitados */
+.form-group-dual select:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23666'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+}
+
+/* Mejora visual para el estado de foco */
+.form-group-dual select:focus {
+  border-color: #00843d;
+  box-shadow: 0 0 0 2px rgba(0, 132, 61, 0.2);
+  outline: none;
+}
+
+/* ========================================
+   COMPACT SOCIAL LINKS SECTION
+   ======================================== */
+
+.social-links-section {
+  background: rgba(255,255,255,0.03);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-top: 0.5rem;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.social-links-title {
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.social-links-title::before {
+  content: "🔗";
+  font-size: 0.9rem;
+}
+
+/* Horizontal social links grid */
+.social-links-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.social-link-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.social-link-label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.social-link-icon {
+  font-size: 0.9rem;
+  width: 16px;
+  text-align: center;
+}
+
+.social-link-input {
+  width: 100%;
+  padding: 0.6rem;
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.06);
+  color: #fff;
+  font-size: 0.8rem;
+  transition: all 0.3s ease;
+}
+
+.social-link-input:focus {
+  outline: none;
+  border-color: #00843d;
+  background: rgba(255,255,255,0.1);
+}
+
+.social-link-input::placeholder {
+  color: #666;
+  font-size: 0.75rem;
+}
+
+/* ========================================
+   COMPACT PASSWORD STYLES
+   ======================================== */
+
+.password-container-dual {
+  position: relative;
+  width: 100%;
+}
+
+.password-container-dual input {
+  padding-right: 2.5rem;
+}
+
+.password-icon-dual {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: all 0.3s ease;
+  filter: brightness(0.8);
+  font-size: 0.9rem;
+}
+
+.password-icon-dual:hover {
+  opacity: 1;
+  filter: brightness(1);
+}
+
+/* ========================================
+   COMPACT PASSWORD REQUIREMENTS
+   ======================================== */
+
+.password-requirements-dual {
+  list-style: none;
+  padding: 0.6rem;
+  margin: 0.5rem 0 0 0;
+  font-size: 0.75rem;
+  background: rgba(255,255,255,0.05);
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.password-requirements-dual h4 {
+  margin: 0 0 0.4rem 0;
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.password-requirements-dual ul {
+  margin: 0;
+  padding: 0;
+}
+
+.password-requirements-dual li {
+  padding: 0.15rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: color 0.3s ease;
+  font-size: 0.75rem;
+}
+
+.password-requirements-dual li::before {
+  content: "•";
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.password-requirements-dual li.valid {
+  color: #00c851;
+}
+
+.password-requirements-dual li.valid::before {
+  content: "✓";
+  color: #00c851;
+  font-weight: bold;
+}
+
+.password-requirements-dual li.invalid {
+  color: #ff4444;
+}
+
+.password-requirements-dual li.invalid::before {
+  content: "✗";
+  color: #ff4444;
+}
+
+/* ========================================
+   COMPACT FILE INPUT
+   ======================================== */
+
+.file-input-container-dual {
+  position: relative;
+  width: 100%;
+}
+
+.file-input-dual {
+  position: absolute;
+  opacity: 0;
+  width: 0.1px;
+  height: 0.1px;
+}
+
+.file-input-label-dual {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  width: 100%;
+  padding: 0.75rem;
+  border-radius: 8px;
+  border: 2px dashed rgba(255,255,255,0.3);
+  background: rgba(255,255,255,0.05);
+  color: #fff;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.file-input-label-dual:hover {
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.5);
+}
+
+.file-input-label-dual.has-file {
+  border-style: solid;
+  border-color: #00843d;
+  background: rgba(0, 132, 61, 0.1);
+  color: #00c851;
+}
+
+/* ========================================
+   MODAL FOOTER - COMPACT
+   ======================================== */
+
+.modal-footer-dual {
+  padding: 1.25rem 2rem;
   border-top: 1px solid rgba(255,255,255,0.1);
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.3);
   gap: 1rem;
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
 }
 
-.btn-cancel-company {
+.footer-info {
+  color: #aaa;
+  font-size: 0.8rem;
+  flex: 1;
+}
+
+.footer-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.btn-cancel-dual {
   padding: 0.75rem 1.5rem;
   border: 1px solid #666;
   background: transparent;
@@ -628,231 +558,258 @@
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.3s ease;
+  font-weight: 600;
+  font-size: 0.85rem;
+  min-width: 100px;
 }
 
-.btn-cancel-company:hover {
+.btn-cancel-dual:hover {
   background: rgba(255,255,255,0.1);
+  border-color: #888;
 }
 
-.btn-save-company {
+.btn-save-dual {
   padding: 0.75rem 1.5rem;
   border: 1px solid #00843d;
-  background: #00843d;
+  background: linear-gradient(135deg, #00843d 0%, #00a844 100%);
   color: #fff;
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.3s ease;
+  font-weight: 600;
+  font-size: 0.85rem;
+  min-width: 160px;
 }
 
-.btn-save-company:hover {
-  background: #006f33;
+.btn-save-dual:hover {
+  background: linear-gradient(135deg, #006f33 0%, #00843d 100%);
   border-color: #006f33;
-}
-/* Agregar esto al archivo CreateEmpresa.css */
-
-.file-input-container {
-  position: relative;
-  width: 100%;
+  transform: translateY(-1px);
 }
 
-.file-input {
-  position: absolute;
-  opacity: 0;
-  width: 0.1px;
-  height: 0.1px;
+/* ========================================
+   MEJORAS ADICIONALES DE ESTILO
+   ======================================== */
+
+/* Placeholder styling mejorado */
+.form-group-dual input::placeholder,
+.form-group-dual textarea::placeholder {
+  color: #888;
+  font-size: 0.85rem;
+  transition: color 0.3s ease;
 }
 
-.file-input-label {
-  display: block;
-  width: 100%;
-  padding: 0.75rem;
-  border-radius: 8px;
-  border: 1px solid rgba(255,255,255,0.2);
+.form-group-dual input:focus::placeholder,
+.form-group-dual textarea:focus::placeholder {
+  color: #aaa;
+}
+
+/* Estados de validación visual */
+.form-group-dual input:invalid:not(:focus):not(:placeholder-shown),
+.form-group-dual select:invalid:not(:focus) {
+  border-color: #666;
   background: rgba(255,255,255,0.1);
-  color: #fff;
-  font-size: 14px;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.3s ease;
 }
 
-.file-input-label:hover {
-  background: rgba(255,255,255,0.15);
-  border-color: rgba(255,255,255,0.3);
+.form-group-dual input:valid:not(:focus):not(:placeholder-shown),
+.form-group-dual select:valid:not(:focus) {
+  border-color: #00c851;
+  background: rgba(0, 200, 81, 0.05);
 }
 
-/* Estilos para selects deshabilitados */
-.form-group-company select:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-/* Estilos para botones deshabilitados */
-.btn-cancel-company:disabled,
-.btn-save-company:disabled {
-  opacity: 0.6;
+/* Loading state para botones */
+.btn-save-dual:disabled {
+  background: linear-gradient(135deg, #666 0%, #888 100%);
+  border-color: #666;
   cursor: not-allowed;
   transform: none !important;
+  box-shadow: none !important;
+}
+
+/* Mejora visual para file input */
+.file-input-label-dual.has-file::before {
+  content: "✓ ";
+  font-weight: bold;
+  color: #00c851;
+}
+
+/* Efectos hover mejorados */
+.form-group-dual select:hover:not(:disabled) {
+  border-color: rgba(255,255,255,0.3);
+  background: rgba(255,255,255,0.1);
+}
+
+/* Animaciones suaves para transiciones */
+.form-group-dual input,
+.form-group-dual select,
+.form-group-dual textarea {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Estilo para cuando no hay ciudades disponibles */
+.form-group-dual select:disabled {
+  color: #888;
+}
+
+.form-group-dual select:disabled option {
+  color: #888;
+}
+
+/* ========================================
+   SCROLLBAR OPTIMIZATION
+   ======================================== */
+
+.form-section::-webkit-scrollbar {
+  width: 6px;
+}
+
+.form-section::-webkit-scrollbar-thumb {
+  background: rgba(0, 132, 61, 0.4);
+  border-radius: 10px;
+}
+
+.form-section::-webkit-scrollbar-track {
+  background: rgba(255,255,255,0.05);
+  border-radius: 10px;
+}
+
+.modal-content-dual::-webkit-scrollbar {
+  width: 8px;
+}
+
+.modal-content-dual::-webkit-scrollbar-thumb {
+  background: rgba(0, 132, 61, 0.5);
+  border-radius: 10px;
+}
+
+.modal-content-dual::-webkit-scrollbar-track {
+  background: rgba(255,255,255,0.05);
+  border-radius: 10px;
 }
 
 /* ========================================
    RESPONSIVE DESIGN
    ======================================== */
 
-@media (max-width: 1024px) {
-  .sectionGestionsCompanyBody {
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
-    max-width: 800px;
+@media (max-width: 768px) {
+  .modal-content-dual {
+    margin: 0.5rem;
+    max-height: 95vh;
   }
   
-  .filterGestionsCompany {
+  .dual-form-container {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  
+  .manager-section {
+    border-right: none;
+    border-bottom: 1px solid rgba(0, 132, 61, 0.3);
+    padding-right: 1.5rem;
+    max-height: 40vh;
+  }
+  
+  .empresa-section {
+    padding-left: 1.5rem;
+    max-height: 50vh;
+  }
+  
+  .form-row-2,
+  .form-row-3,
+  .social-links-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .modal-footer-dual {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.75rem;
+  }
+  
+  .footer-info {
     order: 2;
   }
   
-  .resultTableGestionsCompany {
+  .footer-actions {
     order: 1;
-  }
-}
-
-@media (max-width: 768px) {
-  .sectionPrincipalGestionsCompany {
-    padding: 0.5rem;
+    width: 100%;
+    justify-content: stretch;
   }
   
-  .header-title-container {
-    flex-direction: column;
-    text-align: center;
-  }
-  
-  .tituloGestionsCompany {
-    font-size: 28px;
+  .btn-cancel-dual,
+  .btn-save-dual {
+    flex: 1;
     min-width: auto;
-  }
-  
-  .btn-add-company {
-    width: 100%;
-    max-width: 200px;
-  }
-  
-  .paragraphGestionsCompany {
-    font-size: 14px;
-    padding: 0 0.5rem;
-  }
-  
-  .filterOptionsGestionsCompany {
-    padding: 1rem;
-  }
-  
-  .table-container {
-    max-height: 50vh;
-    border-radius: 0.5rem;
-  }
-  
-  .companies-table {
-    min-width: 500px;
-  }
-  
-  .table-heade th,
-  .company-row td {
-    padding: 10px 6px;
-    font-size: 11px;
-  }
-  
-  .company-logo {
-    width: 30px;
-    height: 30px;
-  }
-  
-  .status-pill {
-    padding: 4px 8px;
-    font-size: 9px;
-    min-width: 60px;
-  }
-  
-  .manage-button {
-    padding: 6px 12px;
-    font-size: 10px;
-    min-width: 80px;
-  }
-
-  /* Modal responsive */
-  .modal-content-company {
-    margin: 1rem;
-    max-height: 80vh;
-  }
-  
-  .modal-header-company h2 {
-    font-size: 1.25rem;
-  }
-  
-  .modal-footer-company {
-    flex-direction: column;
-  }
-  
-  .btn-cancel-company,
-  .btn-save-company {
-    width: 100%;
   }
 }
 
 @media (max-width: 480px) {
-  .tituloGestionsCompany {
-    font-size: 24px;
-  }
-  
-  .sectionGestionsCompanyBody {
-    gap: 1rem;
-  }
-  
-  .filterOptionsGestionsCompany {
-    padding: 0.75rem;
-    gap: 1rem;
-  }
-  
-  .sectionStatusFilter {
-    padding: 0.5rem;
-    gap: 0.25rem;
-  }
-  
-  .statusOption {
-    padding: 0.4rem 0.8rem;
-    font-size: 12px;
-    min-width: 50px;
-  }
-  
-  .pagination-container {
-    gap: 0.5rem;
-  }
-  
-  .btn-inline {
-    padding: 6px 12px;
-    font-size: 12px;
-    min-width: 70px;
-  }
-
-  .modal-overlay-company {
+  .modal-overlay-dual {
     padding: 0.5rem;
   }
   
-  .modal-content-company {
-    margin: 0.5rem;
+  .modal-header-dual {
+    padding: 1.25rem 1.5rem;
   }
   
-  .modal-header-company,
-  .modal-body-company,
-  .modal-footer-company {
-    padding: 1rem;
+  .form-section {
+    padding: 1.25rem;
+  }
+  
+  .modal-footer-dual {
+    padding: 1rem 1.5rem;
+  }
+  
+  .social-links-grid {
+    grid-template-columns: 1fr;
   }
 }
 
-/* Mobile table horizontal scroll */
-@media (max-width: 640px) {
-  .table-container {
-    overflow-x: auto;
+/* High-density screens optimization */
+@media (min-height: 800px) {
+  .form-section {
+    max-height: 65vh;
   }
-  
-  .companies-table {
-    width: 100%;
+}
+
+@media (min-height: 900px) {
+  .form-section {
+    max-height: 70vh;
   }
+}
+
+/* Responsive mejorado para selects */
+@media (max-width: 768px) {
+  .form-group-dual select {
+    font-size: 16px; /* Previene zoom en iOS */
+  }
+}
+
+/* ALTERNATIVA: Estilos más agresivos para los selects */
+.form-group-dual select * {
+  background-color: #2a2a2a !important;
+  color: #ffffff !important;
+}
+
+.form-group-dual select option {
+  background: #2a2a2a !important;
+  color: #ffffff !important;
+  padding: 12px !important;
+}
+
+.form-group-dual select optgroup {
+  background: #1e1e1e !important;
+  color: #00843d !important;
+  font-weight: bold !important;
+}
+
+/* Forzar estilos en todos los navegadores */
+.form-group-dual select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+.form-group-dual select::-ms-expand {
+  display: none; /* Oculta la flecha por defecto en IE */
 }

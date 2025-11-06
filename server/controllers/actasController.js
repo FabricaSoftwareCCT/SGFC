@@ -43,13 +43,64 @@ const updateEstadoActa = async (req, res) => {
 	try {
 		const actaId = req.params.id;
 		const { estado_acta, observacion } = req.body;
+		const { accountType, id } = req.user
 		await Actas.update(
 			{ estado_acta, observacion },
 			{ where: { ID: actaId } }
 		);
+
 		const actaActualizada = await Actas.findOne({ where: { ID: actaId } });
+
+		const sendNotification = async (targetUser) => {
+			const titleActa = `${actaActualizada.tipo_acta.toLowerCase().replaceAll("_", "")} #${actaActualizada.ID}`
+			const title = 
+				estado_acta === "aprobada" ? `Se ha aprovado el acta de ${titleActa}`
+				: estado_acta === "rechazada" ? `Se ha rechazado el acta ${titleActa}`
+				: `Se ha dejado el acta ${titleActa} como pendiente`
+			const message = emailTemplate
+			.replaceAll("[title]", title).replaceAll("[content]", `
+				<table width="100%" cellpadding="0" cellspacing="0">
+					<tr>
+						<p>Estimado(a) ${targetUser.nombres} ${targetUser.apellidos}, ${title}</p>
+						${estado_acta === "rechazada" ? 
+							`<br>
+							<b>Observación: </b><p>${observacion}</p>
+							<br>`
+						: ""}
+						<b>Fecha: </b><span>${new Date().toLocaleString("es-CO")}</span>
+						<br>
+						<p style="margin-bottom:0;">Saludos cordiales,<br>El equipo de Fábrica de Software CCT</p>
+						</td>
+					</tr>
+				</table>	
+			`)
+
+			await Notificacion.create({
+				remitente_ID: id,
+				destinatario_ID: targetUser.ID,
+				usuario_ID: targetUser.ID,
+				tipo: "otro",
+				titulo: title,
+				mensaje: title,
+				estado: "pendiente",
+			})
+
+			await sendEmail(
+				targetUser.email,
+				title,
+				message
+			)
+		}
+
+		if (actaActualizada.gestor_ID)
+			sendNotification(await Usuario.findByPk(actaActualizada.gestor_ID))
+
+		if (actaActualizada.instructor_ID)
+			sendNotification(await Usuario.findByPk(actaActualizada.instructor_ID))
+		
 		res.status(200).json({ message: 'Estado actualizado correctamente.', acta: actaActualizada.estado_acta });
 	} catch (error) {
+		console.log(error)
 		res.status(500).json({ message: 'Error al actualizar el estado.' });
 	}
 };

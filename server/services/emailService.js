@@ -8,6 +8,7 @@ const Notificacion = require("../models/Notificacion");
 
 const fs = require("fs");
 const path = require("path");
+const { Sequelize, Op } = require("sequelize");
 const fechaSolicitud = new Date(
 	Date.now() - new Date().getTimezoneOffset() * 60000
 );
@@ -740,6 +741,8 @@ const sendConcertacionActaEmail = async (req, res) => {
 			nombreActa,
 		} = req.body;
 
+		const involucrados = JSON.parse(req.body.involucrados)
+
 		//  Parsear objetos JSON como respaldo
 		let empresaObj = null;
 		let managerObj = null;
@@ -763,7 +766,7 @@ const sendConcertacionActaEmail = async (req, res) => {
 		//  Determinar los IDs finales
 		const finalEmpresaID =
 			empresa_ID || (empresaObj && empresaObj.ID) || null;
-		const finalInstructorID =
+		let finalInstructorID =
 			instructor_ID || (managerObj && managerObj.ID) || null;
 		const finalGestorID = gestor_ID || null; //  Siempre null en este caso
 
@@ -781,6 +784,18 @@ const sendConcertacionActaEmail = async (req, res) => {
 		fs.mkdirSync(path.dirname(pdfPath), { recursive: true });
 		fs.writeFileSync(pdfPath, pdfBuffer);
 
+		const instructor = (await Usuario.findAll({
+			where: Sequelize.where(
+				Sequelize.fn('CONCAT', Sequelize.col('nombres'), ' ', Sequelize.col('apellidos')),
+				{ [Op.like]: `%${involucrados.instructores[0]}%` }
+			),
+			attributes: ["ID"]
+		}))
+
+		if (instructor.length > 0) {
+			finalInstructorID = instructor[0].dataValues.ID
+		}
+
 		//  Crear el acta en la base de datos
 		const nuevaActa = await Actas.create({
 			fecha_acta: fecha_acta,
@@ -795,51 +810,73 @@ const sendConcertacionActaEmail = async (req, res) => {
 			pdf_acta: pdfFileName,
 		});
 
-		//  Enviar correo con el acta adjunta
-		let transporter = nodemailer.createTransport({
-			service: "Gmail",
-			auth: {
-				user: "softwareccyt@gmail.com",
-				pass: process.env.GOOGLE_APP_PASSWORD,
-			},
-		});
+		try {
+			for (let i of [
+				...involucrados.participantes,
+				...involucrados.instructores,
+				involucrados.coordinadorAcademico
+			]) {
+				const involucrado = (await Usuario.findAll({
+					where: Sequelize.where(
+						Sequelize.fn('CONCAT', Sequelize.col('nombres'), ' ', Sequelize.col('apellidos')),
+						{ [Op.like]: `%${i}%` }
+					),
+					attributes: ["email"]
+				}))[0]
 
-		await transporter.sendMail({
-			from: `"SGFC" <${
-				process.env.EMAIL_USER || "softwareccyt@gmail.com"
-			}>`,
-			to: "softwareccyt@gmail.com",
-			subject: `Nueva Acta de Concertación: ${
-				nombreActa || "Sin Título"
-			}`,
-			html: `
-        <h2>Nueva Acta de Concertación</h2>
-        <p><strong>Instructor:</strong> ${
-			managerObj
-				? `${managerObj.nombres} ${managerObj.apellidos}`
-				: "No especificado"
-		}</p>
-        <p><strong>Email:</strong> ${
-			managerObj ? managerObj.email : "No especificado"
-		}</p>
-        <p><strong>Empresa:</strong> ${
-			empresaObj ? empresaObj.nombre_empresa : "No especificada"
-		}</p>
-        <p><strong>Fecha de creación:</strong> ${new Date(
-			fecha_acta
-		).toLocaleString()}</p>
-        <p><strong>ID del acta:</strong> ${nuevaActa.ID}</p>
-        <p>Se ha registrado una nueva acta de concertación en el sistema.</p>
-      `,
-			attachments: [
-				{
-					filename: pdfFileName,
-					content: pdfBuffer,
-				},
-			],
-		});
+				if (involucrado) {
+					const emailToSend = involucrado?.dataValues.email
 
-		console.log("📧 Email enviado correctamente");
+					//  Enviar correo con el acta adjunta
+					let transporter = nodemailer.createTransport({
+						service: "Gmail",
+						auth: {
+							user: "softwareccyt@gmail.com",
+							pass: process.env.GOOGLE_APP_PASSWORD,
+						},
+					});
+
+					await transporter.sendMail({
+						from: `"SGFC" <${
+							process.env.EMAIL_USER || "softwareccyt@gmail.com"
+						}>`,
+						to: emailToSend,
+						subject: `Nueva Acta de Concertación: ${
+							nombreActa || "Sin Título"
+						}`,
+						html: `
+						<h2>Nueva Acta de Concertación</h2>
+						<p><strong>Instructor:</strong> ${
+							managerObj
+								? `${managerObj.nombres} ${managerObj.apellidos}`
+								: "No especificado"
+						}</p>
+						<p><strong>Email:</strong> ${
+							managerObj ? managerObj.email : "No especificado"
+						}</p>
+						<p><strong>Empresa:</strong> ${
+							empresaObj ? empresaObj.nombre_empresa : "No especificada"
+						}</p>
+						<p><strong>Fecha de creación:</strong> ${new Date(
+							fecha_acta
+						).toLocaleString()}</p>
+						<p><strong>ID del acta:</strong> ${nuevaActa.ID}</p>
+						<p>Se ha registrado una nueva acta de concertación en el sistema.</p>
+						<a style="color: #00843d" href="http://localhost:3001/uploads/documentos/${pdfFileName}">Ver acta</a>
+					`, // RECUERDA CAMBIAR ESTO
+						attachments: [
+							{
+								filename: pdfFileName,
+								content: pdfBuffer,
+							},
+						],
+					});
+					console.log("Correo enviado a", emailToSend)
+				}
+			}
+		} catch (error) {
+			console.log(error)
+		}
 
 		//  Respuesta exitosa
 		res.status(200).json({
@@ -875,6 +912,7 @@ const sendTrainingPlaceActaEmail = async (req, res) => {
 			instructor_ID,
 			fecha_acta,
 			nombreActa,
+			manager
 		} = req.body;
 
 		//  Parsear objetos JSON como respaldo

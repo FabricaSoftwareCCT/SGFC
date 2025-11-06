@@ -40,6 +40,8 @@ export const UpdateCourse = () => {
 	// Estado para el lugar de formación
 	const [lugarFormacion, setLugarFormacion] = useState("");
 
+	const [modalidad, setModalidad] = useState("presencial")
+
 	useEffect(() => {
 		const fetchCurso = async () => {
 			try {
@@ -156,6 +158,7 @@ export const UpdateCourse = () => {
 				lugar_formacion: lugarFormacion, // Usar el estado del lugar de formación
 				slots_formacion: JSON.stringify(calendarData.selectedSlots),
 				duracion_dias: duracionCurso,
+				modalidad: curso.modalidad,
 				empresa_ID:
 					curso.tipo_oferta === "Cerrada"
 						? empresaSeleccionada?.ID || curso.empresa_ID
@@ -398,17 +401,45 @@ export const UpdateCourse = () => {
 											</div>
 										</div>
 
-										{/* Sección de lugar de formación */}
 										<div className="lugar-formacion">
-											<span>Lugar de formación:</span>
-											<input
-												className="input-lugar-formacion"
-												type="text"
-												placeholder="Ej: Centro de Formación SENA, Aula 101"
-												value={lugarFormacion}
-												onChange={(e) => setLugarFormacion(e.target.value)}
-											/>
+											<span>Modalidad:</span>
+											<div className="offer-options">
+												<button
+													className={`offer-button ${curso.modalidad?.toLowerCase() === "virtual" ? "active" : ""}`}
+													onClick={(e) => {
+														e.preventDefault();
+														setCurso({ ...curso, modalidad: "virtual" });
+													}}
+													type="button"
+												>
+													Virtual
+												</button>
+												<button
+													className={`offer-button ${curso.modalidad?.toLowerCase() === "presencial" ? "active" : ""}`}
+													onClick={(e) => {
+														e.preventDefault();
+														setCurso({ ...curso, modalidad: "presencial" });
+													}}
+													type="button"
+												>
+													Presencial
+												</button>
+											</div>
 										</div>
+
+										{/* Sección de lugar de formación */}
+										{curso.modalidad !== "virtual" && (
+											<div className="lugar-formacion">
+												<span>Lugar de formación:</span>
+												<input
+													className="input-lugar-formacion"
+													type="text"
+													placeholder="Ej: Centro de Formación SENA, Aula 101"
+													value={lugarFormacion}
+													onChange={(e) => setLugarFormacion(e.target.value)}
+												/>
+											</div>
+										)}
 									</div>
 									
 									{/* Mostrar campo empresa solo si la oferta es Cerrada */}

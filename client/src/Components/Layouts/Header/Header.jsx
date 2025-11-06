@@ -86,6 +86,7 @@ export const Header = ({
 		"/Gestiones/Criterios",
 		"/Empleados/MisEmpleados",
 		"/GestionReporteEstadisticas/ReporteEstadisticas",
+		"/reportes/asistencia-progreso",
 	].some((path) => location.pathname.startsWith(path));
 
 	const isEmpresasActive = location.pathname.startsWith(
@@ -393,6 +394,38 @@ export const Header = ({
 									}
 								>
 									Gestión de Usuarios
+								</button>
+								<button
+									className={
+										location.pathname.startsWith(
+											"/GestionReporteEstadisticas/ReporteEstadisticas"
+										)
+											? "active"
+											: ""
+									}
+									onClick={() =>
+										handleMenuClick(
+											"/GestionReporteEstadisticas/ReporteEstadisticas"
+										)
+									}
+								>
+									Reporte y Estadísticas
+								</button>
+								<button
+									className={
+										location.pathname.startsWith(
+											"/reportes/asistencia-progreso"
+										)
+											? "active"
+											: ""
+									}
+									onClick={() =>
+										handleMenuClick(
+											"/reportes/asistencia-progreso"
+										)
+									}
+								>
+									Asistencia y Progreso
 								</button>
 							</div>
 						)}

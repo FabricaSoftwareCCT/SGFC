@@ -34,6 +34,7 @@
 
 .swal2-actions {
     justify-content: center !important;
+    gap: 20px !important;
 }
 
 .container_createCourse .complementary {

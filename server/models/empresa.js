@@ -44,6 +44,14 @@ class Empresa extends Model {
           allowNull: true,
           unique: true,
         },
+        descripcion: {
+          type: DataTypes.STRING(100),
+          allowNull: true
+        },
+          sitio_web: {
+            type: DataTypes.JSON(),
+            allowNull: true
+          },
       },
       {
         sequelize,

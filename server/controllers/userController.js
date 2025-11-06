@@ -1135,6 +1135,8 @@ const updateUserProfile = async (req, res) => {
 					img_empresa,
 					nombre_empresa,
 					telefono,
+					descripcion,
+					sitio_web,
 					ciudad_ID,
 					departamento_ID,
 				} = empresaData;
@@ -1191,8 +1193,9 @@ const updateUserProfile = async (req, res) => {
 				if (categoria !== undefined) user.Empresa.categoria = categoria;
 				if (telefono !== undefined) user.Empresa.telefono = telefono;
 				if (ciudad_ID !== undefined) user.Empresa.ciudad_ID = ciudad_ID;
-				if (estadoEmpresa !== undefined)
-					user.Empresa.estado = estadoEmpresa;
+				if (estadoEmpresa !== undefined) user.Empresa.estado = estadoEmpresa;
+				if (descripcion != undefined) user.descripcion = descripcion;
+				if (sitio_web != undefined) user.sitio_web = sitio_web;
 
 				if (req.files?.img_empresa?.[0]) {
 					user.Empresa.img_empresa =
@@ -2655,10 +2658,12 @@ const createEmpresa = async (req, res) => {
             categoria,
             direccion,
             telefono,
+			descripcion,
             email_empresa,
             departamento_ID,
             ciudad_ID,
-            estado = 'activo'
+            estado = 'activo',
+			sitio_web
         } = req.body;
 
         // Validar datos obligatorios
@@ -2697,6 +2702,8 @@ const createEmpresa = async (req, res) => {
             estado,
             categoria,
             telefono,
+			descripcion,
+			sitio_web,
             img_empresa,
             ciudad_ID,
             departamento_ID

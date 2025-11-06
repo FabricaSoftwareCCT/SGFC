@@ -201,10 +201,6 @@ export const Header = ({
 									label: "Material de Apoyo",
 									path: "/SupportMaterial",
 								},
-								{
-									label: "Criterios de certificación",
-									path: "/Gestiones/Criterios",
-								},
 							];
 							break;
 						case "Empresa":
@@ -464,6 +460,22 @@ export const Header = ({
 									}
 								>
 									Reporte y Estadísticas
+								</button>
+								<button
+									className={
+										location.pathname.startsWith(
+											"/Gestiones/Criterios"
+										)
+											? "active"
+											: ""
+									}
+									onClick={() =>
+										handleMenuClick(
+											"/Gestiones/Criterios"
+										)
+									}
+								>
+									Criterios de Certificación
 								</button>
 							</div>
 						)}

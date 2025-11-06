@@ -196,7 +196,7 @@ describe ("Prueba instructor", () => {
         cy.get('.container_options').contains('button', 'Criterios de certificación').first().click({force:true})
 
         
-        //Ver criterios de un curso
+        //Ver criterios de un curso y modioficar
         cy.contains('button', 'Ver criterios').first().click({force:true})
         cy.contains('button', 'Ver criterios').first().click({force:true})
         cy.contains('button', 'Editar').first().click({force:true})

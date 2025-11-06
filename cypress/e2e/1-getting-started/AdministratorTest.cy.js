@@ -234,7 +234,7 @@ describe('Probar el modulo de administrador', ()=>{
         cy.get('.edit-button-updateInstructor').first().click({force:true})
 
         //Modificar datos del instructor
-        cy.get('.modal-left-update').find('input[name="email"]').first().clear({force:true}).type('Andres Felipe')
+        cy.get('.modal-left-update').find('input[name="nombres"]').first().clear({force:true}).type('Andres Felipe')
         cy.get('.edit-button-updateInstructor').first().click({force:true})
     })
 

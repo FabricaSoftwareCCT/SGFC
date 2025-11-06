@@ -397,7 +397,50 @@ describe ("Prueba instructor", () => {
         cy.get('.training-place-proceeding-submit-button').contains('button', 'Generar acta').click({force:true})
     })
 
-    it('Cerrar sesión instructor', ()=>{
+    it.skip('Visualizar perfil de instructor',() =>{
+        cy.visit("http://localhost:5173/") 
+        cy.get(".button_signIn").first().click({force : true})
+
+        //Ingresar credenciales con el rol de instructor
+        cy.get('input[type="email"]').first()
+            .type('hincapiefernandezjoan123@gmail.com')
+        cy.get('input[type="password"]')
+            .type(';,6E5RaH')
+       
+         //Iniciar sesión
+        cy.get(".button_register").click({force:true})
+
+        //Dar click en el botón de perfil
+        cy.get('.container_options_profile').get('button[id="btn_profile"]').first().click({force:true})
+    })
+
+    it.skip('editar perfil de instructor',()=>{
+        cy.visit("http://localhost:5173/") 
+        cy.get(".button_signIn").first().click({force : true})
+
+        //Ingresar credenciales con el rol de instructor
+        cy.get('input[type="email"]').first()
+            .type('hincapiefernandezjoan123@gmail.com')
+        cy.get('input[type="password"]')
+            .type(';,6E5RaH')
+       
+         //Iniciar sesión
+        cy.get(".button_register").click({force:true})
+
+        //Dar click en el botón de perfil
+        cy.get('.container_options_profile').get('button[id="btn_profile"]').first().click({force:true})
+
+        //Editar perfil
+        cy.get('.updateProfile').click({force:true});
+
+        //Editar número
+        cy.get('.input_updateData[name="celular"]').clear().type('3113657896');
+
+        //Guardar Cambio
+        cy.contains('button', 'Guardar').click({force:true})
+    })
+
+    it.skip('Cerrar sesión instructor', ()=>{
         cy.visit("http://localhost:5173/") 
         cy.get(".button_signIn").first().click({force : true})
 
@@ -413,4 +456,8 @@ describe ("Prueba instructor", () => {
         //Cerrar sesión
         cy.get('.container_options_profile').find('img[alt="Cerrar sesión"]').first().click({force : true})
     })
-})
+});
+
+
+
+

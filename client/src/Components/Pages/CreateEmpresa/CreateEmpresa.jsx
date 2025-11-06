@@ -196,7 +196,6 @@ export const CreateEmpresa = ({ onClose, onCompanyCreated }) => {
         return;
       }
 
-      // PASO 1: Crear el usuario Manager
       const userResponse = await fetch("http://localhost:3001/api/users/createUser", {
         method: "POST",
         headers: {
@@ -210,6 +209,7 @@ export const CreateEmpresa = ({ onClose, onCompanyCreated }) => {
       });
 
       const userData = await userResponse.json();
+      console.log(userData);
 
       if (!userResponse.ok) {
         throw new Error(userData.message || "Error al crear el usuario Manager");
@@ -240,7 +240,9 @@ export const CreateEmpresa = ({ onClose, onCompanyCreated }) => {
         }
       });
 
-      const empresaResponse = await axiosInstance.post("/api/users/empresas", empresaPayload);
+      const encodeEmail = encodeURIComponent(managerData.email)
+
+      const empresaResponse = await axiosInstance.post(`/api/users/empresas/${encodeEmail}`, empresaPayload);
       
       
       // Notificar al componente padre

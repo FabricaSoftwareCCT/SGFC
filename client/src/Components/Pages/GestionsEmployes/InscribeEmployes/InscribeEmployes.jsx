@@ -4,12 +4,14 @@ import "./InscribeEmployes.css"
 import { Header } from "../../../../Components/Layouts/Header/Header"
 import { Footer } from "../../../../Components/Layouts/Footer/Footer"
 import { Main } from "../../../../Components/Layouts/Main/Main"
+import { Modal_Inscripcion } from "../../../UI/Modal_Inscripcion/Modal_Inscripcion"
 
 
 export const InscribeEmployes = () => {
   const [selectedEmployees, setSelectedEmployees] = useState([])
   const [currentPage, setCurrentPage] = useState(1)
   const [employeesPerPage] = useState(5) 
+  const [showCreateModal, setShowCreateModal] = useState(false);
   const navigate = useNavigate()
   
   // Datos de ejemplo 
@@ -86,9 +88,12 @@ export const InscribeEmployes = () => {
     }
   ])
 
-  const handleContinue=()=>{
-    navigate("/Cursos/BuscarCursos")
-  }
+  const handleContinue = () => {
+		setShowCreateModal(true);
+	};
+  const handleCloseModal = () => {
+		setShowCreateModal(false);
+	};
 
   // Calcular empleados para la página actual
   const indexOfLastEmployee = currentPage * employeesPerPage
@@ -199,6 +204,12 @@ export const InscribeEmployes = () => {
                   {selectedEmployees.length} de {employes.length} empleados seleccionados
                 </span>
               </div>
+              <button 
+                className="btn-continue"
+                onClick={handleAddCompany}
+              >
+                Continuar
+              </button>
               <button className="btn-continue"
                       onClick={handleContinue}
                       disabled={selectedEmployees.length === 0}>
@@ -330,6 +341,12 @@ export const InscribeEmployes = () => {
         </div>
       </Main>
       <Footer />
+      {showCreateModal && (
+              <CreateEmpresa onClose={handleCloseModal} onCompanyCreated={() => {
+                fetchEmpresas()
+              }} />
+            )}
     </>
+
   )
 }

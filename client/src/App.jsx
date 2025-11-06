@@ -369,6 +369,7 @@ function App() {
 					<Route path="/SolicitarCurso" element={<RequestCourse />} />        
 			 
 					<Route path="/SupportMaterial" element={<SupportMaterial/>}/>
+					<Route path="/SupportMaterial/:curso" element={<SupportMaterial/>}/>
                     <Route path="/SupportMaterialCourse/:id" element={<SupportMaterialCourse/>}/>
 	
 					<Route path='/SolicitarCursoAp' element={<RequestCourseAp />} />

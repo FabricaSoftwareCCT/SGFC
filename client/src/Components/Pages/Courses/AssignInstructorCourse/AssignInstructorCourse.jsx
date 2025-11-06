@@ -17,6 +17,7 @@ export const AssignInstructorCourse = ({ curso_ID, onClose }) => {
   const [filter, setFilter] = useState("");
   const [current, setCurrent] = useState(0);
   const [selectedState] = useState({ activo: true, inactivo: true });
+  const [inviting, setInviting] = useState(false)
 
   // Obtener instructores del backend
   const fetchInstructors = async () => {
@@ -97,6 +98,7 @@ export const AssignInstructorCourse = ({ curso_ID, onClose }) => {
   const invitarInstructor = async (instructor_ID) => {
     try {
       // Verificar disponibilidad antes de invitar
+      setInviting(true)
       try {
         const res = await axiosInstance.get(`/api/courses/instructores/${instructor_ID}/disponibilidad`);
         if (!res.data?.disponible) {
@@ -123,9 +125,12 @@ export const AssignInstructorCourse = ({ curso_ID, onClose }) => {
         invitacion_ID
       });
 
+      setInviting(false)
+
       alert(response.data.message || "Invitación y notificación enviadas correctamente");
       if (onClose) onClose();
     } catch (error) {
+      setInviting(false)
       alert(
         error.response?.data?.message ||
         "Error al enviar la invitación o la notificación. Intenta de nuevo."
@@ -235,10 +240,10 @@ export const AssignInstructorCourse = ({ curso_ID, onClose }) => {
                   </p>
                   <button
                   className="profile-btn"
-                  disabled={!disponible}
+                  disabled={!disponible || inviting}
                   onClick={() => invitarInstructor(currentId)}
                 >
-                  Invitar Instructor
+                  {inviting ? "Invitando..." : "Invitar Instructor"}
                 </button>
                 </div>
               );

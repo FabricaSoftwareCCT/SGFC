@@ -145,6 +145,7 @@ const createCurso = async (req, res) => {
 			slots_formacion,
 			cupos_disponibles,
 			duracion_dias,
+			modalidad,
 			empresa_ID // Esperado solo si tipo_oferta es "Cerrada"
 		} = req.body;
 
@@ -226,7 +227,8 @@ const createCurso = async (req, res) => {
 			empresa_ID: finalEmpresaID,
 			slots_formacion: slotsFormacionString,
 			duracion_dias,
-			cupos_disponibles
+			cupos_disponibles,
+			modalidad
 		});
 
 		res.status(201).json({ message: "Curso creado con éxito.", curso: nuevoCurso });
@@ -285,7 +287,8 @@ const updateCurso = async (req, res) => {
 			estado,
 			slots_formacion,
 			empresa_ID,
-			duracion_dias
+			duracion_dias,
+			modalidad
 		} = req.body;
 
 		const userData = await User.findByPk(userId);
@@ -342,6 +345,7 @@ const updateCurso = async (req, res) => {
 			lugar_formacion,
 			estado,
 			duracion_dias,
+			modalidad,
 			empresa_ID: tipo_oferta === "Cerrada" ? finalEmpresaID : null, // ✅ Actualizar o limpiar
 		};
 
@@ -711,10 +715,10 @@ const enviarInvitacionCurso = async (req, res) => {
 		const email = findInstructor.dataValues.email;  
 		console.log("datos necesarios: ", {email, curso})
 
-		if(email.length > 0){
+		/*if(email.length > 0){
 			await sendInstructorAssignedEmail(email, curso);
 			console.log('✅ Invitación creada exitosamente:', nuevaInvitacion.id);
-		}
+		}*/
 
 		res.status(201).json({
 			message: 'Invitación enviada correctamente.',

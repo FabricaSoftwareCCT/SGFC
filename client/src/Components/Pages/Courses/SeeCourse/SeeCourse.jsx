@@ -137,12 +137,23 @@ export const SeeCourse = () => {
 
 								<div className='detail-row'>
 									<div className='detail-item'>
-										<span className='detail-label'>Lugar de formación:</span>
+										<span className='detail-label'>Modalidad:</span>
 										<span className='detail-value'>
-											{curso?.lugar_formacion ? `${curso.lugar_formacion}` : "Sin especificar"}
+											{curso?.lugar_formacion ? `${curso.modalidad}` : "Sin especificar"}
 										</span>
 									</div>
 								</div>
+
+								{curso.modalidad !== "virtual" && (
+									<div className='detail-row'>
+										<div className='detail-item'>
+											<span className='detail-label'>Lugar de formación:</span>
+											<span className='detail-value'>
+												{curso?.lugar_formacion ? `${curso.lugar_formacion}` : "Sin especificar"}
+											</span>
+										</div>
+									</div>
+								)}
 
 								<div className='detail-row'>
 									<div className='detail-item'>

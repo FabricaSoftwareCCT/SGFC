@@ -30,6 +30,7 @@ export const CreateCourse = ( ) => {
 	const [showResultados, setShowResultados] = useState(false);
 	const [duracionCurso, setDuracionCurso] = useState(0);
 	const [lugarFormacion, setLugarFormacion] = useState("");
+	const [selectedModality, setSelectedModality] = useState("presencial")
 
 	// New state for calendar data
 	const [calendarData, setCalendarData] = useState({
@@ -107,6 +108,7 @@ export const CreateCourse = ( ) => {
 			formData.append("estado", selectedStatus);
 			formData.append("fecha_inicio", calendarData.startDate);
 			formData.append("fecha_fin", calendarData.endDate);
+			formData.append("modalidad", selectedModality);
 
 			// Procesar los slots para obtener horarios y días
 			const slotsByDay = {};
@@ -339,6 +341,25 @@ export const CreateCourse = ( ) => {
 											</button>
 										</div>
 									</div>
+									<div className="offer-type-container">
+										<span>Modalidad:</span>
+										<div className="offer-options">
+											<button
+												className={`offer-button ${selectedModality === 'virtual' ? 'active' : ''}`}
+												onClick={() => setSelectedModality('virtual')}
+												type="button"
+											>
+												Virtual
+											</button>
+											<button
+												className={`offer-button ${selectedModality === 'presencial' ? 'active' : ''}`}
+												onClick={() => setSelectedModality('presencial')}
+												type="button"
+											>
+												Presencial
+											</button>
+										</div>
+									</div>
 									{/* Mostrar campo empresa solo si la oferta es Cerrada */}
 									{selected === 'Cerrada' && (
 										<div className='containerInput_company'>
@@ -413,16 +434,18 @@ export const CreateCourse = ( ) => {
 									</div>
 
 									{/* Sección de lugar de formación */}
-									<div className="lugar-formacion">
-										<span>Lugar de formación:</span>
-										<input
-											className="input-lugar-formacion"
-											type="text"
-											placeholder="Ej: Centro de Formación SENA, Aula 101"
-											value={lugarFormacion}
-											onChange={(e) => setLugarFormacion(e.target.value)}
-										/>
-									</div>
+									{selectedModality === "presencial" && (
+										<div className="lugar-formacion">
+											<span>Lugar de formación:</span>
+											<input
+												className="input-lugar-formacion"
+												type="text"
+												placeholder="Ej: Centro de Formación SENA, Aula 101"
+												value={lugarFormacion}
+												onChange={(e) => setLugarFormacion(e.target.value)}
+											/>
+										</div>
+									)}
 								</div>
 
 								<div>

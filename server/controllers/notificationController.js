@@ -292,6 +292,7 @@ const crearNotificacionInvitacionCursoInstructor = async (req, res) => {
 			<p>Inicia el: <strong>${new Date(curso.fecha_inicio).toDateString()}</strong></p>
 			<p>Termina el: <strong>${new Date(curso.fecha_fin).toDateString()}</strong></p>
 			<p>Días de formación: <strong>${dias}</strong></p>
+			<p>Modalidad: <strong>${curso.modalidad}</strong></p>
 			<p>Horario: ${!curso.slots_formacion ? "<strong>Sin definir</strong>" : ""}</p>
 			${curso.slots_formacion ?
 			`<table>
@@ -304,160 +305,26 @@ const crearNotificacionInvitacionCursoInstructor = async (req, res) => {
 					<th style=${bs}>Viernes</th>
 					<th style=${bs}>Sábado</th>
 				</tr>
-				<tr>
-					<th style=${bs}>6:00</th>
-					<td style=${bs}>${isHorary("Lunes-06:00")}</td>
-					<td style=${bs}>${isHorary("Martes-06:00")}</td>
-					<td style=${bs}>${isHorary("Miércoles-06:00")}</td>
-					<td style=${bs}>${isHorary("Jueves-06:00")}</td>
-					<td style=${bs}>${isHorary("Viernes-06:00")}</td>
-					<td style=${bs}>${isHorary("Sábado-06:00")}</td>
-				</tr>
-				<tr>
-					<th style=${bs}>7:00</th>
-					<td style=${bs}>${isHorary("Lunes-07:00")}</td>
-					<td style=${bs}>${isHorary("Martes-07:00")}</td>
-					<td style=${bs}>${isHorary("Miércoles-07:00")}</td>
-					<td style=${bs}>${isHorary("Jueves-07:00")}</td>
-					<td style=${bs}>${isHorary("Viernes-07:00")}</td>
-					<td style=${bs}>${isHorary("Sábado-07:00")}</td>
-				</tr>
-				<tr>
-					<th style=${bs}>8:00</th>
-					<td style=${bs}></td>
-					<td style=${bs}></td>
-					<td style=${bs}></td>
-					<td style=${bs}></td>
-					<td style=${bs}></td>
-					<td style=${bs}></td>
-				</tr>
-				<tr>
-					<th style=${bs}>9:00</th>
-					<td style=${bs}></td>
-					<td style=${bs}></td>
-					<td style=${bs}></td>
-					<td style=${bs}></td>
-					<td style=${bs}></td>
-					<td style=${bs}></td>
-				</tr>
-				<tr>
-					<th style=${bs}>10:00</th>
-					<td style=${bs}></td>
-					<td style=${bs}></td>
-					<td style=${bs}></td>
-					<td style=${bs}></td>
-					<td style=${bs}></td>
-					<td style=${bs}></td>
-				</tr>
-				<tr>
-					<th style=${bs}>11:00</th>
-					<td style=${bs}></td>
-					<td style=${bs}></td>
-					<td style=${bs}></td>
-					<td style=${bs}></td>
-					<td style=${bs}></td>
-					<td style=${bs}></td>
-				</tr>
-				<tr>
-					<th style=${bs}>12:00</th>
-					<td style=${bs}></td>
-					<td style=${bs}></td>
-					<td style=${bs}></td>
-					<td style=${bs}></td>
-					<td style=${bs}></td>
-					<td style=${bs}></td>
-				</tr>
-				<tr>
-					<th style=${bs}>13:00</th>
-					<td style=${bs}></td>
-					<td style=${bs}></td>
-					<td style=${bs}></td>
-					<td style=${bs}></td>
-					<td style=${bs}></td>
-					<td style=${bs}></td>
-				</tr>
-				<tr>
-					<th style=${bs}>14:00</th>
-					<td style=${bs}></td>
-					<td style=${bs}></td>
-					<td style=${bs}></td>
-					<td style=${bs}></td>
-					<td style=${bs}></td>
-					<td style=${bs}></td>
-				</tr>
-				<tr>
-					<th style=${bs}>15:00</th>
-					<td style=${bs}></td>
-					<td style=${bs}></td>
-					<td style=${bs}></td>
-					<td style=${bs}></td>
-					<td style=${bs}></td>
-					<td style=${bs}></td>
-				</tr>
-				<tr>
-					<th style=${bs}>16:00</th>
-					<td style=${bs}></td>
-					<td style=${bs}></td>
-					<td style=${bs}></td>
-					<td style=${bs}></td>
-					<td style=${bs}></td>
-					<td style=${bs}></td>
-				</tr>
-				<tr>
-					<th style=${bs}>17:00</th>
-					<td style=${bs}></td>
-					<td style=${bs}></td>
-					<td style=${bs}></td>
-					<td style=${bs}></td>
-					<td style=${bs}></td>
-					<td style=${bs}></td>
-				</tr>
-				<tr>
-					<th style=${bs}>18:00</th>
-					<td style=${bs}></td>
-					<td style=${bs}></td>
-					<td style=${bs}></td>
-					<td style=${bs}></td>
-					<td style=${bs}></td>
-					<td style=${bs}></td>
-				</tr>
-				<tr>
-					<th style=${bs}>19:00</th>
-					<td style=${bs}></td>
-					<td style=${bs}></td>
-					<td style=${bs}></td>
-					<td style=${bs}></td>
-					<td style=${bs}></td>
-					<td style=${bs}></td>
-				</tr>
-				<tr>
-					<th style=${bs}>20:00</th>
-					<td style=${bs}></td>
-					<td style=${bs}></td>
-					<td style=${bs}></td>
-					<td style=${bs}></td>
-					<td style=${bs}></td>
-					<td style=${bs}></td>
-				</tr>
-				<tr>
-					<th style=${bs}>21:00</th>
-					<td style=${bs}></td>
-					<td style=${bs}></td>
-					<td style=${bs}></td>
-					<td style=${bs}></td>
-					<td style=${bs}></td>
-					<td style=${bs}></td>
-				</tr>
-				<tr>
-					<th style=${bs}>22:00</th>
-					<td style=${bs}></td>
-					<td style=${bs}></td>
-					<td style=${bs}></td>
-					<td style=${bs}></td>
-					<td style=${bs}></td>
-					<td style=${bs}></td>
-				</tr>
+				${
+					["06:00", "07:00", "08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00", "21:00", "22:00"].map((t) => 
+						`
+							<tr>
+								<th style=${bs}>6:00</th>
+								<td style=${bs}>${isHorary("Lunes-"+t)}</td>
+								<td style=${bs}>${isHorary("Martes-"+t)}</td>
+								<td style=${bs}>${isHorary("Miércoles-"+t)}</td>
+								<td style=${bs}>${isHorary("Jueves-"+t)}</td>
+								<td style=${bs}>${isHorary("Viernes-"+t)}</td>
+								<td style=${bs}>${isHorary("Sábado-"+t)}</td>
+							</tr>	
+						`
+					).join("")
+				}
 			</table>`: ""}
+			<a
+				href="http://localhost:5173/SupportMaterial/${curso.ID}"
+				style="color: #00843d"
+			>Ver material del curso</a>
 			<br><p>Por favor, acepta o rechaza la invitación.</p>
 		`;
 		const tipo = "invitacion_cursoInstructor"

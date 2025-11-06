@@ -9,6 +9,8 @@ import { UpdateEmploye } from "./UpdateEmploye/UpdateEmploye"
 import axiosInstance from "../../../config/axiosInstance"
 import { useModal } from "../../../Context/ModalContext"
 import { InscribeEmployes } from "../GestionsEmployes/InscribeEmployes/InscribeEmployes"
+import Swal from 'sweetalert2';
+import 'sweetalert2/themes/bulma.css'
 
 export const GestionsEmployes = () => {
   const [employes, setEmployes] = useState([])
@@ -59,7 +61,14 @@ export const GestionsEmployes = () => {
       } else {
         const userSessionString = localStorage.getItem("userSession") || sessionStorage.getItem("userSession")
       if (!userSessionString) {
-          alert("No se encontró la sesión de usuario.")
+        Swal.fire({
+          icon:"info",
+          title:"Error en el sistema",
+          text:"No se encontró la sesión de usuario.",
+          confirmButtonText:"Okay",
+                        theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+        })
           return
         }
         const userSession = JSON.parse(userSessionString)
@@ -73,7 +82,14 @@ export const GestionsEmployes = () => {
       }
     } catch (error) {
       console.error("Error al obtener los empleados:", error)
-      alert("Hubo un problema al cargar los empleados. Por favor, inténtalo más tarde.")
+      Swal.fire({
+        icon:"error",
+        title:"Error en el sistema",
+        text:"Hubo un problema al cargar los empleados. Por favor, inténtalo más tarde.",
+        confirmButtonText:"Okay",
+                      theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+      })
     } finally {
       setLoading(false)
     }

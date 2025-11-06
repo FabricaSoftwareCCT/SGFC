@@ -12,6 +12,8 @@ import { generarExcelHistorial } from "../../../../utils/Reports/Criterios";
 import html2pdf from "html2pdf.js"
 import { useRef } from "react";
 import { ReportCertification } from "../ReportCertification.jsx/ReportCertification";
+import Swal from "sweetalert2";
+import 'sweetalert2/themes/bulma.css'
 
 export const SeeCertificationHistorial = () => {
 	const navigate = useNavigate();
@@ -54,9 +56,17 @@ export const SeeCertificationHistorial = () => {
 			setCertificationDenial(resp.data.denial_justification);
 		} catch (error) {
 			console.error(error);
-			alert(
-				"Ocurrió un error al consultar los resultados de los criterios"
-			);
+			await Swal.fire({
+				icon: 'error',
+				title: 'Error',
+				text: 'Ocurrió un error al consultar los resultados de los criterios',
+				confirmButtonText: 'Aceptar',
+				confirmButtonColor: '#d33',
+				theme: "bulma", // Añadido tema Bulma
+				customClass: {
+					confirmButton: 'centered-swal-button'
+				}
+			});
 			setShowAprenticeCriteria(false);
 		}
 	}
@@ -83,7 +93,17 @@ export const SeeCertificationHistorial = () => {
 			setPages(response.data.pages);
 		} catch (error) {
 			console.error(error);
-			alert("Ocurrió un error al consultar los aprendices del curso.");
+			await Swal.fire({
+				icon: 'error',
+				title: 'Error',
+				text: 'Ocurrió un error al consultar los aprendices del curso',
+				confirmButtonText: 'Aceptar',
+				confirmButtonColor: '#d33',
+				theme: "bulma", // Añadido tema Bulma
+				customClass: {
+					confirmButton: 'centered-swal-button'
+				}
+			});
 		}
 	}
 
@@ -137,7 +157,17 @@ export const SeeCertificationHistorial = () => {
 	}
 
 	function showCert() {
-		alert("Aún no implementado");
+		Swal.fire({
+			icon: 'info',
+			title: 'Funcionalidad en desarrollo',
+			text: 'La visualización de certificados estará disponible próximamente',
+			confirmButtonText: 'Aceptar',
+			confirmButtonColor: '#3085d6',
+			theme: "bulma", // Añadido tema Bulma
+			customClass: {
+				confirmButton: 'centered-swal-button'
+			}
+		});
 	}
 
 	const generarReporte = async () => {

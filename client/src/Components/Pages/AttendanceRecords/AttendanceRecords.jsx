@@ -5,6 +5,7 @@ import { Main } from '../../../Components/Layouts/Main/Main';
 import axiosInstance from '../../../config/axiosInstance';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
+import Swal from 'sweetalert2';
 
 export const AttendanceRecords = () => {
     const [records, setRecords] = useState([]);
@@ -27,7 +28,16 @@ export const AttendanceRecords = () => {
                               JSON.parse(sessionStorage.getItem('userSession'));
             
             if (!userSession) {
-                alert('No se encontró la sesión de usuario.');
+                await Swal.fire({
+                    icon: 'warning',
+                    title: 'Sesión no encontrada',
+                    text: 'No se encontró la sesión de usuario.',
+                    confirmButtonText: 'Aceptar',
+                    theme: "bulma",
+                    customClass: {
+                        actions: 'swal2-center-actions'
+                    }
+                });
                 return;
             }
 
@@ -48,11 +58,29 @@ export const AttendanceRecords = () => {
                 setRecords(response.data.records);
                 setFilteredRecords(response.data.records);
             } else {
-                alert('Error al cargar los registros de asistencia');
+                await Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Error al cargar los registros de asistencia',
+                    confirmButtonText: 'Aceptar',
+                    theme: "bulma",
+                    customClass: {
+                        actions: 'swal2-center-actions'
+                    }
+                });
             }
         } catch (error) {
             console.error('Error al obtener los registros:', error);
-            alert('Error al cargar los registros de asistencia');
+            await Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Error al cargar los registros de asistencia',
+                confirmButtonText: 'Aceptar',
+                theme: "bulma",
+                customClass: {
+                    actions: 'swal2-center-actions'
+                }
+            });
         }
     };
 
@@ -63,6 +91,16 @@ export const AttendanceRecords = () => {
             setCourses(response.data);
         } catch (error) {
             console.error('Error al obtener los cursos:', error);
+                        await Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Error al cargar la lista de cursos',
+                confirmButtonText: 'Aceptar',
+                theme: "bulma",
+                customClass: {
+                    actions: 'swal2-center-actions'
+                }
+            });
         }
     };
 

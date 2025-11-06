@@ -8,6 +8,8 @@ import { ResquestNewEmail } from "../../UI/RequestNewEmail/ResquestNewEmail"
 import { GoogleLogin } from '@react-oauth/google';
 import { useNavigate } from "react-router-dom";
 import { useModal } from "../../../Context/ModalContext"; // 👈 importa el hook del contexto
+import Swal from "sweetalert2";
+import 'sweetalert2/themes/bulma.css'
 
 export const Modal_SignUp = ({ accountType }) => {
   const {
@@ -64,12 +66,30 @@ export const Modal_SignUp = ({ accountType }) => {
       !passwordRequirements.number ||
       !passwordRequirements.specialChar
     ) {
-      alert("La contraseña debe cumplir con todos los requisitos.");
+        Swal.fire({
+        icon:"error",
+        title:"Contraseña inválida",
+        text:"La contraseña debe cumplir con todos los requisitos.",
+        confirmButtonText: "Entendido",
+        confirmButtonColor: "#d33",
+        theme:"bulma",
+        customClass: {
+    actions: 'swal2-center-actions'
+  }
+      })
       return;
     }
 
     if (password !== confirmPassword) {
-      alert("Las contraseñas no coinciden");
+            Swal.fire({
+        icon: "error",
+        title:"Contraseñas no coinciden",
+        text:"Las contraseñas no coinciden",
+        confirmButtonText: "Aceptar",
+        confirmButtonColor: "#d33",
+                      theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+      })
       setPassword("");
       setConfirmPassword("");
       return;
@@ -110,7 +130,15 @@ export const Modal_SignUp = ({ accountType }) => {
 
     } catch (error) {
       console.error("Error en el registro:", error);
-      alert(error.message || "Ocurrió un error al registrar el usuario");
+      Swal.fire({
+        icon: "error",
+        title: "Error en el registro",
+        text: error.message || "Ocurrió un error al registrar el usuario",
+        confirmButtonText: "Aceptar",
+        confirmButtonColor: "#d33",
+                      theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+      });
     }
   };
 
@@ -159,10 +187,26 @@ const handleGoogleResponse = async (response) => {
         }, 5000);
 
       } else {
-        alert(data.message || 'Error en el registro con Google');
+      Swal.fire({
+          icon: "error",
+          title: "Error en el registro",
+          text: data.message || 'Error en el registro con Google',
+          confirmButtonText: "Aceptar",
+          confirmButtonColor: "#d33",
+                        theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+        });
       }
     } catch (error) {
-      alert('Error al conectar con el servidor');
+      Swal.fire({
+        icon: "error",
+        title: "Error de conexión",
+        text: 'Error al conectar con el servidor',
+        confirmButtonText: "Aceptar",
+        confirmButtonColor: "#d33",
+                      theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+      });
     }
   };
 
@@ -261,7 +305,17 @@ const handleGoogleResponse = async (response) => {
                 <div className="google-login-container">
                   <GoogleLogin
                     onSuccess={handleGoogleResponse}
-                    onError={() => alert('Error al registrarse con Google')}
+                    onError={() => {
+                      Swal.fire({
+                        icon: "error",
+                        title: "Error de registro",
+                        text: "Error al registrarse con Google",
+                        confirmButtonText: "Aceptar",
+                        confirmButtonColor: "#d33",
+                                      theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+                      });
+                    }}
                     theme="filled_black"
                     size="large"
                     text="signup_with"

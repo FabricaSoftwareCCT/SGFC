@@ -17,6 +17,8 @@ import {
   validateNIT,
 } from "../../../utils/Validators/formValidator"
 import { useModal } from "../../../Context/ModalContext"
+import Swal from 'sweetalert2';
+import 'sweetalert2/themes/bulma.css'
 
 export const SeeMyProfile = () => {
   const location = useLocation()
@@ -73,7 +75,14 @@ export const SeeMyProfile = () => {
     // Si viene por redirección de perfil incompleto, activar modo edición automáticamente
     if (requiresCompletion) {
       setEditMode(true)
-      alert("⚠️ Por favor completa tu perfil para continuar usando la aplicación")
+			Swal.fire({
+				icon:"info",
+				title:"Completar datos de perfil",
+				text:"Por favor completa tu perfil para continuar usando la aplicación",
+				confirmButtonText:"Aceptar",
+				theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+			})
     }
 
     const fetchProfile = async () => {
@@ -94,6 +103,15 @@ export const SeeMyProfile = () => {
         }
       } catch (error) {
         console.error("Error al obtener el perfil:", error)
+        Swal.fire({
+					icon:"error",
+					title:"Error Perfil",
+					text:"Ocurrio un error en el perfil",
+					confirmButtonText:"Aceptar",
+					confirmButtonColor:"#d33",
+					theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+				})
       }
     }
 
@@ -123,7 +141,14 @@ export const SeeMyProfile = () => {
           }),
       )
     } catch (error) {
-      alert("Ocurrió un error al consultar los cursos")
+			Swal.fire({
+				icon:"error",
+				title:"Error al consultar",
+				text:"Ocurrió un error al consultar los cursos",
+				confirmButtonText:"Okay",
+				theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+			})
       console.log(error)
     }
   }
@@ -218,6 +243,14 @@ export const SeeMyProfile = () => {
       setCiudades(ciudadesData)
     } catch (error) {
       console.error("Error al cargar ciudades:", error)
+      Swal.fire({
+					icon:"error",
+					title:"Error en el sistema",
+					text:"No se pudieron cargar las ciudades",
+					confirmButtonText:"Okay",
+					theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+				})
       setCiudades([])
     }
   } else {
@@ -315,7 +348,15 @@ const handleCiudadChange = (e) => {
 
     const hastErrors = await createMensajeError(error)
     if (hastErrors != null) {
-      alert(hastErrors)
+			Swal.fire({
+				icon: 'error',
+				title: 'Error de validación',
+				html: hastErrors,
+				confirmButtonText: 'Aceptar',
+				confirmButtonColor: '#d33',
+				theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+			});
       setPerfil(perfilOriginal) // Revertir cambios locales
       return
     }
@@ -336,7 +377,15 @@ const handleCiudadChange = (e) => {
       }
 
       await axiosInstance.put(`/api/users/perfil/actualizar/${userId}`, payload)
-      alert("Perfil actualizado con éxito")
+			Swal.fire({
+				icon: 'success',
+				title: 'Perfil actualizado',
+				text: 'Perfil actualizado con éxito',
+				confirmButtonText: 'Aceptar',
+				confirmButtonColor: '#049019',
+				theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+			});
 
       // Recargar perfil desde backend
       const response = await axiosInstance.get(`/api/users/profile/${userId}`)
@@ -363,7 +412,15 @@ const handleCiudadChange = (e) => {
       } else if (error.message) {
         errorMessage = error.message
       }
-      alert(errorMessage)
+			Swal.fire({
+				icon: 'error',
+				title: 'Error',
+				text: errorMessage,
+				confirmButtonText: 'Aceptar',
+				confirmButtonColor: '#d33',
+				theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+			});
 
       if (perfilOriginal) {
         setPerfil(perfilOriginal)

@@ -10,6 +10,8 @@ import { generarExcelHistorial } from "../../../../utils/Reports/Criterios";
 import { ReportCertification } from "../ReportCertification.jsx/ReportCertification";
 import { useRef } from "react";
 import html2pdf from "html2pdf.js"
+import Swal from "sweetalert2";
+import 'sweetalert2/themes/bulma.css'
 
 export const SeeCourseCriteria = () => {
 	const navigate = useNavigate();
@@ -77,7 +79,16 @@ export const SeeCourseCriteria = () => {
 			setPages(response.data.pages);
 		} catch (error) {
 			console.error(error);
-			alert("Ocurrió un error al consultar los aprendices del curso.");
+			Swal.fire({
+				icon:"error",
+				title:"Error al consultar",
+				text:"Ocurrió un error al consultar los aprendices del curso.",
+				confirmButtonText:"Okay",
+				theme: "bulma", // Añadido tema Bulma
+				customClass: {
+					confirmButton: 'centered-swal-button'
+				}
+			})
 		}
 	}
 
@@ -96,9 +107,16 @@ export const SeeCourseCriteria = () => {
 			setCertificationDenialStatus(resp.data.denial_justification);
 		} catch (error) {
 			console.error(error);
-			alert(
-				"Ocurrió un error al consultar los resultados de los criterios"
-			);
+			Swal.fire({
+				icon:"error",
+				title:"Error al consultar",
+				text:"Ocurrió un error al consultar los resultados de los criterios",
+				confirmButtonText:"Okay",
+				theme: "bulma", // Añadido tema Bulma
+				customClass: {
+					confirmButton: 'centered-swal-button'
+				}
+			})
 			setShowAprenticeCriteria(false);
 		}
 	}
@@ -115,9 +133,16 @@ export const SeeCourseCriteria = () => {
 			certificationStatus == "rechazado" &&
 			certificationDenialReason.length < 10
 		) {
-			alert(
-				"Se debe escribir el motivo por el cual no se aprovó la certificación"
-			);
+			Swal.fire({
+				icon:"info",
+				title:"Escriba motivo de rechazo",
+				text:"Se debe escribir el motivo por el cual no se aprovó la certificación",
+				confirmButtonText:"Okay",
+				theme: "bulma", // Añadido tema Bulma
+				customClass: {
+					confirmButton: 'centered-swal-button'
+				}
+			})
 			return;
 		}
 
@@ -129,14 +154,30 @@ export const SeeCourseCriteria = () => {
 					justification: certificationDenialReason,
 				}
 			);
-			alert(
-				"Se ha actualizado el estado de la certificación del aprendiz"
-			);
+			Swal.fire({
+				icon:"success",
+				title:"¡Éxito!",
+				text:"Se ha actualizado el estado de la certificación del aprendiz",
+				confirmButtonColor:"rgba(5, 172, 28, 1)",
+				timer:3000,
+				timerProgressBar:true,
+				theme: "bulma", // Añadido tema Bulma
+				customClass: {
+					confirmButton: 'centered-swal-button'
+				}
+			})
 		} catch (error) {
 			console.error(error);
-			alert(
-				"Ocurrió un error al actualizar el estado de la certificación"
-			);
+			Swal.fire({
+				icon:"error",
+				title:"Error al actualizar",
+				text:"Ocurrió un error al actualizar el estado de la certificación",
+				confirmButtonText:"Okay",
+				theme: "bulma", // Añadido tema Bulma
+				customClass: {
+					confirmButton: 'centered-swal-button'
+				}
+			})
 			//setShowAprenticeCriteria(false)
 		}
 	}
@@ -147,7 +188,15 @@ export const SeeCourseCriteria = () => {
 	}
 
 	async function generateCert() {
-		alert("Aún no implementado");
+		Swal.fire({
+			icon:"info",
+			title:"Sin implementar",
+			text:"Aún no implementado",
+			theme: "bulma", // Añadido tema Bulma
+			customClass: {
+				confirmButton: 'centered-swal-button'
+			}
+		})
 	}
 
 	const userSession =
@@ -205,7 +254,11 @@ export const SeeCourseCriteria = () => {
 			}
 		} catch (error) {
 			console.log(error)
-			alert("Ocurrió un error al generar el reporte")
+			Swal.fire({
+				icon:"error",
+				title:"Error al generar el reporte",
+				text:"Ocurrió un error al generar el reporte, intentelo otra vez",
+			})
 			setDoneGenerating(false)
 			setGenerating(false)
 		}

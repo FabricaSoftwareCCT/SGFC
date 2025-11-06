@@ -5,7 +5,8 @@ import axiosInstance from '../../../../config/axiosInstance';
 import fotoPerfilDefect from '../../../../assets/Icons/userDefect.png';
 import { useModal } from '../../../../Context/ModalContext';
 import buttonEdit from '../../../../assets/Icons/buttonEdit.png';
-
+import Swal from 'sweetalert2';
+import 'sweetalert2/themes/bulma.css'
 
 export const CreateEmploye = () => {
   const fileInputRef = useRef(null);
@@ -55,6 +56,14 @@ const fetchEmpresas = async () => {
     setEmpresas(Array.isArray(empresasData) ? empresasData : []);
   } catch (error) {
     console.error("Error al obtener las empresas:", error);
+          Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'No se pudieron cargar las empresas',
+        confirmButtonColor: '#3085d6',
+                      theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+      });
     setEmpresas([]);
   } finally {
     setLoadingEmpresas(false);
@@ -188,7 +197,14 @@ const fetchEmpresas = async () => {
       // Obtener información de la sesión
       let userSessionString = localStorage.getItem("userSession") || sessionStorage.getItem("userSession");
       if (!userSessionString) {
-        alert("No se encontró la sesión de usuario.");
+        Swal.fire({
+          icon: 'error',
+          title: 'Error de sesión',
+          text: 'No se encontró la sesión de usuario.',
+          confirmButtonColor: '#3085d6',
+                        theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+        });
         return;
       }
       const userSession = JSON.parse(userSessionString);
@@ -199,7 +215,14 @@ const fetchEmpresas = async () => {
       if (accountType === 'Administrador' || accountType === 'Gestor') {
         // Para administradores: usar la nueva ruta con empresa seleccionada
         if (!formData.empresaId) {
-          alert("Por favor selecciona una empresa.");
+            Swal.fire({
+            icon: 'warning',
+            title: 'Empresa requerida',
+            text: 'Por favor selecciona una empresa.',
+            confirmButtonColor: '#3085d6',
+                          theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+          });
           return;
         }
         data.append('empresaId', formData.empresaId);
@@ -213,7 +236,14 @@ const fetchEmpresas = async () => {
         // Para gestores: usar la ruta original
       const empresaId = userSession.empresa_ID;
       if (!empresaId) {
-        alert("No se encontró el ID de la empresa en la sesión.");
+          Swal.fire({
+          icon: 'error',
+          title: 'Error de empresa',
+          text: 'No se encontró el ID de la empresa en la sesión.',
+          confirmButtonColor: '#3085d6',
+                        theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+        });
         return;
       }
 
@@ -225,7 +255,16 @@ const fetchEmpresas = async () => {
       }
 
       const empleadoId = response.data.empleado?.ID || response.data.id;
-      alert('Empleado creado con éxito ');
+      await Swal.fire({
+        icon: 'success',
+        title: '¡Éxito!',
+        text: 'Empleado creado con éxito',
+        confirmButtonColor: '#3085d6',
+        timer: 3000,
+        timerProgressBar: true,
+                      theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+      });
 
       // Si se subió un PDF, hacer OCR
       if (documentoPDF && empleadoId) {
@@ -239,10 +278,27 @@ const fetchEmpresas = async () => {
             },
           });
           console.log('OCR resultado:', ocrResponse.data);
-          alert(`Tipo de documento: ${ocrResponse.data.tipoDetectado}\nNúmero: ${ocrResponse.data.documento}`);
+          await Swal.fire({
+            icon: 'info',
+            title: 'Documento procesado',
+            html: `
+              <p><strong>Tipo de documento:</strong> ${ocrResponse.data.tipoDetectado}</p>
+              <p><strong>Número:</strong> ${ocrResponse.data.documento}</p>
+            `,
+            confirmButtonColor: '#3085d6',
+                          theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+          });
         } catch (ocrError) {
           console.error("Error al procesar documento:", ocrError);
-          alert("Empleado creado, pero hubo un problema al procesar el documento PDF.");
+          await Swal.fire({
+            icon: 'warning',
+            title: 'Procesamiento de documento',
+            text: 'Empleado creado, pero hubo un problema al procesar el documento PDF.',
+            confirmButtonColor: '#3085d6',
+                          theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+          });
         }
       }
 
@@ -252,7 +308,14 @@ const fetchEmpresas = async () => {
     } catch (error) {
       console.error('Error al crear el Empleado:', error);
       const errorMsg = error.response?.data?.message || 'Hubo un problema al crear el Empleado.';
-      alert(`Error: ${errorMsg}`);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: errorMsg,
+        confirmButtonColor: '#3085d6',
+                      theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+      });
     }
   };
 

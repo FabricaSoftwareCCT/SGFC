@@ -5,6 +5,8 @@ import { Footer } from "../../Layouts/Footer/Footer";
 import { Main } from "../../Layouts/Main/Main";
 import { UpdateGestor } from "./UpdateGestor/UpdateGestor";
 import axiosInstance from "../../../config/axiosInstance";
+import Swal from 'sweetalert2';
+import 'sweetalert2/themes/bulma.css'
 // import { useNavigate } from "react-router-dom";
 
 export const GestionsGestor = () => {
@@ -38,7 +40,15 @@ export const GestionsGestor = () => {
       setfilteredGestorses(response.data); // Inicialmente, los gestores filtrados son todos
     } catch (error) {
       console.error('Error al obtener los Gestores:', error);
-      alert('Hubo un problema al cargar los Gestores. Por favor, inténtalo más tarde.');
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Hubo un problema al cargar los Gestores. Por favor, inténtalo más tarde.',
+        confirmButtonText: 'Entendido',
+        confirmButtonColor: '#00a144',
+                      theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+      });
     }
   };
 

@@ -41,7 +41,7 @@ router.get("/empresa/:empresaId/empleados", getEmpleadosByEmpresaId); // Obtener
 router.post('/empresa/:empresaId/empleados', upload.single('foto_perfil'), createEmpleado); // Crear empleado (aprendiz) asociado a una empresa
 router.get('/empresa/id/:id', getEmpresaById);
 router.post('/:id/documento', upload.single('pdf'), subirDocumentoIdentidad);
-router.post('/empresas', authMiddleware, upload.single('img_empresa'), createEmpresa);
+router.post('/empresas/:email', authMiddleware, upload.single('img_empresa'), createEmpresa);
 
 // Rutas para administradores
 // Permitir Administrador y Gestor

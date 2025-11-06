@@ -1,4 +1,6 @@
-const {UserRepository} = require("../Repository/UserRepository")
+const { EmpresaRepository } = require("../Repository/EmpresaRepository");
+const {UserRepository} = require("../Repository/UserRepository");
+const { sendVerificationEmail } = require("./emailService");
 
 class UserServices {
     static GetUser = async (token) => {
@@ -26,7 +28,51 @@ class UserServices {
 
         }catch(err){
             console.log(err)
-            throw {status: 500, msg: "Error en el servidor"}
+            throw new Error ({status: 500, msg: "Error en el servidor"});
+        }
+    }
+
+    static CreateEmpresaByAdmin = async (email, data) => {
+        try{
+            const existingEmpresa = await EmpresaRepository.searchEmpresaByNIT(data.NIT);
+            const existingCelular = await EmpresaRepository.searchCompanyByPhone(data.telefono);
+            const existingEmail = await EmpresaRepository.searchCompanyByEmail(data.email_empresa);
+
+            if (existingEmpresa) {
+                throw new Error("Ya hay una empresa registrada con este email.");
+            }
+
+            if(existingCelular){
+                throw new Error("Ya hay una empresa que ocupa este telefono")
+            }
+
+            if(existingEmail){
+                throw new Error("Ya hay una empresa que ocupa el correo")
+            }
+
+            if (existingEmpresa) { 
+                throw new Error("Ya hay una empresa registrada con este NIT.");
+            }
+
+            const existingManager = await UserRepository.getManagerById(email)
+
+            if(!existingManager){
+                throw new Error("El manager no existe ó no se creo correctamente ")
+            }
+            
+            const NuevaEmpresa = await EmpresaRepository.CreateEmpresa(data);
+            existingManager.empresa_ID = NuevaEmpresa.ID;
+            await existingManager.save();
+
+            return NuevaEmpresa;
+
+        }catch(Err){
+            if (Err.message && Err.message !== 'Error en el servidor') { 
+                console.log(Err) 
+                throw Err; 
+            }
+            
+            throw { status: 500, message: "Error en el servidor. Intente de nuevo más tarde." };
         }
     }
 }

@@ -145,11 +145,16 @@ export const SupportMaterialCourse = () => {
 
     const handleEliminarArchivo = async (archivoId) => {
         const result = await Swal.fire({
-            ...swalConfig,
             icon: 'question',
             title: '¿Eliminar archivo?',
             text: '¿Estás seguro de que quieres eliminar este archivo?',
-            showCancelButton: true
+            showCancelButton: true,
+            confirmButtonText:"Aceptar",
+            theme:"bulma",
+            customClass:{
+                actions:'swal2-actions-centered'
+            }
+
         });
 
         if (result.isConfirmed) {
@@ -269,6 +274,7 @@ export const SupportMaterialCourse = () => {
                                                     editingMaterial && editingMaterial.ID === archivo.ID ? (
                                                         <>
                                                             <button className='btn-editar' onClick={editarMaterial}>Guardar</button>
+                                                          
                                                             <button className='btn-eliminar' onClick={()=> setEditingMaterial(null)}>Cancelar</button>
                                                         </>
                                                     ) : (

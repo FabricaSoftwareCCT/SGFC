@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import axiosInstance from "../../../config/axiosInstance";
 import "./ModalManageCourses.css";
+import Swal from "sweetalert2";
 
 export const ModalManageCourses = ({
   instructorId,
@@ -60,7 +61,16 @@ export const ModalManageCourses = ({
   const asignar = async (cursoId, opts = {}) => {
     try {
       if (!isInstructorActivo) {
-        alert("No se pueden asignar cursos a instructores inactivos.");
+        Swal.fire({
+          icon:"info",
+          title:"Instructor inactivo",
+          text:"No se pueden asignar cursos a instructores inactivos.",
+          confirmButtonText:"Okay",
+          theme:"bulma",
+          customClass:{
+            confirmButton: 'centered-swal-button'
+          }
+        })
         return;
       }
       await axiosInstance.post(`/api/courses/asignaciones`, {
@@ -80,33 +90,137 @@ export const ModalManageCourses = ({
       const msg = e?.response?.data?.message;
       const code = e?.response?.data?.code;
       if (code === 'REJECTED_EXISTS') {
-        const confirmar = window.confirm(msg || 'Este instructor rechazó previamente. ¿Desea asignarlo nuevamente?');
-        if (confirmar) {
-          return asignar(cursoId, { force: true });
-        }
-        return;
-      }
-      if (status === 409 || status === 400) {
-        alert(msg || "Conflicto al asignar curso.");
-      } else if (status === 404) {
-        alert(msg || "Curso o instructor no encontrado.");
-      } else {
-        alert("Error al asignar el curso.");
-      }
-    }
-  };
+  const result = await Swal.fire({
+        title: 'Instructor rechazado previamente',
+        text: msg || 'Este instructor rechazó previamente. ¿Desea asignarlo nuevamente?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, asignar',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        theme: "bulma",
+        customClass: {
+            confirmButton: 'button is-primary',
+            cancelButton: 'button is-danger',
+            actions: 'swal2-actions-centered'
+        },
+        buttonsStyling: false
+    });
 
-  const eliminar = async (cursoId) => {
-    try {
-      const confirmar = window.confirm('¿Deseas eliminar esta asignación?');
-      if (!confirmar) return;
-      await axiosInstance.delete(`/api/courses/asignaciones/${instructorId}/${cursoId}`);
-      setCursosAsignados((prev) => prev.filter((c) => Number(c.Curso?.ID ?? c.curso_ID ?? c.ID) !== Number(cursoId)));
-      onChanged && onChanged({ removedId: Number(cursoId) });
-    } catch (e) {
-      alert(e?.response?.data?.message || "Error al eliminar asignación.");
+    if (result.isConfirmed) {
+        return asignar(cursoId, { force: true });
     }
+    return;
+}
+
+if (status === 409 || status === 400) {
+    await Swal.fire({
+        title: 'Conflicto',
+        text: msg || "Conflicto al asignar curso.",
+        icon: 'error',
+        confirmButtonText: 'Aceptar',
+        theme: "bulma",
+        customClass: {
+            confirmButton: 'button is-danger',
+            actions: 'swal2-actions-centered'
+        },
+        buttonsStyling: false
+    });
+} else if (status === 404) {
+    await Swal.fire({
+        title: 'No encontrado',
+        text: msg || "Curso o instructor no encontrado.",
+        icon: 'warning',
+        confirmButtonText: 'Aceptar',
+        theme: "bulma",
+        customClass: {
+            confirmButton: 'button is-warning',
+            actions: 'swal2-actions-centered'
+        },
+        buttonsStyling: false
+    });
+} else {
+    await Swal.fire({
+        title: 'Error',
+        text: "Error al asignar el curso.",
+        icon: 'error',
+        confirmButtonText: 'Aceptar',
+        theme: "bulma",
+        customClass: {
+            confirmButton: 'button is-danger',
+            actions: 'swal2-actions-centered'
+        },
+        buttonsStyling: false
+    });
+}
   };
+  }
+ const eliminar = async (cursoId) => {
+    try {
+        const result = await Swal.fire({
+            title: '¿Estás seguro?',
+            text: '¿Deseas eliminar esta asignación?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar',
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            theme: "bulma",
+            customClass: {
+                confirmButton: 'button is-danger',
+                cancelButton: 'button is-light',
+                actions: 'swal2-actions-centered'
+            },
+            buttonsStyling: false
+        });
+
+        if (!result.isConfirmed) {
+            return; // Si cancela, sale de la función
+        }
+
+        // Lógica para eliminar
+        await axiosInstance.delete(`/api/courses/asignaciones/${instructorId}/${cursoId}`);
+        
+        // Actualizar estado local
+        setCursosAsignados((prev) => prev.filter((c) => Number(c.Curso?.ID ?? c.curso_ID ?? c.ID) !== Number(cursoId)));
+        
+        // Callback si existe
+        onChanged && onChanged({ removedId: Number(cursoId) });
+
+        // Mostrar mensaje de éxito
+        await Swal.fire({
+            title: '¡Eliminado!',
+            text: 'La asignación ha sido eliminada.',
+            icon: 'success',
+            confirmButtonText: 'Aceptar',
+            theme: "bulma",
+            customClass: {
+                confirmButton: 'button is-primary',
+                actions: 'swal2-actions-centered'
+            },
+            buttonsStyling: false
+        });
+
+    } catch (e) {
+        console.error('Error al eliminar:', e);
+        
+        // Mostrar error con SweetAlert2
+        await Swal.fire({
+            title: 'Error',
+            text: e?.response?.data?.message || "Error al eliminar asignación.",
+            icon: 'error',
+            confirmButtonText: 'Aceptar',
+            theme: "bulma",
+            customClass: {
+                confirmButton: 'button is-danger',
+                actions: 'swal2-actions-centered'
+            },
+            buttonsStyling: false
+        });
+    }
+};
 
   const cursoEstaAsignadoAOtro = (curso) => {
     const instructorAsignado = curso?.instructor_ID || curso?.Instructor?.ID; // puede venir embed

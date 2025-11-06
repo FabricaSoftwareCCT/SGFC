@@ -11,7 +11,6 @@ import axiosInstance from "../../../config/axiosInstance"
 import noRead from "../../../assets/Icons/mensaje-no-leido.png"
 import ifRead from "../../../assets/Icons/mensaje-leido.png"
 import { useModal } from "../../../Context/ModalContext"
-import Politic from "../../Pages/Configuration/Politic";
 import Swal from 'sweetalert2';
 import 'sweetalert2/themes/bulma.css'
 
@@ -77,20 +76,18 @@ export const NavBar = ({ children }) => {
 	const [showNotificationsMenu, setShowNotificationsMenu] = useState(false)
 	const notificationsMenuRef = useRef(null)
 
-	useEffect(() => {
+		useEffect(() => {
 		const handleClickOutside = (event) => {
 			if (notificationsMenuRef.current && !notificationsMenuRef.current.contains(event.target)) {
-				setShowNotificationsMenu(false)
+			//setShowNotificationsMenu(false)
+			}
+			if (settingsMenuRef.current && !settingsMenuRef.current.contains(event.target)) {
+			//setShowSettingsMenu(false)
 			}
 		}
-
-			if (settingsMenuRef.current && !settingsMenuRef.current.contains(event.target)) {
-				setShowSettingsMenu(false)
-			}
-
 		document.addEventListener("mousedown", handleClickOutside)
 		return () => document.removeEventListener("mousedown", handleClickOutside)
-	}, [])
+		}, [])
 
 	useEffect(() => {
 		if (!isLoggedIn) return
@@ -424,6 +421,8 @@ export const NavBar = ({ children }) => {
 		setShowSettingsMenu(false);
 	};
 
+	console.log(showSettingsMenu)
+
 	return (
 		<div className="navBar">
 			<div className="logo">SGFC</div>
@@ -444,33 +443,15 @@ export const NavBar = ({ children }) => {
 
 				{isLoggedIn && (
 					<div className="container_options_profile">
-						<div className="settings-menu-mobile">
+						<div className="settings-menu" ref={settingsMenuRef}>
 							<button 
-								className="mobile-profile-btn"
-								onClick={() => setShowSettingsMenu((prev) => !prev)}
+								className="btn-settings"
+								onClick={() => setShowSettingsMenu(!showSettingsMenu)}
 							>
-								<span className="mobile-label">Configuración</span>
-								<img className="desktop-icon" src={settings} alt="Configuración" />
+								<img src={settings} alt="Configuración" />
 							</button>
 							
-							{showSettingsMenu && (
-								<div className="settings-dropdown-mobile">
-									<button 
-										className="settings-dropdown-item"
-										onClick={handlePoliticasSeguridad}
-									>
-										Políticas y seguridad
-									</button>
-									<button 
-										className="settings-dropdown-item"
-										onClick={handlePreguntaSeguridad}
-									>
-										Pregunta de seguridad
-									</button>
-								</div>
-							)}
 						</div>
-
 						<button className="mobile-profile-btn" onClick={() => setShowNotificationsMenu((prev) => !prev)}>
 							<span className="mobile-label">Notificaciones</span>
 							<img className="desktop-icon" src={notifications} alt="Notificaciones" />
@@ -503,7 +484,7 @@ export const NavBar = ({ children }) => {
 					<div className="container_options_profile">
 					<button 
 								className="btn-settings"
-								onClick={() => setShowSettingsMenu((prev) => !prev)}
+								onClick={() => setShowSettingsMenu(!showSettingsMenu)}
 							>
 								<img src={settings} alt="Configuración" />
 							</button>
@@ -589,6 +570,23 @@ export const NavBar = ({ children }) => {
 					</div>
 				)}
 			</div>
+			{showSettingsMenu && (
+				<div className="dropdown-settings" id="settings-menu">
+					<div className="arrow-up" />
+					<button 
+						className="settings-dropdown-item"
+						onClick={handlePoliticasSeguridad}
+					>
+						Políticas y seguridad
+					</button>
+					<button 
+						className="settings-dropdown-item"
+						onClick={handlePreguntaSeguridad}
+					>
+						Pregunta de seguridad
+					</button>
+				</div>
+			)}
 		</div>
 	)
 }

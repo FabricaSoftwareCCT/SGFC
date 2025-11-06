@@ -37,7 +37,17 @@ export const GestionUsuarios = () => {
 			setTotalPages(parseInt(resp.data.total / 10) + 1)
 		} catch (error) {
 			console.log(error)
-			alert("Ocurrió un error al consultar los usuarios")
+			Swal.fire({
+				icon:"error",
+				title:"Error al consultar los usuarios",
+				text:"Ocurrió un error al consultar los usuarios, intentelo de nuevo",
+				confirmButtonText:"Okay",
+				theme:"bulma",
+				customClass:{
+					confirmButton: 'centered-swal-button'
+				}
+
+			})
 		}
 	} 
 
@@ -145,9 +155,31 @@ export const GestionUsuarios = () => {
 				estado: selectedUser.estado
 			})
 			if (resp?.status >= 200 && resp?.status < 300) {
-				alert(resp?.data?.message || "Se ha actualizado el manager");
+				Swal.fire({
+					icon:"success",
+					title:"¡Éxtixo!",
+					text: resp?.data?.message ||"Se ha actualizado el manage",
+					confirmButtonText:"Aceptar",
+					theme: "bulma",
+        			customClass: {
+            confirmButton: 'button is-primary',
+            actions: 'swal2-actions-centered'
+        },
+        buttonsStyling: false
+				})
 			} else {
-				alert("No se pudo actualizar el manager.");
+				    await Swal.fire({
+        title: 'Error',
+        text: "No se pudo actualizar el manager.",
+        icon: 'error',
+        confirmButtonText: 'Aceptar',
+        theme: "bulma",
+        customClass: {
+            confirmButton: 'button is-danger',
+            actions: 'swal2-actions-centered'
+        },
+        buttonsStyling: false
+    });
 				return;
 			}
 
@@ -162,7 +194,17 @@ export const GestionUsuarios = () => {
 			fetchUsuarios()
 		} catch (error) {
 			console.log(error)
-			alert("Ocurrió un error al actualizar el usuario")
+			Swal.fire({
+				icon:"error",
+				title:"Error al actualizar el usuario",
+				text:"Ocurrió un error al actualizar el usuario, intentelo después",
+				confirmButtonText:"Aceptar",
+				theme:"bulma",
+				customClass: {
+            confirmButton: 'button is-danger',
+            actions: 'swal2-actions-centered'
+        }
+			})
 		}
 	}
 

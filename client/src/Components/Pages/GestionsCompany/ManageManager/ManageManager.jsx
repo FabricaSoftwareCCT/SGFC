@@ -36,8 +36,9 @@ export const ManageManager = ({ data, isAdmin, onClose, update }) => {
 					icon: 'success',
 					title: 'Manager actualizado',
 					text: resp?.data?.message || 'Se ha actualizado el manager',
+					theme:"bulma",
 					confirmButtonText: 'Aceptar',
-					confirmButtonColor: '#049019'
+					confirmButtonColor: '#00843d'
 				});
 			} else {
 				Swal.fire({

@@ -254,7 +254,11 @@ export const SeeCourseCriteria = () => {
 			}
 		} catch (error) {
 			console.log(error)
-			alert("Ocurrió un error al generar el reporte")
+			Swal.fire({
+				icon:"error",
+				title:"Error al generar el reporte",
+				text:"Ocurrió un error al generar el reporte, intentelo otra vez",
+			})
 			setDoneGenerating(false)
 			setGenerating(false)
 		}

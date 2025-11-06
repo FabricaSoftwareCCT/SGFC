@@ -1,3 +1,5 @@
+import axiosInstance from "../../config/axiosInstance";
+
 export const getCursos = async (page) => {
     const res = await fetch(`http://localhost:3001/api/reports/ObtenerCursos/admin/${page}`, {
             method: "GET",
@@ -27,7 +29,6 @@ export const getAllInscripciones = async (page) =>{
     })
 
     const data = await res.json()
-    console.log(data)
     const inscritos = data.map((d) =>({
         id: d.id,
         nombres : d.nombres,
@@ -39,4 +40,17 @@ export const getAllInscripciones = async (page) =>{
         estado : d.estado
     }))
     return inscritos
+}
+
+export const updateBulkStatus = async (estadosP) =>{
+    try {
+        if (!Array.isArray(estadosP) || estadosP.length === 0) {
+            return console.log("No se envio ninguna informacion")
+        }
+        const res = await axiosInstance.put('http://localhost:3001/api/courses/updateStatusInscripciones', {estadosP})
+        
+        return res.status
+    } catch (error) {
+        return error
+    }
 }

@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import "./RegistrationsGestor.css";
-import { getAllInscripciones } from '../../../API/ApiRpeort';
+import { getAllInscripciones, updateBulkStatus } from '../../../API/ApiRpeort';
 import { Header } from "../../../Layouts/Header/Header";
 import { Main } from "../../../Layouts/Main/Main";
 
@@ -15,20 +15,20 @@ export const RegistrationsGestor = () => {
   const itemsPerPage = 5;
   const { id } = useParams();
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const data = await getAllInscripciones(id);
-        if (!data) {
-          alert("No se cargaron los datos");
-          return;
-        }
-        setInscritos(data);
-      } catch (error) {
-        console.log(error);
-        alert("No respondió el servidor");
+  const fetchData= async() =>{
+    try {
+      const data = await getAllInscripciones(id);
+      if (!data) {
+        alert("No se cargaron los datos");
+        return;
       }
+      setInscritos(data);
+    } catch (error) {
+      console.log(error);
+      alert("No respondió el servidor");
     }
+  }
+  useEffect(() => {
     fetchData();
   }, [id]);
 
@@ -78,19 +78,47 @@ export const RegistrationsGestor = () => {
     setSelectAll(!selectAll);
   };
 
-  const handleBulkStatusChange = (newStatus) => {
-    if (selectedItems.length === 0) {
-      alert("Por favor selecciona al menos una inscripción");
-      return;
-    }
+  const handleBulkStatusChange  = async (newStatus) => {
+  if (selectedItems.length === 0) {
+    alert("Por favor selecciona al menos una inscripción");
+    return;
+  }
 
-    const selectedData = inscritos.filter(item => selectedItems.includes(item.id));
-    console.log(`Cambiando estado de ${selectedItems.length} inscripciones a ${newStatus}:`, selectedData);
-    
-    // Llamada al backend para cambio masivo
-    setSelectedItems([]);
-    setSelectAll(false);
-  };
+  // Filtrar solo los items seleccionados que están pendientes
+  const pendingSelectedData = inscritos.filter(item => 
+    selectedItems.includes(item.id) && item.estado === "pendiente"
+  );
+
+  // Si no hay pendientes seleccionados, mostrar alerta
+  if (pendingSelectedData.length === 0) {
+    alert("No hay inscripciones pendientes seleccionadas. Solo puedes cambiar el estado de inscripciones pendientes.");
+    return;
+  }
+
+  // Si hay algunos no pendientes, informar al usuario
+  const nonPendingCount = selectedItems.length - pendingSelectedData.length;
+  if (nonPendingCount > 0) {
+    alert(`${nonPendingCount} inscripción(es) no se pueden modificar porque ya no están pendientes. Solo se procesarán ${pendingSelectedData.length} inscripción(es) pendientes.`);
+  }
+
+  // Crear el array para enviar al backend
+  const estados = pendingSelectedData.map(item => ({
+    id: item.id,
+    estado: newStatus // "activo" o "rechazado"
+  }));
+  
+  try {
+    await updateBulkStatus(estados)
+  } catch (err){
+    alert("No se logro actualizar", err)
+  }
+  
+  fetchData(); 
+  // Limpiar selección
+  setSelectedItems([]);
+  setSelectAll(false);
+  
+};
 
   const getSelectedData = () => {
     return inscritos.filter(item => selectedItems.includes(item.id));
@@ -120,31 +148,13 @@ export const RegistrationsGestor = () => {
                     Active Members <span className="count-badge">{filteredAndSortedData.filter(item => item.estado === "activo").length}</span>
                   </p>
                 </div>
-
                 <div className="header-actions">
-                  <div className="bulk-actions">
-                    <button 
-                      className="bulk-btn accept-btn"
-                      onClick={() => handleBulkStatusChange("activo")}
-                    >
-                      Aceptar Seleccionados
-                    </button>
-                    <button 
-                      className="bulk-btn reject-btn"
-                      onClick={() => handleBulkStatusChange("rechazado")}
-                    >
-                      Rechazar Seleccionados
-                    </button>
-                    <span className="selected-count">
-                      {selectedItems.length} seleccionados
-                    </span>
-                  </div>
 
                   <div className="filters-row">
                     <input
                       type="text"
                       placeholder="Search..."
-                      className="search-input"
+                      className="search-input-1"
                       value={search}
                       onChange={(e) => {
                         setSearch(e.target.value);
@@ -163,6 +173,25 @@ export const RegistrationsGestor = () => {
                   </div>
                 </div>
               </div>
+              <div className="container-bulk-actions">
+                  <div className="bulk-actions">
+                    <button 
+                      className="bulk-btn accept-btn"
+                      onClick={() => handleBulkStatusChange("activo")}
+                    >
+                      Aceptar Seleccionados
+                    </button>
+                    <button 
+                      className="bulk-btn reject-btn"
+                      onClick={() => handleBulkStatusChange("rechazado")}
+                    >
+                      Rechazar Seleccionados
+                    </button>
+                    <span className="selected-count">
+                      {selectedItems.length} seleccionados
+                    </span>
+                  </div>
+              </div>      
 
               {/* Tabla */}
               <div className="table-wrapper">

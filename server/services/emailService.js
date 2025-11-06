@@ -1165,6 +1165,122 @@ const sendProfileUpdateEmail = async (email, userData, changesList, photoChanged
   });
 };
 
+const sendRegistrationStatusEmail = (email, studentName, status, reason = null) => {
+    const statusConfig = {
+        activo: {  // Cambiado de 'active' a 'activo'
+            subject: "✅ Inscripción Aprobada - SGFC",
+            title: "¡Tu inscripción ha sido aprobada!",
+            icon: "✅",
+            mainMessage: `Estimado/a <strong>${studentName}</strong>, nos complace informarte que tu inscripción ha sido <strong>aprobada</strong> y ahora formas parte de nuestros programas.`,
+            statusColor: "#00843D",
+            additionalInfo: "Puedes acceder a la plataforma con tus credenciales y comenzar a utilizar todos los servicios disponibles."
+        },
+        rechazada: {  // Cambiado de 'rejected' a 'rechazada'
+            subject: "❌ Estado de Inscripción - SGFC",
+            title: "Actualización sobre tu inscripción",
+            icon: "❌",
+            mainMessage: `Estimado/a <strong>${studentName}</strong>, lamentamos informarte que tu inscripción ha sido <strong>rechazada</strong>.`,
+            statusColor: "#DC3545",
+            additionalInfo: reason || "Para más información sobre esta decisión, te invitamos a contactar a nuestro equipo de soporte."
+        }
+    };
+
+    const config = statusConfig[status] || statusConfig.rechazada; // Cambiado a 'rechazada'
+
+    const mailOptions = {
+        from: `"SGFC" <${process.env.EMAIL_USER}>`,
+        to: email,
+        subject: config.subject,
+        attachments: [
+            {
+                filename: "logo.png",
+                path: logoPath,
+                cid: "logo",
+            },
+        ],
+        html: `
+<table width="100%" bgcolor="#f4f4f4" cellpadding="0" cellspacing="0" style="font-family: Arial, sans-serif; margin:0; padding:0;">
+  <tr>
+    <td align="center">
+      <table width="100%" cellpadding="0" cellspacing="0" style="max-width:37.5rem; background:#fff; margin:1.25rem auto; border-radius:.5rem; box-shadow:0 0 .625rem rgba(0,0,0,0.1);">
+        <tr>
+          <td style="padding:1.875rem;">
+            <!-- Header -->
+            <table width="100%" cellpadding="0" cellspacing="0">
+              <tr>
+                <td align="center" style="padding-bottom:1.25rem; border-bottom:.0625rem solid #eee;">
+                  <img src="cid:logo" alt="Logo de Fábrica de Software CCT" style="width:5rem; height:auto; margin-bottom:.9375rem; display:block;">
+                  <h1 style="color:${config.statusColor}; margin:0; font-size:1.5rem; font-family:Arial,sans-serif;">
+                	 ${config.title}
+                  </h1>
+                </td>
+              </tr>
+            </table>
+            <!-- Content -->
+            <table width="100%" cellpadding="0" cellspacing="0">
+              <tr>
+                <td style="padding:1.25rem 0; line-height:1.6; color:#1A1A1A; font-size:1rem;">
+                  <p style="margin-bottom:.9375rem;">${config.mainMessage}</p>
+                  
+                  ${status === 'rechazada' && reason ? `
+                  <div style="background-color:#f8f9fa; border-left:4px solid ${config.statusColor}; padding:.9375rem; margin:.9375rem 0;">
+                    <p style="margin:0; font-style:italic;"><strong>Motivo:</strong> ${reason}</p>
+                  </div>
+                  ` : ''}
+                  
+                  <p style="margin-bottom:.9375rem;">${config.additionalInfo}</p>
+                  
+                  <!-- Botón de acción según el estado -->
+                  <div style="text-align:center; padding:1.25rem 0;">
+                    ${status === 'activo' ? `
+                    <a href="${process.env.PLATFORM_URL || '#'}" 
+                      style="display:inline-block; background-color:${config.statusColor}; color:#fff !important; padding:.75rem 1.5625rem; border-radius:.3125rem; text-decoration:none; font-weight:bold; font-family:Arial,sans-serif; font-size:1rem;">
+                      Acceder a la Plataforma
+                    </a>
+                    ` : `
+                    <a href="mailto:soporte@tudominio.com" 
+                      style="display:inline-block; background-color:${config.statusColor}; color:#fff !important; padding:.75rem 1.5625rem; border-radius:.3125rem; text-decoration:none; font-weight:bold; font-family:Arial,sans-serif; font-size:1rem;">
+                      Contactar Soporte
+                    </a>
+                    `}
+                  </div>
+                  
+                  <p style="margin-bottom:.9375rem;">
+                    Si tienes alguna pregunta, no dudes en <a href="mailto:soporte@tudominio.com" style="color: #F7941E;">contactarnos</a>.
+                  </p>
+                </td>
+              </tr>
+            </table>
+            <!-- Footer -->
+            <table width="100%" cellpadding="0" cellspacing="0">
+              <tr>
+                <td align="center" style="padding-top:1.25rem; border-top:.0625rem solid #eee; font-size:.75rem; color:#777;">
+                  <p style="margin:0;">Copyright © 2025 Fábrica de Software CCT - Regional Quindío</p>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+`,
+    };
+
+    return new Promise((resolve, reject) => {
+        transporter.sendMail(mailOptions, (err, info) => {
+            if (err) {
+                console.error("Error al enviar el correo de estado de inscripción:", err);
+                reject(err);
+            } else {
+                console.log(`Correo de estado de inscripción (${status}) enviado:`, info.response);
+                resolve(info);
+            }
+        });
+    });
+};
+
 module.exports = {
 	sendEmail,
 	sendVerificationEmail,
@@ -1183,5 +1299,6 @@ module.exports = {
 	sendCursoUpdatedByManagerNotification,
 	emailTemplate,
 	logoAttachment,
-  sendProfileUpdateEmail
+  sendProfileUpdateEmail,
+  sendRegistrationStatusEmail
 };

@@ -6,6 +6,7 @@ const Usuario = require("../models/User");
 const Empresa = require("../models/empresa")
 const { json } = require("sequelize");
 const e = require("express");
+const {sendRegistrationStatusEmail} = require('../services/emailService')
 
 const crearOActualizarInscripcion = async (req, res) => {
   const { curso_ID, aprendiz_ID, nuevoEstado } = req.body;
@@ -230,7 +231,7 @@ const getAllInscripciones = async (req, res) => {
           const consult = await Usuario.findByPk(i.aprendiz_ID)
           const consult1 = await Empresa.findByPk(consult.dataValues.empresa_ID)
           return {
-            id : i.ID,
+            id : i.aprendiz_ID,
             nombres : consult.dataValues.nombres,
             apellidos : consult.dataValues.apellidos,
             empresa : consult1.dataValues.nombre_empresa,
@@ -250,8 +251,54 @@ const getAllInscripciones = async (req, res) => {
   }
 }
 
+const updateStatusInscripciones = async (req, res) =>{
+  try {
+    const {estadosP} = req.body
+    if (!estadosP || Object.keys(estadosP).length === 0) {
+      return res.status(400).json({
+      message: "No se encontraron los datos a actualizar"
+      });
+    }
+    const emails = await Promise.all(
+      estadosP.map(async (e) =>{
+       const consult = await Usuario.findByPk(e.id)
+        return {
+          nombre : consult.dataValues.nombres,
+          email : consult.dataValues.email,
+          estado : e.estado
+        }
+      })
+    )
+
+    await Promise.all(
+      estadosP.map(async (e) =>{
+        await InscripcionCurso.update(
+          {estado_inscripcion : e.estado},
+          {where : {aprendiz_ID : e.id}}
+        )
+      })
+    )
+   
+    await Promise.all(
+      emails.map((list)=>{
+        sendRegistrationStatusEmail(list.email, list.nombre, list.estado)
+      })
+    )
+    return res.status(200).json({
+      message : "Se actualizo el estado con exito"
+    })
+
+  } catch (error) {
+    console.error("No se logro actualizar el estado de la inscripcion", error)
+    return res.status(500).json({
+      message : "No se logro actualizar el estado de la inscripcion"
+    })
+  }
+}
+
 module.exports = {
   crearOActualizarInscripcion,
   inscripcionEmpleados,
-  getAllInscripciones
+  getAllInscripciones,
+  updateStatusInscripciones
 };

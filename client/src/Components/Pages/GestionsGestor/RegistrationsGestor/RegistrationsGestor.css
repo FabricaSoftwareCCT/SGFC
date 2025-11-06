@@ -1,7 +1,7 @@
 .registrations-container {
   background-color: #0f0f0f;
   min-height: 100vh;
-  padding: 20px;
+  padding: 40px;
   color: white;
   font-family: "Poppins", sans-serif;
 }
@@ -22,10 +22,13 @@
 }
 
 .registrations-card {
+  display: flex;
+  flex-direction: column;
   background-color: #1e1e1e;
   border-radius: 12px;
-  padding: 24px;
+  padding: 50px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  gap: 10px;
 }
 
 /* Header */
@@ -76,11 +79,19 @@
   flex-grow: 1;
 }
 
+.container-bulk-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
 /* Bulk actions */
 .bulk-actions {
   display: flex;
-  gap: 12px;
   align-items: center;
+  gap: 20px;
+  flex-grow: 1;
 }
 
 .bulk-btn {
@@ -125,16 +136,15 @@
   align-items: center;
 }
 
-.search-input {
-  background-color: #2c2c2c;
-  color: white;
-  border: 1px solid #444;
-  padding: 8px 12px;
-  border-radius: 6px;
+.search-input-1 {
+  width: 100%;
+  padding: 0.50rem;
+  border: 1px solid #414141;
+  border-radius: 8px;
+  background-color: #2a2a2a;
+  color: #fff;
   outline: none;
-  width: 200px;
-  font-size: 14px;
-  transition: border-color 0.2s;
+  font-size: 1rem;
 }
 
 .search-input:focus {
@@ -217,7 +227,8 @@ td {
 
 .registrations-card .status-badge.pendiente {
   background-color: rgba(251, 191, 36, 0.15);
-  color: #fbbf24 !important; /* !important para forzar el color */
+  color: #fbbf24 !important;
+  /* !important para forzar el color */
 }
 
 .registrations-card .status-badge.rechazado {
@@ -277,21 +288,21 @@ td {
   .card-header {
     flex-direction: column;
   }
-  
+
   .header-actions {
     align-items: stretch;
     width: 100%;
   }
-  
+
   .bulk-actions {
     justify-content: center;
     flex-wrap: wrap;
   }
-  
+
   .filters-row {
     justify-content: space-between;
   }
-  
+
   .search-input {
     width: 100%;
   }
@@ -301,11 +312,11 @@ td {
   .registrations-container {
     padding: 16px;
   }
-  
+
   .main-title {
     font-size: 2rem;
   }
-  
+
   .table-footer {
     flex-direction: column;
     text-align: center;

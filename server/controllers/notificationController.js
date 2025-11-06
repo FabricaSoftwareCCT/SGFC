@@ -289,8 +289,8 @@ const crearNotificacionInvitacionCursoInstructor = async (req, res) => {
 		// ["Miércoles-08:00","Lunes-08:00","Lunes-06:00"]
 		const mensaje = `
 			<p>Has recibido una invitación para dictar el curso: <strong>${curso.nombre_curso}</strong>.</p>
-			<p>Inicia el: <strong>${new Date(curso.fecha_inicio).toDateString()}</strong></p>
-			<p>Termina el: <strong>${new Date(curso.fecha_fin).toDateString()}</strong></p>
+			<p>Inicia el: <strong>${new Date(curso.fecha_inicio).toLocaleDateString("es-CO")}</strong></p>
+			<p>Termina el: <strong>${new Date(curso.fecha_fin).toLocaleDateString("es-CO")}</strong></p>
 			<p>Días de formación: <strong>${dias}</strong></p>
 			<p>Modalidad: <strong>${curso.modalidad}</strong></p>
 			<p>Horario: ${!curso.slots_formacion ? "<strong>Sin definir</strong>" : ""}</p>

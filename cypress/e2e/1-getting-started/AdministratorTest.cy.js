@@ -73,7 +73,7 @@ describe('Probar el modulo de administrador', ()=>{
 
     })
 
-    it.skip('Crear Curso',()=>{
+    it('Crear Curso',()=>{
         cy.visit("http://localhost:5173/") 
         cy.get(".button_signIn").first().click({force : true})
 
@@ -107,7 +107,7 @@ describe('Probar el modulo de administrador', ()=>{
         cy.get('.addDate').first().click()
 
         //Ingresar Fechas
-        cy.get('.organized-date-inputs').contains('label', 'Fecha inicio:').find('input[type="date"]').eq(0).type('2025-11-06')
+        cy.get('.organized-date-inputs').contains('label', 'Fecha inicio:').find('input[type="date"]').eq(0).type('2025-11-07')
         cy.get('.organized-date-inputs').contains('label', 'Fecha fin:').find('input[type="date"]').last().type('2025-11-24')
 
         //Seleccionar horario de curso
@@ -176,6 +176,7 @@ describe('Probar el modulo de administrador', ()=>{
         cy.get('.btn-eliminar').first().click({force:true})
     })
 
+
     it.skip('Ir a la sección de Gestiones(Crear Instructor)', ()=>{
         cy.visit("http://localhost:5173/") 
         cy.get(".button_signIn").first().click({force : true})
@@ -199,12 +200,12 @@ describe('Probar el modulo de administrador', ()=>{
         cy.get(".btn_createInstructor").click()
         
         //Llenar datos del instructor
-        cy.get('#modal-overlayCreateInstructor').find('.modal-left').contains('label', 'Nombres').first().find('input[type="text"]').type('Samuel')
-        cy.get('#modal-overlayCreateInstructor').find('.modal-left').contains('label', 'Apellidos').first().find('input[type="text"]').type('Rojas')
+        cy.get('#modal-overlayCreateInstructor').find('.modal-left').contains('label', 'Nombres').first().find('input[type="text"]').type('Joan')
+        cy.get('#modal-overlayCreateInstructor').find('.modal-left').contains('label', 'Apellidos').first().find('input[type="text"]').type('Hincapie')
         cy.get('#modal-overlayCreateInstructor').find('.modal-left').contains('label', 'Cédula').first().find('input[name="documento"]').type('8888889')
         cy.get('.modal-left').contains('label', 'Título').find('input[type="text"]').type('Instructor')
         cy.get('#modal-overlayCreateInstructor').find('.modal-left').contains('label', 'Celular').first().find('input[name="celular"]').type('3105557789')
-        cy.get('#modal-overlayCreateInstructor').find('.modal-left').contains('label', 'Email').first().find('input[type="email"]').type('dafar65911@fandoe.com')
+        cy.get('#modal-overlayCreateInstructor').find('.modal-left').contains('label', 'Email').first().find('input[type="email"]').type('hincapiefernandezjoan123@gmail.com')
         cy.get('#modal-overlayCreateInstructor').find('.status-container').contains('.status', 'Activo').first().click({force:true})
         cy.get('.modal-right').get('.save-button').first().click({force : true})
     })

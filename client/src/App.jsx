@@ -59,6 +59,7 @@ import { SeeAllCourseCriteria } from './Components/Pages/CriteriaManagment/SeeCo
 import { SeeCertificationHistorial } from './Components/Pages/CriteriaManagment/SeeCertificationHistorial/SeeCertificationHistorial';
 import { GestionUsuarios } from './Components/Pages/GestionUsuarios/GestionUsuarios';
 import { Historial } from './Components/Pages/Historial/Historial';
+import ReporteAsistenciaProgreso from './Components/Pages/GestionReporteAsistenciaProgreso/ReporteAsistenciaProgreso';
 
 // Crear un componente Layout que envuelva las páginas con Header y Footer
 const Layout = ({ children, setShowSignIn, setShowSignUp, setShowModalGeneral }) => {
@@ -321,6 +322,16 @@ function App() {
 							setShowModalGeneral={setShowModalGeneral}
 						>
 							<ReporteEstadisticas />
+						</Layout>
+					} />
+					{/* NUEVA RUTA: Reporte de Asistencia y Progreso */}
+					<Route path="/reportes/asistencia-progreso" element={
+						<Layout
+							setShowSignIn={setShowSignIn}
+							setShowSignUp={setShowSignUp}
+							setShowModalGeneral={setShowModalGeneral}
+						>
+							<ReporteAsistenciaProgreso />
 						</Layout>
 					} />
 

@@ -104,12 +104,35 @@ class ReporteService {
 			let cursos = []
 			
 			for (let curso of result?.cursos) {
+				let instructorRaw = null;
+				if (curso.Instructor) {
+					instructorRaw = curso.Instructor.dataValues || curso.Instructor.toJSON?.() || curso.Instructor;
+				}
+				
+				let nombreInstructor = 'Sin asignar';
+				if (instructorRaw) {
+					const nombres = instructorRaw.nombres || '';
+					const apellidos = instructorRaw.apellidos || '';
+					
+					if (nombres && apellidos) {
+						nombreInstructor = `${nombres} ${apellidos}`.trim();
+					} else if (nombres) {
+						nombreInstructor = nombres.trim();
+					} else if (apellidos) {
+						nombreInstructor = apellidos.trim();
+					}
+					
+					if (!nombreInstructor || nombreInstructor === '' || nombreInstructor.toLowerCase().includes('undefined')) {
+						nombreInstructor = 'Sin asignar';
+					}
+				}
+				
 				cursos.push({
 					id: curso.ID,
-					nombre_curso: curso.nombre_curso,
-					estado: curso.estado,
-					ficha: curso.ficha,
-					nombre_instructor: curso.Instructor?.dataValues?.nombres +" "+ curso.Instructor?.dataValues?.apellidos,
+					nombre_curso: curso.nombre_curso || 'Sin nombre',
+					estado: curso.estado || 'Sin estado',
+					ficha: curso.ficha || 'Sin ficha',
+					nombre_instructor: nombreInstructor,
 					empleados: await InscripcionCurso.count({
 						where: {
 							curso_ID: curso.ID

@@ -125,11 +125,17 @@ export default function ReporteEstadisticas() {
 		return datosCurso?.filter(curso => {
 			// Filtro por estado
 			const estadosSeleccionados = [];
-			if (filtros.estado.activo) estadosSeleccionados.push('activo');
-			if (filtros.estado.inactivo) estadosSeleccionados.push('inactivo');
+			if (filtros.estado.activo) estadosSeleccionados.push('activo', 'Activo');
+			if (filtros.estado.inactivo) estadosSeleccionados.push('inactivo', 'Inactivo');
 			
-			if (estadosSeleccionados.length > 0 && !estadosSeleccionados.includes(curso.estado)) {
-				return false;
+			if (estadosSeleccionados.length > 0) {
+				const estadoCurso = curso.estado?.toLowerCase() || '';
+				const coincideActivo = filtros.estado.activo && (estadoCurso === 'activo');
+				const coincideInactivo = filtros.estado.inactivo && (estadoCurso === 'inactivo');
+				
+				if (!coincideActivo && !coincideInactivo) {
+					return false;
+				}
 			}
 
 			// Filtro por rango de empleados
@@ -147,8 +153,12 @@ export default function ReporteEstadisticas() {
 			}
 
 			// Filtro por nombre del instructor
-			if (filtros.instructor && !curso.instructor.toLowerCase().includes(filtros.instructor.toLowerCase())) {
-				return false;
+			if (filtros.instructor && curso.instructor) {
+				const instructorLower = curso.instructor.toLowerCase();
+				const filtroLower = filtros.instructor.toLowerCase();
+				if (!instructorLower.includes(filtroLower)) {
+					return false;
+				}
 			}
 
 			// Si pasa todos los filtros, incluir el curso

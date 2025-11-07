@@ -72,46 +72,75 @@ export default function ReporteAsistenciaProgreso() {
       setFilterErrorMessage({ learner: '', course: '' });
       
       try {
-        if (filters.learnerId && filters.learnerId !== '') {
-          const response = await getCoursesByLearner(filters.learnerId);
+        const hasLearner = filters.learnerId && filters.learnerId !== '';
+        const hasCourse = filters.courseId && filters.courseId !== '';
+        
+        if (hasLearner) {
+          const coursesResponse = await getCoursesByLearner(filters.learnerId);
           
-          if (response.success && response.courses && response.courses.length > 0) {
-            setCourses(response.courses);
+          if (coursesResponse.success && coursesResponse.courses && coursesResponse.courses.length > 0) {
+            setCourses(coursesResponse.courses);
             setFilterErrorMessage(prev => ({ ...prev, course: '' }));
-            if (filters.courseId && !response.courses.find(c => {
-              const courseIdNum = parseInt(filters.courseId);
-              const cIdNum = parseInt(c.id);
-              return cIdNum === courseIdNum || c.id === filters.courseId;
-            })) {
-              setFilters(prev => ({ ...prev, courseId: '' }));
+            
+            if (hasCourse) {
+              const courseExists = coursesResponse.courses.some(c => {
+                const selectedCourseId = String(filters.courseId).trim();
+                const courseId = String(c.id).trim();
+                const selectedNum = Number(selectedCourseId);
+                const courseNum = Number(courseId);
+                return selectedCourseId === courseId || 
+                       (!isNaN(selectedNum) && !isNaN(courseNum) && selectedNum === courseNum);
+              });
+              
+              if (!courseExists) {
+                setFilters(prev => ({ ...prev, courseId: '' }));
+                setFilterErrorMessage(prev => ({ ...prev, course: 'Este curso no está disponible para el aprendiz seleccionado' }));
+              } else {
+                setFilterErrorMessage(prev => ({ ...prev, course: '' }));
+              }
             }
           } else {
             setCourses([]);
             setFilterErrorMessage(prev => ({ ...prev, course: 'Este aprendiz no está inscrito en ningún curso' }));
-            setFilters(prev => ({ ...prev, courseId: '' }));
+            if (hasCourse) {
+              setFilters(prev => ({ ...prev, courseId: '' }));
+            }
           }
         } else {
           setCourses(allCourses);
           setFilterErrorMessage(prev => ({ ...prev, course: '' }));
         }
 
-        if (filters.courseId && filters.courseId !== '') {
-          const response = await getLearnersByCourse(filters.courseId);
+        if (hasCourse) {
+          const learnersResponse = await getLearnersByCourse(filters.courseId);
           
-          if (response.success && response.learners && response.learners.length > 0) {
-            setLearners(response.learners);
+          if (learnersResponse.success && learnersResponse.learners && learnersResponse.learners.length > 0) {
+            setLearners(learnersResponse.learners);
             setFilterErrorMessage(prev => ({ ...prev, learner: '' }));
-            if (filters.learnerId && !response.learners.find(l => {
-              const learnerIdNum = parseInt(filters.learnerId);
-              const lIdNum = parseInt(l.id);
-              return lIdNum === learnerIdNum || l.id === filters.learnerId;
-            })) {
-              setFilters(prev => ({ ...prev, learnerId: '' }));
+            
+            if (hasLearner) {
+              const learnerExists = learnersResponse.learners.some(l => {
+                const selectedLearnerId = String(filters.learnerId).trim();
+                const learnerId = String(l.id).trim();
+                const selectedNum = Number(selectedLearnerId);
+                const learnerNum = Number(learnerId);
+                return selectedLearnerId === learnerId || 
+                       (!isNaN(selectedNum) && !isNaN(learnerNum) && selectedNum === learnerNum);
+              });
+              
+              if (!learnerExists) {
+                setFilters(prev => ({ ...prev, learnerId: '' }));
+                setFilterErrorMessage(prev => ({ ...prev, learner: 'Este aprendiz no está inscrito en el curso seleccionado' }));
+              } else {
+                setFilterErrorMessage(prev => ({ ...prev, learner: '' }));
+              }
             }
           } else {
             setLearners([]);
             setFilterErrorMessage(prev => ({ ...prev, learner: 'Este curso no tiene aprendices inscritos' }));
-            setFilters(prev => ({ ...prev, learnerId: '' }));
+            if (hasLearner) {
+              setFilters(prev => ({ ...prev, learnerId: '' }));
+            }
           }
         } else {
           setLearners(allLearners);
@@ -148,13 +177,13 @@ export default function ReporteAsistenciaProgreso() {
       if (value === '') {
         setFilters(prev => ({ learnerId: '', courseId: '', dateFrom: prev.dateFrom, dateTo: prev.dateTo }));
       } else {
-        setFilters(prev => ({ ...prev, learnerId: value, courseId: '' }));
+        setFilters(prev => ({ ...prev, learnerId: value }));
       }
     } else if (field === 'courseId') {
       if (value === '') {
         setFilters(prev => ({ learnerId: '', courseId: '', dateFrom: prev.dateFrom, dateTo: prev.dateTo }));
       } else {
-        setFilters(prev => ({ ...prev, courseId: value, learnerId: '' }));
+        setFilters(prev => ({ ...prev, courseId: value }));
       }
     } else {
       setFilters(prev => ({ ...prev, [field]: value }));

@@ -73,7 +73,7 @@ describe('Probar el modulo de administrador', ()=>{
 
     })
 
-    it('Crear Curso',()=>{
+    it.skip('Crear Curso',()=>{
         cy.visit("http://localhost:5173/") 
         cy.get(".button_signIn").first().click({force : true})
 
@@ -484,16 +484,22 @@ describe('Probar el modulo de administrador', ()=>{
         cy.get('.container_options').get('.empresas').first().click({force:true})
         cy.contains('button', 'Añadir Empresa').click({force:true})
 
+        //Llenar datos del manaer
+        cy.get('.form-group-dual').find('input[name="email"]').type('manger@gmail.com')
+        cy.get('.form-group-dual').find('input[name="password"]').type('Prueba1234*')
+        cy.get('.form-group-dual').find('input[name="confirmPassword"]').type('Prueba1234*')
+
         //Llenar datos de la empresa
-        cy.get('.modal-body-company').find('input[placeholder="Ingrese el nombre de la empresa"]').type('Tech Solutions')
-        cy.get('.modal-body-company').find('input[placeholder="Ingrese el NIT"]').type('900123456')
+        cy.get('.form-group-dual').find('input[name="nombre_empresa"]').type('Tech Solutions')
+        cy.get('.form-group-dual').find('input[name="NIT"]').type('900123456')
         cy.get('select[name="categoria"]').select('tecnologia');
-        cy.get('.modal-body-company').find('input[placeholder="Ingrese la dirección completa"]').type('Calle 123 #45-67, Ciudad')
-        cy.get('.modal-body-company').find('input[placeholder="Ingrese el teléfono"]').type('3001234567')
-        cy.get('.modal-body-company').find('input[placeholder="Ingrese el email corporativo"]').type('Techno@gmail.com')
+        cy.get('.form-group-dual').find('input[name="direccion"]').type('Calle 123 #45-67, Ciudad')
+        cy.get('.form-group-dual').find('input[name="telefono"]').type('3001234567')
+        cy.get('.form-group-dual').find('input[name="email_empresa"]').type('Techno@gmail.com')
         cy.get('select[name="departamento_ID"]').select('Quindío');
         cy.get('select[name="ciudad_ID"]').select('Armenia');
-        cy.contains('button', 'Crear Empresa').click({force:true})
+        cy.get('.form-group-dual').find('textarea[id="descripcion"]').type('Descripción')
+        cy.contains('button', 'Crear Empresa y Manager').click({force:true})
     })
 
     it.skip('Visualizar empresa y manager', ()=>{

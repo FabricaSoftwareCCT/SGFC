@@ -6,6 +6,8 @@ import { useNavigate } from "react-router-dom";
 import fotoPerfilDefect from "../../../../assets/Icons/userDefect.png";
 import { useModal } from "../../../../Context/ModalContext";
 import { validateEmail, validateNumber, validateText } from "../../../../utils/Validators/formValidator";
+import Swal from 'sweetalert2';
+import 'sweetalert2/themes/bulma.css'
 
 export const CreateGestor = ({ onClose }) => {
   // 1. Todos los Hooks al inicio del componente
@@ -111,7 +113,24 @@ export const CreateGestor = ({ onClose }) => {
     // Validar todos los campos antes de enviar
     const errors = validateFields();
     if (errors.length > 0) {
-      alert(`Por favor corrija los siguientes errores:\n\n${errors.join('\n')}`);
+      await Swal.fire({
+        icon: "warning",
+        title: "Campos requeridos",
+        html: `
+          <div style="text-align: left;">
+            <p>Por favor corrija los siguientes errores:</p>
+            <ul style="margin-top: 10px; padding-left: 20px;">
+              ${errors.map(error => `<li>${error}</li>`).join('')}
+            </ul>
+          </div>
+        `,
+        confirmButtonText: "Entendido",
+        confirmButtonColor: "#3085d6",
+        theme: "bulma", // Añadido tema Bulma
+        customClass: {
+          confirmButton: 'centered-swal-button'
+        }
+      });
       return;
     }
 
@@ -139,7 +158,18 @@ export const CreateGestor = ({ onClose }) => {
         },
       });
 
-      alert("Gestor creado con éxito");
+      await Swal.fire({
+        icon: "success",
+        title: "¡Éxito!",
+        text: "Gestor creado con éxito",
+        confirmButtonColor: "#3085d6",
+        timer: 3000,
+        timerProgressBar: true,
+        theme: "bulma", // Añadido tema Bulma
+        customClass: {
+          confirmButton: 'centered-swal-button'
+        }
+      });
       console.log(response.data);
 
       closeModalCreateGestor();
@@ -151,18 +181,63 @@ export const CreateGestor = ({ onClose }) => {
       if (error.response?.status === 400) {
         const errorMsg = error.response?.data?.message;
         if (errorMsg === "El correo ya está registrado.") {
-          alert("Error: El correo electrónico ya está registrado en el sistema. Por favor, use un correo diferente.");
+          await Swal.fire({
+            icon: "error",
+            title: "Error de correo",
+            text: "El correo electrónico ya está registrado en el sistema. Por favor, use un correo diferente.",
+            confirmButtonColor: "#d33",
+            theme: "bulma", // Añadido tema Bulma
+            customClass: {
+              confirmButton: 'centered-swal-button'
+            }
+          });
         } else if (errorMsg === "El documento ya está registrado.") {
-          alert("Error: El número de documento ya está registrado en el sistema. Por favor, verifique el documento.");
+          await Swal.fire({
+            icon: "error",
+            title: "Error de documento",
+            text: "El número de documento ya está registrado en el sistema. Por favor, verifique el documento.",
+            confirmButtonColor: "#d33",
+            theme: "bulma", // Añadido tema Bulma
+            customClass: {
+              confirmButton: 'centered-swal-button'
+            }
+          });
         } else {
-          alert(`Error: ${errorMsg}`);
+          await Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: errorMsg || "Ha ocurrido un error inesperado",
+            confirmButtonColor: "#d33",
+            theme: "bulma", // Añadido tema Bulma
+            customClass: {
+              confirmButton: 'centered-swal-button'
+            }
+          });
         }
       } else if (error.response?.status === 409) {
         const errorMsg = error.response?.data?.message;
-        alert(`Error: ${errorMsg}`);
+        await Swal.fire({
+          icon: "error",
+          title: "Conflicto",
+          text: errorMsg || "Ya existe un gestor con estos datos",
+          confirmButtonColor: "#d33",
+          theme: "bulma", // Añadido tema Bulma
+          customClass: {
+            confirmButton: 'centered-swal-button'
+          }
+        });
       } else {
         const errorMsg = error.response?.data?.message || "Hubo un problema al crear el gestor.";
-        alert(`Error: ${errorMsg}`);
+        await Swal.fire({
+          icon: "error",
+          title: "Error del sistema",
+          text: errorMsg,
+          confirmButtonColor: "#d33",
+          theme: "bulma", // Añadido tema Bulma
+          customClass: {
+            confirmButton: 'centered-swal-button'
+          }
+        });
       }
     }
   };

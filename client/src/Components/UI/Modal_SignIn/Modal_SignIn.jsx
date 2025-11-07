@@ -14,6 +14,8 @@ import { ForgotPassword } from "../../Pages/ForgotPassword/ForgotPassword";
 import { ResquestNewEmail } from "../../UI/RequestNewEmail/ResquestNewEmail";
 import axiosInstance from "../../../config/axiosInstance";
 import Loader from "../Loader/Loader";
+import Swal from 'sweetalert2';
+import 'sweetalert2/themes/bulma.css'
 
 export const Modal_SignIn = () => {
   const {
@@ -32,6 +34,24 @@ export const Modal_SignIn = () => {
   const [rememberSession, setRememberSession] = useState(false);
   const [hoveredButton, setHoveredButton] = useState("");
   const navigate = useNavigate();
+
+    const swalConfig = {
+    theme: 'bulma',
+    customClass: {
+      actions: 'swal2-center-actions'
+    },
+    buttonsStyling: false,
+    confirmButtonText: 'Aceptar',
+    confirmButtonColor: '#00843e',
+    showClass: {
+      popup: 'swal2-noanimation',
+      backdrop: 'swal2-noanimation'
+    },
+    hideClass: {
+      popup: '',
+      backdrop: ''
+    }
+  };
 
   const closeModalSignIn = () => setShowSignIn(false);
 
@@ -156,12 +176,33 @@ export const Modal_SignIn = () => {
       })
       .catch((error) => {
         if (error.response?.status === 400) {
-          alert("Usuario o contraseña incorrectos");
+ Swal.fire({
+            ...swalConfig,
+            icon: 'error',
+            title: 'Error de autenticación',
+            text: 'Usuario o contraseña incorrectos'
+    });
         } else if (error.response?.status === 403) {
-          alert("Por favor verifica tu correo antes de iniciar sesión");
+            Swal.fire({
+              icon:"error",
+              title:"Verificar cuenta",
+              text:"Por favor verifica tu correo antes de iniciar sesión",
+              confirmButtonText:"Okay",
+              confirmButtonColor:"#d33",
+              theme:"bulma",
+              customClass: {
+                actions: 'swal2-center-actions'
+                }
+
+            })
         } else {
-          alert("Ocurrió un error al iniciar sesión");
-        }
+            Swal.fire({
+              ...swalConfig,
+              icon:"error",
+              title:"Error al iniciar sesión",
+              text:"Ocurrió un error al iniciar sesión"
+            })
+          }
         setLoginning(false); // en caso de error también apagar loader
       });
   };
@@ -229,7 +270,14 @@ export const Modal_SignIn = () => {
         setLoginning(false);
       }
     } catch (error) {
-      alert('Error de red al intentar iniciar sesión.');
+  console.error("Error verificando perfil Google:", error);
+  
+  Swal.fire({
+    ...swalConfig,
+    icon: 'error',
+    title: 'Error del sistema',
+    text: 'Ocurrió un error al verificar el perfil de Google'
+  });
       setLoginning(false);
     }
   };

@@ -53,6 +53,16 @@
   font-size: 0.9rem;
 }
 
+.inputDateFilter{
+  background-color: #f3f3f3;
+  color: #1a1a1a;
+  font: 100% sans-serif;
+  display: flex;
+  border-radius: 10px;
+  width: auto;
+  height: auto;
+}
+
 /* Filas de la tabla - MISMA ESTRUCTURA que encabezados */
 .table-row.desktop-view {
   display: grid;

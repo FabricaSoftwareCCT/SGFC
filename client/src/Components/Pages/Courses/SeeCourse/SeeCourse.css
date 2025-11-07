@@ -136,7 +136,7 @@
   border-radius: 15px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
-  width: auto !important;
+  width: 38% !important;
   height: auto !important;
   overflow: visible !important;
 }
@@ -164,7 +164,7 @@
 .course-page-container .detail-row {
   display: flex;
   gap: 2rem;
-  width: auto !important;
+  width: 38% !important;
   height: auto !important;
 }
 

@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import "./UpdateGestor.css";
 import axiosInstance from "../../../../config/axiosInstance";
 import PropTypes from 'prop-types';
+import Swal from 'sweetalert2';
+import 'sweetalert2/themes/bulma.css'
 
 export const UpdateGestor = ({ gestor, onClose }) => {
 
@@ -114,7 +116,24 @@ export const UpdateGestor = ({ gestor, onClose }) => {
     // Validar todos los campos antes de enviar
     const errors = validateFields();
     if (errors.length > 0) {
-      alert(`Por favor corrija los siguientes errores:\n\n${errors.join('\n')}`);
+      await Swal.fire({
+        icon: "warning",
+        title: "Campos requeridos",
+        html: `
+          <div style="text-align: left;">
+            <p>Por favor corrija los siguientes errores:</p>
+            <ul style="margin-top: 10px; padding-left: 20px;">
+              ${errors.map(error => `<li>${error}</li>`).join('')}
+            </ul>
+          </div>
+        `,
+        confirmButtonText: "Entendido",
+        confirmButtonColor: "#3085d6",
+        theme: "bulma", // Añadido tema Bulma
+        customClass: {
+          confirmButton: 'centered-swal-button'
+        }
+      });
           return;
         }
 
@@ -145,7 +164,18 @@ export const UpdateGestor = ({ gestor, onClose }) => {
         }
       );
 
-      alert(response.data.message || 'Perfil actualizado');
+      await Swal.fire({
+        icon: "success",
+        title: "¡Éxito!",
+        text: response.data.message || "Perfil actualizado correctamente",
+        confirmButtonColor: "#3085d6",
+        timer: 3000,
+        timerProgressBar: true,
+        theme: "bulma", // Añadido tema Bulma
+        customClass: {
+          confirmButton: 'centered-swal-button'
+        }
+      });
       setIsEditing(false);
       window.location.reload();
       closeModalUpdateGestor();
@@ -156,16 +186,61 @@ export const UpdateGestor = ({ gestor, onClose }) => {
       if (error.response?.status === 400) {
         const errorMsg = error.response?.data?.message;
         if (errorMsg === "El correo electrónico ya está registrado.") {
-          alert("Error: El correo electrónico ya está registrado en el sistema. Por favor, use un correo diferente.");
+          await Swal.fire({
+            icon: "error",
+            title: "Error de correo",
+            text: "El correo electrónico ya está registrado en el sistema. Por favor, use un correo diferente.",
+            confirmButtonColor: "#d33",
+            theme: "bulma", // Añadido tema Bulma
+            customClass: {
+              confirmButton: 'centered-swal-button'
+            }
+          });
         } else if (errorMsg === "El documento ya está registrado.") {
-          alert("Error: El número de documento ya está registrado en el sistema. Por favor, verifique el documento.");
+          await Swal.fire({
+            icon: "error",
+            title: "Error de documento",
+            text: "El número de documento ya está registrado en el sistema. Por favor, verifique el documento.",
+            confirmButtonColor: "#d33",
+            theme: "bulma", // Añadido tema Bulma
+            customClass: {
+              confirmButton: 'centered-swal-button'
+            }
+          });
         } else if (errorMsg === "El número de celular ya está registrado.") {
-          alert("Error: El número de celular ya está registrado en el sistema. Por favor, use un número diferente.");
+          await Swal.fire({
+            icon: "error",
+            title: "Error de celular",
+            text: "El número de celular ya está registrado en el sistema. Por favor, use un número diferente.",
+            confirmButtonColor: "#d33",
+            theme: "bulma", // Añadido tema Bulma
+            customClass: {
+              confirmButton: 'centered-swal-button'
+            }
+          });
         } else {
-          alert(`Error: ${errorMsg}`);
+          await Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: errorMsg || "Ha ocurrido un error inesperado",
+            confirmButtonColor: "#d33",
+            theme: "bulma", // Añadido tema Bulma
+            customClass: {
+              confirmButton: 'centered-swal-button'
+            }
+          });
         }
       } else {
-      alert("Hubo un error al actualizar el perfil.");
+        await Swal.fire({
+          icon: "error",
+          title: "Error del sistema",
+          text: "Hubo un error al actualizar el perfil. Por favor, inténtelo de nuevo.",
+          confirmButtonColor: "#d33",
+          theme: "bulma", // Añadido tema Bulma
+          customClass: {
+            confirmButton: 'centered-swal-button'
+          }
+        });
       }
     }
   };

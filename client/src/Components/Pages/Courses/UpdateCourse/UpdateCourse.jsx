@@ -12,6 +12,8 @@ import debounce from "lodash.debounce";
 import buttonEdit from '../../../../assets/Icons/buttonEdit.png';
 import { useModal } from "../../../../Context/ModalContext";
 import { AssignInstructorCourse } from "../AssignInstructorCourse/AssignInstructorCourse";
+import Swal from "sweetalert2";
+import 'sweetalert2/themes/bulma.css'
 
 export const UpdateCourse = () => {
 	const navigate = useNavigate();
@@ -89,7 +91,19 @@ export const UpdateCourse = () => {
 					}
 				}
 			} catch (error) {
-				console.error("Error al obtener el curso:", error);
+				Swal.fire({
+					icon: 'error',
+					title: 'Error',
+					text: 'Error al cargar los datos del curso',
+					confirmButtonText: 'Entendido',
+					theme: "bulma",
+					customClass: {
+						confirmButton: 'button is-primary',
+						actions: 'swal2-actions-centered',
+						popup: 'swal2-popup-centered'
+					},
+					buttonsStyling: false
+				});
 			}
 		};
 
@@ -104,7 +118,19 @@ export const UpdateCourse = () => {
 	const handleUpdateCourse = async () => {
 		try {
 			if (curso.tipo_oferta === "Cerrada" && !empresaSeleccionada) {
-				alert("Por favor selecciona una empresa válida.");
+				await Swal.fire({
+					icon: 'warning',
+					title: 'Empresa requerida',
+					text: 'Por favor selecciona una empresa válida.',
+					confirmButtonText: 'Entendido',
+					theme: "bulma",
+					customClass: {
+						confirmButton: 'button is-primary',
+						actions: 'swal2-actions-centered',
+						popup: 'swal2-popup-centered'
+					},
+					buttonsStyling: false
+				});
 				return;
 			}
 
@@ -116,7 +142,19 @@ export const UpdateCourse = () => {
 
 			// Validar que el lugar de formación esté completo
 			if (!lugarFormacion.trim()) {
-				alert("Por favor ingresa el lugar de formación del curso.");
+				await Swal.fire({
+					icon: 'warning',
+					title: 'Lugar de formación requerido',
+					text: 'Por favor ingresa el lugar de formación del curso.',
+					confirmButtonText: 'Entendido',
+					theme: "bulma",
+					customClass: {
+						confirmButton: 'button is-primary',
+						actions: 'swal2-actions-centered',
+						popup: 'swal2-popup-centered'
+					},
+					buttonsStyling: false
+				});
 				return;
 			}
 
@@ -172,14 +210,50 @@ export const UpdateCourse = () => {
 			});
 
 			if (response.status === 200) {
-				alert("Curso actualizado con éxito");
+				await Swal.fire({
+					icon: 'success',
+					title: '¡Éxito!',
+					text: 'Curso actualizado con éxito',
+					confirmButtonText: 'Entendido',
+					theme: "bulma",
+					customClass: {
+						confirmButton: 'button is-primary',
+						actions: 'swal2-actions-centered',
+						popup: 'swal2-popup-centered'
+					},
+					buttonsStyling: false
+				});
 				navigate(`/Cursos/${id}`);
 			} else {
-				alert("Ocurrió un error al actualizar el curso");
+				await Swal.fire({
+					icon: 'error',
+					title: 'Error',
+					text: 'Ocurrió un error al actualizar el curso',
+					confirmButtonText: 'Entendido',
+					theme: "bulma",
+					customClass: {
+						confirmButton: 'button is-primary',
+						actions: 'swal2-actions-centered',
+						popup: 'swal2-popup-centered'
+					},
+					buttonsStyling: false
+				});
 			}
 		} catch (error) {
 			console.error("Error al actualizar el curso:", error);
-			alert("Ocurrió un error al actualizar el curso");
+			await Swal.fire({
+				icon: 'error',
+				title: 'Error',
+				text: 'Ocurrió un error al actualizar el curso',
+				confirmButtonText: 'Entendido',
+				theme: "bulma",
+				customClass: {
+					confirmButton: 'button is-primary',
+					actions: 'swal2-actions-centered',
+					popup: 'swal2-popup-centered'
+				},
+				buttonsStyling: false
+			});
 		}
 	};
 
@@ -211,6 +285,49 @@ export const UpdateCourse = () => {
 		setEmpresaNIT(empresa.NIT);
 		setShowResultados(false);
 	};
+
+		/*const handleEstadoChange = async (nuevoEstado) => {
+		if (curso.estado?.toLowerCase() !== nuevoEstado.toLowerCase()) {
+			let mensaje = '';
+			let titulo = '';
+
+			switch (nuevoEstado.toLowerCase()) {
+				case 'cancelado':
+					titulo = 'Cancelar curso';
+					mensaje = '¿Estás seguro de que deseas cancelar este curso? Esta acción no se puede deshacer.';
+					break;
+				case 'finalizado':
+					titulo = 'Finalizar curso';
+					mensaje = '¿Estás seguro de que deseas finalizar este curso? Esta acción no se puede deshacer.';
+					break;
+				default:
+					setCurso({ ...curso, estado: nuevoEstado });
+					return;
+			}
+
+			const result = await Swal.fire({
+				title: titulo,
+				text: mensaje,
+				icon: 'warning',
+				showCancelButton: true,
+				confirmButtonText: 'Sí',
+				cancelButtonText: 'Cancelar',
+				theme: "bulma",
+				customClass: {
+					confirmButton: 'button is-primary',
+					cancelButton: 'button is-light',
+					actions: 'swal2-actions-centered',
+					popup: 'swal2-popup-centered'
+				},
+				buttonsStyling: false,
+				reverseButtons: true
+			});
+
+			if (result.isConfirmed) {
+				setCurso({ ...curso, estado: nuevoEstado });
+			}
+		}
+	};*/
 
 	if (!curso) return <p>Cargando...</p>;
 
@@ -285,30 +402,64 @@ export const UpdateCourse = () => {
 									>
 										En oferta
 									</button>
-									<button 
-										className={`offer-button-cancel ${curso.estado?.toLowerCase() === "cancelado" ? "active" : ""}`}
-										onClick={(e) => {
-											e.preventDefault();
-											if (curso.estado?.toLowerCase() !== "cancelado") {
-												const confirmar = window.confirm("¿Estás seguro de que deseas cancelar este curso? Esta acción no se puede deshacer.");
-												if (confirmar) {
-													setCurso({ ...curso, estado: "Cancelado" });
-												}
+								<button 
+									className={`offer-button-cancel ${curso.estado?.toLowerCase() === "cancelado" ? "active" : ""}`}
+									onClick={async (e) => {
+										e.preventDefault();
+										if (curso.estado?.toLowerCase() !== "cancelado") {
+											const result = await Swal.fire({
+												icon: "warning",
+												title: "Cancelar curso",
+												text: "¿Estás seguro de que deseas cancelar este curso? Esta acción no se puede deshacer.",
+												showCancelButton: true,
+												confirmButtonText: 'Sí, cancelar',
+												cancelButtonText: 'No, mantener',
+												confirmButtonColor: '#d33',
+												cancelButtonColor: '#3085d6',
+												theme: "bulma",
+												customClass: {
+													confirmButton: 'button is-danger',
+													cancelButton: 'button is-light',
+													actions: 'swal2-actions-centered'
+												},
+												buttonsStyling: false
+											});
+
+											if (result.isConfirmed) {
+												setCurso({ ...curso, estado: "Cancelado" });
 											}
-										}}
-										type="button"
-										disabled={curso.estado?.toLowerCase() === "cancelado"}
-									>
-										Cancelado
-									</button>
+										}
+									}}
+									type="button"
+									disabled={curso.estado?.toLowerCase() === "cancelado"}
+								>
+									Cancelado
+								</button>
 									<button
 										className={`offer-button-cancel ${curso.estado?.toLowerCase() === "finalizado" ? "active" : ""}`}
-										onClick={(e) => {
+										onClick={async (e) => {
 											e.preventDefault();
 											if (curso.estado?.toLowerCase() !== "finalizado") {
-												const confirmar = window.confirm("¿Estás seguro de que deseas finalizar este curso? Esta acción no se puede deshacer.");
-												if (confirmar) {
-													setCurso({ ...curso, estado: "finalizado" });
+												const result = await Swal.fire({
+													icon: "question",
+													title: "Finalizar curso",
+													text: "¿Estás seguro de que deseas finalizar este curso? Esta acción no se puede deshacer.",
+													showCancelButton: true,
+													confirmButtonText: 'Sí, finalizar',
+													cancelButtonText: 'No, mantener',
+													confirmButtonColor: '#3085d6',
+													cancelButtonColor: '#d33',
+													theme: "bulma",
+													customClass: {
+														confirmButton: 'button is-primary',
+														cancelButton: 'button is-light',
+														actions: 'swal2-actions-centered'
+													},
+													buttonsStyling: false
+												});
+
+												if (result.isConfirmed) {
+													setCurso({ ...curso, estado: "Finalizado" });
 												}
 											}
 										}}

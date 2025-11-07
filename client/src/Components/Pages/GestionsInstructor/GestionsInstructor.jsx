@@ -5,6 +5,8 @@ import { Footer } from "../../../Components/Layouts/Footer/Footer";
 import { Main } from "../../../Components/Layouts/Main/Main";
 import { UpdateInstructor } from "./UpdateInstructor/UpdateInstructor";
 import axiosInstance from "../../../config/axiosInstance";
+import Swal from 'sweetalert2';
+import 'sweetalert2/themes/bulma.css'
 // import { useNavigate } from "react-router-dom";
 
 export const GestionsInstructor = () => {
@@ -36,7 +38,14 @@ export const GestionsInstructor = () => {
       setFilteredInstructors(response.data); // Inicialmente, los instructores filtrados son todos
     } catch (error) {
       console.error('Error al obtener los instructores:', error);
-      alert('Hubo un problema al cargar los instructores. Por favor, inténtalo más tarde.');
+      Swal.fire({
+        icon :"error",
+        title:"Error en el sistema",
+        text:"Hubo un problema al cargar los instructores. Por favor, inténtalo más tarde.",
+        confirmButtonText:"Okay",
+              theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+      })
     }
   };
 

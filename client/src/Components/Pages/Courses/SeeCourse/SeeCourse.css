@@ -1,497 +1,642 @@
-/* Reset específico para este componente */
-.course-page-container * {
-  width: auto !important;
-  height: auto !important;
-  margin: initial;
-  padding: initial;
-  box-sizing: border-box;
-}
+/* SeeCourse.css - Estilos consistentes con CreateCourse y UpdateCourse */
 
-/* Contenedor principal con fondo degradado - SIN SCROLL */
-.course-page-container {
-  position: relative;
-  width: 100% !important;
-  min-height: 100vh !important;
-  height: auto !important; /* Asegurar que no tenga altura fija */
+.see-course-container {
+  width: 80%;
+  margin: 0 auto;
   padding: 2rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  color: white;
-  box-sizing: border-box;
-  overflow: visible !important; /* Eliminar cualquier overflow */
+  min-height: calc(100vh - 120px);
+  overflow: hidden; /* Previene desbordamiento del contenedor principal */
 }
 
-/* Encabezado con fecha y título alineados */
-.course-page-container .course-header {
-  width: 100% !important;
-  max-width: 1200px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+/* Header más grande */
+.course-header {
+  background: rgba(0, 132, 61, 0.1);
+  border: 1px solid rgba(0, 200, 83, 0.3);
+  border-radius: 16px;
+  padding: 1.5rem 2rem;
   margin-bottom: 2rem;
-}
-
-.course-page-container .course-date {
-  font-size: 1.5rem;
-  color: rgba(255, 255, 255, 0.8);
-  font-weight: 300;
-  text-align: center;
-  margin-bottom: 1rem;
-  width: auto !important;
-  height: auto !important;
-}
-
-/* Contenido principal - SIN overflow */
-.course-page-container .course-content {
-  display: flex;
-  gap: 3rem;
-  width: 100% !important;
-  max-width: 1200px;
-  align-items: stretch;
-  overflow: visible !important; /* Eliminar overflow */
-  height: auto !important; /* Altura automática */
-}
-
-/* Sección izquierda - título + imagen */
-.course-page-container .course-left-section {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  gap: 2rem;
-  width: auto !important;
-  height: auto !important;
-  overflow: visible !important;
-}
-
-/* Título movido fuera de la sección izquierda y alineado con la fecha */
-.course-page-container .course-title {
-  font-size: 2.8rem;
-  font-weight: 300;
-  color: #00843d;
-  text-align: center;
-  margin: 0 0 1rem 0;
-  width: auto !important;
-  height: auto !important;
-}
-
-.course-page-container .course-title .highlight {
-  color: #00c26e;
-}
-
-/* Contenedor de imagen */
-.course-page-container .course-image-container {
-  flex: 1;
-  width: 100% !important;
-  min-height: 200px;
-  display: flex;
-  justify-content: center;
-  align-items: stretch;
-  overflow: visible !important;
-}
-
-.course-page-container .course-image {
-  width: 80% !important;
-  height: 80% !important;
-  object-fit: cover;
-  border-radius: 20px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-}
-
-.course-page-container .image-placeholder {
-  width: 100% !important;
-  height: 100% !important;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 2px dashed rgba(255, 255, 255, 0.3);
-  overflow: hidden; /* Solo overflow hidden para el placeholder */
-}
-
-.course-page-container .image-placeholder p {
-  color: rgba(255, 255, 255, 0.6);
-  font-size: 1.1rem;
-  width: auto !important;
-  height: auto !important;
-}
-
-/* Información del curso */
-.course-page-container .course-info {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-  width: auto !important;
-  height: auto !important;
-  overflow: visible !important;
-}
-
-.course-page-container .course-description {
-  background: rgba(255, 255, 255, 0.05);
-  padding: 2rem;
-  border-radius: 15px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
-  width: auto !important;
-  height: auto !important;
-  overflow: visible !important;
 }
 
-.course-page-container .course-description p {
-  font-size: 1.1rem;
-  line-height: 1.6;
-  color: rgba(255, 255, 255, 0.9);
-  margin: 0;
-  text-align: justify;
-  width: auto !important;
-  height: auto !important;
-}
-
-/* Grid de detalles */
-.course-page-container .course-details-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  width: auto !important;
-  height: auto !important;
-  overflow: visible !important;
-}
-
-.course-page-container .detail-row {
-  display: flex;
-  gap: 2rem;
-  width: auto !important;
-  height: auto !important;
-}
-
-.course-page-container .detail-item {
-  flex: 1;
+.header-content {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem 1.5rem;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  width: auto !important;
-  height: auto !important;
+  gap: 3rem;
 }
 
-.course-page-container .detail-label {
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 1rem;
+.header-content h1 {
+  color: #fff;
+  font-size: 2rem;
   font-weight: 400;
-  width: auto !important;
-  height: auto !important;
+  margin: 0;
 }
 
-.course-page-container .detail-value {
-  color: white;
+.header-content h1 span {
+  color: #00c853;
   font-weight: 500;
-  font-size: 1rem;
-  width: auto !important;
-  height: auto !important;
 }
 
-.course-page-container .detail-status {
-  color: #00843d;
+.ficha-container {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 1rem 1.5rem;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 200, 83, 0.2);
+}
+
+.ficha-container label {
+  color: #b0b0b0;
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.ficha-number {
+  color: #00c853;
+  font-size: 1.2rem;
   font-weight: 600;
+  text-align: center;
+  width: 100px;
+}
+
+/* Layout principal más espacioso - CORREGIDO PARA EVITAR DESBORDAMIENTO */
+.course-grid {
+  display: grid;
+  grid-template-columns: 0.5fr 1fr 0.8fr;
+  gap: 2rem;
+  align-items: start;
+  max-width: 100%;
+  overflow: visible;
+}
+
+/* Columna izquierda - Más grande */
+.side-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.image-section {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  padding: 1.5rem;
+  text-align: center;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.course-preview-image {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 12px;
+  max-width: 100%;
+}
+
+.image-placeholder {
+  width: 100%;
+  height: 200px;
+  border: 2px dashed rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.02);
+  max-width: 100%;
+}
+
+.image-placeholder p {
+  color: #b0b0b0;
+  font-size: 0.95rem;
+}
+
+.quick-info {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  padding: 1.5rem;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.info-item {
+  margin-bottom: 1.2rem;
+  max-width: 100%;
+}
+
+.info-item:last-child {
+  margin-bottom: 0;
+}
+
+.info-item label {
+  display: block;
+  color: #b0b0b0;
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+
+.info-value {
+  width: 100%;
+  height: 2.8rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  padding: 0 1rem;
+  color: #fff;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.schedule-btn {
+  width: 100%;
+  height: 3.2rem;
+  background: rgba(0, 200, 83, 0.1);
+  border: 2px dashed #00c853;
+  border-radius: 8px;
+  color: #00c853;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+  margin-top: 1rem;
+  transition: all 0.2s;
+  max-width: 100%;
+}
+
+.schedule-btn:hover {
+  background: rgba(0, 200, 83, 0.15);
+  border-color: #00e676;
+}
+
+.schedule-btn img {
+  width: 20px;
+  height: 20px;
+}
+
+/* Columna central - CORREGIDA PARA EVITAR DESBORDAMIENTO */
+.main-info {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+  max-width: 100%;
+  overflow: hidden; /* Previene desbordamiento */
+  word-wrap: break-word; /* Asegura que el texto se ajuste */
+}
+
+.info-section {
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.info-section label {
+  display: block;
+  color: #b0b0b0;
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  margin-bottom: 0.6rem;
+  letter-spacing: 0.5px;
+  max-width: 100%;
+}
+
+.course-name-value {
+  width: 100%;
+  height: 3rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  padding: 0 1.2rem;
+  color: #fff;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* DESCRIPCIÓN CORREGIDA - Ahora tiene saltos de línea y scroll vertical */
+.description-text {
+  width: 100%;
+  min-height: 150px;
+  max-height: 200px; /* Altura máxima para evitar que crezca demasiado */
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  padding: 1rem 1.2rem;
+  color: #fff;
+  font-size: 1rem;
+  line-height: 1.5;
+  overflow-y: auto; /* Solo scroll vertical */
+  overflow-x: hidden; /* Elimina scroll horizontal */
+  word-wrap: break-word; /* Rompe palabras largas */
+  white-space: pre-line; /* Respeta saltos de línea y ajusta el texto */
+  word-break: break-word; /* Asegura que las palabras se rompan si es necesario */
+  resize: none; /* Evita que el usuario pueda redimensionar */
+}
+
+/* Personalizar el scrollbar de la descripción */
+.description-text::-webkit-scrollbar {
+  width: 6px;
+}
+
+.description-text::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 3px;
+}
+
+.description-text::-webkit-scrollbar-thumb {
+  background: #00c853;
+  border-radius: 3px;
+}
+
+.description-text::-webkit-scrollbar-thumb:hover {
+  background: #00e676;
+}
+
+.details-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.detail-group {
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.detail-group label {
+  display: block;
+  color: #b0b0b0;
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  margin-bottom: 0.8rem;
+  letter-spacing: 0.5px;
+  max-width: 100%;
+}
+
+.detail-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  max-width: 100%;
+}
+
+.detail-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.detail-item.full-width {
+  grid-column: 1 / -1;
+}
+
+.detail-label {
+  color: #b0b0b0;
+  font-size: 0.9rem;
+  font-weight: 500;
+  flex-shrink: 0; /* Evita que se encoja demasiado */
+}
+
+.detail-value {
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 500;
+  text-align: right;
+  flex: 1;
+  margin-left: 1rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Estados del curso */
+.status-activo {
+  color: #00c853;
+}
+
+.status-en-oferta {
+  color: #ffd700;
+}
+
+.status-cancelado {
+  color: #ff6b6b;
+}
+
+.status-finalizado {
+  color: #b0b0b0;
+}
+
+/* Columna derecha - Más grande */
+.side-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+/* Temario más grande */
+.syllabus-section {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  padding: 1.5rem;
+  flex: 1;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.syllabus-section label {
+  display: block;
+  color: #b0b0b0;
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+  letter-spacing: 0.5px;
+  max-width: 100%;
+}
+
+.syllabus-list {
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  max-height: 300px;
+  overflow-y: auto;
+  max-width: 100%;
+}
+
+.syllabus-header {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  background: rgba(0, 200, 83, 0.1);
+  padding: 0.8rem 1rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #00e676;
+  border-bottom: 1px solid rgba(0, 200, 83, 0.2);
+  letter-spacing: 0.5px;
+  max-width: 100%;
+}
+
+.syllabus-item {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  align-items: center;
+  padding: 0.8rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  font-size: 0.9rem;
+  transition: all 0.2s;
+  max-width: 100%;
+  word-wrap: break-word;
+}
+
+.syllabus-item:hover {
+  background: rgba(0, 200, 83, 0.05);
+}
+
+.syllabus-date {
+  color: #00e676;
+  font-weight: 500;
+}
+
+.syllabus-topic {
+  padding-right: 1rem;
+  line-height: 1.4;
+  word-wrap: break-word;
+  white-space: normal;
+  overflow: hidden;
+}
+
+.empty-syllabus {
+  text-align: center;
+  padding: 2.5rem;
+  color: #b0b0b0;
+  font-style: italic;
+  font-size: 0.9rem;
+  background: rgba(255, 255, 255, 0.01);
+  border-radius: 8px;
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+  max-width: 100%;
 }
 
 /* Botones de acción */
-.course-page-container .action-buttons {
+.action-buttons {
   display: flex;
+  flex-direction: column;
   gap: 1rem;
-  margin-top: 1rem;
-  width: auto !important;
-  height: auto !important;
-  flex-wrap: wrap;
+  max-width: 100%;
 }
 
-/* Estilos base para todos los botones con iconos */
-.course-page-container .calendar-btn,
-.course-page-container .material-btn {
+.material-btn, .edit-btn, .request-btn, .enroll-btn, .manage-btn {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 1rem 1.5rem;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(0, 131, 61, 0.4);
-  border-radius: 12px;
-  color: white;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
-  width: auto !important;
-  height: auto !important;
-  text-decoration: none;
-}
-
-.course-page-container .calendar-btn:hover{
-  background: rgba(0, 131, 61, 0.3);
-  border-color: #039e4c;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 20px rgba(0, 196, 110, 0.2)
-}
-
-/* Iconos de los botones */
-.course-page-container .calendar-icon,
-.course-page-container .material-icon {
-  font-size: 1.2rem;
-  width: auto !important;
-  height: auto !important;
-}
-
-/* Estilos específicos para el botón de material */
-.course-page-container .material-btn {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(0, 131, 61, 0.4);
-}
-
-.course-page-container .material-btn:hover {
-  background: rgba(0, 131, 61, 0.3);
-  border-color: #039e4c;
-  box-shadow: 0 4px 20px rgba(0, 196, 110, 0.2);
-  transform: translateY(-2px);
-}
-
-/* Estilo para la imagen del icono dentro de los botones */
-.course-page-container .btn-icon {
-  width: 20px !important;
-  height: 20px !important;
-  object-fit: contain;
-  filter: brightness(0) invert(1); 
-}
-
-/* Botones de edición/solicitud/gestionar */
-.course-page-container .edit-btn {
-  padding: 1rem 2rem;
-  background: #00843d;
-  border: none;
-  border-radius: 12px;
-  color: white;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  width: auto !important;
-  height: auto !important;
-}
-
-.inscribe-btn {
-  padding: 1rem 2rem;
-  background: #006f2c;
-  border: none;
-  border-radius: 12px;
-  color: white;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  width: auto !important;
-  height: auto !important;
-}
-
-.course-page-container .edit-btn:hover {
-  background: #00c26e;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 20px rgba(0, 196, 110, 0.3);
-}
-
-/* Modal para el material */
-.course-page-container .modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.7);
-  display: flex;
   justify-content: center;
-  align-items: center;
-  z-index: 1000;
-  backdrop-filter: blur(5px);
-}
-
-.course-page-container .modal-content {
-  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-  padding: 2.5rem;
-  border-radius: 20px;
-  max-width: 600px;
-  width: 90%;
-  max-height: 80vh;
-  overflow-y: auto;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-}
-
-.course-page-container .modal-content h2 {
-  margin-bottom: 1.5rem;
-  color: #00c26e;
-  font-size: 1.8rem;
-  font-weight: 300;
-  text-align: center;
-  width: auto !important;
-  height: auto !important;
-}
-
-.course-page-container .modal-content p {
-  color: rgba(255, 255, 255, 0.8);
-  line-height: 1.6;
-  margin-bottom: 2rem;
-  text-align: center;
-  width: auto !important;
-  height: auto !important;
-}
-
-.course-page-container .modal-content button {
-  padding: 0.8rem 2rem;
-  background: #00843d;
-  color: white;
+  gap: 0.8rem;
+  padding: 1rem 1.5rem;
   border: none;
   border-radius: 8px;
-  cursor: pointer;
-  font-size: 1rem;
+  color: #000;
+  font-size: 0.95rem;
   font-weight: 500;
-  transition: all 0.3s ease;
-  display: block;
-  margin: 0 auto;
-  width: auto !important;
-  height: auto !important;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
-.course-page-container .modal-content button:hover {
-  background: #00c26e;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 20px rgba(0, 196, 110, 0.3);
+.material-btn {
+  background: rgba(0, 200, 83, 0.1);
+  border: 2px dashed #00c853;
+  color: #00c853;
 }
 
-/* Responsividad */
+.material-btn:hover {
+  background: rgba(0, 200, 83, 0.15);
+  border-color: #00e676;
+}
+
+.edit-btn {
+  background: #00c853;
+}
+
+.edit-btn:hover {
+  background: #00e676;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 200, 83, 0.3);
+}
+
+.request-btn, .enroll-btn {
+  background: #ffd700;
+  color: #000;
+}
+
+.request-btn:hover, .enroll-btn:hover {
+  background: #ffed4a;
+  transform: translateY(-1px);
+}
+
+.manage-btn {
+  background: #007bff;
+  color: #fff;
+}
+
+.manage-btn:hover {
+  background: #0056b3;
+  transform: translateY(-1px);
+}
+
+.btn-icon {
+  width: 20px;
+  height: 20px;
+  filter: brightness(0) invert(1);
+}
+
+.material-btn .btn-icon {
+  filter: brightness(0) invert(0.7);
+}
+
+/* Responsive */
+@media (max-width: 1400px) {
+  .course-grid {
+    grid-template-columns: 300px 1fr 350px;
+    gap: 1.5rem;
+  }
+}
+
+@media (max-width: 1200px) {
+  .course-grid {
+    grid-template-columns: 280px 1fr 320px;
+    gap: 1.5rem;
+  }
+}
+
 @media (max-width: 1024px) {
-  .course-page-container .course-content {
-    flex-direction: column;
-    align-items: center;
-    gap: 2rem;
-  }
-  
-  .course-page-container .course-left-section {
-    width: 100% !important;
-    max-width: 500px;
-  }
-  
-  .course-page-container .course-image-container {
-    min-height: 300px;
-  }
-  
-  .course-page-container .detail-row {
-    flex-direction: column;
-    gap: 1rem;
-  }
-}
-
-@media (max-width: 768px) {
-  .course-page-container {
-    padding: 1rem;
-  }
-  
-  .course-page-container .course-title {
-    font-size: 2.2rem;
-  }
-  
-  .course-page-container .course-date {
-    font-size: 1.2rem;
-  }
-  
-  .course-page-container .course-content {
+  .course-grid {
+    grid-template-columns: 1fr;
     gap: 1.5rem;
   }
   
-  .course-page-container .course-description {
+  .side-panel {
+    order: 2;
+  }
+  
+  .main-info {
+    order: 1;
+  }
+  
+  .side-actions {
+    order: 3;
+  }
+  
+  .see-course-container {
     padding: 1.5rem;
+    width: 90%;
   }
   
-  .course-page-container .action-buttons {
-    flex-direction: column;
-  }
-  
-  .course-page-container .calendar-btn,
-  .course-page-container .material-btn,
-  .course-page-container .edit-btn {
-    width: 100% !important;
-    justify-content: center;
-  }
-  
-  .course-page-container .modal-content {
-    padding: 2rem;
-    margin: 1rem;
+  .detail-pair {
+    grid-template-columns: 1fr;
   }
 }
 
-@media (max-width: 480px) {
-  .course-page-container .course-title {
+@media (max-width: 768px) {
+  .see-course-container {
+    padding: 1rem;
+    width: 95%;
+  }
+  
+  .header-content {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  
+  .header-content h1 {
     font-size: 1.8rem;
   }
   
-  .course-page-container .course-image-container {
-    min-height: 250px;
+  .syllabus-header,
+  .syllabus-item {
+    grid-template-columns: 1fr;
   }
   
-  .course-page-container .course-description p {
-    font-size: 1rem;
+  .syllabus-header {
+    display: none;
   }
   
-  .course-page-container .detail-item {
-    padding: 0.8rem 1rem;
+  .course-preview-image {
+    height: 180px;
   }
   
-  .course-page-container .detail-label,
-  .course-page-container .detail-value {
-    font-size: 0.9rem;
-  }
-  
-  .course-page-container .modal-content {
-    padding: 1.5rem;
-  }
-  
-  .course-page-container .modal-content h2 {
-    font-size: 1.5rem;
-  }
-}
-
-/* Estilos para mantener compatibilidad con componentes existentes */
-.course-page-container .manageAttendance {
-  padding: 1rem 2rem;
-  background: #00c26e;
-  border: none;
-  border-radius: 12px;
-  color: white;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  width: auto !important;
-  height: auto !important;
-}
-
-.course-page-container .manageAttendance:hover {
-  background: #00a65a;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 20px rgba(0, 196, 110, 0.3);
-}
-/* Separación superior para móviles */
-@media (max-width: 768px) {
-  .course-page-container {
-    padding-top: 3rem !important;
+  .description-text {
+    max-height: 150px;
+    font-size: 0.95rem;
   }
 }
 
 @media (max-width: 480px) {
-  .course-page-container {
-    padding-top: 2rem !important;
+  .see-course-container {
+    padding: 0.8rem;
+    width: 98%;
+  }
+  
+  .course-header {
+    padding: 1.2rem;
+  }
+  
+  .header-content h1 {
+    font-size: 1.5rem;
+  }
+  
+  .ficha-container {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .action-buttons {
+    gap: 0.8rem;
+  }
+  
+  .material-btn, .edit-btn, .request-btn, .enroll-btn, .manage-btn {
+    padding: 0.8rem 1rem;
+    font-size: 0.9rem;
+  }
+  
+  .description-text {
+    max-height: 120px;
+    padding: 0.8rem 1rem;
+    font-size: 0.9rem;
   }
 }

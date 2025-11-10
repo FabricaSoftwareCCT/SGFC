@@ -497,6 +497,22 @@ export const Header = ({
 								<button
 									className={
 										location.pathname.startsWith(
+											"/reportes/asistencia-progreso"
+										)
+											? "active"
+											: ""
+									}
+									onClick={() =>
+										handleMenuClick(
+											"/reportes/asistencia-progreso"
+										)
+									}
+								>
+									Asistencia y Progreso
+								</button>
+								<button
+									className={
+										location.pathname.startsWith(
 											"/Gestiones/Actas"
 										)
 											? "active"

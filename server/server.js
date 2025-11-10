@@ -114,7 +114,11 @@ async function startServer() {
     notificationController.setDb(db);
     certificationCriteriaController.setDb(db);
     materialController.setDb(db);
-    historialController.setDb(db)
+    historialController.setDb(db);
+    
+    // Inicializar ReportRepository con la instancia de la base de datos
+    const { setDb: setReportDb } = require('./Repository/ReportRepository');
+    setReportDb(db);
 
     // Montar rutas de ubicaciones con acceso a la DB
     const ubicacionesRoutes = ubicacionesRoutesFactory(db);

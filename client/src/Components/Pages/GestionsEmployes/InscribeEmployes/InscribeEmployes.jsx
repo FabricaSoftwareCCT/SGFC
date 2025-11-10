@@ -1,99 +1,119 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import "./InscribeEmployes.css"
 import { Header } from "../../../../Components/Layouts/Header/Header"
 import { Footer } from "../../../../Components/Layouts/Footer/Footer"
 import { Main } from "../../../../Components/Layouts/Main/Main"
 import { Modal_Inscripcion } from "../../../UI/Modal_Inscripcion/Modal_Inscripcion"
-
+import axiosInstance from "../../../../config/axiosInstance"
 
 export const InscribeEmployes = () => {
   const [selectedEmployees, setSelectedEmployees] = useState([])
   const [currentPage, setCurrentPage] = useState(1)
   const [employeesPerPage] = useState(5) 
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [selectedCourse, setSelectedCourse] = useState(null);
   const navigate = useNavigate()
+  const userSessionString = localStorage.getItem("userSession") || sessionStorage.getItem("userSession")
   
-  // Datos de ejemplo 
-  const [employes] = useState([
-    {
-      ID: 1,
-      nombres: "Juan",
-      apellidos: "Pérez",
-      documento: "12345678",
-      email: "juan@empresa.com",
-      estado: "activo",
-      Empresa: { nombre_empresa: "Empresa A" },
-      foto_perfil: null
-    },
-    {
-      ID: 2,
-      nombres: "María",
-      apellidos: "González",
-      documento: "87654321",
-      email: "maria@empresa.com",
-      estado: "activo",
-      Empresa: { nombre_empresa: "Empresa A" },
-      foto_perfil: null
-    },
-    {
-      ID: 3,
-      nombres: "Carlos",
-      apellidos: "López",
-      documento: "11223344",
-      email: "carlos@empresa.com",
-      estado: "inactivo",
-      Empresa: { nombre_empresa: "Empresa B" },
-      foto_perfil: null
-    },
-    {
-      ID: 4,
-      nombres: "Ana",
-      apellidos: "Martínez",
-      documento: "55667788",
-      email: "ana@empresa.com",
-      estado: "activo",
-      Empresa: { nombre_empresa: "Empresa A" },
-      foto_perfil: null
-    },
-    {
-      ID: 5,
-      nombres: "Pedro",
-      apellidos: "Rodríguez",
-      documento: "99887766",
-      email: "pedro@empresa.com",
-      estado: "activo",
-      Empresa: { nombre_empresa: "Empresa C" },
-      foto_perfil: null
-    },
-    {
-      ID: 6,
-      nombres: "Laura",
-      apellidos: "García",
-      documento: "33445566",
-      email: "laura@empresa.com",
-      estado: "inactivo",
-      Empresa: { nombre_empresa: "Empresa B" },
-      foto_perfil: null
-    },
-    {
-      ID: 7,
-      nombres: "Diego",
-      apellidos: "Hernández",
-      documento: "77889900",
-      email: "diego@empresa.com",
-      estado: "activo",
-      Empresa: { nombre_empresa: "Empresa A" },
-      foto_perfil: null
-    }
-  ])
+  const [employes, setEmployes] = useState([])
 
   const handleContinue = () => {
-		setShowCreateModal(true);
-	};
+    setShowCreateModal(true);
+  };
+
   const handleCloseModal = () => {
-		setShowCreateModal(false);
-	};
+    setShowCreateModal(false);
+  };
+
+  const handleCursosSeleccionados = (cursos) => {
+    if (cursos && cursos.length > 0) {
+      const curso = cursos[0];
+      setSelectedCourse(curso);
+      
+      handleInscripcion(curso);
+    }
+  };
+
+  // Función para manejar la inscripción al backend
+  const handleInscripcion = async (curso) => {
+    if (!curso || selectedEmployees.length === 0) {
+      alert('No hay curso seleccionado o empleados seleccionados');
+      return;
+    }
+
+    try {
+      const curso_ID = curso.ID || curso.id;
+
+      const empleados = selectedEmployees.map(id => ({
+        ID: id
+      }));
+
+      const response = await axiosInstance.post("/api/courses/inscripcionEmpleados", {
+        empleados,
+        curso_ID
+      });
+
+      // Verificar si hay empleados que no se pudieron inscribir
+      if (response.data.noInscritos && response.data.noInscritos.length > 0) {
+        const hayConflictos = response.data.noInscritos.some(emp => emp.verificar === true);
+        
+        if (hayConflictos) {
+          // Mostrar mensaje específico para los empleados con conflictos
+          const empleadosConConflictos = response.data.noInscritos
+            .filter(emp => emp.verificar === true)
+            .map(emp => `${emp.nombre || ''} ${emp.apellidos || ''}`.trim())
+            .filter(nombre => nombre !== '');
+
+          if (empleadosConConflictos.length > 0) {
+            const mensaje = `Se inscribieron los empleados, sin embargo los siguientes empleados tienen cursos con los mismos horarios de formación y no se pudieron inscribir:\n\n${empleadosConConflictos.join('\n')}`;
+            alert(mensaje);
+          } else {
+            alert("Se inscribieron algunos empleados, pero hubo conflictos de horario con algunos empleados.");
+          }
+        } else {
+          // Inscripción exitosa sin conflictos
+          alert(`✅ Inscripción exitosa para ${selectedEmployees.length} empleados en el curso "${curso.nombre_curso}"`);
+        }
+      } else {
+        // Todos los empleados se inscribieron correctamente
+        alert(`✅ Inscripción exitosa para ${selectedEmployees.length} empleados en el curso "${curso.nombre_curso}"`);
+      }
+
+      // Limpiar selecciones después de la inscripción
+      setSelectedEmployees([]);
+      setSelectedCourse(null);
+
+    } catch (error) {
+      console.error("Error al realizar la inscripción:", error);
+      
+      let errorMessage = "Hubo un error al realizar la inscripción";
+      if (error.response && error.response.data && error.response.data.message) {
+        errorMessage = error.response.data.message;
+      }
+      
+      alert(errorMessage);
+    }
+  };
+
+  const fetchEmpleados = async () => {
+    try {
+      const userSession = JSON.parse(userSessionString)
+      const empresaId = userSession.empresa_ID
+      
+      const response = await axiosInstance.get(`/api/users/empresa/${empresaId}/empleados`)
+      const data = response.data || {}
+      const empleados = data.empleados || []
+      setEmployes(empleados)
+    } catch (error) {
+      console.error(error)
+      alert("No se logro cargar los empleados")
+    }
+  }
+
+  useEffect(() => {
+    fetchEmpleados()
+  }, [])
 
   // Calcular empleados para la página actual
   const indexOfLastEmployee = currentPage * employeesPerPage
@@ -179,6 +199,16 @@ export const InscribeEmployes = () => {
             Inscribir <span className="complementary">Empleados a Cursos</span>
           </h2>
 
+          {/* Mostrar información del curso seleccionado */}
+          {selectedCourse && (
+            <div className="selected-course-info">
+              <h3>Curso seleccionado: {selectedCourse.nombre_curso}</h3>
+              {selectedCourse.cupos_disponibles && (
+                <p>Cupos disponibles: {selectedCourse.cupos_disponibles}</p>
+              )}
+            </div>
+          )}
+
           <div className="containerGestionsEmployeOptions">
             <div className="containerConsultEmploye">
               <p>Seleccione uno o varios empleados para inscribirlos en cursos:</p>
@@ -206,14 +236,10 @@ export const InscribeEmployes = () => {
               </div>
               <button 
                 className="btn-continue"
-                onClick={handleAddCompany}
+                onClick={handleContinue}
+                disabled={selectedEmployees.length === 0}
               >
-                Continuar
-              </button>
-              <button className="btn-continue"
-                      onClick={handleContinue}
-                      disabled={selectedEmployees.length === 0}>
-                Continuar
+                {selectedCourse ? "Cambiar Curso" : "Seleccionar Curso"}
               </button>   
             </div>
              
@@ -284,9 +310,6 @@ export const InscribeEmployes = () => {
                                 </div>
                                 
                                 <div className="employee-secondary-info">
-                                  <p>
-                                    <strong>Empresa:</strong> {employe.Empresa?.nombre_empresa || "Sin empresa"}
-                                  </p>
                                   <div className="estado-wrapper">
                                     <strong>Estado:</strong>
                                     <span className={`status-badge ${employe.estado || "inactivo"}`}>
@@ -342,11 +365,11 @@ export const InscribeEmployes = () => {
       </Main>
       <Footer />
       {showCreateModal && (
-              <CreateEmpresa onClose={handleCloseModal} onCompanyCreated={() => {
-                fetchEmpresas()
-              }} />
-            )}
+        <Modal_Inscripcion 
+          onClose={handleCloseModal} 
+          onCursosSeleccionados={handleCursosSeleccionados}
+        />
+      )}
     </>
-
   )
 }

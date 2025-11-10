@@ -86,21 +86,21 @@ const crearOActualizarInscripcion = async (req, res) => {
 
 const inscripcionEmpleados = async (req, res ) => {
     try{
-      const {empleados, curso_ID, gestor_ID} = req.body;
+      const {empleados, curso_ID} = req.body;
+      
       let verificarCursos= {}
-
-      if (Object.keys(empleados).length < 0) {
+      if (!empleados === 0 || Object.keys(empleados).length === 0) {
         return res.status(400).json({
           message : 'No se enviaron bien los datos de los empleados'
         })
       }
-
-      if (!curso_ID || !gestor_ID) {
+      
+      if (!curso_ID) {
         return res.status(400).json({
           message : 'No envio el curso o el gestor'
         })
       }
-
+    
       const curso = await Curso.findByPk(curso_ID, {
         attributes : ['slots_formacion']
       })
@@ -118,7 +118,7 @@ const inscripcionEmpleados = async (req, res ) => {
             return consult
         })
       )
-     
+      
       if (aprendices.length < 0) {
           return res.status(400).json({
             message : 'No se encontraron los empleados'
@@ -155,11 +155,13 @@ const inscripcionEmpleados = async (req, res ) => {
         verificarCursos = await Promise.all(
         horiarioCursos.map(async (h) =>{
           const horarios = JSON.parse(h.horarios)
-
+          const consultName = await Usuario.findByPk(h.ID)
           const verificar = horarios.some(h => arrayCurso.includes(h))
           
           return {
             ID : h.ID,
+            nombre : consultName.dataValues.nombres,
+            apellidos : consultName.dataValues.apellidos,
             verificar,
             mensaje
           }
@@ -186,8 +188,7 @@ const inscripcionEmpleados = async (req, res ) => {
           const inscribir = await InscripcionCurso.create({
             fecha_inscripcion : new Date(),
             aprendiz_ID : e.ID,
-            curso_ID : curso_ID,
-            gestor_ID: gestor_ID
+            curso_ID : curso_ID
           })
           return inscribir
         })

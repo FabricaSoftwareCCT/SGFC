@@ -788,7 +788,6 @@ const getEmpresas = async (req, res) => {
 const getEmpresaByNIT = async (req, res) => {
 	try {
 		const { NIT } = req.params;
-
 		const empresa = await Empresa.findOne({
 			where: {
 				NIT,

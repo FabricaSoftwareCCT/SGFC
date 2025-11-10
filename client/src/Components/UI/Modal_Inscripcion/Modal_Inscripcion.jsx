@@ -1,24 +1,12 @@
 import { useState, useEffect } from "react";
 import "./Modal_Inscripcion.css";
 import axiosInstance from '../../../config/axiosInstance';
-import { validateEmail, validateNumber, validateText, createMensajeError, validateNIT, validateAddress } from '../../../utils/Validators/formValidator';
 
-export const Modal_Inscripcion = ({ onClose, onCompanyCreated }) => {
-  const [formData, setFormData] = useState({
-    nombre_empresa: "",
-    NIT: "",
-    categoria: "",
-    direccion: "",
-    telefono: "",
-    email_empresa: "",
-    departamento_ID: "",
-    ciudad_ID: "",
-    img_empresa: ""
-  });
-
-  const [departamentos, setDepartamentos] = useState([]);
-  const [ciudades, setCiudades] = useState([]);
+export const Modal_Inscripcion = ({ onClose, onCursosSeleccionados }) => {
+  const [cursosDisponibles, setCursosDisponibles] = useState([]);
+  const [cursoSeleccionado, setCursoSeleccionado] = useState(null);
   const [loading, setLoading] = useState(false);
+  const userSessionString = localStorage.getItem("userSession") || sessionStorage.getItem("userSession");
 
   // Prevenir scroll del body cuando el modal está abierto
   useEffect(() => {
@@ -28,127 +16,54 @@ export const Modal_Inscripcion = ({ onClose, onCompanyCreated }) => {
     };
   }, []);
 
-  // Cargar departamentos al iniciar
+  // Cargar cursos disponibles del empresario
   useEffect(() => {
-    const cargarDepartamentos = async () => {
+    const cargarCursosDisponibles = async () => {
+      setLoading(true);
       try {
-        const departamentosRes = await axiosInstance.get('/api/ubicaciones/departamentos');
-        const departamentosData = Array.isArray(departamentosRes.data) ? departamentosRes.data : departamentosRes.data.data || [];
-        setDepartamentos(departamentosData);
+        const userSession = JSON.parse(userSessionString);
+        const empresaId = userSession.empresa_ID;
+        const cursosRes = await axiosInstance.get(`/api/courses/empresa/${empresaId}`); 
+        const cursosData = Array.isArray(cursosRes.data) ? cursosRes.data : cursosRes.data.cursos || [];
+        setCursosDisponibles(cursosData);
       } catch (error) {
-        console.error('Error al cargar departamentos:', error);
+        console.error('Error al cargar cursos:', error);
+        setCursosDisponibles([]);
+      } finally {
+        setLoading(false);
       }
     };
-    cargarDepartamentos();
+    cargarCursosDisponibles();
   }, []);
 
-  // Cargar ciudades cuando se selecciona un departamento
-  useEffect(() => {
-    const cargarCiudades = async () => {
-      if (formData.departamento_ID) {
-        try {
-          const ciudadesRes = await axiosInstance.get(`/api/ubicaciones/departamentos/${formData.departamento_ID}/ciudades`);
-          const ciudadesData = Array.isArray(ciudadesRes.data) ? ciudadesRes.data : ciudadesRes.data.data || [];
-          setCiudades(ciudadesData);
-        } catch (error) {
-          console.error('Error al cargar ciudades:', error);
-          setCiudades([]);
-        }
-      } else {
-        setCiudades([]);
-        setFormData(prev => ({ ...prev, ciudad_ID: "" }));
-      }
-    };
-    cargarCiudades();
-  }, [formData.departamento_ID]);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const base64 = reader.result.split(",")[1];
-      setFormData(prev => ({
-        ...prev,
-        img_empresa: base64
-      }));
-    };
-    reader.readAsDataURL(file);
+  // Manejar selección de curso (solo uno)
+  const handleCursoChange = (cursoId) => {
+    setCursoSeleccionado(cursoId === cursoSeleccionado ? null : cursoId);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    
+    if (!cursoSeleccionado) {
+      alert('Por favor selecciona un curso');
+      return;
+    }
 
     try {
-      // Validaciones
-      const errores = {
-        nombre_empresa: validateText(formData.nombre_empresa),
-        direccion: validateAddress(formData.direccion),
-        telefono: validateNumber(formData.telefono),
-        email_empresa: validateEmail(formData.email_empresa),
-        NIT: validateNIT(formData.NIT),
-        categoria: formData.categoria ? "" : "La categoría es obligatoria",
-        departamento_ID: formData.departamento_ID ? "" : "El departamento es obligatorio",
-        ciudad_ID: formData.ciudad_ID ? "" : "La ciudad es obligatoria"
-      };
+      const cursoCompleto = cursosDisponibles.find(curso => 
+        curso.ID === cursoSeleccionado || curso.id === cursoSeleccionado
+      );
 
-      const hastErrors = await createMensajeError(errores);
-      if (hastErrors != null) {
-        alert(hastErrors);
-        setLoading(false);
-        return;
-      }
-
-      // Preparar datos para enviar
-      const empresaData = {
-        nombre_empresa: formData.nombre_empresa.trim(),
-        NIT: formData.NIT,
-        categoria: formData.categoria,
-        direccion: formData.direccion.trim(),
-        telefono: formData.telefono,
-        email_empresa: formData.email_empresa,
-        departamento_ID: formData.departamento_ID,
-        ciudad_ID: formData.ciudad_ID,
-        img_empresa: formData.img_empresa,
-        estado: 'activo'
-      };
-
-      // Llamada a la API para crear empresa
-      const response = await axiosInstance.post("/api/users/empresas", empresaData);
-      
-      console.log("Empresa creada:", response.data);
-      
-      // Notificar al componente padre
-      if (onCompanyCreated) {
-        onCompanyCreated(response.data.empresa);
+      if (onCursosSeleccionados) {
+        onCursosSeleccionados([cursoCompleto]);
       }
       
-      alert('Empresa creada con éxito');
-      onClose(); // Cerrar el modal después de guardar
+      alert(`Curso "${cursoCompleto?.nombre_curso}" seleccionado correctamente`);
+      onClose();
       
     } catch (error) {
-      console.error("Error al crear empresa:", error);
-      
-      let errorMessage = "Hubo un error al crear la empresa";
-      if (error.response?.data?.message) {
-        errorMessage = error.response.data.message;
-      } else if (error.response?.data?.errors) {
-        errorMessage = error.response.data.errors.join(', ');
-      }
-      
-      alert(errorMessage);
-    } finally {
-      setLoading(false);
+      console.error("Error al procesar el curso:", error);
+      alert("Hubo un error al procesar la selección del curso");
     }
   };
 
@@ -171,12 +86,12 @@ export const Modal_Inscripcion = ({ onClose, onCompanyCreated }) => {
   }, [onClose]);
 
   return (
-    <div className="modal-overlay-company" onClick={handleOverlayClick}>
-      <div className="modal-content-company">
-        <div className="modal-header-company">
-          <h2>Crear Nueva Empresa</h2>
+    <div className="modal-overlay" onClick={handleOverlayClick}>
+      <div className="modal-content">
+        <div className="modal-header">
+          <h2>Inscripción a Cursos</h2>
           <button 
-            className="close-button-company"
+            className="close-button"
             onClick={onClose}
             type="button"
             aria-label="Cerrar modal"
@@ -185,162 +100,77 @@ export const Modal_Inscripcion = ({ onClose, onCompanyCreated }) => {
           </button>
         </div>
         
-        <form onSubmit={handleSubmit} className="modal-body-company">
-          {/* Logo de la empresa */}
-          <div className="form-group-company">
-            <label htmlFor="img_empresa">Logo de la Empresa</label>
-            <div className="file-input-container">
-              <input 
-                type="file" 
-                id="img_empresa"
-                name="img_empresa"
-                accept="image/*"
-                onChange={handleFileChange}
-                className="file-input"
-              />
-              <label htmlFor="img_empresa" className="file-input-label">
-                {formData.img_empresa ? "Imagen seleccionada" : "Seleccionar imagen"}
-              </label>
-            </div>
+        <form onSubmit={handleSubmit} className="modal-body">
+          <div className="form-group">
+            <label>Selecciona un curso para la inscripción *</label>
+            
+            {loading ? (
+              <div className="loading-state">Cargando cursos disponibles...</div>
+            ) : cursosDisponibles.length === 0 ? (
+              <div className="empty-state">
+                No tiene cursos asignados aún
+              </div>
+            ) : (
+              <div className="cursos-list">
+                {cursosDisponibles.map((curso) => (
+                  <div 
+                    key={curso.ID || curso.id} 
+                    className={`curso-option ${cursoSeleccionado === (curso.ID || curso.id) ? 'curso-selected' : ''}`}
+                    onClick={() => handleCursoChange(curso.ID || curso.id)}
+                  >
+                    <div className="radio-container">
+                      <input
+                        type="radio"
+                        name="cursoSeleccionado"
+                        checked={cursoSeleccionado === (curso.ID || curso.id)}
+                        onChange={() => handleCursoChange(curso.ID || curso.id)}
+                        className="radio-input"
+                      />
+                      <span className="radio-checkmark"></span>
+                    </div>
+                    <div className="curso-details">
+                      <div className="curso-title">{curso.nombre_curso}</div>
+                      {curso.cupos_disponibles !== undefined && (
+                        <div className="curso-cupos">
+                          Cupos disponibles: {curso.cupos_disponibles}
+                        </div>
+                      )}
+                      {curso.descripcion && (
+                        <div className="curso-description">
+                          {curso.descripcion}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+            
+            {cursoSeleccionado && (
+              <div className="selected-info">
+                <strong>Curso seleccionado:</strong> {
+                  cursosDisponibles.find(curso => 
+                    curso.ID === cursoSeleccionado || curso.id === cursoSeleccionado
+                  )?.nombre_curso
+                }
+              </div>
+            )}
           </div>
 
-          <div className="form-group-company">
-            <label htmlFor="nombre_empresa">Nombre de la Empresa *</label>
-            <input 
-              type="text" 
-              id="nombre_empresa"
-              name="nombre_empresa"
-              placeholder="Ingrese el nombre de la empresa" 
-              value={formData.nombre_empresa}
-              onChange={handleChange}
-              required
-            />
-          </div>
-          
-          <div className="form-group-company">
-            <label htmlFor="NIT">NIT *</label>
-            <input 
-              type="text" 
-              id="NIT"
-              name="NIT"
-              placeholder="Ingrese el NIT" 
-              value={formData.NIT}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          <div className="form-group-company">
-            <label htmlFor="categoria">Categoría *</label>
-            <select 
-              id="categoria"
-              name="categoria"
-              value={formData.categoria}
-              onChange={handleChange}
-              required
-            >
-              <option value="">Seleccione una categoría</option>
-              <option value="tecnologia">Tecnología</option>
-              <option value="servicios">Servicios</option>
-              <option value="comercio">Comercio</option>
-              <option value="industria">Industria</option>
-              <option value="educacion">Educación</option>
-              <option value="salud">Salud</option>
-            </select>
-          </div>
-
-          <div className="form-group-company">
-            <label htmlFor="direccion">Dirección *</label>
-            <input 
-              type="text" 
-              id="direccion"
-              name="direccion"
-              placeholder="Ingrese la dirección completa" 
-              value={formData.direccion}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          <div className="form-group-company">
-            <label htmlFor="telefono">Teléfono *</label>
-            <input 
-              type="tel" 
-              id="telefono"
-              name="telefono"
-              placeholder="Ingrese el teléfono" 
-              value={formData.telefono}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          <div className="form-group-company">
-            <label htmlFor="email_empresa">Email de la Empresa *</label>
-            <input 
-              type="email" 
-              id="email_empresa"
-              name="email_empresa"
-              placeholder="Ingrese el email corporativo" 
-              value={formData.email_empresa}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          {/* Departamento y Ciudad */}
-          <div className="form-group-company">
-            <label htmlFor="departamento_ID">Departamento *</label>
-            <select 
-              id="departamento_ID"
-              name="departamento_ID"
-              value={formData.departamento_ID}
-              onChange={handleChange}
-              required
-            >
-              <option value="">Seleccione un departamento</option>
-              {departamentos.map((departamento) => (
-                <option key={departamento.ID} value={departamento.ID}>
-                  {departamento.nombre}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="form-group-company">
-            <label htmlFor="ciudad_ID">Ciudad *</label>
-            <select 
-              id="ciudad_ID"
-              name="ciudad_ID"
-              value={formData.ciudad_ID}
-              onChange={handleChange}
-              disabled={!formData.departamento_ID}
-              required
-            >
-              <option value="">Seleccione una ciudad</option>
-              {ciudades.map((ciudad) => (
-                <option key={ciudad.ID} value={ciudad.ID}>
-                  {ciudad.nombre}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="modal-footer-company">
+          <div className="modal-footer">
             <button 
               type="button"
-              className="btn-cancel-company"
+              className="btn-cancel"
               onClick={onClose}
-              disabled={loading}
             >
               Cancelar
             </button>
             <button 
               type="submit"
-              className="btn-save-company"
-              disabled={loading}
+              className="btn-confirm"
+              disabled={!cursoSeleccionado}
             >
-              {loading ? "Creando..." : "Crear Empresa"}
+              Confirmar Inscripción
             </button>
           </div>
         </form>

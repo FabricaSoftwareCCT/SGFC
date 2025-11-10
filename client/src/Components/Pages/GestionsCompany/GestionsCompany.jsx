@@ -297,7 +297,7 @@ export const GestionsCompany = () => {
 
 			{/* Modal CreateEmpresa - se muestra encima del contenido */}
 			{showCreateModal && (
-				<Modal_Inscripcion onClose={handleCloseModal} onCompanyCreated={() => {
+				<CreateEmpresa onClose={handleCloseModal} onCompanyCreated={() => {
 					fetchEmpresas()
 				}} />
 			)}

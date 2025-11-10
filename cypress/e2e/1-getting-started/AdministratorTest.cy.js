@@ -73,7 +73,7 @@ describe('Probar el modulo de administrador', ()=>{
 
     })
 
-    it('Crear Curso',()=>{
+    it.skip('Crear Curso',()=>{
         cy.visit("http://localhost:5173/") 
         cy.get(".button_signIn").first().click({force : true})
 

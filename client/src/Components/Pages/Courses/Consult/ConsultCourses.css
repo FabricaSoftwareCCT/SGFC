@@ -1,581 +1,583 @@
-.container_consultCourse {
-    width: 100%;
-    min-height: 100vh;
+/* ConsultCourses.css - Diseño Mejorado y Centrado */
+
+.consult-courses-container {
+  width: 90%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+  min-height: calc(100vh - 120px);
+  color: #fff;
+}
+
+/* Header Principal */
+.courses-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 2rem;
+  align-items: center;
+  background: linear-gradient(135deg, rgba(0, 132, 61, 0.15) 0%, rgba(0, 200, 83, 0.1) 100%);
+  border: 1px solid rgba(0, 200, 83, 0.3);
+  border-radius: 20px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 8px 32px rgba(0, 132, 61, 0.1);
+}
+
+.header-content {
+  flex: 1;
+  text-align: center;
+}
+
+.main-title {
+  color: #fff;
+  font-size: 2.5rem;
+  font-weight: 300;
+  margin: 0 0 0.5rem 0;
+}
+
+.accent-text {
+  color: #00c853;
+  font-weight: 500;
+}
+
+.subtitle {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.subtitle strong {
+  color: #00c853;
+  font-weight: 600;
+}
+
+.header-stats {
+  display: flex;
+  align-items: center;
+}
+
+.stat-card {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
+  padding: 1.2rem 1.5rem;
+  text-align: center;
+  backdrop-filter: blur(10px);
+}
+
+.stat-number {
+  display: block;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #00c853;
+  margin-bottom: 0.3rem;
+}
+
+.stat-label {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.8);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Panel de Búsqueda */
+.search-panel {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 2rem;
+  margin-bottom: 3rem;
+  backdrop-filter: blur(10px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.search-section {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.search-input-container {
+  position: relative;
+  width: 100%;
+  max-width: 500px;
+}
+
+.search-input {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50px;
+  padding: 1rem 3rem 1rem 1.5rem;
+  font-size: 1rem;
+  color: #fff;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #00c853;
+  box-shadow: 0 0 0 3px rgba(0, 200, 83, 0.1);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.search-input::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.search-icon {
+  position: absolute;
+  right: 1.2rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.2rem;
+  color: #00c853;
+}
+
+/* Filtros - MEJORADO: Uno al lado del otro y centrados */
+.filters-section-c {
+    width: 30%;
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 2rem 1rem;
-    position: relative;
-    color: #fff;
-    box-sizing: border-box;
-}
-
-.container_consultCourse>h2 {
-    width: 100%;
-    height: auto;
-    color: #fff;
-    font-size: 2.5rem;
-    text-align: center;
-    margin: 2rem 0 1rem 0;
-    font-weight: 300;
-}
-
-.complementary {
-    color: #00843d;
-    font-weight: 400;
-}
-
-.container_consultCourse>p {
-    width: auto;
-    height: auto;
-    font-size: 1.1rem;
-    text-align: center;
-    margin-bottom: 1.5rem;
-    opacity: 0.9;
-}
-
-.container_consultCourse>p b {
-    color: #00843d;
-    font-weight: 600;
-}
-
-/* Contenedor de opciones de búsqueda */
-.options_Search {
-    width: 100%;
-    max-width: 800px;
-    height: auto;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(0, 132, 61, 0.2);
-    border-radius: 16px;
-    margin: 1rem 0 2rem 0;
-    display: flex;
+    flex-direction: row;
     justify-content: center;
-    align-items: center;
-    gap: 1.5rem;
-    padding: 1.5rem;
-    z-index: 3;
-    backdrop-filter: blur(10px);
+    gap: 1rem;
+    flex-wrap: nowrap;
 }
 
-/* Labels */
-label {
-    color: #fff;
-    font-size: 1rem;
-    font-weight: 500;
-    margin-right: 0.5rem;
-    white-space: nowrap;
+.filter-group {
+  display: flex;
+  gap: 0.5rem;
+  min-width: 200px;
 }
 
-/* Mensajes de no resultados */
-.no-results {
-    width: 90%;
-    max-width: 500px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 2rem auto;
-    padding: 1.5rem;
-    border: 1px solid rgba(0, 132, 61, 0.2);
-    border-radius: 12px;
-    background: rgba(255, 255, 255, 0.05);
-    color: #fff;
-    text-align: center;
-    font-size: 1rem;
-    backdrop-filter: blur(10px);
+.filter-label {
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-bottom: 0.3rem;
+  text-align: center;
 }
 
-.no-results-message {
-    width: auto;
-    max-width: 100%;
-    font-size: 1rem;
-    color: #fff;
-    margin: 0;
-    line-height: 1.5;
+.filter-select {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  padding: 0.8rem 1rem;
+  color: #fff;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg width='12' height='7' viewBox='0 0 12 7' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6L11 1' stroke='%2300c853' stroke-width='2'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 12px;
+  text-align: center;
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: #00c853;
+  box-shadow: 0 0 0 2px rgba(0, 200, 83, 0.1);
+}
+
+.filter-select:hover {
+  border-color: #00c853;
+}
+
+/* Estados de la Aplicación */
+.loading-state,
+.error-state,
+.no-results-state {
+  text-align: center;
+  padding: 3rem 2rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+  margin: 2rem 0;
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 3px solid rgba(255, 255, 255, 0.1);
+  border-top: 3px solid #00c853;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1.5rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.error-icon,
+.no-results-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  opacity: 0.7;
+}
+
+.loading-state p,
+.error-state h3,
+.no-results-state h3 {
+  color: #fff;
+  font-size: 1.3rem;
+  margin-bottom: 0.5rem;
+}
+
+.error-state p,
+.no-results-message p {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .no-results-message strong {
-    color: #00843d;
-    font-weight: 600;
+  color: #00c853;
+  font-weight: 600;
 }
 
-/* Input de búsqueda */
-.options_Search>input {
-    width: 100%;
-    max-width: 300px;
-    height: auto;
-    background: rgba(26, 26, 26, 0.8);
-    border-radius: 12px;
-    border: 1px solid rgba(0, 132, 61, 0.2);
-    padding: 0.8rem 1rem;
-    font-size: 1rem;
-    color: #fff;
-    transition: all 0.3s ease;
-    backdrop-filter: blur(10px);
+.reset-filters-btn {
+  background: rgba(0, 200, 83, 0.1);
+  border: 1px solid rgba(0, 200, 83, 0.3);
+  color: #00c853;
+  padding: 0.8rem 1.5rem;
+  border-radius: 25px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
 }
 
-.options_Search>input:focus {
-    outline: none;
-    border-color: #00843d;
-    box-shadow: 0 0 0 2px rgba(0, 132, 61, 0.1);
-    background: rgba(26, 26, 26, 0.9);
+.reset-filters-btn:hover {
+  background: rgba(0, 200, 83, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 200, 83, 0.2);
 }
 
-.options_Search>input::placeholder {
-    color: rgba(255, 255, 255, 0.6);
+/* Sección de Resultados */
+.results-section {
+  width: 100%;
 }
 
-/* Select personalizado */
-.custom-select-container {
-    position: relative;
-    width: fit-content;
-    min-width: 120px;
+.results-header {
+  text-align: center;
+  margin-bottom: 3rem;
 }
 
-.custom-select {
-    width: auto;
-    height: auto;
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    background: rgba(28, 28, 28, 0.8);
-    color: #fff;
-    padding: 0.8rem 2.5rem 0.8rem 1rem;
-    border-radius: 12px;
-    border: 1px solid rgba(0, 132, 61, 0.2);
-    font-size: 1rem;
-    font-weight: 500;
-    cursor: pointer;
-    background-image: url("data:image/svg+xml,%3Csvg width='12' height='7' viewBox='0 0 12 7' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6L11 1' stroke='%2300843d' stroke-width='2'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 12px center;
-    background-size: 12px;
-    transition: all 0.3s ease;
-    backdrop-filter: blur(10px);
+.results-title {
+  color: #fff;
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin: 0;
 }
 
-.custom-select:focus {
-    outline: none;
-    border-color: #00843d;
-    box-shadow: 0 0 0 2px rgba(0, 132, 61, 0.1);
-    background: rgba(28, 28, 28, 0.9);
+/* Grid de Cursos - MEJORADO: Máximo 3 en horizontal */
+.courses-grid-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
 }
 
-.custom-select:hover {
-    border-color: #00843d;
-    background: rgba(28, 28, 28, 0.9);
+.courses-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+  width: 100%;
+  max-width: 1200px;
+  justify-items: center;
 }
 
-/* Contenedor del carrusel */
-.carousel-container {
-    width: 100%;
-    max-width: 900px;
-    height: auto;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1.5rem;
-    margin-top: 1rem;
+/* Tarjetas de Cursos */
+.course-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  position: relative;
+  width: 100%;
+  max-width: 320px;
+  margin: 0 auto;
 }
 
-.carousel-title {
-    width: auto;
-    height: auto;
-    font-size: 1.3rem;
-    font-weight: 500;
-    color: #fff;
-    margin-bottom: 0.5rem;
+.course-card:hover {
+  transform: translateY(-8px);
+  border-color: #00c853;
+  box-shadow: 0 12px 30px rgba(0, 200, 83, 0.15);
 }
 
-.carousel-wrapper {
-    width: 100%;
-    height: auto;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    gap: 1rem;
+.card-image-container {
+  position: relative;
+  width: 100%;
+  height: 180px;
+  overflow: hidden;
 }
 
-/* Flechas del carrusel */
-.carousel-arrow {
-    background: #00843d;
-    border: none;
-    border-radius: 50%;
-    width: 3rem;
-    height: 3rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    z-index: 2;
+.course-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
 }
 
-.carousel-arrow:hover:not(:disabled) {
-    transform: scale(1.1);
-    background: #006b32;
+.course-card:hover .course-image {
+  transform: scale(1.05);
 }
 
-.carousel-arrow:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-    transform: none;
+.card-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
-.carousel-arrow img {
-    width: 1.5rem;
-    height: 1.5rem;
-    filter: brightness(0) invert(1);
+.course-card:hover .card-overlay {
+  opacity: 1;
 }
 
-/* Track del carrusel - MODIFICADO PARA MÓVIL */
-.carousel-track-search-course {
-    display: flex;
-    scroll-behavior: smooth;
-    gap: 1.5rem;
-    overflow-x: auto;
-    width: 100%;
-    max-width: 700px;
-    height: 200px;
-    justify-content: center;
-    align-items: center;
-    padding: 0.5rem;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
+.view-course-text {
+  color: #00c853;
+  font-weight: 600;
+  font-size: 1.1rem;
 }
 
-.carousel-track-search-course::-webkit-scrollbar {
-    display: none;
+.card-content {
+  padding: 1.5rem;
 }
 
-/* Tarjetas del carrusel - MODIFICADO PARA MÓVIL */
-.carousel-card-search-course {
-    flex: 0 0 auto;
-    width: 150px;
-    height: 180px;
-    border-radius: 16px;
-    overflow: hidden;
-    position: relative;
-    display: flex;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(0, 132, 61, 0.2);
+.course-badge {
+  background: rgba(0, 200, 83, 0.1);
+  color: #00c853;
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  display: inline-block;
+  margin-bottom: 1rem;
+  text-transform: capitalize;
+  text-align: center;
+  width: 100%;
 }
 
-.carousel-card-search-course:hover {
-    transform: translateY(-5px);
-    border-color: #00843d;
+.course-title {
+  color: #fff;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0 0 0.8rem 0;
+  line-height: 1.3;
+  text-align: center;
+  height: 2.6rem;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
 }
 
-.img_course {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 16px;
-    opacity: 0.7;
-    transition: opacity 0.3s ease;
+.course-code {
+  color: #00c853;
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin: 0 0 1rem 0;
+  text-align: center;
 }
 
-.carousel-card-search-course:hover .img_course {
-    opacity: 0.9;
+.course-meta {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-.card-text-search-course {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    padding: 1rem 0.5rem;
-    color: white;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    height: auto;
-    background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
-    backdrop-filter: blur(5px);
+.offer-type {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.8rem;
+  text-transform: capitalize;
+  text-align: center;
 }
 
-.card-text-search-course>h4 {
-    width: auto;
-    height: auto;
-    font-size: 0.9rem;
-    text-align: center;
-    margin: 0 0 0.3rem 0;
-    font-weight: 600;
-    line-height: 1.2;
-}
-
-.card-text-search-course>p {
-    width: auto;
-    height: auto;
-    font-size: 0.8rem;
-    text-align: center;
-    margin: 0;
-    opacity: 0.9;
-    color: #00843d;
-    font-weight: 500;
-}
-
-/* Mensaje de error */
-.error-message-search {
-    color: #ff6b6b;
-    background: rgba(255, 107, 107, 0.1);
-    border: 1px solid rgba(255, 107, 107, 0.3);
-    font-size: 0.9rem;
-    margin: 1rem 0;
-    text-align: center;
-    width: auto;
-    max-width: 400px;
-    height: auto;
-    padding: 1rem;
-    border-radius: 12px;
-    backdrop-filter: blur(10px);
-}
-
-/* Ilustraciones */
-.illustration_search, .nub1, .nub2, .nub3 {
-    width: 15rem;
-    height: auto;
-    position: absolute;
-    z-index: 1;
-    opacity: 0.4;
-    transition: opacity 0.3s ease;
-}
-
-.illustration_search {
-    top: 15rem;
-    left: 3rem;
-}
-
-.nub1 {
-    top: 4rem;
-    left: 3rem;
-}
-
-.nub2 {
-    top: 2rem;
-    right: 15rem;
-}
-
-.nub3 {
-    top: 15rem;
-    right: 3rem;
-}
-
-/* ========== RESPONSIVE ========== */
+/* ========== RESPONSIVE DESIGN ========== */
 
 /* Tablets */
 @media (max-width: 1024px) {
-    .container_consultCourse>h2 {
-        font-size: 2.2rem;
-        margin: 1.5rem 0 1rem 0;
-    }
-    
-    .options_Search {
-        flex-wrap: wrap;
-        gap: 1rem;
-        padding: 1.2rem;
-    }
-    
-    .custom-select-container {
-        min-width: 110px;
-    }
-    
-    .illustration_search, .nub1, .nub2, .nub3 {
-        width: 12rem;
-        opacity: 0.3;
-    }
-    
-    .illustration_search {
-        top: 12rem;
-        left: 2rem;
-    }
-    
-    .nub1 {
-        top: 3rem;
-        left: 2rem;
-    }
-    
-    .nub2 {
-        top: 1.5rem;
-        right: 10rem;
-    }
-    
-    .nub3 {
-        top: 12rem;
-        right: 2rem;
-    }
+  .consult-courses-container {
+    width: 95%;
+    padding: 1.5rem 1rem;
+  }
+  
+  .courses-header {
+    flex-direction: column;
+    gap: 1.5rem;
+    text-align: center;
+    padding: 1.5rem;
+  }
+  
+  .main-title {
+    font-size: 2.2rem;
+  }
+  
+  .courses-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+  
+  .filters-section {
+    gap: 1.5rem;
+  }
+  
+  .filter-group {
+    min-width: 180px;
+  }
 }
 
 /* Tablets pequeñas */
 @media (max-width: 768px) {
-    .container_consultCourse {
-        padding: 1.5rem 1rem;
-    }
-    
-    .container_consultCourse>h2 {
-        font-size: 2rem;
-    }
-    
-    .options_Search {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 1rem;
-        padding: 1rem;
-    }
-    
-    .custom-select-container {
-        width: 100%;
-    }
-    
-    .custom-select {
-        width: 100%;
-    }
-    
-    .options_Search>input {
-        max-width: 100%;
-    }
-    
-    .carousel-track-search-course {
-        height: 180px;
-        max-width: 100%;
-        justify-content: flex-start;
-        padding: 1rem;
-    }
-    
-    .carousel-card-search-course {
-        width: 140px;
-        height: 170px;
-        flex-shrink: 0;
-    }
-    
-    .illustration_search, .nub1, .nub2, .nub3 {
-        display: none;
-    }
+  .consult-courses-container {
+    padding: 1rem 0.8rem;
+  }
+  
+  .main-title {
+    font-size: 2rem;
+  }
+  
+  .search-panel {
+    padding: 1.5rem;
+    gap: 1.5rem;
+  }
+  
+  .filters-section {
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .filter-group {
+    min-width: 250px;
+    width: 100%;
+    max-width: 300px;
+  }
+  
+  .courses-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    max-width: 400px;
+  }
+  
+  .course-card {
+    max-width: 100%;
+  }
 }
 
-/* Móviles grandes - CORREGIDO PARA VER TODAS LAS TARJETAS */
+/* Móviles */
 @media (max-width: 480px) {
-    .container_consultCourse>h2 {
-        font-size: 1.8rem;
-        margin: 1rem 0 0.5rem 0;
-    }
-    
-    .container_consultCourse>p {
-        font-size: 1rem;
-    }
-    
-    .options_Search {
-        margin: 0.5rem 0 1.5rem 0;
-        padding: 1rem 0.8rem;
-    }
-    
-    .carousel-container {
-        gap: 1rem;
-        width: 100%;
-    }
-    
-    .carousel-title {
-        font-size: 1.1rem;
-    }
-    
-    .carousel-wrapper {
-        width: 100%;
-        overflow: visible;
-    }
-    
-    .carousel-track-search-course {
-        height: 170px;
-        width: 100%;
-        max-width: 100%;
-        overflow-x: auto;
-        overflow-y: visible;
-        justify-content: flex-start;
-        gap: 1rem;
-        padding: 0.5rem 1rem;
-        scroll-snap-type: x mandatory;
-    }
-    
-    .carousel-card-search-course {
-        width: 130px;
-        height: 160px;
-        flex-shrink: 0;
-        scroll-snap-align: start;
-    }
-    
-    /* Asegurar que se vea toda la imagen */
-    .img_course {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        border-radius: 16px;
-    }
-    
-    .card-text-search-course>h4 {
-        font-size: 0.8rem;
-    }
-    
-    .card-text-search-course>p {
-        font-size: 0.75rem;
-    }
-    
-    .carousel-arrow {
-        display: none; /* Ocultar flechas en móvil para mejor experiencia táctil */
-    }
+  .consult-courses-container {
+    padding: 0.8rem 0.5rem;
+  }
+  
+  .courses-header {
+    padding: 1.2rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .main-title {
+    font-size: 1.8rem;
+  }
+  
+  .subtitle {
+    font-size: 1rem;
+  }
+  
+  .stat-card {
+    padding: 1rem;
+  }
+  
+  .stat-number {
+    font-size: 1.5rem;
+  }
+  
+  .search-panel {
+    padding: 1.2rem;
+    margin-bottom: 2rem;
+  }
+  
+  .search-input {
+    padding: 0.8rem 2.5rem 0.8rem 1.2rem;
+  }
+  
+  .results-header {
+    margin-bottom: 2rem;
+  }
+  
+  .results-title {
+    font-size: 1.5rem;
+  }
+  
+  .loading-state,
+  .error-state,
+  .no-results-state {
+    padding: 2rem 1rem;
+    margin: 1rem 0;
+  }
 }
 
 /* Móviles pequeños */
 @media (max-width: 360px) {
-    .container_consultCourse {
-        padding: 1rem 0.5rem;
-    }
-    
-    .container_consultCourse>h2 {
-        font-size: 1.6rem;
-    }
-    
-    .carousel-track-search-course {
-        height: 160px;
-        padding: 0.5rem;
-    }
-    
-    .carousel-card-search-course {
-        width: 120px;
-        height: 150px;
-    }
-    
-    .no-results {
-        padding: 1rem 0.8rem;
-        font-size: 0.9rem;
-    }
+  .main-title {
+    font-size: 1.6rem;
+  }
+  
+  .stat-card {
+    padding: 0.8rem;
+  }
+  
+  .filter-group {
+    min-width: 200px;
+  }
+  
+  .course-card {
+    margin: 0 0.5rem;
+  }
 }
 
 /* Landscape en móviles */
 @media (max-height: 500px) and (orientation: landscape) {
-    .container_consultCourse {
-        padding: 1rem;
-        min-height: auto;
-    }
-    
-    .container_consultCourse>h2 {
-        margin: 1rem 0 0.5rem 0;
-        font-size: 1.8rem;
-    }
-    
-    .options_Search {
-        margin: 0.5rem 0 1rem 0;
-        padding: 1rem;
-    }
-    
-    .carousel-track-search-course {
-        height: 140px;
-    }
-    
-    .carousel-card-search-course {
-        height: 130px;
-    }
+  .consult-courses-container {
+    padding: 1rem;
+    min-height: auto;
+  }
+  
+  .courses-header {
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .main-title {
+    font-size: 1.8rem;
+    margin-bottom: 0.3rem;
+  }
+  
+  .search-panel {
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .card-image-container {
+    height: 120px;
+  }
 }

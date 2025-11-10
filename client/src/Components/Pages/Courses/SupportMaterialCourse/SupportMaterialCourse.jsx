@@ -33,18 +33,6 @@ export const SupportMaterialCourse = () => {
     const puedeEliminarArchivos = isLoggedIn && hasPrivilegedRole;
     const puedeEditarMaterial = isLoggedIn && hasPrivilegedRole;
 
-        // Configuración de SweetAlert2 con acciones centradas
-    const swalConfig = {
-        customClass: {
-            actions: 'swal2-center-actions'
-        },
-        buttonsStyling: false,
-        confirmButtonText: 'Aceptar',
-        cancelButtonText: 'Cancelar',
-        confirmButtonClass: 'button is-primary',
-        cancelButtonClass: 'button is-light'
-    };
-
     const fetchCurso = async () => {
         try {
             const resp = await axiosInstance.get(`api/courses/cursos/${id}`);

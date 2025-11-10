@@ -174,6 +174,7 @@ export const AssignInstructorCourse = ({ curso_ID, onClose }) => {
       if (onClose) onClose();
       
     } catch (error) {
+      setInviting(false)
       // Error - mostrar alerta de error
       await Swal.fire({
         icon: 'error',

@@ -192,7 +192,7 @@
 	display: flex;
 	flex: auto;
 	padding: 2%;
-	width: 26%; /* Más ancho en desktop */
+	width: 37%; /* Más ancho en desktop */
 	height: 0%;
 	flex-direction: row;
 	flex-wrap: nowrap;

@@ -2745,6 +2745,18 @@ const changeRole = async (req, res) => {
 			})
 		}
 
+		if (!role) {
+			return res.status(401).json({
+				message: "Se debe especificar el rol"
+			})
+		}
+
+		if (role === 'Empresa') {
+			return res.status(401).json({
+				message: "No se puede cambiar el rol del usuario a empresa"
+			})
+		}
+
 		user.update({
 			accountType: role
 		})

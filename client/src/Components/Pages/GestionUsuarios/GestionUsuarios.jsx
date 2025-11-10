@@ -368,7 +368,7 @@ export const GestionUsuarios = () => {
 											<strong>Rol:</strong>
 											{editing ? 
 												<div className="status-buttons">
-													{['Aprendiz', 'Empresa', 'Instructor', 'Administrador', 'Gestor'].map((rol) => (
+													{['Aprendiz', 'Instructor', 'Administrador', 'Gestor'].map((rol) => (
 														<button
 															key={rol}
 															className={`status ${selectedUser.accountType === rol ? "active" : ""}`}

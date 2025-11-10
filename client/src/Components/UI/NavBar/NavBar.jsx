@@ -585,7 +585,7 @@ export const NavBar = ({ children }) => {
 					>
 						Pregunta de seguridad
 					</button>
-				</div>
+					</div>
 			)}
 		</div>
 	)

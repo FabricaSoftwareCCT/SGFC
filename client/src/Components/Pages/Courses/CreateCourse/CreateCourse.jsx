@@ -107,7 +107,7 @@ export const CreateCourse = ( ) => {
 			Swal.fire({
 				icon: 'warning',
 				title: 'Descripción muy corta',
-				text: 'La descripción debe tener mínimo 300 caracteres.',
+				text: 'La descripción debe tener mínimo 100 caracteres.',
 				confirmButtonText: 'Aceptar',
 				confirmButtonColor: '#f39c12',
 				theme: 'bulma',

@@ -339,7 +339,7 @@ export const GestionUsuarios = () => {
 											<strong>Celular:</strong>
 											{editing ?
 												<input
-													type="text"
+													type="number"
 													name="celular_manager"
 													value={selectedUser.celular}
 													className="input_updateData"
@@ -356,7 +356,7 @@ export const GestionUsuarios = () => {
 											<strong>Documento:</strong>
 											{editing ?
 												<input
-													type="text"
+													type="number"
 													name="documento_manager"
 													value={selectedUser.documento}
 													className="input_updateData"

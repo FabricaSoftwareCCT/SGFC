@@ -33,12 +33,22 @@ describe('Probar el modulo de administrador', ()=>{
         cy.get('.courses-menu').find('.dropdown-courses').contains('button','Mis cursos').first().click({force:true})
 
         //Recorrer los filtros
-        const textosFiltros = ['En oferta', 'Finalizados', 'Oferta abierta', 'Oferta cerrada'];
+        const textosFiltros = ['Todos','Activos','En oferta', 'Finalizados', 'Oferta abierta', 'Oferta cerrada'];
         textosFiltros.forEach((texto) => {
-        cy.contains('.filtros button', texto).click();
-        cy.contains('.filtros button', texto).should('have.class', 'activo');
+        // Buscar por texto completo del botón
+        cy.contains('button', texto).click();
+        cy.contains('button', texto).should('have.class', 'active');
         cy.wait(1000);
         });
+
+        //Dar click en Ver cursos Activos
+        cy.contains('button','Ver Cursos Activos').click()
+
+        //Dar click en ver en oferta
+        cy.contains('button','Ver En Oferta').click()
+
+        //Dar click en crear nuevo curso
+        cy.contains('button', 'Crear Nuevo Curso').click()
     })
 
     it.skip('Buscar cursos', ()=>{
@@ -91,25 +101,25 @@ describe('Probar el modulo de administrador', ()=>{
         cy.get('.courses-menu').find('.dropdown-courses').contains('button','Crear curso').first().click({force:true})
 
         //Crear curso
-        cy.get('.container_createCourse').find('.containerDetails_course').find('input[placeholder="Agregar nombre del curso"]').type('Frontend',{force:true})
+        cy.get('.ficha-container').find('input[placeholder="000000"]').type('2825024')
+        cy.contains('label', 'Nombre del Curso').parent('.form-group').find('input').type('Python', { force: true });
 
-        const description ='A'.repeat(300)
-        cy.get('.container_createCourse').find('.containerInput_description_course').find('textarea[placeholder="Agregar descripción del curso (mínimo 300 caracteres)"]').type(description)
+        const description = 'A'.repeat(100);
+        cy.get('textarea[placeholder="Describe el curso en detalle (mínimo 100 caracteres)"]').type(description);       
 
-        cy.get('.containerDetails_course2').find('.containerInput_ficha').find('input[id="fichaCourse"]').type(2825019)
+        
+        cy.contains('button', 'En Oferta').click()
+        cy.contains('button', 'Abierta').click()
 
-        cy.contains('.offer-button', 'Abierta').click()
-        cy.contains('.offer-button', 'Activo').click()
+        cy.get('.info-item').find('input[placeholder="Número de días"]').clear().type('20')
+        cy.get('.info-item').find('input[placeholder="Sena Agropecuario"]').type('Virtual')
 
-        cy.get('.containerDetails_course2').get('.duracion-inputs').find('input[placeholder="Días"]').clear().type('20')
-        cy.get('.containerDetails_course2').get('.lugar-formacion').find('input[type="text"]').type('Virtual')
-
-        cy.get('.addDate').first().click()
+        cy.get('.schedule-btn').first().click()
 
         //Ingresar Fechas
-        cy.get('.organized-date-inputs').contains('label', 'Fecha inicio:').find('input[type="date"]').eq(0).type('2025-11-07')
+        cy.get('.organized-date-inputs').contains('label', 'Fecha inicio:').find('input[type="date"]').eq(0).type('2025-11-11')
         cy.get('.organized-date-inputs').contains('label', 'Fecha fin:').find('input[type="date"]').last().type('2025-11-24')
-
+        
         //Seleccionar horario de curso
         const selectTimeSlot = (time, day) => {
         const timeSlots = {
@@ -134,9 +144,15 @@ describe('Probar el modulo de administrador', ()=>{
         
         //Guardar Fechas
         cy.get('.save-button-calendar').click()
-        cy.get('.buttonCreate_Course').click()
+      
+        //Agregar fecha al temario
+        cy.contains('Temario del Curso').parent().find('input[type="date"]').type('2025-11-11');
 
+        //Agregar Temario
+        cy.get('textarea[placeholder*="Agregar nuevo tema"]').type('Introducción al curso');
         
+        //Guardar curso
+        cy.contains('button','Crear Curso').click()
     })
 
     it.skip('Ingresar a Material de Apoyo',()=>{

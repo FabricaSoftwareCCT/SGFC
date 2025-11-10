@@ -2,6 +2,8 @@ import React, { useRef, useState } from "react";
 import SignatureCanvas from "react-signature-canvas";
 import cloudUpload from "../../../assets/Icons/cloud-upload.png";
 import "./modalSignature.css";
+import Swal from 'sweetalert2';
+import 'sweetalert2/themes/bulma.css'
 
 export const ModalSignature = ({ children, closeModal, className, editar, nombreActa, tipoActa, participanteSeleccionado, onSignature, onUpload }) => {
     const sigCanvas = useRef();
@@ -45,17 +47,53 @@ export const ModalSignature = ({ children, closeModal, className, editar, nombre
     // ✅ Función simplificada - solo aplica la firma al documento cuando presiona el botón
     const handleApplySignature = () => {
         // si no se está editada el acta cerrar modal
-        if (!editar) {
-            alert('Primero editar el documento, para luego aplicar la firma.');
-            closeModal();
-        } else if (firmaDigital) {
-            // Aplicar la firma solo cuando presiona el botón
-            if (onSignature) onSignature(firmaDigital);
-            alert('¡Firma aplicada correctamente al documento!');
-            closeModal();
-        } else {
-            alert('Por favor, firme o suba una imagen de firma primero.');
-        }
+       if (!editar) {
+    Swal.fire({
+        icon: 'warning',
+        title: 'Acción requerida',
+        text: 'Primero edite el documento, para luego aplicar la firma.',
+        theme:"bulma",
+        customClass: {
+            popup: 'bulma-swal',
+            confirmButton: 'button is-warning'
+        },
+        buttonsStyling: false,
+        confirmButtonText: 'Entendido'
+    }).then(() => {
+        closeModal();
+    });
+} else if (firmaDigital) {
+    // Aplicar la firma solo cuando presiona el botón
+    if (onSignature) onSignature(firmaDigital);
+    
+    Swal.fire({
+        icon: 'success',
+        title: '¡Éxito!',
+        text: '¡Firma aplicada correctamente al documento!',
+        theme:"bulma",
+        customClass: {
+            popup: 'bulma-swal',
+            confirmButton: 'button is-success'
+        },
+        buttonsStyling: false,
+        confirmButtonText: 'Aceptar'
+    }).then(() => {
+        closeModal();
+    });
+} else {
+    Swal.fire({
+        icon: 'error',
+        title: 'Firma requerida',
+        text: 'Por favor, firme o suba una imagen de firma primero.',
+        theme:"bulma",
+        customClass: {
+            popup: 'bulma-swal',
+            confirmButton: 'button is-danger'
+        },
+        buttonsStyling: false,
+        confirmButtonText: 'Entendido'
+    });
+}
     };
 
     return (

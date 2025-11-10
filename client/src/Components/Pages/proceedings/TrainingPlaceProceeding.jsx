@@ -9,6 +9,8 @@ import html2pdf from 'html2pdf.js';
 import { ModalSignature } from '../../UI/Modal_Signature/ModalSignature';
 import { EditableList } from '../../UI/EditableList/EditableList';
 import { useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2'
+import 'sweetalert2/themes/bulma.css'
 
 export const TrainingPlaceProceeding = () => {
 	const navigate = useNavigate();
@@ -232,15 +234,36 @@ export const TrainingPlaceProceeding = () => {
 			// ✅ Si la respuesta es exitosa, redirigir
 			if (response.status === 200) {
 				setGeneratedPdfName(pdfFileName);
-				alert('¡Acta de lugar de formación enviada correctamente!');
+                Swal.fire({
+                    icon:"success",
+                    title:"¡Éxito!",
+                    text:"¡Acta de lugar de formación enviada correctamente!",
+                    confirmButtonColor:"#05ab13",
+                    timer:3000,
+                    timerProgressBar: true,
+                                  theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+                })
 
 				// ✅ REDIRECCIÓN AUTOMÁTICA
 				navigate('/Gestiones/Actas');
 			}
 
 		} catch (error) {
-			alert('Error al enviar el acta de lugar de formación.');
 			console.error('❌ Error completo:', error);
+                await Swal.fire({
+        icon: 'error',
+        title: 'Error al enviar acta',
+        html: `
+            <p>Error al enviar el acta de lugar de formación.</p>
+            <p style="font-size: 14px; color: #666; margin-top: 10px;">
+                Detalle: ${error.response?.data?.message || error.message || 'Error desconocido'}
+            </p>
+        `,
+        confirmButtonColor: '#d33',
+                      theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+    });
 		}
 	};
 	useEffect(() => {

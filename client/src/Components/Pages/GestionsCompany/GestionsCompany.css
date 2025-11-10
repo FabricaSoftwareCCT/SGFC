@@ -234,11 +234,12 @@
    ======================================== */
 
 .resultTableGestionsCompany {
-    height: 100%;
+    background: transparent;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-top: 1rem;
     width: 100%;
-    display: flex;
-    flex-direction: column;
-    flex-wrap: nowrap;
+    height: 30%;
 }
 .labelFilterOption12{
 margin-bottom: 4%;
@@ -253,6 +254,9 @@ margin-bottom: 4%;
     align-content: center;
     justify-content: flex-start;
     align-items: center;
+    overflow-y: scroll;
+    width: auto;
+    height: auto;
 }  
 
 .elementoProvisionalTabla{

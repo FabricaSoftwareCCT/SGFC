@@ -85,6 +85,18 @@ export const ModalManageCourses = ({
         : { curso_ID: cursoId };
       setCursosAsignados((prev) => [...prev, entrada]);
       onChanged && onChanged();
+          await Swal.fire({
+      title: '¡Asignación exitosa!',
+      text: `El instructor ha sido asignado al curso "${cursoAsignado?.nombre_curso || 'seleccionado'}" correctamente.`,
+      icon: 'success',
+      confirmButtonText: 'Aceptar',
+      theme: "bulma",
+      customClass: {
+        confirmButton: 'button is-primary',
+        actions: 'swal2-actions-centered'
+      },
+      buttonsStyling: false
+    });
     } catch (e) {
       const status = e?.response?.status;
       const msg = e?.response?.data?.message;
@@ -310,5 +322,3 @@ if (status === 409 || status === 400) {
     </div>
   );
 };
-
-

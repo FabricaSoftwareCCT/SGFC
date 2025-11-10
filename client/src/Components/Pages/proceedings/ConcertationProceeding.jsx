@@ -8,6 +8,10 @@ import axiosInstance from '../../../config/axiosInstance';
 import html2pdf from 'html2pdf.js';
 import { ModalSignature } from '../../UI/Modal_Signature/ModalSignature';
 import { validateText, validateNumber, createMensajeError, validarFecha } from '../../../utils/Validators/formValidator';
+import Swal from 'sweetalert2'
+import 'sweetalert2/themes/bulma.css'
+
+
 
 export const ConcertationProceeding = () => {
   const navigate = useNavigate();
@@ -130,7 +134,15 @@ export const ConcertationProceeding = () => {
     const errores = await createMensajeError(validationGeneral);
     if(errores !== null){
       console.log(errores);
-      alert(errores);
+    Swal.fire({
+        icon: 'error',
+        title: 'Error de validación',
+        text: errores,
+        confirmButtonText: 'Entendido',
+        confirmButtonColor: '#00a144',
+                      theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+      });
       return true;
     }
 
@@ -188,6 +200,15 @@ export const ConcertationProceeding = () => {
       fechaFin
     });
     setIsExporting(true);
+    Swal.fire({
+      title: 'Generando PDF...',
+      text: 'Por favor espere un momento',
+      allowOutsideClick: false,
+      theme:"bulma",
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
     setTimeout(() => {
       if (pdfRef.current) {
         const pdfFileName = 'acta_concertacion.pdf';
@@ -209,9 +230,33 @@ export const ConcertationProceeding = () => {
           .then(() => {
             setIsExporting(false);
             setGeneratedPdfName(pdfFileName);
+            Swal.fire({
+              icon: 'success',
+              title: 'PDF Generado',
+              text: 'El acta de concertación se ha descargado correctamente',
+              confirmButtonText: 'Aceptar',
+              confirmButtonColor: '#00a144',
+                            theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+            });
+          })
+          .catch((error) => {
+            setIsExporting(false);
+            
+            // SweetAlert2 para error
+            Swal.fire({
+              icon: 'error',
+              title: 'Error al generar PDF',
+              text: 'Ha ocurrido un error al generar el documento',
+              confirmButtonText: 'Entendido',
+              confirmButtonColor: '#00a144',
+                            theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+            });
           });
       } else {
         setIsExporting(false);
+         Swal.close();
       }
     }, 100);
   };
@@ -260,6 +305,33 @@ export const ConcertationProceeding = () => {
 
       if (!pdfRef.current) return;
 
+            const result = await Swal.fire({
+        title: '¿Generar acta de concertación?',
+        text: '¿Está seguro de que desea generar y enviar el acta de concertación?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, generar acta',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#00a144',
+        cancelButtonColor: '#dc3545',
+                      theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+      });
+
+      if (!result.isConfirmed) {
+        return;
+      }
+
+      // SweetAlert2 para mostrar progreso
+      Swal.fire({
+        title: 'Generando acta...',
+        text: 'Por favor espere un momento',
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
+
       const pdfFileName = 'acta_concertacion.pdf';
       const opt = {
         margin: 10,
@@ -290,7 +362,15 @@ export const ConcertationProceeding = () => {
 
       if (response.status === 200) {
         setGeneratedPdfName(pdfFileName);
-        alert('¡Acta de concertación enviada correctamente!');
+        await Swal.fire({
+          icon: 'success',
+          title: '¡Éxito!',
+          text: '¡Acta de concertación enviada correctamente!',
+          confirmButtonText: 'Aceptar',
+          confirmButtonColor: '#00a144',
+                        theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+        });
         navigate('/Gestiones/Actas');
       }
 
@@ -320,7 +400,15 @@ export const ConcertationProceeding = () => {
         errorMessage = `Error: ${error.message}`;
       }
       
-      alert(errorMessage);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: errorMessage,
+        confirmButtonText: 'Entendido',
+        confirmButtonColor: '#00a144',
+                      theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+      });
     }
   };
 

@@ -33,7 +33,9 @@
 .courses:hover {
     background-color: #00843D;
 }
-
+.historial{
+    text-decoration: none;
+}
 .startOption.active,
 .whoWeAre.active,
 .courses.active,

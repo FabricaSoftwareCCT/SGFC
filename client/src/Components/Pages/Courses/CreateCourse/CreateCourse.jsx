@@ -42,6 +42,8 @@ export const CreateCourse = () => {
 	const [temario, setTemario] = useState([]);
 	const [nuevaFecha, setNuevaFecha] = useState("");
 	const [nuevoTema, setNuevoTema] = useState("");
+	const [indiceTemaEnEdicion, setIndiceTemaEnEdicion] = useState(null);
+	const [temaEnEdicion, setTemaEnEdicion] = useState({ fecha: "", tema: "" });
 	const [isEditCalendarOpen, setIsEditCalendarOpen] = useState(false);
 
 	const handleChange = (e) => {
@@ -85,12 +87,55 @@ export const CreateCourse = () => {
 		const nuevoTemario = [...temario];
 		nuevoTemario.splice(index, 1);
 		setTemario(nuevoTemario);
+		if (indiceTemaEnEdicion === index) {
+			setIndiceTemaEnEdicion(null);
+			setTemaEnEdicion({ fecha: "", tema: "" });
+		}
 	};
 
 	const handleKeyPress = (e) => {
 		if (e.key === 'Enter') {
 			agregarTema();
 		}
+	};
+
+	const iniciarEdicionTema = (indiceSeleccionado) => {
+		const temaSeleccionado = temario[indiceSeleccionado];
+		setIndiceTemaEnEdicion(indiceSeleccionado);
+		setTemaEnEdicion({
+			fecha: temaSeleccionado.fecha,
+			tema: temaSeleccionado.tema
+		});
+	};
+
+	const cancelarEdicionTema = () => {
+		setIndiceTemaEnEdicion(null);
+		setTemaEnEdicion({ fecha: "", tema: "" });
+	};
+
+	const actualizarTemaEnEdicion = (campo, valor) => {
+		setTemaEnEdicion((temaActual) => ({
+			...temaActual,
+			[campo]: valor
+		}));
+	};
+
+	const guardarEdicionTema = () => {
+		if (indiceTemaEnEdicion === null) {
+			return;
+		}
+
+		if (!temaEnEdicion.fecha || !temaEnEdicion.tema.trim()) {
+			return;
+		}
+
+		const temarioActualizado = [...temario];
+		temarioActualizado[indiceTemaEnEdicion] = {
+			fecha: temaEnEdicion.fecha,
+			tema: temaEnEdicion.tema.trim()
+		};
+		setTemario(temarioActualizado);
+		cancelarEdicionTema();
 	};
 
 	const handleCreateCourse = async () => {
@@ -532,20 +577,77 @@ export const CreateCourse = () => {
 										<div className="syllabus-header">
 											<span>FECHA</span>
 											<span>CONTENIDO</span>
-											<span></span>
+											<span>ACCIONES</span>
 										</div>
-										{temario.map((item, index) => (
-											<div key={index} className="syllabus-item">
-												<span className="syllabus-date">{item.fecha}</span>
-												<span className="syllabus-topic">{item.tema}</span>
-												<button
-													className="delete-topic"
-													onClick={() => eliminarTema(index)}
+										{temario.map((item, index) => {
+											const temaEnEdicionActivo = indiceTemaEnEdicion === index;
+
+											return (
+												<div
+													key={`${item.fecha}-${index}`}
+													className={`syllabus-item${temaEnEdicionActivo ? " syllabus-item-editing" : ""}`}
 												>
-													×
-												</button>
-											</div>
-										))}
+													{temaEnEdicionActivo ? (
+														<>
+															<input
+																type="date"
+																className="syllabus-edit-input"
+																value={temaEnEdicion.fecha}
+																onChange={(event) =>
+																	actualizarTemaEnEdicion("fecha", event.target.value)
+																}
+															/>
+															<textarea
+																className="form-textarea-right syllabus-edit-textarea"
+																placeholder="Contenido del tema"
+																value={temaEnEdicion.tema}
+																rows={2}
+																onChange={(event) =>
+																	actualizarTemaEnEdicion("tema", event.target.value)
+																}
+															/>
+															<div className="syllabus-action-buttons">
+																<button
+																	type="button"
+																	className="syllabus-action-button save-topic"
+																	onClick={guardarEdicionTema}
+																>
+																	Guardar
+																</button>
+																<button
+																	type="button"
+																	className="syllabus-action-button cancel-topic"
+																	onClick={cancelarEdicionTema}
+																>
+																	Cancelar
+																</button>
+															</div>
+														</>
+													) : (
+														<>
+															<span className="syllabus-date">{item.fecha}</span>
+															<span className="syllabus-topic">{item.tema}</span>
+															<div className="syllabus-actions">
+																<button
+																	type="button"
+																	className="syllabus-action-button edit-topic"
+																	onClick={() => iniciarEdicionTema(index)}
+																>
+																	Editar
+																</button>
+																<button
+																	type="button"
+																	className="syllabus-action-button delete-topic"
+																	onClick={() => eliminarTema(index)}
+																>
+																	×
+																</button>
+															</div>
+														</>
+													)}
+												</div>
+											);
+										})}
 									</div>
 								) : (
 									<div className="empty-syllabus">

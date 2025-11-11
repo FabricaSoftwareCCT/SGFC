@@ -14,6 +14,7 @@ const InscripcionCurso = require('../models/InscripcionCurso');
 const InvitacionCurso = require('../models/InvitacionCurso');
 const Usuario = require("../models/User");
 const { sendNotification, sendNotifiCursoApi } = require("../services/notificationService");
+const { normalizarTemario } = require("../utils/temarioUtils");
 
 
 let dbInstance;
@@ -223,9 +224,8 @@ const obtenerCursosAsignadosAInstructor = async (req, res) => {
 // Crear un curso (solo para administradores)
 const createCurso = async (req, res) => {
 	try {
-		const { accountType } = req.user; // ← ESTA LÍNEA TIENE EL PROBLEMA
-		console.log("Este es el tipo de cuenta", accountType);
-		
+		const { accountType } = req.user;
+
 		if (accountType !== "Administrador" && accountType !== "Gestor" && accountType !== "Instructor") {
 			return res.status(403).json({ message: "No tienes permisos para crear cursos" });
 		}
@@ -246,7 +246,8 @@ const createCurso = async (req, res) => {
 			cupos_disponibles,
 			duracion_dias,
 			modalidad,
-			empresa_ID // Esperado solo si tipo_oferta es "Cerrada"
+			empresa_ID, // Esperado solo si tipo_oferta es "Cerrada"
+			temario
 		} = req.body;
 
 		// ✅ Validación estricta del tipo de oferta
@@ -307,6 +308,13 @@ const createCurso = async (req, res) => {
 				: slots_formacion;
 		}
 
+		let temarioNormalizado;
+		try {
+			temarioNormalizado = normalizarTemario(temario);
+		} catch (errorTemario) {
+			return res.status(400).json({ message: errorTemario.message });
+		}
+
 		const sena_ID = 1;
 
 		// ✅ Crear el curso
@@ -326,6 +334,7 @@ const createCurso = async (req, res) => {
 			sena_ID,
 			empresa_ID: finalEmpresaID,
 			slots_formacion: slotsFormacionString,
+			temario: temarioNormalizado,
 			duracion_dias,
 			cupos_disponibles,
 			modalidad
@@ -386,7 +395,8 @@ const updateCurso = async (req, res) => {
 			slots_formacion,
 			empresa_ID,
 			duracion_dias,
-			modalidad
+			modalidad,
+			temario
 		} = req.body;
 
 		const userData = await User.findByPk(userId);
@@ -446,6 +456,14 @@ const updateCurso = async (req, res) => {
 			modalidad,
 			empresa_ID: tipo_oferta === "Cerrada" ? finalEmpresaID : null, // ✅ Actualizar o limpiar
 		};
+
+		try {
+			if (temario !== undefined) {
+				datosActualizacion.temario = normalizarTemario(temario);
+			}
+		} catch (errorTemario) {
+			return res.status(400).json({ message: errorTemario.message });
+		}
 
 		if (fecha_inicio && fecha_fin) {
 			datosActualizacion.fecha_inicio = fecha_inicio;

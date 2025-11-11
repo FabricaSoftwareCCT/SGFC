@@ -331,30 +331,28 @@ const createCurso = async (req, res) => {
 			modalidad
 		});
 
+		(async () => {
+			try {
+				const usuarios = await User.findAll({
+					where: {
+						verificacion_email: true,
+						accountType: { [Op.or]: ['Empresa', 'Aprendiz'] },
+					},
+					attributes: ['email'],
+				});
+
+				const emails = usuarios.map(user => user.email);
+				if (emails.length > 0 && nuevoCurso.ID) {
+					const courseLink = `http://localhost:5173/cursos/${nuevoCurso.ID}`;
+					await sendCourseCreatedEmail(emails, nombre_curso, courseLink, descripcion, estado);
+					await sendNotifiCursoApi(nombre_curso, emails, fecha_inicio, fecha_fin, estado);
+				}
+			} catch (emailError) {
+				console.error("Error al enviar notificaciones por email:", emailError);
+			}
+		})();
+
 		res.status(201).json({ message: "Curso creado con éxito.", curso: nuevoCurso });
-
-		// ✅ Enviar notificación por email (opcional)
-		const usuarios = await User.findAll({
-			where: {
-				verificacion_email: true,
-				accountType: { [Op.or]: ['Empresa', 'Aprendiz'] },
-			},
-			attributes: ['email'],
-		});
-
-		const Idcurso = await Curso.findByPk(nuevoCurso.ID, { attributes: ['ID'] }).then(c => c.ID);
-
-		if(Idcurso == null){
-			res.status(500).json({ message: "Error al obtener el curso recién creado." });
-			return;
-		}
-
-		const emails = usuarios.map(user => user.email);
-		if (emails.length > 0) {
-			const courseLink = `http://localhost:5173/cursos/${Idcurso}`;
-			await sendCourseCreatedEmail(emails, nombre_curso, courseLink, descripcion, estado);
-			await sendNotifiCursoApi(nombre_curso, emails, fecha_inicio, fecha_fin, estado);
-		}
 
 	} catch (error) {
 		console.error("Error al crear el curso:", error);

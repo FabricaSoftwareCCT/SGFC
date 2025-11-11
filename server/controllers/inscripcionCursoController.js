@@ -6,7 +6,7 @@ const Usuario = require("../models/User");
 const Empresa = require("../models/empresa")
 const { json } = require("sequelize");
 const e = require("express");
-const {sendRegistrationStatusEmail} = require('../services/emailService')
+const {sendRegistrationStatusEmail, sendCourseEnrollmentEmail} = require('../services/emailService')
 
 const crearOActualizarInscripcion = async (req, res) => {
   const { curso_ID, aprendiz_ID, nuevoEstado } = req.body;
@@ -191,6 +191,24 @@ const inscripcionEmpleados = async (req, res ) => {
             curso_ID : curso_ID
           })
           return inscribir
+        })
+      )
+
+      const emails = await Promise.all(
+        empleados.map(async (e) =>{
+          const consult = await Usuario.findByPk(e.ID)
+          const consult2 = await Curso.findByPk(curso_ID)
+          return {
+              email : consult.dataValues.email,
+              nombres : consult.dataValues.nombres,
+              curso : consult2.dataValues.nombre_curso,
+          }
+        })
+      )
+
+      await Promise.all(
+        emails.map((e) =>{
+          sendCourseEnrollmentEmail(e.email, e.nombres, e.curso)
         })
       )
       res.status(200).json({

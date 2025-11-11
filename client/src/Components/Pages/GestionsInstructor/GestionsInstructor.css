@@ -316,7 +316,7 @@
 
 .instructor-info h3 {
     font-size: 1.3rem;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0rem;
     width: auto;
     height: auto;
     color: #fff;
@@ -331,6 +331,7 @@
 }
 
 .instructor-info .profile-btn {
+    margin-top: auto;
     background-color: #00843d;
     border: none;
     color: #fff;

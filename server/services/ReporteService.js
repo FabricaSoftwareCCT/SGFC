@@ -104,12 +104,35 @@ class ReporteService {
 			let cursos = []
 			
 			for (let curso of result?.cursos) {
+				let instructorRaw = null;
+				if (curso.Instructor) {
+					instructorRaw = curso.Instructor.dataValues || curso.Instructor.toJSON?.() || curso.Instructor;
+				}
+				
+				let nombreInstructor = 'Sin asignar';
+				if (instructorRaw) {
+					const nombres = instructorRaw.nombres || '';
+					const apellidos = instructorRaw.apellidos || '';
+					
+					if (nombres && apellidos) {
+						nombreInstructor = `${nombres} ${apellidos}`.trim();
+					} else if (nombres) {
+						nombreInstructor = nombres.trim();
+					} else if (apellidos) {
+						nombreInstructor = apellidos.trim();
+					}
+					
+					if (!nombreInstructor || nombreInstructor === '' || nombreInstructor.toLowerCase().includes('undefined')) {
+						nombreInstructor = 'Sin asignar';
+					}
+				}
+				
 				cursos.push({
 					id: curso.ID,
-					nombre_curso: curso.nombre_curso,
-					estado: curso.estado,
-					ficha: curso.ficha,
-					nombre_instructor: curso.Instructor?.dataValues?.nombres +" "+ curso.Instructor?.dataValues?.apellidos,
+					nombre_curso: curso.nombre_curso || 'Sin nombre',
+					estado: curso.estado || 'Sin estado',
+					ficha: curso.ficha || 'Sin ficha',
+					nombre_instructor: nombreInstructor,
 					empleados: await InscripcionCurso.count({
 						where: {
 							curso_ID: curso.ID
@@ -129,6 +152,66 @@ class ReporteService {
 		}catch(err){
 			console.log(err)
 			throw {status: 500, msg: "Error en el servidor "}
+		}
+	}
+
+	static GetAttendanceProgressReport = async (filtros) => {
+		try {
+			const { learnerId, courseId, dateFrom, dateTo } = filtros;
+
+			// Validar que al menos haya un filtro
+			if (!learnerId && !courseId && !(dateFrom && dateTo)) {
+				return null;
+			}
+
+			const result = await ReportRepository.GetAttendanceProgressReport({
+				learnerId: learnerId || null,
+				courseId: courseId || null,
+				dateFrom: dateFrom || null,
+				dateTo: dateTo || null
+			});
+
+			if (!result || result.found === false) {
+				return null;
+			}
+
+			return {
+				records: result.data,
+				metrics: result.metrics,
+				total: result.total
+			};
+
+		} catch (error) {
+			console.error('Error en GetAttendanceProgressReport:', error);
+			throw new Error('Error al generar el reporte de asistencia y progreso');
+		}
+	}
+
+	static GetCoursesByLearner = async (learnerId) => {
+		try {
+			if (!learnerId) {
+				return { success: false, message: 'ID de aprendiz requerido' };
+			}
+
+			const result = await ReportRepository.GetCoursesByLearner(learnerId);
+			return result;
+		} catch (error) {
+			console.error('Error en GetCoursesByLearner:', error);
+			throw new Error('Error al obtener cursos del aprendiz');
+		}
+	}
+
+	static GetLearnersByCourse = async (courseId) => {
+		try {
+			if (!courseId) {
+				return { success: false, message: 'ID de curso requerido' };
+			}
+
+			const result = await ReportRepository.GetLearnersByCourse(courseId);
+			return result;
+		} catch (error) {
+			console.error('Error en GetLearnersByCourse:', error);
+			throw new Error('Error al obtener aprendices del curso');
 		}
 	}
 }

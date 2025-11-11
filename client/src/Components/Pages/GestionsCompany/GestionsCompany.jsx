@@ -9,6 +9,7 @@ import { ManageCompany } from "./ManageCompany/ManageCompany";
 import { CreateEmpresa } from "../CreateEmpresa/CreateEmpresa";
 import fotoPerfilDefect from "../../../assets/Icons/userDefect.png";
 import { ManageManager } from "./ManageManager/ManageManager";
+import { Modal_Inscripcion } from "../../UI/Modal_Inscripcion/Modal_Inscripcion";
 
 export const GestionsCompany = () => {
 	const [empresas, setEmpresas] = useState([]);
@@ -146,8 +147,8 @@ export const GestionsCompany = () => {
 					{categoria}
 				</td>
 				<td className="company-status-cell">
-					<span className={`status-pill ${estado === 'activo' ? 'status-active' : estado === 'inactivo' ? 'status-inactive' : 'status-unknown'}`}>
-						{estado === 'activo' ? 'Activo' : estado === 'inactivo' ? 'Inactivo' : 'Sin estado'}
+					<span className={`status-pill ${estado === 'activo' ? 'status-active' : estado === 'inactivo' ? 'status-inactive': estado === 'suspendido' ? 'status-suspendido' : 'status-unknown' }`}>
+						{estado === 'activo' ? 'Activo' : estado === 'inactivo' ? 'Inactivo': estado === 'suspendido' ? 'Suspendido' : 'Sin estado'}
 					</span>
 				</td>
 				<td className="company-actions-cell">

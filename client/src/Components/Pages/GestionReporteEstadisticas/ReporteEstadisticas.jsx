@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect,useRef } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import './ReporteEstadisticas.css';
 import ReporteEstudiantes from './ReporteEstudiantes';
 import {getCursos} from '../../API/ApiRpeort';
@@ -13,7 +13,6 @@ import 'sweetalert2/themes/bulma.css'
 export default function ReporteEstadisticas() {
 	const [pantallaActual, setPantallaActual] = useState('cursos');
 	const [cursoSeleccionado, setCursoSeleccionado] = useState(null);
-	const [botonActivo, setBotonActivo] = useState('cursos');
 	const [mostrarFiltro, setMostrarFiltro] = useState(false);
 	const [datosCurso, setdatosCurso] = useState([]);
 	const [showDownloadOptions, setShowDownloadOptions] = useState(false)
@@ -21,8 +20,36 @@ export default function ReporteEstadisticas() {
 	const [generating, setGenerating] = useState(false)
 	const [doneGenerating, setDoneGenerating] = useState(false)
 	const [reportContent, setReportContent] = useState(false)
+	const [reportFilename, setReportFilename] = useState("reporte_cursos.pdf")
 
 	const pdfContent = useRef()
+
+	// Helper para formatear errores con contexto detallado
+	const formatDetailedError = (error) => {
+		// Axios error con response
+		const statusCode = error?.response?.status
+		const statusText = error?.response?.statusText
+		const responseData = error?.response?.data
+		const requestUrl = error?.config?.url
+		const method = error?.config?.method
+		const baseMessage = error?.message || "Error desconocido"
+		try {
+			const responsePreview = typeof responseData === "string" ? responseData : JSON.stringify(responseData)
+			return [
+				`Mensaje: ${baseMessage}`,
+				requestUrl ? `Endpoint: [${method?.toUpperCase()}] ${requestUrl}` : undefined,
+				statusCode ? `HTTP: ${statusCode} ${statusText || ""}`.trim() : undefined,
+				responseData ? `Respuesta: ${responsePreview}` : undefined,
+			].filter(Boolean).join("\n")
+		} catch (_) {
+			return [
+				`Mensaje: ${baseMessage}`,
+				requestUrl ? `Endpoint: [${method?.toUpperCase()}] ${requestUrl}` : undefined,
+				statusCode ? `HTTP: ${statusCode} ${statusText || ""}`.trim() : undefined,
+				responseData ? `Respuesta: [no serializable]` : undefined,
+			].filter(Boolean).join("\n")
+		}
+	}
 	
 	// Estados de paginación
 	const [currentPage, setCurrentPage] = useState(1);
@@ -95,6 +122,7 @@ export default function ReporteEstadisticas() {
 			}
 		}
 		fetchData()
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	// Resetear página cuando cambien filtros
@@ -115,11 +143,17 @@ export default function ReporteEstadisticas() {
 		return datosCurso?.filter(curso => {
 			// Filtro por estado
 			const estadosSeleccionados = [];
-			if (filtros.estado.activo) estadosSeleccionados.push('activo');
-			if (filtros.estado.inactivo) estadosSeleccionados.push('inactivo');
+			if (filtros.estado.activo) estadosSeleccionados.push('activo', 'Activo');
+			if (filtros.estado.inactivo) estadosSeleccionados.push('inactivo', 'Inactivo');
 			
-			if (estadosSeleccionados.length > 0 && !estadosSeleccionados.includes(curso.estado)) {
-				return false;
+			if (estadosSeleccionados.length > 0) {
+				const estadoCurso = curso.estado?.toLowerCase() || '';
+				const coincideActivo = filtros.estado.activo && (estadoCurso === 'activo');
+				const coincideInactivo = filtros.estado.inactivo && (estadoCurso === 'inactivo');
+				
+				if (!coincideActivo && !coincideInactivo) {
+					return false;
+				}
 			}
 
 			// Filtro por rango de empleados
@@ -137,8 +171,12 @@ export default function ReporteEstadisticas() {
 			}
 
 			// Filtro por nombre del instructor
-			if (filtros.instructor && !curso.instructor.toLowerCase().includes(filtros.instructor.toLowerCase())) {
-				return false;
+			if (filtros.instructor && curso.instructor) {
+				const instructorLower = curso.instructor.toLowerCase();
+				const filtroLower = filtros.instructor.toLowerCase();
+				if (!instructorLower.includes(filtroLower)) {
+					return false;
+				}
 			}
 
 			// Si pasa todos los filtros, incluir el curso
@@ -153,6 +191,10 @@ export default function ReporteEstadisticas() {
 
 	// Función para manejar el clic en una fila
 	const handleFilaClick = (curso) => {
+		if (!curso.empleados || curso.empleados === 0) {
+			alert('Este curso no tiene empleados registrados. No se puede generar un reporte.');
+			return;
+		}
 		setCursoSeleccionado(curso);
 		setPantallaActual('estudiantes');
 	};
@@ -161,10 +203,6 @@ export default function ReporteEstadisticas() {
 	const handleVolverACursos = () => {
 		setPantallaActual('cursos');
 		setCursoSeleccionado(null);
-	};
-
-	const handleBotonClick = (boton) => {
-		setBotonActivo(boton);
 	};
 
 	const toggleFiltro = () => {
@@ -205,77 +243,99 @@ export default function ReporteEstadisticas() {
 		});
 	};
 
-	const generarExcelHistorial = async () => {
-		let cursosIds = (cursosFiltrados.length > 0 ? cursosFiltrados : datosCurso).map((c) => c.id)
-		let cursosData = []
-		let empleadosData = []
+const generarExcelHistorial = async () => {
+    try {
+        let cursosIds = (cursosFiltrados.length > 0 ? cursosFiltrados : datosCurso).map((c) => c.id)
+        let cursosData = []
+        let empleadosData = []
 
-		console.log("Consultando cursos...")
-		for (let cursoId of cursosIds) {
-			let curso = (await axiosInstance.get(`/api/courses/cursos/${cursoId}`)).data
-			cursosData.push({
-				"Curso": curso.nombre_curso,
-				"Tipo": curso.tipo_oferta,
-				"Estado": curso.estado,
-				"Ficha": curso.ficha,
-				"Inicio": new Date(curso.fecha_inicio).toLocaleDateString("es-CO"),
-				"Fin": new Date(curso.fecha_fin).toLocaleDateString("es-CO"),
-				"Duración en días": curso.duracion_dias ?? "Sin determinar",
-				"Lugar de formación": curso.lugar_formacion ?? "Sin especificar",
-				"Instructor": curso.Instructor ? `${curso.Instructor.nombres} ${curso.Instructor.apellidos}` : "Pendiente",
-				"Cantidad de aprendices": curso.cupos_usados
-			})
-		}
+        console.log("Consultando cursos...")
+        for (let cursoId of cursosIds) {
+            const curso = (await axiosInstance.get(`/api/courses/cursos/${cursoId}`)).data
+            cursosData.push({
+                "Curso": curso.nombre_curso,
+                "Tipo": curso.tipo_oferta,
+                "Estado": curso.estado,
+                "Ficha": curso.ficha,
+                "Inicio": new Date(curso.fecha_inicio).toLocaleDateString("es-CO"),
+                "Fin": new Date(curso.fecha_fin).toLocaleDateString("es-CO"),
+                "Duración en días": curso.duracion_dias ?? "Sin determinar",
+                "Lugar de formación": curso.lugar_formacion ?? "Sin especificar",
+                "Instructor": curso.Instructor ? `${curso.Instructor.nombres} ${curso.Instructor.apellidos}` : "Pendiente",
+                "Cantidad de aprendices": curso.cupos_usados
+            })
+        }
 
-		console.log("Consultando empleados...")
-		const empleados = (await axiosInstance.get(`/api/users/admin/empleados?limit=99999`)).data.empleados
-		empleadosData = empleados.map((e) => ({
-			"Nombre": `${e.nombres} ${e.apellidos}`,
-			"Documento": e.documento,
-			"Numero teléfonico": e.celular,
-			"Email": e.email,
-			"Estado": e.estado,
-			"Cursos": e.cursos.join("\n"),
-			"Empresa": e.Empresa.nombre_empresa
-		}))
+        console.log("Consultando empleados...")
+        const empleados = (await axiosInstance.get(`/api/users/admin/empleados?limit=99999`)).data.empleados
+        empleadosData = empleados.map((e) => ({
+            "Nombre": `${e.nombres} ${e.apellidos}`,
+            "Documento": e.documento,
+            "Numero teléfonico": e.celular,
+            "Email": e.email,
+            "Estado": e.estado,
+            "Cursos": Array.isArray(e.cursos) ? e.cursos.join("\n") : "",
+            "Empresa": e?.Empresa?.nombre_empresa || "Sin empresa"
+        }))
 
-		let workBook = xlsx.utils.book_new()
-		xlsx.utils.book_append_sheet(workBook, xlsx.utils.json_to_sheet(cursosData), "Cursos")
-		xlsx.utils.book_append_sheet(workBook, xlsx.utils.json_to_sheet(empleadosData), "Empleados")
-		xlsx.writeFile(workBook, "reporte.xlsx", { compression: true })
-		setGenerating(false)
-	}
+        const workBook = xlsx.utils.book_new()
+        xlsx.utils.book_append_sheet(workBook, xlsx.utils.json_to_sheet(cursosData), "Cursos")
+        xlsx.utils.book_append_sheet(workBook, xlsx.utils.json_to_sheet(empleadosData), "Empleados")
+        xlsx.writeFile(workBook, "reporte.xlsx", { compression: true })
+    } catch (error) {
+        console.error("Error generando Excel:", error)
+        alert(`Error al generar Excel\n\n${formatDetailedError(error)}`)
+    } finally {
+        setGenerating(false)
+    }
+}
 
-	const generarReporte = async () => {
-		try {
-			if (reportType === "pdf") {
-				if (!pdfContent.current)
-					return
-				const worker = html2pdf().set({
-					margin: 10,
-					filename: "reporte_cursos.pdf",
-					html2canvas: { scale: 2 },
-					jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-				}).from(pdfContent.current)
-				setGenerating(false)
-				setDoneGenerating(true)
-				setReportContent(await worker.output("bloburl"))
-			}
-		} catch (err) {
-			console.log(err)
-			Swal.fire({
-			icon:"error",
-			title: 'Error al generar reporte',
-          text: 'Ocurrió un error al generar el reporte',
-          confirmButtonText: 'Okay',
-          confirmButtonColor: '#d33',
-                theme:"bulma",
-      customClass: { confirmButton: 'centered-swal-button' }
-			})
-			setDoneGenerating(false)
-			setGenerating(false)
-		}
-	};
+const generarReporteDesdeElemento = async (targetElement) => {
+    try {
+        if (reportType === "pdf") {
+            if (!targetElement) throw new Error("No hay contenido para generar el PDF")
+
+            // Forzar reflow y pequeña espera para layout estable
+            // eslint-disable-next-line no-unused-expressions
+            targetElement.offsetHeight
+            await new Promise(r => setTimeout(r, 150))
+
+            const worker = html2pdf().set({
+                margin: 10,
+                filename: "reporte_cursos.pdf",
+                html2canvas: {
+                    scale: 2,
+                    useCORS: true,
+                    allowTaint: true,
+                    backgroundColor: '#FFFFFF',
+                },
+                jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+                pagebreak: { mode: [ 'css', 'avoid-all', 'legacy' ] }
+            }).from(targetElement)
+
+            // Generar blob y descargar automáticamente
+            const blob = await worker.output("blob")
+            const blobUrl = URL.createObjectURL(blob)
+            const filename = "reporte_cursos.pdf"
+            setReportFilename(filename)
+            setReportContent(blobUrl)
+            // Auto-descarga
+            const a = document.createElement('a')
+            a.href = blobUrl
+            a.download = filename
+            document.body.appendChild(a)
+            a.click()
+            document.body.removeChild(a)
+            setDoneGenerating(true)
+        }
+    } catch (err) {
+        console.error("Error generando PDF:", err)
+        alert(`Error al generar PDF\n\n${formatDetailedError(err)}`)
+        setDoneGenerating(false)
+    } finally {
+        setGenerating(false)
+    }
+};
 
 	// Contador de filtros activos
 	const filtrosActivos = () => {
@@ -423,21 +483,25 @@ export default function ReporteEstadisticas() {
 
 				{/* Filas de datos filtrados y paginados */}
 				{currentPosts?.length > 0 ? (
-					currentPosts.map((curso) => (
-						<div 
-							key={curso.id} 
-							className="tabla-fila-estadisticas"
-							onClick={() => handleFilaClick(curso)}
-						>
-							<div className="columna-curso-estadisticas">{curso.curso}</div>
-							<div className="columna-ficha-estadisticas">{curso.ficha}</div>
-							<div className="columna-instructor-estadisticas">{curso.instructor}</div>
-							<div className={curso.estado === "Activo" ? "estado-activo-estadisticas" : "estado-inactivo-estadisticas"}>
-								{curso.estado}
+					currentPosts.map((curso) => {
+						const tieneEmpleados = curso.empleados && curso.empleados > 0;
+						return (
+							<div 
+								key={curso.id} 
+								className={`tabla-fila-estadisticas ${!tieneEmpleados ? 'curso-sin-empleados' : ''}`}
+								onClick={() => handleFilaClick(curso)}
+								title={!tieneEmpleados ? 'Este curso no tiene empleados registrados' : ''}
+							>
+								<div className="columna-curso-estadisticas">{curso.curso}</div>
+								<div className="columna-ficha-estadisticas">{curso.ficha}</div>
+								<div className="columna-instructor-estadisticas">{curso.instructor}</div>
+								<div className={curso.estado === "Activo" ? "estado-activo-estadisticas" : "estado-inactivo-estadisticas"}>
+									{curso.estado}
+								</div>
+								<div className="columna-empleados-estadisticas">{curso.empleados}</div>
 							</div>
-							<div className="columna-empleados-estadisticas">{curso.empleados}</div>
-						</div>
-					))
+						);
+					})
 				) : (
 					<div className="no-resultados-estadisticas">
 						No se encontraron cursos que coincidan con los filtros aplicados
@@ -527,21 +591,20 @@ export default function ReporteEstadisticas() {
 						>
 							{generating ? "Generando..." : "Generar reporte"}
 						</button>
-						{(generating  && reportType === "pdf") && (
-							<FormatCourse
-								contentKey={pdfContent}
-								cursos={(cursosFiltrados.length > 0 ? cursosFiltrados : datosCurso).map((c) => c.id)}
-								done={() => {
-									generarReporte()
-								}}
-							/>
-						)}
-						{doneGenerating && (
+                        {(generating  && reportType === "pdf") && (
+                            <div style={{ position: "absolute", left: "-10000px", top: 0 }}>
+                                <FormatCourse
+                                    contentKey={pdfContent}
+                                    cursos={(cursosFiltrados.length > 0 ? cursosFiltrados : datosCurso).map((c) => c.id)}
+                                    onReady={(el) => generarReporteDesdeElemento(el)}
+                                />
+                            </div>
+                        )}
+						{doneGenerating && reportContent && (
 							<a
 								className="button"
 								href={reportContent}
-								target="_blank"
-								rel="noopener noreferrer"
+								download={reportFilename}
 								style={{
 									marginTop: "20px",
 									textDecoration: "none"

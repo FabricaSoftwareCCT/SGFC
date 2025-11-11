@@ -1,7 +1,6 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Header } from '../../../Layouts/Header/Header';
-import { Footer } from '../../../Layouts/Footer/Footer';
 import { Main } from '../../../Layouts/Main/Main';
 import './SupportMaterialCourse.css'
 import axiosInstance from '../../../../config/axiosInstance';
@@ -25,21 +24,14 @@ export const SupportMaterialCourse = () => {
         JSON.parse(localStorage.getItem('userSession')) ||
         JSON.parse(sessionStorage.getItem('userSession'));
 
-    const esAprendiz = (userSession?.accountType || '').toLowerCase() === 'aprendiz';
-    const puedeSubirArchivos = !esAprendiz;
-    const puedeEliminarArchivos = !esAprendiz;
-
-        // Configuración de SweetAlert2 con acciones centradas
-    const swalConfig = {
-        customClass: {
-            actions: 'swal2-center-actions'
-        },
-        buttonsStyling: false,
-        confirmButtonText: 'Aceptar',
-        cancelButtonText: 'Cancelar',
-        confirmButtonClass: 'button is-primary',
-        cancelButtonClass: 'button is-light'
-    };
+    const accountType = (userSession?.accountType || '').toLowerCase();
+    const isLoggedIn = !!userSession?.accountType;
+    const rolesPermitidos = ['administrador', 'instructor', 'gestor'];
+    const hasPrivilegedRole = rolesPermitidos.includes(accountType);
+    // Solo usuarios autenticados con rol privilegiado pueden crear/editar/eliminar
+    const puedeSubirArchivos = isLoggedIn && hasPrivilegedRole;
+    const puedeEliminarArchivos = isLoggedIn && hasPrivilegedRole;
+    const puedeEditarMaterial = isLoggedIn && hasPrivilegedRole;
 
     const fetchCurso = async () => {
         try {
@@ -59,7 +51,8 @@ export const SupportMaterialCourse = () => {
         try {
             const resp = await axiosInstance.get(`/api/material/${id}`);
             setArchivos(Array.isArray(resp.data.materiales) ? resp.data.materiales : []);
-        } catch {
+        } catch (e) {
+            console.error('Error al consultar material', e);
             setArchivos([]);
         }
     };
@@ -194,6 +187,7 @@ export const SupportMaterialCourse = () => {
         }
     };
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {
         fetchCurso();
         fetchMaterial();
@@ -271,7 +265,7 @@ export const SupportMaterialCourse = () => {
                                                         Descargar
                                                     </a>
                                                 )}
-                                                {puedeEliminarArchivos && (
+                                                {puedeEliminarArchivos && puedeEditarMaterial && (
                                                     editingMaterial && editingMaterial.ID === archivo.ID ? (
                                                         <>
                                                             <button className='btn-editar' onClick={editarMaterial}>Guardar</button>
@@ -308,7 +302,7 @@ export const SupportMaterialCourse = () => {
                         <span>Tipo de material</span>
                         <div className="statusButtons" style={{ width: '90%' }}>
                             {['PDF','Video','Enlace'].map((t)=> (
-                                <button className={`status-btn ${materialType === t ? 'selected' : ''}`} onClick={()=> setMaterialType(t)}>{t}</button>
+                                <button key={t} className={`status-btn ${materialType === t ? 'selected' : ''}`} onClick={()=> setMaterialType(t)}>{t}</button>
                             ))}
                         </div>
                         <br/>

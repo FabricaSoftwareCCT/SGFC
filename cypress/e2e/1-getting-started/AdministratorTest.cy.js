@@ -33,12 +33,22 @@ describe('Probar el modulo de administrador', ()=>{
         cy.get('.courses-menu').find('.dropdown-courses').contains('button','Mis cursos').first().click({force:true})
 
         //Recorrer los filtros
-        const textosFiltros = ['En oferta', 'Finalizados', 'Oferta abierta', 'Oferta cerrada'];
+        const textosFiltros = ['Todos','Activos','En oferta', 'Finalizados', 'Oferta abierta', 'Oferta cerrada'];
         textosFiltros.forEach((texto) => {
-        cy.contains('.filtros button', texto).click();
-        cy.contains('.filtros button', texto).should('have.class', 'activo');
+        // Buscar por texto completo del botón
+        cy.contains('button', texto).click();
+        cy.contains('button', texto).should('have.class', 'active');
         cy.wait(1000);
         });
+
+        //Dar click en Ver cursos Activos
+        cy.contains('button','Ver Cursos Activos').click()
+
+        //Dar click en ver en oferta
+        cy.contains('button','Ver En Oferta').click()
+
+        //Dar click en crear nuevo curso
+        cy.contains('button', 'Crear Nuevo Curso').click()
     })
 
     it.skip('Buscar cursos', ()=>{
@@ -91,25 +101,25 @@ describe('Probar el modulo de administrador', ()=>{
         cy.get('.courses-menu').find('.dropdown-courses').contains('button','Crear curso').first().click({force:true})
 
         //Crear curso
-        cy.get('.container_createCourse').find('.containerDetails_course').find('input[placeholder="Agregar nombre del curso"]').type('Frontend',{force:true})
+        cy.get('.ficha-container').find('input[placeholder="000000"]').type('2825024')
+        cy.contains('label', 'Nombre del Curso').parent('.form-group').find('input').type('Python', { force: true });
 
-        const description ='A'.repeat(300)
-        cy.get('.container_createCourse').find('.containerInput_description_course').find('textarea[placeholder="Agregar descripción del curso (mínimo 300 caracteres)"]').type(description)
+        const description = 'A'.repeat(100);
+        cy.get('textarea[placeholder="Describe el curso en detalle (mínimo 100 caracteres)"]').type(description);       
 
-        cy.get('.containerDetails_course2').find('.containerInput_ficha').find('input[id="fichaCourse"]').type(2825019)
+        
+        cy.contains('button', 'En Oferta').click()
+        cy.contains('button', 'Abierta').click()
 
-        cy.contains('.offer-button', 'Abierta').click()
-        cy.contains('.offer-button', 'Activo').click()
+        cy.get('.info-item').find('input[placeholder="Número de días"]').clear().type('20')
+        cy.get('.info-item').find('input[placeholder="Sena Agropecuario"]').type('Virtual')
 
-        cy.get('.containerDetails_course2').get('.duracion-inputs').find('input[placeholder="Días"]').clear().type('20')
-        cy.get('.containerDetails_course2').get('.lugar-formacion').find('input[type="text"]').type('Virtual')
-
-        cy.get('.addDate').first().click()
+        cy.get('.schedule-btn').first().click()
 
         //Ingresar Fechas
-        cy.get('.organized-date-inputs').contains('label', 'Fecha inicio:').find('input[type="date"]').eq(0).type('2025-11-05')
+        cy.get('.organized-date-inputs').contains('label', 'Fecha inicio:').find('input[type="date"]').eq(0).type('2025-11-11')
         cy.get('.organized-date-inputs').contains('label', 'Fecha fin:').find('input[type="date"]').last().type('2025-11-24')
-
+        
         //Seleccionar horario de curso
         const selectTimeSlot = (time, day) => {
         const timeSlots = {
@@ -134,9 +144,15 @@ describe('Probar el modulo de administrador', ()=>{
         
         //Guardar Fechas
         cy.get('.save-button-calendar').click()
-        cy.get('.buttonCreate_Course').click()
+      
+        //Agregar fecha al temario
+        cy.contains('Temario del Curso').parent().find('input[type="date"]').type('2025-11-11');
 
+        //Agregar Temario
+        cy.get('textarea[placeholder*="Agregar nuevo tema"]').type('Introducción al curso');
         
+        //Guardar curso
+        cy.contains('button','Crear Curso').click()
     })
 
     it.skip('Ingresar a Material de Apoyo',()=>{
@@ -176,6 +192,7 @@ describe('Probar el modulo de administrador', ()=>{
         cy.get('.btn-eliminar').first().click({force:true})
     })
 
+
     it.skip('Ir a la sección de Gestiones(Crear Instructor)', ()=>{
         cy.visit("http://localhost:5173/") 
         cy.get(".button_signIn").first().click({force : true})
@@ -199,12 +216,12 @@ describe('Probar el modulo de administrador', ()=>{
         cy.get(".btn_createInstructor").click()
         
         //Llenar datos del instructor
-        cy.get('#modal-overlayCreateInstructor').find('.modal-left').contains('label', 'Nombres').first().find('input[type="text"]').type('Samuel')
-        cy.get('#modal-overlayCreateInstructor').find('.modal-left').contains('label', 'Apellidos').first().find('input[type="text"]').type('Rojas')
+        cy.get('#modal-overlayCreateInstructor').find('.modal-left').contains('label', 'Nombres').first().find('input[type="text"]').type('Joan')
+        cy.get('#modal-overlayCreateInstructor').find('.modal-left').contains('label', 'Apellidos').first().find('input[type="text"]').type('Hincapie')
         cy.get('#modal-overlayCreateInstructor').find('.modal-left').contains('label', 'Cédula').first().find('input[name="documento"]').type('8888889')
         cy.get('.modal-left').contains('label', 'Título').find('input[type="text"]').type('Instructor')
         cy.get('#modal-overlayCreateInstructor').find('.modal-left').contains('label', 'Celular').first().find('input[name="celular"]').type('3105557789')
-        cy.get('#modal-overlayCreateInstructor').find('.modal-left').contains('label', 'Email').first().find('input[type="email"]').type('dafar65911@fandoe.com')
+        cy.get('#modal-overlayCreateInstructor').find('.modal-left').contains('label', 'Email').first().find('input[type="email"]').type('hincapiefernandezjoan123@gmail.com')
         cy.get('#modal-overlayCreateInstructor').find('.status-container').contains('.status', 'Activo').first().click({force:true})
         cy.get('.modal-right').get('.save-button').first().click({force : true})
     })
@@ -234,8 +251,56 @@ describe('Probar el modulo de administrador', ()=>{
         cy.get('.edit-button-updateInstructor').first().click({force:true})
 
         //Modificar datos del instructor
-        cy.get('.modal-left-update').find('input[name="email"]').first().clear({force:true}).type('Andres Felipe')
+        cy.get('.modal-left-update').find('input[name="nombres"]').first().clear({force:true}).type('Andres Felipe')
         cy.get('.edit-button-updateInstructor').first().click({force:true})
+    })
+
+    it.skip('asignar un curso a un instructor desde gestionar instructores',()=>{
+        cy.visit("http://localhost:5173/") 
+        cy.get(".button_signIn").first().click({force : true})
+
+        //Ingresar credenciales del rol administrador
+        cy.get('input[type="email"]').first()
+            .type('administrador@gmail.com')
+        cy.get('input[type="password"]')
+            .type('Admin1234*')
+            
+        //Iniciar sesión
+        cy.get(".button_register").click()
+
+        // Click forzado en el botón Gestiones
+        cy.get('.container_options').get('.gestiones').first().click({force:true})
+
+        //Entrar a Gestion Instructores
+        cy.contains('button', 'Gestión de Instructores').first().click({force:true})
+        cy.contains('button', 'Ver perfil').click()
+        cy.contains('button', 'Gestionar cursos asignados').click()
+        cy.get('.search-row').find('input[placeholder="Buscar por nombre o ficha"]').type('frontend')
+        cy.contains('button','Asignar').first().click()
+    })
+
+    it.skip('Eliminar un curso asignado desde gestionar instructores',()=>{
+        cy.visit("http://localhost:5173/") 
+        cy.get(".button_signIn").first().click({force : true})
+
+        //Ingresar credenciales del rol administrador
+        cy.get('input[type="email"]').first()
+            .type('administrador@gmail.com')
+        cy.get('input[type="password"]')
+            .type('Admin1234*')
+            
+        //Iniciar sesión
+        cy.get(".button_register").click()
+
+        // Click forzado en el botón Gestiones
+        cy.get('.container_options').get('.gestiones').first().click({force:true})
+
+        //Entrar a Gestion Instructores
+        cy.contains('button', 'Gestión de Instructores').first().click({force:true})
+        cy.contains('button', 'Ver perfil').click()
+        cy.contains('button', 'Gestionar cursos asignados').click()
+        cy.get('.search-row').find('input[placeholder="Buscar por nombre o ficha"]').type('frontend')
+        cy.get('.asignado-item').contains('button', 'Eliminar').click()
     })
 
     it.skip('Crear un Gestor', ()=>{
@@ -261,11 +326,11 @@ describe('Probar el modulo de administrador', ()=>{
         cy.get(".btn_createGestor").click()
 
         //Llenar datos del gestor
-        cy.get('#modal-overlayCreateGestor').find('.modal-left').contains('label', 'Nombres').first().find('input[type="text"]').type('David')
-        cy.get('#modal-overlayCreateGestor').find('.modal-left').contains('label', 'Apellidos').first().find('input[type="text"]').type('Alfonso')
+        cy.get('#modal-overlayCreateGestor').find('.modal-left').contains('label', 'Nombres').first().find('input[type="text"]').type('Joan')
+        cy.get('#modal-overlayCreateGestor').find('.modal-left').contains('label', 'Apellidos').first().find('input[type="text"]').type('Fernandez')
         cy.get('#modal-overlayCreateGestor').find('.modal-left').contains('label', 'Documento').first().find('input[type="text"]').type('9999998')
         cy.get('#modal-overlayCreateGestor').find('.modal-left').contains('label', 'Celular').first().find('input[type="text"]').type('3137778776')
-        cy.get('#modal-overlayCreateGestor').find('.modal-left').contains('label', 'Email').first().find('input[type="email"]').type('royib51906@filipx.com')
+        cy.get('#modal-overlayCreateGestor').find('.modal-left').contains('label', 'Email').first().find('input[type="email"]').type('hincapiefernandezjoan123@gmail.com')
 
         //Ponerle un estado al usuario
         cy.get('#modal-overlayCreateGestor').find('.status-container').contains('.status', 'Activo').first().click({force:true})
@@ -435,16 +500,22 @@ describe('Probar el modulo de administrador', ()=>{
         cy.get('.container_options').get('.empresas').first().click({force:true})
         cy.contains('button', 'Añadir Empresa').click({force:true})
 
+        //Llenar datos del manaer
+        cy.get('.form-group-dual').find('input[name="email"]').type('manger@gmail.com')
+        cy.get('.form-group-dual').find('input[name="password"]').type('Prueba1234*')
+        cy.get('.form-group-dual').find('input[name="confirmPassword"]').type('Prueba1234*')
+
         //Llenar datos de la empresa
-        cy.get('.modal-body-company').find('input[placeholder="Ingrese el nombre de la empresa"]').type('Tech Solutions')
-        cy.get('.modal-body-company').find('input[placeholder="Ingrese el NIT"]').type('900123456')
+        cy.get('.form-group-dual').find('input[name="nombre_empresa"]').type('Tech Solutions')
+        cy.get('.form-group-dual').find('input[name="NIT"]').type('900123456')
         cy.get('select[name="categoria"]').select('tecnologia');
-        cy.get('.modal-body-company').find('input[placeholder="Ingrese la dirección completa"]').type('Calle 123 #45-67, Ciudad')
-        cy.get('.modal-body-company').find('input[placeholder="Ingrese el teléfono"]').type('3001234567')
-        cy.get('.modal-body-company').find('input[placeholder="Ingrese el email corporativo"]').type('Techno@gmail.com')
+        cy.get('.form-group-dual').find('input[name="direccion"]').type('Calle 123 #45-67, Ciudad')
+        cy.get('.form-group-dual').find('input[name="telefono"]').type('3001234567')
+        cy.get('.form-group-dual').find('input[name="email_empresa"]').type('Techno@gmail.com')
         cy.get('select[name="departamento_ID"]').select('Quindío');
         cy.get('select[name="ciudad_ID"]').select('Armenia');
-        cy.contains('button', 'Crear Empresa').click({force:true})
+        cy.get('.form-group-dual').find('textarea[id="descripcion"]').type('Descripción')
+        cy.contains('button', 'Crear Empresa y Manager').click({force:true})
     })
 
     it.skip('Visualizar empresa y manager', ()=>{
@@ -486,6 +557,43 @@ describe('Probar el modulo de administrador', ()=>{
         //Guardar cambios
         cy.contains('button', 'Guardar Cambios').click({force:true})
         
+    })
+
+    it.skip('Gestionar Empresa', ()=>{
+        cy.visit("http://localhost:5173/") 
+        cy.get(".button_signIn").first().click({force : true})
+
+        //Ingresar credenciales del rol administrador
+        cy.get('input[type="email"]').first()
+            .type('administrador@gmail.com')
+        cy.get('input[type="password"]')
+            .type('Admin1234*')
+            
+        //Iniciar sesión
+        cy.get(".button_register").click()
+
+        // Click forzado en el botón Empresas
+        cy.get('.container_options').get('.empresas').first().click({force:true})
+
+        //Gestionar Empresa
+        cy.contains('button','Gestionar').click()
+
+        //Editar Empresa
+        cy.get('.edit-button-updateEmpresa').contains('button', 'Editar Empresa').click()
+
+        //Llenar datos de Empresa
+        cy.get('.modal-left-update').find('input[name="nombre_empresa"]').first().type('Mactech')
+        cy.get('.modal-left-update').find('input[name="NIT"]').first().type('999999999')
+        cy.get('.modal-left-update').find('input[name="categoria"]').first().type('Tecnologia')
+        cy.get('select.input_updateData').eq(0).select('Quindío');
+        cy.get('select.input_updateData').eq(1).select('Armenia');
+        cy.get('.modal-left-update').find('input[name="telefono"]').first().type('1111111111')
+        cy.get('.modal-left-update').find('input[name="direccion"]').first().type('dirección falsa')
+        cy.get('.modal-left-update').find('input[name="email_empresa"]').first().type('mactech@gmail.com')
+        cy.get('.modal-left-update').contains('button','Activo').click()
+        cy.get('.modal-right').get('.edit-button-updateEmpresa').contains('button', 'Guardar Cambios').first().click({force:true})
+        
+
     })
 
     it.skip('Gestión de Empleados', ()=>{
@@ -550,6 +658,67 @@ describe('Probar el modulo de administrador', ()=>{
         cy.get('.modal-left-update').find('.status-buttons').contains('button', 'activo').first().click({force:true})
         cy.get('.edit-button-updateInstructor').click({force:true})
 
+    })
+
+    it.skip('Gestión de Usuarios', ()=>{
+        cy.visit("http://localhost:5173/") 
+        cy.get(".button_signIn").first().click({force : true})
+
+        //Ingresar credenciales del rol administrador
+        cy.get('input[type="email"]').first()
+            .type('administrador@gmail.com')
+        cy.get('input[type="password"]')
+            .type('Admin1234*')
+            
+        //Iniciar sesión
+        cy.get(".button_register").click()
+
+        //dar click a Gestiones
+        cy.get('.container_options').get('.gestiones-menu').contains('button', 'Gestiones').first().click({force : true})
+        cy.get('.dropdown-gestiones').contains('button', 'Gestión de Usuarios').first().click({force : true})
+
+        //Usar filtro y cambiar rol a un usuario
+        cy.get('.filterOptionName').first().find('input[placeholder="Escriba el nombre del usuario"]').type('Joan')
+        cy.contains('button', 'Filtrar'). click()
+        cy.contains('button', 'Ver usuario').click()
+        cy.contains('button', 'Editar usuario').click()
+        cy.contains('button','Empresa').click()
+        cy.contains('button', 'Guardar Cambios').click()
+
+    })
+
+    it.skip('visitar el historial de cambios', ()=>{
+        cy.visit("http://localhost:5173/") 
+        cy.get(".button_signIn").first().click({force : true})
+
+        //Ingresar credenciales del rol administrador
+        cy.get('input[type="email"]').first()
+            .type('administrador@gmail.com')
+        cy.get('input[type="password"]')
+            .type('Admin1234*')
+            
+        //Iniciar sesión
+        cy.get(".button_register").click()
+
+        //dar click a Hisotiral
+        cy.get('a[href="/Gestiones/Historial"]').first().click({force:true});
+    })
+
+    it.skip('cerrar sesión', ()=>{
+        cy.visit("http://localhost:5173/") 
+        cy.get(".button_signIn").first().click({force : true})
+
+        //Ingresar credenciales del rol administrador
+        cy.get('input[type="email"]').first()
+            .type('administrador@gmail.com')
+        cy.get('input[type="password"]')
+            .type('Admin1234*')
+            
+        //Iniciar sesión
+        cy.get(".button_register").click()
+
+        //Cerrar sesión
+        cy.get('.container_options_profile').find('img[alt="Cerrar sesión"]').first().click({force : true})
     })
 
 })

@@ -49,7 +49,6 @@ const registerUser = async (req, res) => {
 			titulo_profesional,
 		} = req.body;
 
-		console.log(email, password);
 		// Validar datos obligatorios
 		if (!email || !password || !accountType) {
 			return res
@@ -788,7 +787,6 @@ const getEmpresas = async (req, res) => {
 const getEmpresaByNIT = async (req, res) => {
 	try {
 		const { NIT } = req.params;
-
 		const empresa = await Empresa.findOne({
 			where: {
 				NIT,
@@ -2426,7 +2424,6 @@ const createEmpleadoForAdmin = async (req, res) => {
         //Generar contraseña temporal
         const tempPassword = await generateTempPassword();
 
-		// Encriptar la contraseña (si no se envía, usar una por defecto)
 		const hashedPassword = await bcrypt.hash(
 			tempPassword,
 			10
@@ -2666,6 +2663,16 @@ const createEmpresa = async (req, res) => {
 			sitio_web
         } = req.body;
 
+		const { email } = req.params;
+
+		console.log(email)
+
+		if(!email){
+			return res.status(400).json({
+				message: 'Es necesario el email del manager'
+			})
+		}
+
         // Validar datos obligatorios
         if (!nombre_empresa || !NIT || !categoria || !direccion || !telefono || !email_empresa || !ciudad_ID) {
             return res.status(400).json({ 
@@ -2673,41 +2680,17 @@ const createEmpresa = async (req, res) => {
             });
         }
 
-        // Verificar si el NIT ya existe
-        const existingNIT = await Empresa.findOne({ where: { NIT } });
-        if (existingNIT) {
-            return res.status(400).json({ message: 'El NIT ya está registrado' });
-        }
-
-        // Verificar si el email de empresa ya existe
-        const existingEmail = await Empresa.findOne({ where: { email_empresa } });
-        if (existingEmail) {
-            return res.status(400).json({ message: 'El email de la empresa ya está registrado' });
-        }
+		let newEmpresa = { ...req.body};
 
         // Procesar imagen si se sube
-        let img_empresa = null;
         if (req.file) {
-            img_empresa = req.file.buffer.toString('base64');
+            newEmpresa.image = req.file.buffer.toString('base64');
         } else if (req.body.img_empresa) {
-            img_empresa = req.body.img_empresa;
+            newEmpresa.image = req.body.img_empresa;
         }
 
         // Crear la empresa
-        const nuevaEmpresa = await Empresa.create({
-            NIT,
-            email_empresa,
-            nombre_empresa: nombre_empresa.trim(),
-            direccion: direccion.trim(),
-            estado,
-            categoria,
-            telefono,
-			descripcion,
-			sitio_web,
-            img_empresa,
-            ciudad_ID,
-            departamento_ID
-        });
+		const nuevaEmpresa = await UserServices.CreateEmpresaByAdmin(email, newEmpresa);
 
         res.status(201).json({ 
             message: 'Empresa creada con éxito',

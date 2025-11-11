@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Header } from '../../../Layouts/Header/Header';
 import { Footer } from '../../../Layouts/Footer/Footer';
 import { Main } from '../../../Layouts/Main/Main';
@@ -10,7 +10,10 @@ import Swal from 'sweetalert2';
 import 'sweetalert2/themes/bulma.css'
 
 export const SupportMaterial = () => {
+	const { curso } = useParams()
+
 	const navigate = useNavigate();
+	
 	const [cursoSeleccionado, setCursoSeleccionado] = useState(null);
 	const [editingMaterial, setEditingMaterial] = useState(false)
 	const [subiendoArchivo, setSubiendoArchivo] = useState(false);
@@ -45,6 +48,9 @@ export const SupportMaterial = () => {
 		try {
 			const resp = await axiosInstance.get("/api/courses/cursos")
 			setCursos(resp.data)
+			if (curso) {
+				setCursoSeleccionado(resp.data.find((c) => c.ID == curso))
+			}
 		} catch (error) {
 			console.log(error)
 			Swal.fire({
@@ -262,7 +268,7 @@ export const SupportMaterial = () => {
 	}
 
 	const esAprendiz = accountType === 'Aprendiz';
-	const puedeSubirArchivos = (accountType == "Administrador" || accountType == "Instructor") && (accountType == "Instructor" ? cursoSeleccionado.instructor_ID === userSession.id : true);
+	const puedeSubirArchivos = (accountType == "Administrador" || accountType == "Instructor") && (accountType == "Instructor" ? cursoSeleccionado?.instructor_ID === userSession.id : true);
 	const puedeEliminarArchivos = (accountType == "Administrador" || accountType == "Instructor");
 
 	useEffect(() => {

@@ -11,21 +11,16 @@ export const MisCursosAdmin = () => {
     const [todosLosCursos, setTodosLosCursos] = useState([]);
     const [cursos, setCursos] = useState([]);
     const [current, setCurrent] = useState(0);
-    const [direction, setDirection] = useState("next");
     const [filtroActivo, setFiltroActivo] = useState("Todos");
     const [loading, setLoading] = useState(true);
+    const [accountType, setAccountType] = useState("");
 
     const navigate = useNavigate();
-
-    // Obtener datos del usuario logueado (ajusta según tu auth)
-    const user = JSON.parse(localStorage.getItem("user")) || {};
-    const empresaId = user.Empresa?.ID || user.empresa_ID; // Ajusta según cómo guardes la empresa
 
     useEffect(() => {
         const fetchCursos = async () => {
             setLoading(true);
             try {
-                // Obtener datos de sesión desde localStorage o sessionStorage
                 const userSession =
                     JSON.parse(localStorage.getItem("userSession")) ||
                     JSON.parse(sessionStorage.getItem("userSession")) ||
@@ -47,7 +42,6 @@ export const MisCursosAdmin = () => {
                     setTodosLosCursos([]);
                     setCursos([]);
                 }
-                // Guardar el tipo de cuenta en el estado si lo necesitas
                 setAccountType(accountType);
             } catch (error) {
                 console.error("Error al cargar los cursos:", error);
@@ -59,10 +53,7 @@ export const MisCursosAdmin = () => {
         };
 
         fetchCursos();
-    }, []);
-
-    // Nuevo estado para accountType
-    const [accountType, setAccountType] = useState("");
+    }, []); 
 
     // Filtros según tipo de cuenta
     const filtros =
@@ -128,25 +119,12 @@ export const MisCursosAdmin = () => {
         }
     };
 
-    const next = () => {
-        setDirection("next");
-        setCurrent((prev) => (prev + 1) % cursos.length);
-    };
-
-    const prev = () => {
-        setDirection("prev");
-        setCurrent((prev) => (prev - 1 + cursos.length) % cursos.length);
-    };
-
-    const getCursoAt = (indexOffset) => {
-        const index = (current + indexOffset + cursos.length) % cursos.length;
-        return cursos[index];
-    };
-
     const handleVerCurso = () => {
-        const cursoCentral = getCursoAt(0);
-        if (cursoCentral && (cursoCentral.ID || cursoCentral.id)) {
-            navigate(`/Cursos/${cursoCentral.ID || cursoCentral.id}`);
+        if (cursos.length > 0 && cursos[current]) {
+            const curso = cursos[current];
+            if (curso.ID || curso.id) {
+                navigate(`/Cursos/${curso.ID || curso.id}`);
+            }
         }
     };
 
@@ -154,43 +132,157 @@ export const MisCursosAdmin = () => {
         <>
             <Header />
             <Main>
-                <div className="container_myCourses">
-                    <h2>
-                        Mis <span className="complementary">Cursos</span>
-                    </h2>
+                <div className="mis-cursos-admin-container">
+                    {/* Header Mejorado */}
+                    <div className="course-header-improved">
+                        <div className="header-content-improved">
+                            <h1>Mis <span>Cursos</span></h1>
+                            <div className="header-stats-improved">
+                                <div className="stat-item-improved">
+                                    <span className="stat-number">{cursos.length}</span>
+                                    <span className="stat-label">
+                                        {filtroActivo !== "Todos" ? filtroActivo : "Total"}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-                    <div className="cursos-container">
-                        <div className="filtros">
+                    {/* Filtros Mejorados */}
+                    <div className="filters-section-improved">
+                        <div className="filters-container-improved">
                             {filtros.map((filtro, idx) => (
                                 <button
                                     key={idx}
                                     onClick={() => filtrarCursos(filtro)}
-                                    className={`filtro ${filtroActivo === filtro ? "activo" : ""}`}
+                                    className={`filter-btn-improved ${filtroActivo === filtro ? "active" : ""}`}
                                 >
-                                    {filtro}
+                                    <span className="filter-text">{filtro}</span>
+                                    {filtroActivo === filtro && (
+                                        <span className="filter-indicator"></span>
+                                    )}
                                 </button>
                             ))}
                         </div>
-
-                        <CourseList loading={loading} cursos={cursos} onChange={(s) => setCurrent(s)}/>
-
-                        {cursos.length > 0 && !loading && (
-                            <button className="ver-curso" onClick={handleVerCurso}>
-                                Ver curso
-                            </button>
-                        )}
                     </div>
 
-                    <img
-                        className="illustration-woman"
-                        src="/src/assets/Ilustrations/woman-business.svg"
-                        alt="Ilustración de mujer mis cursos admin"
-                    />
-                    <img
-                        className="illustration-man"
-                        src="/src/assets/Ilustrations/man-business.svg"
-                        alt="Ilustración de hombre mis cursos admin"
-                    />
+                    {/* Contenido Principal */}
+                    <div className="main-content-improved">
+                        {/* Panel de Carrusel */}
+                        <div className="carousel-panel">
+                            {loading ? (
+                                <div className="loading-state-improved">
+                                    <div className="loading-spinner-improved"></div>
+                                    <p>Cargando cursos...</p>
+                                </div>
+                            ) : cursos.length > 0 ? (
+                                <div className="carousel-content">
+                                    <CourseList 
+                                        loading={loading} 
+                                        cursos={cursos} 
+                                        onChange={(s) => setCurrent(s)}
+                                        compact={true}
+                                    />
+                                    
+                                    <div className="carousel-controls">
+                                        <div className="carousel-info-improved">
+                                            <span className="current-course-info">
+                                                Curso {current + 1} de {cursos.length}
+                                            </span>
+                                            {cursos[current] && (
+                                                <span className="course-ficha-info">
+                                                    Ficha: {cursos[current].ficha}
+                                                </span>
+                                            )}
+                                        </div>
+                                        
+                                        <button 
+                                            className="ver-curso-btn-improved" 
+                                            onClick={handleVerCurso}
+                                        >
+                                            Ver Curso Seleccionado
+                                        </button>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="no-courses-improved">
+                                    <div className="no-courses-icon">📚</div>
+                                    <h3>No se encontraron cursos</h3>
+                                    <p>No hay cursos disponibles con los filtros seleccionados</p>
+                                    <button 
+                                        className="reset-filters-btn-improved"
+                                        onClick={() => filtrarCursos("Todos")}
+                                    >
+                                        Mostrar todos los cursos
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Panel de Información Lateral */}
+                        <div className="info-panel-improved">
+                            <div className="info-card-improved">
+                                <div className="info-header-improved">
+                                    <h3>Gestión de Cursos</h3>
+                                    <p>Administra y visualiza todos tus cursos de forma organizada</p>
+                                </div>
+
+                                <div className="quick-actions-improved">
+                                    <button 
+                                        className="action-btn-improved primary"
+                                        onClick={() => navigate('/Cursos/CrearCurso')}
+                                    >
+                                        + Crear Nuevo Curso
+                                    </button>
+                                    <button 
+                                        className="action-btn-improved secondary"
+                                        onClick={() => filtrarCursos("Activos")}
+                                    >
+                                        📊 Ver Cursos Activos
+                                    </button>
+                                    <button 
+                                        className="action-btn-improved secondary"
+                                        onClick={() => filtrarCursos("En oferta")}
+                                    >
+                                        🎯 Ver En Oferta
+                                    </button>
+                                </div>
+
+                                <div className="stats-grid-improved">
+                                    <div className="stat-card-improved">
+                                        <span className="stat-icon">📈</span>
+                                        <div className="stat-content">
+                                            <span className="stat-value">{todosLosCursos.length}</span>
+                                            <span className="stat-label">Total</span>
+                                        </div>
+                                    </div>
+                                    <div className="stat-card-improved">
+                                        <span className="stat-icon">✅</span>
+                                        <div className="stat-content">
+                                            <span className="stat-value">
+                                                {todosLosCursos.filter(c => c.estado?.toLowerCase() === 'activo').length}
+                                            </span>
+                                            <span className="stat-label">Activos</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Ilustraciones */}
+                            <div className="illustrations-container">
+                                <img
+                                    className="illustration-woman-improved"
+                                    src="/src/assets/Ilustrations/woman-business.svg"
+                                    alt="Ilustración de mujer mis cursos admin"
+                                />
+                                <img
+                                    className="illustration-man-improved"
+                                    src="/src/assets/Ilustrations/man-business.svg"
+                                    alt="Ilustración de hombre mis cursos admin"
+                                />
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </Main>
             <Footer />

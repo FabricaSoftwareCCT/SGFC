@@ -3,8 +3,10 @@
 const InscripcionCurso = require("../models/InscripcionCurso");
 const Curso = require("../models/curso");
 const Usuario = require("../models/User");
+const Empresa = require("../models/empresa")
 const { json } = require("sequelize");
 const e = require("express");
+const {sendRegistrationStatusEmail} = require('../services/emailService')
 
 const crearOActualizarInscripcion = async (req, res) => {
   const { curso_ID, aprendiz_ID, nuevoEstado } = req.body;
@@ -84,21 +86,21 @@ const crearOActualizarInscripcion = async (req, res) => {
 
 const inscripcionEmpleados = async (req, res ) => {
     try{
-      const {empleados, curso_ID, gestor_ID} = req.body;
+      const {empleados, curso_ID} = req.body;
+      
       let verificarCursos= {}
-
-      if (Object.keys(empleados).length < 0) {
+      if (!empleados === 0 || Object.keys(empleados).length === 0) {
         return res.status(400).json({
           message : 'No se enviaron bien los datos de los empleados'
         })
       }
-
-      if (!curso_ID || !gestor_ID) {
+      
+      if (!curso_ID) {
         return res.status(400).json({
           message : 'No envio el curso o el gestor'
         })
       }
-
+    
       const curso = await Curso.findByPk(curso_ID, {
         attributes : ['slots_formacion']
       })
@@ -116,7 +118,7 @@ const inscripcionEmpleados = async (req, res ) => {
             return consult
         })
       )
-     
+      
       if (aprendices.length < 0) {
           return res.status(400).json({
             message : 'No se encontraron los empleados'
@@ -153,11 +155,13 @@ const inscripcionEmpleados = async (req, res ) => {
         verificarCursos = await Promise.all(
         horiarioCursos.map(async (h) =>{
           const horarios = JSON.parse(h.horarios)
-
+          const consultName = await Usuario.findByPk(h.ID)
           const verificar = horarios.some(h => arrayCurso.includes(h))
           
           return {
             ID : h.ID,
+            nombre : consultName.dataValues.nombres,
+            apellidos : consultName.dataValues.apellidos,
             verificar,
             mensaje
           }
@@ -184,8 +188,7 @@ const inscripcionEmpleados = async (req, res ) => {
           const inscribir = await InscripcionCurso.create({
             fecha_inscripcion : new Date(),
             aprendiz_ID : e.ID,
-            curso_ID : curso_ID,
-            gestor_ID: gestor_ID
+            curso_ID : curso_ID
           })
           return inscribir
         })
@@ -202,7 +205,101 @@ const inscripcionEmpleados = async (req, res ) => {
     }
 }
 
+const getAllInscripciones = async (req, res) => {
+  try {
+    const {curso_ID} = req.params
+    
+    if (!curso_ID) {
+        return res.status(400).json({
+          message : "No se envio el id del curso"
+        })
+    }
+
+    const curso = await Curso.findByPk(curso_ID)
+    if (!curso) {
+        return res.status(404).json({
+          message : "No se encontro el curso"
+        })
+    }
+    const inscribieron = await InscripcionCurso.findAll({
+      where : {
+        curso_ID : curso_ID
+      },
+      attributes : ['ID','aprendiz_ID', 'fecha_inscripcion', 'estado_inscripcion']
+    })
+    const consultar = await Promise.all(
+      inscribieron.map( async (i) =>{
+          const consult = await Usuario.findByPk(i.aprendiz_ID)
+          const consult1 = await Empresa.findByPk(consult.dataValues.empresa_ID)
+          return {
+            id : i.aprendiz_ID,
+            nombres : consult.dataValues.nombres,
+            apellidos : consult.dataValues.apellidos,
+            empresa : consult1.dataValues.nombre_empresa,
+            celular : consult.dataValues.celular,
+            email : consult.dataValues.email,
+            fecha_inscripcion : i.fecha_inscripcion,
+            estado : i.estado_inscripcion
+          }
+      })
+    )
+    return res.status(200).json(consultar)
+  } catch (error) {
+    console.error("No se pudo obtener todas las inscripciones", error)
+    return res.status().json({
+      message : "No se pudo obtener todas las inscripciones"
+    })
+  }
+}
+
+const updateStatusInscripciones = async (req, res) =>{
+  try {
+    const {estadosP} = req.body
+    if (!estadosP || Object.keys(estadosP).length === 0) {
+      return res.status(400).json({
+      message: "No se encontraron los datos a actualizar"
+      });
+    }
+    const emails = await Promise.all(
+      estadosP.map(async (e) =>{
+       const consult = await Usuario.findByPk(e.id)
+        return {
+          nombre : consult.dataValues.nombres,
+          email : consult.dataValues.email,
+          estado : e.estado
+        }
+      })
+    )
+
+    await Promise.all(
+      estadosP.map(async (e) =>{
+        await InscripcionCurso.update(
+          {estado_inscripcion : e.estado},
+          {where : {aprendiz_ID : e.id}}
+        )
+      })
+    )
+   
+    await Promise.all(
+      emails.map((list)=>{
+        sendRegistrationStatusEmail(list.email, list.nombre, list.estado)
+      })
+    )
+    return res.status(200).json({
+      message : "Se actualizo el estado con exito"
+    })
+
+  } catch (error) {
+    console.error("No se logro actualizar el estado de la inscripcion", error)
+    return res.status(500).json({
+      message : "No se logro actualizar el estado de la inscripcion"
+    })
+  }
+}
+
 module.exports = {
   crearOActualizarInscripcion,
-  inscripcionEmpleados
+  inscripcionEmpleados,
+  getAllInscripciones,
+  updateStatusInscripciones
 };

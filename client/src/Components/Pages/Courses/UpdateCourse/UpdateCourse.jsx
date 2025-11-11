@@ -42,6 +42,13 @@ export const UpdateCourse = () => {
 	// Estado para el lugar de formación
 	const [lugarFormacion, setLugarFormacion] = useState("");
 
+	// Estado para el temario
+	const [temario, setTemario] = useState([]);
+	const [nuevaFecha, setNuevaFecha] = useState("");
+	const [nuevoTema, setNuevoTema] = useState("");
+
+	const [modalidad, setModalidad] = useState("presencial")
+
 	useEffect(() => {
 		const fetchCurso = async () => {
 			try {
@@ -78,6 +85,17 @@ export const UpdateCourse = () => {
 						: [],
 				});
 
+				// Cargar temario existente
+				if (response.data.temario) {
+					try {
+						const temarioParseado = JSON.parse(response.data.temario);
+						setTemario(temarioParseado);
+					} catch (error) {
+						console.error("Error al parsear el temario:", error);
+						setTemario([]);
+					}
+				}
+
 				// Si el curso ya tiene empresa asignada y es cerrada, selecciona la empresa por ID
 				if (tipoOfertaNormalizado === "Cerrada" && response.data.empresa_ID) {
 					try {
@@ -113,6 +131,31 @@ export const UpdateCourse = () => {
 		setIsEditCalendarOpen(false);
 	};
 
+	// Funciones para el temario
+	const agregarTema = () => {
+		if (nuevaFecha && nuevoTema.trim()) {
+			const nuevoTemaObj = {
+				fecha: nuevaFecha,
+				tema: nuevoTema.trim()
+			};
+			setTemario([...temario, nuevoTemaObj]);
+			setNuevaFecha("");
+			setNuevoTema("");
+		}
+	};
+
+	const eliminarTema = (index) => {
+		const nuevoTemario = [...temario];
+		nuevoTemario.splice(index, 1);
+		setTemario(nuevoTemario);
+	};
+
+	const handleKeyPress = (e) => {
+		if (e.key === 'Enter') {
+			agregarTema();
+		}
+	};
+
 	const handleUpdateCourse = async () => {
 		try {
 			if (curso.tipo_oferta === "Cerrada" && !empresaSeleccionada) {
@@ -132,13 +175,6 @@ export const UpdateCourse = () => {
 				return;
 			}
 
-			// Validar que la duración esté completa
-			/*if (duracionCurso < 1) {
-				alert("Por favor completa la duración del curso.");
-				return;
-			}*/
-
-			// Validar que el lugar de formación esté completo
 			if (!lugarFormacion.trim()) {
 				await Swal.fire({
 					icon: 'warning',
@@ -191,9 +227,11 @@ export const UpdateCourse = () => {
 				hora_inicio: horaInicio,
 				hora_fin: horaFin,
 				dias_formacion: JSON.stringify(diasSemana),
-				lugar_formacion: lugarFormacion, // Usar el estado del lugar de formación
+				lugar_formacion: lugarFormacion,
 				slots_formacion: JSON.stringify(calendarData.selectedSlots),
 				duracion_dias: duracionCurso,
+				temario: JSON.stringify(temario),
+				modalidad: curso.modalidad,
 				empresa_ID:
 					curso.tipo_oferta === "Cerrada"
 						? empresaSeleccionada?.ID || curso.empresa_ID
@@ -332,336 +370,346 @@ export const UpdateCourse = () => {
 		<>
 			<Header />
 			<Main>
-				<div className="container_createCourse">
-					<h2>
-						Actualizar
-						<span className="complementary"> Curso</span>
-					</h2>
+				<div className="create-course-container">
+					{/* Header */}
+					<div className="course-header">
+						<div className="header-content">
+							<h1>Actualizar <span>Curso</span></h1>
+							<div className="ficha-container">
+								<label>Ficha N°</label>
+								<input
+									type="text"
+									placeholder="000000"
+									value={curso.ficha || ""}
+									onChange={(e) => setCurso({ ...curso, ficha: e.target.value })}
+								/>
+							</div>
+						</div>
+					</div>
 
-					<div className="containerInformation_CreateCourse">
-						<input
-							type="file"
-							accept="image/*"
-							ref={fileInputRef}
-							onChange={(e) => {
-								const file = e.target.files[0];
-								if (file) {
-									const reader = new FileReader();
-									reader.onload = () => setPreview(reader.result);
-									reader.readAsDataURL(file);
-								}
-							}}
-							hidden
-						/>
-						<div className="image-and-status">
-							<label
-								className="upload-area"
-								onClick={() => fileInputRef.current.click()}
-							>
-								{preview ? (
-									<img
-										src={preview}
-										alt="Vista previa"
-										className="preview-image"
-									/>
-								) : (
-									<div className="upload-placeholder">
-										<img
-											src={addIMG}
-											alt="icono agregar imagen"
-											className="icon"
-										/>
-										<p>Arrastra o sube la foto del curso aquí.</p>
-									</div>
-								)}
-							</label>
-
-							<div className="offer-type-container">
-								<span>Estado:</span>
-								<div className="offer-options">
-									<button
-										className={`offer-button ${curso.estado?.toLowerCase() === "activo" ? "active" : ""}`}
-										onClick={(e) => {
-											e.preventDefault();
-											setCurso({ ...curso, estado: "Activo" });
-										}}
-										type="button"
-									>
-										Activo
-									</button>
-									<button
-										className={`offer-button ${curso.estado?.toLowerCase() === "en oferta" ? "active" : ""}`}
-										onClick={(e) => {
-											e.preventDefault();
-											setCurso({ ...curso, estado: "En oferta" });
-										}}
-										type="button"
-									>
-										En oferta
-									</button>
-								<button 
-									className={`offer-button-cancel ${curso.estado?.toLowerCase() === "cancelado" ? "active" : ""}`}
-									onClick={async (e) => {
-										e.preventDefault();
-										if (curso.estado?.toLowerCase() !== "cancelado") {
-											const result = await Swal.fire({
-												icon: "warning",
-												title: "Cancelar curso",
-												text: "¿Estás seguro de que deseas cancelar este curso? Esta acción no se puede deshacer.",
-												showCancelButton: true,
-												confirmButtonText: 'Sí, cancelar',
-												cancelButtonText: 'No, mantener',
-												confirmButtonColor: '#d33',
-												cancelButtonColor: '#3085d6',
-												theme: "bulma",
-												customClass: {
-													confirmButton: 'button is-danger',
-													cancelButton: 'button is-light',
-													actions: 'swal2-actions-centered'
-												},
-												buttonsStyling: false
-											});
-
-											if (result.isConfirmed) {
-												setCurso({ ...curso, estado: "Cancelado" });
-											}
+					{/* Grid Principal */}
+					<div className="course-grid">
+						{/* Columna Izquierda - Imagen e Info */}
+						<div className="side-panel">
+							<div className="image-upload">
+								<input
+									type="file"
+									accept="image/*"
+									ref={fileInputRef}
+									onChange={(e) => {
+										const file = e.target.files[0];
+										if (file) {
+											const reader = new FileReader();
+											reader.onload = () => setPreview(reader.result);
+											reader.readAsDataURL(file);
 										}
 									}}
-									type="button"
-									disabled={curso.estado?.toLowerCase() === "cancelado"}
-								>
-									Cancelado
-								</button>
-									<button
-										className={`offer-button-cancel ${curso.estado?.toLowerCase() === "finalizado" ? "active" : ""}`}
-										onClick={async (e) => {
-											e.preventDefault();
-											if (curso.estado?.toLowerCase() !== "finalizado") {
-												const result = await Swal.fire({
-													icon: "question",
-													title: "Finalizar curso",
-													text: "¿Estás seguro de que deseas finalizar este curso? Esta acción no se puede deshacer.",
-													showCancelButton: true,
-													confirmButtonText: 'Sí, finalizar',
-													cancelButtonText: 'No, mantener',
-													confirmButtonColor: '#3085d6',
-													cancelButtonColor: '#d33',
-													theme: "bulma",
-													customClass: {
-														confirmButton: 'button is-primary',
-														cancelButton: 'button is-light',
-														actions: 'swal2-actions-centered'
-													},
-													buttonsStyling: false
-												});
+									hidden
+								/>
+								<label className="upload-box" onClick={() => fileInputRef.current.click()}>
+									{preview ? (
+										<img src={preview} alt="Vista previa" className="preview-image" />
+									) : (
+										<>
+											<img src={addIMG} alt="Agregar imagen" className="upload-icon" />
+											<span className="upload-text">Sube la foto del curso</span>
+										</>
+									)}
+								</label>
+							</div>
 
-												if (result.isConfirmed) {
-													setCurso({ ...curso, estado: "Finalizado" });
-												}
-											}
-										}}
-										type="button"
-										disabled={curso.estado?.toLowerCase() === "finalizado"}>
-										Finalizado
-									</button>
+							<div className="quick-info">
+								<div className="info-item">
+									<label>Duración del Curso</label>
+									<input
+										type="number"
+										placeholder="Número de días"
+										min="1"
+										value={duracionCurso}
+										onChange={(e) => setDuracionCurso(e.target.value)}
+									/>
 								</div>
+								<div className="info-item">
+									<label>Lugar de Formación</label>
+									<input
+										type="text"
+										placeholder="Sena Agropecuario"
+										value={lugarFormacion}
+										onChange={(e) => setLugarFormacion(e.target.value)}
+									/>
+								</div>
+								<button className="schedule-btn" onClick={() => setIsEditCalendarOpen(true)}>
+									<img src={calendar} alt="Calendario" />
+									Seleccionar Horarios
+								</button>
 							</div>
 						</div>
 
-						<div className="containerDetails_course">
-							<div id="containerInput_ficha">
-								<label htmlFor="fichaCourse">Ficha: </label>
+						{/* Columna Central - Formulario Principal */}
+						<div className="main-form">
+							<div className="form-group">
+								<label>Nombre del Curso</label>
 								<input
-									id="fichaCourse"
+									className="form-input"
 									type="text"
-									value={curso.ficha || ""}
-									onChange={(e) =>
-										setCurso({ ...curso, ficha: e.target.value })
-									}
+									placeholder="Ingresa el nombre del curso"
+									value={curso.nombre_curso || ""}
+									onChange={(e) => setCurso({ ...curso, nombre_curso: e.target.value })}
 								/>
 							</div>
-							<input
-								className="addName"
-								type="text"
-								value={curso.nombre_curso || ""}
-								onChange={(e) => {
-									setCurso({ ...curso, nombre_curso: e.target.value });
-								}}
-							/>
-							<div className='containerInput_description_course'>
-								<textarea
-									className='addDetails'
-									placeholder='Agregar descripción del curso (mínimo 300 caracteres)'
-									value={curso.descripcion || ""}
-									onChange={(e) => {
-										setCurso({ ...curso, descripcion: e.target.value });
-									}} 
-									minLength={300}
-									rows={6}
-									style={{ resize: "vertical", width: "99%" }}
-								/>
-								<div
-									className={`descripcion-counter ${curso.descripcion.length < 300 ? 'rojo' : 'verde'}`}
-								>
-									{curso.descripcion.length} / 300 caracteres
-								</div>
-							</div>
 
-							<div className="containerDetails_course2">
-								<div className="Type_offer">
-									<div className="offer-type-container">
-										<span>Tipo de oferta:</span>
-										<div className="offer-options">
-											<button
-												className={`offer-button ${curso.tipo_oferta?.toLowerCase() === "cerrada" ? "active" : ""}`}
-												onClick={(e) => {
-													e.preventDefault();
-													setCurso({ ...curso, tipo_oferta: "Cerrada" });
-												}}
-												type="button"
-											>
-												Cerrada
-											</button>
-											<button
-												className={`offer-button ${curso.tipo_oferta?.toLowerCase() === "abierta" ? "active" : ""}`}
-												onClick={(e) => {
-													e.preventDefault();
-													setCurso({ ...curso, tipo_oferta: "Abierta" });
-												}}
-												type="button"
-											>
-												Abierta
-											</button>
-										</div>
-
-										{/* Sección de duración del curso */}
-										<div className="duracion">
-											<span>Duración en días:</span>
-											<div className="duracion-inputs">
-												<input
-													className="time-duracion"
-													type="number"
-													placeholder="Días"
-													min="1"
-													value={duracionCurso}
-													onChange={(e) => setDuracionCurso(e.target.value)}
-												/>
-											</div>
-										</div>
-
-										{/* Sección de lugar de formación */}
-										<div className="lugar-formacion">
-											<span>Lugar de formación:</span>
-											<input
-												className="input-lugar-formacion"
-												type="text"
-												placeholder="Ej: Centro de Formación SENA, Aula 101"
-												value={lugarFormacion}
-												onChange={(e) => setLugarFormacion(e.target.value)}
-											/>
+							<section className='text-create'>
+								<div className="form-group">
+									<label>Descripción del Curso</label>
+									<div className="textarea-container">
+										<textarea
+											className="form-textarea"
+											placeholder="Describe el curso en detalle (mínimo 300 caracteres)"
+											value={curso.descripcion || ""}
+											onChange={(e) => setCurso({ ...curso, descripcion: e.target.value })}
+											minLength={300}
+											rows={5}
+										/>
+										<div className={`char-counter ${curso.descripcion.length < 300 ? 'min' : 'ok'}`}>
+											{curso.descripcion.length} / 300 caracteres
 										</div>
 									</div>
-									
-									{/* Mostrar campo empresa solo si la oferta es Cerrada */}
-									{curso.tipo_oferta === "Cerrada" && (
-										<div className='containerInput_company'>
-											<label htmlFor="nit_company">Empresa</label>
-											{empresaSeleccionada ? (
-												<div className='empresa-seleccionada'>
-													<p className='nombre_empresaSeleccionada'>
-														{empresaSeleccionada.nombre_empresa}
-													</p>
-													<button
-														type="button"
-														className='buttonEditEmpresa'
-														onClick={() => {
-															setEmpresaSeleccionada(null);
-															setEmpresaNIT('');
-															setResultadosEmpresa([]);
-															setShowResultados(false);
-														}}
-													>
-														<img src={buttonEdit} alt="Editar empresa" style={{ width: 20, height: 20 }} />
-													</button>
-												</div>
-											) : (
-												<>
-													<input
-														id='nit_company'
-														type="text"
-														placeholder='NIT de la empresa'
-														value={empresaNIT}
-														onChange={(e) => {
-															setEmpresaNIT(e.target.value);
-															setShowResultados(true);
-														}}
-														autoComplete="off"
-													/>
-													{empresaNIT.trim() !== '' && (
-														<ul className="resultados-empresa">
-															{showResultados && resultadosEmpresa.length > 0 ? (
-																resultadosEmpresa.map((empresa) => (
-																	<li
-																		key={empresa.ID}
-																		onClick={() => {
-																			setEmpresaSeleccionada(empresa);
-																			setEmpresaNIT('');
-																			setShowResultados(false);
-																		}}
-																	>
-																		{empresa.nombre_empresa}
-																	</li>
-																))
-															) : (
-																<li style={{ color: '#d32f2f' }}>No hay resultados</li>
-															)}
-														</ul>
+								</div>
+
+								<div className="form-group">
+									<label>Configuración del Curso</label>
+									<div className="offer-options-grid">
+										<div>
+											<label style={{ fontSize: '0.8rem', display: 'block', marginBottom: '0.5rem', color: '#b0b0b0' }}>Estado del Curso</label>
+											<div className="option-buttons">
+												<button
+													className={`option-btn ${curso.estado?.toLowerCase() === "activo" ? "active" : ""}`}
+													onClick={(e) => {
+														e.preventDefault();
+														setCurso({ ...curso, estado: "Activo" });
+													}}
+													type="button"
+												>
+													Activo
+												</button>
+												<button
+													className={`option-btn ${curso.estado?.toLowerCase() === "en oferta" ? "active" : ""}`}
+													onClick={(e) => {
+														e.preventDefault();
+														setCurso({ ...curso, estado: "En oferta" });
+													}}
+													type="button"
+												>
+													En Oferta
+												</button>
+												<button 
+													className={`option-btn-cancel ${curso.estado?.toLowerCase() === "cancelado" ? "active" : ""}`}
+													onClick={(e) => {
+														e.preventDefault();
+														if (curso.estado?.toLowerCase() !== "cancelado") {
+															const confirmar = window.confirm("¿Estás seguro de que deseas cancelar este curso? Esta acción no se puede deshacer.");
+															if (confirmar) {
+																setCurso({ ...curso, estado: "Cancelado" });
+															}
+														}
+													}}
+													type="button"
+													disabled={curso.estado?.toLowerCase() === "cancelado"}
+												>
+													Cancelado
+												</button>
+												<button
+													className={`option-btn-cancel ${curso.estado?.toLowerCase() === "finalizado" ? "active" : ""}`}
+													onClick={(e) => {
+														e.preventDefault();
+														if (curso.estado?.toLowerCase() !== "finalizado") {
+															const confirmar = window.confirm("¿Estás seguro de que deseas finalizar este curso? Esta acción no se puede deshacer.");
+															if (confirmar) {
+																setCurso({ ...curso, estado: "Finalizado" });
+															}
+														}
+													}}
+													type="button"
+													disabled={curso.estado?.toLowerCase() === "finalizado"}
+												>
+													Finalizado
+												</button>
+											</div>
+										</div>
+										<div>
+											<label style={{ fontSize: '0.8rem', display: 'block', marginBottom: '0.5rem', color: '#b0b0b0' }}>Tipo de Oferta</label>
+											<div className="option-buttons">
+												<button
+													className={`option-btn ${curso.tipo_oferta?.toLowerCase() === "cerrada" ? "active" : ""}`}
+													onClick={(e) => {
+														e.preventDefault();
+														setCurso({ ...curso, tipo_oferta: "Cerrada" });
+													}}
+													type="button"
+												>
+													Cerrada
+												</button>
+												<button
+													className={`option-btn ${curso.tipo_oferta?.toLowerCase() === "abierta" ? "active" : ""}`}
+													onClick={(e) => {
+														e.preventDefault();
+														setCurso({ ...curso, tipo_oferta: "Abierta" });
+													}}
+													type="button"
+												>
+													Abierta
+												</button>
+											</div>
+										</div>
+									</div>
+								</div>
+							</section>
+						</div>
+
+						{/* Columna Derecha - Empresa, Instructor, Temario y Acciones */}
+						<div className="side-actions">
+							{curso.tipo_oferta === "Cerrada" && (
+								<div className="company-section">
+									<label>Empresa Asociada</label>
+									{empresaSeleccionada ? (
+										<div className="company-selected">
+											<span className="company-name">{empresaSeleccionada.nombre_empresa}</span>
+											<button
+												className="edit-company"
+												onClick={() => {
+													setEmpresaSeleccionada(null);
+													setEmpresaNIT('');
+													setShowResultados(false);
+												}}
+											>
+												<img src={buttonEdit} alt="Editar empresa" />
+											</button>
+										</div>
+									) : (
+										<div style={{ position: 'relative' }}>
+											<input
+												className="form-input"
+												type="text"
+												placeholder="Buscar por NIT de empresa"
+												value={empresaNIT}
+												onChange={(e) => {
+													setEmpresaNIT(e.target.value);
+													setShowResultados(true);
+												}}
+												autoComplete="off"
+											/>
+											{empresaNIT.trim() !== "" && showResultados && (
+												<ul className="company-results">
+													{resultadosEmpresa.length > 0 ? (
+														resultadosEmpresa.map((empresa) => (
+															<li
+																key={empresa.ID}
+																onClick={() => {
+																	setEmpresaSeleccionada(empresa);
+																	setEmpresaNIT("");
+																	setShowResultados(false);
+																}}
+															>
+																{empresa.nombre_empresa}
+															</li>
+														))
+													) : (
+														<li style={{ color: "#ff6b6b" }}>No se encontraron empresas</li>
 													)}
-												</>
+												</ul>
 											)}
 										</div>
 									)}
 								</div>
+							)}
 
-								<div className="details_Date_Instructor">
-									<p id='p_addInstructor'>
-										Instructor: {curso?.Instructor ? `${curso.Instructor.nombres} ${curso.Instructor.apellidos}` : "Sin asignar"}
-										<button
-											className='addInstructor'
-											type="button"
-											onClick={() => setShowAssignModal(true)}
-										>
-											<img src={buttonEdit} alt="Invitar instructor" />
-										</button>
-									</p>
-									{showAssignModal && (
-										<AssignInstructorCourse
-											curso_ID={curso?.ID || id}
-											onClose={() => setShowAssignModal(false)}
-										/>
-									)}
+							<div className="instructor-section">
+								<label>Instructor Asignado</label>
+								<div className="instructor-info">
+									<span className="instructor-name">
+										{curso?.Instructor ? `${curso.Instructor.nombres} ${curso.Instructor.apellidos}` : "Sin asignar"}
+									</span>
 									<button
-										className="addDate"
-										type="button"
-										onClick={() => setIsEditCalendarOpen(true)}
+										className="edit-instructor"
+										onClick={() => setShowAssignModal(true)}
 									>
-										<img src={calendar} alt="" />
-										Editar fechas y horarios
+										<img src={buttonEdit} alt="Editar instructor" />
 									</button>
 								</div>
 							</div>
 
-							<button
-								className="buttonCreate_Course"
-								onClick={handleUpdateCourse}
-							>
-								Actualizar curso
-							</button>
+							{/* Sección del Temario */}
+							<div className="syllabus-section">
+								<label>Temario del Curso</label>
+
+								<div className="syllabus-inputs">
+									<input
+										type="date"
+										value={nuevaFecha}
+										onChange={(e) => setNuevaFecha(e.target.value)}
+									/>
+									<textarea
+										className='form-textarea-right'
+										type="text"
+										placeholder="Agregar nuevo tema"
+										value={nuevoTema}
+										onChange={(e) => setNuevoTema(e.target.value)}
+										onKeyPress={handleKeyPress}
+									/>
+									<button
+										className="add-topic-btn"
+										onClick={agregarTema}
+										disabled={!nuevaFecha || !nuevoTema.trim()}
+									>
+										+
+									</button>
+								</div>
+
+								{temario.length > 0 ? (
+									<div className="syllabus-list">
+										<div className="syllabus-header">
+											<span>FECHA</span>
+											<span>CONTENIDO</span>
+											<span></span>
+										</div>
+										{temario.map((item, index) => (
+											<div key={index} className="syllabus-item">
+												<span className="syllabus-date">{item.fecha}</span>
+												<span className="syllabus-topic">{item.tema}</span>
+												<button
+													className="delete-topic"
+													onClick={() => eliminarTema(index)}
+												>
+													×
+												</button>
+											</div>
+										))}
+									</div>
+								) : (
+									<div className="empty-syllabus">
+										No hay temas agregados al temario aún.
+									</div>
+								)}
+							</div>
+
+							<div className="create-btn-container">
+								<button className="create-btn" onClick={handleUpdateCourse}>
+									Actualizar Curso
+								</button>
+							</div>
 						</div>
 					</div>
 				</div>
 			</Main>
 			<Footer />
+
+			{showAssignModal && (
+				<AssignInstructorCourse
+					curso_ID={curso?.ID || id}
+					onClose={() => setShowAssignModal(false)}
+				/>
+			)}
+
 			{isEditCalendarOpen && (
 				<EditCalendar
 					show={isEditCalendarOpen}

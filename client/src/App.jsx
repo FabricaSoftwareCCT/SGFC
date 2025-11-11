@@ -15,6 +15,7 @@ import { CreateCourse } from './Components/Pages/Courses/CreateCourse/CreateCour
 import { ConsultCourses } from './Components/Pages/Courses/Consult/ConsultCourses';
 import { SeeCourse } from './Components/Pages/Courses/SeeCourse/SeeCourse';
 import { UpdateCourse } from './Components/Pages/Courses/UpdateCourse/UpdateCourse';
+import {RegistrationsGestor} from './Components/Pages/GestionsGestor/RegistrationsGestor/RegistrationsGestor'
 import { MisCursos } from './Components/Pages/Courses/MisCursos/MisCursos';
 import { GestionsInstructor } from './Components/Pages/GestionsInstructor/GestionsInstructor';
 import { GestionsGestor } from './Components/Pages/GestionsGestor/GestionsGestor';
@@ -61,6 +62,7 @@ import { SeeAllCourseCriteria } from './Components/Pages/CriteriaManagment/SeeCo
 import { SeeCertificationHistorial } from './Components/Pages/CriteriaManagment/SeeCertificationHistorial/SeeCertificationHistorial';
 import { GestionUsuarios } from './Components/Pages/GestionUsuarios/GestionUsuarios';
 import { Historial } from './Components/Pages/Historial/Historial';
+import ReporteAsistenciaProgreso from './Components/Pages/GestionReporteAsistenciaProgreso/ReporteAsistenciaProgreso';
 
 // Crear un componente Layout que envuelva las páginas con Header y Footer
 const Layout = ({ children, setShowSignIn, setShowSignUp, setShowModalGeneral }) => {
@@ -291,6 +293,10 @@ function App() {
 						element={<UpdateCourse />}
 					/>
 					<Route
+						path="/Cursos/Inscripciones/:id"
+						element={<RegistrationsGestor/>}
+					/>
+					<Route
 						path="/Gestiones/Instructor"
 						element={<GestionsInstructor />}
 					/>
@@ -323,6 +329,16 @@ function App() {
 							setShowModalGeneral={setShowModalGeneral}
 						>
 							<ReporteEstadisticas />
+						</Layout>
+					} />
+					{/* NUEVA RUTA: Reporte de Asistencia y Progreso */}
+					<Route path="/reportes/asistencia-progreso" element={
+						<Layout
+							setShowSignIn={setShowSignIn}
+							setShowSignUp={setShowSignUp}
+							setShowModalGeneral={setShowModalGeneral}
+						>
+							<ReporteAsistenciaProgreso />
 						</Layout>
 					} />
 
@@ -359,6 +375,7 @@ function App() {
 					<Route path="/no-autorizado" element={<NoAutorizado />} />
 					<Route path="/SolicitarCurso" element={<RequestCourse />} />        
 					<Route path="/SupportMaterial" element={<SupportMaterial/>}/>
+					<Route path="/SupportMaterial/:curso" element={<SupportMaterial/>}/>
                     <Route path="/SupportMaterialCourse/:id" element={<SupportMaterialCourse/>}/>
 	
 					<Route path='/SolicitarCursoAp' element={<RequestCourseAp />} />

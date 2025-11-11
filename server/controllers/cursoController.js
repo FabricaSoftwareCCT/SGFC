@@ -245,6 +245,7 @@ const createCurso = async (req, res) => {
 			slots_formacion,
 			cupos_disponibles,
 			duracion_dias,
+			modalidad,
 			empresa_ID // Esperado solo si tipo_oferta es "Cerrada"
 		} = req.body;
 
@@ -326,7 +327,8 @@ const createCurso = async (req, res) => {
 			empresa_ID: finalEmpresaID,
 			slots_formacion: slotsFormacionString,
 			duracion_dias,
-			cupos_disponibles
+			cupos_disponibles,
+			modalidad
 		});
 
 		res.status(201).json({ message: "Curso creado con éxito.", curso: nuevoCurso });
@@ -385,7 +387,8 @@ const updateCurso = async (req, res) => {
 			estado,
 			slots_formacion,
 			empresa_ID,
-			duracion_dias
+			duracion_dias,
+			modalidad
 		} = req.body;
 
 		const userData = await User.findByPk(userId);
@@ -442,6 +445,7 @@ const updateCurso = async (req, res) => {
 			lugar_formacion,
 			estado,
 			duracion_dias,
+			modalidad,
 			empresa_ID: tipo_oferta === "Cerrada" ? finalEmpresaID : null, // ✅ Actualizar o limpiar
 		};
 
@@ -592,41 +596,45 @@ const getCursoParticipants = async (req, res) => {
 	try {
 		const { courseId } = req.params;
 		const { page, limit, name, doc, state } = req.query;
+		
+		// Convertir limit y page a números si existen
+		const limitNum = limit ? (isNaN(parseInt(limit, 10)) ? null : parseInt(limit, 10)) : null;
+		const pageNum = page ? (isNaN(parseInt(page, 10)) ? null : parseInt(page, 10)) : null;
 
 		let includeTerms = {
 			model: dbInstance.Usuario,
 			as: 'aprendiz',
-			attributes: ['ID', 'nombres', 'apellidos', 'email', 'documento', 'foto_perfil', 'estado']
+			attributes: ['ID', 'nombres', 'apellidos', 'email', 'documento', 'foto_perfil', 'estado'],
+			required: false // LEFT JOIN - incluir incluso si no hay aprendiz
 		}
 		
+		// Construir condiciones where para el aprendiz si hay filtros
+		const whereConditions = {};
+		
 		if (name?.length > 0) {
-			includeTerms = {
-				...includeTerms,
-				where: Sequelize.where(
-					Sequelize.fn('CONCAT', Sequelize.col('nombres'), ' ', Sequelize.col('apellidos')),
+			whereConditions[Op.or] = [
+				Sequelize.where(
+					Sequelize.fn('CONCAT', Sequelize.col('aprendiz.nombres'), ' ', Sequelize.col('aprendiz.apellidos')),
 					{ [Op.like]: `%${name}%` }
-				),
-			}
+				)
+			];
+			includeTerms.where = whereConditions;
 		}
 
 		if (doc?.length > 0) {
-			includeTerms = {
-				...includeTerms,
-				where: {
-					documento: {
-						[Op.like]: `%${doc}%`
-					}
-				}
+			if (!includeTerms.where) {
+				includeTerms.where = {};
 			}
+			includeTerms.where.documento = {
+				[Op.like]: `%${doc}%`
+			};
 		}
 
 		if (state?.length > 0) {
-			includeTerms = {
-				...includeTerms,
-				where: {
-					estado: state
-				}
+			if (!includeTerms.where) {
+				includeTerms.where = {};
 			}
+			includeTerms.where.estado = state;
 		}
 
 		let searchTerms = {
@@ -637,11 +645,13 @@ const getCursoParticipants = async (req, res) => {
 			include: [includeTerms]
 		}
 
-		if (page || limit) {
+		if (pageNum !== null || limitNum !== null) {
+			const finalLimit = limitNum ?? 10;
+			const finalPage = pageNum ?? 0;
 			searchTerms = {
 				...searchTerms,
-				offset: (limit ?? 10) * (page ?? 0),
-				limit: limit ?? 10
+				offset: finalLimit * finalPage,
+				limit: finalLimit
 			}
 		}
 
@@ -654,18 +664,26 @@ const getCursoParticipants = async (req, res) => {
 			}
 		})
 
+		// Serializar explícitamente los participantes para asegurar que las relaciones se incluyan
+		const participantesSerializados = participantes.map(p => {
+			const pData = p.toJSON ? p.toJSON() : p;
+			return pData;
+		});
+
 		let result = {
 			success: true,
-			participants: participantes,
+			participants: participantesSerializados,
 			total: totalAmount,
 		}
 
-		if (page || limit) {
+		if (pageNum !== null || limitNum !== null) {
+			const finalLimit = limitNum ?? 10;
+			const finalPage = pageNum ?? 0;
 			result = {
 				...result,
-				page: page ?? 0,
-				amount: limit ?? 10,
-				pages: Math.ceil(totalAmount / (limit ?? 10))
+				page: finalPage,
+				amount: finalLimit,
+				pages: Math.ceil(totalAmount / finalLimit)
 			}
 		}
 
@@ -816,10 +834,10 @@ const enviarInvitacionCurso = async (req, res) => {
 		const email = findInstructor.dataValues.email;  
 		console.log("datos necesarios: ", {email, curso})
 
-		if(email.length > 0){
+		/*if(email.length > 0){
 			await sendInstructorAssignedEmail(email, curso);
 			console.log('✅ Invitación creada exitosamente:', nuevaInvitacion.id);
-		}
+		}*/
 
 		res.status(201).json({
 			message: 'Invitación enviada correctamente.',

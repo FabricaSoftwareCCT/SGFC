@@ -85,24 +85,37 @@ export const SeeMyProfile = () => {
 			})
     }
 
-    const fetchProfile = async () => {
-      try {
-        const response = await axiosInstance.get(`/api/users/profile/${userId}`)
-        setPerfil(response.data)
-        setPerfilOriginal(response.data) // Guardar el perfil original
-        setTipoCuenta(response.data.accountType)
-
-        // Si es empresa, cargar ubicaciones y establecer valores por defecto
-        if (response.data.accountType === "Empresa" && response.data.Empresa) {
-          await cargarUbicaciones(response.data.Empresa)
-          await fetchCursos()
+  const fetchProfile = async () => {
+    try {
+      const response = await axiosInstance.get(`/api/users/profile/${userId}`)
+      
+      // Asegurar que sitio_web tenga la estructura correcta
+      const profileData = response.data
+      if (profileData.Empresa && !profileData.Empresa.sitio_web) {
+        profileData.Empresa.sitio_web = {
+          facebook: "",
+          instagram: "",
+          linkedin: "",
+          twitter: "",
+          web: ""
         }
+      }
+      
+      setPerfil(profileData)
+      setPerfilOriginal(profileData)
+      setTipoCuenta(profileData.accountType)
 
-        if (response.data.accountType === "Instructor") {
-          await fetchCursosInstructor()
-        }
-      } catch (error) {
-        console.error("Error al obtener el perfil:", error)
+      // Si es empresa, cargar ubicaciones y establecer valores por defecto
+      if (profileData.accountType === "Empresa" && profileData.Empresa) {
+        await cargarUbicaciones(profileData.Empresa)
+        await fetchCursos()
+      }
+
+      if (profileData.accountType === "Instructor") {
+        await fetchCursosInstructor()
+      }
+    } catch (error) {
+      console.error("Error al obtener el perfil:", error)
         Swal.fire({
 					icon:"error",
 					title:"Error Perfil",
@@ -112,13 +125,13 @@ export const SeeMyProfile = () => {
 					theme:"bulma",
       customClass: { confirmButton: 'centered-swal-button' }
 				})
-      }
     }
+  }
 
-    if (userId) {
-      fetchProfile()
-    }
-  }, [userId, requiresCompletion])
+  if (userId) {
+    fetchProfile()
+  }
+}, [userId, requiresCompletion])
 
   const fetchCursos = async () => {
     const response = await axiosInstance.get(`/api/users/profile/${userId}`)
@@ -204,11 +217,26 @@ export const SeeMyProfile = () => {
   }
 }
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target
+const handleInputChange = (e) => {
+  const { name, value } = e.target
 
-    if (name.startsWith("Empresa.")) {
-      const key = name.split(".")[1]
+  if (name.startsWith("Empresa.")) {
+    const key = name.split(".")[1]
+    
+    // Manejar campos anidados como sitio_web
+    if (name.startsWith("Empresa.sitio_web.")) {
+      const socialKey = name.split(".")[2]
+      setPerfil((prevPerfil) => ({
+        ...prevPerfil,
+        Empresa: {
+          ...prevPerfil.Empresa,
+          sitio_web: {
+            ...prevPerfil.Empresa?.sitio_web,
+            [socialKey]: value
+          }
+        },
+      }))
+    } else {
       setPerfil((prevPerfil) => ({
         ...prevPerfil,
         Empresa: {
@@ -216,10 +244,11 @@ export const SeeMyProfile = () => {
           [key]: value,
         },
       }))
-    } else {
-      setPerfil({ ...perfil, [name]: value })
     }
+  } else {
+    setPerfil({ ...perfil, [name]: value })
   }
+}
 
   const handleDepartamentoChange = async (e) => {
   const departamentoId = e.target.value
@@ -301,50 +330,53 @@ const handleCiudadChange = (e) => {
   empresa: perfil?.Empresa
 })
 
-  const handleSaveChanges = async () => {
-    // Mezclar datos originales y actuales para evitar null/undefined
-    const empresaBase = perfilOriginal?.Empresa || {}
-    const empresaActual = perfil?.Empresa || {}
-    const empresaSnapshot = {
-      ...empresaBase,
-      ...empresaActual,
-      // Ubicación prioriza lo seleccionado en UI
-      departamento_ID: departamentoSeleccionado
-        ? Number.parseInt(departamentoSeleccionado)
-        : (empresaActual.departamento_ID ?? empresaBase.departamento_ID ?? null),
-      ciudad_ID: ciudadSeleccionada
-        ? Number.parseInt(ciudadSeleccionada)
-        : (empresaActual.ciudad_ID ?? empresaBase.ciudad_ID ?? null),
-    }
+const handleSaveChanges = async () => {
+  // Mezclar datos originales y actuales para evitar null/undefined
+  const empresaBase = perfilOriginal?.Empresa || {}
+  const empresaActual = perfil?.Empresa || {}
+  const empresaSnapshot = {
+    ...empresaBase,
+    ...empresaActual,
+    // Ubicación prioriza lo seleccionado en UI
+    departamento_ID: departamentoSeleccionado
+      ? Number.parseInt(departamentoSeleccionado)
+      : (empresaActual.departamento_ID ?? empresaBase.departamento_ID ?? null),
+    ciudad_ID: ciudadSeleccionada
+      ? Number.parseInt(ciudadSeleccionada)
+      : (empresaActual.ciudad_ID ?? empresaBase.ciudad_ID ?? null),
+  }
 
-    let erroresTipoCuenta = {}
+  let erroresTipoCuenta = {}
 
-    const ValidationGeneral = {
-      nombre: validateText(perfil?.nombres || ""),
-      apellidos: validateText(perfil?.apellidos || ""),
-      email: validateEmail(perfil?.email || ""),
-      Celular: validateNumber(perfil?.celular || ""),
-    }
+  const ValidationGeneral = {
+    nombre: validateText(perfil?.nombres || ""),
+    apellidos: validateText(perfil?.apellidos || ""),
+    email: validateEmail(perfil?.email || ""),
+    Celular: validateNumber(perfil?.celular || ""),
+  }
 
-    if (tipoCuenta === "Empresa") {
-      // Validación directa sin variables intermedias
-      erroresTipoCuenta = {
-        nombre_empresa:
-          empresaSnapshot.nombre_empresa && empresaSnapshot.nombre_empresa.trim().length > 0
-            ? ""
-            : "El nombre de la empresa es obligatorio",
-        direccion:
-          empresaSnapshot.direccion && empresaSnapshot.direccion.trim().length > 0 ? "" : "La dirección es obligatoria",
-        telefono: validateNumber(empresaSnapshot.telefono || ""),
-        email: validateEmail(empresaSnapshot.email_empresa || ""),
-        nit: validateNIT(empresaSnapshot?.NIT || ""),
-      }
+  if (tipoCuenta === "Empresa") {
+    // Validación directa sin variables intermedias
+    erroresTipoCuenta = {
+      nombre_empresa:
+        empresaSnapshot.nombre_empresa && empresaSnapshot.nombre_empresa.trim().length > 0
+          ? ""
+          : "El nombre de la empresa es obligatorio",
+      direccion:
+        empresaSnapshot.direccion && empresaSnapshot.direccion.trim().length > 0 ? "" : "La dirección es obligatoria",
+      telefono: validateNumber(empresaSnapshot.telefono || ""),
+      email: validateEmail(empresaSnapshot.email_empresa || ""),
+      nit: validateNIT(empresaSnapshot?.NIT || ""),
+      descripcion: empresaSnapshot.descripcion && empresaSnapshot.descripcion.trim().length > 0 
+        ? "" 
+        : "La descripción es obligatoria",
     }
+  }
 
-    const error = {
-      ...ValidationGeneral,
-      ...erroresTipoCuenta,
-    }
+  const error = {
+    ...ValidationGeneral,
+    ...erroresTipoCuenta,
+  }
 
     const hastErrors = await createMensajeError(error)
     if (hastErrors != null) {
@@ -361,20 +393,48 @@ const handleCiudadChange = (e) => {
       return
     }
 
-    try {
-      // Construir payload seguro
-      const payload = { ...perfil }
+  try {
+    // Construir payload seguro
+    const payload = { ...perfil }
 
-      if (tipoCuenta === "Empresa" && perfil.Empresa) {
-        const empresaPayload = {
-          ...perfil.Empresa,
-          nombre_empresa: (perfil.Empresa.nombre_empresa || "").trim(),
-          direccion: (perfil.Empresa.direccion || "").trim(),
-        }
-
-        payload.documento = empresaPayload.NIT
-        payload.empresa = JSON.stringify(empresaPayload)
+    if (tipoCuenta === "Empresa" && perfil.Empresa) {
+      // Construir el objeto sitio_web correctamente
+      const sitio_web = {
+        facebook: perfil.Empresa.sitio_web?.facebook || "",
+        instagram: perfil.Empresa.sitio_web?.instagram || "",
+        linkedin: perfil.Empresa.sitio_web?.linkedin || "",
+        twitter: perfil.Empresa.sitio_web?.twitter || "",
+        web: perfil.Empresa.sitio_web?.web || ""
       }
+
+      // Limpiar campos vacíos del sitio_web
+      Object.keys(sitio_web).forEach(key => {
+        if (!sitio_web[key]) {
+          delete sitio_web[key]
+        }
+      })
+
+      const empresaPayload = {
+        ...perfil.Empresa,
+        nombre_empresa: (perfil.Empresa.nombre_empresa || "").trim(),
+        direccion: (perfil.Empresa.direccion || "").trim(),
+        descripcion: (perfil.Empresa.descripcion || "").trim(),
+        sitio_web: Object.keys(sitio_web).length > 0 ? sitio_web : undefined
+      }
+
+      // Asegurarse de que los IDs sean números
+      if (empresaPayload.departamento_ID) {
+        empresaPayload.departamento_ID = Number.parseInt(empresaPayload.departamento_ID)
+      }
+      if (empresaPayload.ciudad_ID) {
+        empresaPayload.ciudad_ID = Number.parseInt(empresaPayload.ciudad_ID)
+      }
+
+      payload.documento = empresaPayload.NIT
+      payload.empresa = JSON.stringify(empresaPayload)
+    }
+
+    console.log("Payload a enviar:", payload) // Para debug
 
       await axiosInstance.put(`/api/users/perfil/actualizar/${userId}`, payload)
 			Swal.fire({
@@ -387,20 +447,20 @@ const handleCiudadChange = (e) => {
       customClass: { confirmButton: 'centered-swal-button' }
 			});
 
-      // Recargar perfil desde backend
-      const response = await axiosInstance.get(`/api/users/profile/${userId}`)
-      setPerfil(response.data)
-      setPerfilOriginal(response.data)
+    // Recargar perfil desde backend
+    const response = await axiosInstance.get(`/api/users/profile/${userId}`)
+    setPerfil(response.data)
+    setPerfilOriginal(response.data)
 
-      setEditMode(false)
+    setEditMode(false)
 
-      // Si venía de redirección por perfil incompleto, redirigir al home
-      if (requiresCompletion) {
-        navigate("/")
-      }
-    } catch (error) {
-      console.error("Error al actualizar el perfil:", error)
-      console.error("Error response:", error.response)
+    // Si venía de redirección por perfil incompleto, redirigir al home
+    if (requiresCompletion) {
+      navigate("/")
+    }
+  } catch (error) {
+    console.error("Error al actualizar el perfil:", error)
+    console.error("Error response:", error.response)
 
       let errorMessage = "Hubo un error al actualizar el perfil"
       if (error.response?.data?.message) {
@@ -422,11 +482,11 @@ const handleCiudadChange = (e) => {
       customClass: { confirmButton: 'centered-swal-button' }
 			});
 
-      if (perfilOriginal) {
-        setPerfil(perfilOriginal)
-      }
+    if (perfilOriginal) {
+      setPerfil(perfilOriginal)
     }
   }
+}
 
   // Indicador simple de perfil incompleto (datos básicos)
   const perfilIncompleto = !perfil || !perfil.nombres || !perfil.apellidos || !perfil.email
@@ -525,13 +585,13 @@ const handleCiudadChange = (e) => {
             {(tipoCuenta === "Aprendiz" || tipoCuenta === "Empresa" || tipoCuenta === "Instructor") && (
               <>
                 <button
-                  className={`updateProfile ${editMode ? "cancel" : ""}`}
+                  className={`updateProfile ${editMode ? "" : ""}`}
                   onClick={() => handleModelCancel(editMode)}
                 >
                   {editMode ? "" : ""}
                 </button>
 
-                {editMode && <button className="updateProfile1" onClick={handleSaveChanges}></button>}
+                {/* {editMode && <button className="updateProfile1" onClick={handleSaveChanges}></button>} */}
               </>
             )}
           </div>
@@ -654,248 +714,420 @@ const handleCiudadChange = (e) => {
             )}
 
           {/* EMPRESA */}
-          {tipoCuenta === "Empresa" && (
-            <div className="empresa_profile_container">
-              {/* Header con info de empresa y estado */}
-              <div className="empresa_header">
-                <div className="empresa_header_left">
-                  <img
-                    src={getImageSrcFromBase64(perfil?.Empresa?.img_empresa) || "/placeholder.svg"}
-                    alt="Logo empresa"
-                    className="empresa_logo"
-                    style={{
-                      cursor: editMode ? "pointer" : "default",
-                    }}
-                    onClick={() => {
-                      if (editMode && logoEmpresaInputRef.current) logoEmpresaInputRef.current.click()
-                    }}
-                  />
-                  <input
-                    type="file"
-                    accept="image/*"
-                    ref={logoEmpresaInputRef}
-                    style={{ display: "none" }}
-                    onChange={(e) => handleFileChange(e, "img_empresa")}
-                  />
-                  <div className="empresa_info">
-                    <h2 className="empresa_nombre">
-                      {editMode ? (
-                        <input
-                          type="text"
-                          name="Empresa.nombre_empresa"
-                          className="empresa_input_nombre"
-                          value={perfil?.Empresa?.nombre_empresa || ""}
-                          onChange={handleInputChange}
-                        />
-                      ) : (
-                        perfil?.Empresa?.nombre_empresa || ""
-                      )}
-                    </h2>
-                    <p className="empresa_nit">
-                      Nit:{" "}
-                      {editMode ? (
-                        <input
-                          type="text"
-                          name="Empresa.NIT"
-                          className="empresa_input_nit"
-                          value={perfil?.Empresa?.NIT || ""}
-                          onChange={handleInputChange}
-                        />
-                      ) : (
-                        perfil?.Empresa?.NIT || ""
-                      )}
-                    </p>
-                  </div>
-                </div>
+{tipoCuenta === "Empresa" && (
+  <div className="empresa_profile_container">
+    {/* Header con info de empresa y estado */}
+    <div className="empresa_header">
+      <div className="empresa_header_left">
+        <img
+          src={getImageSrcFromBase64(perfil?.Empresa?.img_empresa) || "/placeholder.svg"}
+          alt="Logo empresa"
+          className="empresa_logo"
+          style={{
+            cursor: editMode ? "pointer" : "default",
+          }}
+          onClick={() => {
+            if (editMode && logoEmpresaInputRef.current) logoEmpresaInputRef.current.click()
+          }}
+        />
+        <input
+          type="file"
+          accept="image/*"
+          ref={logoEmpresaInputRef}
+          style={{ display: "none" }}
+          onChange={(e) => handleFileChange(e, "img_empresa")}
+        />
+        <div className="empresa_info">
+          <h2 className="empresa_nombre">
+            {editMode ? (
+              <input
+                type="text"
+                name="Empresa.nombre_empresa"
+                className="empresa_input_nombre"
+                value={perfil?.Empresa?.nombre_empresa || ""}
+                onChange={handleInputChange}
+              />
+            ) : (
+              perfil?.Empresa?.nombre_empresa || ""
+            )}
+          </h2>
+          <p className="empresa_nit">
+            Nit:{" "}
+            {editMode ? (
+              <input
+                type="text"
+                name="Empresa.NIT"
+                className="empresa_input_nit"
+                value={perfil?.Empresa?.NIT || ""}
+                onChange={handleInputChange}
+              />
+            ) : (
+              perfil?.Empresa?.NIT || ""
+            )}
+          </p>
+        </div>
+      </div>
 
-                <div className="empresa_header_right">
-                  <div className="empresa_status_badge">
-                    <div
-                      className={`status_indicator ${
-                        perfil?.estado === "activo" ? "status_active" : "status_inactive"
-                      }`}
-                    ></div>
-                    <div className="status_text">
-                      <span className="status_label">{perfil?.estado === "activo" ? "Activo" : "Inactivo"}</span>
-                      <span className="status_role">Manager</span>
-                    </div>
-                  </div>
+      <div className="empresa_header_right">
+        <div className="empresa_status_badge">
+          <div
+            className={`status_indicator ${
+              perfil?.estado === "activo" ? "status_active" : "status_inactive"
+            }`}
+          ></div>
+          <div className="status_text">
+            <span className="status_label">{perfil?.estado === "activo" ? "Activo" : "Inactivo"}</span>
+            <span className="status_role">Manager</span>
+          </div>
+        </div>
 
-                  {editMode && (
-                    <div className="empresa_action_buttons">
-                      <button className="btn_guardar" onClick={handleSaveChanges}>
-                        Guardar
-                      </button>
-                      <button className="btn_cancelar" onClick={() => handleModelCancel(editMode)}>
-                        Cancelar
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </div>
+        {editMode && (
+          <div className="empresa_action_buttons">
+            <button className="btn_guardar" onClick={handleSaveChanges}>
+              Guardar
+            </button>
+            <button className="btn_cancelar" onClick={() => handleModelCancel(editMode)}>
+              Cancelar
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
 
-              {/* Datos Empresa */}
-              <div className="empresa_datos_section">
-                <h3 className="section_title">Datos Empresa</h3>
-                <div className="empresa_datos_grid">
-                  <div className="empresa_field">
-                    <label>Teléfono:</label>
-                    {editMode ? (
-                      <input
-                        type="text"
-                        name="Empresa.telefono"
-                        className="empresa_input"
-                        placeholder="Ingrese un teléfono..."
-                        value={perfil?.Empresa?.telefono || ""}
-                        onChange={handleInputChange}
-                      />
-                    ) : (
-                      <span className="empresa_value">{perfil?.Empresa?.telefono || "-"}</span>
-                    )}
-                  </div>
+    {/* Datos Empresa - ACTUALIZADO CON NUEVOS CAMPOS */}
+    <div className="empresa_datos_section">
+      <h3 className="section_title">Datos Empresa</h3>
+      <div className="empresa_datos_grid">
+        <div className="empresa_field">
+          <label>Teléfono:</label>
+          {editMode ? (
+            <input
+              type="text"
+              name="Empresa.telefono"
+              className="empresa_input"
+              placeholder="Ingrese un teléfono..."
+              value={perfil?.Empresa?.telefono || ""}
+              onChange={handleInputChange}
+            />
+          ) : (
+            <span className="empresa_value">{perfil?.Empresa?.telefono || "-"}</span>
+          )}
+        </div>
 
-                  <div className="empresa_field">
-                    <label>Dirección:</label>
-                    {editMode ? (
-                      <input
-                        type="text"
-                        name="Empresa.direccion"
-                        className="empresa_input"
-                        placeholder="Ingrese una dirección..."
-                        value={perfil?.Empresa?.direccion || ""}
-                        onChange={handleInputChange}
-                      />
-                    ) : (
-                      <span className="empresa_value">{perfil?.Empresa?.direccion || "-"}</span>
-                    )}
-                  </div>
+        <div className="empresa_field">
+          <label>Dirección:</label>
+          {editMode ? (
+            <input
+              type="text"
+              name="Empresa.direccion"
+              className="empresa_input"
+              placeholder="Ingrese una dirección..."
+              value={perfil?.Empresa?.direccion || ""}
+              onChange={handleInputChange}
+            />
+          ) : (
+            <span className="empresa_value">{perfil?.Empresa?.direccion || "-"}</span>
+          )}
+        </div>
 
-                  <div className="empresa_field">
-                    <label>Email:</label>
-                    {editMode ? (
-                      <input
-                        type="text"
-                        name="Empresa.email_empresa"
-                        className="empresa_input"
-                        placeholder="Ingrese un email..."
-                        value={perfil?.Empresa?.email_empresa || ""}
-                        onChange={handleInputChange}
-                      />
-                    ) : (
-                      <span className="empresa_value">{perfil?.Empresa?.email_empresa || "-"}</span>
-                    )}
-                  </div>
+        <div className="empresa_field">
+          <label>Email Corporativo:</label>
+          {editMode ? (
+            <input
+              type="text"
+              name="Empresa.email_empresa"
+              className="empresa_input"
+              placeholder="Ingrese un email..."
+              value={perfil?.Empresa?.email_empresa || ""}
+              onChange={handleInputChange}
+            />
+          ) : (
+            <span className="empresa_value">{perfil?.Empresa?.email_empresa || "-"}</span>
+          )}
+        </div>
 
-                  <div className="empresa_field">
-  <label>Departamento:</label>
-  {editMode ? (
-    <select
-      name="departamento"
-      className="empresa_input-s"
-      value={departamentoSeleccionado || ""}  
-      onChange={handleDepartamentoChange}
-    >
-      <option value="">Seleccione un departamento...</option>
-      {departamentos.map((dep) => (
-        <option key={dep.ID} value={dep.ID.toString()}> {/* Convertir a string */}
-          {dep.nombre}
-        </option>
-      ))}
-    </select>
-  ) : (
-    <span className="empresa_value">{perfil?.Empresa?.Ciudad?.Departamento?.nombre || "-"}</span>
-  )}
-</div>
+        <div className="empresa_field">
+          <label>Categoría:</label>
+          {editMode ? (
+            <select
+              name="Empresa.categoria"
+              className="empresa_input-s"
+              value={perfil?.Empresa?.categoria || ""}
+              onChange={handleInputChange}
+            >
+              <option value="">Seleccione una categoría...</option>
+              <option value="tecnologia">Tecnología</option>
+              <option value="servicios">Servicios</option>
+              <option value="comercio">Comercio</option>
+              <option value="industria">Industria</option>
+              <option value="educacion">Educación</option>
+              <option value="salud">Salud</option>
+              <option value="construccion">Construcción</option>
+              <option value="alimentos">Alimentos</option>
+              <option value="textil">Textil</option>
+            </select>
+          ) : (
+            <span className="empresa_value">
+              {perfil?.Empresa?.categoria ? 
+                perfil.Empresa.categoria.charAt(0).toUpperCase() + perfil.Empresa.categoria.slice(1) 
+                : "-"
+              }
+            </span>
+          )}
+        </div>
 
-<div className="empresa_field">
-  <label>Ciudad:</label>
-  {editMode ? (
-    <select
-      name="ciudad"
-      className={`empresa_input-s ${!departamentoSeleccionado ? 'select-disabled' : ''}`}
-      value={ciudadSeleccionada || ""}
-      onChange={handleCiudadChange}
-    >
-      <option value="">Seleccione una ciudad...</option>
-      {ciudades.map((ciudad) => (
-        <option key={ciudad.ID} value={ciudad.ID.toString()}> {/* Convertir a string */}
-          {ciudad.nombre}
-        </option>
-      ))}
-    </select>
-  ) : (
-    <span className="empresa_value">{perfil?.Empresa?.Ciudad?.nombre || "-"}</span>
-  )}
-</div>
-                </div>
-              </div>
+        <div className="empresa_field">
+          <label>Departamento:</label>
+          {editMode ? (
+            <select
+              name="departamento"
+              className="empresa_input-s"
+              value={departamentoSeleccionado || ""}  
+              onChange={handleDepartamentoChange}
+            >
+              <option value="">Seleccione un departamento...</option>
+              {departamentos.map((dep) => (
+                <option key={dep.ID} value={dep.ID.toString()}>
+                  {dep.nombre}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <span className="empresa_value">{perfil?.Empresa?.Ciudad?.Departamento?.nombre || "-"}</span>
+          )}
+        </div>
 
-              {/* Cursos Complementarios */}
-              <div className="empresa_cursos_section">
-                <h3 className="section_title">Cursos Complementarios</h3>
-                <div className="cursos_table">
-                  {cursos.length > 0 ? (
-                    <>
-                      {cursos.map((c) => (
-                        <div key={c.ID} className="curso_row">
-                          <div className="curso_info">
-                            <span className="curso_nombre">{c.nombre_curso}</span>
-                            <span className="curso_descripcion">
-                              {c.descripcion || "Lorem Ipsum is simply dummy text of the printing and..."}
-                            </span>
-                          </div>
-                          <button
-                            className="btn_ver_detalles"
-                            onClick={() => {
-                              navigate(`/Cursos/${c.ID}`)
-                            }}
-                          >
-                            Ver detalles
-                          </button>
-                        </div>
-                      ))}
-                    </>
-                  ) : (
-                    <div className="cursos_empty">
-                      <p>Aún no se han creado cursos complementarios...</p>
-                    </div>
-                  )}
-                </div>
-              </div>
+        <div className="empresa_field">
+          <label>Ciudad:</label>
+          {editMode ? (
+            <select
+              name="ciudad"
+              className={`empresa_input-s ${!departamentoSeleccionado ? 'select-disabled' : ''}`}
+              value={ciudadSeleccionada || ""}
+              onChange={handleCiudadChange}
+            >
+              <option value="">Seleccione una ciudad...</option>
+              {ciudades.map((ciudad) => (
+                <option key={ciudad.ID} value={ciudad.ID.toString()}>
+                  {ciudad.nombre}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <span className="empresa_value">{perfil?.Empresa?.Ciudad?.nombre || "-"}</span>
+          )}
+        </div>
+      </div>
 
-              {/* Instructores */}
-              {instructores.length > 0 && (
-                <div className="empresa_instructores_section">
-                  <h3 className="section_title">Instructores</h3>
-                  <div className="instructores_list">
-                    {instructores.map((i) => (
-                      <div key={i.ID} className="instructor_item">
-                        <span className="instructor_nombre">
-                          {i.nombre_instructor} ({i.nombre_curso})
-                        </span>
-                        <button
-                          className="btn_ver_contacto"
-                          onClick={() => {
-                            setShowModalGeneral(true)
-                            setModalGeneralContent(
-                              <>
-                                <b>Número de telefono</b>
-                                <span>{i.numero}</span>
-                                <b>Email</b>
-                                <span>{i.email}</span>
-                              </>,
-                            )
-                          }}
-                        >
-                          Ver contacto
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+      {/* NUEVO: Descripción de la Empresa */}
+      <div className="empresa_field_full">
+        <label>Descripción de la Empresa:</label>
+        {editMode ? (
+          <textarea
+            name="Empresa.descripcion"
+            className="empresa_textarea"
+            placeholder="Describa los servicios, misión, visión y valores de la empresa..."
+            value={perfil?.Empresa?.descripcion || ""}
+            onChange={handleInputChange}
+            rows="4"
+          />
+        ) : (
+          <div className="empresa_descripcion">
+            {perfil?.Empresa?.descripcion || "No hay descripción disponible"}
+          </div>
+        )}
+      </div>
+
+      {/* NUEVO: Enlaces de Redes Sociales */}
+      {(perfil?.Empresa?.sitio_web && Object.keys(perfil.Empresa.sitio_web).some(key => perfil.Empresa.sitio_web[key])) || editMode ? (
+        <div className="empresa_redes_sociales">
+          <h4 className="redes_sociales_title">Enlaces de Contacto</h4>
+          <div className="redes_sociales_grid">
+            {/* Sitio Web */}
+            <div className="red_social_item">
+              <label>🌐 Sitio Web:</label>
+              {editMode ? (
+                <input
+                  type="url"
+                  name="Empresa.sitio_web.web"
+                  className="empresa_input"
+                  placeholder="https://www.empresa.com"
+                  value={perfil?.Empresa?.sitio_web?.web || ""}
+                  onChange={handleInputChange}
+                />
+              ) : (
+                perfil?.Empresa?.sitio_web?.web ? (
+                  <a href={perfil.Empresa.sitio_web.web} target="_blank" rel="noopener noreferrer" className="red_social_link">
+                    {perfil.Empresa.sitio_web.web}
+                  </a>
+                ) : (
+                  <span className="empresa_value">-</span>
+                )
               )}
             </div>
-          )}
+
+            {/* Facebook */}
+            <div className="red_social_item">
+              <label>📘 Facebook:</label>
+              {editMode ? (
+                <input
+                  type="url"
+                  name="Empresa.sitio_web.facebook"
+                  className="empresa_input"
+                  placeholder="https://facebook.com/empresa"
+                  value={perfil?.Empresa?.sitio_web?.facebook || ""}
+                  onChange={handleInputChange}
+                />
+              ) : (
+                perfil?.Empresa?.sitio_web?.facebook ? (
+                  <a href={perfil.Empresa.sitio_web.facebook} target="_blank" rel="noopener noreferrer" className="red_social_link">
+                    {perfil.Empresa.sitio_web.facebook}
+                  </a>
+                ) : (
+                  <span className="empresa_value">-</span>
+                )
+              )}
+            </div>
+
+            {/* Instagram */}
+            <div className="red_social_item">
+              <label>📷 Instagram:</label>
+              {editMode ? (
+                <input
+                  type="url"
+                  name="Empresa.sitio_web.instagram"
+                  className="empresa_input"
+                  placeholder="https://instagram.com/empresa"
+                  value={perfil?.Empresa?.sitio_web?.instagram || ""}
+                  onChange={handleInputChange}
+                />
+              ) : (
+                perfil?.Empresa?.sitio_web?.instagram ? (
+                  <a href={perfil.Empresa.sitio_web.instagram} target="_blank" rel="noopener noreferrer" className="red_social_link">
+                    {perfil.Empresa.sitio_web.instagram}
+                  </a>
+                ) : (
+                  <span className="empresa_value">-</span>
+                )
+              )}
+            </div>
+
+            {/* LinkedIn */}
+            <div className="red_social_item">
+              <label>💼 LinkedIn:</label>
+              {editMode ? (
+                <input
+                  type="url"
+                  name="Empresa.sitio_web.linkedin"
+                  className="empresa_input"
+                  placeholder="https://linkedin.com/company/empresa"
+                  value={perfil?.Empresa?.sitio_web?.linkedin || ""}
+                  onChange={handleInputChange}
+                />
+              ) : (
+                perfil?.Empresa?.sitio_web?.linkedin ? (
+                  <a href={perfil.Empresa.sitio_web.linkedin} target="_blank" rel="noopener noreferrer" className="red_social_link">
+                    {perfil.Empresa.sitio_web.linkedin}
+                  </a>
+                ) : (
+                  <span className="empresa_value">-</span>
+                )
+              )}
+            </div>
+
+            {/* Twitter */}
+            <div className="red_social_item">
+              <label>🐦 Twitter:</label>
+              {editMode ? (
+                <input
+                  type="url"
+                  name="Empresa.sitio_web.twitter"
+                  className="empresa_input"
+                  placeholder="https://twitter.com/empresa"
+                  value={perfil?.Empresa?.sitio_web?.twitter || ""}
+                  onChange={handleInputChange}
+                />
+              ) : (
+                perfil?.Empresa?.sitio_web?.twitter ? (
+                  <a href={perfil.Empresa.sitio_web.twitter} target="_blank" rel="noopener noreferrer" className="red_social_link">
+                    {perfil.Empresa.sitio_web.twitter}
+                  </a>
+                ) : (
+                  <span className="empresa_value">-</span>
+                )
+              )}
+            </div>
+          </div>
+        </div>
+      ) : null}
+    </div>
+
+    {/* Cursos Complementarios */}
+    <div className="empresa_cursos_section">
+      <h3 className="section_title">Cursos Complementarios</h3>
+      <div className="cursos_table">
+        {cursos.length > 0 ? (
+          <>
+            {cursos.map((c) => (
+              <div key={c.ID} className="curso_row">
+                <div className="curso_info">
+                  <span className="curso_nombre">{c.nombre_curso}</span>
+                  <span className="curso_descripcion">
+                    {c.descripcion || "Lorem Ipsum is simply dummy text of the printing and..."}
+                  </span>
+                </div>
+                <button
+                  className="btn_ver_detalles"
+                  onClick={() => {
+                    navigate(`/Cursos/${c.ID}`)
+                  }}
+                >
+                  Ver detalles
+                </button>
+              </div>
+            ))}
+          </>
+        ) : (
+          <div className="cursos_empty">
+            <p>Aún no se han creado cursos complementarios...</p>
+          </div>
+        )}
+      </div>
+    </div>
+
+    {/* Instructores */}
+    {instructores.length > 0 && (
+      <div className="empresa_instructores_section">
+        <h3 className="section_title">Instructores</h3>
+        <div className="instructores_list">
+          {instructores.map((i) => (
+            <div key={i.ID} className="instructor_item">
+              <span className="instructor_nombre">
+                {i.nombre_instructor} ({i.nombre_curso})
+              </span>
+              <button
+                className="btn_ver_contacto"
+                onClick={() => {
+                  setShowModalGeneral(true)
+                  setModalGeneralContent(
+                    <>
+                      <b>Número de telefono</b>
+                      <span>{i.numero}</span>
+                      <b>Email</b>
+                      <span>{i.email}</span>
+                    </>,
+                  )
+                }}
+              >
+                Ver contacto
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+    )}
+  </div>
+)}
 
           {tipoCuenta === "Aprendiz" && perfil?.empresa_ID && (
             <div className="aprendiz_profile_container">

@@ -8,6 +8,7 @@ const Notificacion = require("../models/Notificacion");
 
 const fs = require("fs");
 const path = require("path");
+const { Sequelize, Op } = require("sequelize");
 const fechaSolicitud = new Date(
 	Date.now() - new Date().getTimezoneOffset() * 60000
 );
@@ -740,6 +741,8 @@ const sendConcertacionActaEmail = async (req, res) => {
 			nombreActa,
 		} = req.body;
 
+		const involucrados = JSON.parse(req.body.involucrados)
+
 		//  Parsear objetos JSON como respaldo
 		let empresaObj = null;
 		let managerObj = null;
@@ -763,7 +766,7 @@ const sendConcertacionActaEmail = async (req, res) => {
 		//  Determinar los IDs finales
 		const finalEmpresaID =
 			empresa_ID || (empresaObj && empresaObj.ID) || null;
-		const finalInstructorID =
+		let finalInstructorID =
 			instructor_ID || (managerObj && managerObj.ID) || null;
 		const finalGestorID = gestor_ID || null; //  Siempre null en este caso
 
@@ -781,6 +784,18 @@ const sendConcertacionActaEmail = async (req, res) => {
 		fs.mkdirSync(path.dirname(pdfPath), { recursive: true });
 		fs.writeFileSync(pdfPath, pdfBuffer);
 
+		const instructor = (await Usuario.findAll({
+			where: Sequelize.where(
+				Sequelize.fn('CONCAT', Sequelize.col('nombres'), ' ', Sequelize.col('apellidos')),
+				{ [Op.like]: `%${involucrados.instructores[0]}%` }
+			),
+			attributes: ["ID"]
+		}))
+
+		if (instructor.length > 0) {
+			finalInstructorID = instructor[0].dataValues.ID
+		}
+
 		//  Crear el acta en la base de datos
 		const nuevaActa = await Actas.create({
 			fecha_acta: fecha_acta,
@@ -795,51 +810,73 @@ const sendConcertacionActaEmail = async (req, res) => {
 			pdf_acta: pdfFileName,
 		});
 
-		//  Enviar correo con el acta adjunta
-		let transporter = nodemailer.createTransport({
-			service: "Gmail",
-			auth: {
-				user: "softwareccyt@gmail.com",
-				pass: process.env.GOOGLE_APP_PASSWORD,
-			},
-		});
+		try {
+			for (let i of [
+				...involucrados.participantes,
+				...involucrados.instructores,
+				involucrados.coordinadorAcademico
+			]) {
+				const involucrado = (await Usuario.findAll({
+					where: Sequelize.where(
+						Sequelize.fn('CONCAT', Sequelize.col('nombres'), ' ', Sequelize.col('apellidos')),
+						{ [Op.like]: `%${i}%` }
+					),
+					attributes: ["email"]
+				}))[0]
 
-		await transporter.sendMail({
-			from: `"SGFC" <${
-				process.env.EMAIL_USER || "softwareccyt@gmail.com"
-			}>`,
-			to: "softwareccyt@gmail.com",
-			subject: `Nueva Acta de Concertación: ${
-				nombreActa || "Sin Título"
-			}`,
-			html: `
-        <h2>Nueva Acta de Concertación</h2>
-        <p><strong>Instructor:</strong> ${
-			managerObj
-				? `${managerObj.nombres} ${managerObj.apellidos}`
-				: "No especificado"
-		}</p>
-        <p><strong>Email:</strong> ${
-			managerObj ? managerObj.email : "No especificado"
-		}</p>
-        <p><strong>Empresa:</strong> ${
-			empresaObj ? empresaObj.nombre_empresa : "No especificada"
-		}</p>
-        <p><strong>Fecha de creación:</strong> ${new Date(
-			fecha_acta
-		).toLocaleString()}</p>
-        <p><strong>ID del acta:</strong> ${nuevaActa.ID}</p>
-        <p>Se ha registrado una nueva acta de concertación en el sistema.</p>
-      `,
-			attachments: [
-				{
-					filename: pdfFileName,
-					content: pdfBuffer,
-				},
-			],
-		});
+				if (involucrado) {
+					const emailToSend = involucrado?.dataValues.email
 
-		console.log("📧 Email enviado correctamente");
+					//  Enviar correo con el acta adjunta
+					let transporter = nodemailer.createTransport({
+						service: "Gmail",
+						auth: {
+							user: "softwareccyt@gmail.com",
+							pass: process.env.GOOGLE_APP_PASSWORD,
+						},
+					});
+
+					await transporter.sendMail({
+						from: `"SGFC" <${
+							process.env.EMAIL_USER || "softwareccyt@gmail.com"
+						}>`,
+						to: emailToSend,
+						subject: `Nueva Acta de Concertación: ${
+							nombreActa || "Sin Título"
+						}`,
+						html: `
+						<h2>Nueva Acta de Concertación</h2>
+						<p><strong>Instructor:</strong> ${
+							managerObj
+								? `${managerObj.nombres} ${managerObj.apellidos}`
+								: "No especificado"
+						}</p>
+						<p><strong>Email:</strong> ${
+							managerObj ? managerObj.email : "No especificado"
+						}</p>
+						<p><strong>Empresa:</strong> ${
+							empresaObj ? empresaObj.nombre_empresa : "No especificada"
+						}</p>
+						<p><strong>Fecha de creación:</strong> ${new Date(
+							fecha_acta
+						).toLocaleString()}</p>
+						<p><strong>ID del acta:</strong> ${nuevaActa.ID}</p>
+						<p>Se ha registrado una nueva acta de concertación en el sistema.</p>
+						<a style="color: #00843d" href="http://localhost:3001/uploads/documentos/${pdfFileName}">Ver acta</a>
+					`, // RECUERDA CAMBIAR ESTO
+						attachments: [
+							{
+								filename: pdfFileName,
+								content: pdfBuffer,
+							},
+						],
+					});
+					console.log("Correo enviado a", emailToSend)
+				}
+			}
+		} catch (error) {
+			console.log(error)
+		}
 
 		//  Respuesta exitosa
 		res.status(200).json({
@@ -875,6 +912,7 @@ const sendTrainingPlaceActaEmail = async (req, res) => {
 			instructor_ID,
 			fecha_acta,
 			nombreActa,
+			manager
 		} = req.body;
 
 		//  Parsear objetos JSON como respaldo
@@ -1165,6 +1203,122 @@ const sendProfileUpdateEmail = async (email, userData, changesList, photoChanged
   });
 };
 
+const sendRegistrationStatusEmail = (email, studentName, status, reason = null) => {
+    const statusConfig = {
+        activo: {  // Cambiado de 'active' a 'activo'
+            subject: "✅ Inscripción Aprobada - SGFC",
+            title: "¡Tu inscripción ha sido aprobada!",
+            icon: "✅",
+            mainMessage: `Estimado/a <strong>${studentName}</strong>, nos complace informarte que tu inscripción ha sido <strong>aprobada</strong> y ahora formas parte de nuestros programas.`,
+            statusColor: "#00843D",
+            additionalInfo: "Puedes acceder a la plataforma con tus credenciales y comenzar a utilizar todos los servicios disponibles."
+        },
+        rechazada: {  // Cambiado de 'rejected' a 'rechazada'
+            subject: "❌ Estado de Inscripción - SGFC",
+            title: "Actualización sobre tu inscripción",
+            icon: "❌",
+            mainMessage: `Estimado/a <strong>${studentName}</strong>, lamentamos informarte que tu inscripción ha sido <strong>rechazada</strong>.`,
+            statusColor: "#DC3545",
+            additionalInfo: reason || "Para más información sobre esta decisión, te invitamos a contactar a nuestro equipo de soporte."
+        }
+    };
+
+    const config = statusConfig[status] || statusConfig.rechazada; // Cambiado a 'rechazada'
+
+    const mailOptions = {
+        from: `"SGFC" <${process.env.EMAIL_USER}>`,
+        to: email,
+        subject: config.subject,
+        attachments: [
+            {
+                filename: "logo.png",
+                path: logoPath,
+                cid: "logo",
+            },
+        ],
+        html: `
+<table width="100%" bgcolor="#f4f4f4" cellpadding="0" cellspacing="0" style="font-family: Arial, sans-serif; margin:0; padding:0;">
+  <tr>
+    <td align="center">
+      <table width="100%" cellpadding="0" cellspacing="0" style="max-width:37.5rem; background:#fff; margin:1.25rem auto; border-radius:.5rem; box-shadow:0 0 .625rem rgba(0,0,0,0.1);">
+        <tr>
+          <td style="padding:1.875rem;">
+            <!-- Header -->
+            <table width="100%" cellpadding="0" cellspacing="0">
+              <tr>
+                <td align="center" style="padding-bottom:1.25rem; border-bottom:.0625rem solid #eee;">
+                  <img src="cid:logo" alt="Logo de Fábrica de Software CCT" style="width:5rem; height:auto; margin-bottom:.9375rem; display:block;">
+                  <h1 style="color:${config.statusColor}; margin:0; font-size:1.5rem; font-family:Arial,sans-serif;">
+                	 ${config.title}
+                  </h1>
+                </td>
+              </tr>
+            </table>
+            <!-- Content -->
+            <table width="100%" cellpadding="0" cellspacing="0">
+              <tr>
+                <td style="padding:1.25rem 0; line-height:1.6; color:#1A1A1A; font-size:1rem;">
+                  <p style="margin-bottom:.9375rem;">${config.mainMessage}</p>
+                  
+                  ${status === 'rechazada' && reason ? `
+                  <div style="background-color:#f8f9fa; border-left:4px solid ${config.statusColor}; padding:.9375rem; margin:.9375rem 0;">
+                    <p style="margin:0; font-style:italic;"><strong>Motivo:</strong> ${reason}</p>
+                  </div>
+                  ` : ''}
+                  
+                  <p style="margin-bottom:.9375rem;">${config.additionalInfo}</p>
+                  
+                  <!-- Botón de acción según el estado -->
+                  <div style="text-align:center; padding:1.25rem 0;">
+                    ${status === 'activo' ? `
+                    <a href="${process.env.PLATFORM_URL || '#'}" 
+                      style="display:inline-block; background-color:${config.statusColor}; color:#fff !important; padding:.75rem 1.5625rem; border-radius:.3125rem; text-decoration:none; font-weight:bold; font-family:Arial,sans-serif; font-size:1rem;">
+                      Acceder a la Plataforma
+                    </a>
+                    ` : `
+                    <a href="mailto:soporte@tudominio.com" 
+                      style="display:inline-block; background-color:${config.statusColor}; color:#fff !important; padding:.75rem 1.5625rem; border-radius:.3125rem; text-decoration:none; font-weight:bold; font-family:Arial,sans-serif; font-size:1rem;">
+                      Contactar Soporte
+                    </a>
+                    `}
+                  </div>
+                  
+                  <p style="margin-bottom:.9375rem;">
+                    Si tienes alguna pregunta, no dudes en <a href="mailto:soporte@tudominio.com" style="color: #F7941E;">contactarnos</a>.
+                  </p>
+                </td>
+              </tr>
+            </table>
+            <!-- Footer -->
+            <table width="100%" cellpadding="0" cellspacing="0">
+              <tr>
+                <td align="center" style="padding-top:1.25rem; border-top:.0625rem solid #eee; font-size:.75rem; color:#777;">
+                  <p style="margin:0;">Copyright © 2025 Fábrica de Software CCT - Regional Quindío</p>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+`,
+    };
+
+    return new Promise((resolve, reject) => {
+        transporter.sendMail(mailOptions, (err, info) => {
+            if (err) {
+                console.error("Error al enviar el correo de estado de inscripción:", err);
+                reject(err);
+            } else {
+                console.log(`Correo de estado de inscripción (${status}) enviado:`, info.response);
+                resolve(info);
+            }
+        });
+    });
+};
+
 module.exports = {
 	sendEmail,
 	sendVerificationEmail,
@@ -1183,5 +1337,6 @@ module.exports = {
 	sendCursoUpdatedByManagerNotification,
 	emailTemplate,
 	logoAttachment,
-  sendProfileUpdateEmail
+  sendProfileUpdateEmail,
+  sendRegistrationStatusEmail
 };

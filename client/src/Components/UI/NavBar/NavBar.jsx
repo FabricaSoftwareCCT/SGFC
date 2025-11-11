@@ -31,6 +31,8 @@ export const NavBar = ({ children }) => {
 	const [DateEnd, setDateEnd] = useState("")
 	const [showSettingsMenu, setShowSettingsMenu] = useState(false)
 	const settingsMenuRef = useRef(null)
+	const settingsButtonRef = useRef(null)
+	
 
 	const userSession =
 		JSON.parse(localStorage.getItem("userSession")) || JSON.parse(sessionStorage.getItem("userSession"))
@@ -81,8 +83,9 @@ export const NavBar = ({ children }) => {
 			if (notificationsMenuRef.current && !notificationsMenuRef.current.contains(event.target)) {
 			//setShowNotificationsMenu(false)
 			}
-			if (settingsMenuRef.current && !settingsMenuRef.current.contains(event.target)) {
-			//setShowSettingsMenu(false)
+			if (settingsMenuRef.current && !settingsMenuRef.current.contains(event.target) && settingsButtonRef.current && 
+				!settingsButtonRef.current.contains(event.target))  {
+			setShowSettingsMenu(false)
 			}
 		}
 		document.addEventListener("mousedown", handleClickOutside)
@@ -445,7 +448,7 @@ export const NavBar = ({ children }) => {
 					<div className="container_options_profile">
 						<div className="settings-menu" ref={settingsMenuRef}>
 							<button 
-								className="btn-settings"
+								className="btn-settings" ref={settingsButtonRef}
 								onClick={() => setShowSettingsMenu(!showSettingsMenu)}
 							>
 								<img src={settings} alt="Configuración" />
@@ -521,11 +524,11 @@ export const NavBar = ({ children }) => {
 													<label> Fecha Fin: </label>
 													<input type="date" className="notificationsDate" placeholder="Ingrese fecha fin: " onChange={(e) => setDateEnd(e.target.value)} />
 												</div>
-											</div>										
+											</div>
 										</div>
 									</div>
 									<div className="notification-item">
-										{loadingNotifications ? (	
+										{loadingNotifications ? (
 										<div>Cargando...</div>
 											) : Filter.length === 0 ? (
 												<div>Sin notificaciones</div>
@@ -571,7 +574,7 @@ export const NavBar = ({ children }) => {
 				)}
 			</div>
 			{showSettingsMenu && (
-				<div className="dropdown-settings" id="settings-menu">
+				<div className="dropdown-settings" id="settings-menu" ref={settingsMenuRef} >
 					<div className="arrow-up" />
 					<button 
 						className="settings-dropdown-item"

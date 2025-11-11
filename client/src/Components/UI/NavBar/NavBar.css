@@ -465,8 +465,8 @@
 .dropdown-settings {
   margin-top: 9%;
   margin-right: 15%;
-  width: 10%;
-  height: 95%;
+  width: 14.5%;
+  height: 100%;
   position: absolute;
   right: 0;
   background: #007736;
@@ -479,8 +479,7 @@
 }
 
 .settings-dropdown-item {
-display: flex
-;
+    display: flex;
     width: 100%;
     padding: 10px 15px;
     border: none;
@@ -490,8 +489,7 @@ display: flex
     transition: background-color 0.2s;
     flex-direction: row;
     flex-wrap: nowrap;
-    justify-content: center;
-    align-items: center;
+    font-size: 14px;
 }
 
 .settings-dropdown-item:hover {

@@ -707,7 +707,7 @@ const getCursoById = async (req, res) => {
 				curso_ID: id
 			}
 		})
-
+		
 		res.status(200).json(curso);
 	} catch (error) {
 		console.error("Error al obtener el curso:", error);

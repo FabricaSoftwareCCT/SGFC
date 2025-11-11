@@ -1281,6 +1281,132 @@ const sendRegistrationStatusEmail = (email, studentName, status, reason = null) 
     });
 };
 
+const sendCourseEnrollmentEmail = (email, studentName, courseName) => {
+    const mailOptions = {
+        from: `"SGFC" <${process.env.EMAIL_USER}>`,
+        to: email,
+        subject: "⏳ Estado de Inscripción - SGFC",
+        attachments: [
+            {
+                filename: "logo.png",
+                path: logoPath,
+                cid: "logo",
+            },
+        ],
+        html: `
+<table width="100%" bgcolor="#f4f4f4" cellpadding="0" cellspacing="0" style="font-family: Arial, sans-serif; margin:0; padding:0;">
+  <tr>
+    <td align="center">
+      <table width="100%" cellpadding="0" cellspacing="0" style="max-width:37.5rem; background:#fff; margin:1.25rem auto; border-radius:.5rem; box-shadow:0 0 .625rem rgba(0,0,0,0.1);">
+        <tr>
+          <td style="padding:1.875rem;">
+            <!-- Header -->
+            <table width="100%" cellpadding="0" cellspacing="0">
+              <tr>
+                <td align="center" style="padding-bottom:1.25rem; border-bottom:.0625rem solid #eee;">
+                  <img src="cid:logo" alt="Logo de Fábrica de Software CCT" style="width:5rem; height:auto; margin-bottom:.9375rem; display:block;">
+                  <h1 style="color:#FFA500; margin:0; font-size:1.5rem; font-family:Arial,sans-serif;">
+                    ⏳ Estado de Inscripción
+                  </h1>
+                </td>
+              </tr>
+            </table>
+            <!-- Content -->
+            <table width="100%" cellpadding="0" cellspacing="0">
+              <tr>
+                <td style="padding:1.25rem 0; line-height:1.6; color:#1A1A1A; font-size:1rem;">
+                  <p style="margin-bottom:.9375rem;">
+                    Estimado/a <strong>${studentName}</strong>,
+                  </p>
+                  
+                  <p style="margin-bottom:.9375rem;">
+                    <strong>Has sido inscrito al curso:</strong>
+                  </p>
+                  
+                  <!-- Información del curso -->
+                  <div style="background-color:#fffbf0; border:2px solid #FFA500; border-radius:.5rem; padding:1.25rem; margin:1.25rem 0; text-align:center;">
+                    <h3 style="color:#FFA500; margin-top:0; margin-bottom:.9375rem;">📚 Curso Asignado</h3>
+                    <p style="font-size:1.2rem; font-weight:bold; color:#333; margin-bottom:.625rem;">
+                      ${courseName}
+                    </p>
+                    <p style="color:#FFA500; font-weight:bold; margin:0;">
+                    🟡 Estado Actual: <strong>PENDIENTE</strong>
+                    </p>
+                  </div>
+                  
+                  <p style="margin-bottom:1.25rem; text-align:center;">
+                    Actualmente tu inscripción se encuentra en estado <strong>PENDIENTE</strong>. 
+                    Te notificaremos cuando sea aceptada.
+                  </p>
+                  
+                  <!-- Información del proceso -->
+                  <div style="background-color:#f8f9fa; border:1px solid #e9ecef; border-radius:.5rem; padding:1.25rem; margin:1.25rem 0;">
+                    <h4 style="color:#555; margin-top:0; margin-bottom:.9375rem;">📋 Proceso de Aprobación</h4>
+                    <ul style="color:#555; margin-bottom:0; padding-left:1.25rem;">
+                      <li style="margin-bottom:.5rem;">Revisión de requisitos del curso</li>
+                      <li style="margin-bottom:.5rem;">Verificación de disponibilidad</li>
+                      <li style="margin-bottom:.5rem;">Confirmación administrativa</li>
+                      <li style="margin-bottom:.5rem;">Activación del acceso</li>
+                    </ul>
+                  </div>
+                  
+                  <!-- Botón para consultar estado -->
+                  <div style="text-align:center; padding:1.25rem 0;">
+                    <a href="${process.env.PLATFORM_URL || '#'}" 
+                      style="display:inline-block; background-color:#FFA500; color:#fff !important; padding:.875rem 2rem; border-radius:.5rem; text-decoration:none; font-weight:bold; font-family:Arial,sans-serif; font-size:1.1rem; box-shadow:0 4px 15px rgba(255,165,0,0.3);">
+                      🔍 Ver Estado de Inscripción
+                    </a>
+                  </div>
+                  
+                  <p style="margin-bottom:.9375rem; text-align:center; color:#666; font-style:italic;">
+                    "La paciencia es amarga, pero su fruto es dulce"
+                  </p>
+                  
+                  <p style="margin-bottom:.9375rem;">
+                    Si tienes alguna pregunta sobre tu inscripción, 
+                    no dudes en <a href="mailto:soporte@tudominio.com" style="color: #F7941E; font-weight:bold;">contactar a nuestro equipo de soporte</a>.
+                  </p>
+                  
+                  <p style="margin:0; color:#777; font-size:0.9rem;">
+                    Cordialmente,<br>
+                    <strong>Equipo de Formación - Fábrica de Software CCT</strong>
+                  </p>
+                </td>
+              </tr>
+            </table>
+            <!-- Footer -->
+            <table width="100%" cellpadding="0" cellspacing="0">
+              <tr>
+                <td align="center" style="padding-top:1.25rem; border-top:.0625rem solid #eee; font-size:.75rem; color:#777;">
+                  <p style="margin:0 0 .5rem 0;">Copyright © 2025 Fábrica de Software CCT - Regional Quindío</p>
+                  <p style="margin:0; font-size:.7rem;">
+                    Este es un correo automático, por favor no respondas a este mensaje.
+                  </p>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+`,
+    };
+
+    return new Promise((resolve, reject) => {
+        transporter.sendMail(mailOptions, (err, info) => {
+            if (err) {
+                console.error("Error al enviar el correo de inscripción al curso:", err);
+                reject(err);
+            } else {
+                console.log(`Correo de inscripción al curso enviado a ${email}:`, info.response);
+                resolve(info);
+            }
+        });
+    });
+};
+
 module.exports = {
 	sendEmail,
 	sendVerificationEmail,
@@ -1300,5 +1426,6 @@ module.exports = {
 	emailTemplate,
 	logoAttachment,
   sendProfileUpdateEmail,
-  sendRegistrationStatusEmail
+  sendRegistrationStatusEmail,
+  sendCourseEnrollmentEmail
 };

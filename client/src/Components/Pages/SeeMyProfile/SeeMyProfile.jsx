@@ -585,13 +585,13 @@ const handleSaveChanges = async () => {
             {(tipoCuenta === "Aprendiz" || tipoCuenta === "Empresa" || tipoCuenta === "Instructor") && (
               <>
                 <button
-                  className={`updateProfile ${editMode ? "cancel" : ""}`}
+                  className={`updateProfile ${editMode ? "" : ""}`}
                   onClick={() => handleModelCancel(editMode)}
                 >
                   {editMode ? "" : ""}
                 </button>
 
-                {editMode && <button className="updateProfile1" onClick={handleSaveChanges}></button>}
+                {/* {editMode && <button className="updateProfile1" onClick={handleSaveChanges}></button>} */}
               </>
             )}
           </div>

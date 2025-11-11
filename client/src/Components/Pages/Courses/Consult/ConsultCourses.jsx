@@ -29,6 +29,27 @@ export const ConsultCourses = () => {
     {};
   const tipoCuenta = userData.accountType || "invitado";
 
+  const filtrarCursosPorEstadoYOferta = (
+    cursosBase,
+    estadoSeleccionado,
+    ofertaSeleccionada
+  ) => {
+    if (!Array.isArray(cursosBase)) {
+      return [];
+    }
+
+    const estadoNormalizado = estadoSeleccionado?.toLowerCase() ?? "";
+    const ofertaNormalizada = ofertaSeleccionada?.toLowerCase() ?? "";
+
+    return cursosBase.filter((curso) => {
+      const estadoCurso = curso.estado?.toLowerCase() ?? "";
+      const ofertaCurso = curso.tipo_oferta?.toLowerCase() ?? "";
+      const cumpleEstado = !estadoNormalizado || estadoCurso === estadoNormalizado;
+      const cumpleOferta = !ofertaNormalizada || ofertaCurso === ofertaNormalizada;
+      return cumpleEstado && cumpleOferta;
+    });
+  };
+
   // Obtener todos los cursos al cargar la página
   useEffect(() => {
     const fetchCursos = async () => {
@@ -39,12 +60,22 @@ export const ConsultCourses = () => {
 
         const restringidos = ["invitado", "Empresa", "Aprendiz"];
         if (restringidos.includes(tipoCuenta)) {
-          cursosFiltrados = cursosFiltrados.filter(
-            (curso) => curso.estado?.toLowerCase() === "en oferta"
-          );
+          cursosFiltrados = cursosFiltrados.filter((curso) => {
+            const estadoNormalizado = curso.estado?.toLowerCase() ?? "";
+            const ofertaNormalizada = curso.tipo_oferta?.toLowerCase() ?? "";
+            return (
+              estadoNormalizado === "en oferta" || ofertaNormalizada === "abierta"
+            );
+          });
         }
 
-        setCursos(cursosFiltrados);
+        const cursosFiltradosPorSeleccion = filtrarCursosPorEstadoYOferta(
+          cursosFiltrados,
+          selectedEstado,
+          selectedOferta
+        );
+
+        setCursos(cursosFiltradosPorSeleccion);
         setAllCursos(cursosFiltrados);
         setErrorMessage("");
       } catch (error) {
@@ -61,7 +92,12 @@ export const ConsultCourses = () => {
   // Búsqueda en tiempo real con debounce
   useEffect(() => {
     if (!searchTerm.trim()) {
-      setCursos(allCursos);
+      const cursosFiltradosPorSeleccion = filtrarCursosPorEstadoYOferta(
+        allCursos,
+        selectedEstado,
+        selectedOferta
+      );
+      setCursos(cursosFiltradosPorSeleccion);
       setErrorMessage("");
       return;
     }
@@ -78,10 +114,20 @@ export const ConsultCourses = () => {
           tipoCuenta === "Empresa" ||
           tipoCuenta === "Aprendiz"
         ) {
-          cursosFiltrados = cursosFiltrados.filter(
-            (curso) => curso.estado?.toLowerCase() === "en oferta"
-          );
+          cursosFiltrados = cursosFiltrados.filter((curso) => {
+            const estadoNormalizado = curso.estado?.toLowerCase() ?? "";
+            const ofertaNormalizada = curso.tipo_oferta?.toLowerCase() ?? "";
+            return (
+              estadoNormalizado === "en oferta" || ofertaNormalizada === "abierta"
+            );
+          });
         }
+
+        cursosFiltrados = filtrarCursosPorEstadoYOferta(
+          cursosFiltrados,
+          selectedEstado,
+          selectedOferta
+        );
 
         setCursos(cursosFiltrados);
         setErrorMessage("");
@@ -106,28 +152,26 @@ export const ConsultCourses = () => {
 
   // filtrar por categoria estado
   const handleCategoryChangeEstado = (e) => {
-    const category = e.target.value;
-    setSelectedEstado(category);
-    let filtered = allCursos;
-    if (category) {
-      filtered = filtered.filter(
-        (curso) => curso.estado?.toLowerCase() === category.toLowerCase()
-      );
-    }
-    setCursos(filtered);
-  }
+    const estadoSeleccionado = e.target.value;
+    setSelectedEstado(estadoSeleccionado);
+    const cursosFiltradosPorSeleccion = filtrarCursosPorEstadoYOferta(
+      allCursos,
+      estadoSeleccionado,
+      selectedOferta
+    );
+    setCursos(cursosFiltradosPorSeleccion);
+  };
 
   // filtrar por categoria oferta
   const handleOfertaChange = (e) => {
-    const oferta = e.target.value;
-    setSelectedOferta(oferta);
-    let filtered = allCursos;
-    if (oferta) {
-      filtered = filtered.filter(
-        (curso) => curso.tipo_oferta?.toLowerCase() === oferta.toLowerCase()
-      );
-    }
-    setCursos(filtered);
+    const ofertaSeleccionada = e.target.value;
+    setSelectedOferta(ofertaSeleccionada);
+    const cursosFiltradosPorSeleccion = filtrarCursosPorEstadoYOferta(
+      allCursos,
+      selectedEstado,
+      ofertaSeleccionada
+    );
+    setCursos(cursosFiltradosPorSeleccion);
   };
 
   return (

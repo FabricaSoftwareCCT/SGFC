@@ -6,6 +6,8 @@ import { Main } from "../../../../Layouts/Main/Main";
 import axiosInstance from "../../../../../config/axiosInstance";
 import { useNavigate } from "react-router-dom";
 import { CourseList } from "../../../../UI/CourseList/CourseList";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faChartSimple, faTag, faChartLine, faCheck, faCirclePlus, faFolderOpen } from '@fortawesome/free-solid-svg-icons'
 
 export const MisCursosAdmin = () => {
     const [todosLosCursos, setTodosLosCursos] = useState([]);
@@ -177,13 +179,13 @@ export const MisCursosAdmin = () => {
                                 </div>
                             ) : cursos.length > 0 ? (
                                 <div className="carousel-content">
-                                    <CourseList 
-                                        loading={loading} 
-                                        cursos={cursos} 
+                                    <CourseList
+                                        loading={loading}
+                                        cursos={cursos}
                                         onChange={(s) => setCurrent(s)}
                                         compact={true}
                                     />
-                                    
+
                                     <div className="carousel-controls">
                                         <div className="carousel-info-improved">
                                             <span className="current-course-info">
@@ -195,9 +197,9 @@ export const MisCursosAdmin = () => {
                                                 </span>
                                             )}
                                         </div>
-                                        
-                                        <button 
-                                            className="ver-curso-btn-improved" 
+
+                                        <button
+                                            className="ver-curso-btn-improved"
                                             onClick={handleVerCurso}
                                         >
                                             Ver Curso Seleccionado
@@ -206,10 +208,10 @@ export const MisCursosAdmin = () => {
                                 </div>
                             ) : (
                                 <div className="no-courses-improved">
-                                    <div className="no-courses-icon">📚</div>
+                                    <div className="no-courses-icon"><FontAwesomeIcon icon={faFolderOpen} /></div>
                                     <h3>No se encontraron cursos</h3>
                                     <p>No hay cursos disponibles con los filtros seleccionados</p>
-                                    <button 
+                                    <button
                                         className="reset-filters-btn-improved"
                                         onClick={() => filtrarCursos("Todos")}
                                     >
@@ -220,6 +222,7 @@ export const MisCursosAdmin = () => {
                         </div>
 
                         {/* Panel de Información Lateral */}
+                        {/* Panel de Información Lateral */}
                         <div className="info-panel-improved">
                             <div className="info-card-improved">
                                 <div className="info-header-improved">
@@ -228,36 +231,53 @@ export const MisCursosAdmin = () => {
                                 </div>
 
                                 <div className="quick-actions-improved">
-                                    <button 
-                                        className="action-btn-improved primary"
-                                        onClick={() => navigate('/Cursos/CrearCurso')}
-                                    >
-                                        + Crear Nuevo Curso
-                                    </button>
-                                    <button 
+                                    {/* Botón condicional para Administrador y Gestor */}
+                                    {accountType && (accountType === 'Administrador' || accountType === 'Gestor') && (
+                                        <button
+                                            className="action-btn-improved primary"
+                                            onClick={() => navigate('/Cursos/CrearCurso')}
+                                        >
+                                            <div className="">
+                                                <FontAwesomeIcon icon={faCirclePlus} className="add-courses-icon" />
+                                                <span className="">Crear nuevo curso</span>
+                                            </div>
+                                        </button>
+                                    )}
+                                    
+                                    <button
                                         className="action-btn-improved secondary"
                                         onClick={() => filtrarCursos("Activos")}
                                     >
-                                        📊 Ver Cursos Activos
+                                        <div className="ViewCoursesIcon">
+                                            <FontAwesomeIcon icon={faChartSimple} />
+                                            <span>Ver Cursos Activos</span>
+                                        </div>
                                     </button>
-                                    <button 
+                                    <button
                                         className="action-btn-improved secondary"
                                         onClick={() => filtrarCursos("En oferta")}
                                     >
-                                        🎯 Ver En Oferta
+                                        <div className="ViewCoursesIcon">
+                                            <FontAwesomeIcon icon={faTag} />
+                                            <span>Ver en oferta</span>
+                                        </div>
                                     </button>
                                 </div>
 
                                 <div className="stats-grid-improved">
                                     <div className="stat-card-improved">
-                                        <span className="stat-icon">📈</span>
+                                        <div className="ViewCoursesIcon">
+                                            <FontAwesomeIcon icon={faChartLine} className="total-courses" />
+                                        </div>
                                         <div className="stat-content">
                                             <span className="stat-value">{todosLosCursos.length}</span>
                                             <span className="stat-label">Total</span>
                                         </div>
                                     </div>
                                     <div className="stat-card-improved">
-                                        <span className="stat-icon">✅</span>
+                                        <div className="ViewCoursesIcon">
+                                            <FontAwesomeIcon icon={faCheck} className="check-icon" />
+                                        </div>
                                         <div className="stat-content">
                                             <span className="stat-value">
                                                 {todosLosCursos.filter(c => c.estado?.toLowerCase() === 'activo').length}
@@ -266,20 +286,6 @@ export const MisCursosAdmin = () => {
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-
-                            {/* Ilustraciones */}
-                            <div className="illustrations-container">
-                                <img
-                                    className="illustration-woman-improved"
-                                    src="/src/assets/Ilustrations/woman-business.svg"
-                                    alt="Ilustración de mujer mis cursos admin"
-                                />
-                                <img
-                                    className="illustration-man-improved"
-                                    src="/src/assets/Ilustrations/man-business.svg"
-                                    alt="Ilustración de hombre mis cursos admin"
-                                />
                             </div>
                         </div>
                     </div>

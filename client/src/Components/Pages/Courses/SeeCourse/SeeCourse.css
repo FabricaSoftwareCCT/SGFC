@@ -466,7 +466,7 @@
   border-radius: 8px;
   color: #000;
   font-size: 0.95rem;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
   text-decoration: none;
@@ -488,6 +488,7 @@
 
 .edit-btn {
   background: #00c853;
+  color: #fff;
 }
 
 .edit-btn:hover {

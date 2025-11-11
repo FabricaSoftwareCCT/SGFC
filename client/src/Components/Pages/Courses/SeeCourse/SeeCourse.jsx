@@ -11,6 +11,8 @@ import buttonEdit from '../../../../assets/Icons/buttonEdit.png';
 import materialIcon from '../../../../assets/Icons/material.png'; 
 import { AssignInstructorCourse } from '../AssignInstructorCourse/AssignInstructorCourse';
 import ViewCalendar from '../../../UI/Modal_Calendar/ViewCalendar/Calendar';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faPenToSquare, faBookOpen, faUsers } from '@fortawesome/free-solid-svg-icons'
 
 export const SeeCourse = () => {
 	const { id } = useParams();
@@ -209,20 +211,21 @@ export const SeeCourse = () => {
 							{/* Botones de Acción */}
 							<div className="action-buttons">
 								<button className='material-btn' onClick={()=> navigate(`/SupportMaterialCourse/${id}`)}>
-									<img src={materialIcon} alt="Material del curso" className="btn-icon" />
+									<FontAwesomeIcon icon={faBookOpen} className="btn-icon" />
 									Ver Material
 								</button>
 
 								{/* Botones condicionales */}
 								{userSession && (userSession.accountType === 'Administrador' || userSession.accountType === 'Gestor') && (
 									<button className='edit-btn' onClick={() => navigate(`/Cursos/ActualizarCurso/${id}`)}>
-										<img src={buttonEdit} alt="Editar" className="btn-icon" />
+										 <FontAwesomeIcon icon={faPenToSquare} className="btn-icon" />
 										Editar Curso
 									</button>
 								)}
 
 								{userSession && (userSession.accountType === 'Administrador' || userSession.accountType === 'Gestor') && (
 									<button className='edit-btn' onClick={() => navigate(`/Cursos/Inscripciones/${id}`)}>
+										<FontAwesomeIcon icon={faUsers} className="btn-icon" />
 										Ver Inscripciones
 									</button>
 								)}

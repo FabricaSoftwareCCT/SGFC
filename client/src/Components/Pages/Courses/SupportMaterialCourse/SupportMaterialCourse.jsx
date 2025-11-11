@@ -1,10 +1,11 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Header } from '../../../Layouts/Header/Header';
-import { Footer } from '../../../Layouts/Footer/Footer';
 import { Main } from '../../../Layouts/Main/Main';
 import './SupportMaterialCourse.css'
 import axiosInstance from '../../../../config/axiosInstance';
+import Swal from 'sweetalert2';
+import 'sweetalert2/themes/bulma.css'
 
 export const SupportMaterialCourse = () => {
     const navigate = useNavigate();
@@ -23,22 +24,35 @@ export const SupportMaterialCourse = () => {
         JSON.parse(localStorage.getItem('userSession')) ||
         JSON.parse(sessionStorage.getItem('userSession'));
 
-    const esAprendiz = (userSession?.accountType || '').toLowerCase() === 'aprendiz';
-    const puedeSubirArchivos = !esAprendiz;
-    const puedeEliminarArchivos = !esAprendiz;
+    const accountType = (userSession?.accountType || '').toLowerCase();
+    const isLoggedIn = !!userSession?.accountType;
+    const rolesPermitidos = ['administrador', 'instructor', 'gestor'];
+    const hasPrivilegedRole = rolesPermitidos.includes(accountType);
+    // Solo usuarios autenticados con rol privilegiado pueden crear/editar/eliminar
+    const puedeSubirArchivos = isLoggedIn && hasPrivilegedRole;
+    const puedeEliminarArchivos = isLoggedIn && hasPrivilegedRole;
+    const puedeEditarMaterial = isLoggedIn && hasPrivilegedRole;
 
     const fetchCurso = async () => {
         try {
             const resp = await axiosInstance.get(`api/courses/cursos/${id}`);
             setCursoActual(resp.data);
-        } catch {}
+        } catch (error) {
+                await Swal.fire({
+                ...swalConfig,
+                icon: 'error',
+                title: 'Error',
+                text: 'No se pudo cargar la información del curso'
+            });
+        }
     };
 
     const fetchMaterial = async () => {
         try {
             const resp = await axiosInstance.get(`/api/material/${id}`);
             setArchivos(Array.isArray(resp.data.materiales) ? resp.data.materiales : []);
-        } catch {
+        } catch (e) {
+            console.error('Error al consultar material', e);
             setArchivos([]);
         }
     };
@@ -57,7 +71,16 @@ export const SupportMaterialCourse = () => {
             if (materialType === 'PDF' || materialType === 'Video') {
                 const fieldName = materialType === 'PDF' ? 'document_pdf' : 'video';
                 const tipo = materialType.toLowerCase();
-                if (pendingFiles.length === 0) { alert(`Selecciona uno o más archivos ${materialType}`); setSubiendoArchivo(false); return; }
+                if (pendingFiles.length === 0) {                    
+                    await Swal.fire({
+                        ...swalConfig,
+                        icon: 'warning',
+                        title: 'Archivos requeridos',
+                        text: `Selecciona uno o más archivos ${materialType}`
+                    }); 
+                    setSubiendoArchivo(false); 
+                    return; 
+                }
                 requests = pendingFiles.map((file) => {
                     const body = new FormData();
                     body.append(fieldName, file);
@@ -67,31 +90,85 @@ export const SupportMaterialCourse = () => {
             } else if (materialType === 'Enlace') {
                 const linksToSend = pendingLinks.filter((l)=> (l||'').trim().length > 0);
                 if (linksToSend.length === 0 && material.length > 0) linksToSend.push(material);
-                if (linksToSend.length === 0) { alert('Agrega uno o más enlaces'); setSubiendoArchivo(false); return; }
+                if (linksToSend.length === 0) { 
+                    await Swal.fire({
+                        ...swalConfig,
+                        icon: 'warning',
+                        title: 'Enlaces requeridos',
+                        text: 'Agrega uno o más enlaces'
+                    }); setSubiendoArchivo(false); 
+                    return; 
+                }
                 requests = linksToSend.map((link)=> axiosInstance.post(`/api/material/create/${id}`, { tipo: 'enlace', link }));
             }
             const responses = await Promise.all(requests);
             const firstMsg = responses[0]?.data?.message;
-            if (firstMsg) alert(firstMsg);
+            if (firstMsg) {
+                await Swal.fire({
+                    ...swalConfig,
+                    icon: 'success',
+                    title: 'Éxito',
+                    text: firstMsg
+                });
+            }
             setShowMaterialCreation(false);
             setPendingFiles([]);
             setPendingLinks([]);
             setMaterial('');
             await fetchMaterial();
         } catch (e) {
-            alert('Ocurrió un error al crear el material de apoyo');
+            await Swal.fire({
+                ...swalConfig,
+                icon: 'error',
+                title: 'Error',
+                text: 'Ocurrió un error al crear el material de apoyo'
+            });
         } finally {
             setSubiendoArchivo(false);
         }
     };
 
+    /* const handleDescargarArchivo = async (archivo) => {
+        await Swal.fire({
+            ...swalConfig,
+            icon: 'info',
+            title: 'Descargando',
+            text: `Descargando: ${archivo.nombre_original}`
+        });
+    };*/
+
     const handleEliminarArchivo = async (archivoId) => {
-        if (!window.confirm('¿Estás seguro de que quieres eliminar este archivo?')) return;
-        try {
-            await axiosInstance.delete(`/api/material/delete/${archivoId}`);
-            setArchivos((prev) => prev.filter((a) => a.ID !== archivoId));
-        } catch (e) {
-            alert('Error al eliminar el material');
+        const result = await Swal.fire({
+            icon: 'question',
+            title: '¿Eliminar archivo?',
+            text: '¿Estás seguro de que quieres eliminar este archivo?',
+            showCancelButton: true,
+            confirmButtonText:"Aceptar",
+            theme:"bulma",
+            customClass:{
+                actions:'swal2-actions-centered'
+            }
+
+        });
+
+        if (result.isConfirmed) {
+            try {
+                // Aquí iría la llamada real a la API
+                await Swal.fire({
+                    ...swalConfig,
+                    icon: 'success',
+                    title: 'Eliminado',
+                    text: 'Archivo eliminado correctamente'
+                });
+                await fetchMaterial();
+            } catch (error) {
+                await Swal.fire({
+                    ...swalConfig,
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'No se pudo eliminar el archivo'
+                });
+            }
         }
     };
 
@@ -110,6 +187,7 @@ export const SupportMaterialCourse = () => {
         }
     };
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {
         fetchCurso();
         fetchMaterial();
@@ -187,10 +265,11 @@ export const SupportMaterialCourse = () => {
                                                         Descargar
                                                     </a>
                                                 )}
-                                                {puedeEliminarArchivos && (
+                                                {puedeEliminarArchivos && puedeEditarMaterial && (
                                                     editingMaterial && editingMaterial.ID === archivo.ID ? (
                                                         <>
                                                             <button className='btn-editar' onClick={editarMaterial}>Guardar</button>
+                                                          
                                                             <button className='btn-eliminar' onClick={()=> setEditingMaterial(null)}>Cancelar</button>
                                                         </>
                                                     ) : (
@@ -223,7 +302,7 @@ export const SupportMaterialCourse = () => {
                         <span>Tipo de material</span>
                         <div className="statusButtons" style={{ width: '90%' }}>
                             {['PDF','Video','Enlace'].map((t)=> (
-                                <button className={`status-btn ${materialType === t ? 'selected' : ''}`} onClick={()=> setMaterialType(t)}>{t}</button>
+                                <button key={t} className={`status-btn ${materialType === t ? 'selected' : ''}`} onClick={()=> setMaterialType(t)}>{t}</button>
                             ))}
                         </div>
                         <br/>

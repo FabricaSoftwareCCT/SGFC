@@ -53,6 +53,16 @@
   font-size: 0.9rem;
 }
 
+.inputDateFilter{
+  background-color: #f3f3f3;
+  color: #1a1a1a;
+  font: 100% sans-serif;
+  display: flex;
+  border-radius: 10px;
+  width: auto;
+  height: auto;
+}
+
 /* Filas de la tabla - MISMA ESTRUCTURA que encabezados */
 .table-row.desktop-view {
   display: grid;
@@ -359,4 +369,17 @@
 	background: rgba(34, 34, 34, 0.8);
 	border: 1px solid rgba(255,255,255,0.1);
 	margin-bottom: 0.5rem;
+}
+
+.Acta-Boton {
+	background: #00843d;
+	color: #fff;
+	padding: 0.5rem 1rem;
+	border-radius: 5px;
+	text-decoration: none;
+	font-weight: bold;
+	width: auto;
+	height: auto;
+	border-width: 0px;
+	font-size: 16px;
 }

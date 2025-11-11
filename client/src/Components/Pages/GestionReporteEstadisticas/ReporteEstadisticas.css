@@ -466,6 +466,17 @@
   background: #2a2a2a;
 }
 
+.curso-sin-empleados {
+  opacity: 0.5;
+  cursor: not-allowed !important;
+  background: #1a1a1a;
+}
+
+.curso-sin-empleados:hover {
+  background: #1a1a1a !important;
+  opacity: 0.6;
+}
+
 .tabla-fila-estadisticas:last-child {
   border-bottom: none;
 }

@@ -86,6 +86,7 @@ export const Header = ({
 		"/Gestiones/Criterios",
 		"/Empleados/MisEmpleados",
 		"/GestionReporteEstadisticas/ReporteEstadisticas",
+		"/reportes/asistencia-progreso",
 	].some((path) => location.pathname.startsWith(path));
 
 	const isEmpresasActive = location.pathname.startsWith(
@@ -200,10 +201,6 @@ export const Header = ({
 								{
 									label: "Material de Apoyo",
 									path: "/SupportMaterial",
-								},
-								{
-									label: "Criterios de certificación",
-									path: "/Gestiones/Criterios",
 								},
 							];
 							break;
@@ -398,6 +395,38 @@ export const Header = ({
 								>
 									Gestión de Usuarios
 								</button>
+								<button
+									className={
+										location.pathname.startsWith(
+											"/GestionReporteEstadisticas/ReporteEstadisticas"
+										)
+											? "active"
+											: ""
+									}
+									onClick={() =>
+										handleMenuClick(
+											"/GestionReporteEstadisticas/ReporteEstadisticas"
+										)
+									}
+								>
+									Reporte y Estadísticas
+								</button>
+								<button
+									className={
+										location.pathname.startsWith(
+											"/reportes/asistencia-progreso"
+										)
+											? "active"
+											: ""
+									}
+									onClick={() =>
+										handleMenuClick(
+											"/reportes/asistencia-progreso"
+										)
+									}
+								>
+									Asistencia y Progreso
+								</button>
 							</div>
 						)}
 					</div>
@@ -464,6 +493,52 @@ export const Header = ({
 									}
 								>
 									Reporte y Estadísticas
+								</button>
+								<button
+									className={
+										location.pathname.startsWith(
+											"/reportes/asistencia-progreso"
+										)
+											? "active"
+											: ""
+									}
+									onClick={() =>
+										handleMenuClick(
+											"/reportes/asistencia-progreso"
+										)
+									}
+								>
+									Asistencia y Progreso
+								</button>
+								<button
+									className={
+										location.pathname.startsWith(
+											"/Gestiones/Actas"
+										)
+											? "active"
+											: ""
+									}
+									onClick={() =>
+										handleMenuClick("/Gestiones/Actas")
+									}
+								>
+									Gestión de Actas
+								</button>
+								<button
+									className={
+										location.pathname.startsWith(
+											"/Gestiones/Criterios"
+										)
+											? "active"
+											: ""
+									}
+									onClick={() =>
+										handleMenuClick(
+											"/Gestiones/Criterios"
+										)
+									}
+								>
+									Criterios de Certificación
 								</button>
 							</div>
 						)}

@@ -9,6 +9,8 @@ import {
   validateNIT, 
   validateAddress 
 } from '../../../utils/Validators/formValidator';
+import Swal from "sweetalert2";
+import 'sweetalert2/themes/bulma.css'
 
 export const CreateEmpresa = ({ onClose, onCompanyCreated }) => {
   // Estado para datos del Manager (izquierda)
@@ -191,12 +193,21 @@ export const CreateEmpresa = ({ onClose, onCompanyCreated }) => {
       const hastErrors = await createMensajeError(allErrors);
       
       if (hastErrors != null) {
-        alert(hastErrors);
+        await Swal.fire({
+          icon: 'error',
+          title: 'Error de validación',
+          html: hastErrors,
+          confirmButtonText: 'Aceptar',
+          confirmButtonColor: '#d33',
+          theme: "bulma", // Añadido tema Bulma
+          customClass: {
+            confirmButton: 'centered-swal-button'
+          }
+        });
         setLoading(false);
         return;
       }
 
-      // PASO 1: Crear el usuario Manager
       const userResponse = await fetch("http://localhost:3001/api/users/createUser", {
         method: "POST",
         headers: {
@@ -210,6 +221,7 @@ export const CreateEmpresa = ({ onClose, onCompanyCreated }) => {
       });
 
       const userData = await userResponse.json();
+      console.log(userData);
 
       if (!userResponse.ok) {
         throw new Error(userData.message || "Error al crear el usuario Manager");
@@ -240,16 +252,28 @@ export const CreateEmpresa = ({ onClose, onCompanyCreated }) => {
         }
       });
 
-      const empresaResponse = await axiosInstance.post("/api/users/empresas", empresaPayload);
+      const encodeEmail = encodeURIComponent(managerData.email)
+
+      const empresaResponse = await axiosInstance.post(`/api/users/empresas/${encodeEmail}`, empresaPayload);
       
-      console.log("Empresa y Manager creados:", empresaResponse.data);
       
       // Notificar al componente padre
       if (onCompanyCreated) {
         onCompanyCreated(empresaResponse.data.empresa);
       }
       
-      alert('Empresa creada con éxito. El Manager recibirá un email de verificación.');
+            await Swal.fire({
+        icon: 'success',
+        title: 'Empresa creada',
+        text: 'Empresa creada con éxito. El Manager recibirá un email de verificación.',
+        confirmButtonText: 'Aceptar',
+        confirmButtonColor: '#00843d',
+        theme: "bulma", // Añadido tema Bulma
+        customClass: {
+          confirmButton: 'centered-swal-button'
+        }
+      });
+
       onClose(); // Cerrar el modal después de guardar
       
     } catch (error) {
@@ -260,11 +284,20 @@ export const CreateEmpresa = ({ onClose, onCompanyCreated }) => {
         errorMessage = error.response.data.message;
       } else if (error.response?.data?.errors) {
         errorMessage = error.response.data.errors.join(', ');
-      } else if (error.message) {
-        errorMessage = error.message;
       }
       
-      alert(errorMessage);
+      await Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: errorMessage,
+        confirmButtonText: 'Aceptar',
+        confirmButtonColor: '#d33',
+        theme: "bulma", // Añadido tema Bulma
+        customClass: {
+          confirmButton: 'centered-swal-button'
+        }
+      });
+
     } finally {
       setLoading(false);
     }

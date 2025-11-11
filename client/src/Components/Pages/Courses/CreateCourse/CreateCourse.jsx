@@ -11,6 +11,8 @@ import imgDefectCourse from '../../../../assets/Icons/picDefectCourse.png';
 import axiosInstance from '../../../../config/axiosInstance';
 import { useNavigate } from 'react-router-dom';
 import { AssignInstructorCourse } from '../AssignInstructorCourse/AssignInstructorCourse';
+import Swal from 'sweetalert2';
+import 'sweetalert2/themes/bulma.css';
 
 export const CreateCourse = () => {
 	const navigate = useNavigate();
@@ -29,6 +31,7 @@ export const CreateCourse = () => {
 	const [showResultados, setShowResultados] = useState(false);
 	const [duracionCurso, setDuracionCurso] = useState(0);
 	const [lugarFormacion, setLugarFormacion] = useState("");
+	const [selectedModality, setSelectedModality] = useState("presencial")
 
 	const [calendarData, setCalendarData] = useState({
 		startDate: "",
@@ -92,22 +95,63 @@ export const CreateCourse = () => {
 
 	const handleCreateCourse = async () => {
 		if (!ficha || !nombreCurso || !descripcion || !selected || !selectedStatus) {
-			alert("Por favor, completa todos los campos requeridos.");
+			Swal.fire({
+				icon: 'warning',
+				title: 'Campos incompletos',
+				text: 'Por favor, completa todos los campos requeridos.',
+				confirmButtonText: 'Aceptar',
+				confirmButtonColor: '#f39c12',
+				theme: 'bulma',
+				customClass: {
+				actions: 'swal2-center-actions'
+				}
+			});
 			return;
 		}
 
 		if (isNaN(Number(ficha))) {
-			alert("El campo ficha debe ser un número.");
+			Swal.fire({
+				icon: 'error',
+				title: 'Ficha inválida',
+				text: 'El campo ficha debe ser un número.',
+				confirmButtonText: 'Aceptar',
+				confirmButtonColor: '#d33',
+				theme: 'bulma',
+				customClass: {
+				actions: 'swal2-center-actions'
+				}
+			});
 			return;
 		}
 
-		if (descripcion.length < 100) {
-			alert("La descripción debe tener mínimo 100 caracteres.");
+		// Validar longitud mínima de la descripción
+		if (descripcion.length < 300) {
+			Swal.fire({
+				icon: 'warning',
+				title: 'Descripción muy corta',
+				text: 'La descripción debe tener mínimo 300 caracteres.',
+				confirmButtonText: 'Aceptar',
+				confirmButtonColor: '#f39c12',
+				theme: 'bulma',
+				customClass: {
+					actions: 'swal2-center-actions'
+				}
+			});
 			return;
 		}
 
 		if (!calendarData.startDate || !calendarData.endDate || calendarData.selectedSlots.length === 0) {
-			alert("Por favor, selecciona las fechas y horarios del curso.");
+			Swal.fire({
+				icon: 'warning',
+				title: 'Fechas y horarios requeridos',
+				text: 'Por favor, selecciona las fechas y horarios del curso.',
+				confirmButtonText: 'Aceptar',
+				confirmButtonColor: '#f39c12',
+				theme: 'bulma',
+				customClass: {
+					actions: 'swal2-center-actions'
+				}
+			});
 			return;
 		}
 
@@ -126,6 +170,7 @@ export const CreateCourse = () => {
 			formData.append("fecha_inicio", calendarData.startDate);
 			formData.append("fecha_fin", calendarData.endDate);
 			formData.append("temario", JSON.stringify(temario));
+			formData.append("modalidad", selectedModality);
 
 			const slotsByDay = {};
 			calendarData.selectedSlots.forEach(slot => {
@@ -187,7 +232,19 @@ export const CreateCourse = () => {
 				},
 			});
 
-			alert("Curso creado con éxito");
+			await Swal.fire({
+				icon: 'success',
+				title: '¡Curso creado!',
+				text: 'Curso creado con éxito',
+				confirmButtonText: 'Aceptar',
+				confirmButtonColor: '#28a745',
+				timer: 3000,
+				timerProgressBar: true,
+				theme: 'bulma',
+				customClass: {
+					actions: 'swal2-center-actions'
+				}
+			});
 
 			if (response.data.curso && response.data.curso.ID) {
 				navigate('/Cursos/MisCursos');
@@ -196,9 +253,29 @@ export const CreateCourse = () => {
 		} catch (error) {
 			console.error("Error al crear el curso:", error);
 			if (error.response?.data?.message) {
-				alert(`Error: ${error.response.data.message}`);
+					Swal.fire({
+					icon: 'error',
+					title: 'Error',
+					text: `Error: ${error.response.data.message}`,
+					confirmButtonText: 'Aceptar',
+					confirmButtonColor: '#d33',
+					theme: 'bulma',
+					customClass: {
+						actions: 'swal2-center-actions'
+					}
+				});
 			} else {
-				alert("Ocurrió un error al crear el curso");
+				Swal.fire({
+					icon: 'error',
+					title: 'Error del sistema',
+					text: 'Ocurrió un error al crear el curso',
+					confirmButtonText: 'Aceptar',
+					confirmButtonColor: '#d33',
+					theme: 'bulma',
+					customClass: {
+						actions: 'swal2-center-actions'
+					}
+				});
 			}
 		}
 	};

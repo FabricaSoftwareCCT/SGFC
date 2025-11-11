@@ -9,6 +9,8 @@ import { useModal } from "../../../Context/ModalContext";
 import { NavLink, useNavigate } from "react-router-dom";
 import { Modal_General } from '../../UI/Modal_General/Modal_General';
 import agregarArchivo from '../../../assets/Icons/agregar-archivo.png';
+import Swal from 'sweetalert2';
+import 'sweetalert2/themes/bulma.css'
 
 const categoriasDisponibles = [
 	'Solicitud', 'Concertacion', 'Lugar_formacion', 'Matricula'
@@ -42,7 +44,7 @@ export const GestionsActas = () => {
 				const userData = JSON.parse(sessionStorage.getItem('userSession') || '{}');
 
 				// Filtrar según el tipo de usuario
-				if (userData.accountType === 'Administrador') {
+				if (userData.accountType === 'Administrador' || userData.accountType === "Gestor") {
 					// Administrador ve todas las actas
 					setActas(res.data);
 				} else if (userData.accountType === 'Instructor') {
@@ -60,16 +62,33 @@ export const GestionsActas = () => {
 				setActas([]);
 				setActasOriginales([]);
 				console.error("Error al cargar actas:", error);
+				await Swal.fire({
+          icon: "error",
+          title: "Error al cargar actas",
+          text: "Ha ocurrido un error al cargar el acta, por favor vuelva a intentarlo más tarde",
+          confirmButtonText: "Entendido",
+          confirmButtonColor: "#d33",
+                theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+        });
 			}
 		};
 
 		// Obtener información del usuario logueado
-		const obtenerUsuarioLogueado = () => {
+		const obtenerUsuarioLogueado = async () => {
 			try {
 				const userData = JSON.parse(sessionStorage.getItem('userSession') || '{}');
 				setUsuarioLogueado(userData);
 			} catch (error) {
 				console.error('Error al obtener datos del usuario:', error);
+			await Swal.fire({
+          icon: 'error',
+          title: 'Error de sesión',
+          text: 'No se pudieron cargar los datos del usuario. Por favor, inicie sesión nuevamente.',
+          confirmButtonColor: '#d33',
+                theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+        });
 				setUsuarioLogueado(null);
 			}
 		};
@@ -80,8 +99,11 @@ export const GestionsActas = () => {
 
 	// Verificar si el usuario es administrador
 	const esAdministrador = () => {
-		const esAdmin = usuarioLogueado && usuarioLogueado.accountType === 'Administrador';
-		return esAdmin;
+		return usuarioLogueado && usuarioLogueado.accountType === 'Administrador';
+	};
+
+	const esGestor = () => {
+		return usuarioLogueado && usuarioLogueado.accountType === 'Gestor';
 	};
 
 	// Verificar si el usuario es instructor
@@ -130,7 +152,17 @@ export const GestionsActas = () => {
 
 		const handleChangeEstado = async () => {
 			if (!esAdministrador()) {
-				alert('Solo los administradores pueden cambiar el estado del acta');
+        await Swal.fire({
+          icon: "info",
+          title: "No tiene permiso",
+          text: "Solo los administradores pueden cambiar el estado del acta",
+          confirmButtonText: "Okay",
+          confirmButtonColor: "#3085d6",
+          timer: 3500,
+          timerProgressBar: true,
+                theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+        });
 				return;
 			}
 
@@ -147,15 +179,52 @@ export const GestionsActas = () => {
 						actaID : acta.ID,
 						estado: updatedEstado, 
 					})
-					alert('Notificación de estado de solicitud de curso enviada correctamente');
-				} catch (error) {
-					console.error('Error al enviar notificación de estado de solicitud de curso:', error);
-				}
-				alert('Estado actualizado correctamente');
-				setShowModalGeneral(false);
-				window.location.reload();
-			} catch (error) {
-				alert('Error al actualizar el estado');
+					await Swal.fire({
+            icon: "success",
+            title: "¡Éxito!",
+            text: "Notificación de estado de solicitud de curso enviada correctamente",
+            confirmButtonText: "Entiendo",
+            confirmButtonColor: "#3085d6",
+            timer: 3000,
+            timerProgressBar: true,
+                  theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+          });
+        } catch (error) {
+          console.error('Error al enviar notificación de estado de solicitud de curso:', error);
+          await Swal.fire({
+            icon: "error",
+            title: "Error al enviar notificación",
+            text: "Ha ocurrido un error al enviar una notificación de estado de solicitud de curso, por favor, intentelo más tarde.",
+            confirmButtonText: "Okay",
+            confirmButtonColor: "#d33",
+                  theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+          });
+        }
+
+        await Swal.fire({
+          icon: "success",
+          title: "¡Éxito!",
+          text: "Estado actualizado correctamente",
+          confirmButtonColor: "#05ab13",
+          timer: 3000,
+          timerProgressBar: true,
+                theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+        });
+        
+        setShowModalGeneral(false);
+        window.location.reload();
+      } catch (error) {
+        await Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Error al actualizar el estado del acta",
+          confirmButtonColor: "#d33",
+                theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+        });
 			}
 		};
 
@@ -179,16 +248,7 @@ export const GestionsActas = () => {
 								: 'http://localhost:3001/uploads/documentos';
 							window.open(`${baseUrl}/${acta.pdf_acta}`, "_blank");
 						}}
-						style={{
-							background: "#00843d",
-							color: "#fff",
-							padding: "0.5rem 1rem",
-							borderRadius: "5px",
-							textDecoration: "none",
-							fontWeight: "bold",
-							width: "auto",
-							height: "auto"
-						}}
+						className={"Acta-Boton"}
 					>
 						Acta
 					</NavLink>
@@ -203,21 +263,21 @@ export const GestionsActas = () => {
 								window.open(`${baseUrl}/${acta.pdf_radicado}`, "_blank");
 							}
 						}}
+						className={"Acta-Boton"}
 						style={{
-							background: "#00843d",
-							color: "#fff",
-							padding: "0.5rem 1rem",
-							borderRadius: "5px",
-							textDecoration: "none",
-							fontWeight: "bold",
 							opacity: acta.pdf_radicado ? 1 : 0.5,
 							pointerEvents: acta.pdf_radicado ? "auto" : "none",
-							width: "auto",
-							height: "auto"
 						}}
 					>
 						Radicado
 					</NavLink>
+					{/*acta.tipo_acta == "Concertacion" && (
+						<button
+							className={"Acta-Boton"}
+						>
+							Editar acta
+						</button>
+					)*/}
 					<label
 						style={{
 							background: "#007bff",
@@ -226,7 +286,7 @@ export const GestionsActas = () => {
 							borderRadius: "5px",
 							fontWeight: "bold",
 							cursor: "pointer",
-							width: "auto",
+							width: "100%",
 							height: "auto"
 						}}
 					>
@@ -348,11 +408,28 @@ export const GestionsActas = () => {
 			await axiosInstance.post(`/api/actas/${actaId}/upload-radicado`, formData, {
 				headers: { 'Content-Type': 'multipart/form-data' }
 			});
-			alert('PDF radicado subido correctamente');
-			setShowModalGeneral(false);
-			window.location.reload();
-		} catch (error) {
-			alert('Error al subir el PDF radicado');
+      await Swal.fire({
+        icon: "success",
+        title: "¡Éxito!",
+        text: "PDF radicado subido correctamente",
+        confirmButtonColor: "#3085d6",
+        timer: 3000,
+        timerProgressBar: true,
+              theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+      });
+      
+      setShowModalGeneral(false);
+      window.location.reload();
+    } catch (error) {
+      await Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Error al subir el PDF radicado",
+        confirmButtonColor: "#d33",
+              theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+      });
 		}
 	};
 
@@ -449,7 +526,7 @@ export const GestionsActas = () => {
 							</article>
 
 							{/* Solo mostrar botón de generar acta a instructores y administradores */}
-							{(esInstructor() || esAdministrador()) && (
+							{(esInstructor() || esAdministrador() || esGestor()) && (
 								<div className="container-button-firmar">
 									<button className="button-proceedings-generar" onClick={() => setShowTipoActaModal(true)}>
 										Generar acta

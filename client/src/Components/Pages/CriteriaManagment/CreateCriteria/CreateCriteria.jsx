@@ -6,6 +6,8 @@ import { Main } from "../../../Layouts/Main/Main"
 import { useEffect, useState } from "react"
 import { GoBackArrow } from "../../../UI/GoBackArrow/GoBackArrow"
 import axiosInstance from "../../../../config/axiosInstance"
+import Swal from "sweetalert2";
+import 'sweetalert2/themes/bulma.css'
 
 export const CreateCriteria = () => {
 	const { id } = useParams()
@@ -23,20 +25,56 @@ export const CreateCriteria = () => {
 	async function save () {
 		try {
 			if (!criteriaType) {
-				alert("Se debe especificar el tipo de criterio");
+				await Swal.fire({
+					icon: 'warning',
+					title: 'Tipo de criterio requerido',
+					text: 'Se debe especificar el tipo de criterio',
+					confirmButtonColor: '#3085d6',
+					theme: "bulma", // Añadido tema Bulma
+					customClass: {
+						confirmButton: 'centered-swal-button'
+					}
+				});
 				return
 			}
 
 			if (title.length < 1) {
-				alert("Se debe darle nombre al criterio")
+				await Swal.fire({
+					icon: 'warning',
+					title: 'Nombre requerido',
+					text: 'Se debe darle nombre al criterio',
+					confirmButtonColor: '#3085d6',
+					theme: "bulma", // Añadido tema Bulma
+					customClass: {
+						confirmButton: 'centered-swal-button'
+					}
+				});
 				return
 			}
 			if (description.length < 1) {
-				alert("Se debe escribir la descripción del criterio")
+				await Swal.fire({
+					icon: 'warning',
+					title: 'Descripción requerida',
+					text: 'Se debe escribir la descripción del criterio',
+					confirmButtonColor: '#3085d6',
+					theme: "bulma", // Añadido tema Bulma
+					customClass: {
+						confirmButton: 'centered-swal-button'
+					}
+				});
 				return
 			}
 			if (isNaN(min) && !!criteriaType) {
-				alert("El valor mínimo debe ser un número")
+				await Swal.fire({
+					icon: 'error',
+					title: 'Valor inválido',
+					text: 'El valor mínimo debe ser un número',
+					confirmButtonColor: '#d33',
+					theme: "bulma", // Añadido tema Bulma
+					customClass: {
+						confirmButton: 'centered-swal-button'
+					}
+				});
 				return
 			}
 			
@@ -55,16 +93,54 @@ export const CreateCriteria = () => {
 
 			if (response.data.criterio_ID != undefined) {
 				navigate(`/Gestiones/Criterios/Curso/${id}`)
-				alert(response.data.message)
+				await Swal.fire({
+					icon: 'success',
+					title: '¡Éxito!',
+					text: response.data.message || 'Criterio creado correctamente',
+					confirmButtonColor: '#3085d6',
+					timer: 3000,
+					timerProgressBar: true,
+					theme: "bulma", // Añadido tema Bulma
+					customClass: {
+						confirmButton: 'centered-swal-button'
+					}
+				});
 			} else {
 				if (response.data.message)
-					alert(response.data.message)
+					await Swal.fire({
+						icon: 'warning',
+						title: 'Advertencia',
+						text: response.data.message,
+						confirmButtonColor: '#3085d6',
+						theme: "bulma", // Añadido tema Bulma
+						customClass: {
+							confirmButton: 'centered-swal-button'
+						}
+					});
 			}
 		} catch (error) {
 			if (error.response?.data?.message)
-				alert(error.response.data.message)
+				await Swal.fire({
+					icon: 'error',
+					title: 'Error',
+					text: error.response.data.message,
+					confirmButtonColor: '#d33',
+					theme: "bulma", // Añadido tema Bulma
+					customClass: {
+						confirmButton: 'centered-swal-button'
+					}
+				});
 			else 
-				alert("Ocurrió un error al crear el criterio de certificación")
+				await Swal.fire({
+					icon: 'error',
+					title: 'Error',
+					text: 'Ocurrió un error al crear el criterio de certificación',
+					confirmButtonColor: '#d33',
+					theme: "bulma", // Añadido tema Bulma
+					customClass: {
+						confirmButton: 'centered-swal-button'
+					}
+				});
 		}
 		//navigate(`/Gestiones/Criterios/Curso/${id}`)
 	}

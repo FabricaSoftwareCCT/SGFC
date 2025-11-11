@@ -17,6 +17,8 @@ import {
   validateNIT,
 } from "../../../utils/Validators/formValidator"
 import { useModal } from "../../../Context/ModalContext"
+import Swal from 'sweetalert2';
+import 'sweetalert2/themes/bulma.css'
 
 export const SeeMyProfile = () => {
   const location = useLocation()
@@ -69,12 +71,19 @@ export const SeeMyProfile = () => {
     return `data:image/jpeg;base64,${base64}`
   }
 
-useEffect(() => {
-  // Si viene por redirección de perfil incompleto, activar modo edición automáticamente
-  if (requiresCompletion) {
-    setEditMode(true)
-    alert("⚠️ Por favor completa tu perfil para continuar usando la aplicación")
-  }
+  useEffect(() => {
+    // Si viene por redirección de perfil incompleto, activar modo edición automáticamente
+    if (requiresCompletion) {
+      setEditMode(true)
+			Swal.fire({
+				icon:"info",
+				title:"Completar datos de perfil",
+				text:"Por favor completa tu perfil para continuar usando la aplicación",
+				confirmButtonText:"Aceptar",
+				theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+			})
+    }
 
   const fetchProfile = async () => {
     try {
@@ -107,6 +116,15 @@ useEffect(() => {
       }
     } catch (error) {
       console.error("Error al obtener el perfil:", error)
+        Swal.fire({
+					icon:"error",
+					title:"Error Perfil",
+					text:"Ocurrio un error en el perfil",
+					confirmButtonText:"Aceptar",
+					confirmButtonColor:"#d33",
+					theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+				})
     }
   }
 
@@ -136,7 +154,14 @@ useEffect(() => {
           }),
       )
     } catch (error) {
-      alert("Ocurrió un error al consultar los cursos")
+			Swal.fire({
+				icon:"error",
+				title:"Error al consultar",
+				text:"Ocurrió un error al consultar los cursos",
+				confirmButtonText:"Okay",
+				theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+			})
       console.log(error)
     }
   }
@@ -247,6 +272,14 @@ const handleInputChange = (e) => {
       setCiudades(ciudadesData)
     } catch (error) {
       console.error("Error al cargar ciudades:", error)
+      Swal.fire({
+					icon:"error",
+					title:"Error en el sistema",
+					text:"No se pudieron cargar las ciudades",
+					confirmButtonText:"Okay",
+					theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+				})
       setCiudades([])
     }
   } else {
@@ -345,12 +378,20 @@ const handleSaveChanges = async () => {
     ...erroresTipoCuenta,
   }
 
-  const hastErrors = await createMensajeError(error)
-  if (hastErrors != null) {
-    alert(hastErrors)
-    setPerfil(perfilOriginal) // Revertir cambios locales
-    return
-  }
+    const hastErrors = await createMensajeError(error)
+    if (hastErrors != null) {
+			Swal.fire({
+				icon: 'error',
+				title: 'Error de validación',
+				html: hastErrors,
+				confirmButtonText: 'Aceptar',
+				confirmButtonColor: '#d33',
+				theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+			});
+      setPerfil(perfilOriginal) // Revertir cambios locales
+      return
+    }
 
   try {
     // Construir payload seguro
@@ -395,8 +436,16 @@ const handleSaveChanges = async () => {
 
     console.log("Payload a enviar:", payload) // Para debug
 
-    await axiosInstance.put(`/api/users/perfil/actualizar/${userId}`, payload)
-    alert("Perfil actualizado con éxito")
+      await axiosInstance.put(`/api/users/perfil/actualizar/${userId}`, payload)
+			Swal.fire({
+				icon: 'success',
+				title: 'Perfil actualizado',
+				text: 'Perfil actualizado con éxito',
+				confirmButtonText: 'Aceptar',
+				confirmButtonColor: '#049019',
+				theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+			});
 
     // Recargar perfil desde backend
     const response = await axiosInstance.get(`/api/users/profile/${userId}`)
@@ -413,17 +462,25 @@ const handleSaveChanges = async () => {
     console.error("Error al actualizar el perfil:", error)
     console.error("Error response:", error.response)
 
-    let errorMessage = "Hubo un error al actualizar el perfil"
-    if (error.response?.data?.message) {
-      errorMessage = error.response.data.message
-    } else if (typeof error.response?.data === "string") {
-      errorMessage = error.response.data
-    } else if (typeof error.response?.data === "object") {
-      errorMessage = error.response.data.message ? error.response.data.message : JSON.stringify(error.response.data)
-    } else if (error.message) {
-      errorMessage = error.message
-    }
-    alert(errorMessage)
+      let errorMessage = "Hubo un error al actualizar el perfil"
+      if (error.response?.data?.message) {
+        errorMessage = error.response.data.message
+      } else if (typeof error.response?.data === "string") {
+        errorMessage = error.response.data
+      } else if (typeof error.response?.data === "object") {
+        errorMessage = error.response.data.message ? error.response.data.message : JSON.stringify(error.response.data)
+      } else if (error.message) {
+        errorMessage = error.message
+      }
+			Swal.fire({
+				icon: 'error',
+				title: 'Error',
+				text: errorMessage,
+				confirmButtonText: 'Aceptar',
+				confirmButtonColor: '#d33',
+				theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+			});
 
     if (perfilOriginal) {
       setPerfil(perfilOriginal)

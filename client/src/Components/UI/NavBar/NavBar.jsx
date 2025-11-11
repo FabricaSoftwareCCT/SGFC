@@ -11,6 +11,8 @@ import axiosInstance from "../../../config/axiosInstance"
 import noRead from "../../../assets/Icons/mensaje-no-leido.png"
 import ifRead from "../../../assets/Icons/mensaje-leido.png"
 import { useModal } from "../../../Context/ModalContext"
+import Swal from 'sweetalert2';
+import 'sweetalert2/themes/bulma.css'
 
 export const NavBar = ({ children }) => {
 	const navigate = useNavigate()
@@ -27,6 +29,8 @@ export const NavBar = ({ children }) => {
 	const [inputElement, setInputElement] = useState("")
 	const [Date, setDate] = useState("")
 	const [DateEnd, setDateEnd] = useState("")
+	const [showSettingsMenu, setShowSettingsMenu] = useState(false)
+	const settingsMenuRef = useRef(null)
 
 	const userSession =
 		JSON.parse(localStorage.getItem("userSession")) || JSON.parse(sessionStorage.getItem("userSession"))
@@ -72,32 +76,35 @@ export const NavBar = ({ children }) => {
 	const [showNotificationsMenu, setShowNotificationsMenu] = useState(false)
 	const notificationsMenuRef = useRef(null)
 
-	useEffect(() => {
+		useEffect(() => {
 		const handleClickOutside = (event) => {
 			if (notificationsMenuRef.current && !notificationsMenuRef.current.contains(event.target)) {
-				setShowNotificationsMenu(false)
+			//setShowNotificationsMenu(false)
+			}
+			if (settingsMenuRef.current && !settingsMenuRef.current.contains(event.target)) {
+			//setShowSettingsMenu(false)
 			}
 		}
 		document.addEventListener("mousedown", handleClickOutside)
 		return () => document.removeEventListener("mousedown", handleClickOutside)
-	}, [])
+		}, [])
+
+	const fetchNotifications = async () => {
+		setLoadingNotifications(true)
+		try {
+			const res = await axiosInstance.get('/api/notifications?limit=5');
+			// no mostrar notificaciones aceptadas o rechazadas
+			res.data.notifications = res.data.notifications.filter(notif => notif.estado !== 'aceptada' && notif.estado !== 'rechazada');
+			setNotificationsList(res.data.notifications || []);
+		} catch (err) {
+			setNotificationsList([])
+		}
+		setLoadingNotifications(false)
+	}
 
 	useEffect(() => {
 		if (!isLoggedIn) return
 		if (!showNotificationsMenu) return
-
-		const fetchNotifications = async () => {
-			setLoadingNotifications(true)
-			try {
-				const res = await axiosInstance.get('/api/notifications?limit=5');
-				// no mostrar notificaciones aceptadas o rechazadas
-				res.data.notifications = res.data.notifications.filter(notif => notif.estado !== 'aceptada' && notif.estado !== 'rechazada');
-				setNotificationsList(res.data.notifications || []);
-			} catch (err) {
-				setNotificationsList([])
-			}
-			setLoadingNotifications(false)
-		}
 
 		fetchNotifications()
 	}, [showNotificationsMenu, isLoggedIn])
@@ -106,7 +113,14 @@ export const NavBar = ({ children }) => {
 
 	const rechazarSolicitudCurso = async (notif) => {
 		if (justificationDenial.length < 1) {
-			alert("Se debe justificar el rechazo")
+			await Swal.fire({
+				icon: 'warning',
+				title: 'Justificación requerida',
+				text: 'Se debe justificar el rechazo',
+				confirmButtonText: 'Entendido',
+				theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+			})
 			return
 		} 
 		setProcessingSolicitud(true)
@@ -115,7 +129,14 @@ export const NavBar = ({ children }) => {
 				justification: justificationDenial
 			})
 			if (resp.status == 200) {
-				alert("Se rechazó la solicitud")
+				await Swal.fire({
+					icon: 'success',
+					title: 'Solicitud rechazada',
+					text: 'Se rechazó la solicitud correctamente',
+					confirmButtonText: 'Aceptar',
+					theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+				})
 				setShowModalGeneral(false)
 				setProcessingSolicitud(false)
 				setJustificationDenial("")
@@ -125,7 +146,14 @@ export const NavBar = ({ children }) => {
 			} else
 				throw resp.data
 		} catch (error) {
-			alert("Ocurrió un error al rechazar la solicitud")
+			await Swal.fire({
+				icon: 'error',
+				title: 'Error',
+				text: 'Ocurrió un error al rechazar la solicitud',
+				confirmButtonText: 'Aceptar',
+				theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+			})
 			console.error(error)
 			setProcessingSolicitud(false)
 		}
@@ -144,7 +172,14 @@ export const NavBar = ({ children }) => {
 			} else
 				throw resp.data
 		} catch (error) {
-			alert("Ocurrió un error al aceptar la solicitud")
+			await Swal.fire({
+				icon: 'error',
+				title: 'Error',
+				text: 'Ocurrió un error al aceptar la solicitud',
+				confirmButtonText: 'Aceptar',
+				theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+			})
 			console.error(error)
 			setProcessingSolicitud(false)
 		}
@@ -269,7 +304,14 @@ export const NavBar = ({ children }) => {
 			const filter = notificationsList.filter((notif) => notif.estado === value);
 			setFilter(filter);
 		}catch(err){
-			Aletr("Error al filtrar notificaciones")
+					Swal.fire({
+				icon: 'error',
+				title: 'Error al filtrar',
+				text: "Error al filtrar notificaciones, por favor, intentelo de nuevo",
+				confirmButtonText: 'Aceptar',
+				theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+			})
 		}
 		
 		setLoadingNotifications(false);
@@ -289,7 +331,14 @@ export const NavBar = ({ children }) => {
 			setFilter(SearchName)
 			setLoadingNotifications(false);
 		}catch(err){
-			Alert("Error al buscar notificaciones por nombre")
+				Swal.fire({
+				icon: 'error',
+				title: 'Error al buscar notificaciones',
+				text: "Error al buscar notificaciones por nombre, por favor, intentelo de nuevo",
+				confirmButtonText: 'Aceptar',
+				theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+			})
 			setLoadingNotifications(false);
 		}
 	}, [inputElement])
@@ -333,7 +382,14 @@ export const NavBar = ({ children }) => {
 						alert(asignacionResponse.data.message || "Curso asignado correctamente al instructor.")
 					} catch (asignacionError) {
 						console.error("Error al asignar instructor:", asignacionError)
-						alert(asignacionError.response?.data?.message || "Error al asignar el instructor al curso.")
+						await Swal.fire({
+							icon: 'error',
+							title: 'Error en asignación',
+							text: asignacionError.response?.data?.message || "Error al asignar el instructor al curso.",
+							confirmButtonText: 'Aceptar',
+							theme:"bulma",
+      					customClass: { confirmButton: 'centered-swal-button' }
+						})
 					}
 				}
 			}
@@ -341,11 +397,31 @@ export const NavBar = ({ children }) => {
 			setShowModalGeneral(false)
 		} catch (error) {
 			console.error("Error al cambiar estado de invitación:", error)
-			alert(error.response?.data?.message || "Error al actualizar el estado de la invitación.")
+			await Swal.fire({
+				icon: 'error',
+				title: 'Error',
+				text: error.response?.data?.message || "Error al actualizar el estado de la invitación.",
+				confirmButtonText: 'Aceptar',
+				theme:"bulma",
+      		customClass: { confirmButton: 'centered-swal-button' }
+			})
 		} finally {
 			setProcessingInvitation(null)
 		}
 	}
+
+		const handlePoliticasSeguridad = () => {
+		navigate("/politicas-seguridad")
+		setShowSettingsMenu(false)
+	}
+
+	// Función para manejar Pregunta de Seguridad
+	const handlePreguntaSeguridad = () => {
+		navigate("/pregunta-seguridad");
+		setShowSettingsMenu(false);
+	};
+
+	console.log(showSettingsMenu)
 
 	return (
 		<div className="navBar">
@@ -367,11 +443,15 @@ export const NavBar = ({ children }) => {
 
 				{isLoggedIn && (
 					<div className="container_options_profile">
-						<button className="mobile-profile-btn">
-							<span className="mobile-label">Configuración</span>
-							<img className="desktop-icon" src={settings} alt="Configuración" />
-						</button>
-
+						<div className="settings-menu" ref={settingsMenuRef}>
+							<button 
+								className="btn-settings"
+								onClick={() => setShowSettingsMenu(!showSettingsMenu)}
+							>
+								<img src={settings} alt="Configuración" />
+							</button>
+							
+						</div>
 						<button className="mobile-profile-btn" onClick={() => setShowNotificationsMenu((prev) => !prev)}>
 							<span className="mobile-label">Notificaciones</span>
 							<img className="desktop-icon" src={notifications} alt="Notificaciones" />
@@ -402,9 +482,12 @@ export const NavBar = ({ children }) => {
 
 				{isLoggedIn && (
 					<div className="container_options_profile">
-						<button>
-							<img src={settings} alt="Configuración" />
-						</button>
+					<button 
+								className="btn-settings"
+								onClick={() => setShowSettingsMenu(!showSettingsMenu)}
+							>
+								<img src={settings} alt="Configuración" />
+							</button>
 
 						<div className="notifications-menu">
 							<button className="btn-notifications" onClick={() => setShowNotificationsMenu((prev) => !prev)}>
@@ -487,6 +570,23 @@ export const NavBar = ({ children }) => {
 					</div>
 				)}
 			</div>
+			{showSettingsMenu && (
+				<div className="dropdown-settings" id="settings-menu">
+					<div className="arrow-up" />
+					<button 
+						className="settings-dropdown-item"
+						onClick={handlePoliticasSeguridad}
+					>
+						Políticas y seguridad
+					</button>
+					<button 
+						className="settings-dropdown-item"
+						onClick={handlePreguntaSeguridad}
+					>
+						Pregunta de seguridad
+					</button>
+				</div>
+			)}
 		</div>
 	)
 }

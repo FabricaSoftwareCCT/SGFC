@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import axiosInstance from "../../../../config/axiosInstance"
 
-export const FormatCourse = ({ contentKey, cursos, done }) => {
+export const FormatCourse = ({ contentKey, cursos, done, onReady }) => {
 	const [cursosData, setCursosData] = useState([])
 	const [employeeData, setEmployeeData] = useState([])
 
@@ -14,12 +14,24 @@ export const FormatCourse = ({ contentKey, cursos, done }) => {
 		setCursosData(cursosList)
 		const eResp = await axiosInstance.get(`/api/users/admin/empleados?limit=99999`)
 		setEmployeeData(eResp.data.empleados)
-		setTimeout(() => done(), 100)
 	}
 
 	useEffect(() => {
 		loadData()
 	}, [])
+
+	// Llamar a onReady/done solo cuando el DOM haya renderizado los datos
+	useEffect(() => {
+		const dataReady = Array.isArray(cursosData) && cursosData.length > 0 && Array.isArray(employeeData) && employeeData.length > 0
+		if (!dataReady) return
+		// Esperar al siguiente frame de render para asegurar que el DOM esté actualizado
+		const id = requestAnimationFrame(() => {
+			const el = contentKey?.current || document.querySelector('.letter-content.apa-style')
+			if (onReady) onReady(el)
+			else if (done) done(el)
+		})
+		return () => cancelAnimationFrame(id)
+	}, [cursosData, employeeData])
 
 	const tdStyle = {
 		color: "#000",
@@ -160,19 +172,15 @@ export const FormatCourse = ({ contentKey, cursos, done }) => {
 								>{e.estado}</td>
 								<td
 									style={tdStyle}
-								>{e.cursos.map((c) => 
-									<>
-										<span 
-											style={{
-												color: "#000"
-											}}
-										>{c}</span>
+								>{Array.isArray(e.cursos) ? e.cursos.map((c, idx) => 
+									<span key={idx} style={{ color: "#000" }}>
+										{c}
 										<br/>
-									</>
-								)}</td>
+									</span>
+								) : ""}</td>
 								<td
 									style={tdStyle}
-								>{e.Empresa.nombre_empresa}</td>
+								>{e?.Empresa?.nombre_empresa || "Sin empresa"}</td>
 							</tr>
 						)
 					})}

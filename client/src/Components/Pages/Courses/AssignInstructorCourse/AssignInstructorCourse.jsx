@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import "./AssignInstructorCourse.css";
 import axiosInstance from "../../../../config/axiosInstance";
+import Swal from "sweetalert2";
+import 'sweetalert2/themes/bulma.css';
 // import { useNavigate } from "react-router-dom";
 
 export const AssignInstructorCourse = ({ curso_ID, onClose }) => {
@@ -17,6 +19,7 @@ export const AssignInstructorCourse = ({ curso_ID, onClose }) => {
   const [filter, setFilter] = useState("");
   const [current, setCurrent] = useState(0);
   const [selectedState] = useState({ activo: true, inactivo: true });
+  const [inviting, setInviting] = useState(false)
 
   // Obtener instructores del backend
   const fetchInstructors = async () => {
@@ -41,7 +44,18 @@ export const AssignInstructorCourse = ({ curso_ID, onClose }) => {
       setAvailability(map);
     } catch (error) {
       console.error('Error al obtener los instructores:', error);
-      alert('Hubo un problema al cargar los instructores. Por favor, inténtalo más tarde.');
+      Swal.fire({
+        icon: "error",
+        title: "Error en el sistema",
+        text: "Hubo un problema al cargar los instructores. Por favor, inténtalo más tarde.",
+        confirmButtonText: "Okay",
+        timer: 4000,
+        timerProgressBar: true,
+        theme: 'bulma',
+        customClass: {
+          actions: 'swal2-center-actions'
+        }
+      });
     }
   };
 
@@ -97,13 +111,36 @@ export const AssignInstructorCourse = ({ curso_ID, onClose }) => {
   const invitarInstructor = async (instructor_ID) => {
     try {
       // Verificar disponibilidad antes de invitar
+      setInviting(true)
       try {
         const res = await axiosInstance.get(`/api/courses/instructores/${instructor_ID}/disponibilidad`);
         if (!res.data?.disponible) {
-          return alert('Este instructor está inactivo. No se puede enviar invitación.');
+                    await Swal.fire({
+            icon: "info",
+            title: "No se puede enviar invitación.",
+            text: "Este instructor está inactivo.",
+            confirmButtonText: "Okay",
+            timer: 4000,
+            timerProgressBar: true,
+            theme: 'bulma',
+            customClass: {
+              actions: 'swal2-center-actions'
+            }
+          });
+          return;
         }
       } catch (e) {
-        return alert('No se pudo verificar la disponibilidad del instructor. Intenta más tarde.');
+                await Swal.fire({
+          icon: "error",
+          title: "Error en el sistema",
+          text: "No se pudo verificar la disponibilidad del instructor. Intenta más tarde.",
+          confirmButtonText: "Okay",
+          theme: 'bulma',
+          customClass: {
+            actions: 'swal2-center-actions'
+          }
+        });
+        return;
       }
 
       // 1. Enviar la invitación
@@ -123,13 +160,32 @@ export const AssignInstructorCourse = ({ curso_ID, onClose }) => {
         invitacion_ID
       });
 
-      alert(response.data.message || "Invitación y notificación enviadas correctamente");
+      await Swal.fire({
+        icon: 'success',
+        title: 'Éxito',
+        text: response.data.message || "Invitación y notificación enviadas correctamente",
+        confirmButtonText: 'Aceptar',
+        theme: 'bulma',
+        customClass: {
+          actions: 'swal2-center-actions'
+        }
+      });
+      
       if (onClose) onClose();
+      
     } catch (error) {
-      alert(
-        error.response?.data?.message ||
-        "Error al enviar la invitación o la notificación. Intenta de nuevo."
-      );
+      setInviting(false)
+      // Error - mostrar alerta de error
+      await Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: error.response?.data?.message || "Error al enviar la invitación o la notificación. Intenta de nuevo.",
+        confirmButtonText: 'Aceptar',
+        theme: 'bulma',
+        customClass: {
+          actions: 'swal2-center-actions'
+        }
+      });
     }
   };
   return (
@@ -236,10 +292,10 @@ export const AssignInstructorCourse = ({ curso_ID, onClose }) => {
                   </p>
                   <button
                   className="profile-btn"
-                  disabled={!disponible}
+                  disabled={!disponible || inviting}
                   onClick={() => invitarInstructor(currentId)}
                 >
-                  Invitar Instructor
+                  {inviting ? "Invitando..." : "Invitar Instructor"}
                 </button>
                 </div>
               );

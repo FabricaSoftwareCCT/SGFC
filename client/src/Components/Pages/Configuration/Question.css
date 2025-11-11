@@ -1,0 +1,248 @@
+.question-container {
+  max-width: 800px;
+  margin: auto;
+  padding: 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.6;
+  color: #e0e0e0;
+  background-color: #131212;
+  min-height: 100vh;
+  width: 100%;
+}
+
+/* Asegurar que el body también tenga fondo negro */
+body {
+  background-color: #131212 !important;
+  margin: 0;
+  padding: 0;
+}
+
+.question-header {
+  margin-top: 8%;
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.question-header h1 {
+  color: #ffffff;
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+.swal2-center-actions {
+  display: flex !important;
+  justify-content: center !important;
+}
+
+.question-header h1 span{
+    color:#01873d;
+}
+.question-subtitle {
+  color: #b0b0b0;
+  font-size: 1.2rem;
+  font-weight: 400;
+}
+
+.divider {
+  height: 2px;
+  background-color: #333;
+  margin: 30px 0;
+  width: 100%;
+}
+
+.question-content {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    flex-wrap: nowrap;
+    align-content: center;
+    align-items: center;
+    justify-content: center;
+}
+
+.question-section {
+  background: #1e1e1e;
+  border-radius: 12px;
+  padding: 30px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.question-section h2 {
+  color: #ffffff;
+  font-size: 1.5rem;
+  margin-bottom: 25px;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* Estilos para el formulario */
+.question-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-label {
+  color: #ffffff;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.form-input {
+  padding: 12px 16px;
+  border: 2px solid #333;
+  border-radius: 8px;
+  background-color: #2a2a2a;
+  color: #ffffff;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #01873d;
+}
+
+.form-input::placeholder {
+  color: #888;
+}
+
+/* Estilos para la visualización de pregunta/respuesta */
+.question-display {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.info-display {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.display-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 15px;
+  background-color: #2a2a2a;
+  border-radius: 8px;
+}
+
+.display-label {
+  color: #ffffff;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.display-value {
+  color: #cccccc;
+  font-size: 1rem;
+  padding: 8px 0;
+}
+
+/* Estilos para botones */
+.button-group {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.button-group-single {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.btn-save {
+  background-color: #007736;
+  color: white;
+  border: none;
+  padding: 9px 30px;
+  border-radius: 8px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn-save:hover {
+  background-color: #01873d;
+}
+
+.btn-cancel {
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  padding: 9px 30px;
+  border-radius: 8px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn-cancel:hover {
+  background-color: #c0392b;
+}
+
+.btn-edit {
+background-color: #007736;
+    color: white;
+    border: none;
+    padding: 9px 30px;
+    border-radius: 8px;
+    font-size: 1.2rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.btn-edit:hover {
+  background-color: #01873d;
+}
+
+/* Modo edición */
+.edit-mode {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #333;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .question-container {
+    padding: 15px;
+  }
+  
+  .question-header {
+    margin-top: 10%;
+  }
+  
+  .question-header h1 {
+    font-size: 2rem;
+  }
+  
+  .question-section {
+    padding: 20px;
+  }
+  
+  .button-group {
+    flex-direction: column;
+  }
+  
+  .btn-save,
+  .btn-cancel,
+  .btn-edit {
+    width: 100%;
+  }
+}

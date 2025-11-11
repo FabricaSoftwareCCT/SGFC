@@ -34,6 +34,8 @@ import { TrainingPlaceProceeding } from './Components/Pages/proceedings/Training
 import { SupportMaterial } from './Components/Pages/Courses/SupportMaterial/SupportMaterial';
 import { SupportMaterialCourse } from './Components/Pages/Courses/SupportMaterialCourse/SupportMaterialCourse';
 import { InscribeEmployes } from './Components/Pages/GestionsEmployes/InscribeEmployes/InscribeEmployes';
+import Politic from './Components/Pages/Configuration/Politic';
+import Question from './Components/Pages/Configuration/Question';
 
 // Importación de modales
 import { NavBar } from './Components/UI/NavBar/NavBar';
@@ -59,6 +61,7 @@ import { SeeAllCourseCriteria } from './Components/Pages/CriteriaManagment/SeeCo
 import { SeeCertificationHistorial } from './Components/Pages/CriteriaManagment/SeeCertificationHistorial/SeeCertificationHistorial';
 import { GestionUsuarios } from './Components/Pages/GestionUsuarios/GestionUsuarios';
 import { Historial } from './Components/Pages/Historial/Historial';
+import ReporteAsistenciaProgreso from './Components/Pages/GestionReporteAsistenciaProgreso/ReporteAsistenciaProgreso';
 
 // Crear un componente Layout que envuelva las páginas con Header y Footer
 const Layout = ({ children, setShowSignIn, setShowSignUp, setShowModalGeneral }) => {
@@ -323,6 +326,16 @@ function App() {
 							<ReporteEstadisticas />
 						</Layout>
 					} />
+					{/* NUEVA RUTA: Reporte de Asistencia y Progreso */}
+					<Route path="/reportes/asistencia-progreso" element={
+						<Layout
+							setShowSignIn={setShowSignIn}
+							setShowSignUp={setShowSignUp}
+							setShowModalGeneral={setShowModalGeneral}
+						>
+							<ReporteAsistenciaProgreso />
+						</Layout>
+					} />
 
 					<Route
 						path="/Empleados/MisEmpleados"
@@ -356,12 +369,32 @@ function App() {
 					<Route path="/Actas/Lugar-formacion" element={<TrainingPlaceProceeding />} />   
 					<Route path="/no-autorizado" element={<NoAutorizado />} />
 					<Route path="/SolicitarCurso" element={<RequestCourse />} />        
-			 
 					<Route path="/SupportMaterial" element={<SupportMaterial/>}/>
+					<Route path="/SupportMaterial/:curso" element={<SupportMaterial/>}/>
                     <Route path="/SupportMaterialCourse/:id" element={<SupportMaterialCourse/>}/>
 	
 					<Route path='/SolicitarCursoAp' element={<RequestCourseAp />} />
+							<Route path="/politicas-seguridad" element={
+						<Layout
+							setShowSignIn={setShowSignIn}
+							setShowSignUp={setShowSignUp}
+							setShowModalGeneral={setShowModalGeneral}
+						>
+							<Politic />
+						</Layout>
+					} />
+
+					<Route path="/pregunta-seguridad" element={
+						<Layout
+							setShowSignIn={setShowSignIn}
+							setShowSignUp={setShowSignUp}
+							setShowModalGeneral={setShowModalGeneral}
+						>
+							<Question />
+						</Layout>
+						} />
 				</Routes>
+				
 			</>
 		</GoogleOAuthProvider>
 	);

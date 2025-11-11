@@ -262,12 +262,13 @@
 
 .description-text::-webkit-scrollbar-track {
   background: rgba(255, 255, 255, 0.05);
-  border-radius: 3px;
-}
-
-.description-text::-webkit-scrollbar-thumb {
-  background: #00c853;
-  border-radius: 3px;
+  padding: 2rem;
+  border-radius: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  width: auto !important;
+  height: auto !important;
+  overflow: visible !important;
 }
 
 .description-text::-webkit-scrollbar-thumb:hover {
@@ -287,15 +288,11 @@
   overflow: hidden;
 }
 
-.detail-group label {
-  display: block;
-  color: #b0b0b0;
-  font-size: 0.9rem;
-  font-weight: 500;
-  text-transform: uppercase;
-  margin-bottom: 0.8rem;
-  letter-spacing: 0.5px;
-  max-width: 100%;
+.course-page-container .detail-row {
+  display: flex;
+  gap: 2rem;
+  width: auto !important;
+  height: auto !important;
 }
 
 .detail-pair {

@@ -4,6 +4,11 @@ import { Footer } from '../../../Layouts/Footer/Footer';
 import { Main } from '../../../Layouts/Main/Main';
 import axiosInstance from '../../../../config/axiosInstance';
 import { useNavigate } from 'react-router-dom';
+import ilustrationSearch from '../../../../assets/Ilustrations/search_course.svg';
+import nub1 from '../../../../assets/Ilustrations/nub1.svg';
+import nub2 from '../../../../assets/Ilustrations/nub2.svg';
+import nub3 from '../../../../assets/Ilustrations/nub3.svg';
+
 import arrowLeft from '../../../../assets/Icons/arrowLeft.png';
 import arrowRight from '../../../../assets/Icons/arrowRight.png';
 

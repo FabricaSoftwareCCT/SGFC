@@ -147,8 +147,8 @@ export const GestionsCompany = () => {
 					{categoria}
 				</td>
 				<td className="company-status-cell">
-					<span className={`status-pill ${estado === 'activo' ? 'status-active' : estado === 'inactivo' ? 'status-inactive' : 'status-unknown'}`}>
-						{estado === 'activo' ? 'Activo' : estado === 'inactivo' ? 'Inactivo' : 'Sin estado'}
+					<span className={`status-pill ${estado === 'activo' ? 'status-active' : estado === 'inactivo' ? 'status-inactive': estado === 'suspendido' ? 'status-suspendido' : 'status-unknown' }`}>
+						{estado === 'activo' ? 'Activo' : estado === 'inactivo' ? 'Inactivo': estado === 'suspendido' ? 'Suspendido' : 'Sin estado'}
 					</span>
 				</td>
 				<td className="company-actions-cell">

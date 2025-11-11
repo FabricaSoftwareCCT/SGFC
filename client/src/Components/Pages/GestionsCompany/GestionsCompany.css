@@ -460,23 +460,22 @@ margin-bottom: 4%;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.8px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-  border: 1px solid rgba(255,255,255,0.1);
   min-width: 70px;
 }
 
 .status-active {
-  background: linear-gradient(135deg, #00c851, #00a844);
-  color: #fff;
+  color: #00c851;
 }
 
 .status-inactive {
-  background: linear-gradient(135deg, #ff4444, #cc0000);
-  color: #fff;
+  color: #cc0000;
+}
+
+.status-suspendido {
+  color: hsl(61, 68%, 61%);
 }
 
 .status-unknown {
-  background: linear-gradient(135deg, #6c757d, #495057);
   color: #fff;
 }
 

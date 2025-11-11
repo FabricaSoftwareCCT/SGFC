@@ -221,6 +221,12 @@ export const SeeCourse = () => {
 									</button>
 								)}
 
+								{userSession && (userSession.accountType === 'Administrador' || userSession.accountType === 'Gestor') && (
+									<button className='edit-btn' onClick={() => navigate(`/Cursos/Inscripciones/${id}`)}>
+										Ver Inscripciones
+									</button>
+								)}
+
 								{userSession && userSession.accountType === 'Empresa' && (
 									<button className='request-btn' onClick={() => navigate(`/SolicitarCurso/${encodeURIComponent(curso.nombre_curso)}`)}>
 										Solicitar Curso

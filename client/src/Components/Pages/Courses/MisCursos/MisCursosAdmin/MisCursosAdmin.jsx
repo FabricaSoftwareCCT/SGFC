@@ -53,7 +53,7 @@ export const MisCursosAdmin = () => {
         };
 
         fetchCursos();
-    }, []);
+    }, []); 
 
     // Filtros según tipo de cuenta
     const filtros =

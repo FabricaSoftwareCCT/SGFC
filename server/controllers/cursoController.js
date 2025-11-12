@@ -4,7 +4,7 @@ const Empresa = require('../models/empresa'); // Importar el modelo Empresa
 const Notificacion = require('../models/Notificacion');
 const path = require("path");
 const AsignacionCursoInstructor = require("../models/AsignacionCursoInstructor");
-const { sendCourseCreatedEmail, sendCursoUpdatedByManagerNotification, sendStudentsInstructorAssignedEmail, sendInstructorAssignedEmail, sendInstructorUnassignedEmail } = require("../services/emailService");
+const { sendCourseCreatedEmail, sendCursoUpdatedByManagerNotification, sendStudentsInstructorAssignedEmail, sendInstructorAssignedEmail, sendInstructorUnassignedEmail, transporter } = require("../services/emailService");
 const { Router } = require("express");
 const upload = require("../config/multer");
 const { sendCursoUpdatedNotification } = require('../services/emailService');
@@ -418,10 +418,13 @@ const updateCurso = async (req, res) => {
 			return res.status(404).json({ message: "Curso no encontrado." });
 		}
 
+		let change = [];
+
 		// Verificar si se envió una nueva imagen
 		let image = curso.imagen;
 		if (req.file) {
 			image = req.file.buffer.toString('base64');
+			change.push("la imagen")
 		}
 
 		// 🟨 Validar empresa si tipo_oferta es "Cerrada"
@@ -442,6 +445,33 @@ const updateCurso = async (req, res) => {
 
 			finalEmpresaID = empresa_ID;
 		}
+
+		if (nombre_curso != curso.nombre_curso)
+			change.push("el nombre")
+
+		if (descripcion != curso.descripcion)
+			change.push("la descripción")
+
+		if (tipo_oferta.toLowerCase() != curso.tipo_oferta.toLowerCase())
+			change.push("el tipo de oferta")
+
+		if (ficha != curso.ficha)
+			change.push("el número de ficha")
+
+		if (duracion_dias != curso.duracion_dias)
+			change.push("la cantidad de días de formación")
+
+		if (lugar_formacion != curso.lugar_formacion)
+			change.push("el lugar de formación")
+
+		if (estado != curso.estado)
+			change.push("el estado")
+
+		if (dias_formacion != curso.dias_formacion)
+			change.push("los días de formación")
+
+		if (modalidad != curso.modalidad)
+			change.push("la modalidad")
 
 		// 🧩 Preparar datos para actualización
 		const datosActualizacion = {
@@ -500,12 +530,45 @@ const updateCurso = async (req, res) => {
 				verificacion_email: true,
 				accountType: { [Op.or]: ["Empresa", "Aprendiz"] },
 			},
-			attributes: ["email"],
+			attributes: ["email", "ID"],
 		});
 
-		const emails = usuarios.map((user) => user.email);
-		if (emails.length > 0) {
-			await sendCursoUpdatedNotification(emails, curso);
+		if (usuarios.length > 0) {
+			for (let usuario of usuarios) {
+				const mailOptions = {
+					from: `"SGFC" <${process.env.EMAIL_USER}>`,
+					to: usuario.email,
+					subject: `Se ha actualizado ${change.join(", ")} del curso "${curso.nombre_curso}"`,
+					html: `
+						<p>Hola,</p>
+						<p>Se ha actualizado <strong>${change.join(", ")}</strong> del curso <strong>"${curso.nombre_curso}"</strong>.</p>
+						<p><strong>Descripción:</strong> ${curso.descripcion}</p>
+						<p><strong>Fecha de inicio:</strong> ${curso.fecha_inicio}</p>
+						<p><strong>Fecha de fin:</strong> ${curso.fecha_fin}</p>
+						<p><strong>Lugar:</strong> ${curso.lugar_formacion}</p>
+						<p>Saludos,<br/>SGFC</p>
+					`,
+				};
+
+				transporter.sendMail(mailOptions, (err, info) => {
+					if (err) {
+						console.log("Error al enviar notificación de actualización:", err);
+					} else {
+						console.log("📨 Notificación enviada:", info.response);
+					}
+				});
+
+				await Notificacion.create({
+					remitente_ID: userId,
+					destinatario_ID: usuario.ID,
+					tipo: "otro",
+					titulo: mailOptions.subject,
+					mensaje: mailOptions.html,
+					fecha_envio: new Date(),
+					estado: 'sin_leer',
+					curso_ID: curso.ID,
+				});
+			}
 		}
 
 		if (isManager) {
@@ -513,7 +576,7 @@ const updateCurso = async (req, res) => {
 		}
 
 		res.status(200).json({
-			message: `Curso actualizado con éxito. Notificaciones enviadas a ${emails.length} usuarios.`,
+			message: `Curso actualizado con éxito. Notificaciones enviadas a ${usuarios.length} usuarios.`,
 			curso,
 			validaciones_aplicadas: {
 				fechas: !!(fecha_inicio && fecha_fin),

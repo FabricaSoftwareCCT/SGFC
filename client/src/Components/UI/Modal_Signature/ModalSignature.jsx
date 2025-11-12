@@ -71,13 +71,15 @@ export const ModalSignature = ({ children, closeModal, className, editar, nombre
         title: '¡Éxito!',
         text: '¡Firma aplicada correctamente al documento!',
         theme:"bulma",
+        confirmButtonText: 'Aceptar',
+        confirmButtonColor:"#00843d",
         customClass: {
-            popup: 'bulma-swal',
-            confirmButton: 'button is-success'
+            confirmButton: 'centered-swal-button',
+            actions: 'swal2-actions-centered',
+            popup: 'swal2-popup-centered'
         },
-        buttonsStyling: false,
-        confirmButtonText: 'Aceptar'
-    }).then(() => {
+    })
+    .then(() => {
         closeModal();
     });
 } else {

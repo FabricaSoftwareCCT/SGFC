@@ -259,7 +259,17 @@ export const Modal_SignIn = () => {
           }
         }, 1000);
       } else {
-        alert(data.message || 'Error en el inicio de sesión con Google');
+                                Swal.fire({
+          icon:"error",
+          title:"Error de sesión",
+          text:data.message || 'Error en el inicio de sesión con Google',
+          confirmButtonText:"Okay",
+          theme:"bulma",
+          customClass:{
+        confirmButton: 'button is-primary',
+        actions: 'swal2-actions-centered'
+                }
+              })
         setLoginning(false);
       }
     } catch (error) {
@@ -346,7 +356,19 @@ export const Modal_SignIn = () => {
               <div className="google-login-container">
                 <GoogleLogin
                   onSuccess={handleGoogleResponse}
-                  onError={() => alert('Error al iniciar sesión con Google')}
+                  onError={() => 
+                                            Swal.fire({
+          icon:"error",
+          title:"Error de sesión con Google",
+          text:'Error al iniciar sesión con Google',
+          confirmButtonText:"Okay",
+          theme:"bulma",
+          customClass:{
+        confirmButton: 'button is-primary',
+        actions: 'swal2-actions-centered'
+                }
+              })
+              }
                   theme="filled_black"
                   size="large"
                   text="signin_with"

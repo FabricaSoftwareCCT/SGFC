@@ -170,7 +170,18 @@ export const CreateEmpresa = ({ onClose, onCompanyCreated }) => {
         !passwordRequirements.number ||
         !passwordRequirements.specialChar
       ) {
-        alert("La contraseña debe cumplir con todos los requisitos.");
+        Swal.fire({
+          icon:"info",
+          title:"Contraseña incompleta",
+          text:"La contraseña debe cumplir con todos los requisitos.",
+          theme:"bulma",
+          confirmButtonText:"Okay",
+          confirmButtonColor:"#00843d",
+          customClass:{
+        confirmButton: 'button is-primary',
+        actions: 'swal2-actions-centered'
+          }
+        })
         setLoading(false);
         return;
       }
@@ -201,7 +212,8 @@ export const CreateEmpresa = ({ onClose, onCompanyCreated }) => {
           confirmButtonColor: '#d33',
           theme: "bulma", // Añadido tema Bulma
           customClass: {
-            confirmButton: 'centered-swal-button'
+        confirmButton: 'button is-primary',
+        actions: 'swal2-actions-centered'
           }
         });
         setLoading(false);
@@ -270,7 +282,8 @@ export const CreateEmpresa = ({ onClose, onCompanyCreated }) => {
         confirmButtonColor: '#00843d',
         theme: "bulma", // Añadido tema Bulma
         customClass: {
-          confirmButton: 'centered-swal-button'
+        confirmButton: 'button is-primary',
+        actions: 'swal2-actions-centered'
         }
       });
 
@@ -288,13 +301,14 @@ export const CreateEmpresa = ({ onClose, onCompanyCreated }) => {
       
       await Swal.fire({
         icon: 'error',
-        title: 'Error',
-        text: errorMessage,
+        title: 'Error Email',
+        text: `${errorMessage ? errorMessage + ": " : ""}El Email es incorrecto, por favor compruebe los Email`,
         confirmButtonText: 'Aceptar',
         confirmButtonColor: '#d33',
         theme: "bulma", // Añadido tema Bulma
         customClass: {
-          confirmButton: 'centered-swal-button'
+                  confirmButton: "button is-danger",
+        actions: 'swal2-actions-centered'
         }
       });
 

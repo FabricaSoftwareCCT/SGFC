@@ -134,8 +134,8 @@ export const NavBar = ({ children }) => {
 			if (resp.status == 200) {
 				await Swal.fire({
 					icon: 'success',
-					title: 'Solicitud rechazada',
-					text: 'Se rechazó la solicitud correctamente',
+					title: 'Solicitud aceptada',
+					text: 'Se acepto la solicitud correctamente',
 					confirmButtonText: 'Aceptar',
 					theme:"bulma",
       customClass: { confirmButton: 'centered-swal-button' }
@@ -370,8 +370,15 @@ export const NavBar = ({ children }) => {
 						: notif
 				)
 			)
+			await Swal.fire({
+					icon: 'success',
+					title: 'Estado actualizado',
+					text: response.data.message || "Estado actualizado correctamente",
+					confirmButtonText: 'Aceptar',
+					theme:"bulma",
+						customClass: { confirmButton: 'centered-swal-button' }
 
-			alert(response.data.message || "Estado actualizado correctamente")
+			})
 
 			// Si fue aceptada, asigna el curso al instructor
 			if (nuevoEstado === "aceptada") {
@@ -382,7 +389,20 @@ export const NavBar = ({ children }) => {
 							instructor_ID: notif.destinatario_ID,
 							curso_ID: notif.curso_ID,
 						})
-						alert(asignacionResponse.data.message || "Curso asignado correctamente al instructor.")
+						 if (asignacionResponse.status >= 200 && asignacionResponse.status < 300) {
+						Swal.fire({
+							icon:"success",
+							title:"Cursos asignado",
+							text:asignacionResponse.data.message || "Curso asignado correctamente al instructor.",
+							theme:"bulma",
+							confirmButtonText: 'Aceptar',
+						customClass: { confirmButton: 'centered-swal-button' }
+
+						})
+						} else {
+                throw new Error(asignacionResponse.data.message || "Error en la asignación")
+            }
+
 					} catch (asignacionError) {
 						console.error("Error al asignar instructor:", asignacionError)
 						await Swal.fire({
@@ -390,8 +410,9 @@ export const NavBar = ({ children }) => {
 							title: 'Error en asignación',
 							text: asignacionError.response?.data?.message || "Error al asignar el instructor al curso.",
 							confirmButtonText: 'Aceptar',
+							confirmButtonColor:"#006c30",
 							theme:"bulma",
-      					customClass: { confirmButton: 'centered-swal-button' }
+						customClass: { confirmButton: 'centered-swal-button' }
 						})
 					}
 				}

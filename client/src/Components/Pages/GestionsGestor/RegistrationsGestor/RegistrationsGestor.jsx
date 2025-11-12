@@ -4,6 +4,8 @@ import "./RegistrationsGestor.css";
 import { getAllInscripciones, updateBulkStatus } from '../../../API/ApiRpeort';
 import { Header } from "../../../Layouts/Header/Header";
 import { Main } from "../../../Layouts/Main/Main";
+import Swal from 'sweetalert2';
+import 'sweetalert2/themes/bulma.css'
 
 export const RegistrationsGestor = () => {
   const [search, setSearch] = useState("");
@@ -19,13 +21,33 @@ export const RegistrationsGestor = () => {
     try {
       const data = await getAllInscripciones(id);
       if (!data) {
-        alert("No se cargaron los datos");
+        Swal.fire({
+          icon:"error",
+          title:"Error al cargar los datos",
+          text:"No se cargaron los datos en el sistema, intentelo otra vez",
+          confirmButtonText:"Okay",
+          theme:"bulma",
+          customClass:{
+        confirmButton: 'button is-primary',
+        actions: 'swal2-actions-centered'
+                }
+        })
         return;
       }
       setInscritos(data);
     } catch (error) {
       console.log(error);
-      alert("No respondió el servidor");
+              Swal.fire({
+          icon:"error",
+          title:"Error en el servidor",
+          text:"No respondió el servidor, intentelo más tarde",
+          confirmButtonText:"Okay",
+          theme:"bulma",
+          customClass:{
+        confirmButton: 'button is-primary',
+        actions: 'swal2-actions-centered'
+                }
+        })
     }
   }
   useEffect(() => {
@@ -80,7 +102,17 @@ export const RegistrationsGestor = () => {
 
   const handleBulkStatusChange  = async (newStatus) => {
   if (selectedItems.length === 0) {
-    alert("Por favor selecciona al menos una inscripción");
+                  Swal.fire({
+          icon:"info",
+          title:"Selecciona una inscripción",
+          text:"Por favor selecciona al menos una inscripción",
+          confirmButtonText:"Okay",
+          theme:"bulma",
+          customClass:{
+        confirmButton: 'button is-primary',
+        actions: 'swal2-actions-centered'
+                }
+          })
     return;
   }
 
@@ -91,14 +123,34 @@ export const RegistrationsGestor = () => {
 
   // Si no hay pendientes seleccionados, mostrar alerta
   if (pendingSelectedData.length === 0) {
-    alert("No hay inscripciones pendientes seleccionadas. Solo puedes cambiar el estado de inscripciones pendientes.");
+                  Swal.fire({
+          icon:"info",
+          title:"No hay inscripciones pendientes seleccionadas",
+          text:"Solo puedes cambiar el estado de inscripciones pendientes.",
+          confirmButtonText:"Okay",
+          theme:"bulma",
+          customClass:{
+        confirmButton: 'button is-primary',
+        actions: 'swal2-actions-centered'
+                }
+                  })
     return;
   }
 
   // Si hay algunos no pendientes, informar al usuario
   const nonPendingCount = selectedItems.length - pendingSelectedData.length;
   if (nonPendingCount > 0) {
-    alert(`${nonPendingCount} inscripción(es) no se pueden modificar porque ya no están pendientes. Solo se procesarán ${pendingSelectedData.length} inscripción(es) pendientes.`);
+                  Swal.fire({
+          icon:"error",
+          title:"Inscripciones no procesables",
+          text:(`${nonPendingCount} inscripción(es) no se pueden modificar porque ya no están pendientes. Solo se procesarán ${pendingSelectedData.length} inscripción(es) pendientes.`),
+          confirmButtonText:"Aceptar",
+          theme:"bulma",
+          customClass:{
+        confirmButton: 'button is-primary',
+        actions: 'swal2-actions-centered'
+                }
+              })
   }
 
   // Crear el array para enviar al backend
@@ -110,7 +162,17 @@ export const RegistrationsGestor = () => {
   try {
     await updateBulkStatus(estados)
   } catch (err){
-    alert("No se logro actualizar", err)
+    Swal.fire({
+          icon:"error",
+          title:"Error al actualizar",
+          text: err? err: "No se logro actualizar, por favor, intente nuevamente",
+          confirmButtonText:"Aceptar",
+          theme:"bulma",
+          customClass:{
+        confirmButton: 'button is-primary',
+        actions: 'swal2-actions-centered'
+                }
+              })
   }
   
   fetchData(); 

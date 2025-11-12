@@ -316,8 +316,10 @@ export const ConcertationProceeding = () => {
         cancelButtonText: 'Cancelar',
         confirmButtonColor: '#00a144',
         cancelButtonColor: '#dc3545',
-                      theme:"bulma",
-      customClass: { confirmButton: 'centered-swal-button' }
+        theme:"bulma",
+      customClass: { confirmButton: 'button is-primary',
+        actions: 'swal2-actions-centered'
+			}
       });
 
       if (!result.isConfirmed) {

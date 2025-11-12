@@ -150,8 +150,18 @@ export const InscribeEmployes = () => {
       if (error.response && error.response.data && error.response.data.message) {
         errorMessage = error.response.data.message;
       }
-      
-      alert(errorMessage);
+      Swal.fire({
+        icon:"error",
+        title:"Error en el sistema",
+        text:errorMessage,
+        confirmButtonText: 'Aceptar',
+        confirmButtonColor: '#006f33',
+        theme: "bulma",
+      customClass: {
+                  actions: 'swal2-actions-centered',
+                  popup: 'swal2-popup-centered'
+                }
+      })
     }
   };
 

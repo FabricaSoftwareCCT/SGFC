@@ -378,6 +378,25 @@ input.material-link {
 	color: #00c26e;
 }
 
+/* Botón de confirmación con texto blanco */
+.swal2-confirm {
+    color: white !important;
+    font-weight: 600 !important;
+}
+
+/* Botón de cancelar con texto blanco */
+.swal2-cancel {
+    color: white !important;
+    font-weight: 600 !important;
+}
+
+/* Contenedor centrado */
+.swal2-actions-centered {
+    display: flex !important;
+    justify-content: center !important;
+    gap: 10px !important;
+}
+
 /* ========== RESPONSIVE ========== */
 
 /* ... (mantén todo el código anterior igual hasta los media queries) ... */

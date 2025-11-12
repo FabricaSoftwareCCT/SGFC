@@ -2235,6 +2235,30 @@ const createEmpleado = async (req, res) => {
 	}
 };
 
+const getCursosAprendiz = async (req, res) => {
+	try {
+		const { id } = req.params
+		
+		const { count, rows } = await InscripcionCurso.findAndCountAll({
+			where: {
+				aprendiz_ID: id
+			},
+			include: {
+				model: Curso,
+			}
+		})
+
+		console.log(rows)
+
+		res.status(200).json({
+
+		})
+	} catch (error) {
+		console.error(`Error al consultar los cursos de un apreniz: `, error)
+		res.status(500).json({ message: "Error al consultar los cursos de un empleado." })
+	}
+}
+
 // Obtener todos los empleados para administradores con filtros avanzados
 const getAllEmpleadosForAdmin = async (req, res) => {
 	try {
@@ -2799,5 +2823,6 @@ module.exports = {
 	getAllEmpresasForAdmin,
 	createEmpleadoForAdmin,
     createEmpresa,
-	changeRole
+	changeRole,
+	getCursosAprendiz
 };

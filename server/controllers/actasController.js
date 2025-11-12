@@ -184,11 +184,12 @@ const acceptCourseRequest = async (req, res) => {
 		const notifId = req.params.id
 		const { accountType, id } = req.user
 
-		if (!accountType || accountType !== "Administrador" || accountType !== "Gestor" ) {
+		if (!accountType === "Administrador" || !accountType === "Gestor") {
 			return res.status(403).json({ message: 'No tienes permisos para realizar esta acción' })
 		}
 
 		const requestNotification = await Notificacion.findByPk(notifId)
+		console.log(requestNotification)
 		if (!requestNotification) {
 			return res.status(404).json({ message: 'No se encontró la notificación' })
 		}

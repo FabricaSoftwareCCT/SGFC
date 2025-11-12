@@ -7,16 +7,25 @@ class UserRepository {
             const result = await User.findByPk(id)
 
             if(!result){
-                throw {status: 404, msg: "Usuaio no encontrado"};
+                throw new Error ({status: 404, msg: "Usuaio no encontrado"});
             }
 
             return result;
 
         }catch(err){
             console.log(err)
-            throw {status: 500, msg: "Error en el servidor"}
+            throw new Error({status: 500, msg: "Error en el servidor"});
         }
     }
+
+    static getManagerById = async (email) => {
+        try{
+            return User.findOne({where: { email: email, accountType: "Empresa"}})
+        }catch(Err){
+            throw new Error ({status: 500, message: "Error en el servidor"});
+        }
+    }
+
 }
 
 module.exports = { UserRepository }

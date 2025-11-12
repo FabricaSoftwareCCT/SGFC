@@ -1,18 +1,20 @@
 const Curso = require("../models/curso");
 const User = require("../models/User");
 const Empresa = require('../models/empresa'); // Importar el modelo Empresa
+const Notificacion = require('../models/Notificacion');
 const path = require("path");
 const AsignacionCursoInstructor = require("../models/AsignacionCursoInstructor");
-const { sendCourseCreatedEmail, sendCursoUpdatedByManagerNotification } = require("../services/emailService");
+const { sendCourseCreatedEmail, sendCursoUpdatedByManagerNotification, sendStudentsInstructorAssignedEmail, sendInstructorAssignedEmail, sendInstructorUnassignedEmail } = require("../services/emailService");
 const { Router } = require("express");
 const upload = require("../config/multer");
-const { sendCursoUpdatedNotification, sendInstructorAssignedEmail, sendStudentsInstructorAssignedEmail } = require('../services/emailService');
+const { sendCursoUpdatedNotification } = require('../services/emailService');
 const { Op, Sequelize } = require('sequelize');
 const fs = require('fs');
 const InscripcionCurso = require('../models/InscripcionCurso');
 const InvitacionCurso = require('../models/InvitacionCurso');
 const Usuario = require("../models/User");
 const { sendNotification, sendNotifiCursoApi } = require("../services/notificationService");
+const { normalizarTemario } = require("../utils/temarioUtils");
 
 
 let dbInstance;
@@ -27,7 +29,14 @@ const asignarInstructorAlCurso = async (req, res) => {
 	const transaction = await dbInstance.sequelize.transaction();
 
 	try {
-		const { instructor_ID, curso_ID } = req.body;
+        const { instructor_ID, curso_ID, force } = req.body;
+
+        // Permisos: solo Admin o Gestor
+        const { accountType } = req.user || {};
+        if (accountType !== 'Administrador' && accountType !== 'Gestor') {
+            await transaction.rollback();
+            return res.status(403).json({ message: 'No tienes permisos para asignar instructores.' });
+        }
 
 		if (!instructor_ID || !curso_ID) {
 			return res.status(400).json({ message: "El ID del instructor y del curso son obligatorios." });
@@ -46,25 +55,77 @@ const asignarInstructorAlCurso = async (req, res) => {
 			return res.status(409).json({ message: "El instructor no está disponible (estado inactivo)." });
 		}
 
-		// Validar existencia del curso
-		const curso = await Curso.findByPk(curso_ID, { transaction });
+        // Validar existencia del curso (incluir Instructor para lecturas posteriores si se requiere)
+        const curso = await Curso.findByPk(curso_ID, { transaction });
 		if (!curso) {
 			await transaction.rollback();
 			return res.status(404).json({ message: "Curso no encontrado" });
 		}
 
-		// Verificar si ya existe una asignación para este instructor y curso
-		const asignacionExistente = await AsignacionCursoInstructor.findOne({
-			where: { instructor_ID, curso_ID },
-			transaction
-		});
+        // Verificar si ya existe una asignación para este instructor y curso
+        const asignacionExistente = await AsignacionCursoInstructor.findOne({
+            where: { instructor_ID, curso_ID },
+            transaction
+        });
 
-		if (asignacionExistente) {
-			await transaction.rollback();
-			return res.status(400).json({ message: "El instructor ya está asignado a este curso." });
-		}
+        if (asignacionExistente) {
+            // Si fue rechazada previamente, permitir recuperar con confirmación
+            if (asignacionExistente.estado === 'rechazada') {
+                if (!force) {
+                    await transaction.rollback();
+                    return res.status(409).json({
+                        message: 'Este instructor ya rechazó previamente la invitación para este curso. ¿Desea asignarlo nuevamente?',
+                        code: 'REJECTED_EXISTS'
+                    });
+                }
+                // Actualizar a aceptada
+                asignacionExistente.estado = 'aceptada';
+                asignacionExistente.fecha_asignacion = new Date();
+                await asignacionExistente.save({ transaction });
 
-		// Crear la asignación en la tabla asignacion_curso_instructor
+                // Actualizar curso con el instructor
+                curso.instructor_ID = instructor_ID;
+                await curso.save({ transaction });
+
+                await transaction.commit();
+
+                // Notificación in-app al instructor por reasignación
+                try {
+                    const remitenteId = Number(req.user?.ID) || Number(instructor_ID);
+                    await Notificacion.create({
+                        remitente_ID: remitenteId,
+                        destinatario_ID: instructor_ID,
+                        usuario_ID: instructor_ID,
+                        tipo: 'curso_asignado',
+                        titulo: `Asignación al curso ${curso.nombre_curso}`,
+                        mensaje: `Has sido asignado nuevamente al curso "${curso.nombre_curso}".`,
+                        estado: 'pendiente',
+                    });
+                } catch (e) {
+                    console.warn('No se pudo crear notificación in-app (reasignación):', e?.message);
+                }
+
+                return res.status(200).json({
+                    message: 'Instructor reasignado (estado actualizado a aceptada).',
+                    asignacion: asignacionExistente,
+                    curso
+                });
+            }
+            await transaction.rollback();
+            return res.status(400).json({ message: "El instructor ya está asignado a este curso." });
+        }
+
+        // Validar si el curso ya tiene otro instructor asignado
+        if (curso.instructor_ID && Number(curso.instructor_ID) !== Number(instructor_ID)) {
+            const instructorActual = await Usuario.findByPk(curso.instructor_ID, { attributes: ['ID', 'nombres', 'apellidos'], transaction });
+            await transaction.rollback();
+            return res.status(409).json({
+                message: 'El curso ya tiene un instructor asignado.',
+                conflictWith: instructorActual ? { id: instructorActual.ID, nombre: `${instructorActual.nombres || ''} ${instructorActual.apellidos || ''}`.trim() } : { id: curso.instructor_ID }
+            });
+        }
+
+        // Crear la asignación en la tabla asignacion_curso_instructor
 		const nuevaAsignacion = await AsignacionCursoInstructor.create({
 			instructor_ID,
 			curso_ID,
@@ -76,9 +137,46 @@ const asignarInstructorAlCurso = async (req, res) => {
 		curso.instructor_ID = instructor_ID;
 		await curso.save({ transaction });
 
-		await transaction.commit();
+        await transaction.commit();
 
-		res.status(200).json({
+        // Notificación in-app al instructor por nueva asignación
+        try {
+            const remitenteId = Number(req.user?.ID) || Number(instructor_ID);
+            await Notificacion.create({
+                remitente_ID: remitenteId,
+                destinatario_ID: instructor_ID,
+                usuario_ID: instructor_ID,
+                tipo: 'curso_asignado',
+                titulo: `Asignación al curso ${curso.nombre_curso}`,
+                mensaje: `Has sido asignado al curso "${curso.nombre_curso}".`,
+                estado: 'pendiente',
+            });
+        } catch (e) {
+            console.warn('No se pudo crear notificación in-app (asignación):', e?.message);
+        }
+
+        // Notificar por email al instructor y a los aprendices (best-effort)
+        try {
+            const findInstructor = await User.findByPk(instructor_ID, { attributes: ['email', 'nombres', 'apellidos'] });
+            const cursoInfo = await Curso.findByPk(curso_ID);
+            if (findInstructor?.email && cursoInfo) {
+                await sendInstructorAssignedEmail(findInstructor.email, cursoInfo);
+                // Notificar a aprendices activos del curso
+                const inscripciones = await dbInstance.InscripcionCurso.findAll({
+                    where: { curso_ID, estado_inscripcion: 'activo' },
+                    include: [{ model: dbInstance.Usuario, as: 'aprendiz', attributes: ['email'] }]
+                });
+                const emailsAprendices = inscripciones.map(i => i?.aprendiz?.email).filter(Boolean);
+                const nombreInstructor = `${findInstructor.nombres || ''} ${findInstructor.apellidos || ''}`.trim();
+                if (emailsAprendices.length > 0) {
+                    await sendStudentsInstructorAssignedEmail(emailsAprendices, cursoInfo, nombreInstructor);
+                }
+            }
+        } catch (e) {
+            console.warn('No se pudieron enviar emails de notificación:', e?.message);
+        }
+
+        res.status(200).json({
 			message: "Instructor asignado correctamente al curso.",
 			asignacion: nuevaAsignacion,
 			curso
@@ -100,9 +198,13 @@ const obtenerCursosAsignadosAInstructor = async (req, res) => {
 				.status(400)
 				.json({ mensaje: "El ID del instructor es obligatorio" });
 		}
-
 		const asignaciones = await AsignacionCursoInstructor.findAll({
-			where: { instructor_ID },
+			where: {
+				[Sequelize.Op.and]: [
+					{instructor_ID: instructor_ID},
+					{estado: "aceptada"}
+				]
+			},
 			include: [
 				{
 					model: Curso,
@@ -110,7 +212,6 @@ const obtenerCursosAsignadosAInstructor = async (req, res) => {
 				}
 			]
 		});
-
 		res.status(200).json(asignaciones);
 	} catch (error) {
 		console.error("Error al obtener los cursos asignados:", error);
@@ -123,9 +224,8 @@ const obtenerCursosAsignadosAInstructor = async (req, res) => {
 // Crear un curso (solo para administradores)
 const createCurso = async (req, res) => {
 	try {
-		const { accountType } = req.user; // ← ESTA LÍNEA TIENE EL PROBLEMA
-		console.log("Este es el tipo de cuenta", accountType);
-		
+		const { accountType } = req.user;
+
 		if (accountType !== "Administrador" && accountType !== "Gestor" && accountType !== "Instructor") {
 			return res.status(403).json({ message: "No tienes permisos para crear cursos" });
 		}
@@ -146,7 +246,8 @@ const createCurso = async (req, res) => {
 			cupos_disponibles,
 			duracion_dias,
 			modalidad,
-			empresa_ID // Esperado solo si tipo_oferta es "Cerrada"
+			empresa_ID, // Esperado solo si tipo_oferta es "Cerrada"
+			temario
 		} = req.body;
 
 		// ✅ Validación estricta del tipo de oferta
@@ -207,6 +308,13 @@ const createCurso = async (req, res) => {
 				: slots_formacion;
 		}
 
+		let temarioNormalizado;
+		try {
+			temarioNormalizado = normalizarTemario(temario);
+		} catch (errorTemario) {
+			return res.status(400).json({ message: errorTemario.message });
+		}
+
 		const sena_ID = 1;
 
 		// ✅ Crear el curso
@@ -226,35 +334,34 @@ const createCurso = async (req, res) => {
 			sena_ID,
 			empresa_ID: finalEmpresaID,
 			slots_formacion: slotsFormacionString,
+			temario: temarioNormalizado,
 			duracion_dias,
 			cupos_disponibles,
 			modalidad
 		});
 
+		(async () => {
+			try {
+				const usuarios = await User.findAll({
+					where: {
+						verificacion_email: true,
+						accountType: { [Op.or]: ['Empresa', 'Aprendiz'] },
+					},
+					attributes: ['email'],
+				});
+
+				const emails = usuarios.map(user => user.email);
+				if (emails.length > 0 && nuevoCurso.ID) {
+					const courseLink = `http://localhost:5173/cursos/${nuevoCurso.ID}`;
+					await sendCourseCreatedEmail(emails, nombre_curso, courseLink, descripcion, estado);
+					await sendNotifiCursoApi(nombre_curso, emails, fecha_inicio, fecha_fin, estado);
+				}
+			} catch (emailError) {
+				console.error("Error al enviar notificaciones por email:", emailError);
+			}
+		})();
+
 		res.status(201).json({ message: "Curso creado con éxito.", curso: nuevoCurso });
-
-		// ✅ Enviar notificación por email (opcional)
-		const usuarios = await User.findAll({
-			where: {
-				verificacion_email: true,
-				accountType: { [Op.or]: ['Empresa', 'Aprendiz'] },
-			},
-			attributes: ['email'],
-		});
-
-		const Idcurso = await Curso.findByPk(nuevoCurso.ID, { attributes: ['ID'] }).then(c => c.ID);
-
-		if(Idcurso == null){
-			res.status(500).json({ message: "Error al obtener el curso recién creado." });
-			return;
-		}
-
-		const emails = usuarios.map(user => user.email);
-		if (emails.length > 0) {
-			const courseLink = `http://localhost:5173/cursos/${Idcurso}`;
-			await sendCourseCreatedEmail(emails, nombre_curso, courseLink, descripcion, estado);
-			await sendNotifiCursoApi(nombre_curso, emails, fecha_inicio, fecha_fin, estado);
-		}
 
 	} catch (error) {
 		console.error("Error al crear el curso:", error);
@@ -288,7 +395,8 @@ const updateCurso = async (req, res) => {
 			slots_formacion,
 			empresa_ID,
 			duracion_dias,
-			modalidad
+			modalidad,
+			temario
 		} = req.body;
 
 		const userData = await User.findByPk(userId);
@@ -348,6 +456,14 @@ const updateCurso = async (req, res) => {
 			modalidad,
 			empresa_ID: tipo_oferta === "Cerrada" ? finalEmpresaID : null, // ✅ Actualizar o limpiar
 		};
+
+		try {
+			if (temario !== undefined) {
+				datosActualizacion.temario = normalizarTemario(temario);
+			}
+		} catch (errorTemario) {
+			return res.status(400).json({ message: errorTemario.message });
+		}
 
 		if (fecha_inicio && fecha_fin) {
 			datosActualizacion.fecha_inicio = fecha_inicio;
@@ -430,7 +546,7 @@ const getCursoByNameOrFicha = async (req, res) => {
 			return res.status(400).json({ message: "El campo 'input' es obligatorio." });
 		}
 
-		const curso = await Curso.findAll({
+        const curso = await Curso.findAll({
 			where: {
 				[Op.or]: [
 					{
@@ -444,7 +560,12 @@ const getCursoByNameOrFicha = async (req, res) => {
 						}
 					}
 				]
-			}
+            },
+            include: [{
+                model: Usuario,
+                as: 'Instructor',
+                attributes: ['ID', 'nombres', 'apellidos']
+            }]
 		});
 
 		if (!curso || curso.length === 0) {
@@ -486,46 +607,50 @@ const uploadImagesBase64 = async (req, res) => {
 		return res.status(500).json({ message: "Error al guardar la imagen." });
 	}
 };
-
+366
 const getCursoParticipants = async (req, res) => {
 	try {
 		const { courseId } = req.params;
 		const { page, limit, name, doc, state } = req.query;
+		
+		// Convertir limit y page a números si existen
+		const limitNum = limit ? (isNaN(parseInt(limit, 10)) ? null : parseInt(limit, 10)) : null;
+		const pageNum = page ? (isNaN(parseInt(page, 10)) ? null : parseInt(page, 10)) : null;
 
 		let includeTerms = {
 			model: dbInstance.Usuario,
 			as: 'aprendiz',
-			attributes: ['ID', 'nombres', 'apellidos', 'email', 'documento', 'foto_perfil', 'estado']
+			attributes: ['ID', 'nombres', 'apellidos', 'email', 'documento', 'foto_perfil', 'estado'],
+			required: false // LEFT JOIN - incluir incluso si no hay aprendiz
 		}
 		
+		// Construir condiciones where para el aprendiz si hay filtros
+		const whereConditions = {};
+		
 		if (name?.length > 0) {
-			includeTerms = {
-				...includeTerms,
-				where: Sequelize.where(
-					Sequelize.fn('CONCAT', Sequelize.col('nombres'), ' ', Sequelize.col('apellidos')),
+			whereConditions[Op.or] = [
+				Sequelize.where(
+					Sequelize.fn('CONCAT', Sequelize.col('aprendiz.nombres'), ' ', Sequelize.col('aprendiz.apellidos')),
 					{ [Op.like]: `%${name}%` }
-				),
-			}
+				)
+			];
+			includeTerms.where = whereConditions;
 		}
 
 		if (doc?.length > 0) {
-			includeTerms = {
-				...includeTerms,
-				where: {
-					documento: {
-						[Op.like]: `%${doc}%`
-					}
-				}
+			if (!includeTerms.where) {
+				includeTerms.where = {};
 			}
+			includeTerms.where.documento = {
+				[Op.like]: `%${doc}%`
+			};
 		}
 
 		if (state?.length > 0) {
-			includeTerms = {
-				...includeTerms,
-				where: {
-					estado: state
-				}
+			if (!includeTerms.where) {
+				includeTerms.where = {};
 			}
+			includeTerms.where.estado = state;
 		}
 
 		let searchTerms = {
@@ -536,11 +661,13 @@ const getCursoParticipants = async (req, res) => {
 			include: [includeTerms]
 		}
 
-		if (page || limit) {
+		if (pageNum !== null || limitNum !== null) {
+			const finalLimit = limitNum ?? 10;
+			const finalPage = pageNum ?? 0;
 			searchTerms = {
 				...searchTerms,
-				offset: (limit ?? 10) * (page ?? 0),
-				limit: limit ?? 10
+				offset: finalLimit * finalPage,
+				limit: finalLimit
 			}
 		}
 
@@ -553,18 +680,26 @@ const getCursoParticipants = async (req, res) => {
 			}
 		})
 
+		// Serializar explícitamente los participantes para asegurar que las relaciones se incluyan
+		const participantesSerializados = participantes.map(p => {
+			const pData = p.toJSON ? p.toJSON() : p;
+			return pData;
+		});
+
 		let result = {
 			success: true,
-			participants: participantes,
+			participants: participantesSerializados,
 			total: totalAmount,
 		}
 
-		if (page || limit) {
+		if (pageNum !== null || limitNum !== null) {
+			const finalLimit = limitNum ?? 10;
+			const finalPage = pageNum ?? 0;
 			result = {
 				...result,
-				page: page ?? 0,
-				amount: limit ?? 10,
-				pages: Math.ceil(totalAmount / (limit ?? 10))
+				page: finalPage,
+				amount: finalLimit,
+				pages: Math.ceil(totalAmount / finalLimit)
 			}
 		}
 
@@ -606,7 +741,7 @@ const getCursoById = async (req, res) => {
 				curso_ID: id
 			}
 		})
-
+		
 		res.status(200).json(curso);
 	} catch (error) {
 		console.error("Error al obtener el curso:", error);
@@ -870,6 +1005,83 @@ const cambiarEstadoInvitacion = async (req, res) => {
 	}
 };
 
+// Eliminar asignación de curso a instructor
+const eliminarAsignacionCursoInstructor = async (req, res) => {
+    const transaction = await dbInstance.sequelize.transaction();
+    try {
+        const { instructor_ID, curso_ID } = req.params;
+
+        // Permisos: solo Admin o Gestor
+        const { accountType } = req.user || {};
+        if (accountType !== 'Administrador' && accountType !== 'Gestor') {
+            await transaction.rollback();
+            return res.status(403).json({ message: 'No tienes permisos para eliminar asignaciones.' });
+        }
+
+        if (!instructor_ID || !curso_ID) {
+            await transaction.rollback();
+            return res.status(400).json({ message: "El ID del instructor y del curso son obligatorios." });
+        }
+
+        // Buscar asignación (cualquier estado) – si no existe igual intentamos limpiar curso
+        const asignacion = await AsignacionCursoInstructor.findOne({
+            where: { instructor_ID, curso_ID },
+            transaction
+        });
+
+        // Eliminar físicamente la asignación
+        if (asignacion) {
+            await AsignacionCursoInstructor.destroy({
+                where: { instructor_ID, curso_ID },
+                transaction
+            });
+        }
+
+        // Si el curso tiene actualmente a este instructor, desvincularlo
+        const curso = await Curso.findByPk(curso_ID, { transaction });
+        if (curso && Number(curso.instructor_ID) === Number(instructor_ID)) {
+            curso.instructor_ID = null;
+            await curso.save({ transaction });
+        }
+
+        await transaction.commit();
+
+        // Notificar por email al instructor removido (best-effort)
+        try {
+            const inst = await User.findByPk(instructor_ID, { attributes: ['email'] });
+            const cursoInfo = await Curso.findByPk(curso_ID);
+            if (inst?.email && cursoInfo) {
+                await sendInstructorUnassignedEmail(inst.email, cursoInfo);
+            }
+        } catch (e) {
+            console.warn('No se pudo enviar email de desasignación:', e?.message);
+        }
+
+        // Notificación in-app al instructor por desasignación
+        try {
+            const remitenteId = Number(req.user?.ID) || Number(instructor_ID);
+            const cursoInfo = await Curso.findByPk(curso_ID);
+            await Notificacion.create({
+                remitente_ID: remitenteId,
+                destinatario_ID: Number(instructor_ID),
+                usuario_ID: Number(instructor_ID),
+                tipo: 'curso_desasignado',
+                titulo: `Removido del curso ${cursoInfo?.nombre_curso || ''}`,
+                mensaje: `Has sido removido del curso "${cursoInfo?.nombre_curso || curso_ID}".`,
+                estado: 'pendiente',
+            });
+        } catch (e) {
+            console.warn('No se pudo crear notificación in-app (desasignación):', e?.message);
+        }
+
+        return res.status(200).json({ message: "Asignación eliminada correctamente." });
+    } catch (error) {
+        await transaction.rollback();
+        console.error('Error al eliminar la asignación curso-instructor:', error);
+        return res.status(500).json({ message: 'Error interno al eliminar la asignación.' });
+    }
+};
+
 module.exports = {
 	setDb,
 	createCurso,
@@ -885,4 +1097,5 @@ module.exports = {
 	enviarInvitacionCurso,
 	cambiarEstadoInvitacion,
 	verificarDisponibilidadInstructor,
+    eliminarAsignacionCursoInstructor,
 };

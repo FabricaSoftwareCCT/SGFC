@@ -5,9 +5,9 @@ describe('Prueba de modulo de gestión de gestores', ()=>{
 
         //Ingresar credenciales con el rol de gestor
         cy.get('input[type="email"]').first()
-            .type('bator41024@fixwap.com')
+            .type('royib51906@filipx.com')
         cy.get('input[type="password"]')
-            .type('Prueba1234*')
+            .type('GGX}Jh5i')
        
          //Iniciar sesión
         cy.get(".button_register").click({force:true})
@@ -21,9 +21,9 @@ describe('Prueba de modulo de gestión de gestores', ()=>{
 
         //Ingresar credenciales con el rol de gestor
         cy.get('input[type="email"]').first()
-            .type('bator41024@fixwap.com')
+            .type('royib51906@filipx.com')
         cy.get('input[type="password"]')
-            .type('Prueba1234*')
+            .type('GGX}Jh5i')
        
          //Iniciar sesión
         cy.get(".button_register").click({force:true})
@@ -45,15 +45,15 @@ describe('Prueba de modulo de gestión de gestores', ()=>{
         
     })
 
-    it("Ver un curso con su infromación", ()=>{
+    it.skip("Ver un curso con su infromación", ()=>{
         cy.visit("http://localhost:5173/") 
         cy.get(".button_signIn").first().click({force : true})
 
         //Ingresar credenciales con el rol de gestor
         cy.get('input[type="email"]').first()
-            .type('bator41024@fixwap.com')
+            .type('royib51906@filipx.com')
         cy.get('input[type="password"]')
-            .type('Prueba1234*')
+            .type('GGX}Jh5i')
        
          //Iniciar sesión
         cy.get(".button_register").click({force:true})
@@ -78,14 +78,14 @@ describe('Prueba de modulo de gestión de gestores', ()=>{
         
 
     it.skip("Crear Curso",()=>{
-         cy.visit("http://localhost:5173/") 
+        cy.visit("http://localhost:5173/") 
         cy.get(".button_signIn").first().click({force : true})
 
         //Ingresar credenciales con el rol de gestor
         cy.get('input[type="email"]').first()
-            .type('bator41024@fixwap.com')
+            .type('royib51906@filipx.com')
         cy.get('input[type="password"]')
-            .type('Prueba1234*')
+            .type('GGX}Jh5i')
        
          //Iniciar sesión
         cy.get(".button_register").click({force:true})
@@ -95,21 +95,28 @@ describe('Prueba de modulo de gestión de gestores', ()=>{
         cy.get('.courses-menu').find('.dropdown-courses').contains('button','Crear curso').first().click({force:true})
 
         //Crear curso
-        cy.get('.container_createCourse').find('.containerDetails_course').find('input[placeholder="Agregar nombre del curso"]').type('Frontend',{force:true})
+        cy.get('.container_createCourse').find('.containerDetails_course').find('input[placeholder="Agregar nombre del curso"]').type('Analisis y Desarrollo de Software',{force:true})
 
         const description ='A'.repeat(300)
         cy.get('.container_createCourse').find('.containerInput_description_course').find('textarea[placeholder="Agregar descripción del curso (mínimo 300 caracteres)"]').type(description)
 
-        cy.get('.containerDetails_course2').find('.containerInput_ficha').find('input[id="fichaCourse"]').type(2825019)
+        cy.get('.containerDetails_course2').find('.containerInput_ficha').find('input[id="fichaCourse"]').type(2825020)
 
-        cy.contains('.offer-button', 'Abierta').click()
-        cy.contains('.offer-button', 'Activo').click()
+    
+        cy.contains('.offer-button', 'Cerrada').click()
+        cy.contains('.offer-button', 'En oferta').click()
+
+        cy.get('input[placeholder="NIT de la empresa"]').type('900123456');
+        cy.get('.resultados-empresa li').contains('Tech Solutions').click();
+
+        cy.get('.containerDetails_course2').get('.duracion-inputs').find('input[placeholder="Días"]').type('30')
+        cy.get('.containerDetails_course2').get('.lugar-formacion').find('input[type="text"]').type('Virtual')
 
         cy.get('.addDate').first().click()
 
         //Ingresar Fechas
-        cy.get('.organized-date-inputs').contains('label', 'Fecha inicio:').find('input[type="date"]').type('2025-10-20')
-        cy.get('.organized-date-inputs').contains('label', 'Fecha fin:').find('input[type="date"]').type('2025-10-25')
+        cy.get('.organized-date-inputs').contains('label', 'Fecha inicio:').find('input[type="date"]').type('2025-10-31')
+        cy.get('.organized-date-inputs').contains('label', 'Fecha fin:').find('input[type="date"]').type('2025-11-25')
 
         //Seleccionar horario de curso
         const selectTimeSlot = (time, day) => {
@@ -144,9 +151,9 @@ describe('Prueba de modulo de gestión de gestores', ()=>{
 
         //Ingresar credenciales con el rol de gestor
         cy.get('input[type="email"]').first()
-            .type('bator41024@fixwap.com')
+            .type('royib51906@filipx.com')
         cy.get('input[type="password"]')
-            .type('Prueba1234*')
+            .type('GGX}Jh5i')
        
          //Iniciar sesión
         cy.get(".button_register").click({force:true})
@@ -176,9 +183,9 @@ describe('Prueba de modulo de gestión de gestores', ()=>{
 
         //Ingresar credenciales con el rol de gestor
         cy.get('input[type="email"]').first()
-            .type('bator41024@fixwap.com')
+            .type('royib51906@filipx.com')
         cy.get('input[type="password"]')
-            .type('Prueba1234*')
+            .type('GGX}Jh5i')
        
          //Iniciar sesión
         cy.get(".button_register").click({force:true})
@@ -187,7 +194,108 @@ describe('Prueba de modulo de gestión de gestores', ()=>{
         cy.get('.container_options').get('.courses-menu').contains('button', 'Cursos').first().click({force : true})
         cy.get('.dropdown-courses').contains('button', 'Material de Apoyo').first().click({force : true})
         cy.get('.cursos-section').get('.curso-card').first().click({force : true})
-        cy.get('.archivos-section').get('.btn-eliminar').first().click({force : true})
+    })
+
+    it.skip('Ingresar a criterios de certificación como gestor', ()=>{
+        cy.visit("http://localhost:5173/") 
+        cy.get(".button_signIn").first().click({force : true})
+
+        //Ingresar credenciales con el rol de gestor
+        cy.get('input[type="email"]').first()
+            .type('hincapiefernandezjoan123@gmail.com')
+        cy.get('input[type="password"]')
+            .type(';,6E5RaH')
+       
+         //Iniciar sesión
+        cy.get(".button_register").click({force:true})
+
+        // Click forzado en el botón Gestiones
+        cy.get('.container_options').get('.gestiones').first().click({force:true})
+
+        //Entrar a Gestión de Criterios de Certificación
+        cy.get('.dropdown-gestiones').contains('button', 'Criterios de Certificación').first().click({force:true});
+
+
+        //Ver criterios de un curso
+        cy.contains('button', 'Ver criterios').first().click({force:true})
+        cy.contains('button', 'Ver criterios').first().click({force:true})
+        
+        //Agregar Criterios
+        cy.contains('button', '+').click()
+        cy.get('.new-criteria-space').find('input[placeholder="Añadir un titulo"]').type('Asistencias')
+        cy.get('.criteria-head').find('.select-criteria-type').click()
+        cy.contains('button', 'Asistencias').click()
+        cy.get('input[placeholder="0"]').first().clear().type('80')
+        cy.get('input[placeholder="0"]').eq(1).clear().type('100')
+
+        //Guardar Criterio
+        cy.get('.modal-background').contains('button', 'Guardar').click({force:true})
+
+        //Añadir descripción al criterio y guardar
+        cy.get('.criteria-data').find('textarea[placeholder="Añadir una descripción..."]').type('El participante debe cumplir con el 80% de asistencias para certificar el curso.')
+        cy.get('.end-button').contains('button', 'Guardar').click({force:true})
+    })
+
+    it.skip('Editar criterios de certificación',()=>{
+        cy.visit("http://localhost:5173/") 
+        cy.get(".button_signIn").first().click({force : true})
+
+        //Ingresar credenciales con el rol de gestor
+        cy.get('input[type="email"]').first()
+            .type('hincapiefernandezjoan123@gmail.com')
+        cy.get('input[type="password"]')
+            .type(';,6E5RaH')
+       
+         //Iniciar sesión
+        cy.get(".button_register").click({force:true})
+
+        // Click forzado en el botón Gestiones
+        cy.get('.container_options').get('.gestiones').first().click({force:true})
+
+        //Entrar a Gestión de Criterios de Certificación
+        cy.get('.dropdown-gestiones').contains('button', 'Criterios de Certificación').first().click({force:true});
+
+        //Editar y guardar un criterio
+        cy.contains('button', 'Ver criterios').first().click({force:true})
+        cy.contains('button', 'Ver criterios').first().click({force:true})
+        cy.contains('button', 'Editar').first().click({force:true})
+        cy.get('textarea.description-edition.criteria-description').first().clear().type('Nueva descripción editada para el primer criterio')
+        cy.get('.buttons-right').contains('button', 'Guardar').first().click({force:true})
+    })
+
+    it.skip('Filtrar criterios de certificación y descargar criterios',()=>{
+        cy.visit("http://localhost:5173/") 
+        cy.get(".button_signIn").first().click({force : true})
+
+        //Ingresar credenciales con el rol de gestor
+        cy.get('input[type="email"]').first()
+            .type('hincapiefernandezjoan123@gmail.com')
+        cy.get('input[type="password"]')
+            .type(';,6E5RaH')
+       
+         //Iniciar sesión
+        cy.get(".button_register").click({force:true})
+
+        // Click forzado en el botón Gestiones
+        cy.get('.container_options').get('.gestiones').first().click({force:true})
+
+        //Entrar a Gestión de Criterios de Certificación
+        cy.get('.dropdown-gestiones').contains('button', 'Criterios de Certificación').first().click({force:true});
+
+         //Ver criterios de un curso
+        cy.contains('button', 'Ver criterios').first().click({force:true})
+        cy.contains('button', 'Ver criterios').first().click({force:true})
+
+        //Filtrar criterios
+        cy.contains('button', 'Filtrar').click({force:true})
+        cy.get('input[placeholder="Nombre..."]').first().type('Asistencias')
+        cy.get('button[id="filtrar-button"').click({force:true})
+        cy.contains('button', 'Filtrar').click({force:true})
+        cy.contains('button', 'Descargar').click({force:true})
+
+        //Generar Reporte
+        cy.get('.modal-background').contains('button', 'Generar reporte').click({force:true})
+        cy.get('.modal-background').contains('a', 'Descargar').click({force:true})
     })
 
     it.skip('Ingresar a un curso y editar su información', ()=>{
@@ -196,9 +304,9 @@ describe('Prueba de modulo de gestión de gestores', ()=>{
 
         //Ingresar credenciales con el rol de gestor
         cy.get('input[type="email"]').first()
-            .type('bator41024@fixwap.com')
+            .type('royib51906@filipx.com')
         cy.get('input[type="password"]')
-            .type('Prueba1234*')
+            .type('GGX}Jh5i')
        
          //Iniciar sesión
         cy.get(".button_register").click({force:true})
@@ -220,19 +328,102 @@ describe('Prueba de modulo de gestión de gestores', ()=>{
         .type(descripcion)
         .should('have.value', descripcion)  // Verifica que se haya escrito
 
-        cy.get('buttonCreate_Course').click({force:true})
+        cy.get('.buttonCreate_Course').contains('Actualizar curso').click();
+
 
     })
 
-    it("Dar click a Gestiones, luego a Gestión de Empleados", ()=>{
+    it.skip('gestión de instructores con el rol de gestor', ()=>{
         cy.visit("http://localhost:5173/") 
         cy.get(".button_signIn").first().click({force : true})
 
         //Ingresar credenciales con el rol de gestor
         cy.get('input[type="email"]').first()
-            .type('bator41024@fixwap.com')
+            .type('hincapiefernandezjoan123@gmail.com')
         cy.get('input[type="password"]')
-            .type('Prueba1234*')
+            .type(';,6E5RaH')
+       
+         //Iniciar sesión
+        cy.get(".button_register").click({force:true})
+
+        // Click forzado en el botón Gestiones
+        cy.get('.container_options').get('.gestiones').first().click({force:true})
+
+        //Entrar a Gestión de Criterios de Certificación
+        cy.get('.dropdown-gestiones').contains('button', 'Gestión de Instructores').first().click({force:true});
+
+    })
+
+    it.skip('Agregar instructor desde el rol de gestor', ()=>{
+        cy.visit("http://localhost:5173/") 
+        cy.get(".button_signIn").first().click({force : true})
+
+        //Ingresar credenciales con el rol de gestor
+        cy.get('input[type="email"]').first()
+            .type('hincapiefernandezjoan123@gmail.com')
+        cy.get('input[type="password"]')
+            .type(';,6E5RaH')
+       
+         //Iniciar sesión
+        cy.get(".button_register").click({force:true})
+
+        // Click forzado en el botón Gestiones
+        cy.get('.container_options').get('.gestiones').first().click({force:true})
+
+        //Entrar a Gestión de Criterios de Certificación
+        cy.get('.dropdown-gestiones').contains('button', 'Gestión de Instructores').first().click({force:true});
+
+        //Agregar
+        cy.contains('button', 'Agregar Instructor').click()
+
+        //Llenar datos
+        cy.get('#modal-overlayCreateInstructor').find('.modal-left').contains('label', 'Nombres').first().find('input[type="text"]').type('Samuel')
+        cy.get('#modal-overlayCreateInstructor').find('.modal-left').contains('label', 'Apellidos').first().find('input[type="text"]').type('Rojas')
+        cy.get('#modal-overlayCreateInstructor').find('.modal-left').contains('label', 'Cédula').first().find('input[name="documento"]').type('8888889')
+        cy.get('.modal-left').contains('label', 'Título').find('input[type="text"]').type('Instructor')
+        cy.get('#modal-overlayCreateInstructor').find('.modal-left').contains('label', 'Celular').first().find('input[name="celular"]').type('3105557789')
+        cy.get('#modal-overlayCreateInstructor').find('.modal-left').contains('label', 'Email').first().find('input[type="email"]').type('dafar65911@fandoe.com')
+        cy.get('#modal-overlayCreateInstructor').find('.status-container').contains('.status', 'Activo').first().click({force:true})
+        cy.get('.modal-right').get('.save-button').first().click({force : true})
+    })
+
+    it.skip('buscar instructor y modificar perfil de instructor',()=>{
+        cy.visit("http://localhost:5173/") 
+        cy.get(".button_signIn").first().click({force : true})
+
+        //Ingresar credenciales con el rol de gestor
+        cy.get('input[type="email"]').first()
+            .type('hincapiefernandezjoan123@gmail.com')
+        cy.get('input[type="password"]')
+            .type(';,6E5RaH')
+       
+         //Iniciar sesión
+        cy.get(".button_register").click({force:true})
+
+        // Click forzado en el botón Gestiones
+        cy.get('.container_options').get('.gestiones').first().click({force:true})
+
+        //Entrar a Gestión de Criterios de Certificación
+        cy.get('.dropdown-gestiones').contains('button', 'Gestión de Instructores').first().click({force:true});
+
+        //Editar perfil
+        cy.contains('button','Ver perfil').click()
+        cy.contains('button','Actualizar Perfil').click()
+
+        cy.get('.modal-left-update').find('input[name="nombres"]').first().clear({force:true}).type('Andres Felipe')
+        cy.contains('button','Guardar Cambios').click()
+
+    })
+
+    it.skip("Dar click a Gestiones, luego a Gestión de Empleados", ()=>{
+        cy.visit("http://localhost:5173/") 
+        cy.get(".button_signIn").first().click({force : true})
+
+        //Ingresar credenciales con el rol de gestor
+        cy.get('input[type="email"]').first()
+            .type('royib51906@filipx.com')
+       cy.get('input[type="password"]')
+            .type('GGX}Jh5i')
        
          //Iniciar sesión
         cy.get(".button_register").click({force:true})
@@ -240,7 +431,169 @@ describe('Prueba de modulo de gestión de gestores', ()=>{
         //dar click a Gestiones
         cy.get('.container_options').get('.gestiones-menu').contains('button', 'Gestiones').first().click({force : true})
         cy.get('.dropdown-gestiones').contains('button', 'Gestión de Empleados').first().click({force : true})
+        
+        //Actualizar información del empleado
+        cy.get('.profile-btn').first().click({force:true})
+        cy.get('.edit-button-updateInstructor').first().click({force:true})
+        cy.get('.modal-left-update').find('input[type="text"]').first().clear().type('San Martin')
+        cy.get('.modal-left-update').find('input[name="apellidos"]').clear().type('De Napolés')
+        cy.get('img[alt="Subir documento"]').click()
+        cy.get('.custom-dropdown').click();
+        cy.contains('.dropdown-option', 'Cédula de ciudadanía').click();
+        cy.get('.modal-left-update').find('input[name="documento"]').clear().type(45567869)
+        cy.get('.modal-left-update').find('.status-buttons').contains('button', 'activo').first().click({force:true})
+        cy.get('.edit-button-updateInstructor').click({force:true})
+        
     })
+
+    it.skip('Crear empleado desde Gestor', ()=>{
+        cy.visit("http://localhost:5173/") 
+        cy.get(".button_signIn").first().click({force : true})
+
+        //Ingresar credenciales con el rol de gestor
+        cy.get('input[type="email"]').first()
+            .type('royib51906@filipx.com')
+       cy.get('input[type="password"]')
+            .type('GGX}Jh5i')
+       
+         //Iniciar sesión
+        cy.get(".button_register").click({force:true})
+
+        //dar click a Gestiones
+        cy.get('.container_options').get('.gestiones-menu').contains('button', 'Gestiones').first().click({force : true})
+        cy.get('.dropdown-gestiones').contains('button', 'Gestión de Empleados').first().click({force : true})
+
+         //Agregar Empleado
+        cy.get('.btn_createEmploye').click()
+        cy.get('.modal-bodyCreateEmploye').find('input[name="nombres"]').first().type('Marco')
+        cy.get('.modal-left input[name="apellidos"]').first().type('Polo')
+        cy.get('select.TipoDocumento[name="tipoDocumento"]').select('CedulaCiudadania')
+        cy.get('.modal-left').find('input[name="cedula"]').type(92837467)
+        cy.get('.modal-left').find('input[name="celular"]').first().type(3214567980)
+        cy.get('.modal-left').find('input[name="email"]').first().type('canajef689@nrlord.com')
+        cy.get('select[name="empresaId"].empresa-select').select(1); 
+        cy.get('.status-container').find('.status-buttons').contains('button', 'Activo').first().click({force:true})
+        cy.get('.save-button').first().click({force:true})
+
+    })
+
+    it.skip('Usar filtros para buscar empleados', ()=>{
+        cy.visit("http://localhost:5173/") 
+        cy.get(".button_signIn").first().click({force : true})
+
+        //Ingresar credenciales con el rol de gestor
+        cy.get('input[type="email"]').first()
+            .type('royib51906@filipx.com')
+       cy.get('input[type="password"]')
+            .type('GGX}Jh5i')
+       
+         //Iniciar sesión
+        cy.get(".button_register").click({force:true})
+
+        //dar click a Gestiones
+        cy.get('.container_options').get('.gestiones-menu').contains('button', 'Gestiones').first().click({force : true})
+        cy.get('.dropdown-gestiones').contains('button', 'Gestión de Empleados').first().click({force : true})
+
+        //Filtro por nombre
+        //cy.get('#inputNameCC').type('Juan').should('have.value', 'Juan');
+
+        // 2. Filtrar por Empresa
+        cy.get('#selectEmpresa.filter-select').select('1');
+
+        // 3. Filtrar por Tipo de Documento
+        cy.get('#selectTipoDocumento.filter-select').select('Cédula de Ciudadanía').should('have.value', 'CedulaCiudadania'); 
+
+        // 4. Filtrar por Estado (Activo)
+        cy.get('.sectionStatusFilter').contains('Activo').click();
+
+    })
+
+    it.skip("Ingresar reporte y estadisticas", () =>{
+        cy.visit("http://localhost:5173/") 
+        cy.get(".button_signIn").first().click({force : true})
+
+        //Ingresar credenciales con el rol de gestor
+        cy.get('input[type="email"]').first()
+            .type('royib51906@filipx.com')
+        cy.get('input[type="password"]')
+            .type('GGX}Jh5i')
+       
+         //Iniciar sesión
+        cy.get(".button_register").click({force:true})
+
+        //Ingresar a reporte y estadísticas
+        cy.get('.container_options').get('.gestiones-menu').contains('button', 'Gestiones').first().click({force : true})
+        cy.get('.dropdown-gestiones').contains('button', 'Reporte y Estadísticas').first().click({force : true})
+        cy.get('.button-generar-reporte-estadisticas').click({force : true})
+        cy.get('.tabla-datos-estadisticas').get('.tabla-fila-estadisticas').first().click({force : true})
+        cy.get('.button-filtro-reporte-estudiantes').click({force : true})
+        cy.get('.filtro-menu-estudiantes').find('.filtro-grupo-estudiantes').first().find('input[type="text"]').type('A')
+        cy.get('.filtro-menu-estudiantes').find('.filtro-grupo-estudiantes').eq(1).find('input[type="text"]').type('G')
+        cy.get('.filtro-menu-estudiantes').find('.filtro-grupo-estudiantes').eq(2).find('input[type="text"]').type('12344567890')
+        cy.contains('.filtro-opcion-estudiantes', 'Activo').click({force: true})
+        cy.get('.filtro-menu-estudiantes').find('.filtro-grupo-estudiantes').eq(4).find('input[type="number"]').type('2')
+        cy.get('.filtro-menu-estudiantes').find('.filtro-grupo-estudiantes').eq(5).find('input[type="number"]').type('2')
+        cy.get('.filtro-menu-estudiantes').find('.filtro-grupo-estudiantes').get('.filtro-botones-estudiantes').find('button', 'Limpiar').click({force : true})
+        cy.get('.tabla-datos-estudiantes').get('.tabla-fila-estudiantes').first().click({force : true})
+        cy.get('.container-tabla-estudiantes').get('.button-generar-reporte-estudiantes').click({force : true})
+
+        //eficiencia
+        cy.get('.container-tabla-estudiantes').get('.button-eficiencia-estudiantes').click({force : true})
+        cy.get('.container-tabla-eficiencia').get('.button-filtro-reporte-eficiencia').click({force : true})
+        cy.get('.filtro-menu-eficiencia').find('.filtro-grupo-eficiencia').first().find('input[type="text"]').type('A')
+        cy.get('.filtro-menu-eficiencia').find('.filtro-grupo-eficiencia').eq(1).find('input[type="text"]').type('n')
+        cy.get('.filtro-menu-eficiencia').find('.filtro-grupo-eficiencia').eq(2).find('input[type="text"]').type('1234567890')
+        cy.contains('.filtro-opcion-eficiencia', 'Activo').first().click(6,0,{force: true})
+        cy.contains('.filtro-boton-pequeno-eficiencia', 'Actividades Faltantes').first().click(6,0,{force: true})
+        cy.get('.filtro-menu-eficiencia').find('.filtro-grupo-eficiencia').eq(5).find('input[type="number"]').type('2')
+        cy.get('.filtro-menu-eficiencia').find('.filtro-grupo-eficiencia').get('.filtro-botones-eficiencia').find('button', 'Limpiar').click({force : true})
+        cy.get('.tabla-datos-eficiencia').get('.tabla-fila-eficiencia').first().click({force : true})
+        cy.get('.container-tabla-eficiencia').get('.button-generar-reporte-eficiencia').click({force : true})
+        cy.get('.button-volver-eficiencia').click({force : true})
+        cy.get('.button-volver-estudiantes').click({force : true})
+   })
+
+   it.skip('Generar reporte de los cursos', ()=>{
+        cy.visit("http://localhost:5173/") 
+        cy.get(".button_signIn").first().click({force : true})
+
+        //Ingresar credenciales con el rol de gestor
+        cy.get('input[type="email"]').first()
+            .type('hincapiefernandezjoan123@gmail.com')
+        cy.get('input[type="password"]')
+            .type(';,6E5RaH')
+       
+         //Iniciar sesión
+        cy.get(".button_register").click({force:true})
+
+        //Ingresar a reporte y estadísticas
+        cy.get('.container_options').get('.gestiones-menu').contains('button', 'Gestiones').first().click({force : true})
+        cy.get('.dropdown-gestiones').contains('button', 'Reporte y Estadísticas').first().click({force : true})
+
+        //Generar un reporte
+        cy.contains('button','Generar reporte').click()
+
+        //Seleccionar tipo de documento
+        cy.contains('button', 'Excel').click()
+        cy.get('.modal-background').contains('button','Generar reporte').click({force:true})
+   })
+
+   it.skip('cerrar sesión como gestor', ()=>{
+        cy.visit("http://localhost:5173/") 
+        cy.get(".button_signIn").first().click({force : true})
+
+        //Ingresar credenciales con el rol de gestor
+        cy.get('input[type="email"]').first()
+            .type('hincapiefernandezjoan123@gmail.com')
+        cy.get('input[type="password"]')
+            .type(';,6E5RaH')
+       
+         //Iniciar sesión
+        cy.get(".button_register").click({force:true})
+
+        //Cerrar sesión
+        cy.get('.container_options_profile').find('img[alt="Cerrar sesión"]').first().click({force : true})
+   })
 
 })
     
@@ -248,4 +601,6 @@ describe('Prueba de modulo de gestión de gestores', ()=>{
 
 
         
+
+
 

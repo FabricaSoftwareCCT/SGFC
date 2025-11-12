@@ -1,20 +1,227 @@
+/* Estilos para el título responsivo */
+.tituloGestionsCompany {
+  margin-top: 2rem;
+  margin-bottom: 1.5rem;
+  font-size: 2rem;
+  text-align: center;
+}
+
+/* Responsive para móviles */
+@media (max-width: 768px) {
+  .tituloGestionsCompany {
+    margin-top: 3rem;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+  }
+}
+
+/* Estilos para la tabla de resultados */
+.resultTableGestionsCompany {
+  background: transparent;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-top: 1rem;
+  width: 100%;
+}
+
+.resultTableHeader {
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #b0b0b0;
+}
+
+.table-container {
+  width: 100%;
+}
+
+/* Encabezados de tabla - SIMPLIFICADO */
+.table-header.desktop-only {
+  display: grid;
+  width: 100%;
+  grid-template-columns: 80px 100px 1fr 100px 60px;
+  gap: 0.5rem;
+  padding: 0.8rem;
+  background: #b0b0b038;
+  border-radius: 8px;
+  font-weight: bold;
+  margin-bottom: 0.3rem;
+  color: #333;
+}
+
+.table-header.desktop-only > div {
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.inputDateFilter{
+  background-color: #f3f3f3;
+  color: #1a1a1a;
+  font: 100% sans-serif;
+  display: flex;
+  border-radius: 10px;
+  width: auto;
+  height: auto;
+}
+
+/* Filas de la tabla - MISMA ESTRUCTURA que encabezados */
+.table-row.desktop-view {
+  display: grid;
+  grid-template-columns: 80px 100px 1fr 100px 60px; /* EXACTAMENTE igual */
+  gap: 0.5rem; /* EXACTAMENTE igual */
+  padding: 0.8rem; /* EXACTAMENTE igual */
+  align-items: center;
+  background: #b0b0b038;
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+
+/* Asegurar que cada celda se comporte igual */
+.table-row.desktop-view > div {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  word-break: break-word;
+}
+
+/* Estados mejorados */
+.estado-badge {
+  padding: 0.3rem 0.6rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  text-transform: capitalize;
+  width: fit-content;
+  margin: 0 auto;
+}
+
+.estado-aprobada {
+  background: #00843d;
+  color: white;
+}
+
+.estado-rechazada {
+  background: #b0b0b0;
+  color: #222;
+}
+
+.estado-pendiente {
+  background: #b0b0b038;
+  color: #222;
+  border: 1px solid #b0b0b0;
+}
+
+/* Icono de ver */
+.view-icon {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  transition: transform 0.2s;
+  margin: 0 auto;
+}
+
+.view-icon:hover {
+  transform: scale(1.1);
+}
+
+/* Vista Mobile - Card (igual que antes) */
+.table-item.mobile-view {
+  display: none;
+  flex-direction: column;
+  padding: 1rem;
+  gap: 0.75rem;
+  background: #b0b0b038;
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.card-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.3rem 0;
+}
+
+.card-label {
+  font-weight: bold;
+  color: #495057;
+  font-size: 0.9rem;
+}
+
+.card-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid #b0b0b0;
+}
+
+.fecha-mobile {
+  font-size: 0.875rem;
+  color: #6c757d;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .desktop-only {
+    display: none;
+  }
+  
+  .table-row.desktop-view {
+    display: none;
+  }
+  
+  .table-item.mobile-view {
+    display: flex;
+  }
+  
+  .resultTableGestionsCompany {
+    padding: 1rem;
+  }
+}
+
+@media (min-width: 769px) {
+  .table-item.mobile-view {
+    display: none;
+  }
+  
+  .table-row.desktop-view {
+    display: grid;
+  }
+}
+
+/* Mantener estilos existentes del filtro */
 .statusOptionActas {
-	background: #b0b0b038;      /* gris claro para no seleccionados */
-	border-radius: 8px;
-	padding: 0.3rem 1rem;
-	margin: 0.2rem 0.5rem 0.2rem 0;
-	display: inline-block;
-	transition: background 0.2s, color 0.2s;
-	width: auto;
-	height: auto;
-	cursor: pointer;
+  background: #b0b0b038;
+  border-radius: 8px;
+  padding: 0.3rem 1rem;
+  margin: 0.2rem 0.5rem 0.2rem 0;
+  display: inline-block;
+  transition: background 0.2s, color 0.2s;
+  width: auto;
+  height: auto;
+  cursor: pointer;
 }
 
 .statusOptionActas.selected {
-	background: #00843d;      /* verde para seleccionados */
+	background: #00843d;
+  color: white;
 }
 
-/* Estilo para el select */
 .selectEstadoActa {
 	background: #b0b0b0;
 	color: #222;
@@ -28,18 +235,17 @@
 	margin-bottom: 0.5rem;
 }
 
-/* Estilo para las opciones del .selectEstadoActa */
 .selectEstadoActa option {
 	background: #b0b0b0;
 	color: #222;
 }
 
-/* Hack para el hover de las opciones (no soportado en todos los navegadores) */
 .selectEstadoActa option:hover,
 .selectEstadoActa option:checked {
 	background: #00843d;
 	color: #fff;
 }
+
 .selectEstadoActa:focus {
 	outline: none;
 	border: 2px solid #00843d;
@@ -47,11 +253,11 @@
 }
 
 .container-button-firmar {
-		width: 100%;
-		height: auto;
-		align-items: center;
-		display: flex;
-		justify-content: center;
+  width: 100%;
+  height: auto;
+  align-items: center;
+  display: flex;
+  justify-content: center;
 }
 
 .button-proceedings-generar {

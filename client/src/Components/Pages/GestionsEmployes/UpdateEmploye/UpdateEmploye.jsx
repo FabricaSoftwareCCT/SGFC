@@ -5,6 +5,8 @@ import axiosInstance from "../../../../config/axiosInstance";
 import { useModal } from "../../../../Context/ModalContext";
 import buttonEdit from '../../../../assets/Icons/buttonEdit.png';
 import { validateEmail, validateNumber, validateText, validateNIT } from "../../../../utils/Validators/formValidator";
+import Swal from 'sweetalert2';
+import 'sweetalert2/themes/bulma.css'
 
 export const UpdateEmploye = ({ empleado }) => {
   const [isEditing, setIsEditing] = useState(false);
@@ -123,7 +125,21 @@ export const UpdateEmploye = ({ empleado }) => {
     // Validar todos los campos antes de enviar
     const errors = validateFields();
     if (errors.length > 0) {
-      alert(`Por favor corrija los siguientes errores:\n\n${errors.join('\n')}`);
+      await Swal.fire({
+        icon: 'error',
+        title: 'Errores de validación',
+        html: `
+          <div style="text-align: left;">
+            <p>Por favor corrija los siguientes errores:</p>
+            <ul style="margin-top: 10px; padding-left: 20px;">
+              ${errors.map(error => `<li>${error}</li>`).join('')}
+            </ul>
+          </div>
+        `,
+        confirmButtonColor: '#3085d6',
+                      theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+      });
       return;
     }
 
@@ -166,13 +182,40 @@ export const UpdateEmploye = ({ empleado }) => {
               'Content-Type': 'multipart/form-data',
             },
           });
-          alert(`Tipo de documento: ${ocrResponse.data.tipoDetectado}\nNúmero: ${ocrResponse.data.documento}`);
+            await Swal.fire({
+            icon: 'info',
+            title: 'Documento procesado',
+            html: `
+              <p><strong>Tipo de documento:</strong> ${ocrResponse.data.tipoDetectado}</p>
+              <p><strong>Número:</strong> ${ocrResponse.data.documento}</p>
+            `,
+            confirmButtonColor: '#3085d6',
+                          theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+          });
         } catch (ocrError) {
-          alert("Empleado creado, pero hubo un problema al procesar el documento PDF.");
+          console.error("Error al procesar documento:", ocrError);
+          await Swal.fire({
+            icon: 'warning',
+            title: 'Procesamiento de documento',
+            text: 'Empleado actualizado, pero hubo un problema al procesar el documento PDF.',
+            confirmButtonColor: '#3085d6',
+                          theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+          });
         }
       }
 
-      alert(updateResponse.data.message || "Perfil actualizado correctamente");
+      await Swal.fire({
+        icon: 'success',
+        title: '¡Éxito!',
+        text: updateResponse.data.message || "Perfil actualizado correctamente",
+        confirmButtonColor: '#3085d6',
+        timer: 3000,
+        timerProgressBar: true,
+                      theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+      });
       setIsEditing(false);
       
       if (updateResponse.data.empleado) {
@@ -189,7 +232,14 @@ export const UpdateEmploye = ({ empleado }) => {
       closeModalUpdateEmploye();
 
     } catch (error) {
-      alert("Hubo un error al actualizar el perfil. " + (error.response?.data?.message || error.message));
+      await Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: "Hubo un error al actualizar el perfil. " + (error.response?.data?.message || error.message),
+        confirmButtonColor: '#3085d6',
+                      theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+      });
     }
   };
 

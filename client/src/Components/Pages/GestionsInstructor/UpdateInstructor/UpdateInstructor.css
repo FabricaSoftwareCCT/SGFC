@@ -10,7 +10,7 @@
     left: 50%;
     width: 100%;
     height: 100%;
-    background: #000000c2;
+    background: rgba(0, 0, 0, 0.579);
     display: none;
     justify-content: center;
     align-items: center;
@@ -47,6 +47,7 @@
     border-radius: 50%;
     filter: blur(160px);
     z-index: 0;
+    pointer-events: none; /* Evita bloquear clics dentro del modal */
 }
 
 .modal-bodyUpdateInstructor::before {
@@ -250,4 +251,85 @@
 .read-only-border {
     border: none !important;
     cursor: default;
+}
+
+.lista-cursos-asignados {
+    margin-top: 8px;
+    list-style: none;
+    padding-left: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    /* Mostrar máximo 3 items visibles; resto via scroll */
+    max-height: 126px;               /* 3 * 36px item + 2 * 8px gap = 124px aprox */
+    overflow-y: auto;                 /* Scroll si hay muchos cursos */
+    min-width: 0;  
+    width: 100%                   /* Permite que los hijos calculen ellipsis */
+}
+
+.curso-item {
+    display: block;
+    width: 100%;
+    min-width: 0;                     /* Permite que se reduzca con ellipsis */
+}
+
+.curso-link {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    min-width: 0;
+    text-align: left;
+    color: #e4f7ee;
+    background: rgba(0, 132, 61, 0.14);
+    border: 1px solid rgba(0, 132, 61, 0.35);
+    border-radius: 10px;
+    padding: 10px 12px;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 14px;
+    line-height: 1.2;
+    min-height: 36px;                 /* Evita pastillas muy pequeñas */
+}
+
+.curso-link:hover {
+    background: rgba(0, 132, 61, 0.22);
+    border-color: rgba(0, 132, 61, 0.55);
+    box-shadow: 0 0 0 2px rgba(0, 177, 90, 0.18) inset;
+}
+
+.curso-link:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(0, 177, 90, 0.28) inset;
+}
+
+/* Scrollbar sutil en listas */
+.lista-cursos-asignados::-webkit-scrollbar {
+    height: 6px;
+    width: 6px;
+}
+
+.lista-cursos-asignados::-webkit-scrollbar-thumb {
+    background: rgba(0, 132, 61, 0.35);
+    border-radius: 6px;
+}
+
+.lista-cursos-asignados {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0,132,61,0.35) transparent;
+}
+
+@media (min-width: 520px) {
+    .lista-cursos-asignados {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (min-width: 820px) {
+    .lista-cursos-asignados {
+        grid-template-columns: 1fr 1fr 1fr;
+    }
 }

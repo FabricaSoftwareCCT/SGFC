@@ -27,7 +27,7 @@ class Empresa extends Model {
           allowNull: true,
         },
         estado: {
-          type: DataTypes.ENUM('activo', 'inactivo'),
+          type: DataTypes.ENUM('activo', 'inactivo','suspendido'),
           defaultValue: 'inactivo',
         },
         email_empresa: {
@@ -44,6 +44,14 @@ class Empresa extends Model {
           allowNull: true,
           unique: true,
         },
+        descripcion: {
+          type: DataTypes.STRING(100),
+          allowNull: true
+        },
+          sitio_web: {
+            type: DataTypes.JSON(),
+            allowNull: true
+          },
       },
       {
         sequelize,

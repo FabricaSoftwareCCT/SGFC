@@ -143,7 +143,7 @@ export const MisCursos = () => {
       <Main>
         <div className="container_misCursos">
           <h2>
-            Cursos <span className="complementary">Asignados</span>
+            Cursossss <span className="complementary">Asignados</span>
           </h2>
           <p>Busca un curso por su ficha o nombre.</p>
 

@@ -1,5 +1,7 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react'; // ← AGREGAR useRef y useEffect
 import './Eficiencia-reporte.css';
+import Swal from 'sweetalert2';
+import 'sweetalert2/themes/bulma.css'
 
 export default function EficienciaReporte({ cursoSeleccionado, onVolver }) {
   const [mostrarFiltro, setMostrarFiltro] = useState(false);
@@ -177,7 +179,15 @@ export default function EficienciaReporte({ cursoSeleccionado, onVolver }) {
   const generarReporte = () => {
     console.log('Generando reporte de eficiencia...');
     const datosReporte = estudiantesFiltrados.length > 0 ? estudiantesFiltrados : datosEstudiantes;
-    alert(`Reporte de eficiencia generado exitosamente\nTotal de estudiantes: ${datosReporte.length}`);
+    Swal.fire({
+      icon: 'success',
+      title: 'Reporte generado',
+      html: `Reporte de eficiencia generado exitosamente<br><strong>Total de estudiantes: ${datosReporte.length}</strong>`,
+      confirmButtonText: 'Aceptar',
+      confirmButtonColor: '#049019',
+      theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+    });
   };
 
   // Función para determinar la clase de eficiencia

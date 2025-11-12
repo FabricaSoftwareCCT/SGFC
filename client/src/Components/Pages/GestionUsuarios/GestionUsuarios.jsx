@@ -8,6 +8,8 @@ import { useEffect } from "react"
 import { PageMover } from "../../UI/PageMover/PageMover"
 
 import fotoPerfilDefect from "../../../assets/Icons/userDefect.png"
+import Swal from 'sweetalert2';
+import 'sweetalert2/themes/bulma.css'
 
 export const GestionUsuarios = () => {
 	const navigate = useNavigate()
@@ -35,7 +37,17 @@ export const GestionUsuarios = () => {
 			setTotalPages(parseInt(resp.data.total / 10) + 1)
 		} catch (error) {
 			console.log(error)
-			alert("Ocurrió un error al consultar los usuarios")
+			Swal.fire({
+				icon:"error",
+				title:"Error al consultar los usuarios",
+				text:"Ocurrió un error al consultar los usuarios, intentelo de nuevo",
+				confirmButtonText:"Okay",
+				theme:"bulma",
+				customClass:{
+					confirmButton: 'centered-swal-button'
+				}
+
+			})
 		}
 	} 
 
@@ -143,9 +155,31 @@ export const GestionUsuarios = () => {
 				estado: selectedUser.estado
 			})
 			if (resp?.status >= 200 && resp?.status < 300) {
-				alert(resp?.data?.message || "Se ha actualizado el manager");
+				Swal.fire({
+					icon:"success",
+					title:"¡Éxtixo!",
+					text: resp?.data?.message ||"Se ha actualizado el manage",
+					confirmButtonText:"Aceptar",
+					theme: "bulma",
+        			customClass: {
+            confirmButton: 'button is-primary',
+            actions: 'swal2-actions-centered'
+        },
+        buttonsStyling: false
+				})
 			} else {
-				alert("No se pudo actualizar el manager.");
+				    await Swal.fire({
+        title: 'Error',
+        text: "No se pudo actualizar el manager.",
+        icon: 'error',
+        confirmButtonText: 'Aceptar',
+        theme: "bulma",
+        customClass: {
+            confirmButton: 'button is-danger',
+            actions: 'swal2-actions-centered'
+        },
+        buttonsStyling: false
+    });
 				return;
 			}
 
@@ -160,7 +194,17 @@ export const GestionUsuarios = () => {
 			fetchUsuarios()
 		} catch (error) {
 			console.log(error)
-			alert("Ocurrió un error al actualizar el usuario")
+			Swal.fire({
+				icon:"error",
+				title:"Error al actualizar el usuario",
+				text:"Ocurrió un error al actualizar el usuario, intentelo después",
+				confirmButtonText:"Aceptar",
+				theme:"bulma",
+				customClass: {
+            confirmButton: 'button is-danger',
+            actions: 'swal2-actions-centered'
+        }
+			})
 		}
 	}
 
@@ -295,7 +339,7 @@ export const GestionUsuarios = () => {
 											<strong>Celular:</strong>
 											{editing ?
 												<input
-													type="text"
+													type="number"
 													name="celular_manager"
 													value={selectedUser.celular}
 													className="input_updateData"
@@ -312,7 +356,7 @@ export const GestionUsuarios = () => {
 											<strong>Documento:</strong>
 											{editing ?
 												<input
-													type="text"
+													type="number"
 													name="documento_manager"
 													value={selectedUser.documento}
 													className="input_updateData"
@@ -351,10 +395,12 @@ export const GestionUsuarios = () => {
 															key={estado}
 															type="button"
 															className={`status ${selectedUser.estado === estado.toLowerCase() ? "active" : ""}`}
-															onClick={() => setSelectedUser({
-																...selectedUser,
-																estado: selectedUser.toLowerCase()
-															})}
+															onClick={() => {
+																setSelectedUser({
+																	...selectedUser,
+																	estado: estado.toLowerCase()
+																})
+															}}
 														>
 															{estado}
 														</button>

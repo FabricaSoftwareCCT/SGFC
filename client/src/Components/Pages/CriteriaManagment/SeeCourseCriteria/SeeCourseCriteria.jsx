@@ -10,6 +10,8 @@ import axiosInstance from "../../../../config/axiosInstance"
 import { generarExcelCriterios } from "../../../../utils/Reports/Criterios"
 import { ReportCriteria } from "./ReportCriteria/ReportCriteria"
 import html2pdf from "html2pdf.js"
+import Swal from "sweetalert2";
+import 'sweetalert2/themes/bulma.css'
 
 export const SeeAllCourseCriteria = () => {
 	const { id } = useParams()
@@ -137,9 +139,33 @@ export const SeeAllCourseCriteria = () => {
 				}
 			} catch (error) {
 				console.error(error)
-				alert("Ocurrió un error al actualizar los criterios")
+				await Swal.fire({
+					icon: 'error',
+					title: 'Error',
+					text: 'Ocurrió un error al actualizar los criterios',
+					confirmButtonText: 'Aceptar',
+					confirmButtonColor: '#d33',
+					theme: "bulma", // Añadido tema Bulma
+					customClass: {
+						confirmButton: 'centered-swal-button'
+					}
+				}); return;
+
 			}
 		}
+
+				await Swal.fire({
+			icon: 'success',
+			title: 'Cambios guardados',
+			text: 'Los criterios se han actualizado correctamente',
+			confirmButtonText: 'Aceptar',
+			confirmButtonColor: '#049019',
+			theme: "bulma", // Añadido tema Bulma
+			customClass: {
+				confirmButton: 'centered-swal-button'
+			}
+		});
+
 		setEditing(false)
 		fetchCriteria()
 	}
@@ -162,7 +188,17 @@ export const SeeAllCourseCriteria = () => {
 			setTotalAmount(response.data.total)
 		} catch (e) {
 			console.log(e)
-			alert("Ocurrió un error al buscar los criterios")
+			await Swal.fire({
+				icon: 'error',
+				title: 'Error',
+				text: 'Ocurrió un error al buscar los criterios',
+				confirmButtonText: 'Aceptar',
+				confirmButtonColor: '#d33',
+				theme: "bulma", // Añadido tema Bulma
+				customClass: {
+					confirmButton: 'centered-swal-button'
+				}
+			});
 		}
 	}
 
@@ -179,7 +215,17 @@ export const SeeAllCourseCriteria = () => {
 			setLoading(false)
 		} catch (e) {
 			console.log(e)
-			alert("Ocurrió un error al cargar los criterios")
+			await Swal.fire({
+				icon: 'error',
+				title: 'Error',
+				text: 'Ocurrió un error al cargar los criterios',
+				confirmButtonText: 'Aceptar',
+				confirmButtonColor: '#d33',
+				theme: "bulma", // Añadido tema Bulma
+				customClass: {
+					confirmButton: 'centered-swal-button'
+				}
+			});
 		}
 	}
 
@@ -347,6 +393,7 @@ export const SeeAllCourseCriteria = () => {
 							onChange={(e) => setSearchAuthor(e.target.value)}
 						/>
 						<button
+							id="filtrar-button"
 							className="button"
 							style={{
 								alignSelf: "center",

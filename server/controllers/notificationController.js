@@ -289,8 +289,8 @@ const crearNotificacionInvitacionCursoInstructor = async (req, res) => {
 		// ["Miércoles-08:00","Lunes-08:00","Lunes-06:00"]
 		const mensaje = `
 			<p>Has recibido una invitación para dictar el curso: <strong>${curso.nombre_curso}</strong>.</p>
-			<p>Inicia el: <strong>${new Date(curso.fecha_inicio).toDateString()}</strong></p>
-			<p>Termina el: <strong>${new Date(curso.fecha_fin).toDateString()}</strong></p>
+			<p>Inicia el: <strong>${new Date(curso.fecha_inicio).toLocaleDateString("es-CO")}</strong></p>
+			<p>Termina el: <strong>${new Date(curso.fecha_fin).toLocaleDateString("es-CO")}</strong></p>
 			<p>Días de formación: <strong>${dias}</strong></p>
 			<p>Modalidad: <strong>${curso.modalidad}</strong></p>
 			<p>Horario: ${!curso.slots_formacion ? "<strong>Sin definir</strong>" : ""}</p>
@@ -309,7 +309,7 @@ const crearNotificacionInvitacionCursoInstructor = async (req, res) => {
 					["06:00", "07:00", "08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00", "21:00", "22:00"].map((t) => 
 						`
 							<tr>
-								<th style=${bs}>6:00</th>
+								<th style=${bs}>${t}</th>
 								<td style=${bs}>${isHorary("Lunes-"+t)}</td>
 								<td style=${bs}>${isHorary("Martes-"+t)}</td>
 								<td style=${bs}>${isHorary("Miércoles-"+t)}</td>

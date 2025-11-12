@@ -2,24 +2,25 @@ const { Sequelize } = require("sequelize")
 const createDatabaseIfNotExists = require("../config/database")
 
 // Importar modelos
-const Usuario = require("./User")
-const Curso = require("./curso")
-const Empresa = require("./empresa")
-const Sena = require("./sena")
-const Ciudad = require("./ciudad")
-const Departamento = require("./departamento")
-const AsignacionCursoInstructor = require("./AsignacionCursoInstructor")
-const InscripcionCurso = require("./InscripcionCurso")
-const Asistencia = require("./Asistencia")
-const Notificacion = require("./Notificacion")
-const Actas = require("./Actas")
-const InvitacionCurso = require("./InvitacionCurso")
-const Criterio = require("./Criterio")
-const CursoTieneCriterio = require("./CursoTieneCriterio")
-const UsuarioTieneCriterios = require("./UsuarioTieneCriterios")
-const createTriggers = require("../utils/databaseTriggers")
-const MaterialDeApoyo = require("./MaterialDeApoyo")
-const CursoTieneMaterialDeApoyo = require("./CursoTieneMaterialDeApoyo")
+const Usuario = require("./User");
+const Curso = require("./curso");
+const Empresa = require("./empresa");
+const Sena = require("./sena");
+const Ciudad = require("./ciudad");
+const Departamento = require("./departamento");
+const AsignacionCursoInstructor = require("./AsignacionCursoInstructor");
+const InscripcionCurso = require("./InscripcionCurso");
+const Asistencia = require("./Asistencia");
+const Notificacion = require("./Notificacion");
+const Actas = require("./Actas");
+const InvitacionCurso = require("./InvitacionCurso");
+const Criterio = require("./Criterio");
+const CursoTieneCriterio = require("./CursoTieneCriterio");
+const UsuarioTieneCriterios = require("./UsuarioTieneCriterios");
+const createTriggers = require("../utils/databaseTriggers");
+const MaterialDeApoyo = require("./MaterialDeApoyo");
+const CursoTieneMaterialDeApoyo = require("./CursoTieneMaterialDeApoyo");
+const Horarios_instructor = require("./Horarios_instructor")
 const UsuarioEdita = require("./UsuarioEdita")
 
 // Leer la URL de conexión (recomendada en producción)
@@ -67,23 +68,24 @@ async function initializeDatabase() {
   }
 
   // Inicializar modelos con instancia de sequelize
-  Usuario.init(sequelize)
-  Curso.init(sequelize)
-  Empresa.init(sequelize)
-  Sena.init(sequelize)
-  Ciudad.init(sequelize)
-  Departamento.init(sequelize)
-  AsignacionCursoInstructor.init(sequelize)
-  InscripcionCurso.init(sequelize)
-  Notificacion.init(sequelize)
-  Actas.init(sequelize)
-  InvitacionCurso.init(sequelize)
-  Criterio.init(sequelize)
-  CursoTieneCriterio.init(sequelize)
-  UsuarioTieneCriterios.init(sequelize)
-  Asistencia.init(sequelize)
-  MaterialDeApoyo.init(sequelize)
-  CursoTieneMaterialDeApoyo.init(sequelize)
+  Usuario.init(sequelize);
+  Curso.init(sequelize);
+  Empresa.init(sequelize);
+  Sena.init(sequelize);
+  Ciudad.init(sequelize);
+  Departamento.init(sequelize);
+  AsignacionCursoInstructor.init(sequelize);
+  InscripcionCurso.init(sequelize);
+  Notificacion.init(sequelize);
+  Actas.init(sequelize);
+  InvitacionCurso.init(sequelize);
+  Criterio.init(sequelize);
+  CursoTieneCriterio.init(sequelize);
+  UsuarioTieneCriterios.init(sequelize);
+  Asistencia.init(sequelize);
+  MaterialDeApoyo.init(sequelize);
+  CursoTieneMaterialDeApoyo.init(sequelize);
+  Horarios_instructor.init(sequelize)
   UsuarioEdita.init(sequelize)
 
   // Asociar modelos
@@ -105,8 +107,9 @@ async function initializeDatabase() {
     Asistencia,
     MaterialDeApoyo,
     CursoTieneMaterialDeApoyo,
+    Horarios_instructor,
     UsuarioEdita
-  }
+  };
 
   Object.values(models).forEach((model) => {
     if (model.associate) model.associate(models)

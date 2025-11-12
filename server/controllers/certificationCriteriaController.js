@@ -162,7 +162,6 @@ const obtenerCriteriosCertificacionCurso = async (req, res) => {
 		}
 
 		const totalAmount = await Criterio.count();
-
 		res.status(200).json({
 			criteria,
 			page,

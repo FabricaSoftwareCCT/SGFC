@@ -4,6 +4,8 @@ import addIMG from "../../../../assets/Icons/addImg.png";
 import axiosInstance from "../../../../config/axiosInstance";
 import { Routes, Route, useNavigate } from "react-router-dom";
 import fotoPerfilDefect from '../../../../assets/Icons/userDefect.png';
+import Swal from 'sweetalert2';
+import 'sweetalert2/themes/bulma.css'
 
 export const CreateInstructor = ({ onClose }) => {
 
@@ -77,7 +79,18 @@ export const CreateInstructor = ({ onClose }) => {
         },
       });
 
-      alert("Instructor creado con éxito");
+      await Swal.fire({
+        icon: 'success',
+        title: '¡Éxito!',
+        text: 'Instructor creado con éxito',
+        confirmButtonColor: '#3085d6',
+        timer: 3000,
+        timerProgressBar: true,
+        theme: "bulma",
+        customClass: {
+          confirmButton: 'centered-swal-button'
+        }
+      });
       console.log(response.data);
 
       document.getElementById("modal-overlayCreateInstructor").style.display = "none";
@@ -87,7 +100,16 @@ export const CreateInstructor = ({ onClose }) => {
       const errorMsg =
         error.response?.data?.message ||
         "Hubo un problema al crear el instructor.";
-      alert(`Error: ${errorMsg}`);
+      await Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: errorMsg,
+        confirmButtonColor: '#3085d6',
+        theme: "bulma",
+        customClass: {
+          confirmButton: 'centered-swal-button'
+        }
+      });
     }
   };
 

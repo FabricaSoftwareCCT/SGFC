@@ -5,6 +5,8 @@ import fotoPerfilDefect from "../../../../assets/Icons/userDefect.png";
 
 import { useState } from "react"
 import axiosInstance from "../../../../config/axiosInstance";
+import Swal from 'sweetalert2'
+import 'sweetalert2/themes/bulma.css'
 
 export const ManageManager = ({ data, isAdmin, onClose, update }) => {
 	const [manager, setManager] = useState(data)
@@ -30,9 +32,24 @@ export const ManageManager = ({ data, isAdmin, onClose, update }) => {
 				estado: manager.estado
 			})
 			if (resp?.status >= 200 && resp?.status < 300) {
-				alert(resp?.data?.message || "Se ha actualizado el manager");
+				Swal.fire({
+					icon: 'success',
+					title: 'Manager actualizado',
+					text: resp?.data?.message || 'Se ha actualizado el manager',
+					theme:"bulma",
+					confirmButtonText: 'Aceptar',
+					confirmButtonColor: '#00843d'
+				});
 			} else {
-				alert("No se pudo actualizar el manager.");
+				Swal.fire({
+				icon: 'error',
+				title: 'Error',
+				text: 'No se pudo actualizar el manager',
+				confirmButtonText: 'Aceptar',
+				confirmButtonColor: '#d33',
+				theme:"bulma",
+     				customClass: { confirmButton: 'centered-swal-button' }
+				});
 				return;
 			}
 
@@ -48,7 +65,15 @@ export const ManageManager = ({ data, isAdmin, onClose, update }) => {
 			update()
 		} catch (error) {
 			console.log(error)
-			alert("Ocurrió un error al actualizar el manager")
+			Swal.fire({
+				icon: 'error',
+				title: 'Error',
+				text: 'Ocurrió un error al actualizar el manager',
+				confirmButtonText: 'Aceptar',
+				confirmButtonColor: '#d33',
+				theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+			});
 		}
 	}
 
@@ -167,9 +192,10 @@ export const ManageManager = ({ data, isAdmin, onClose, update }) => {
 					<p>
 						<strong>Estado:</strong>
 						{isEditing ?
-							<div className="status-buttons">
+							<div id="valor1" className="status-buttons">
 								{["Activo", "Inactivo"].map((estado) => (
 									<button
+										id={estado}
 										key={estado}
 										type="button"
 										className={`status ${manager.estado === estado.toLowerCase() ? "active" : ""}`}

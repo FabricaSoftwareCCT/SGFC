@@ -111,7 +111,7 @@ const rejectCourseRequest = async (req, res) => {
 		const { accountType, id } = req.user
 		const { justification } = req.body
 
-		if (!accountType || accountType !== "Administrador") {
+		if (!accountType || accountType !== "Administrador" || accountType !== "Gestor" ) {
 			return res.status(403).json({ message: 'No tienes permisos para realizar esta acción' })
 		}
 
@@ -184,7 +184,7 @@ const acceptCourseRequest = async (req, res) => {
 		const notifId = req.params.id
 		const { accountType, id } = req.user
 
-		if (!accountType || accountType !== "Administrador") {
+		if (!accountType || accountType !== "Administrador" || accountType !== "Gestor" ) {
 			return res.status(403).json({ message: 'No tienes permisos para realizar esta acción' })
 		}
 

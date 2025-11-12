@@ -5,6 +5,8 @@ import { es } from 'date-fns/locale';
 import { Modal_General } from '../../../UI/Modal_General/Modal_General';
 import { useNavigate } from 'react-router-dom';
 import './AttendanceManagement.css';
+import Swal from 'sweetalert2';
+import 'sweetalert2/themes/bulma.css';
 
 export const AttendanceManagement = ({ open, onClose, courseId, selectedDate }) => {
     const navigate = useNavigate();
@@ -25,6 +27,24 @@ export const AttendanceManagement = ({ open, onClose, courseId, selectedDate }) 
     const [selectedAttendance, setSelectedAttendance] = useState('');
     const [showApprenticeDetails, setShowApprenticeDetails] = useState(false);
     const [selectedApprentice, setSelectedApprentice] = useState(null);
+
+    const swalConfig = {
+        theme: 'bulma',
+        customClass: {
+            actions: 'swal2-center-actions',
+            confirmButton: 'swal2-confirm-bulma'
+        },
+        buttonsStyling: false,
+        confirmButtonText: 'Aceptar',
+        showClass: {
+            popup: 'swal2-noanimation',
+            backdrop: 'swal2-noanimation'
+        },
+        hideClass: {
+            popup: '',
+            backdrop: ''
+        }
+    };
 
     useEffect(() => {
         if (open) {
@@ -208,10 +228,23 @@ export const AttendanceManagement = ({ open, onClose, courseId, selectedDate }) 
             setCurrentParticipantIndex(0);
             setSelectedOption(null);
             setShowOptions(true);
-            alert('Asistencias registradas exitosamente');
+
+            await Swal.fire({
+                ...swalConfig,
+                icon: 'success',
+                title: 'Asistencias registradas',
+                text: 'Asistencias registradas exitosamente'
+            });
+
         } catch (error) {
             console.error('Error al guardar asistencias:', error);
             setError('Error al guardar las asistencias');
+                        await Swal.fire({
+                ...swalConfig,
+                icon: 'error',
+                title: 'Error',
+                text: 'Error al guardar las asistencias'
+            });
         } finally {
             setLoading(false);
         }
@@ -310,9 +343,24 @@ export const AttendanceManagement = ({ open, onClose, courseId, selectedDate }) 
             
             // Actualizar los registros de asistencia
             await fetchAttendanceRecords();
+
+            await Swal.fire({
+                ...swalConfig,
+                icon: 'success',
+                title: 'Asistencia actualizada',
+                text: `Asistencia cambiada a ${newStatus}`
+            });
+
         } catch (error) {
             console.error('Error al actualizar asistencia:', error);
             setError('Error al actualizar la asistencia');
+
+                        await Swal.fire({
+                ...swalConfig,
+                icon: 'error',
+                title: 'Error',
+                text: 'Error al actualizar la asistencia'
+            });
         }
     };
 

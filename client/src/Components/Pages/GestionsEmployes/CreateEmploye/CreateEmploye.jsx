@@ -5,7 +5,8 @@ import axiosInstance from '../../../../config/axiosInstance';
 import fotoPerfilDefect from '../../../../assets/Icons/userDefect.png';
 import { useModal } from '../../../../Context/ModalContext';
 import buttonEdit from '../../../../assets/Icons/buttonEdit.png';
-
+import Swal from 'sweetalert2';
+import 'sweetalert2/themes/bulma.css'
 
 export const CreateEmploye = () => {
   const fileInputRef = useRef(null);
@@ -33,25 +34,41 @@ export const CreateEmploye = () => {
 
   // Obtener información del usuario y empresas
   useEffect(() => {
-    const userSession = JSON.parse(localStorage.getItem("userSession") || sessionStorage.getItem("userSession") || '{}');
-    const accountType = userSession.accountType;
-    const isAdminLike = accountType === 'Administrador' || accountType === 'Gestor';
-    setIsAdmin(isAdminLike);
+  const userSession = JSON.parse(localStorage.getItem("userSession") || sessionStorage.getItem("userSession") || '{}');
+  const accountType = userSession.accountType;
+  const adminStatus = accountType === 'Administrador' || accountType === 'Gestor';
+  setIsAdmin(adminStatus);
 
-    if (isAdminLike) {
-      fetchEmpresas();
-    }
-  }, []);
+  if (adminStatus) {
+    fetchEmpresas();
+  }
+}, []);
 
-  // Obtener empresas para administradores
-  const fetchEmpresas = async () => {
-    try {
-      const response = await axiosInstance.get('/api/users/admin/empresas');
-      setEmpresas(response.data.empresas || []);
-    } catch (error) {
-      console.error("Error al obtener las empresas:", error);
-    }
-  };
+const [loadingEmpresas, setLoadingEmpresas] = useState(false);
+
+const fetchEmpresas = async () => {
+  try {
+    setLoadingEmpresas(true);
+    const response = await axiosInstance.get('/api/users/admin/empresas');
+    console.log('Respuesta de empresas:', response.data);
+    
+    const empresasData = response.data.empresas || response.data.data || response.data || [];
+    setEmpresas(Array.isArray(empresasData) ? empresasData : []);
+  } catch (error) {
+    console.error("Error al obtener las empresas:", error);
+          Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'No se pudieron cargar las empresas',
+        confirmButtonColor: '#3085d6',
+                      theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+      });
+    setEmpresas([]);
+  } finally {
+    setLoadingEmpresas(false);
+  }
+};
 
   // Validaciones
   const validateForm = () => {
@@ -110,8 +127,10 @@ export const CreateEmploye = () => {
   };
 
   // Manejar cambios en los campos del formulario
+  // Manejar cambios en los campos del formulario
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+    console.log(`Campo cambiado: ${name} = ${value}`); // ← Para debug
     setFormData({ ...formData, [name]: value });
     
     // Limpiar error del campo cuando el usuario empiece a escribir
@@ -178,7 +197,14 @@ export const CreateEmploye = () => {
       // Obtener información de la sesión
       let userSessionString = localStorage.getItem("userSession") || sessionStorage.getItem("userSession");
       if (!userSessionString) {
-        alert("No se encontró la sesión de usuario.");
+        Swal.fire({
+          icon: 'error',
+          title: 'Error de sesión',
+          text: 'No se encontró la sesión de usuario.',
+          confirmButtonColor: '#3085d6',
+                        theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+        });
         return;
       }
       const userSession = JSON.parse(userSessionString);
@@ -189,7 +215,14 @@ export const CreateEmploye = () => {
       if (accountType === 'Administrador' || accountType === 'Gestor') {
         // Para administradores: usar la nueva ruta con empresa seleccionada
         if (!formData.empresaId) {
-          alert("Por favor selecciona una empresa.");
+            Swal.fire({
+            icon: 'warning',
+            title: 'Empresa requerida',
+            text: 'Por favor selecciona una empresa.',
+            confirmButtonColor: '#3085d6',
+                          theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+          });
           return;
         }
         data.append('empresaId', formData.empresaId);
@@ -203,7 +236,14 @@ export const CreateEmploye = () => {
         // Para gestores: usar la ruta original
       const empresaId = userSession.empresa_ID;
       if (!empresaId) {
-        alert("No se encontró el ID de la empresa en la sesión.");
+          Swal.fire({
+          icon: 'error',
+          title: 'Error de empresa',
+          text: 'No se encontró el ID de la empresa en la sesión.',
+          confirmButtonColor: '#3085d6',
+                        theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+        });
         return;
       }
 
@@ -215,7 +255,16 @@ export const CreateEmploye = () => {
       }
 
       const empleadoId = response.data.empleado?.ID || response.data.id;
-      alert('Empleado creado con éxito ');
+      await Swal.fire({
+        icon: 'success',
+        title: '¡Éxito!',
+        text: 'Empleado creado con éxito',
+        confirmButtonColor: '#3085d6',
+        timer: 3000,
+        timerProgressBar: true,
+                      theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+      });
 
       // Si se subió un PDF, hacer OCR
       if (documentoPDF && empleadoId) {
@@ -229,10 +278,27 @@ export const CreateEmploye = () => {
             },
           });
           console.log('OCR resultado:', ocrResponse.data);
-          alert(`Tipo de documento: ${ocrResponse.data.tipoDetectado}\nNúmero: ${ocrResponse.data.documento}`);
+          await Swal.fire({
+            icon: 'info',
+            title: 'Documento procesado',
+            html: `
+              <p><strong>Tipo de documento:</strong> ${ocrResponse.data.tipoDetectado}</p>
+              <p><strong>Número:</strong> ${ocrResponse.data.documento}</p>
+            `,
+            confirmButtonColor: '#3085d6',
+                          theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+          });
         } catch (ocrError) {
           console.error("Error al procesar documento:", ocrError);
-          alert("Empleado creado, pero hubo un problema al procesar el documento PDF.");
+          await Swal.fire({
+            icon: 'warning',
+            title: 'Procesamiento de documento',
+            text: 'Empleado creado, pero hubo un problema al procesar el documento PDF.',
+            confirmButtonColor: '#3085d6',
+                          theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+          });
         }
       }
 
@@ -242,7 +308,14 @@ export const CreateEmploye = () => {
     } catch (error) {
       console.error('Error al crear el Empleado:', error);
       const errorMsg = error.response?.data?.message || 'Hubo un problema al crear el Empleado.';
-      alert(`Error: ${errorMsg}`);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: errorMsg,
+        confirmButtonColor: '#3085d6',
+                      theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+      });
     }
   };
 
@@ -336,25 +409,36 @@ export const CreateEmploye = () => {
           </label>
           
           {isAdmin && (
-            <label>
-              Empresa
-              <select
-                name="empresaId"
-                value={formData.empresaId}
-                onChange={handleInputChange}
-                required
-                className={`empresa-select ${errors.empresaId ? 'error' : ''}`}
-              >
-                <option value="">Selecciona una empresa</option>
-                {empresas.map((empresa) => (
-                  <option key={empresa.ID} value={empresa.ID}>
-                    {empresa.nombre_empresa} - {empresa.NIT}
-                  </option>
-                ))}
-              </select>
-              {errors.empresaId && <span className="error-message">{errors.empresaId}</span>}
-          </label>
-          )}
+  <label>
+    Empresa
+    {loadingEmpresas ? (
+      <select disabled>
+        <option>Cargando empresas...</option>
+      </select>
+    ) : (
+      <select
+        name="empresaId"
+        value={formData.empresaId}
+        onChange={handleInputChange}
+        required
+        className={`empresa-select ${errors.empresaId ? 'error' : ''}`}
+      >
+        <option value="">Selecciona una empresa</option>
+        {empresas.map((empresa) => (
+          <option key={empresa.ID || empresa.id} value={empresa.ID || empresa.id}>
+            {empresa.nombre_empresa || empresa.nombre || empresa.razon_social} - {empresa.NIT || empresa.nit}
+          </option>
+        ))}
+      </select>
+    )}
+    {errors.empresaId && <span className="error-message">{errors.empresaId}</span>}
+    
+    {/* Debug info */}
+    <small style={{color: '#666', fontSize: '12px', display: 'block', marginTop: '5px'}}>
+      {empresas.length} empresas cargadas | Seleccionada: {formData.empresaId || 'Ninguna'}
+    </small>
+  </label>
+)}
         </div>
 
         <div className="modal-right">

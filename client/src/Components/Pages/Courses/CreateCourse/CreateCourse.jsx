@@ -170,7 +170,7 @@ export const CreateCourse = () => {
 		}
 
 		// Validar longitud mínima de la descripción
-		if (descripcion.length < 300) {
+		if (descripcion.length < 100) {
 			Swal.fire({
 				icon: 'warning',
 				title: 'Descripción muy corta',

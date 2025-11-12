@@ -61,6 +61,10 @@ class Curso extends Model {
 					type: DataTypes.TEXT, // Guarda el array como JSON.stringify([...])
 					allowNull: true,
 				},
+				temario: {
+					type: DataTypes.TEXT('long'),
+					allowNull: true,
+				},
 				lugar_formacion: {
 					type: DataTypes.STRING(45),
 					allowNull: true,

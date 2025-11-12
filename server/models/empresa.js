@@ -27,7 +27,7 @@ class Empresa extends Model {
           allowNull: true,
         },
         estado: {
-          type: DataTypes.ENUM('activo', 'inactivo'),
+          type: DataTypes.ENUM('activo', 'inactivo','suspendido'),
           defaultValue: 'inactivo',
         },
         email_empresa: {

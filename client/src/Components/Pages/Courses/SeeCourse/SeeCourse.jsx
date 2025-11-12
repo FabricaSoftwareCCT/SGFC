@@ -49,7 +49,7 @@ export const SeeCourse = () => {
 				}
 			}
 		} catch (error) {
-			console.error("Error al obtener el curso:", error);
+			console.error("Error al obtener el curso:qq", error);
 		}
 	};
 

@@ -10,7 +10,7 @@ export const validateEmail = (email) => {
 
 export const validarFecha = (fecha) => {
     console.log(fecha);
-    if(!fecha) return "No se ingrsaron la fechas"
+    if (!fecha) return "Debes ingresar la fecha.";
 
     const regex = /^\d{4}-\d{2}-\d{2}$/;
     if (!regex.test(fecha)) {
@@ -63,14 +63,21 @@ export function validateNIT(nit) {
 }
 
 export const createMensajeError = async (errores) => {
-    const mensaje = Object.entries(errores)
-        .filter(([_, value]) => value !== "") // Filtrar solo los que tienen error
-        .map(([_, value]) => value) // Usar solo el valor del mensaje
-        .join("\n");
+    const mensajesUnicos = [
+        ...new Set(
+            Object.entries(errores)
+                .map(([, value]) => (value || "").trim())
+                .filter((value) => value.length > 0)
+        ),
+    ];
 
-    if (mensaje === "") return null;
-    
-    return `No se logro guardar.\nLos siguientes campos son obligatorios y no pueden estar vacíos: \n${mensaje}. \nIntente nuevamente.`;
-    };
+    if (mensajesUnicos.length === 0) {
+        return null;
+    }
+
+    const cuerpo = mensajesUnicos.map((mensaje) => `- ${mensaje}`).join("\n");
+
+    return `No se logró guardar.\nCorrige los siguientes campos obligatorios:\n${cuerpo}\nIntenta nuevamente.`;
+};
 
     

@@ -402,7 +402,7 @@ export const ManageCompany = ({ empresa, onClose }) => {
             <strong>Estado:</strong>{" "}
             {isEditing ? (
               <div className="status-buttons">
-                {["Activo", "Inactivo"].map((estado) => (
+                {["Activo", "Inactivo", "suspendido"].map((estado) => (
                   <button
                     key={estado}
                     type="button"

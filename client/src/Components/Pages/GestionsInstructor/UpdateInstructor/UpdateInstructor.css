@@ -1,335 +1,415 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+.modal-overlay-improved {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 20px;
 }
 
-#modal-overlayUpdateInstructor {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.579);
-    display: none;
-    justify-content: center;
-    align-items: center;
-    transform: translate(-50%, -50%);
-    z-index: 1000;
-    padding: 20px;
+.modal-body-improved {
+  width: 90%;
+  max-width: 900px;
+  max-height: 90vh;
+  background: linear-gradient(135deg, rgba(30, 30, 30, 0.95) 0%, rgba(20, 20, 20, 0.98) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(20px);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
-/* --- Contenedor modal --- */
-.modal-bodyUpdateInstructor {
-    width: 740px;
-    min-height: 480px;
-    background: linear-gradient(145deg, #0e0d0d, #141414);
-    display: flex;
-    justify-content: space-between;
-    align-items: stretch;
-    border-radius: 18px;
-    overflow: hidden;
-    position: relative;
-    padding: 24px;
-    box-shadow: 
-        0 10px 25px rgba(0, 0, 0, 0.7),
-        0 0 25px rgba(0, 132, 61, 0.15);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+.modal-header-improved {
+  background: linear-gradient(135deg, rgba(0, 132, 61, 0.15) 0%, rgba(0, 200, 83, 0.1) 100%);
+  border-bottom: 1px solid rgba(0, 200, 83, 0.2);
+  padding: 1.5rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-/* Efectos "circle glow" internos */
-.modal-bodyUpdateInstructor::before,
-.modal-bodyUpdateInstructor::after {
-    content: "";
-    position: absolute;
-    width: 300px;
-    height: 300px;
-    border-radius: 50%;
-    filter: blur(160px);
-    z-index: 0;
-    pointer-events: none; /* Evita bloquear clics dentro del modal */
-}
-
-.modal-bodyUpdateInstructor::before {
-    top: -80px;
-    left: -80px;
-    background: rgba(0, 132, 61, 0.25);
-}
-
-.modal-bodyUpdateInstructor::after {
-    bottom: -80px;
-    right: -80px;
-    background: rgba(0, 214, 108, 0.15);
-}
-
-/* Columna izquierda */
-.modal-left-update {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 18px;
-    padding-right: 20px;
-    border-right: 1px solid rgba(255,255,255,0.1);
-    position: relative;
-    z-index: 1;
-}
-
-.modal-left-update > p {
-    font-size: 15px;
-    line-height: 1.4;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    color: #f0f0f0;
-}
-
-.modal-left-update > p > strong {
-    color: #00843d;
-    min-width: 160px;
-}
-
-.valor-campo {
-    margin-left: 8px;
-    font-weight: 400;
-    color: #e0e0e0;
-}
-
-/* Inputs */
-.input_updateData {
-    flex: 1;
-    padding: 8px 10px;
-    border-radius: 8px;
-    border: 1px solid rgba(255,255,255,0.15);
-    background-color: #2a2a2a;
-    color: #fff;
-    font-size: 14px;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
-}
-
-.input_updateData option{
-    color: #0e0d0d;
-    background-color: #e0e0e0;
-}
-
-.input_updateData:focus {
-    outline: none;
-    border-color: #00843d;
-    box-shadow: 0 0 6px rgba(0,132,61,0.4);
-}
-
-/* Columna derecha */
-.modal-right {
-    flex: 0.6;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 20px;
-    padding-left: 20px;
-    position: relative;
-    z-index: 1;
-}
-
-/* Imagen de perfil */
-.upload-area-update {
-    width: 220px;
-    height: 260px;
-    border: 2px dashed rgba(255,255,255,0.2);
-    border-radius: 15px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    cursor: pointer;
-    transition: border-color 0.3s ease, background 0.3s ease;
-    overflow: hidden;
-    position: relative;
-    background-color: rgba(255,255,255,0.03);
-}
-
-.upload-area-update:hover {
-    border-color: #00843d;
-    background: rgba(0,132,61,0.05);
-}
-
-.preview-image-update {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 12px;
-}
-
-/* Botón principal */
-.edit-button-updateInstructor {
-    width: 180px;
-    height: 44px;
-    background-color: #00843d;
-    border: none;
-    border-radius: 12px;
-    color: white;
-    font-weight: bold;
-    font-size: 0.95rem;
-    cursor: pointer;
-    transition: transform 0.2s ease, background 0.3s ease, box-shadow 0.3s ease;
-    z-index: 1;
-}
-
-.edit-button-updateInstructor:hover {
-    background-color: #006b32;
-    transform: translateY(-2px);
-    box-shadow: 0 0 12px rgba(0, 132, 61, 0.5);
-}
-
-/* Botones de estado */
-.status-buttons {
-    display: flex;
-    gap: 10px;
-}
-
-.status {
-    padding: 6px 14px;
-    border-radius: 12px;
-    background-color: rgba(255,255,255,0.1);
-    color: white;
-    font-size: 14px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.status:hover {
-    background-color: rgba(255,255,255,0.2);
-}
-
-.status.active {
-    background-color: #00843d;
-    font-weight: bold;
-}
-
-/* Cursos asignados */
-.cursosAsignados {
-    font-size: 15px;
-    color: #ddd;
-}
-
-/* Volver */
-.container_return_UpdateInstructor {
-    width: 142px;
-    height: 142px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    position: absolute;
-    top: -21px;
-    right: 0px;
-    z-index: 1000;
-}
-
-.container_return_UpdateInstructor > h5 {
-    width: auto;
-  height: auto;
-  position: relative;
-  top: 27%;
-  font-size: 18px;
-  font-weight: 400;
+.modal-header-improved h2 {
   color: #fff;
-  left: 4%;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.close-modal-btn-improved {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  color: #fff;
+  padding: 0.7rem 1.2rem;
   cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  backdrop-filter: blur(10px);
 }
 
-.container_return_UpdateInstructor > h5:hover {
-    color: #00843d;
+.close-modal-btn-improved:hover {
+  background: rgba(0, 200, 83, 0.2);
+  border-color: #00c853;
+  transform: translateY(-1px);
 }
 
-/* Read only */
-.read-only {
-    border: none !important;
-    font-size: 1.1rem;
-    background-color: transparent;
-    color: #333;
-    pointer-events: none;
+.modal-content-improved {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 0;
+  flex: 1;
+  overflow: hidden;
 }
 
-.read-only-border {
-    border: none !important;
-    cursor: default;
+.modal-left-improved {
+  padding: 2rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
 }
 
-.lista-cursos-asignados {
-    margin-top: 8px;
-    list-style: none;
-    padding-left: 0;
-    display: flex;
+.modal-right-improved {
+  background: rgba(255, 255, 255, 0.03);
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.form-section-improved h3,
+.courses-section-improved h3 {
+  color: #fff;
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 1.2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.form-grid-improved {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.2rem;
+}
+
+.form-field-improved {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-field-improved label {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.input-improved {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 0.8rem 1rem;
+  color: #fff;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.input-improved:focus {
+  outline: none;
+  border-color: #00c853;
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 0 2px rgba(0, 200, 83, 0.2);
+}
+
+.field-value {
+  color: #fff;
+  font-size: 0.9rem;
+  padding: 0.8rem 1rem;
+  font-weight: 500;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  backdrop-filter: blur(10px);
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  transition: all 0.3s ease;
+}
+
+/* Efecto sutil en hover para campos de solo lectura */
+.form-field-improved:hover .field-value {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+/* Sección de cursos - MEJORADA */
+.courses-section-improved {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
+  padding: 1.5rem;
+  backdrop-filter: blur(10px);
+  display: flex;
+  flex-direction: column;
+  min-height: 300px; /* Altura mínima para consistencia */
+}
+
+.no-courses-improved {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.9rem;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem; /* Espacio antes del botón */
+}
+
+/* Contenedor del botón gestionar cursos - NUEVO */
+.manage-courses-container {
+  margin-top: auto; /* Empuja el botón hacia abajo */
+  padding-top: 1.5rem; /* Separación adicional */
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.manage-courses-btn-improved {
+  width: 100%;
+  background: rgba(0, 200, 83, 0.1);
+  border: 1px solid rgba(0, 200, 83, 0.3);
+  border-radius: 12px;
+  color: #00c853;
+  padding: 0.9rem 1.2rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.manage-courses-btn-improved:hover {
+  background: rgba(0, 200, 83, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 200, 83, 0.2);
+}
+
+/* Área de imagen - MEJORADA */
+.image-upload-area {
+  width: 200px;
+  height: 240px;
+  border: 2px dashed rgba(255, 255, 255, 0.2);
+  border-radius: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  overflow: hidden;
+  position: relative;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+/* Cuando NO está en modo edición - MEJORADO */
+.image-upload-area.read-only {
+  cursor: default;
+  border-style: solid;
+  border-color: rgba(255, 255, 255, 0.1);
+  border-width: 2px;
+}
+
+.image-upload-area.read-only:hover {
+  border-color: rgba(255, 255, 255, 0.1); /* Mantiene el mismo color */
+  background: rgba(255, 255, 255, 0.03); /* Mantiene el mismo fondo */
+}
+
+/* Imagen de perfil - MEJORADA */
+.profile-image-improved {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 13px;
+}
+
+/* Información de imagen cuando no está editando - NUEVO */
+.image-info-improved {
+  text-align: center;
+  margin-top: 1rem;
+  padding: 0.8rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.image-info-improved p {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.8rem;
+  margin: 0;
+  line-height: 1.3;
+}
+
+/* Overlay de carga de imagen - MEJORADO */
+.upload-overlay-improved {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #00c853;
+  font-weight: 600;
+  font-size: 0.9rem;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  border-radius: 13px;
+}
+
+.image-upload-area:not(.read-only):hover .upload-overlay-improved {
+  opacity: 1;
+}
+
+/* Placeholder de imagen - MEJORADO */
+.image-placeholder-improved {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.9rem;
+  padding: 1rem;
+}
+
+/* Lista de cursos - MEJORADA */
+.courses-list-improved {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  margin-bottom: 1.5rem;
+  max-height: 200px;
+  overflow-y: auto;
+  flex: 1; /* Ocupa el espacio disponible */
+}
+
+/* Botón principal - MEJORADO */
+.submit-btn-improved {
+  width: 100%;
+  background: #00c853;
+  border: none;
+  border-radius: 12px;
+  color: #000;
+  font-weight: 700;
+  padding: 1rem 1.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+  margin-top: auto;
+}
+
+.submit-btn-improved:hover {
+  background: #00e676;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 200, 83, 0.3);
+}
+
+
+/* Scrollbar personalizado */
+.courses-list-improved::-webkit-scrollbar {
+  width: 6px;
+}
+
+.courses-list-improved::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 3px;
+}
+
+.courses-list-improved::-webkit-scrollbar-thumb {
+  background: rgba(0, 200, 83, 0.3);
+  border-radius: 3px;
+}
+
+.courses-list-improved::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 200, 83, 0.5);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .modal-content-improved {
+    grid-template-columns: 1fr;
+  }
+  
+  .modal-right-improved {
+    border-left: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 1.5rem;
+  }
+  
+  .form-grid-improved {
+    grid-template-columns: 1fr;
+  }
+  
+  .modal-header-improved {
+    padding: 1.2rem;
+  }
+  
+  .modal-left-improved {
+    padding: 1.5rem;
+  }
+  
+  .image-upload-area {
+    width: 180px;
+    height: 220px;
+  }
+  
+  .courses-section-improved {
+    min-height: 250px;
+  }
+}
+
+@media (max-width: 480px) {
+  .modal-body-improved {
+    width: 95%;
+    max-height: 95vh;
+  }
+  
+  .modal-header-improved h2 {
+    font-size: 1.3rem;
+  }
+  
+  .close-modal-btn-improved span {
+    display: none;
+  }
+  
+  .courses-header-improved {
     flex-direction: column;
-    gap: 8px;
-    /* Mostrar máximo 3 items visibles; resto via scroll */
-    max-height: 126px;               /* 3 * 36px item + 2 * 8px gap = 124px aprox */
-    overflow-y: auto;                 /* Scroll si hay muchos cursos */
-    min-width: 0;  
-    width: 100%                   /* Permite que los hijos calculen ellipsis */
-}
-
-.curso-item {
-    display: block;
-    width: 100%;
-    min-width: 0;                     /* Permite que se reduzca con ellipsis */
-}
-
-.curso-link {
-    display: block;
-    width: 100%;
-    max-width: 100%;
-    box-sizing: border-box;
-    min-width: 0;
-    text-align: left;
-    color: #e4f7ee;
-    background: rgba(0, 132, 61, 0.14);
-    border: 1px solid rgba(0, 132, 61, 0.35);
-    border-radius: 10px;
-    padding: 10px 12px;
-    cursor: pointer;
-    transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    font-size: 14px;
-    line-height: 1.2;
-    min-height: 36px;                 /* Evita pastillas muy pequeñas */
-}
-
-.curso-link:hover {
-    background: rgba(0, 132, 61, 0.22);
-    border-color: rgba(0, 132, 61, 0.55);
-    box-shadow: 0 0 0 2px rgba(0, 177, 90, 0.18) inset;
-}
-
-.curso-link:focus {
-    outline: none;
-    box-shadow: 0 0 0 2px rgba(0, 177, 90, 0.28) inset;
-}
-
-/* Scrollbar sutil en listas */
-.lista-cursos-asignados::-webkit-scrollbar {
-    height: 6px;
-    width: 6px;
-}
-
-.lista-cursos-asignados::-webkit-scrollbar-thumb {
-    background: rgba(0, 132, 61, 0.35);
-    border-radius: 6px;
-}
-
-.lista-cursos-asignados {
-    scrollbar-width: thin;
-    scrollbar-color: rgba(0,132,61,0.35) transparent;
-}
-
-@media (min-width: 520px) {
-    .lista-cursos-asignados {
-        grid-template-columns: 1fr 1fr;
-    }
-}
-
-@media (min-width: 820px) {
-    .lista-cursos-asignados {
-        grid-template-columns: 1fr 1fr 1fr;
-    }
+    gap: 0.5rem;
+    text-align: center;
+  }
+  
+  .image-upload-area {
+    width: 160px;
+    height: 200px;
+  }
+  
+  .field-value {
+    padding: 0.7rem 0.9rem;
+    font-size: 0.85rem;
+  }
 }

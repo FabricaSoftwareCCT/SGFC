@@ -3,6 +3,11 @@ const path = require("path");
 
 const storage = multer.memoryStorage(); // Guarda como buffer
 
+const registerValidationError = (req, cb, message) => {
+	req.fileValidationError = message;
+	cb(null, false);
+};
+
 const fileFilter = (req, file, cb) => {
 	console.log("Tipo MIME recibido:", file.mimetype); // 🔍
 
@@ -17,7 +22,7 @@ const fileFilter = (req, file, cb) => {
 		if (file.mimetype === 'application/pdf') {
 			cb(null, true);
 		} else {
-			cb(new Error('Solo se acepta PDF para document_pdf o pdf.'));
+			registerValidationError(req, cb, "El archivo seleccionado debe ser un PDF válido.");
 		}
 	} else if (file.fieldname === 'archivo_xlsx') {
 		const validMimetype = [
@@ -27,7 +32,11 @@ const fileFilter = (req, file, cb) => {
 		if (validMimetype.includes(file.mimetype)) {
 			cb(null, true);
 		} else {
-			cb(new Error('Solo se permiten archivos .xlsx'), false);
+			registerValidationError(
+				req,
+				cb,
+				"El archivo debe ser un Excel (.xlsx). Verifica el formato e inténtalo de nuevo."
+			);
 		}
 	} else if (file.fieldname === "video") {
 		const validMimetype = [
@@ -36,10 +45,44 @@ const fileFilter = (req, file, cb) => {
 		if (validMimetype.includes(file.mimetype)) {
 			cb(null, true);
 		} else {
-			cb(new Error('Solo se permiten archivos .mp4'), false);
+			registerValidationError(
+				req,
+				cb,
+				"El video debe estar en formato MP4."
+			);
+		}
+	} else if (file.fieldname === "archivo_entrega" || file.fieldname === "archivo_retroalimentacion") {
+		const allowedTypes = [
+			'application/pdf',
+			'application/msword',
+			'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+			'application/vnd.ms-excel',
+			'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+			'application/zip',
+			'application/x-zip-compressed',
+			'application/x-7z-compressed',
+			'application/x-rar-compressed',
+			'application/x-tar',
+			'application/octet-stream',
+			'text/plain',
+			'image/jpeg',
+			'image/png'
+		];
+		if (allowedTypes.includes(file.mimetype)) {
+			cb(null, true);
+		} else {
+			registerValidationError(
+				req,
+				cb,
+				"El archivo no es compatible. Usa PDF, Word, Excel, ZIP/RAR/7Z, imágenes JPG/PNG o archivos de texto."
+			);
 		}
 	} else {
-		cb(new Error('Campo de archivo no permitido.'));
+		registerValidationError(
+			req,
+			cb,
+			"El campo de archivo proporcionado no está permitido."
+		);
 	}
 };
 

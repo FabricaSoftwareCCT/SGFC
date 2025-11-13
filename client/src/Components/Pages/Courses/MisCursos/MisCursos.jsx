@@ -47,6 +47,17 @@ export const MisCursos = () => {
             setFilteredCursos(cursosAsignados);
             break;
 
+          case 'Aprendiz':
+            const aprendizId = userSession.ID || userSession.id;
+            response = await axiosInstance.get(`/api/courses/cursos-aprendiz/${aprendizId}`);
+            const cursosAprendiz = response.data.map(curso => ({
+              ...curso,
+              ID: curso.ID || curso.id,
+            }));
+            setCursos(cursosAprendiz);
+            setFilteredCursos(cursosAprendiz);
+            break;
+
           case 'Administrador':
           case 'Gestor':
             response = await axiosInstance.get("/api/courses/cursos");
@@ -143,7 +154,10 @@ export const MisCursos = () => {
       <Main>
         <div className="container_misCursos">
           <h2>
-            Cursos <span className="complementary">Asignados</span>
+            {userSession?.accountType === 'Aprendiz' 
+              ? <>Mis <span className="complementary">Cursos</span></>
+              : <>Cursos <span className="complementary">Asignados</span></>
+            }
           </h2>
           <p>Busca un curso por su ficha o nombre.</p>
 

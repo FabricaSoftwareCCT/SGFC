@@ -3,6 +3,8 @@ const CursoTieneMaterialDeApoyo = require("../models/CursoTieneMaterialDeApoyo")
 const MaterialDeApoyo = require("../models/MaterialDeApoyo");
 const { mkdirSync, writeFileAsync, writeFileSync } = require("fs");
 const Curso = require("../models/curso");
+const ActividadCurso = require("../models/ActividadCurso");
+const ActividadTieneMaterial = require("../models/ActividadTieneMaterial");
 
 
 let dbInstance;
@@ -44,7 +46,8 @@ const crearMaterial = async (req, res) => {
 	const { id } = req.params
 	const { tipo } = req.body
 	const { accountType } = req.user;
-	const userId = req.user.id;
+	const userId = Number(req.user?.id ?? req.user?.ID);
+	const actividadId = req.body.actividadId || req.body.actividad_ID || null;
 
 	try {
 		if (
@@ -77,7 +80,30 @@ const crearMaterial = async (req, res) => {
 			})
 		}
 
+	if (!userId) {
+		return res.status(401).json({
+			message: "Usuario no autenticado.",
+		});
+	}
+
 		let material
+		let actividad = null;
+
+		if (actividadId) {
+			actividad = await ActividadCurso.findByPk(actividadId);
+
+			if (!actividad) {
+				return res.status(404).json({
+					message: "No se encontró la actividad indicada."
+				});
+			}
+
+			if (Number(actividad.curso_ID) !== Number(id)) {
+				return res.status(400).json({
+					message: "La actividad no pertenece al curso proporcionado."
+				});
+			}
+		}
 
 		switch (tipo) {
 			case "pdf":
@@ -126,10 +152,23 @@ const crearMaterial = async (req, res) => {
 				material_apoyo_ID: material.ID,
 				curso_ID: id
 			})
+
+			if (actividadId) {
+				await ActividadTieneMaterial.findOrCreate({
+					where: {
+						actividad_ID: actividadId,
+						material_apoyo_ID: material.ID
+					},
+					defaults: {
+						actividad_ID: actividadId,
+						material_apoyo_ID: material.ID
+					}
+				});
+			}
 		}
 
 		return res.status(200).send({
-			message: "Se ha creado el criterio"
+			message: "Se ha creado el material de apoyo"
 		})
 	} catch (error) {
 		console.error(`Error al crear el material ${error}`)

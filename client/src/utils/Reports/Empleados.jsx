@@ -14,8 +14,9 @@ export const generarExcelEmpleado = async (empleado, done) => {
 
 		for (let i in cursos) {
 			const curso = cursos[i]
-			const criterios = (await axiosInstance.get(`/api/certification/course/${curso.ID}/aprendiz/${empleado.ID}`))?.data.criteria
-			let cursoDatos = {
+			const asistencias = (await axiosInstance.get(`/api/attendance/courses/${curso.ID}/get?limit=999999999`))?.data.records
+			console.log(asistencias)
+			datosCursos.push({
 				"Curso": curso.nombre_curso,
 				"Ficha": curso.ficha,
 				"Modalidad": curso.modalidad,
@@ -23,14 +24,7 @@ export const generarExcelEmpleado = async (empleado, done) => {
 				"Estado": curso.estado,
 				"Inicio": (new Date(curso.fecha_inicio)).toLocaleDateString("es-CO"),
 				"Fin": (new Date(curso.fecha_fin)).toLocaleDateString("es-CO"),
-			}
-			for (let criterio of criterios) {
-				cursoDatos = {
-					...cursoDatos,
-					[`Criterio ${criterio.title}`]: `${criterio.value}/${criterio.min}`
-				}
-			}
-			datosCursos.push(cursoDatos)
+			})
 		}
 
 		xlsx.utils.book_append_sheet(workBook, xlsx.utils.json_to_sheet(datosCursos), "Datos de cursos")
@@ -44,6 +38,19 @@ export const generarExcelEmpleado = async (empleado, done) => {
 				"Num. Teléfonico": empleado.celular,
 			}
 		]), "Datos personales")
+
+		for (let curso of cursos) {
+			const criterios = (await axiosInstance.get(`/api/certification/course/${curso.ID}/aprendiz/${empleado.ID}`))?.data.criteria
+			let criteriosDatos = []
+			for (let criterio of criterios) {
+				criteriosDatos.push({
+					Criterio: criterio.title,
+					"Mínimo para certificarse": criterio.min,
+					Valor: criterio.value
+				})
+			}
+			xlsx.utils.book_append_sheet(workBook, xlsx.utils.json_to_sheet(criteriosDatos), `Criterios de ${curso.nombre_curso}`)
+		}
 
 		xlsx.writeFile(workBook, `Reporte del empleado ${empleado.nombres} ${empleado.apellidos} - ${new Date().toLocaleString("es-CO")}.xlsx`, { compression: true })
 		done()

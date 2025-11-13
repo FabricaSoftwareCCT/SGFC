@@ -53,7 +53,8 @@ const registerAttendance = async (req, res) => {
             estado_asistencia: estado || 'Pendiente',
             registrado_por: registrador_ID,
             fecha: fecha ? new Date(fecha) : new Date(),
-            curso_ID: courseId
+            curso_ID: courseId,
+            aprendiz_ID: usuario_ID
         });
 
         // Si el estado es 'Ausente', enviar notificación

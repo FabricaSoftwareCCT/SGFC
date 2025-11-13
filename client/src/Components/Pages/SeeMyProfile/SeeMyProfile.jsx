@@ -17,6 +17,8 @@ import {
   validateNIT,
 } from "../../../utils/Validators/formValidator"
 import { useModal } from "../../../Context/ModalContext"
+import Swal from 'sweetalert2';
+import 'sweetalert2/themes/bulma.css'
 
 export const SeeMyProfile = () => {
   const location = useLocation()
@@ -73,34 +75,63 @@ export const SeeMyProfile = () => {
     // Si viene por redirección de perfil incompleto, activar modo edición automáticamente
     if (requiresCompletion) {
       setEditMode(true)
-      alert("⚠️ Por favor completa tu perfil para continuar usando la aplicación")
+			Swal.fire({
+				icon:"info",
+				title:"Completar datos de perfil",
+				text:"Por favor completa tu perfil para continuar usando la aplicación",
+				confirmButtonText:"Aceptar",
+				theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+			})
     }
 
-    const fetchProfile = async () => {
-      try {
-        const response = await axiosInstance.get(`/api/users/profile/${userId}`)
-        setPerfil(response.data)
-        setPerfilOriginal(response.data) // Guardar el perfil original
-        setTipoCuenta(response.data.accountType)
-
-        // Si es empresa, cargar ubicaciones y establecer valores por defecto
-        if (response.data.accountType === "Empresa" && response.data.Empresa) {
-          await cargarUbicaciones(response.data.Empresa)
-          await fetchCursos()
+  const fetchProfile = async () => {
+    try {
+      const response = await axiosInstance.get(`/api/users/profile/${userId}`)
+      
+      // Asegurar que sitio_web tenga la estructura correcta
+      const profileData = response.data
+      if (profileData.Empresa && !profileData.Empresa.sitio_web) {
+        profileData.Empresa.sitio_web = {
+          facebook: "",
+          instagram: "",
+          linkedin: "",
+          twitter: "",
+          web: ""
         }
-
-        if (response.data.accountType === "Instructor") {
-          await fetchCursosInstructor()
-        }
-      } catch (error) {
-        console.error("Error al obtener el perfil:", error)
       }
-    }
+      
+      setPerfil(profileData)
+      setPerfilOriginal(profileData)
+      setTipoCuenta(profileData.accountType)
 
-    if (userId) {
-      fetchProfile()
+      // Si es empresa, cargar ubicaciones y establecer valores por defecto
+      if (profileData.accountType === "Empresa" && profileData.Empresa) {
+        await cargarUbicaciones(profileData.Empresa)
+        await fetchCursos()
+      }
+
+      if (profileData.accountType === "Instructor") {
+        await fetchCursosInstructor()
+      }
+    } catch (error) {
+      console.error("Error al obtener el perfil:", error)
+        Swal.fire({
+					icon:"error",
+					title:"Error Perfil",
+					text:"Ocurrio un error en el perfil",
+					confirmButtonText:"Aceptar",
+					confirmButtonColor:"#d33",
+					theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+				})
     }
-  }, [userId, requiresCompletion])
+  }
+
+  if (userId) {
+    fetchProfile()
+  }
+}, [userId, requiresCompletion])
 
   const fetchCursos = async () => {
     const response = await axiosInstance.get(`/api/users/profile/${userId}`)
@@ -123,7 +154,14 @@ export const SeeMyProfile = () => {
           }),
       )
     } catch (error) {
-      alert("Ocurrió un error al consultar los cursos")
+			Swal.fire({
+				icon:"error",
+				title:"Error al consultar",
+				text:"Ocurrió un error al consultar los cursos",
+				confirmButtonText:"Okay",
+				theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+			})
       console.log(error)
     }
   }
@@ -179,11 +217,26 @@ export const SeeMyProfile = () => {
   }
 }
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target
+const handleInputChange = (e) => {
+  const { name, value } = e.target
 
-    if (name.startsWith("Empresa.")) {
-      const key = name.split(".")[1]
+  if (name.startsWith("Empresa.")) {
+    const key = name.split(".")[1]
+    
+    // Manejar campos anidados como sitio_web
+    if (name.startsWith("Empresa.sitio_web.")) {
+      const socialKey = name.split(".")[2]
+      setPerfil((prevPerfil) => ({
+        ...prevPerfil,
+        Empresa: {
+          ...prevPerfil.Empresa,
+          sitio_web: {
+            ...prevPerfil.Empresa?.sitio_web,
+            [socialKey]: value
+          }
+        },
+      }))
+    } else {
       setPerfil((prevPerfil) => ({
         ...prevPerfil,
         Empresa: {
@@ -191,10 +244,11 @@ export const SeeMyProfile = () => {
           [key]: value,
         },
       }))
-    } else {
-      setPerfil({ ...perfil, [name]: value })
     }
+  } else {
+    setPerfil({ ...perfil, [name]: value })
   }
+}
 
   const handleDepartamentoChange = async (e) => {
   const departamentoId = e.target.value
@@ -218,6 +272,14 @@ export const SeeMyProfile = () => {
       setCiudades(ciudadesData)
     } catch (error) {
       console.error("Error al cargar ciudades:", error)
+      Swal.fire({
+					icon:"error",
+					title:"Error en el sistema",
+					text:"No se pudieron cargar las ciudades",
+					confirmButtonText:"Okay",
+					theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+				})
       setCiudades([])
     }
   } else {
@@ -268,90 +330,137 @@ const handleCiudadChange = (e) => {
   empresa: perfil?.Empresa
 })
 
-  const handleSaveChanges = async () => {
-    // Mezclar datos originales y actuales para evitar null/undefined
-    const empresaBase = perfilOriginal?.Empresa || {}
-    const empresaActual = perfil?.Empresa || {}
-    const empresaSnapshot = {
-      ...empresaBase,
-      ...empresaActual,
-      // Ubicación prioriza lo seleccionado en UI
-      departamento_ID: departamentoSeleccionado
-        ? Number.parseInt(departamentoSeleccionado)
-        : (empresaActual.departamento_ID ?? empresaBase.departamento_ID ?? null),
-      ciudad_ID: ciudadSeleccionada
-        ? Number.parseInt(ciudadSeleccionada)
-        : (empresaActual.ciudad_ID ?? empresaBase.ciudad_ID ?? null),
-    }
+const handleSaveChanges = async () => {
+  // Mezclar datos originales y actuales para evitar null/undefined
+  const empresaBase = perfilOriginal?.Empresa || {}
+  const empresaActual = perfil?.Empresa || {}
+  const empresaSnapshot = {
+    ...empresaBase,
+    ...empresaActual,
+    // Ubicación prioriza lo seleccionado en UI
+    departamento_ID: departamentoSeleccionado
+      ? Number.parseInt(departamentoSeleccionado)
+      : (empresaActual.departamento_ID ?? empresaBase.departamento_ID ?? null),
+    ciudad_ID: ciudadSeleccionada
+      ? Number.parseInt(ciudadSeleccionada)
+      : (empresaActual.ciudad_ID ?? empresaBase.ciudad_ID ?? null),
+  }
 
-    let erroresTipoCuenta = {}
+  let erroresTipoCuenta = {}
 
-    const ValidationGeneral = {
-      nombre: validateText(perfil?.nombres || ""),
-      apellidos: validateText(perfil?.apellidos || ""),
-      email: validateEmail(perfil?.email || ""),
-      Celular: validateNumber(perfil?.celular || ""),
-    }
+  const ValidationGeneral = {
+    nombre: validateText(perfil?.nombres || ""),
+    apellidos: validateText(perfil?.apellidos || ""),
+    email: validateEmail(perfil?.email || ""),
+    Celular: validateNumber(perfil?.celular || ""),
+  }
 
-    if (tipoCuenta === "Empresa") {
-      // Validación directa sin variables intermedias
-      erroresTipoCuenta = {
-        nombre_empresa:
-          empresaSnapshot.nombre_empresa && empresaSnapshot.nombre_empresa.trim().length > 0
-            ? ""
-            : "El nombre de la empresa es obligatorio",
-        direccion:
-          empresaSnapshot.direccion && empresaSnapshot.direccion.trim().length > 0 ? "" : "La dirección es obligatoria",
-        telefono: validateNumber(empresaSnapshot.telefono || ""),
-        email: validateEmail(empresaSnapshot.email_empresa || ""),
-        nit: validateNIT(empresaSnapshot?.NIT || ""),
-      }
+  if (tipoCuenta === "Empresa") {
+    // Validación directa sin variables intermedias
+    erroresTipoCuenta = {
+      nombre_empresa:
+        empresaSnapshot.nombre_empresa && empresaSnapshot.nombre_empresa.trim().length > 0
+          ? ""
+          : "El nombre de la empresa es obligatorio",
+      direccion:
+        empresaSnapshot.direccion && empresaSnapshot.direccion.trim().length > 0 ? "" : "La dirección es obligatoria",
+      telefono: validateNumber(empresaSnapshot.telefono || ""),
+      email: validateEmail(empresaSnapshot.email_empresa || ""),
+      nit: validateNIT(empresaSnapshot?.NIT || ""),
+      descripcion: empresaSnapshot.descripcion && empresaSnapshot.descripcion.trim().length > 0 
+        ? "" 
+        : "La descripción es obligatoria",
     }
+  }
 
-    const error = {
-      ...ValidationGeneral,
-      ...erroresTipoCuenta,
-    }
+  const error = {
+    ...ValidationGeneral,
+    ...erroresTipoCuenta,
+  }
 
     const hastErrors = await createMensajeError(error)
     if (hastErrors != null) {
-      alert(hastErrors)
+			Swal.fire({
+				icon: 'error',
+				title: 'Error de validación',
+				html: hastErrors,
+				confirmButtonText: 'Aceptar',
+				confirmButtonColor: '#d33',
+				theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+			});
       setPerfil(perfilOriginal) // Revertir cambios locales
       return
     }
 
-    try {
-      // Construir payload seguro
-      const payload = { ...perfil }
+  try {
+    // Construir payload seguro
+    const payload = { ...perfil }
 
-      if (tipoCuenta === "Empresa" && perfil.Empresa) {
-        const empresaPayload = {
-          ...perfil.Empresa,
-          nombre_empresa: (perfil.Empresa.nombre_empresa || "").trim(),
-          direccion: (perfil.Empresa.direccion || "").trim(),
-        }
-
-        payload.documento = empresaPayload.NIT
-        payload.empresa = JSON.stringify(empresaPayload)
+    if (tipoCuenta === "Empresa" && perfil.Empresa) {
+      // Construir el objeto sitio_web correctamente
+      const sitio_web = {
+        facebook: perfil.Empresa.sitio_web?.facebook || "",
+        instagram: perfil.Empresa.sitio_web?.instagram || "",
+        linkedin: perfil.Empresa.sitio_web?.linkedin || "",
+        twitter: perfil.Empresa.sitio_web?.twitter || "",
+        web: perfil.Empresa.sitio_web?.web || ""
       }
+
+      // Limpiar campos vacíos del sitio_web
+      Object.keys(sitio_web).forEach(key => {
+        if (!sitio_web[key]) {
+          delete sitio_web[key]
+        }
+      })
+
+      const empresaPayload = {
+        ...perfil.Empresa,
+        nombre_empresa: (perfil.Empresa.nombre_empresa || "").trim(),
+        direccion: (perfil.Empresa.direccion || "").trim(),
+        descripcion: (perfil.Empresa.descripcion || "").trim(),
+        sitio_web: Object.keys(sitio_web).length > 0 ? sitio_web : undefined
+      }
+
+      // Asegurarse de que los IDs sean números
+      if (empresaPayload.departamento_ID) {
+        empresaPayload.departamento_ID = Number.parseInt(empresaPayload.departamento_ID)
+      }
+      if (empresaPayload.ciudad_ID) {
+        empresaPayload.ciudad_ID = Number.parseInt(empresaPayload.ciudad_ID)
+      }
+
+      payload.documento = empresaPayload.NIT
+      payload.empresa = JSON.stringify(empresaPayload)
+    }
+
+    console.log("Payload a enviar:", payload) // Para debug
 
       await axiosInstance.put(`/api/users/perfil/actualizar/${userId}`, payload)
-      alert("Perfil actualizado con éxito")
+			Swal.fire({
+				icon: 'success',
+				title: 'Perfil actualizado',
+				text: 'Perfil actualizado con éxito',
+				confirmButtonText: 'Aceptar',
+				confirmButtonColor: '#049019',
+				theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+			});
 
-      // Recargar perfil desde backend
-      const response = await axiosInstance.get(`/api/users/profile/${userId}`)
-      setPerfil(response.data)
-      setPerfilOriginal(response.data)
+    // Recargar perfil desde backend
+    const response = await axiosInstance.get(`/api/users/profile/${userId}`)
+    setPerfil(response.data)
+    setPerfilOriginal(response.data)
 
-      setEditMode(false)
+    setEditMode(false)
 
-      // Si venía de redirección por perfil incompleto, redirigir al home
-      if (requiresCompletion) {
-        navigate("/")
-      }
-    } catch (error) {
-      console.error("Error al actualizar el perfil:", error)
-      console.error("Error response:", error.response)
+    // Si venía de redirección por perfil incompleto, redirigir al home
+    if (requiresCompletion) {
+      navigate("/")
+    }
+  } catch (error) {
+    console.error("Error al actualizar el perfil:", error)
+    console.error("Error response:", error.response)
 
       let errorMessage = "Hubo un error al actualizar el perfil"
       if (error.response?.data?.message) {
@@ -363,13 +472,21 @@ const handleCiudadChange = (e) => {
       } else if (error.message) {
         errorMessage = error.message
       }
-      alert(errorMessage)
+			Swal.fire({
+				icon: 'error',
+				title: 'Error',
+				text: errorMessage,
+				confirmButtonText: 'Aceptar',
+				confirmButtonColor: '#d33',
+				theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+			});
 
-      if (perfilOriginal) {
-        setPerfil(perfilOriginal)
-      }
+    if (perfilOriginal) {
+      setPerfil(perfilOriginal)
     }
   }
+}
 
   // Indicador simple de perfil incompleto (datos básicos)
   const perfilIncompleto = !perfil || !perfil.nombres || !perfil.apellidos || !perfil.email
@@ -468,13 +585,13 @@ const handleCiudadChange = (e) => {
             {(tipoCuenta === "Aprendiz" || tipoCuenta === "Empresa" || tipoCuenta === "Instructor") && (
               <>
                 <button
-                  className={`updateProfile ${editMode ? "cancel" : ""}`}
+                  className={`updateProfile ${editMode ? "" : ""}`}
                   onClick={() => handleModelCancel(editMode)}
                 >
                   {editMode ? "" : ""}
                 </button>
 
-                {editMode && <button className="updateProfile1" onClick={handleSaveChanges}></button>}
+                {/* {editMode && <button className="updateProfile1" onClick={handleSaveChanges}></button>} */}
               </>
             )}
           </div>

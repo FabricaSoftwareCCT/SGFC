@@ -1,94 +1,162 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import "./InscribeEmployes.css"
 import { Header } from "../../../../Components/Layouts/Header/Header"
 import { Footer } from "../../../../Components/Layouts/Footer/Footer"
 import { Main } from "../../../../Components/Layouts/Main/Main"
-
+import { Modal_Inscripcion } from "../../../UI/Modal_Inscripcion/Modal_Inscripcion"
+import axiosInstance from "../../../../config/axiosInstance"
+import { Modal_Empresa } from "../../../UI/Modal_Empresa/Modal_Empresa"
 
 export const InscribeEmployes = () => {
   const [selectedEmployees, setSelectedEmployees] = useState([])
   const [currentPage, setCurrentPage] = useState(1)
   const [employeesPerPage] = useState(5) 
+  const [showInscripcionModal, setShowInscripcionModal] = useState(false);
+  const [showEmpresaModal, setShowEmpresaModal] = useState(false);
+  const [selectedCourse, setSelectedCourse] = useState(null);
+  const [empresaSeleccionada, setEmpresaSeleccionada] = useState(null)
   const navigate = useNavigate()
+  const userSessionString = localStorage.getItem("userSession") || sessionStorage.getItem("userSession")
   
-  // Datos de ejemplo 
-  const [employes] = useState([
-    {
-      ID: 1,
-      nombres: "Juan",
-      apellidos: "Pérez",
-      documento: "12345678",
-      email: "juan@empresa.com",
-      estado: "activo",
-      Empresa: { nombre_empresa: "Empresa A" },
-      foto_perfil: null
-    },
-    {
-      ID: 2,
-      nombres: "María",
-      apellidos: "González",
-      documento: "87654321",
-      email: "maria@empresa.com",
-      estado: "activo",
-      Empresa: { nombre_empresa: "Empresa A" },
-      foto_perfil: null
-    },
-    {
-      ID: 3,
-      nombres: "Carlos",
-      apellidos: "López",
-      documento: "11223344",
-      email: "carlos@empresa.com",
-      estado: "inactivo",
-      Empresa: { nombre_empresa: "Empresa B" },
-      foto_perfil: null
-    },
-    {
-      ID: 4,
-      nombres: "Ana",
-      apellidos: "Martínez",
-      documento: "55667788",
-      email: "ana@empresa.com",
-      estado: "activo",
-      Empresa: { nombre_empresa: "Empresa A" },
-      foto_perfil: null
-    },
-    {
-      ID: 5,
-      nombres: "Pedro",
-      apellidos: "Rodríguez",
-      documento: "99887766",
-      email: "pedro@empresa.com",
-      estado: "activo",
-      Empresa: { nombre_empresa: "Empresa C" },
-      foto_perfil: null
-    },
-    {
-      ID: 6,
-      nombres: "Laura",
-      apellidos: "García",
-      documento: "33445566",
-      email: "laura@empresa.com",
-      estado: "inactivo",
-      Empresa: { nombre_empresa: "Empresa B" },
-      foto_perfil: null
-    },
-    {
-      ID: 7,
-      nombres: "Diego",
-      apellidos: "Hernández",
-      documento: "77889900",
-      email: "diego@empresa.com",
-      estado: "activo",
-      Empresa: { nombre_empresa: "Empresa A" },
-      foto_perfil: null
-    }
-  ])
+  const [employes, setEmployes] = useState([])
 
-  const handleContinue=()=>{
-    navigate("/Cursos/BuscarCursos")
+  // Función para abrir modal de inscripción (solo con botón)
+  const handleOpenInscripcionModal = () => {
+    setShowInscripcionModal(true);
+  };
+
+  // Función para cerrar modal de inscripción
+  const handleCloseInscripcionModal = () => {
+    setShowInscripcionModal(false);
+  };
+
+  // Función para manejar empresa seleccionada
+  const handleEmpresaSeleccionada = (empresa) => {
+    setEmpresaSeleccionada(empresa);
+    // Cerrar modal de empresa después de seleccionar
+    setShowEmpresaModal(false);
+    
+    // Si hay empresa seleccionada, cargar empleados de esa empresa
+    if (empresa && (empresa.ID || empresa.id)) {
+      fetchEmpleadosByEmpresa(empresa.ID || empresa.id);
+    }
+  };
+
+  // Función para manejar cursos seleccionados
+  const handleCursosSeleccionados = (cursos) => {
+    if (cursos && cursos.length > 0) {
+      const curso = cursos[0];
+      setSelectedCourse(curso);
+      
+      // Cerrar modal de inscripción después de seleccionar
+      setShowInscripcionModal(false);
+      
+      // Realizar inscripción automáticamente
+      handleInscripcion(curso);
+    }
+  };
+
+  // Función para manejar la inscripción al backend
+  const handleInscripcion = async (curso) => {
+    if (!curso || selectedEmployees.length === 0) {
+      alert('No hay curso seleccionado o empleados seleccionados');
+      return;
+    }
+
+    try {
+      const curso_ID = curso.ID || curso.id;
+
+      const empleados = selectedEmployees.map(id => ({
+        ID: id
+      }));
+
+      const response = await axiosInstance.post("/api/courses/inscripcionEmpleados", {
+        empleados,
+        curso_ID
+      });
+
+      // Verificar si hay empleados que no se pudieron inscribir
+      if (response.data.noInscritos && response.data.noInscritos.length > 0) {
+        const hayConflictos = response.data.noInscritos.some(emp => emp.verificar === true);
+        
+        if (hayConflictos) {
+          // Mostrar mensaje específico para los empleados con conflictos
+          const empleadosConConflictos = response.data.noInscritos
+            .filter(emp => emp.verificar === true)
+            .map(emp => `${emp.nombre || ''} ${emp.apellidos || ''}`.trim())
+            .filter(nombre => nombre !== '');
+
+          if (empleadosConConflictos.length > 0) {
+            const mensaje = `Se inscribieron los empleados, sin embargo los siguientes empleados tienen cursos con los mismos horarios de formación y no se pudieron inscribir:\n\n${empleadosConConflictos.join('\n')}`;
+            alert(mensaje);
+          } else {
+            alert("Se inscribieron algunos empleados, pero hubo conflictos de horario con algunos empleados.");
+          }
+        } else {
+          // Inscripción exitosa sin conflictos
+          alert(`✅ Inscripción exitosa para ${selectedEmployees.length} empleados en el curso "${curso.nombre_curso}"`);
+        }
+      } else {
+        // Todos los empleados se inscribieron correctamente
+        alert(`✅ Inscripción exitosa para ${selectedEmployees.length} empleados en el curso "${curso.nombre_curso}"`);
+      }
+
+      // Limpiar selecciones después de la inscripción
+      setSelectedEmployees([]);
+      setSelectedCourse(null);
+
+    } catch (error) {
+      console.error("Error al realizar la inscripción:", error);
+      
+      let errorMessage = "Hubo un error al realizar la inscripción";
+      if (error.response && error.response.data && error.response.data.message) {
+        errorMessage = error.response.data.message;
+      }
+      
+      alert(errorMessage);
+    }
+  };
+
+  // Función para cargar empleados por empresa (para Gestor/Administrador)
+  const fetchEmpleadosByEmpresa = async (empresaId) => {
+    try {
+      const response = await axiosInstance.get(`/api/users/empresa/${empresaId}/empleados`)
+      const data = response.data || {}
+      const empleados = data.empleados || []
+      setEmployes(empleados)
+    } catch (error) {
+      console.error("Error al cargar empleados de la empresa:", error)
+      alert("No se logró cargar los empleados de la empresa seleccionada")
+      setEmployes([])
+    }
   }
+
+  // Función para cargar empleados (para usuarios normales)
+  const fetchEmpleados = async () => {
+    try {
+      const userSession = JSON.parse(userSessionString)
+      // Si es Gestor o Administrador, abrir modal de empresa
+      if (userSession.accountType === "Gestor" || userSession.accountType === "Administrador") {
+        setShowEmpresaModal(true);
+        return; // No cargar empleados hasta que seleccione empresa
+      }
+      
+      // Para otros tipos de usuario, cargar empleados normalmente
+      const empresaId = userSession.empresa_ID
+      const response = await axiosInstance.get(`/api/users/empresa/${empresaId}/empleados`)
+      const data = response.data || {}
+      const empleados = data.empleados || []
+      setEmployes(empleados)
+    } catch (error) {
+      console.error(error)
+      alert("No se logró cargar los empleados")
+    }
+  }
+
+  useEffect(() => {
+    fetchEmpleados()
+  }, [])
 
   // Calcular empleados para la página actual
   const indexOfLastEmployee = currentPage * employeesPerPage
@@ -165,6 +233,14 @@ export const InscribeEmployes = () => {
     return imageData
   }
 
+  // Determinar si el botón de curso debe estar deshabilitado
+  const userSession = JSON.parse(userSessionString);
+  const isGestorOrAdmin = userSession.accountType === "Gestor" || userSession.accountType === "Administrador";
+
+  // Determinar si el botón de curso debe estar deshabilitado
+  const isCourseButtonDisabled = selectedEmployees.length <= 0 || 
+    (isGestorOrAdmin && !empresaSeleccionada);
+
   return (
     <>
       <Header />
@@ -173,6 +249,16 @@ export const InscribeEmployes = () => {
           <h2>
             Inscribir <span className="complementary">Empleados a Cursos</span>
           </h2>
+
+          {/* Mostrar información del curso seleccionado */}
+          {selectedCourse && (
+            <div className="selected-course-info">
+              <h3>Curso seleccionado: {selectedCourse.nombre_curso}</h3>
+              {selectedCourse.cupos_disponibles && (
+                <p>Cupos disponibles: {selectedCourse.cupos_disponibles}</p>
+              )}
+            </div>
+          )}
 
           <div className="containerGestionsEmployeOptions">
             <div className="containerConsultEmploye">
@@ -183,12 +269,14 @@ export const InscribeEmployes = () => {
                 <button 
                   className="btn_selectAll"
                   onClick={handleSelectAll}
+                  disabled={employes.length === 0}
                 >
                   {selectedEmployees.length === employes.length ? "Deseleccionar todos" : "Seleccionar todos"}
                 </button>
                 <button 
                   className="btn_selectCurrentPage"
                   onClick={handleSelectAllCurrentPage}
+                  disabled={currentEmployees.length === 0}
                 >
                   {currentEmployees.every(emp => selectedEmployees.includes(emp.ID)) 
                     ? "Deseleccionar página" 
@@ -199,10 +287,14 @@ export const InscribeEmployes = () => {
                   {selectedEmployees.length} de {employes.length} empleados seleccionados
                 </span>
               </div>
-              <button className="btn-continue"
-                      onClick={handleContinue}
-                      disabled={selectedEmployees.length === 0}>
-                Continuar
+              
+              {/* Botón para abrir modal de inscripción */}
+              <button 
+                className="btn-continue"
+                onClick={handleOpenInscripcionModal}
+                disabled={isCourseButtonDisabled}
+              >
+                {selectedCourse ? "Cambiar Curso" : "Seleccionar Curso"}
               </button>   
             </div>
              
@@ -217,7 +309,12 @@ export const InscribeEmployes = () => {
                 </div>
 
                 {employes.length === 0 ? (
-                  <p className="no-results">No hay empleados registrados</p>
+                  <p className="no-results">
+                    {empresaSeleccionada 
+                      ? "No hay empleados en la empresa seleccionada" 
+                      : "No hay empleados registrados"
+                    }
+                  </p>
                 ) : (
                   <>
                     <div className="employees-checkbox-list">
@@ -273,9 +370,6 @@ export const InscribeEmployes = () => {
                                 </div>
                                 
                                 <div className="employee-secondary-info">
-                                  <p>
-                                    <strong>Empresa:</strong> {employe.Empresa?.nombre_empresa || "Sin empresa"}
-                                  </p>
                                   <div className="estado-wrapper">
                                     <strong>Estado:</strong>
                                     <span className={`status-badge ${employe.estado || "inactivo"}`}>
@@ -330,6 +424,23 @@ export const InscribeEmployes = () => {
         </div>
       </Main>
       <Footer />
+      
+      {/* Modal de Inscripción - Solo se abre con el botón */}
+      {showInscripcionModal && (
+        <Modal_Inscripcion 
+          onClose={handleCloseInscripcionModal} 
+          onCursosSeleccionados={handleCursosSeleccionados}
+          id = {empresaSeleccionada}
+        />
+      )}
+
+      {/* Modal de Empresa - Se abre automáticamente para Gestor/Administrador */}
+      {showEmpresaModal && (
+        <Modal_Empresa 
+          onClose={() => setShowEmpresaModal(false)}
+          onEmpresaSeleccionada={handleEmpresaSeleccionada}
+        />
+      )}
     </>
   )
 }

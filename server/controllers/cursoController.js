@@ -14,6 +14,7 @@ const InscripcionCurso = require('../models/InscripcionCurso');
 const InvitacionCurso = require('../models/InvitacionCurso');
 const Usuario = require("../models/User");
 const { sendNotification, sendNotifiCursoApi } = require("../services/notificationService");
+const { normalizarTemario } = require("../utils/temarioUtils");
 
 
 let dbInstance;
@@ -223,9 +224,8 @@ const obtenerCursosAsignadosAInstructor = async (req, res) => {
 // Crear un curso (solo para administradores)
 const createCurso = async (req, res) => {
 	try {
-		const { accountType } = req.user; // ← ESTA LÍNEA TIENE EL PROBLEMA
-		console.log("Este es el tipo de cuenta", accountType);
-		
+		const { accountType } = req.user;
+
 		if (accountType !== "Administrador" && accountType !== "Gestor" && accountType !== "Instructor") {
 			return res.status(403).json({ message: "No tienes permisos para crear cursos" });
 		}
@@ -246,7 +246,8 @@ const createCurso = async (req, res) => {
 			cupos_disponibles,
 			duracion_dias,
 			modalidad,
-			empresa_ID // Esperado solo si tipo_oferta es "Cerrada"
+			empresa_ID, // Esperado solo si tipo_oferta es "Cerrada"
+			temario
 		} = req.body;
 
 		// ✅ Validación estricta del tipo de oferta
@@ -307,6 +308,13 @@ const createCurso = async (req, res) => {
 				: slots_formacion;
 		}
 
+		let temarioNormalizado;
+		try {
+			temarioNormalizado = normalizarTemario(temario);
+		} catch (errorTemario) {
+			return res.status(400).json({ message: errorTemario.message });
+		}
+
 		const sena_ID = 1;
 
 		// ✅ Crear el curso
@@ -326,35 +334,34 @@ const createCurso = async (req, res) => {
 			sena_ID,
 			empresa_ID: finalEmpresaID,
 			slots_formacion: slotsFormacionString,
+			temario: temarioNormalizado,
 			duracion_dias,
 			cupos_disponibles,
 			modalidad
 		});
 
+		(async () => {
+			try {
+				const usuarios = await User.findAll({
+					where: {
+						verificacion_email: true,
+						accountType: { [Op.or]: ['Empresa', 'Aprendiz'] },
+					},
+					attributes: ['email'],
+				});
+
+				const emails = usuarios.map(user => user.email);
+				if (emails.length > 0 && nuevoCurso.ID) {
+					const courseLink = `http://localhost:5173/cursos/${nuevoCurso.ID}`;
+					await sendCourseCreatedEmail(emails, nombre_curso, courseLink, descripcion, estado);
+					await sendNotifiCursoApi(nombre_curso, emails, fecha_inicio, fecha_fin, estado);
+				}
+			} catch (emailError) {
+				console.error("Error al enviar notificaciones por email:", emailError);
+			}
+		})();
+
 		res.status(201).json({ message: "Curso creado con éxito.", curso: nuevoCurso });
-
-		// ✅ Enviar notificación por email (opcional)
-		const usuarios = await User.findAll({
-			where: {
-				verificacion_email: true,
-				accountType: { [Op.or]: ['Empresa', 'Aprendiz'] },
-			},
-			attributes: ['email'],
-		});
-
-		const Idcurso = await Curso.findByPk(nuevoCurso.ID, { attributes: ['ID'] }).then(c => c.ID);
-
-		if(Idcurso == null){
-			res.status(500).json({ message: "Error al obtener el curso recién creado." });
-			return;
-		}
-
-		const emails = usuarios.map(user => user.email);
-		if (emails.length > 0) {
-			const courseLink = `http://localhost:5173/cursos/${Idcurso}`;
-			await sendCourseCreatedEmail(emails, nombre_curso, courseLink, descripcion, estado);
-			await sendNotifiCursoApi(nombre_curso, emails, fecha_inicio, fecha_fin, estado);
-		}
 
 	} catch (error) {
 		console.error("Error al crear el curso:", error);
@@ -388,7 +395,8 @@ const updateCurso = async (req, res) => {
 			slots_formacion,
 			empresa_ID,
 			duracion_dias,
-			modalidad
+			modalidad,
+			temario
 		} = req.body;
 
 		const userData = await User.findByPk(userId);
@@ -448,6 +456,14 @@ const updateCurso = async (req, res) => {
 			modalidad,
 			empresa_ID: tipo_oferta === "Cerrada" ? finalEmpresaID : null, // ✅ Actualizar o limpiar
 		};
+
+		try {
+			if (temario !== undefined) {
+				datosActualizacion.temario = normalizarTemario(temario);
+			}
+		} catch (errorTemario) {
+			return res.status(400).json({ message: errorTemario.message });
+		}
 
 		if (fecha_inicio && fecha_fin) {
 			datosActualizacion.fecha_inicio = fecha_inicio;
@@ -591,46 +607,50 @@ const uploadImagesBase64 = async (req, res) => {
 		return res.status(500).json({ message: "Error al guardar la imagen." });
 	}
 };
-
+366
 const getCursoParticipants = async (req, res) => {
 	try {
 		const { courseId } = req.params;
 		const { page, limit, name, doc, state } = req.query;
+		
+		// Convertir limit y page a números si existen
+		const limitNum = limit ? (isNaN(parseInt(limit, 10)) ? null : parseInt(limit, 10)) : null;
+		const pageNum = page ? (isNaN(parseInt(page, 10)) ? null : parseInt(page, 10)) : null;
 
 		let includeTerms = {
 			model: dbInstance.Usuario,
 			as: 'aprendiz',
-			attributes: ['ID', 'nombres', 'apellidos', 'email', 'documento', 'foto_perfil', 'estado']
+			attributes: ['ID', 'nombres', 'apellidos', 'email', 'documento', 'foto_perfil', 'estado'],
+			required: false // LEFT JOIN - incluir incluso si no hay aprendiz
 		}
 		
+		// Construir condiciones where para el aprendiz si hay filtros
+		const whereConditions = {};
+		
 		if (name?.length > 0) {
-			includeTerms = {
-				...includeTerms,
-				where: Sequelize.where(
-					Sequelize.fn('CONCAT', Sequelize.col('nombres'), ' ', Sequelize.col('apellidos')),
+			whereConditions[Op.or] = [
+				Sequelize.where(
+					Sequelize.fn('CONCAT', Sequelize.col('aprendiz.nombres'), ' ', Sequelize.col('aprendiz.apellidos')),
 					{ [Op.like]: `%${name}%` }
-				),
-			}
+				)
+			];
+			includeTerms.where = whereConditions;
 		}
 
 		if (doc?.length > 0) {
-			includeTerms = {
-				...includeTerms,
-				where: {
-					documento: {
-						[Op.like]: `%${doc}%`
-					}
-				}
+			if (!includeTerms.where) {
+				includeTerms.where = {};
 			}
+			includeTerms.where.documento = {
+				[Op.like]: `%${doc}%`
+			};
 		}
 
 		if (state?.length > 0) {
-			includeTerms = {
-				...includeTerms,
-				where: {
-					estado: state
-				}
+			if (!includeTerms.where) {
+				includeTerms.where = {};
 			}
+			includeTerms.where.estado = state;
 		}
 
 		let searchTerms = {
@@ -641,11 +661,13 @@ const getCursoParticipants = async (req, res) => {
 			include: [includeTerms]
 		}
 
-		if (page || limit) {
+		if (pageNum !== null || limitNum !== null) {
+			const finalLimit = limitNum ?? 10;
+			const finalPage = pageNum ?? 0;
 			searchTerms = {
 				...searchTerms,
-				offset: (limit ?? 10) * (page ?? 0),
-				limit: limit ?? 10
+				offset: finalLimit * finalPage,
+				limit: finalLimit
 			}
 		}
 
@@ -658,18 +680,26 @@ const getCursoParticipants = async (req, res) => {
 			}
 		})
 
+		// Serializar explícitamente los participantes para asegurar que las relaciones se incluyan
+		const participantesSerializados = participantes.map(p => {
+			const pData = p.toJSON ? p.toJSON() : p;
+			return pData;
+		});
+
 		let result = {
 			success: true,
-			participants: participantes,
+			participants: participantesSerializados,
 			total: totalAmount,
 		}
 
-		if (page || limit) {
+		if (pageNum !== null || limitNum !== null) {
+			const finalLimit = limitNum ?? 10;
+			const finalPage = pageNum ?? 0;
 			result = {
 				...result,
-				page: page ?? 0,
-				amount: limit ?? 10,
-				pages: Math.ceil(totalAmount / (limit ?? 10))
+				page: finalPage,
+				amount: finalLimit,
+				pages: Math.ceil(totalAmount / finalLimit)
 			}
 		}
 
@@ -711,7 +741,7 @@ const getCursoById = async (req, res) => {
 				curso_ID: id
 			}
 		})
-
+		
 		res.status(200).json(curso);
 	} catch (error) {
 		console.error("Error al obtener el curso:", error);

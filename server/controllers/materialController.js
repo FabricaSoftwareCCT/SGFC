@@ -4,6 +4,7 @@ const MaterialDeApoyo = require("../models/MaterialDeApoyo");
 const { mkdirSync, writeFileAsync, writeFileSync } = require("fs");
 const Curso = require("../models/curso");
 
+
 let dbInstance;
 
 const setDb = (databaseInstance) => {

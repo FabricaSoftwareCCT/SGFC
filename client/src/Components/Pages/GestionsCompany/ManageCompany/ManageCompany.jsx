@@ -4,6 +4,8 @@ import axiosInstance from "../../../../config/axiosInstance";
 import PropTypes from "prop-types";
 import fotoPerfilDefect from "../../../../assets/Icons/userDefect.png";
 import { validateEmail, validateNumber, validateText, validateAddress, validateNIT } from "../../../../utils/Validators/formValidator";
+import Swal from 'sweetalert2';
+import 'sweetalert2/themes/bulma.css'
 
 // Modal para gestionar datos de una Empresa
 export const ManageCompany = ({ empresa, onClose }) => {
@@ -187,14 +189,36 @@ export const ManageCompany = ({ empresa, onClose }) => {
     }
 
     if (!formData.userId) {
-      alert("No se pudo identificar el usuario de la empresa.");
+      await Swal.fire({
+        icon: 'error',
+        title: 'Error de identificación',
+        text: 'No se pudo identificar el usuario de la empresa.',
+        confirmButtonColor: '#d33',
+              theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+      });
       return;
     }
 
     // Validar todos los campos antes de enviar
     const errors = validateFields();
     if (errors.length > 0) {
-      alert(`Por favor corrija los siguientes errores:\n\n${errors.join('\n')}`);
+      await Swal.fire({
+        icon: 'warning',
+        title: 'Errores de validación',
+        html: `
+          <div style="text-align: left;">
+            <p>Por favor corrija los siguientes errores:</p>
+            <ul style="margin-top: 10px; padding-left: 20px;">
+              ${errors.map(error => `<li>${error}</li>`).join('')}
+            </ul>
+          </div>
+        `,
+        confirmButtonText: 'Entendido',
+        confirmButtonColor: '#3085d6',
+              theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+      });
       return;
     }
 
@@ -224,16 +248,39 @@ export const ManageCompany = ({ empresa, onClose }) => {
       });
 
       if (response?.status >= 200 && response?.status < 300) {
-        alert(response?.data?.message || "Empresa actualizada");
+  await Swal.fire({
+          icon: 'success',
+          title: '¡Éxito!',
+          text: response?.data?.message || "Empresa actualizada correctamente",
+          confirmButtonColor: '#3085d6',
+          timer: 3000,
+          timerProgressBar: true,
+              theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+        });
       } else {
-        alert("No se pudo actualizar la empresa.");
+        await Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'No se pudo actualizar la empresa.',
+          confirmButtonColor: '#d33',
+                        theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+        });
         return;
       }
       setIsEditing(false);
       window.location.reload();
     } catch (error) {
       console.error(`Error al actualizar la empresa:`, error.response?.data || error.message);
-      alert("Hubo un error al actualizar la empresa.");
+      await Swal.fire({
+        icon: 'error',
+        title: 'Error al actualizar',
+        text: 'Hubo un error al actualizar la empresa. Por favor, inténtelo de nuevo.',
+        confirmButtonColor: '#d33',
+                      theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+      });
     }
   };
 

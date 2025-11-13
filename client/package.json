@@ -14,6 +14,9 @@
   },
   "dependencies": {
     "@fontsource/poppins": "^5.2.5",
+    "@fortawesome/fontawesome-svg-core": "^7.1.0",
+    "@fortawesome/free-solid-svg-icons": "^7.1.0",
+    "@fortawesome/react-fontawesome": "^3.1.0",
     "@react-icons/all-files": "^4.1.0",
     "@react-oauth/google": "^0.12.2",
     "@types/mysql": "^2.15.26",
@@ -33,6 +36,7 @@
     "react-router-dom": "^7.2.0",
     "react-select": "^5.10.2",
     "react-signature-canvas": "^1.1.0-alpha.2",
+    "sweetalert2": "^11.26.3",
     "swiper": "^11.2.8",
     "trim-canvas": "^0.1.2",
     "xlsx": "^0.18.5"

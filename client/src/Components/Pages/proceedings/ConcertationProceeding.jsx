@@ -8,6 +8,10 @@ import axiosInstance from '../../../config/axiosInstance';
 import html2pdf from 'html2pdf.js';
 import { ModalSignature } from '../../UI/Modal_Signature/ModalSignature';
 import { validateText, validateNumber, createMensajeError, validarFecha } from '../../../utils/Validators/formValidator';
+import Swal from 'sweetalert2'
+import 'sweetalert2/themes/bulma.css'
+
+
 
 export const ConcertationProceeding = () => {
 	const navigate = useNavigate();
@@ -128,12 +132,20 @@ export const ConcertationProceeding = () => {
 			fechaFin: validarFecha(fechaFin),
 		}
 
-		const errores = await createMensajeError(validationGeneral);
-		if(errores !== null){
-			console.log(errores);
-			alert(errores);
-			return true;
-		}
+    const errores = await createMensajeError(validationGeneral);
+    if(errores !== null){
+      console.log(errores);
+    Swal.fire({
+        icon: 'error',
+        title: 'Error de validación',
+        text: errores,
+        confirmButtonText: 'Entendido',
+        confirmButtonColor: '#00a144',
+                      theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+      });
+      return true;
+    }
 
 		return false;
 	}
@@ -189,6 +201,15 @@ export const ConcertationProceeding = () => {
 			fechaFin
 		});
 		setIsExporting(true);
+    Swal.fire({
+      title: 'Generando PDF...',
+      text: 'Por favor espere un momento',
+      allowOutsideClick: false,
+      theme:"bulma",
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
 		setTimeout(() => {
 			if (pdfRef.current) {
 				const pdfFileName = 'acta_concertacion.pdf';
@@ -210,9 +231,33 @@ export const ConcertationProceeding = () => {
 					.then(() => {
 						setIsExporting(false);
 						setGeneratedPdfName(pdfFileName);
+            Swal.fire({
+              icon: 'success',
+              title: 'PDF Generado',
+              text: 'El acta de concertación se ha descargado correctamente',
+              confirmButtonText: 'Aceptar',
+              confirmButtonColor: '#00a144',
+                            theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+            });
+          })
+          .catch((error) => {
+            setIsExporting(false);
+            
+            // SweetAlert2 para error
+            Swal.fire({
+              icon: 'error',
+              title: 'Error al generar PDF',
+              text: 'Ha ocurrido un error al generar el documento',
+              confirmButtonText: 'Entendido',
+              confirmButtonColor: '#00a144',
+                            theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+            });
 					});
 			} else {
 				setIsExporting(false);
+         Swal.close();
 			}
 		}, 100);
 	};
@@ -260,7 +305,34 @@ export const ConcertationProceeding = () => {
 			const flag = await handleValidation();
 			if(flag) return;
 
-			if (!pdfRef.current) return;
+      if (!pdfRef.current) return;
+
+            const result = await Swal.fire({
+        title: '¿Generar acta de concertación?',
+        text: '¿Está seguro de que desea generar y enviar el acta de concertación?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, generar acta',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#00a144',
+        cancelButtonColor: '#dc3545',
+                      theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+      });
+
+      if (!result.isConfirmed) {
+        return;
+      }
+
+      // SweetAlert2 para mostrar progreso
+      Swal.fire({
+        title: 'Generando acta...',
+        text: 'Por favor espere un momento',
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
 
 			const pdfFileName = 'acta_concertacion.pdf';
 			const opt = {
@@ -311,40 +383,55 @@ export const ConcertationProceeding = () => {
 			if (response.status === 200) {
 				setIsSending(false)
 				setGeneratedPdfName(pdfFileName);
-				alert('¡Acta de concertación enviada correctamente!');
+				await Swal.fire({
+          icon: 'success',
+          title: '¡Éxito!',
+          text: '¡Acta de concertación enviada correctamente!',
+          confirmButtonText: 'Aceptar',
+          confirmButtonColor: '#00a144',
+                        theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+        });
 				navigate('/Gestiones/Actas');
 			}
 
-		} catch (error) {
-			setIsSending(false)
-			console.error('❌ Error completo:', error);
-			
-			// Mostrar información más detallada del error
-			let errorMessage = 'Error al enviar el acta de concertación.';
-			
-			if (error.response) {
-				// Error del servidor
-				const status = error.response.status;
-				const serverMessage = error.response.data?.message || 'Error del servidor';
-				
-				if (status === 400) {
-					errorMessage = `Error de validación: ${serverMessage}`;
-				} else if (status === 500) {
-					errorMessage = `Error del servidor: ${serverMessage}`;
-				} else {
-					errorMessage = `Error ${status}: ${serverMessage}`;
-				}
-			} else if (error.request) {
-				// Error de red
-				errorMessage = 'Error de conexión. Verifique su conexión a internet.';
-			} else {
-				// Otro tipo de error
-				errorMessage = `Error: ${error.message}`;
-			}
-			
-			alert(errorMessage);
-		}
-	};
+    } catch (error) {
+      console.error('❌ Error completo:', error);
+      
+      // Mostrar información más detallada del error
+      let errorMessage = 'Error al enviar el acta de concertación.';
+      
+      if (error.response) {
+        // Error del servidor
+        const status = error.response.status;
+        const serverMessage = error.response.data?.message || 'Error del servidor';
+        
+        if (status === 400) {
+          errorMessage = `Error de validación: ${serverMessage}`;
+        } else if (status === 500) {
+          errorMessage = `Error del servidor: ${serverMessage}`;
+        } else {
+          errorMessage = `Error ${status}: ${serverMessage}`;
+        }
+      } else if (error.request) {
+        // Error de red
+        errorMessage = 'Error de conexión. Verifique su conexión a internet.';
+      } else {
+        // Otro tipo de error
+        errorMessage = `Error: ${error.message}`;
+      }
+      
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: errorMessage,
+        confirmButtonText: 'Entendido',
+        confirmButtonColor: '#00a144',
+                      theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+      });
+    }
+  };
 
  return (
 		<>

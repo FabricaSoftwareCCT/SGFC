@@ -15,6 +15,7 @@ import { CreateCourse } from './Components/Pages/Courses/CreateCourse/CreateCour
 import { ConsultCourses } from './Components/Pages/Courses/Consult/ConsultCourses';
 import { SeeCourse } from './Components/Pages/Courses/SeeCourse/SeeCourse';
 import { UpdateCourse } from './Components/Pages/Courses/UpdateCourse/UpdateCourse';
+import {RegistrationsGestor} from './Components/Pages/GestionsGestor/RegistrationsGestor/RegistrationsGestor'
 import { MisCursos } from './Components/Pages/Courses/MisCursos/MisCursos';
 import { GestionsInstructor } from './Components/Pages/GestionsInstructor/GestionsInstructor';
 import { GestionsGestor } from './Components/Pages/GestionsGestor/GestionsGestor';
@@ -34,6 +35,8 @@ import { TrainingPlaceProceeding } from './Components/Pages/proceedings/Training
 import { SupportMaterial } from './Components/Pages/Courses/SupportMaterial/SupportMaterial';
 import { SupportMaterialCourse } from './Components/Pages/Courses/SupportMaterialCourse/SupportMaterialCourse';
 import { InscribeEmployes } from './Components/Pages/GestionsEmployes/InscribeEmployes/InscribeEmployes';
+import Politic from './Components/Pages/Configuration/Politic';
+import Question from './Components/Pages/Configuration/Question';
 
 // Importación de modales
 import { NavBar } from './Components/UI/NavBar/NavBar';
@@ -290,6 +293,10 @@ function App() {
 						element={<UpdateCourse />}
 					/>
 					<Route
+						path="/Cursos/Inscripciones/:id"
+						element={<RegistrationsGestor/>}
+					/>
+					<Route
 						path="/Gestiones/Instructor"
 						element={<GestionsInstructor />}
 					/>
@@ -367,13 +374,32 @@ function App() {
 					<Route path="/Actas/Lugar-formacion" element={<TrainingPlaceProceeding />} />   
 					<Route path="/no-autorizado" element={<NoAutorizado />} />
 					<Route path="/SolicitarCurso" element={<RequestCourse />} />        
-			 
 					<Route path="/SupportMaterial" element={<SupportMaterial/>}/>
 					<Route path="/SupportMaterial/:curso" element={<SupportMaterial/>}/>
                     <Route path="/SupportMaterialCourse/:id" element={<SupportMaterialCourse/>}/>
 	
 					<Route path='/SolicitarCursoAp' element={<RequestCourseAp />} />
+							<Route path="/politicas-seguridad" element={
+						<Layout
+							setShowSignIn={setShowSignIn}
+							setShowSignUp={setShowSignUp}
+							setShowModalGeneral={setShowModalGeneral}
+						>
+							<Politic />
+						</Layout>
+					} />
+
+					<Route path="/pregunta-seguridad" element={
+						<Layout
+							setShowSignIn={setShowSignIn}
+							setShowSignUp={setShowSignUp}
+							setShowModalGeneral={setShowModalGeneral}
+						>
+							<Question />
+						</Layout>
+						} />
 				</Routes>
+				
 			</>
 		</GoogleOAuthProvider>
 	);

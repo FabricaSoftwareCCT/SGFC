@@ -7,6 +7,8 @@ import { Footer } from "../../../Layouts/Footer/Footer";
 import { Main } from "../../../Layouts/Main/Main";
 import axiosInstance from "../../../../config/axiosInstance";
 import html2pdf from "html2pdf.js";
+import Swal from 'sweetalert2';
+import 'sweetalert2/themes/bulma.css';
 
 export const RequestCourseAp = () => {
 	const navigate = useNavigate()
@@ -46,7 +48,16 @@ export const RequestCourseAp = () => {
 			}
 		} catch (error) {
 			console.error(error)
-			alert("Ocurrió un error al obtener los datos del aprendiz")
+			await Swal.fire({
+				icon: 'error',
+				title: 'Error en el sistema',
+				text: 'Ocurrió un error al obtener los datos del aprendiz',
+				confirmButtonText: 'Aceptar',
+				theme: 'bulma',
+				customClass: {
+					actions: 'swal2-center-actions'
+				}
+			})
 		}
 	}
 
@@ -99,19 +110,46 @@ export const RequestCourseAp = () => {
 		}
 	};
 
-	const handleDownloadPDF = () => {
+	const handleDownloadPDF = async () => {
 		if (isEditing) {
-			alert("Se debe guardar antes de descargar el PDF")
+			await Swal.fire({
+				icon: 'info',
+				title: 'Guardar cambios',
+				text: 'Se debe guardar antes de descargar el PDF',
+				confirmButtonText: 'Aceptar',
+				theme: 'bulma',
+				customClass: {
+					actions: 'swal2-center-actions'
+				}
+			})
 			return
 		}
 		if (isExporting)
 			return
 		if (nombreCurso.length === 0) {
-			alert("El nombre del curso es obligatorio")
+			await Swal.fire({
+				icon: 'info',
+				title: 'Campo obligatorio',
+				text: 'El nombre del curso es obligatorio',
+				confirmButtonText: 'Aceptar',
+				theme: 'bulma',
+				customClass: {
+					actions: 'swal2-center-actions'
+				}
+			})
 			return
 		}
 		if (!fechaInicio || !fechaFin) {
-			alert("Se debe seleccionar una fecha de inicio y fin")
+			await Swal.fire({
+				icon: 'info',
+				title: 'Campo obligatorio',
+				text: 'Se debe seleccionar una fecha de inicio y fin',
+				confirmButtonText: 'Aceptar',
+				theme: 'bulma',
+				customClass: {
+					actions: 'swal2-center-actions'
+				}
+			})
 			return
 		}
 		setExportValues({
@@ -147,17 +185,44 @@ export const RequestCourseAp = () => {
 
 	const handleSendRequest = async () => {
 		if (isEditing) {
-			alert("Se debe guardar antes de enviar la solicitud")
+			await Swal.fire({
+				icon: 'warning',
+				title: 'Guardar cambios',
+				text: 'Se debe guardar antes de enviar la solicitud',
+				confirmButtonText: 'Aceptar',
+				theme: 'bulma',
+				customClass: {
+					actions: 'swal2-center-actions'
+				}
+			})
 			return
 		}
 		if (isExporting)
 			return
 		if (nombreCurso.length === 0) {
-			alert("El nombre del curso es obligatorio")
+			await Swal.fire({
+				icon: 'info',
+				title: 'Campo obligatorio',
+				text: 'El nombre del curso es obligatorio',
+				confirmButtonText: 'Aceptar',
+				theme: 'bulma',
+				customClass: {
+					actions: 'swal2-center-actions'
+				}
+			})
 			return
 		}
 		if (!fechaInicio || !fechaFin) {
-			alert("Se debe seleccionar una fecha de inicio y fin")
+			await Swal.fire({
+				icon: 'info',
+				title: 'Campo obligatorio',
+				text: 'Se debe seleccionar una fecha de inicio y fin',
+				confirmButtonText: 'Aceptar',
+				theme: 'bulma',
+				customClass: {
+					actions: 'swal2-center-actions'
+				}
+			})
 			return
 		}
 		try {
@@ -203,9 +268,29 @@ export const RequestCourseAp = () => {
 				archivo: archivoPDF,
 			});
 
-			alert("¡Solicitud enviada y notificación creada correctamente!");
+			await Swal.fire({
+				icon: 'success',
+				title: '¡Solicitud enviada!',
+				text: 'Solicitud enviada y notificación creada correctamente',
+				confirmButtonText: 'Aceptar',
+				confirmButtonColor: '#049019',
+				theme: 'bulma',
+				customClass: {
+					actions: 'swal2-center-actions'
+				}
+			})
 		} catch (error) {
-			alert("Error al enviar la solicitud.");
+			await Swal.fire({
+				icon: 'error',
+				title: 'Error en el sistema',
+				text: 'Error al enviar la solicitud',
+				confirmButtonText: 'Aceptar',
+				confirmButtonColor: '#d33',
+				theme: 'bulma',
+				customClass: {
+					actions: 'swal2-center-actions'
+				}
+			})
 			console.error(error);
 		}
 	};

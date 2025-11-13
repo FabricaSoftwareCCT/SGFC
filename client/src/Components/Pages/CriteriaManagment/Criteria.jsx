@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 import { Main } from "../../Layouts/Main/Main";
 import axiosInstance from "../../../config/axiosInstance";
 import { CourseList } from "../../UI/CourseList/CourseList";
+import Swal from "sweetalert2";
+import 'sweetalert2/themes/bulma.css'
 
 export const CriteriaManagement = () => {
 	const navigate = useNavigate()
@@ -50,7 +52,17 @@ export const CriteriaManagement = () => {
 			setLoading(false)
 		} catch (e) {
 			console.log(e)
-			alert("Ocurrió un error al cargar los cursos")
+			await Swal.fire({
+				icon: 'error',
+				title: 'Error',
+				text: 'Ocurrió un error al cargar los cursos',
+				confirmButtonText: 'Aceptar',
+				confirmButtonColor: '#d33',
+				theme: "bulma", // Añadido tema Bulma
+				customClass: {
+					confirmButton: 'centered-swal-button'
+				}
+			});
 		}
 	}
 

@@ -9,6 +9,7 @@ import { ManageCompany } from "./ManageCompany/ManageCompany";
 import { CreateEmpresa } from "../CreateEmpresa/CreateEmpresa";
 import fotoPerfilDefect from "../../../assets/Icons/userDefect.png";
 import { ManageManager } from "./ManageManager/ManageManager";
+import { Modal_Inscripcion } from "../../UI/Modal_Inscripcion/Modal_Inscripcion";
 
 export const GestionsCompany = () => {
 	const [empresas, setEmpresas] = useState([]);

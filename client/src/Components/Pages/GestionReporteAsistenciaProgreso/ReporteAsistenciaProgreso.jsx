@@ -2,40 +2,55 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import './ReporteAsistenciaProgreso.css';
 import { Main } from '../../Layouts/Main/Main';
 import { Footer } from '../../Layouts/Footer/Footer';
-import axiosInstance from '../../../config/axiosInstance';
-import html2pdf from 'html2pdf.js';
-import * as xlsx from 'xlsx';
+import {
+  getAllCursosForFilters,
+  getAllLearnersForFilters,
+  getCoursesByLearner,
+  getLearnersByCourse,
+  getAttendanceProgressReport
+} from '../../API/ApiReporteAsistencia';
+import {
+  generarPDFAsistenciaProgreso,
+  generarExcelAsistenciaProgreso
+} from '../../../utils/Reports/AsistenciaProgreso';
 
 export default function ReporteAsistenciaProgreso() {
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [showFilters, setShowFilters] = useState(true);
   const [previewData, setPreviewData] = useState([]);
   const [courses, setCourses] = useState([]);
   const [learners, setLearners] = useState([]);
+  const [allCourses, setAllCourses] = useState([]);
+  const [allLearners, setAllLearners] = useState([]);
   const [errorMessage, setErrorMessage] = useState('');
+  const [isLoadingFilters, setIsLoadingFilters] = useState(false);
+  const [filterErrorMessage, setFilterErrorMessage] = useState({ learner: '', course: '' });
   const [filters, setFilters] = useState({
     learnerId: '',
     courseId: '',
     dateFrom: '',
     dateTo: ''
   });
+  const [scrollShadows, setScrollShadows] = useState({ top: false, bottom: false });
 
   const previewRef = useRef(null);
+  const tableBodyRef = useRef(null);
+  const filterTimeoutRef = useRef(null);
 
   useEffect(() => {
     const fetchInitial = async () => {
       try {
-        // Cargar cursos para el selector (usa endpoint existente de reportes con paginado 1 por defecto)
-        const cursos = (await axiosInstance.get('/api/reports/ObtenerCursos/admin/1')).data?.curso?.cursos || [];
-        setCourses(cursos.map(c => ({ id: c.id, name: c.nombre_curso })));
+        const cursosFormateados = await getAllCursosForFilters();
+        setAllCourses(cursosFormateados);
+        setCourses(cursosFormateados);
       } catch (err) {
         console.error('No se pudieron cargar cursos para filtros:', err);
       }
       try {
-        // Intento: obtener aprendices si hay endpoint admin (no bloqueante)
-        const resp = await axiosInstance.get('/api/users/admin/empleados?limit=9999');
-        const empleados = resp?.data?.empleados || [];
-        setLearners(empleados.map(e => ({ id: e.ID || e.id || e.documento, name: `${e.nombres} ${e.apellidos}`, documento: e.documento })));
+        const aprendicesFormateados = await getAllLearnersForFilters();
+        setAllLearners(aprendicesFormateados);
+        setLearners(aprendicesFormateados);
       } catch (err) {
         console.error('No se pudieron cargar aprendices para filtros:', err);
       }
@@ -47,9 +62,132 @@ export default function ReporteAsistenciaProgreso() {
     return Boolean(filters.learnerId || filters.courseId || (filters.dateFrom && filters.dateTo));
   }, [filters]);
 
+  useEffect(() => {
+    if (filterTimeoutRef.current) {
+      clearTimeout(filterTimeoutRef.current);
+    }
+
+    const loadFilters = async () => {
+      setIsLoadingFilters(true);
+      setFilterErrorMessage({ learner: '', course: '' });
+      
+      try {
+        const hasLearner = filters.learnerId && filters.learnerId !== '';
+        const hasCourse = filters.courseId && filters.courseId !== '';
+        
+        if (hasLearner) {
+          const coursesResponse = await getCoursesByLearner(filters.learnerId);
+          
+          if (coursesResponse.success && coursesResponse.courses && coursesResponse.courses.length > 0) {
+            setCourses(coursesResponse.courses);
+            setFilterErrorMessage(prev => ({ ...prev, course: '' }));
+            
+            if (hasCourse) {
+              const courseExists = coursesResponse.courses.some(c => {
+                const selectedCourseId = String(filters.courseId).trim();
+                const courseId = String(c.id).trim();
+                const selectedNum = Number(selectedCourseId);
+                const courseNum = Number(courseId);
+                return selectedCourseId === courseId || 
+                       (!isNaN(selectedNum) && !isNaN(courseNum) && selectedNum === courseNum);
+              });
+              
+              if (!courseExists) {
+                setFilters(prev => ({ ...prev, courseId: '' }));
+                setFilterErrorMessage(prev => ({ ...prev, course: 'Este curso no está disponible para el aprendiz seleccionado' }));
+              } else {
+                setFilterErrorMessage(prev => ({ ...prev, course: '' }));
+              }
+            }
+          } else {
+            setCourses([]);
+            setFilterErrorMessage(prev => ({ ...prev, course: 'Este aprendiz no está inscrito en ningún curso' }));
+            if (hasCourse) {
+              setFilters(prev => ({ ...prev, courseId: '' }));
+            }
+          }
+        } else {
+          setCourses(allCourses);
+          setFilterErrorMessage(prev => ({ ...prev, course: '' }));
+        }
+
+        if (hasCourse) {
+          const learnersResponse = await getLearnersByCourse(filters.courseId);
+          
+          if (learnersResponse.success && learnersResponse.learners && learnersResponse.learners.length > 0) {
+            setLearners(learnersResponse.learners);
+            setFilterErrorMessage(prev => ({ ...prev, learner: '' }));
+            
+            if (hasLearner) {
+              const learnerExists = learnersResponse.learners.some(l => {
+                const selectedLearnerId = String(filters.learnerId).trim();
+                const learnerId = String(l.id).trim();
+                const selectedNum = Number(selectedLearnerId);
+                const learnerNum = Number(learnerId);
+                return selectedLearnerId === learnerId || 
+                       (!isNaN(selectedNum) && !isNaN(learnerNum) && selectedNum === learnerNum);
+              });
+              
+              if (!learnerExists) {
+                setFilters(prev => ({ ...prev, learnerId: '' }));
+                setFilterErrorMessage(prev => ({ ...prev, learner: 'Este aprendiz no está inscrito en el curso seleccionado' }));
+              } else {
+                setFilterErrorMessage(prev => ({ ...prev, learner: '' }));
+              }
+            }
+          } else {
+            setLearners([]);
+            setFilterErrorMessage(prev => ({ ...prev, learner: 'Este curso no tiene aprendices inscritos' }));
+            if (hasLearner) {
+              setFilters(prev => ({ ...prev, learnerId: '' }));
+            }
+          }
+        } else {
+          setLearners(allLearners);
+          setFilterErrorMessage(prev => ({ ...prev, learner: '' }));
+        }
+      } catch (error) {
+        console.error('Error al cargar filtros dinámicos:', error);
+        if (filters.learnerId && filters.learnerId !== '') {
+          setCourses(allCourses);
+          setFilterErrorMessage(prev => ({ ...prev, course: 'Error al cargar cursos' }));
+        }
+        if (filters.courseId && filters.courseId !== '') {
+          setLearners(allLearners);
+          setFilterErrorMessage(prev => ({ ...prev, learner: 'Error al cargar aprendices' }));
+        }
+      } finally {
+        setIsLoadingFilters(false);
+      }
+    };
+
+    filterTimeoutRef.current = setTimeout(loadFilters, 300);
+
+    return () => {
+      if (filterTimeoutRef.current) {
+        clearTimeout(filterTimeoutRef.current);
+      }
+    };
+  }, [filters.learnerId, filters.courseId, allCourses, allLearners]);
+
   const handleChange = (field, value) => {
     setErrorMessage('');
-    setFilters(prev => ({ ...prev, [field]: value }));
+    
+    if (field === 'learnerId') {
+      if (value === '') {
+        setFilters(prev => ({ learnerId: '', courseId: '', dateFrom: prev.dateFrom, dateTo: prev.dateTo }));
+      } else {
+        setFilters(prev => ({ ...prev, learnerId: value }));
+      }
+    } else if (field === 'courseId') {
+      if (value === '') {
+        setFilters(prev => ({ learnerId: '', courseId: '', dateFrom: prev.dateFrom, dateTo: prev.dateTo }));
+      } else {
+        setFilters(prev => ({ ...prev, courseId: value }));
+      }
+    } else {
+      setFilters(prev => ({ ...prev, [field]: value }));
+    }
   };
 
   const validateFilters = () => {
@@ -68,72 +206,99 @@ export default function ReporteAsistenciaProgreso() {
     return true;
   };
 
+  useEffect(() => {
+    const tableBody = tableBodyRef.current;
+    if (!tableBody) return;
+
+    const handleScroll = () => {
+      const { scrollTop, scrollHeight, clientHeight } = tableBody;
+      setScrollShadows({
+        top: scrollTop > 5,
+        bottom: scrollTop < scrollHeight - clientHeight - 5
+      });
+    };
+
+    tableBody.addEventListener('scroll', handleScroll);
+    handleScroll();
+
+    return () => {
+      tableBody.removeEventListener('scroll', handleScroll);
+    };
+  }, [previewData]);
+
   const generateReport = async () => {
     setErrorMessage('');
     if (!validateFilters()) return;
     setIsGenerating(true);
+    setIsLoading(true);
     try {
-      // Construcción de payload compatible con rutas existentes
-      const filtre = {};
-      if (filters.courseId) filtre.nombre_curso = filters.courseId; // backend espera nombre_curso en algunos flujos
-      if (filters.dateFrom) filtre.fecha_inicio = filters.dateFrom;
-      if (filters.dateTo) filtre.fecha_fin = filters.dateTo;
+      const response = await getAttendanceProgressReport(filters);
 
-      let data = [];
-
-      // Preferir reporte general si hay criterios por curso/fechas
-      if (Object.keys(filtre).length > 0) {
-        const res = await axiosInstance.get('/api/reports/generarReporte', { data: { nombre_curso: filters.courseId, filtre } });
-        data = Array.isArray(res.data) ? res.data : [];
-      }
-
-      // Si solo hay aprendiz, intentar asistencia/progreso por aprendiz vía attendance (fallback simple)
-      if (data.length === 0 && filters.learnerId) {
-        try {
-          const attend = await axiosInstance.get(`/api/attendance/user/${filters.learnerId}`);
-          data = Array.isArray(attend.data) ? attend.data : [];
-        } catch (err) {
-          console.error('Fallo consulta de asistencia por aprendiz:', err);
-        }
-      }
-
-      if (!data || data.length === 0) {
-        setPreviewData([]);
-        setErrorMessage('No hay registros para los criterios seleccionados.');
-        return;
-      }
-
-      setPreviewData(data);
-    } catch (error) {
-      if (error?.response?.status === 401 || error?.response?.status === 403) {
-        setErrorMessage('No tienes permisos para generar este reporte.');
-      } else if (error?.response?.status === 404) {
-        setErrorMessage('No hay registros para los criterios seleccionados.');
+      if (response.success && response.records && response.records.length > 0) {
+        setPreviewData(response.records);
       } else {
-        setErrorMessage('Ocurrió un error al generar el reporte.');
+        setPreviewData([]);
+        setErrorMessage('No se encontraron registros para los criterios seleccionados.');
       }
+    } catch (error) {
+      if (error.response) {
+        const status = error.response.status;
+        const message = error.response.data?.message || 'Error al generar el reporte';
+        
+        if (status === 401) {
+          setErrorMessage('No estás autenticado. Por favor, inicia sesión nuevamente.');
+        } else if (status === 403) {
+          setErrorMessage('No tienes permisos para generar este reporte.');
+        } else if (status === 404) {
+          setErrorMessage('No se encontraron registros para los criterios seleccionados.');
+        } else if (status === 400) {
+          setErrorMessage(message);
+        } else {
+          setErrorMessage('Error al generar el reporte. Por favor, intenta nuevamente.');
+        }
+      } else {
+        setErrorMessage('Error de conexión. Por favor, verifica tu internet e intenta nuevamente.');
+      }
+      setPreviewData([]);
     } finally {
       setIsGenerating(false);
+      setIsLoading(false);
     }
   };
 
+  const SkeletonRow = () => (
+    <div className="preview_table_row skeleton_row">
+      <div className="preview_cell_text skeleton_cell"></div>
+      <div className="preview_cell_number skeleton_cell"></div>
+      <div className="preview_cell_text skeleton_cell"></div>
+      <div className="preview_cell_center skeleton_cell skeleton_badge"></div>
+      <div className="preview_cell_number skeleton_cell"></div>
+      <div className="preview_cell_text skeleton_cell"></div>
+    </div>
+  );
+
   const downloadPDF = async () => {
-    if (!previewRef.current) return;
-    const worker = html2pdf().set({
-      margin: 10,
-      filename: 'reporte_asistencia_progreso.pdf',
-      html2canvas: { scale: 2, useCORS: true, backgroundColor: '#FFFFFF' },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    }).from(previewRef.current);
-    await worker.save();
+    try {
+      await generarPDFAsistenciaProgreso(previewData, filters, courses, learners, 'save');
+    } catch (error) {
+      alert(error.message || 'Error al generar el PDF');
+    }
+  };
+
+  const printPDF = async () => {
+    try {
+      await generarPDFAsistenciaProgreso(previewData, filters, courses, learners, 'print');
+    } catch (error) {
+      alert(error.message || 'Error al imprimir el PDF');
+    }
   };
 
   const downloadXLSX = () => {
-    const rows = Array.isArray(previewData) ? previewData : [];
-    const sheet = xlsx.utils.json_to_sheet(rows);
-    const wb = xlsx.utils.book_new();
-    xlsx.utils.book_append_sheet(wb, sheet, 'Reporte');
-    xlsx.writeFile(wb, 'reporte_asistencia_progreso.xlsx', { compression: true });
+    try {
+      generarExcelAsistenciaProgreso(previewData);
+    } catch (error) {
+      alert(error.message || 'Ocurrió un error al generar el archivo Excel');
+    }
   };
 
   return (
@@ -153,8 +318,21 @@ export default function ReporteAsistenciaProgreso() {
         <div className="reporte-ap_filters">
           <div className="filter_row">
             <div className="filter_field">
-              <label>Aprendiz</label>
-              <select value={filters.learnerId} onChange={e => handleChange('learnerId', e.target.value)}>
+              <label>
+                Aprendiz 
+                {isLoadingFilters && filters.courseId && (
+                  <span className="filter_status_loading">(filtrando...)</span>
+                )}
+                {!isLoadingFilters && filterErrorMessage.learner && (
+                  <span className="filter_status_error">{filterErrorMessage.learner}</span>
+                )}
+              </label>
+              <select 
+                value={filters.learnerId} 
+                onChange={e => handleChange('learnerId', e.target.value)}
+                disabled={isLoadingFilters && filters.courseId}
+                className={filterErrorMessage.learner ? 'filter_select_error' : ''}
+              >
                 <option value="">Todos</option>
                 {learners.map(l => (
                   <option key={l.id} value={l.id}>{l.name} {l.documento ? `- ${l.documento}` : ''}</option>
@@ -162,11 +340,24 @@ export default function ReporteAsistenciaProgreso() {
               </select>
             </div>
             <div className="filter_field">
-              <label>Curso</label>
-              <select value={filters.courseId} onChange={e => handleChange('courseId', e.target.value)}>
+              <label>
+                Curso 
+                {isLoadingFilters && filters.learnerId && (
+                  <span className="filter_status_loading">(filtrando...)</span>
+                )}
+                {!isLoadingFilters && filterErrorMessage.course && (
+                  <span className="filter_status_error">{filterErrorMessage.course}</span>
+                )}
+              </label>
+              <select 
+                value={filters.courseId} 
+                onChange={e => handleChange('courseId', e.target.value)}
+                disabled={isLoadingFilters && filters.learnerId}
+                className={filterErrorMessage.course ? 'filter_select_error' : ''}
+              >
                 <option value="">Todos</option>
                 {courses.map(c => (
-                  <option key={c.id} value={c.name}>{c.name}</option>
+                  <option key={c.id} value={c.id}>{c.name}</option>
                 ))}
               </select>
             </div>
@@ -201,12 +392,12 @@ export default function ReporteAsistenciaProgreso() {
         <div className="preview_actions">
           <button className="btn_pdf" onClick={downloadPDF} disabled={!previewData.length}>Descargar PDF</button>
           <button className="btn_xlsx" onClick={downloadXLSX} disabled={!previewData.length}>Descargar XLSX</button>
-          <button className="btn_print" onClick={() => window.print()} disabled={!previewData.length}>Imprimir</button>
+          <button className="btn_print" onClick={printPDF} disabled={!previewData.length}>Imprimir</button>
         </div>
       </div>
 
       <div className="reporte-ap_preview" ref={previewRef}>
-        {previewData.length === 0 ? (
+        {!isLoading && previewData.length === 0 ? (
           <div className="empty_state">
             <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
               <path d="M3 4h18v14H3z" fill="none" stroke="#6B7280" strokeWidth="1.5"/>
@@ -219,26 +410,108 @@ export default function ReporteAsistenciaProgreso() {
             <div className="empty_help">Ajusta los filtros y vuelve a generar el reporte.</div>
           </div>
         ) : (
-          <div className="preview_table">
-            <div className="preview_table_head">
-              <div>Aprendiz</div>
-              <div>Documento</div>
-              <div>Curso</div>
-              <div>Estado</div>
-              <div>Fecha</div>
-              <div>Registrado por</div>
-            </div>
-            {previewData.map((row, idx) => (
-              <div className="preview_table_row" key={idx}>
-                <div>{row.nombreUser || row.nombres || '-'}</div>
-                <div>{row.documentoUser || row.documento || '-'}</div>
-                <div>{row.nombreCurso || row.Curso?.nombre_curso || '-'}</div>
-                <div>{row.estadoAsistencia || row.estado || '-'}</div>
-                <div>{row.fechaAsistencia || row.fecha || '-'}</div>
-                <div>{row.registradoPor || '-'}</div>
+          <>
+            <div className="preview_table_wrapper">
+              <div className="preview_table">
+                <div className="preview_table_head sticky_header">
+                  <div className="preview_cell_text">Aprendiz</div>
+                  <div className="preview_cell_number">Documento</div>
+                  <div className="preview_cell_text">Curso</div>
+                  <div className="preview_cell_center">Estado</div>
+                  <div className="preview_cell_number">Fecha</div>
+                  <div className="preview_cell_text">Registrado por</div>
+                </div>
+                <div 
+                  className={`preview_table_body ${scrollShadows.top ? 'shadow-top' : ''} ${scrollShadows.bottom ? 'shadow-bottom' : ''}`}
+                  ref={tableBodyRef}
+                >
+                  {isLoading ? (
+                    <>
+                      {[...Array(10)].map((_, idx) => (
+                        <SkeletonRow key={`skeleton-${idx}`} />
+                      ))}
+                    </>
+                  ) : (
+                    previewData.map((row, idx) => {
+                      const estadoAsistencia = row.estadoAsistencia || '';
+                      const isPresente = estadoAsistencia.toLowerCase() === 'presente';
+                      const isAusente = estadoAsistencia.toLowerCase() === 'ausente';
+                      
+                      return (
+                        <div className="preview_table_row" key={idx}>
+                          <div className="preview_cell_text">{`${row.nombreUser || ''} ${row.apellidoUser || ''}`.trim() || '-'}</div>
+                          <div className="preview_cell_number">{row.documentoUser || '-'}</div>
+                          <div className="preview_cell_text">{row.nombreCurso || '-'}</div>
+                          <div className="preview_cell_center">
+                            {isPresente && (
+                              <span className="badge badge-presente">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                                  <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                                Presente
+                              </span>
+                            )}
+                            {isAusente && (
+                              <span className="badge badge-ausente">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                                Ausente
+                              </span>
+                            )}
+                            {!isPresente && !isAusente && (
+                              <span className="badge badge-pendiente">{estadoAsistencia || '-'}</span>
+                            )}
+                          </div>
+                          <div className="preview_cell_number">{row.fechaAsistencia ? new Date(row.fechaAsistencia).toLocaleDateString('es-CO') : '-'}</div>
+                          <div className="preview_cell_text">{row.registradoPor || '-'}</div>
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
               </div>
-            ))}
-          </div>
+              {!isLoading && previewData.length > 0 && (
+                <div className="preview_table_footer sticky_footer">
+                  {(() => {
+                    const totales = previewData.reduce((acc, row) => {
+                      const estado = (row.estadoAsistencia || '').toLowerCase();
+                      acc.total++;
+                      if (estado === 'presente') acc.presentes++;
+                      else if (estado === 'ausente') acc.ausentes++;
+                      else acc.otros++;
+                      return acc;
+                    }, { total: 0, presentes: 0, ausentes: 0, otros: 0 });
+                    
+                    return (
+                      <div className="footer_stats">
+                        <span className="stat_item">
+                          <strong>{totales.total}</strong> registro{totales.total !== 1 ? 's' : ''} total{totales.total !== 1 ? 'es' : ''}
+                        </span>
+                        <span className="stat_separator">•</span>
+                        <span className="stat_item stat_presente">
+                          <strong>{totales.presentes}</strong> Presente{totales.presentes !== 1 ? 's' : ''}
+                        </span>
+                        <span className="stat_separator">•</span>
+                        <span className="stat_item stat_ausente">
+                          <strong>{totales.ausentes}</strong> Ausente{totales.ausentes !== 1 ? 's' : ''}
+                        </span>
+                        {totales.otros > 0 && (
+                          <>
+                            <span className="stat_separator">•</span>
+                            <span className="stat_item stat_otros">
+                              <strong>{totales.otros}</strong> Otro{totales.otros !== 1 ? 's' : ''}
+                            </span>
+                          </>
+                        )}
+                      </div>
+                    );
+                  })()}
+                </div>
+              )}
+            </div>
+          </>
         )}
       </div>
     </div>

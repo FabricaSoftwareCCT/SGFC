@@ -1,10 +1,22 @@
-import React, { useState, useMemo, useEffect, useRef } from 'react'; // ← AGREGAR useRef y useEffect
+import { useState, useMemo, useEffect, useRef } from 'react';
 import EficienciaReporte from './Eficiencia-reporte';
 import './ReporteEstudiantes.css';
+import axiosInstance from '../../../config/axiosInstance';
+import { generarPDFEstudiantes, generarExcelEstudiantes } from '../../../utils/Reports/Estudiantes';
+import Swal from 'sweetalert2';
+import 'sweetalert2/themes/bulma.css'
 
 export default function ReporteEstudiantes({ cursoSeleccionado, onVolver }) {
   const [mostrarFiltro, setMostrarFiltro] = useState(false);
   const [mostrarEficiencia, setMostrarEficiencia] = useState(false);
+  const [datosEstudiantes, setDatosEstudiantes] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [showDownloadOptions, setShowDownloadOptions] = useState(false);
+  const [reportType, setReportType] = useState("pdf");
+  const [generating, setGenerating] = useState(false);
+  
+  const filtroRef = useRef(null);
+
   const [filtros, setFiltros] = useState({
     nombre: '',
     apellido: '',
@@ -17,53 +29,199 @@ export default function ReporteEstudiantes({ cursoSeleccionado, onVolver }) {
     asistencias: ''
   });
 
-  const datosEstudiantes = [
-    { 
-      nombre: "Juan Carlos", 
-      apellido: "Pérez García", 
-      documento: "12345678", 
-      estado: "Activo", 
-      faltas: 2, 
-      asistencias: 28 
-    },
-    { 
-      nombre: "María Fernanda", 
-      apellido: "López Martínez", 
-      documento: "87654321", 
-      estado: "Activo", 
-      faltas: 1, 
-      asistencias: 29 
-    },
-    { 
-      nombre: "Carlos Alberto", 
-      apellido: "Rodríguez Silva", 
-      documento: "11223344", 
-      estado: "Inactivo", 
-      faltas: 5, 
-      asistencias: 15 
-    },
-    { 
-      nombre: "Ana María", 
-      apellido: "González Pérez", 
-      documento: "44332211", 
-      estado: "Activo", 
-      faltas: 0, 
-      asistencias: 30 
-    },
-    { 
-      nombre: "Pedro Antonio", 
-      apellido: "Hernández Díaz", 
-      documento: "55667788", 
-      estado: "Inactivo", 
-      faltas: 3, 
-      asistencias: 22 
-    }
-  ];
+  // Cargar empleados del curso con estadísticas de asistencias
+  useEffect(() => {
+    const cargarDatosEstudiantes = async () => {
+      if (!cursoSeleccionado || !cursoSeleccionado.id) {
+        setIsLoading(false);
+        return;
+      }
 
-  // AGREGAR ESTA LÍNEA - usar filtroRef en lugar de filtrosRef
-  const filtroRef = useRef(null);
+      setIsLoading(true);
+      try {
+        // Obtener participantes del curso
+        const participantsResponse = await axiosInstance.get(
+          `/api/courses/cursos/${cursoSeleccionado.id}/participants`,
+          { params: { limit: 9999 } }
+        );
 
-  // DESCOMENTAR Y CORREGIR ESTE useEffect
+        if (!participantsResponse.data || !participantsResponse.data.success) {
+          console.error('Error: La respuesta no tiene success o no existe', participantsResponse.data);
+          setDatosEstudiantes([]);
+          setIsLoading(false);
+          return;
+        }
+
+        let participantes = participantsResponse.data.participants || [];
+        
+        // Si participantes es un objeto con propiedades, puede que sea un solo participante o estructura diferente
+        if (!Array.isArray(participantes)) {
+          if (participantes && typeof participantes === 'object') {
+            // Intentar convertir a array
+            participantes = [participantes];
+          } else {
+            setDatosEstudiantes([]);
+            setIsLoading(false);
+            return;
+          }
+        }
+        
+        if (participantes.length === 0) {
+          setDatosEstudiantes([]);
+          setIsLoading(false);
+          return;
+        }
+
+        // Obtener registros de asistencia del curso
+        let registrosAsistencia = [];
+        try {
+          const attendanceResponse = await axiosInstance.get(
+            `/api/attendance/courses/${cursoSeleccionado.id}/get`,
+            { params: { limit: 9999 } }
+          );
+
+          registrosAsistencia = attendanceResponse.data?.success 
+            ? (attendanceResponse.data.records || []) 
+            : [];
+        } catch (attendanceError) {
+          registrosAsistencia = [];
+        }
+
+        // Calcular estadísticas por participante
+        const estudiantesConEstadisticas = participantes
+          .map((participante, index) => {
+            try {
+              // Los objetos Sequelize ya están serializados como JSON cuando llegan aquí
+              // Acceder directamente a las propiedades
+              const participanteData = participante;
+              
+              // Acceder al aprendiz - puede estar en diferentes ubicaciones
+              let aprendizData = null;
+              let aprendizId = null;
+              
+              // Intentar múltiples formas de acceder al aprendiz
+              if (participanteData.aprendiz) {
+                aprendizData = participanteData.aprendiz;
+              } else if (participanteData.Aprendiz) {
+                aprendizData = participanteData.Aprendiz;
+              } else if (participanteData.dataValues?.aprendiz) {
+                aprendizData = participanteData.dataValues.aprendiz;
+              }
+              
+              // Si no encontramos el aprendiz, intentar acceder de forma más directa
+              if (!aprendizData) {
+                // Último intento: buscar cualquier propiedad que contenga datos de usuario
+                const allKeys = Object.keys(participanteData || {});
+                for (const key of allKeys) {
+                  const value = participanteData[key];
+                  if (value && typeof value === 'object' && (value.nombres || value.apellidos || value.documento)) {
+                    aprendizData = value;
+                    break;
+                  }
+                }
+                
+                if (!aprendizData) {
+                  return null;
+                }
+              }
+
+              // Extraer ID del aprendiz
+              aprendizId = aprendizData.ID || 
+                          aprendizData.id || 
+                          participanteData.aprendiz_ID || 
+                          participanteData.aprendizId ||
+                          null;
+
+              // Si todavía no hay ID, intentar del participante directamente
+              if (!aprendizId) {
+                aprendizId = participanteData.aprendiz_ID || 
+                            participanteData.aprendizId ||
+                            null;
+              }
+
+              if (!aprendizId) {
+                // Si no hay ID pero hay datos del aprendiz, usar el ID del participante como fallback
+                if (aprendizData && (aprendizData.nombres || aprendizData.apellidos || aprendizData.documento)) {
+                  // Intentar obtener el ID del campo aprendiz_ID del participante
+                  aprendizId = participanteData.aprendiz_ID || participanteData.aprendizId || null;
+                }
+                
+                if (!aprendizId) {
+                  return null;
+                }
+              }
+
+              // Filtrar registros de este aprendiz
+              const registrosAprendiz = registrosAsistencia.filter(registro => {
+                let registroData = registro;
+                if (typeof registro.toJSON === 'function') {
+                  registroData = registro.toJSON();
+                }
+                
+                const registroAprendizId = registroData.aprendiz?.ID || 
+                                          registroData.aprendiz?.id ||
+                                          registroData.usuarios_ID ||
+                                          registroData.usuariosId ||
+                                          registroData.usuario_ID ||
+                                          registroData.usuarioId ||
+                                          registroData.dataValues?.usuarios_ID;
+              
+                return registroAprendizId && String(registroAprendizId) === String(aprendizId);
+              });
+
+              // Calcular totales
+              const asistencias = registrosAprendiz.filter(r => {
+                let rData = r;
+                if (typeof r.toJSON === 'function') {
+                  rData = r.toJSON();
+                }
+                return (rData.estado_asistencia || '').toLowerCase() === 'presente';
+              }).length;
+              
+              const faltas = registrosAprendiz.filter(r => {
+                let rData = r;
+                if (typeof r.toJSON === 'function') {
+                  rData = r.toJSON();
+                }
+                return (rData.estado_asistencia || '').toLowerCase() === 'ausente';
+              }).length;
+
+              const estudiante = {
+                id: aprendizId,
+                nombre: (aprendizData.nombres || '').trim(),
+                apellido: (aprendizData.apellidos || '').trim(),
+                documento: aprendizData.documento || '',
+                estado: (aprendizData.estado || '').toLowerCase() === 'activo' ? 'Activo' : 'Inactivo',
+                faltas: faltas,
+                asistencias: asistencias
+              };
+
+              // Validar que al menos tenga datos básicos
+              if (!estudiante.nombre && !estudiante.apellido && !estudiante.documento) {
+                return null;
+              }
+
+              return estudiante;
+            } catch (error) {
+              console.error(`Error procesando participante ${index}:`, error);
+              return null;
+            }
+          })
+          .filter(estudiante => estudiante !== null && estudiante.id && (estudiante.nombre || estudiante.apellido || estudiante.documento)); // Filtrar nulos y vacíos
+
+        setDatosEstudiantes(estudiantesConEstadisticas);
+      } catch (error) {
+        console.error('Error al cargar datos de estudiantes:', error);
+        console.error('Detalles del error:', error.response?.data || error.message);
+        setDatosEstudiantes([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    cargarDatosEstudiantes();
+  }, [cursoSeleccionado]);
+
   useEffect(() => {
     function handleClickOutside(event) {
       if (mostrarFiltro && filtroRef.current && !filtroRef.current.contains(event.target)) {
@@ -75,8 +233,6 @@ export default function ReporteEstudiantes({ cursoSeleccionado, onVolver }) {
     }
 
     document.addEventListener('mousedown', handleClickOutside);
-
-    // Limpiar event listener cuando el componente se desmonta
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
@@ -119,21 +275,18 @@ export default function ReporteEstudiantes({ cursoSeleccionado, onVolver }) {
         return false;
       }
 
-      // Si pasa todos los filtros, incluir el estudiante
       return true;
     });
-  }, [filtros]);
+  }, [filtros, datosEstudiantes]);
 
   const toggleFiltro = () => {
     setMostrarFiltro(!mostrarFiltro);
   };
 
-  // Función para navegar a Eficiencia-Reporte
   const handleEficienciaClick = () => {
     setMostrarEficiencia(true);
   };
 
-  // Función para volver desde EficienciaReporte
   const handleVolverDesdeEficiencia = () => {
     setMostrarEficiencia(false);
   };
@@ -169,11 +322,32 @@ export default function ReporteEstudiantes({ cursoSeleccionado, onVolver }) {
     });
   };
 
-  const generarReporte = () => {
-    console.log('Generando reporte de estudiantes...');
-    const datosReporte = estudiantesFiltrados.length > 0 ? estudiantesFiltrados : datosEstudiantes;
-    alert(`Reporte generado exitosamente\nTotal de estudiantes: ${datosReporte.length}`);
+  const formatDetailedError = (error) => {
+    const statusCode = error?.response?.status;
+    const statusText = error?.response?.statusText;
+    const responseData = error?.response?.data;
+    const requestUrl = error?.config?.url;
+    const method = error?.config?.method;
+    const baseMessage = error?.message || "Error desconocido";
+    try {
+      const responsePreview = typeof responseData === "string" ? responseData : JSON.stringify(responseData);
+      return [
+        `Mensaje: ${baseMessage}`,
+        requestUrl ? `Endpoint: [${method?.toUpperCase()}] ${requestUrl}` : undefined,
+        statusCode ? `HTTP: ${statusCode} ${statusText || ""}`.trim() : undefined,
+        responseData ? `Respuesta: ${responsePreview}` : undefined,
+      ].filter(Boolean).join("\n");
+    } catch (_) {
+      return [
+        `Mensaje: ${baseMessage}`,
+        requestUrl ? `Endpoint: [${method?.toUpperCase()}] ${requestUrl}` : undefined,
+        statusCode ? `HTTP: ${statusCode} ${statusText || ""}`.trim() : undefined,
+        responseData ? `Respuesta: [no serializable]` : undefined,
+      ].filter(Boolean).join("\n");
+    }
   };
+
+
 
   // Contador de filtros activos
   const filtrosActivos = () => {
@@ -200,7 +374,6 @@ export default function ReporteEstudiantes({ cursoSeleccionado, onVolver }) {
 
   return (
     <div className="reporte-container-estudiantes">
-      {/* Contenedor para título y botón de volver - TÍTULO CENTRADO, BOTÓN A LA IZQUIERDA */}
       <div className="titulo-container-estudiantes">
         <button 
           className="button-volver-estudiantes"
@@ -214,11 +387,13 @@ export default function ReporteEstudiantes({ cursoSeleccionado, onVolver }) {
       </div>
       
       <div className='container-tabla-estudiantes'>
-        <button className="button-generar-reporte-estudiantes" onClick={generarReporte}>
+        <button 
+          className="button-generar-reporte-estudiantes" 
+          onClick={() => setShowDownloadOptions(true)}
+        >
           Generar reporte
         </button>
         
-        {/* BOTÓN DE EFICIENCIA AGREGADO AQUÍ */}
         <button 
           className="button-eficiencia-estudiantes"
           onClick={handleEficienciaClick}
@@ -234,9 +409,7 @@ export default function ReporteEstudiantes({ cursoSeleccionado, onVolver }) {
         </button>
         
         {mostrarFiltro && (
-          // CORREGIR: usar filtroRef en lugar de filtrosRef
           <div className="filtro-menu-estudiantes" ref={filtroRef}>
-            {/* Filtro por Nombre */}
             <div className="filtro-grupo-estudiantes">
               <div className="filtro-titulo-estudiantes">Nombre</div>
               <input 
@@ -248,7 +421,6 @@ export default function ReporteEstudiantes({ cursoSeleccionado, onVolver }) {
               />
             </div>
 
-            {/* Filtro por Apellido */}
             <div className="filtro-grupo-estudiantes">
               <div className="filtro-titulo-estudiantes">Apellido</div>
               <input 
@@ -260,7 +432,6 @@ export default function ReporteEstudiantes({ cursoSeleccionado, onVolver }) {
               />
             </div>
 
-            {/* Filtro por Documento */}
             <div className="filtro-grupo-estudiantes">
               <div className="filtro-titulo-estudiantes">Documento</div>
               <input 
@@ -272,7 +443,6 @@ export default function ReporteEstudiantes({ cursoSeleccionado, onVolver }) {
               />
             </div>
 
-            {/* Filtro por Estado */}
             <div className="filtro-grupo-estudiantes">
               <div className="filtro-titulo-estudiantes">Estado</div>
               <div className="filtro-opciones-estudiantes">
@@ -293,7 +463,6 @@ export default function ReporteEstudiantes({ cursoSeleccionado, onVolver }) {
               </div>
             </div>
 
-            {/* Filtro por Faltas */}
             <div className="filtro-grupo-estudiantes">
               <div className="filtro-titulo-estudiantes">Faltas</div>
               <input 
@@ -306,7 +475,6 @@ export default function ReporteEstudiantes({ cursoSeleccionado, onVolver }) {
               />
             </div>
 
-            {/* Filtro por Asistencias */}
             <div className="filtro-grupo-estudiantes">
               <div className="filtro-titulo-estudiantes">N° Asistencias</div>
               <input 
@@ -319,14 +487,12 @@ export default function ReporteEstudiantes({ cursoSeleccionado, onVolver }) {
               />
             </div>
 
-            {/* Información de resultados */}
             <div className="filtro-info-estudiantes">
               <div className="filtro-resultados-estudiantes">
                 Resultados: {estudiantesFiltrados.length} de {datosEstudiantes.length} estudiantes
               </div>
             </div>
 
-            {/* Botones del filtro */}
             <div className="filtro-botones-estudiantes">
               <button className="filtro-boton-estudiantes filtro-limpiar-estudiantes" onClick={limpiarFiltros}>
                 Limpiar
@@ -337,7 +503,6 @@ export default function ReporteEstudiantes({ cursoSeleccionado, onVolver }) {
       </div>
 
       <div className="tabla-datos-estudiantes">
-        {/* Cabecera de la tabla */}
         <div className="tabla-cabecera-estudiantes">
           <div>Nombres</div>
           <div>Apellidos</div>
@@ -347,18 +512,25 @@ export default function ReporteEstudiantes({ cursoSeleccionado, onVolver }) {
           <div>N° Asistencias</div>
         </div>
 
-        {/* Filas de datos filtrados */}
-        {estudiantesFiltrados.length > 0 ? (
+        {isLoading ? (
+          <div className="no-resultados-estudiantes">
+            Cargando datos...
+          </div>
+        ) : datosEstudiantes.length === 0 ? (
+          <div className="no-resultados-estudiantes">
+            No hay estudiantes registrados en este curso
+          </div>
+        ) : estudiantesFiltrados.length > 0 ? (
           estudiantesFiltrados.map((estudiante, index) => (
-            <div key={index} className="tabla-fila-estudiantes">
-              <div className="columna-nombre-estudiantes">{estudiante.nombre}</div>
-              <div className="columna-apellido-estudiantes">{estudiante.apellido}</div>
-              <div className="columna-documento-estudiantes">{estudiante.documento}</div>
+            <div key={estudiante.id || index} className="tabla-fila-estudiantes">
+              <div className="columna-nombre-estudiantes">{estudiante.nombre || '-'}</div>
+              <div className="columna-apellido-estudiantes">{estudiante.apellido || '-'}</div>
+              <div className="columna-documento-estudiantes">{estudiante.documento || '-'}</div>
               <div className={estudiante.estado === "Activo" ? "estado-activo-estudiantes" : "estado-inactivo-estudiantes"}>
-                {estudiante.estado}
+                {estudiante.estado || '-'}
               </div>
-              <div className="columna-faltas-estudiantes">{estudiante.faltas}</div>
-              <div className="columna-asistencias-estudiantes">{estudiante.asistencias}</div>
+              <div className="columna-faltas-estudiantes">{estudiante.faltas || 0}</div>
+              <div className="columna-asistencias-estudiantes">{estudiante.asistencias || 0}</div>
             </div>
           ))
         ) : (
@@ -367,6 +539,91 @@ export default function ReporteEstudiantes({ cursoSeleccionado, onVolver }) {
           </div>
         )}
       </div>
+
+      {showDownloadOptions && (
+        <div className="modal-overlay">
+          <div
+            className="modal-background"
+            style={{
+              height: "fit-content",
+              paddingBottom: "20px",
+              width: "35%",
+              minHeight: "fit-content",
+            }}
+          >
+            <div className="container_return_EditCalendar">
+              <h5
+                onClick={() => setShowDownloadOptions(false)}
+                style={{ cursor: "pointer" }}
+              >
+                Volver
+              </h5>
+              <button
+                onClick={() => setShowDownloadOptions(false)}
+                className="closeModal"
+              ></button>
+            </div>
+            <h2 className="modal-title-edit-calendar">
+              Tipo de reporte
+            </h2>
+            <div
+              className="statusButtons"
+              style={{
+                width: "90%",
+              }}
+            >
+              <button
+                className={`status-btn ${
+                  reportType === "pdf" && "selected"
+                }`}
+                onClick={() => setReportType("pdf")}
+              >
+                PDF
+              </button>
+              <button
+                className={`status-btn ${
+                  reportType === "excel" && "selected"
+                }`}
+                onClick={() => setReportType("excel")}
+              >
+                Excel
+              </button>
+            </div>
+            <button
+              className="button"
+              style={{
+                marginTop: "20px",
+              }}
+              onClick={async () => {
+                setGenerating(true);
+                const datosReporte = estudiantesFiltrados.length > 0 ? estudiantesFiltrados : datosEstudiantes;
+                
+                if (datosReporte.length === 0) {
+                  alert('No hay datos para generar el reporte');
+                  setGenerating(false);
+                  return;
+                }
+
+                try {
+                  if (reportType === "excel") {
+                    generarExcelEstudiantes(datosReporte, cursoSeleccionado?.curso || 'Curso');
+                  } else {
+                    await generarPDFEstudiantes(datosReporte, cursoSeleccionado?.curso || 'Curso');
+                  }
+                } catch (err) {
+                  console.error(`Error generando ${reportType.toUpperCase()}:`, err);
+                  alert(`Error al generar ${reportType.toUpperCase()}\n\n${formatDetailedError(err)}`);
+                } finally {
+                  setGenerating(false);
+                }
+              }}
+              disabled={generating || datosEstudiantes.length === 0}
+            >
+              {generating ? "Generando..." : "Generar reporte"}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

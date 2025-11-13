@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect,useRef } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import './ReporteEstadisticas.css';
 import ReporteEstudiantes from './ReporteEstudiantes';
 import {getCursos} from '../../API/ApiRpeort';
@@ -6,12 +6,13 @@ import html2pdf from "html2pdf.js"
 import { FormatCourse } from './FormatCourse/FormatCourse';
 import axiosInstance from '../../../config/axiosInstance';
 import * as xlsx from "xlsx"
+import Swal from 'sweetalert2';
+import 'sweetalert2/themes/bulma.css'
 
 
 export default function ReporteEstadisticas() {
 	const [pantallaActual, setPantallaActual] = useState('cursos');
 	const [cursoSeleccionado, setCursoSeleccionado] = useState(null);
-	const [botonActivo, setBotonActivo] = useState('cursos');
 	const [mostrarFiltro, setMostrarFiltro] = useState(false);
 	const [datosCurso, setdatosCurso] = useState([]);
 	const [showDownloadOptions, setShowDownloadOptions] = useState(false)
@@ -96,15 +97,32 @@ export default function ReporteEstadisticas() {
 				const data = await getCursos(currentPage);
 
 				if(!data){
-					alert("Error al cargar datos")
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Error al cargar datos',
+            confirmButtonText: 'Aceptar',
+            confirmButtonColor: '#d33',
+            theme:"bulma",
+                customClass: { confirmButton: 'centered-swal-button' }
+          });
 				}
 				//Acutalizar estado
 				setdatosCurso(data);
 			}catch(err){
-				alert(" Error en servidor ")
+        Swal.fire({
+          icon: 'error',
+          title: 'Error del servidor',
+          text: 'Error en servidor',
+          confirmButtonText: 'Aceptar',
+          confirmButtonColor: '#d33',
+                theme:"bulma",
+      customClass: { confirmButton: 'centered-swal-button' }
+        });
 			}
 		}
 		fetchData()
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	// Resetear página cuando cambien filtros
@@ -125,11 +143,17 @@ export default function ReporteEstadisticas() {
 		return datosCurso?.filter(curso => {
 			// Filtro por estado
 			const estadosSeleccionados = [];
-			if (filtros.estado.activo) estadosSeleccionados.push('activo');
-			if (filtros.estado.inactivo) estadosSeleccionados.push('inactivo');
+			if (filtros.estado.activo) estadosSeleccionados.push('activo', 'Activo');
+			if (filtros.estado.inactivo) estadosSeleccionados.push('inactivo', 'Inactivo');
 			
-			if (estadosSeleccionados.length > 0 && !estadosSeleccionados.includes(curso.estado)) {
-				return false;
+			if (estadosSeleccionados.length > 0) {
+				const estadoCurso = curso.estado?.toLowerCase() || '';
+				const coincideActivo = filtros.estado.activo && (estadoCurso === 'activo');
+				const coincideInactivo = filtros.estado.inactivo && (estadoCurso === 'inactivo');
+				
+				if (!coincideActivo && !coincideInactivo) {
+					return false;
+				}
 			}
 
 			// Filtro por rango de empleados
@@ -147,8 +171,12 @@ export default function ReporteEstadisticas() {
 			}
 
 			// Filtro por nombre del instructor
-			if (filtros.instructor && !curso.instructor.toLowerCase().includes(filtros.instructor.toLowerCase())) {
-				return false;
+			if (filtros.instructor && curso.instructor) {
+				const instructorLower = curso.instructor.toLowerCase();
+				const filtroLower = filtros.instructor.toLowerCase();
+				if (!instructorLower.includes(filtroLower)) {
+					return false;
+				}
 			}
 
 			// Si pasa todos los filtros, incluir el curso
@@ -163,6 +191,10 @@ export default function ReporteEstadisticas() {
 
 	// Función para manejar el clic en una fila
 	const handleFilaClick = (curso) => {
+		if (!curso.empleados || curso.empleados === 0) {
+			alert('Este curso no tiene empleados registrados. No se puede generar un reporte.');
+			return;
+		}
 		setCursoSeleccionado(curso);
 		setPantallaActual('estudiantes');
 	};
@@ -171,10 +203,6 @@ export default function ReporteEstadisticas() {
 	const handleVolverACursos = () => {
 		setPantallaActual('cursos');
 		setCursoSeleccionado(null);
-	};
-
-	const handleBotonClick = (boton) => {
-		setBotonActivo(boton);
 	};
 
 	const toggleFiltro = () => {
@@ -455,21 +483,25 @@ const generarReporteDesdeElemento = async (targetElement) => {
 
 				{/* Filas de datos filtrados y paginados */}
 				{currentPosts?.length > 0 ? (
-					currentPosts.map((curso) => (
-						<div 
-							key={curso.id} 
-							className="tabla-fila-estadisticas"
-							onClick={() => handleFilaClick(curso)}
-						>
-							<div className="columna-curso-estadisticas">{curso.curso}</div>
-							<div className="columna-ficha-estadisticas">{curso.ficha}</div>
-							<div className="columna-instructor-estadisticas">{curso.instructor}</div>
-							<div className={curso.estado === "Activo" ? "estado-activo-estadisticas" : "estado-inactivo-estadisticas"}>
-								{curso.estado}
+					currentPosts.map((curso) => {
+						const tieneEmpleados = curso.empleados && curso.empleados > 0;
+						return (
+							<div 
+								key={curso.id} 
+								className={`tabla-fila-estadisticas ${!tieneEmpleados ? 'curso-sin-empleados' : ''}`}
+								onClick={() => handleFilaClick(curso)}
+								title={!tieneEmpleados ? 'Este curso no tiene empleados registrados' : ''}
+							>
+								<div className="columna-curso-estadisticas">{curso.curso}</div>
+								<div className="columna-ficha-estadisticas">{curso.ficha}</div>
+								<div className="columna-instructor-estadisticas">{curso.instructor}</div>
+								<div className={curso.estado === "Activo" ? "estado-activo-estadisticas" : "estado-inactivo-estadisticas"}>
+									{curso.estado}
+								</div>
+								<div className="columna-empleados-estadisticas">{curso.empleados}</div>
 							</div>
-							<div className="columna-empleados-estadisticas">{curso.empleados}</div>
-						</div>
-					))
+						);
+					})
 				) : (
 					<div className="no-resultados-estadisticas">
 						No se encontraron cursos que coincidan con los filtros aplicados

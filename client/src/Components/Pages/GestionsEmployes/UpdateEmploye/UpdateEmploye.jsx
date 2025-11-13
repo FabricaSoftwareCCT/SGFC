@@ -35,6 +35,27 @@ export const UpdateEmploye = ({ empleado }) => {
     pendiente: "Pendiente",
   };
 
+	const truncarNombreArchivo = (nombre, maxLongitud = 15) => {
+		if (!nombre) return '';
+
+		const ultimoPunto = nombre.lastIndexOf('.');
+		if (ultimoPunto === -1) {
+			return nombre.length > maxLongitud 
+				? `${nombre.slice(0, maxLongitud)}...`
+				: nombre;
+		}
+
+		const nombreParte = nombre.slice(0, ultimoPunto);
+		const extension = nombre.slice(ultimoPunto);
+
+		if (nombreParte.length <= maxLongitud) {
+			return nombre;
+		}
+
+		return `${nombreParte.slice(0, maxLongitud)}... ${extension}`;
+	};
+
+
   const handlePDFChange = (e) => {
     const selectedPDF = e.target.files[0];
     if (!selectedPDF) return;
@@ -415,7 +436,7 @@ export const UpdateEmploye = ({ empleado }) => {
                 onChange={handleChange}
               />
             ) : (
-              <span className="valor-campo">{formData.email || ""}</span>
+              <span className="valor-campo">{truncarNombreArchivo(formData.email,13 || "")}</span>
             )}
           </p>
           <p>

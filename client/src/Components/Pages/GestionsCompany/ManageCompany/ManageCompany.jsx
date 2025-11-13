@@ -59,6 +59,26 @@ export const ManageCompany = ({ empresa, onClose }) => {
     fetchDepartamentoFromCiudad();
   }, [formData.ciudad_ID]);
 
+  	const truncarNombreArchivo = (nombre, maxLongitud = 15) => {
+		if (!nombre) return '';
+
+		const ultimoPunto = nombre.lastIndexOf('.');
+		if (ultimoPunto === -1) {
+			return nombre.length > maxLongitud 
+				? `${nombre.slice(0, maxLongitud)}...`
+				: nombre;
+		}
+
+		const nombreParte = nombre.slice(0, ultimoPunto);
+		const extension = nombre.slice(ultimoPunto);
+
+		if (nombreParte.length <= maxLongitud) {
+			return nombre;
+		}
+
+		return `${nombreParte.slice(0, maxLongitud)}... ${extension}`;
+	};
+
   useEffect(() => {
     const fetchCiudades = async () => {
       if (!formData.departamento_ID && !formData.ciudad_ID) return;
@@ -381,7 +401,7 @@ export const ManageCompany = ({ empresa, onClose }) => {
                 onChange={handleChange}
               />
             ) : (
-              <span className="valor-campo">{formData.direccion || "-"}</span>
+              <span className="valor-campo">{truncarNombreArchivo(formData.direccion,20 || "-")}</span>
             )}
           </p>
           <p>
@@ -395,7 +415,7 @@ export const ManageCompany = ({ empresa, onClose }) => {
                 onChange={handleChange}
               />
             ) : (
-              <span className="valor-campo">{formData.email_empresa || "-"}</span>
+              <span className="valor-campo">{truncarNombreArchivo(formData.email_empresa,15 || "-")}</span>
             )}
           </p>
           <p>

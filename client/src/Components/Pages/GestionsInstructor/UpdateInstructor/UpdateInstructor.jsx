@@ -59,6 +59,27 @@ export const UpdateInstructor = ({ instructor, onClose }) => {
     } catch {}
   };
 
+	const truncarNombreArchivo = (nombre, maxLongitud = 15) => {
+		if (!nombre) return '';
+
+		const ultimoPunto = nombre.lastIndexOf('.');
+		if (ultimoPunto === -1) {
+			return nombre.length > maxLongitud 
+				? `${nombre.slice(0, maxLongitud)}...`
+				: nombre;
+		}
+
+		const nombreParte = nombre.slice(0, ultimoPunto);
+		const extension = nombre.slice(ultimoPunto);
+
+		if (nombreParte.length <= maxLongitud) {
+			return nombre;
+		}
+
+		return `${nombreParte.slice(0, maxLongitud)}... ${extension}`;
+	};
+
+
   const closeModalUpdateInstructor = () => {
     if (onClose) onClose();
     const overlay = document.getElementById("modal-overlayUpdateInstructor");
@@ -273,7 +294,7 @@ export const UpdateInstructor = ({ instructor, onClose }) => {
               onChange={handleChange}
             />
           ) : (
-            <span className="valor-campo">{formData.email || ""}</span>
+            <span className="valor-campo">{truncarNombreArchivo(formData.email,13 || "")}</span>
           )}
         </p>
         <p>

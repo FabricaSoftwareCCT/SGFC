@@ -80,6 +80,27 @@ export const ManageManager = ({ data, isAdmin, onClose, update }) => {
 		}
 	}
 
+	const truncarNombreArchivo = (nombre, maxLongitud = 15) => {
+		if (!nombre) return '';
+
+		const ultimoPunto = nombre.lastIndexOf('.');
+		if (ultimoPunto === -1) {
+			return nombre.length > maxLongitud 
+				? `${nombre.slice(0, maxLongitud)}...`
+				: nombre;
+		}
+
+		const nombreParte = nombre.slice(0, ultimoPunto);
+		const extension = nombre.slice(ultimoPunto);
+
+		if (nombreParte.length <= maxLongitud) {
+			return nombre;
+		}
+
+		return `${nombreParte.slice(0, maxLongitud)}... ${extension}`;
+	};
+
+
 	const getLogoSrc = (logo) => {
 		if (!logo) return fotoPerfilDefect;
 		if (logo instanceof File) return URL.createObjectURL(logo);
@@ -189,7 +210,7 @@ export const ManageManager = ({ data, isAdmin, onClose, update }) => {
 								})}
 							/>
 						:
-							<span className="valor-campo">{manager.email}</span>
+							<span className="valor-campo">{truncarNombreArchivo(manager.email,14)}</span>
 						}
 					</p>
 					<p>

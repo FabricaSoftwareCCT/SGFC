@@ -79,6 +79,8 @@ export const SeeCourse = () => {
 		slots_formacion: curso.slots_formacion ? JSON.parse(curso.slots_formacion) : []
 	};
 
+	console.log(userSession, curso.Instructor)
+
 	return (
 		<>
 			<Header />
@@ -242,7 +244,7 @@ export const SeeCourse = () => {
 									</button>
 								)}
 
-								{userSession && userSession.accountType === 'Instructor' && (
+								{userSession && userSession.accountType === 'Instructor' && userSession.id === curso.Instructor?.ID && (
 									<button className='manage-btn' onClick={() => navigate(`/Cursos/${id}/gestionar-asistencia`)}>
 										Gestionar Asistencias
 									</button>

@@ -788,7 +788,7 @@ const getCursoById = async (req, res) => {
 				},
 				{
 					model: Usuario,
-					attributes: ['nombres', 'apellidos'], // solo los campos que necesitas
+					attributes: ['nombres', 'apellidos', "ID"], // solo los campos que necesitas
 					as: 'Instructor', // Este alias debe coincidir con el definido por Sequelize si lo usaste
 					foreignKey: 'instructor_ID'
 				}

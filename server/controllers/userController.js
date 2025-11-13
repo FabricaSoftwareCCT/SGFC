@@ -2245,13 +2245,15 @@ const getCursosAprendiz = async (req, res) => {
 			},
 			include: {
 				model: Curso,
-			}
+			},
+			attributes: ["curso_ID"]
 		})
 
-		console.log(rows)
+		const cursos = rows.map((c) => c.Curso)
 
 		res.status(200).json({
-
+			cursos,
+			cantidad: count
 		})
 	} catch (error) {
 		console.error(`Error al consultar los cursos de un apreniz: `, error)

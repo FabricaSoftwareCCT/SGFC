@@ -325,6 +325,10 @@ const crearNotificacionInvitacionCursoInstructor = async (req, res) => {
 				href="http://localhost:5173/SupportMaterial/${curso.ID}"
 				style="color: #00843d"
 			>Ver material del curso</a>
+			<a
+				href="http://localhost:5173/Cursos/${curso.ID}"
+				style="color: #00843d"
+			>Link del curso</a>
 			<br><p>Por favor, acepta o rechaza la invitación.</p>
 		`;
 		const tipo = "invitacion_cursoInstructor"

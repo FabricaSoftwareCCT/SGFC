@@ -88,6 +88,7 @@ export const GestionsEmployes = () => {
 				const empleados = data.empleados || []
 				setEmployes(empleados)
 				setFilteredEmployes(empleados)
+				setSelectedEmploye(empleados[0])
 			}
 		} catch (error) {
 			console.error("Error al obtener los empleados:", error)

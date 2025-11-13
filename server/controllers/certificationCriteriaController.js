@@ -336,17 +336,7 @@ const getAprenticeCriteria = async (req, res) => {
 		const userId = req.params.id;
 
 		const { id, accountType } = req.user;
-
-		if (
-			accountType !== "Administrador" &&
-			accountType !== "Instructor" &&
-			accountType !== "Gestor"
-		) {
-			return res.status(403).json({
-				message: "No tienes permisos para realizar esta acción.",
-			});
-		}
-
+		
 		if (!(await Curso.findByPk(course)))
 			return res.status(404).json({ message: "Curso no encontrado." });
 

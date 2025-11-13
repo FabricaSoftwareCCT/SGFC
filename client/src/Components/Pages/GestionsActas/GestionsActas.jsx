@@ -184,8 +184,8 @@ export const GestionsActas = () => {
             title: "¡Éxito!",
             text: "Notificación de estado de solicitud de curso enviada correctamente",
             confirmButtonText: "Entiendo",
-            confirmButtonColor: "#3085d6",
-            timer: 3000,
+            confirmButtonColor: "#00843d",
+            timer: 5000,
             timerProgressBar: true,
                   theme:"bulma",
       customClass: { confirmButton: 'centered-swal-button' }
@@ -202,18 +202,18 @@ export const GestionsActas = () => {
       customClass: { confirmButton: 'centered-swal-button' }
           });
         }
-
+		/*
         await Swal.fire({
           icon: "success",
           title: "¡Éxito!",
           text: "Estado actualizado correctamente",
-          confirmButtonColor: "#05ab13",
-          timer: 3000,
+          confirmButtonColor: "#00843d",
+          timer: 5000,
           timerProgressBar: true,
                 theme:"bulma",
       customClass: { confirmButton: 'centered-swal-button' }
         });
-        
+        */
         setShowModalGeneral(false);
         window.location.reload();
       } catch (error) {

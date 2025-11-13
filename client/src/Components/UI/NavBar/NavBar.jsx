@@ -31,6 +31,8 @@ export const NavBar = ({ children }) => {
 	const [DateEnd, setDateEnd] = useState("")
 	const [showSettingsMenu, setShowSettingsMenu] = useState(false)
 	const settingsMenuRef = useRef(null)
+	const settingsButtonRef = useRef(null)
+	
 
 	const userSession =
 		JSON.parse(localStorage.getItem("userSession")) || JSON.parse(sessionStorage.getItem("userSession"))
@@ -81,8 +83,9 @@ export const NavBar = ({ children }) => {
 			if (notificationsMenuRef.current && !notificationsMenuRef.current.contains(event.target)) {
 			//setShowNotificationsMenu(false)
 			}
-			if (settingsMenuRef.current && !settingsMenuRef.current.contains(event.target)) {
-			//setShowSettingsMenu(false)
+			if (settingsMenuRef.current && !settingsMenuRef.current.contains(event.target) && settingsButtonRef.current && 
+				!settingsButtonRef.current.contains(event.target))  {
+			setShowSettingsMenu(false)
 			}
 		}
 		document.addEventListener("mousedown", handleClickOutside)
@@ -131,8 +134,8 @@ export const NavBar = ({ children }) => {
 			if (resp.status == 200) {
 				await Swal.fire({
 					icon: 'success',
-					title: 'Solicitud rechazada',
-					text: 'Se rechazó la solicitud correctamente',
+					title: 'Solicitud aceptada',
+					text: 'Se acepto la solicitud correctamente',
 					confirmButtonText: 'Aceptar',
 					theme:"bulma",
       customClass: { confirmButton: 'centered-swal-button' }
@@ -367,8 +370,15 @@ export const NavBar = ({ children }) => {
 						: notif
 				)
 			)
+			await Swal.fire({
+					icon: 'success',
+					title: 'Estado actualizado',
+					text: response.data.message || "Estado actualizado correctamente",
+					confirmButtonText: 'Aceptar',
+					theme:"bulma",
+						customClass: { confirmButton: 'centered-swal-button' }
 
-			alert(response.data.message || "Estado actualizado correctamente")
+			})
 
 			// Si fue aceptada, asigna el curso al instructor
 			if (nuevoEstado === "aceptada") {
@@ -379,7 +389,20 @@ export const NavBar = ({ children }) => {
 							instructor_ID: notif.destinatario_ID,
 							curso_ID: notif.curso_ID,
 						})
-						alert(asignacionResponse.data.message || "Curso asignado correctamente al instructor.")
+						 if (asignacionResponse.status >= 200 && asignacionResponse.status < 300) {
+						Swal.fire({
+							icon:"success",
+							title:"Cursos asignado",
+							text:asignacionResponse.data.message || "Curso asignado correctamente al instructor.",
+							theme:"bulma",
+							confirmButtonText: 'Aceptar',
+						customClass: { confirmButton: 'centered-swal-button' }
+
+						})
+						} else {
+                throw new Error(asignacionResponse.data.message || "Error en la asignación")
+            }
+
 					} catch (asignacionError) {
 						console.error("Error al asignar instructor:", asignacionError)
 						await Swal.fire({
@@ -387,8 +410,9 @@ export const NavBar = ({ children }) => {
 							title: 'Error en asignación',
 							text: asignacionError.response?.data?.message || "Error al asignar el instructor al curso.",
 							confirmButtonText: 'Aceptar',
+							confirmButtonColor:"#006c30",
 							theme:"bulma",
-      					customClass: { confirmButton: 'centered-swal-button' }
+						customClass: { confirmButton: 'centered-swal-button' }
 						})
 					}
 				}
@@ -445,7 +469,7 @@ export const NavBar = ({ children }) => {
 					<div className="container_options_profile">
 						<div className="settings-menu" ref={settingsMenuRef}>
 							<button 
-								className="btn-settings"
+								className="btn-settings" ref={settingsButtonRef}
 								onClick={() => setShowSettingsMenu(!showSettingsMenu)}
 							>
 								<img src={settings} alt="Configuración" />
@@ -521,11 +545,11 @@ export const NavBar = ({ children }) => {
 													<label> Fecha Fin: </label>
 													<input type="date" className="notificationsDate" placeholder="Ingrese fecha fin: " onChange={(e) => setDateEnd(e.target.value)} />
 												</div>
-											</div>										
+											</div>
 										</div>
 									</div>
 									<div className="notification-item">
-										{loadingNotifications ? (	
+										{loadingNotifications ? (
 										<div>Cargando...</div>
 											) : Filter.length === 0 ? (
 												<div>Sin notificaciones</div>
@@ -571,7 +595,7 @@ export const NavBar = ({ children }) => {
 				)}
 			</div>
 			{showSettingsMenu && (
-				<div className="dropdown-settings" id="settings-menu">
+				<div className="dropdown-settings" id="settings-menu" ref={settingsMenuRef} >
 					<div className="arrow-up" />
 					<button 
 						className="settings-dropdown-item"

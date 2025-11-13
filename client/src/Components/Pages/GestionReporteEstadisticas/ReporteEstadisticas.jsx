@@ -192,7 +192,17 @@ export default function ReporteEstadisticas() {
 	// Función para manejar el clic en una fila
 	const handleFilaClick = (curso) => {
 		if (!curso.empleados || curso.empleados === 0) {
-			alert('Este curso no tiene empleados registrados. No se puede generar un reporte.');
+			Swal.fire({
+          icon:"error",
+          title:"Error del sistema",
+          text:"Este curso no tiene empleados registrados. No se puede generar un reporte.",
+          confirmButtonText:"Okay",
+          theme:"bulma",
+          customClass:{
+        confirmButton: 'button is-primary',
+        actions: 'swal2-actions-centered'
+                }
+              })
 			return;
 		}
 		setCursoSeleccionado(curso);
@@ -284,7 +294,17 @@ const generarExcelHistorial = async () => {
         xlsx.writeFile(workBook, "reporte.xlsx", { compression: true })
     } catch (error) {
         console.error("Error generando Excel:", error)
-        alert(`Error al generar Excel\n\n${formatDetailedError(error)}`)
+		Swal.fire({
+          icon:"error",
+          title:"Error al generar Excel",
+          text:`Error al generar Excel\n\n${formatDetailedError(error)}`,
+          confirmButtonText:"Okay",
+          theme:"bulma",
+          customClass:{
+        confirmButton: 'button is-primary',
+        actions: 'swal2-actions-centered'
+                }
+              })
     } finally {
         setGenerating(false)
     }
@@ -330,7 +350,17 @@ const generarReporteDesdeElemento = async (targetElement) => {
         }
     } catch (err) {
         console.error("Error generando PDF:", err)
-        alert(`Error al generar PDF\n\n${formatDetailedError(err)}`)
+		Swal.fire({
+          icon:"error",
+          title:"Error al generar PDF",
+          text:`Error al generar PDF\n\n${formatDetailedError(err)}`,
+          confirmButtonText:"Okay",
+          theme:"bulma",
+          customClass:{
+        confirmButton: 'button is-primary',
+        actions: 'swal2-actions-centered'
+                }
+              })
         setDoneGenerating(false)
     } finally {
         setGenerating(false)

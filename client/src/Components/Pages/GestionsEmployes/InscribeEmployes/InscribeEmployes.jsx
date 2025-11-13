@@ -6,6 +6,8 @@ import { Footer } from "../../../../Components/Layouts/Footer/Footer"
 import { Main } from "../../../../Components/Layouts/Main/Main"
 import { Modal_Inscripcion } from "../../../UI/Modal_Inscripcion/Modal_Inscripcion"
 import axiosInstance from "../../../../config/axiosInstance"
+import Swal from 'sweetalert2';
+import 'sweetalert2/themes/bulma.css'
 import { Modal_Empresa } from "../../../UI/Modal_Empresa/Modal_Empresa"
 
 export const InscribeEmployes = () => {
@@ -60,7 +62,19 @@ export const InscribeEmployes = () => {
   // Función para manejar la inscripción al backend
   const handleInscripcion = async (curso) => {
     if (!curso || selectedEmployees.length === 0) {
-      alert('No hay curso seleccionado o empleados seleccionados');
+      Swal.fire({
+        icon:"info",
+        title:"Debe seleccionar algo",
+        text:"No hay curso seleccionado o empleados seleccionados",
+        confirmButtonText:"Aceptar",
+        theme:"bulma",
+					confirmButtonColor: '#00843d',
+					customClass:{
+						confirmButton: 'centered-swal-button',
+            actions: 'swal2-actions-centered'
+					}
+
+      })
       return;
     }
 
@@ -89,17 +103,62 @@ export const InscribeEmployes = () => {
 
           if (empleadosConConflictos.length > 0) {
             const mensaje = `Se inscribieron los empleados, sin embargo los siguientes empleados tienen cursos con los mismos horarios de formación y no se pudieron inscribir:\n\n${empleadosConConflictos.join('\n')}`;
-            alert(mensaje);
+            Swal.fire({
+              icon:"info",
+              title:"Confictos de horario",
+              text: mensaje,
+              confirmButtonText:"Aceptar",
+              theme:"bulma",
+              confirmButtonColor: '#00843d',
+					customClass:{
+						confirmButton: 'centered-swal-button',
+            actions: 'swal2-actions-centered'
+					}
+
+            })
           } else {
-            alert("Se inscribieron algunos empleados, pero hubo conflictos de horario con algunos empleados.");
+            Swal.fire({
+              icon:"info",
+              title:"Confictos de horario",
+              text:"Se inscribieron algunos empleados, pero hubo conflictos de horario con algunos empleados.",
+              confirmButtonText:"Aceptar",
+              theme:"bulma",
+              confirmButtonColor: '#00843d',
+					customClass:{
+						confirmButton: 'centered-swal-button',
+            actions: 'swal2-actions-centered'
+					}
+            })
           }
         } else {
           // Inscripción exitosa sin conflictos
-          alert(`✅ Inscripción exitosa para ${selectedEmployees.length} empleados en el curso "${curso.nombre_curso}"`);
-        }
-      } else {
-        // Todos los empleados se inscribieron correctamente
-        alert(`✅ Inscripción exitosa para ${selectedEmployees.length} empleados en el curso "${curso.nombre_curso}"`);
+              await Swal.fire({
+                icon: 'success',
+                title: 'Inscripción exitosa',
+                text: `✅ Se inscribió correctamente a ${selectedEmployees.length} empleados en el curso "${curso.nombre_curso}"`,
+                confirmButtonText: 'Aceptar',
+                confirmButtonColor: '#006f33',
+                theme: "bulma",
+                customClass: {
+                  actions: 'swal2-actions-centered',
+                  popup: 'swal2-popup-centered'
+                }
+              });
+            }
+            } else {
+              // Todos los empleados se inscribieron correctamente
+              await Swal.fire({
+                icon: 'success',
+                title: 'Inscripción exitosa',
+                text: `✅ Se inscribió correctamente a ${selectedEmployees.length} empleados en el curso "${curso.nombre_curso}"`,
+                confirmButtonText: 'Aceptar',
+                confirmButtonColor: '#006f33',
+                theme: "bulma",
+                customClass: {
+                  actions: 'swal2-actions-centered',
+                  popup: 'swal2-popup-centered'
+                }
+              });
       }
 
       // Limpiar selecciones después de la inscripción
@@ -113,8 +172,18 @@ export const InscribeEmployes = () => {
       if (error.response && error.response.data && error.response.data.message) {
         errorMessage = error.response.data.message;
       }
-      
-      alert(errorMessage);
+      Swal.fire({
+        icon:"error",
+        title:"Error en el sistema",
+        text:errorMessage,
+        confirmButtonText: 'Aceptar',
+        confirmButtonColor: '#006f33',
+        theme: "bulma",
+      customClass: {
+                  actions: 'swal2-actions-centered',
+                  popup: 'swal2-popup-centered'
+                }
+      })
     }
   };
 
@@ -150,7 +219,18 @@ export const InscribeEmployes = () => {
       setEmployes(empleados)
     } catch (error) {
       console.error(error)
-      alert("No se logró cargar los empleados")
+      Swal.fire({
+        icon:"error",
+        title:"Error al cargar empleados",
+        text:"No se logró cargar la lista de empleados del sistema",
+            confirmButtonText: 'Aceptar',
+            confirmButtonColor: '#006f33',
+            theme: "bulma",
+            customClass: {
+                  actions: 'swal2-actions-centered',
+                  popup: 'swal2-popup-centered'
+                }
+      })
     }
   }
 

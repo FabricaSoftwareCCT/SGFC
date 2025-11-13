@@ -599,7 +599,17 @@ export default function ReporteEstudiantes({ cursoSeleccionado, onVolver }) {
                 const datosReporte = estudiantesFiltrados.length > 0 ? estudiantesFiltrados : datosEstudiantes;
                 
                 if (datosReporte.length === 0) {
-                  alert('No hay datos para generar el reporte');
+              Swal.fire({
+          icon:"info",
+          title:"Sin datos",
+          text:'No hay datos para generar el reporte',
+          confirmButtonText:"Okay",
+          theme:"bulma",
+          customClass:{
+        confirmButton: 'button is-primary',
+        actions: 'swal2-actions-centered'
+                }
+              })
                   setGenerating(false);
                   return;
                 }
@@ -612,7 +622,18 @@ export default function ReporteEstudiantes({ cursoSeleccionado, onVolver }) {
                   }
                 } catch (err) {
                   console.error(`Error generando ${reportType.toUpperCase()}:`, err);
-                  alert(`Error al generar ${reportType.toUpperCase()}\n\n${formatDetailedError(err)}`);
+
+                                          Swal.fire({
+          icon:"error",
+          title:"Error del sistema",
+          text:`Error al generar ${reportType.toUpperCase()}\n\n${formatDetailedError(err)}`,
+          confirmButtonText:"Okay",
+          theme:"bulma",
+          customClass:{
+        confirmButton: 'button is-primary',
+        actions: 'swal2-actions-centered'
+                }
+              })
                 } finally {
                   setGenerating(false);
                 }

@@ -13,6 +13,8 @@ import {
   generarPDFAsistenciaProgreso,
   generarExcelAsistenciaProgreso
 } from '../../../utils/Reports/AsistenciaProgreso';
+import Swal from 'sweetalert2';
+import 'sweetalert2/themes/bulma.css'
 
 export default function ReporteAsistenciaProgreso() {
   const [isGenerating, setIsGenerating] = useState(false);
@@ -281,7 +283,17 @@ export default function ReporteAsistenciaProgreso() {
     try {
       await generarPDFAsistenciaProgreso(previewData, filters, courses, learners, 'save');
     } catch (error) {
-      alert(error.message || 'Error al generar el PDF');
+            Swal.fire({
+          icon:"error",
+          title:"Error del sistema",
+          text:error.message || 'Error al generar el PDF',
+          confirmButtonText:"Okay",
+          theme:"bulma",
+          customClass:{
+        confirmButton: 'button is-primary',
+        actions: 'swal2-actions-centered'
+                }
+              })
     }
   };
 
@@ -289,7 +301,17 @@ export default function ReporteAsistenciaProgreso() {
     try {
       await generarPDFAsistenciaProgreso(previewData, filters, courses, learners, 'print');
     } catch (error) {
-      alert(error.message || 'Error al imprimir el PDF');
+            Swal.fire({
+          icon:"error",
+          title:"Error del sistema",
+          text:error.message || 'Error al imprimir el PDF',
+          confirmButtonText:"Okay",
+          theme:"bulma",
+          customClass:{
+        confirmButton: 'button is-primary',
+        actions: 'swal2-actions-centered'
+                }
+              })
     }
   };
 
@@ -297,7 +319,17 @@ export default function ReporteAsistenciaProgreso() {
     try {
       generarExcelAsistenciaProgreso(previewData);
     } catch (error) {
-      alert(error.message || 'Ocurrió un error al generar el archivo Excel');
+            Swal.fire({
+          icon:"error",
+          title:"Error del sistema",
+          text:error.message || 'Ocurrió un error al generar el archivo Excel',
+          confirmButtonText:"Okay",
+          theme:"bulma",
+          customClass:{
+        confirmButton: 'button is-primary',
+        actions: 'swal2-actions-centered'
+                }
+              })
     }
   };
 

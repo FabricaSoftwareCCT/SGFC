@@ -159,10 +159,11 @@ export const SeeAllCourseCriteria = () => {
 			title: 'Cambios guardados',
 			text: 'Los criterios se han actualizado correctamente',
 			confirmButtonText: 'Aceptar',
-			confirmButtonColor: '#049019',
+			confirmButtonColor: '#00843d',
 			theme: "bulma", // Añadido tema Bulma
 			customClass: {
-				confirmButton: 'centered-swal-button'
+			confirmButton: 'button is-primary',
+    		actions: 'swal2-actions-centered'
 			}
 		});
 
@@ -279,7 +280,16 @@ export const SeeAllCourseCriteria = () => {
 			}
 		} catch (error) {
 			console.log(error)
-			alert("Ocurrió un error al generar el reporte")
+			Swal.fire({
+          icon:"error",
+          title:"Error en reporte",
+          text:"Ocurrió un error al generar el reporte",
+          theme:"bulma",
+          customClass:{
+        confirmButton: 'button is-primary',
+        actions: 'swal2-actions-centered'
+                }
+              })
 			setDoneGenerating(false)
 			setGenerating(false)
 		}

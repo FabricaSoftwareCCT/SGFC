@@ -98,6 +98,16 @@
   background: #353535;
 }
 
+.swal2-actions-centered {
+    display: flex !important;
+    justify-content: center !important;
+    width: 100% !important;
+}
+
+.swal2-popup-centered .swal2-actions {
+    justify-content: center !important;
+}
+
 .curso-option:hover {
   background: #353535;
 }

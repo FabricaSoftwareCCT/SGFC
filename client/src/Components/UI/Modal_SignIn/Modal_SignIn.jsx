@@ -35,23 +35,6 @@ export const Modal_SignIn = () => {
   const [hoveredButton, setHoveredButton] = useState("");
   const navigate = useNavigate();
 
-    const swalConfig = {
-    theme: 'bulma',
-    customClass: {
-      actions: 'swal2-center-actions'
-    },
-    buttonsStyling: false,
-    confirmButtonText: 'Aceptar',
-    confirmButtonColor: '#00843e',
-    showClass: {
-      popup: 'swal2-noanimation',
-      backdrop: 'swal2-noanimation'
-    },
-    hideClass: {
-      popup: '',
-      backdrop: ''
-    }
-  };
 
   const closeModalSignIn = () => setShowSignIn(false);
 
@@ -177,10 +160,15 @@ export const Modal_SignIn = () => {
       .catch((error) => {
         if (error.response?.status === 400) {
  Swal.fire({
-            ...swalConfig,
             icon: 'error',
             title: 'Error de autenticación',
-            text: 'Usuario o contraseña incorrectos'
+            text: 'Usuario o contraseña incorrectos',
+            confirmButtonText:"Aceptar",
+            confirmButtonColor:"#00843d",
+            theme:"bulma",
+              customClass:{
+						confirmButton: 'centered-swal-button'
+					}
     });
         } else if (error.response?.status === 403) {
             Swal.fire({
@@ -197,10 +185,15 @@ export const Modal_SignIn = () => {
             })
         } else {
             Swal.fire({
-              ...swalConfig,
               icon:"error",
               title:"Error al iniciar sesión",
-              text:"Ocurrió un error al iniciar sesión"
+              text:"Ocurrió un error al iniciar sesión",
+              confirmButtonText:"Okay",
+              confirmButtonColor:"#d33",
+              theme:"bulma",
+                  customClass: {
+                    actions: 'swal2-center-actions'
+                }
             })
           }
         setLoginning(false); // en caso de error también apagar loader
@@ -266,17 +259,32 @@ export const Modal_SignIn = () => {
           }
         }, 1000);
       } else {
-        alert(data.message || 'Error en el inicio de sesión con Google');
+                                Swal.fire({
+          icon:"error",
+          title:"Error de sesión",
+          text:data.message || 'Error en el inicio de sesión con Google',
+          confirmButtonText:"Okay",
+          theme:"bulma",
+          customClass:{
+        confirmButton: 'button is-primary',
+        actions: 'swal2-actions-centered'
+                }
+              })
         setLoginning(false);
       }
     } catch (error) {
   console.error("Error verificando perfil Google:", error);
   
   Swal.fire({
-    ...swalConfig,
     icon: 'error',
     title: 'Error del sistema',
-    text: 'Ocurrió un error al verificar el perfil de Google'
+    text: 'Ocurrió un error al verificar el perfil de Google',
+    confirmButtonText:"Okay",
+    confirmButtonColor:"#d33",
+    theme:"bulma",
+      customClass: {
+        actions: 'swal2-center-actions'
+        }
   });
       setLoginning(false);
     }
@@ -348,7 +356,19 @@ export const Modal_SignIn = () => {
               <div className="google-login-container">
                 <GoogleLogin
                   onSuccess={handleGoogleResponse}
-                  onError={() => alert('Error al iniciar sesión con Google')}
+                  onError={() => 
+                                            Swal.fire({
+          icon:"error",
+          title:"Error de sesión con Google",
+          text:'Error al iniciar sesión con Google',
+          confirmButtonText:"Okay",
+          theme:"bulma",
+          customClass:{
+        confirmButton: 'button is-primary',
+        actions: 'swal2-actions-centered'
+                }
+              })
+              }
                   theme="filled_black"
                   size="large"
                   text="signin_with"

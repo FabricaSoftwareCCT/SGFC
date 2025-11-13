@@ -33,7 +33,7 @@ const asignarInstructorAlCurso = async (req, res) => {
 
         // Permisos: solo Admin o Gestor
         const { accountType } = req.user || {};
-        if (accountType !== 'Administrador' && accountType !== 'Gestor') {
+        if (accountType !== 'Administrador' && accountType !== 'Gestor' && accountType !== 'Instructor') {
             await transaction.rollback();
             return res.status(403).json({ message: 'No tienes permisos para asignar instructores.' });
         }

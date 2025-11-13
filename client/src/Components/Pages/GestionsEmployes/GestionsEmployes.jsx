@@ -13,6 +13,7 @@ import Swal from 'sweetalert2';
 import 'sweetalert2/themes/bulma.css'
 import { ReportEmployee } from "./ReportEmployee/ReportEmployee"
 import { generarExcelEmpleado } from "../../../utils/Reports/Empleados"
+import html2pdf from "html2pdf.js"
 
 export const GestionsEmployes = () => {
 	const [employes, setEmployes] = useState([])
@@ -286,6 +287,37 @@ export const GestionsEmployes = () => {
 		}
 		
 		return "/src/assets/Icons/userDefect.png"
+	}
+
+	const generarReporte = async () => {
+		try {
+			if (reportType === "pdf") {
+				if (!pdfContent.current)
+					return
+				const worker = html2pdf().set({
+					margin: 10,
+					filename: `reporte ${selectedEmploye.nombres} ${selectedEmploye.apellidos}.pdf`,
+					html2canvas: { scale: 1 },
+					jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+				}).from(pdfContent.current)
+				setGenerating(false)
+				setDoneGenerating(true)
+				setReportContent(await worker.output("bloburl"))
+			}
+		} catch (error) {
+			console.log(error)
+			Swal.fire({
+				icon:"error",
+				title:"Error al generar el reporte",
+				text:"Ocurrió un error al generar el reporte, intentelo otra vez",
+			})
+			setDoneGenerating(false)
+			setGenerating(false)
+		}
+	}
+
+	const generarPdf = async () => {
+		setGenerating(true)
 	}
 
 	return (
@@ -623,9 +655,16 @@ export const GestionsEmployes = () => {
 									style={{
 										marginTop: "20px",
 									}}
+									onClick={() => generarPdf()}
 								>Generar reporte</button>
 								{generating &&
-									<ReportEmployee />
+									<ReportEmployee
+										contentKey={pdfContent}
+										empleado={selectedEmploye}
+										done={() => {
+											generarReporte()
+										}}
+									/>
 								}
 							</>
 						}

@@ -7,7 +7,7 @@ import { ModalManageCourses } from "../../../UI/Modal_ManageCourses/ModalManageC
 import Swal from 'sweetalert2';
 import 'sweetalert2/themes/bulma.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBook, faList, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
+import { faBook, faList, faArrowLeft, faEye, faUser, faIdCard, faPhone, faEnvelope, faGraduationCap, faCamera } from '@fortawesome/free-solid-svg-icons';
 
 export const UpdateInstructor = ({ instructor, onClose }) => {
   const navigate = useNavigate();
@@ -17,7 +17,6 @@ export const UpdateInstructor = ({ instructor, onClose }) => {
   const [cursosAsignados, setCursosAsignados] = useState([]);
   const [showManageCourses, setShowManageCourses] = useState(false);
 
-  // Resetear datos cuando cambia el instructor
   useEffect(() => {
     setCantidadCursos(0);
     setCursosAsignados([]);
@@ -25,7 +24,6 @@ export const UpdateInstructor = ({ instructor, onClose }) => {
     setIsEditing(false);
   }, [instructor?.ID]);
 
-  // Obtener cursos asignados cuando cambia el instructor
   useEffect(() => {
     const obtenerCursosAsignados = async () => {
       if (!instructor?.ID) return;
@@ -182,235 +180,339 @@ export const UpdateInstructor = ({ instructor, onClose }) => {
   };
 
   return (
-    <div id="modal-overlayUpdateInstructor" className="modal-overlay-improved">
-      <form className="modal-body-improved" onSubmit={handleButtonClick}>
-        {/* Header del Modal */}
-        <div className="modal-header-improved">
-          <h2>Perfil del Instructor</h2>
-          <button type="button" onClick={closeModalUpdateInstructor} className="close-modal-btn-improved">
-            <FontAwesomeIcon icon={faArrowLeft} />
-            <span>Volver</span>
-          </button>
-        </div>
-
-        <div className="modal-content-improved">
-          {/* Columna Izquierda - Información */}
-          <div className="modal-left-improved">
-            <div className="form-section-improved">
-              <h3>Información Personal</h3>
-              <div className="form-grid-improved">
-                <div className="form-field-improved">
-                  <label>Nombres</label>
-                  {isEditing ? (
-                    <input
-                      type="text"
-                      name="nombres"
-                      value={formData.nombres || ""}
-                      onChange={handleChange}
-                      className="input-improved"
-                    />
-                  ) : (
-                    <span className="field-value">{formData.nombres || ""}</span>
-                  )}
-                </div>
-
-                <div className="form-field-improved">
-                  <label>Apellidos</label>
-                  {isEditing ? (
-                    <input
-                      type="text"
-                      name="apellidos"
-                      value={formData.apellidos || ""}
-                      onChange={handleChange}
-                      className="input-improved"
-                    />
-                  ) : (
-                    <span className="field-value">{formData.apellidos || ""}</span>
-                  )}
-                </div>
-
-                <div className="form-field-improved">
-                  <label>Cédula</label>
-                  {isEditing ? (
-                    <input
-                      type="text"
-                      name="documento"
-                      value={formData.documento || ""}
-                      onChange={handleChange}
-                      className="input-improved"
-                    />
-                  ) : (
-                    <span className="field-value">{formData.documento || ""}</span>
-                  )}
-                </div>
-
-                <div className="form-field-improved">
-                  <label>Título Profesional</label>
-                  {isEditing ? (
-                    <input
-                      type="text"
-                      name="titulo_profesional"
-                      value={formData.titulo_profesional || ""}
-                      onChange={handleChange}
-                      className="input-improved"
-                    />
-                  ) : (
-                    <span className="field-value">{formData.titulo_profesional || ""}</span>
-                  )}
-                </div>
-
-                <div className="form-field-improved">
-                  <label>Celular</label>
-                  {isEditing ? (
-                    <input
-                      type="text"
-                      name="celular"
-                      value={formData.celular || ""}
-                      onChange={handleChange}
-                      className="input-improved"
-                    />
-                  ) : (
-                    <span className="field-value">{formData.celular || ""}</span>
-                  )}
-                </div>
-
-                <div className="form-field-improved">
-                  <label>Email</label>
-                  {isEditing ? (
-                    <input
-                      type="email"
-                      name="email"
-                      value={formData.email || ""}
-                      onChange={handleChange}
-                      className="input-improved"
-                    />
-                  ) : (
-                    <span className="field-value">{formData.email || ""}</span>
-                  )}
-                </div>
-
-                <div className="form-field-improved">
-                  <label>Estado</label>
-                  {isEditing ? (
-                    <div className="status-buttons-improved">
-                      {["Activo", "Inactivo"].map((estado) => {
-                        const isSelected = (formData.estado || "").toLowerCase() === estado.toLowerCase();
-                        return (
-                          <button
-                            key={estado}
-                            type="button"
-                            className={`status-btn-improved ${isSelected ? "active" : ""}`}
-                            onClick={() => handleEstadoChange(estado)}
-                          >
-                            {estado}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  ) : (
-                    <span className={`status-value ${formData.estado?.toLowerCase()}`}>
-                      {formData.estado}
-                    </span>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* Sección de Cursos */}
-            <div className="courses-section-improved">
-              <div className="courses-header-improved">
-                <FontAwesomeIcon icon={faBook} />
-                <h3>Cursos Asignados</h3>
-                <span className="courses-count">{cantidadCursos}</span>
-              </div>
-
-              {cursosAsignados && cursosAsignados.length > 0 ? (
-                <div className="courses-list-improved">
-                  {cursosAsignados.map((curso, index) => {
-                    const courseName = (curso && curso.Curso && curso.Curso.nombre_curso)
-                      || curso.nombre_curso
-                      || `Curso ${curso.curso_ID || curso.ID || ''}`;
-                    const courseId = (curso && curso.Curso && curso.Curso.ID)
-                      || curso.curso_ID
-                      || curso.ID;
-                    return (
-                      <div key={`${courseId}-${courseName}`} className="course-item-improved">
-                        <span className="course-name">{courseName}</span>
-                        <button
-                          type="button"
-                          className="course-link-btn"
-                          onClick={() => navigate(`/Cursos/${courseId}`)}
-                          title="Ver curso"
-                        >
-                          ↗
-                        </button>
-                      </div>
-                    );
-                  })}
-                </div>
-              ) : (
-                <div className="no-courses-improved">
-                  <p>No hay cursos asignados</p>
-                </div>
-              )}
-
-              <button
-                type="button"
-                className="manage-courses-btn-improved"
-                onClick={() => setShowManageCourses(true)}
-              >
-                <FontAwesomeIcon icon={faList} />
-                <span>Gestionar Cursos</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Columna Derecha - Imagen y Acciones */}
-          <div className="modal-right-improved">
-            <div className="image-section-improved">
-              <input
-                type="file"
-                accept="image/*"
-                hidden={!isEditing}
-                disabled={!isEditing}
-                onChange={handleImageChange}
-                id="imageUpload"
-              />
-              <label
-                className={`image-upload-area ${!isEditing ? "read-only" : ""}`}
-                htmlFor="imageUpload"
-              >
-                {formData.foto_perfil instanceof File ? (
-                  <img
-                    src={URL.createObjectURL(formData.foto_perfil)}
-                    alt="Vista previa"
-                    className="profile-image-improved"
-                  />
-                ) : formData.foto_perfil ? (
-                  <img
-                    src={getImageSrc(formData.foto_perfil)}
-                    alt="Foto de perfil"
-                    className="profile-image-improved"
-                  />
-                ) : (
-                  <div className="image-placeholder-improved">
-                    <p>Sin imagen</p>
-                  </div>
-                )}
-                {isEditing && (
-                  <div className="upload-overlay-improved">
-                    <span>Cambiar imagen</span>
-                  </div>
-                )}
-              </label>
-            </div>
-
-            <button type="submit" className="submit-btn-improved">
-              {isEditing ? "Guardar Cambios" : "Editar Perfil"}
+    <div id="modal-overlayUpdateInstructor" className="modal-overlay-update">
+      <div className="modal-container-update">
+        <div className="modal-header-update">
+          <div className="header-content-update">
+            <h2>
+              <FontAwesomeIcon icon={faUser} className="header-icon" />
+              Perfil del Instructor
+            </h2>
+            <button 
+              type="button" 
+              onClick={closeModalUpdateInstructor}
+              className="close-btn-update"
+            >
+              <FontAwesomeIcon icon={faArrowLeft} />
+              <span>Volver</span>
             </button>
           </div>
         </div>
-      </form>
+
+        <form className="modal-body-update" onSubmit={handleButtonClick}>
+          <div className="modal-content-update">
+            {/* Columna izquierda - Información */}
+            <div className="info-column-update">
+              <div className="form-section-update">
+                <h3 className="section-title-update">Información Personal</h3>
+                <div className="form-grid-update">
+                  <div className="input-group-update">
+                    <label className="input-label-update">
+                      <FontAwesomeIcon icon={faUser} />
+                      Nombres
+                    </label>
+                    {isEditing ? (
+                      <input
+                        type="text"
+                        name="nombres"
+                        value={formData.nombres || ""}
+                        onChange={handleChange}
+                        className="input-field-update"
+                        placeholder="Ingrese los nombres"
+                      />
+                    ) : (
+                      <div className="display-field-update">
+                        {formData.nombres || "No especificado"}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="input-group-update">
+                    <label className="input-label-update">
+                      <FontAwesomeIcon icon={faUser} />
+                      Apellidos
+                    </label>
+                    {isEditing ? (
+                      <input
+                        type="text"
+                        name="apellidos"
+                        value={formData.apellidos || ""}
+                        onChange={handleChange}
+                        className="input-field-update"
+                        placeholder="Ingrese los apellidos"
+                      />
+                    ) : (
+                      <div className="display-field-update">
+                        {formData.apellidos || "No especificado"}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="input-group-update">
+                    <label className="input-label-update">
+                      <FontAwesomeIcon icon={faIdCard} />
+                      Cédula
+                    </label>
+                    {isEditing ? (
+                      <input
+                        type="text"
+                        name="documento"
+                        value={formData.documento || ""}
+                        onChange={handleChange}
+                        className="input-field-update"
+                        placeholder="Ingrese la cédula"
+                      />
+                    ) : (
+                      <div className="display-field-update">
+                        {formData.documento || "No especificado"}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="input-group-update">
+                    <label className="input-label-update">
+                      <FontAwesomeIcon icon={faGraduationCap} />
+                      Título Profesional
+                    </label>
+                    {isEditing ? (
+                      <input
+                        type="text"
+                        name="titulo_profesional"
+                        value={formData.titulo_profesional || ""}
+                        onChange={handleChange}
+                        className="input-field-update"
+                        placeholder="Ingrese el título profesional"
+                      />
+                    ) : (
+                      <div className="display-field-update">
+                        {formData.titulo_profesional || "No especificado"}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="input-group-update">
+                    <label className="input-label-update">
+                      <FontAwesomeIcon icon={faPhone} />
+                      Celular
+                    </label>
+                    {isEditing ? (
+                      <input
+                        type="text"
+                        name="celular"
+                        value={formData.celular || ""}
+                        onChange={handleChange}
+                        className="input-field-update"
+                        placeholder="Ingrese el celular"
+                      />
+                    ) : (
+                      <div className="display-field-update">
+                        {formData.celular || "No especificado"}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="input-group-update">
+                    <label className="input-label-update">
+                      <FontAwesomeIcon icon={faEnvelope} />
+                      Email
+                    </label>
+                    {isEditing ? (
+                      <input
+                        type="email"
+                        name="email"
+                        value={formData.email || ""}
+                        onChange={handleChange}
+                        className="input-field-update"
+                        placeholder="Ingrese el email"
+                      />
+                    ) : (
+                      <div className="display-field-update">
+                        {formData.email || "No especificado"}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="input-group-update">
+                    <label className="input-label-update">Estado</label>
+                    {isEditing ? (
+                      <div className="status-buttons-update">
+                        {["Activo", "Inactivo"].map((estado) => {
+                          const isSelected = (formData.estado || "").toLowerCase() === estado.toLowerCase();
+                          return (
+                            <button
+                              key={estado}
+                              type="button"
+                              className={`status-btn-update ${isSelected ? "active" : ""}`}
+                              onClick={() => handleEstadoChange(estado)}
+                            >
+                              <span className="status-dot"></span>
+                              {estado}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <div className={`status-display-update ${formData.estado?.toLowerCase()}`}>
+                        <span className="status-dot"></span>
+                        {formData.estado || "No especificado"}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Sección de Cursos */}
+              <div className="courses-section-update">
+                <div className="courses-header-update">
+                  <div className="courses-title-update">
+                    <FontAwesomeIcon icon={faBook} />
+                    <h3>Cursos Asignados</h3>
+                  </div>
+                  <div className="courses-count-update">
+                    {cantidadCursos} curso{cantidadCursos !== 1 ? 's' : ''}
+                  </div>
+                </div>
+
+                {cursosAsignados && cursosAsignados.length > 0 ? (
+                  <div className="courses-list-update">
+                    {cursosAsignados.map((curso, index) => {
+                      const courseName = (curso && curso.Curso && curso.Curso.nombre_curso)
+                        || curso.nombre_curso
+                        || `Curso ${curso.curso_ID || curso.ID || ''}`;
+                      const courseId = (curso && curso.Curso && curso.Curso.ID)
+                        || curso.curso_ID
+                        || curso.ID;
+                      return (
+                        <div key={`${courseId}-${courseName}`} className="course-item-update">
+                          <div className="course-info-update">
+                            <span className="course-name-update" title={courseName}>
+                              {courseName}
+                            </span>
+                          </div>
+                          <button
+                            type="button"
+                            className="course-view-btn-update"
+                            onClick={() => navigate(`/Cursos/${courseId}`)}
+                            title="Ver detalles del curso"
+                          >
+                            <FontAwesomeIcon icon={faEye} />
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="no-courses-update">
+                    <FontAwesomeIcon icon={faBook} className="no-courses-icon" />
+                    <p>No hay cursos asignados</p>
+                  </div>
+                )}
+
+                <div className="courses-actions-update">
+                  <button
+                    type="button"
+                    className="manage-courses-btn-update"
+                    onClick={() => setShowManageCourses(true)}
+                  >
+                    <FontAwesomeIcon icon={faList} />
+                    <span>Gestionar Cursos</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Columna derecha - Imagen CORREGIDA */}
+            <div className="image-column-update">
+              <div className="image-section-update">
+                <div className="image-container-update">
+                  {isEditing ? (
+                    <>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageChange}
+                        id="imageUploadUpdate"
+                        className="file-input-update"
+                      />
+                      <label
+                        className="image-upload-update editable"
+                        htmlFor="imageUploadUpdate"
+                      >
+                        {formData.foto_perfil instanceof File ? (
+                          <img
+                            src={URL.createObjectURL(formData.foto_perfil)}
+                            alt="Vista previa"
+                            className="profile-image-update"
+                            onError={(e) => {
+                              e.target.src = '/default-profile.png';
+                            }}
+                          />
+                        ) : formData.foto_perfil ? (
+                          <img
+                            src={getImageSrc(formData.foto_perfil)}
+                            alt="Foto de perfil"
+                            className="profile-image-update"
+                            onError={(e) => {
+                              e.target.src = '/default-profile.png';
+                            }}
+                          />
+                        ) : (
+                          <div className="image-placeholder-update">
+                            <FontAwesomeIcon icon={faCamera} className="placeholder-icon" />
+                            <span>Haz clic para subir imagen</span>
+                          </div>
+                        )}
+                        <div className="upload-overlay-update">
+                          <FontAwesomeIcon icon={faCamera} />
+                          <span>Cambiar imagen</span>
+                        </div>
+                      </label>
+                    </>
+                  ) : (
+                    <div className="image-display-update">
+                      {formData.foto_perfil ? (
+                        <img
+                          src={getImageSrc(formData.foto_perfil)}
+                          alt="Foto de perfil"
+                          className="profile-image-update"
+                          onError={(e) => {
+                            e.target.src = '/default-profile.png';
+                          }}
+                        />
+                      ) : (
+                        <div className="image-placeholder-update">
+                          <FontAwesomeIcon icon={faUser} className="placeholder-icon" />
+                          <span>Sin imagen</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+                
+                {!isEditing && (
+                  <div className="image-info-update">
+                    <p>Activa el modo edición para cambiar la imagen</p>
+                  </div>
+                )}
+              </div>
+
+              <button type="submit" className="submit-btn-update">
+                {isEditing ? (
+                  <>
+                    <FontAwesomeIcon icon={faGraduationCap} />
+                    <span>Guardar Cambios</span>
+                  </>
+                ) : (
+                  <>
+                    <FontAwesomeIcon icon={faUser} />
+                    <span>Editar Perfil</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
 
       {showManageCourses && (
         <ModalManageCourses

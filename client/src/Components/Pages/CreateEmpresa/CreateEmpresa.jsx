@@ -11,6 +11,9 @@ import {
 } from '../../../utils/Validators/formValidator';
 import Swal from "sweetalert2";
 import 'sweetalert2/themes/bulma.css'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faInstagram, faFacebook, faLinkedin, faTwitter } from "@fortawesome/free-brands-svg-icons";
+import { faEye, faEyeSlash, faFolder, faPlus, faGlobe } from '@fortawesome/free-solid-svg-icons';
 
 export const CreateEmpresa = ({ onClose, onCompanyCreated }) => {
   // Estado para datos del Manager (izquierda)
@@ -371,7 +374,7 @@ export const CreateEmpresa = ({ onClose, onCompanyCreated }) => {
                     className="password-icon-dual"
                     onClick={() => setShowPassword(!showPassword)}
                   >
-                    {showPassword ? "🙈" : "👁️"}
+                    {showPassword ? <FontAwesomeIcon icon={faEye} /> : <FontAwesomeIcon icon={faEyeSlash} />}
                   </span>
                 </div>
               </div>
@@ -392,7 +395,7 @@ export const CreateEmpresa = ({ onClose, onCompanyCreated }) => {
                     className="password-icon-dual"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   >
-                    {showConfirmPassword ? "🙈" : "👁️"}
+                    {showConfirmPassword ? <FontAwesomeIcon icon={faEye} /> : <FontAwesomeIcon icon={faEyeSlash} />}
                   </span>
                 </div>
               </div>
@@ -571,7 +574,7 @@ export const CreateEmpresa = ({ onClose, onCompanyCreated }) => {
                     htmlFor="img_empresa" 
                     className={`file-input-label-dual ${empresaData.img_empresa ? 'has-file' : ''}`}
                   >
-                    {empresaData.img_empresa ? "✅ Logo seleccionado" : "📁 Seleccionar logo"}
+                    {empresaData.img_empresa ? "Logo seleccionado" : <><FontAwesomeIcon icon={faFolder} /> Seleccionar logo</>}
                   </label>
                 </div>
               </div>
@@ -597,7 +600,7 @@ export const CreateEmpresa = ({ onClose, onCompanyCreated }) => {
   <div className="social-links-grid">
     <div className="social-link-item">
       <div className="social-link-label">
-        <span className="social-link-icon">🌐</span>
+        <span className="social-link-icon"><FontAwesomeIcon icon={faGlobe} /></span>
         Sitio Web
       </div>
       <input 
@@ -611,7 +614,7 @@ export const CreateEmpresa = ({ onClose, onCompanyCreated }) => {
 
     <div className="social-link-item">
       <div className="social-link-label">
-        <span className="social-link-icon">📘</span>
+        <span className="social-link-icon"><FontAwesomeIcon icon={faFacebook} /></span>
         Facebook
       </div>
       <input 
@@ -625,7 +628,7 @@ export const CreateEmpresa = ({ onClose, onCompanyCreated }) => {
 
     <div className="social-link-item">
       <div className="social-link-label">
-        <span className="social-link-icon">📷</span>
+        <span className="social-link-icon"><FontAwesomeIcon icon={faInstagram} /></span>
         Instagram
       </div>
       <input 
@@ -639,7 +642,7 @@ export const CreateEmpresa = ({ onClose, onCompanyCreated }) => {
 
     <div className="social-link-item">
       <div className="social-link-label">
-        <span className="social-link-icon">💼</span>
+        <span className="social-link-icon"><FontAwesomeIcon icon={faLinkedin} /></span>
         LinkedIn
       </div>
       <input 
@@ -653,7 +656,7 @@ export const CreateEmpresa = ({ onClose, onCompanyCreated }) => {
 
     <div className="social-link-item">
       <div className="social-link-label">
-        <span className="social-link-icon">🐦</span>
+        <span className="social-link-icon"><FontAwesomeIcon icon={faTwitter} /></span>
         Twitter
       </div>
       <input 
@@ -689,7 +692,7 @@ export const CreateEmpresa = ({ onClose, onCompanyCreated }) => {
               onClick={handleSubmit}
               disabled={loading}
             >
-              {loading ? "⏳ Creando..." : "🚀 Crear Empresa y Manager"}
+              {loading ? "⏳ Creando..." :  <><FontAwesomeIcon icon={faPlus} /> Crear Empresa y Manager</>}
             </button>
           </div>
         </div>

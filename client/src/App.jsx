@@ -37,6 +37,8 @@ import { SupportMaterialCourse } from './Components/Pages/Courses/SupportMateria
 import { InscribeEmployes } from './Components/Pages/GestionsEmployes/InscribeEmployes/InscribeEmployes';
 import Politic from './Components/Pages/Configuration/Politic';
 import Question from './Components/Pages/Configuration/Question';
+import { CourseActivities } from './Components/Pages/Courses/Activities/CourseActivities';
+import { ActivityDetail } from './Components/Pages/Courses/Activities/ActivityDetail';
 
 // Importación de modales
 import { NavBar } from './Components/UI/NavBar/NavBar';
@@ -258,6 +260,8 @@ function App() {
 						<ConsultCourses />
 					</Layout>
 					} />
+					<Route path="/Cursos/:id/actividades" element={<CourseActivities />} />
+					<Route path="/Cursos/:id/actividades/:actividadId" element={<ActivityDetail />} />
 					<Route path="/Cursos/:id" element={<SeeCourse />} />
 					
 					<Route path="/Cursos/MisCursos" element={

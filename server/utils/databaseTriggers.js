@@ -5,6 +5,7 @@ async function createTriggers(sequelize) {
 	await sequelize.query("DROP TRIGGER IF EXISTS afterAssistance;");
 	await sequelize.query("DROP TRIGGER IF EXISTS afterUpdateAssistance;");
 	await sequelize.query("DROP TRIGGER IF EXISTS updateCourseDuration;");
+	await sequelize.query("DROP TRIGGER IF EXISTS reducir_cupos")
 
 	// Se crean los triggers
 	await sequelize.query(`
@@ -69,6 +70,19 @@ async function createTriggers(sequelize) {
 			SET NEW.duracion_dias=(ROUND(DATEDIFF(NEW.fecha_fin, NEW.fecha_inicio) / 7, 0) * (LENGTH(REGEXP_REPLACE(NEW.dias_formacion, "[^,]", "")) + 1));
 		END ;	
 	`)
+
+	await sequelize.query(`
+		CREATE TRIGGER reducir_cupos
+		AFTER INSERT ON inscripcion_curso
+		FOR EACH ROW 
+		BEGIN 
+		   IF NEW.estado_inscripcion = "activo" THEN
+		   		UPDATE curso
+					SET cupos_disponibles = cupos_disponibles - 1
+					WHERE id = NEW.curso_ID;
+		   END IF;
+		END ;   			
+	`);
 }
 
 module.exports = createTriggers;

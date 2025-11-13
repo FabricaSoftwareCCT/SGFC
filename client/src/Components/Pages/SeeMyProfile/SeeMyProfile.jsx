@@ -444,7 +444,7 @@ const handleSaveChanges = async () => {
 				confirmButtonText: 'Aceptar',
 				confirmButtonColor: '#049019',
 				theme:"bulma",
-      customClass: { confirmButton: 'centered-swal-button' }
+        customClass: { confirmButton: 'centered-swal-button' }
 			});
 
     // Recargar perfil desde backend

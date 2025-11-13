@@ -334,8 +334,6 @@ const getAprenticeCriteria = async (req, res) => {
 	try {
 		const course = req.params.course;
 		const userId = req.params.id;
-
-		const { id, accountType } = req.user;
 		
 		if (!(await Curso.findByPk(course)))
 			return res.status(404).json({ message: "Curso no encontrado." });

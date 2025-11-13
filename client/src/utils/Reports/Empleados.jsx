@@ -15,7 +15,16 @@ export const generarExcelEmpleado = async (empleado, done) => {
 		for (let i in cursos) {
 			const curso = cursos[i]
 			const asistencias = (await axiosInstance.get(`/api/attendance/courses/${curso.ID}/get?limit=999999999`))?.data.records
-			console.log(asistencias)
+			const criterios = (await axiosInstance.get(`/api/certification/course/${curso.ID}/aprendiz/${empleado.ID}`))?.data.criteria
+
+			let totalMin = 0
+			let totalValue = 0
+
+			for (let criterio of criterios) {
+				totalMin += criterio.min
+				totalValue += criterio.value
+			}
+
 			datosCursos.push({
 				"Curso": curso.nombre_curso,
 				"Ficha": curso.ficha,
@@ -24,6 +33,9 @@ export const generarExcelEmpleado = async (empleado, done) => {
 				"Estado": curso.estado,
 				"Inicio": (new Date(curso.fecha_inicio)).toLocaleDateString("es-CO"),
 				"Fin": (new Date(curso.fecha_fin)).toLocaleDateString("es-CO"),
+				"Cant. Asistencias": asistencias.filter((a) => a.aprendiz.ID == empleado.ID && a.estado_asistencia === "Presente").length,
+				"Cant. Inasistencias": asistencias.filter((a) => a.aprendiz.ID == empleado.ID && a.estado_asistencia === "Ausente").length,
+				"Progreso": `${parseInt((totalValue * 100) / totalMin)}%`
 			})
 		}
 

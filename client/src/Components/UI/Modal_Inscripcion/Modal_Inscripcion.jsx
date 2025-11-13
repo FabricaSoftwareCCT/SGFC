@@ -4,7 +4,7 @@ import axiosInstance from '../../../config/axiosInstance';
 import Swal from 'sweetalert2';
 import 'sweetalert2/themes/bulma.css'
 
-export const Modal_Inscripcion = ({ onClose, onCursosSeleccionados }) => {
+export const Modal_Inscripcion = ({ onClose, onCursosSeleccionados, id }) => {
   const [cursosDisponibles, setCursosDisponibles] = useState([]);
   const [cursoSeleccionado, setCursoSeleccionado] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -23,11 +23,17 @@ export const Modal_Inscripcion = ({ onClose, onCursosSeleccionados }) => {
     const cargarCursosDisponibles = async () => {
       setLoading(true);
       try {
-        const userSession = JSON.parse(userSessionString);
-        const empresaId = userSession.empresa_ID;
-        const cursosRes = await axiosInstance.get(`/api/courses/empresa/${empresaId}`); 
-        const cursosData = Array.isArray(cursosRes.data) ? cursosRes.data : cursosRes.data.cursos || [];
-        setCursosDisponibles(cursosData);
+        if(id){
+          const cursosRes = await axiosInstance.get(`/api/courses/empresa/${id.ID}`); 
+          const cursosData = Array.isArray(cursosRes.data) ? cursosRes.data : cursosRes.data.cursos || [];
+          setCursosDisponibles(cursosData);   
+        } else {
+          const userSession = JSON.parse(userSessionString);
+          const empresaId = userSession.empresa_ID;
+          const cursosRes = await axiosInstance.get(`/api/courses/empresa/${empresaId}`); 
+          const cursosData = Array.isArray(cursosRes.data) ? cursosRes.data : cursosRes.data.cursos || [];
+          setCursosDisponibles(cursosData);
+        }
       } catch (error) {
         console.error('Error al cargar cursos:', error);
         setCursosDisponibles([]);

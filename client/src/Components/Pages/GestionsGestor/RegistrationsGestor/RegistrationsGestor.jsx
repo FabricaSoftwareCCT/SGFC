@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import "./RegistrationsGestor.css";
-import { getAllInscripciones, updateBulkStatus } from '../../../API/ApiRpeort';
+import { getAllInscripciones, updateBulkStatus, getIdCurso } from '../../../API/ApiRpeort';
 import { Header } from "../../../Layouts/Header/Header";
 import { Main } from "../../../Layouts/Main/Main";
 import Swal from 'sweetalert2';
@@ -9,18 +9,21 @@ import 'sweetalert2/themes/bulma.css'
 
 export const RegistrationsGestor = () => {
   const [search, setSearch] = useState("");
-  const [sortBy, setSortBy] = useState("newest");
+  const [sortBy, setSortBy] = useState("mas reciente");
   const [currentPage, setCurrentPage] = useState(1);
   const [inscritos, setInscritos] = useState([]);
   const [selectedItems, setSelectedItems] = useState([]);
   const [selectAll, setSelectAll] = useState(false);
+  const [title, setTitle] = useState("")
   const itemsPerPage = 5;
   const { id } = useParams();
 
   const fetchData= async() =>{
     try {
       const data = await getAllInscripciones(id);
-      if (!data) {
+      const data2 = await getIdCurso(id)
+      if (!data || !data2) {
+       setTitle(data2.nombre_curso)
         Swal.fire({
           icon:"error",
           title:"Error al cargar los datos",
@@ -34,7 +37,8 @@ export const RegistrationsGestor = () => {
         })
         return;
       }
-      setInscritos(data);
+       setInscritos(data)
+       setTitle(data2.nombre_curso)
     } catch (error) {
       console.log(error);
               Swal.fire({
@@ -58,7 +62,6 @@ export const RegistrationsGestor = () => {
     let result = inscritos.filter(
       (item) =>
         item.nombres.toLowerCase().includes(search.toLowerCase()) ||
-        item.empresa.toLowerCase().includes(search.toLowerCase()) ||
         item.email.toLowerCase().includes(search.toLowerCase())
     );
 
@@ -66,10 +69,9 @@ export const RegistrationsGestor = () => {
       case "nombres":
         result.sort((a, b) => a.nombres.localeCompare(b.nombres));
         break;
-      case "empresa":
-        result.sort((a, b) => a.empresa.localeCompare(b.empresa));
+      case "mas reciente":
+        result.sort((a, b) => new Date(b.fecha_inscripcion) - new Date(a.fecha_inscripcion));
         break;
-      case "email":
       default:
         result.sort((a, b) => new Date(b.fecha_inscripcion) - new Date(a.fecha_inscripcion));
         break;
@@ -198,16 +200,15 @@ export const RegistrationsGestor = () => {
       <Header />
       <Main>
         <div className="registrations-container">
-          <h1 className="main-title">Curso Power Point</h1>
+          <h1 className="main-title">{title}</h1>
           
           <div className="content-wrapper">
             <div className="registrations-card">
               {/* Header */}
               <div className="card-header">
                 <div className="title-section">
-                  <h2>All Customers</h2>
                   <p className="subtitle">
-                    Active Members <span className="count-badge">{filteredAndSortedData.filter(item => item.estado === "activo").length}</span>
+                   Empleados Activos <span className="count-badge">{filteredAndSortedData.filter(item => item.estado === "activo").length}</span>
                   </p>
                 </div>
                 <div className="header-actions">
@@ -228,9 +229,8 @@ export const RegistrationsGestor = () => {
                       value={sortBy}
                       onChange={(e) => setSortBy(e.target.value)}
                     >
-                      <option value="newest">Más recientes</option>
+                      <option value="mas reciente">Más recientes</option>
                       <option value="nombres">Nombres</option>
-                      <option value="empresa">Empresa</option>
                     </select>
                   </div>
                 </div>

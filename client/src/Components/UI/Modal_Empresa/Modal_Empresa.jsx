@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import "./Modal_Empresa.css";
 import axiosInstance from '../../../config/axiosInstance';
+import Swal from 'sweetalert2'
+import 'sweetalert2/themes/bulma.css'
 
 export const Modal_Empresa = ({ onClose, onEmpresaSeleccionada }) => {
   const [empresasDisponibles, setEmpresasDisponibles] = useState([]);
@@ -51,7 +53,15 @@ export const Modal_Empresa = ({ onClose, onEmpresaSeleccionada }) => {
     e.preventDefault();
     
     if (!empresaSeleccionada) {
-      alert('Por favor selecciona una empresa');
+      Swal.fire({
+        icon:"Info",
+        title:"Seleccione una empresa",
+        text:"Por favor selecciona una empresa",
+        confirmButtonText:"Entendido",
+        confirmButtonColor:"#006c30",
+        theme:"bulma",
+              customClass: { confirmButton: 'centered-swal-button' }
+      });
       return;
     }
 
@@ -67,7 +77,15 @@ export const Modal_Empresa = ({ onClose, onEmpresaSeleccionada }) => {
       
     } catch (error) {
       console.error("Error al procesar la empresa:", error);
-      alert("Hubo un error al procesar la selección de la empresa");
+            Swal.fire({
+        icon:"error",
+        title:"Error al Seleccione una empresa",
+        text:"Hubo un error al procesar la selección de la empresa",
+        confirmButtonText:"Entendido",
+        confirmButtonColor:"#006c30",
+        theme:"bulma",
+              customClass: { confirmButton: 'centered-swal-button' }
+      });
     }
   };
 

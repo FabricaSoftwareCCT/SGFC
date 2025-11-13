@@ -196,7 +196,17 @@ export const InscribeEmployes = () => {
       setEmployes(empleados)
     } catch (error) {
       console.error("Error al cargar empleados de la empresa:", error)
-      alert("No se logró cargar los empleados de la empresa seleccionada")
+      Swal.fire({
+        icon:"error",
+        title:"Error al cargar los empleados",
+        text:"No se logró cargar los empleados de la empresa seleccionada",
+        confirmButtonText:"Okay",
+        theme:"Bulma",
+        customClass:{
+            actions: 'swal2-actions-centered',
+            popup: 'swal2-popup-centered'
+        }
+      })
       setEmployes([])
     }
   }

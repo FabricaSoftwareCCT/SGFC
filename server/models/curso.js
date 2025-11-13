@@ -75,6 +75,13 @@ class Curso extends Model {
 				},
 				duracion_dias: {
 					type: DataTypes.INTEGER.UNSIGNED,
+				},
+				modalidad: {
+					type: DataTypes.ENUM(
+						"virtual",
+						"presencial"
+					),
+					allowNull: false,
 				}
 			},
 

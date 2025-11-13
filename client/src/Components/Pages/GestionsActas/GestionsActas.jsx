@@ -42,7 +42,7 @@ export const GestionsActas = () => {
 				const userData = JSON.parse(sessionStorage.getItem('userSession') || '{}');
 
 				// Filtrar según el tipo de usuario
-				if (userData.accountType === 'Administrador') {
+				if (userData.accountType === 'Administrador' || userData.accountType === "Gestor") {
 					// Administrador ve todas las actas
 					setActas(res.data);
 				} else if (userData.accountType === 'Instructor') {
@@ -80,8 +80,11 @@ export const GestionsActas = () => {
 
 	// Verificar si el usuario es administrador
 	const esAdministrador = () => {
-		const esAdmin = usuarioLogueado && usuarioLogueado.accountType === 'Administrador';
-		return esAdmin;
+		return usuarioLogueado && usuarioLogueado.accountType === 'Administrador';
+	};
+
+	const esGestor = () => {
+		return usuarioLogueado && usuarioLogueado.accountType === 'Gestor';
 	};
 
 	// Verificar si el usuario es instructor
@@ -179,16 +182,7 @@ export const GestionsActas = () => {
 								: 'http://localhost:3001/uploads/documentos';
 							window.open(`${baseUrl}/${acta.pdf_acta}`, "_blank");
 						}}
-						style={{
-							background: "#00843d",
-							color: "#fff",
-							padding: "0.5rem 1rem",
-							borderRadius: "5px",
-							textDecoration: "none",
-							fontWeight: "bold",
-							width: "auto",
-							height: "auto"
-						}}
+						className={"Acta-Boton"}
 					>
 						Acta
 					</NavLink>
@@ -203,21 +197,21 @@ export const GestionsActas = () => {
 								window.open(`${baseUrl}/${acta.pdf_radicado}`, "_blank");
 							}
 						}}
+						className={"Acta-Boton"}
 						style={{
-							background: "#00843d",
-							color: "#fff",
-							padding: "0.5rem 1rem",
-							borderRadius: "5px",
-							textDecoration: "none",
-							fontWeight: "bold",
 							opacity: acta.pdf_radicado ? 1 : 0.5,
 							pointerEvents: acta.pdf_radicado ? "auto" : "none",
-							width: "auto",
-							height: "auto"
 						}}
 					>
 						Radicado
 					</NavLink>
+					{/*acta.tipo_acta == "Concertacion" && (
+						<button
+							className={"Acta-Boton"}
+						>
+							Editar acta
+						</button>
+					)*/}
 					<label
 						style={{
 							background: "#007bff",
@@ -226,7 +220,7 @@ export const GestionsActas = () => {
 							borderRadius: "5px",
 							fontWeight: "bold",
 							cursor: "pointer",
-							width: "auto",
+							width: "100%",
 							height: "auto"
 						}}
 					>
@@ -449,7 +443,7 @@ export const GestionsActas = () => {
 							</article>
 
 							{/* Solo mostrar botón de generar acta a instructores y administradores */}
-							{(esInstructor() || esAdministrador()) && (
+							{(esInstructor() || esAdministrador() || esGestor()) && (
 								<div className="container-button-firmar">
 									<button className="button-proceedings-generar" onClick={() => setShowTipoActaModal(true)}>
 										Generar acta

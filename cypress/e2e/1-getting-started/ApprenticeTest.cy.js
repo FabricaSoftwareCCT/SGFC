@@ -128,4 +128,21 @@ describe('Prueba Modulo Aprendiz', ()=>{
         cy.get('.botones-solicitud').contains('button', 'Enviar Solicitud').click({force:true})
 
     })
+
+    it.skip('cerrar sesión como aprendiz', ()=>{
+        cy.visit("http://localhost:5173/") 
+        cy.get(".button_signIn").first().click({force : true})
+        
+        //Ingresar credenciales del rol administrador
+        cy.get('input[type="email"]').first()
+            .type('hincapiefernandezjoan123@gmail.com')
+        cy.get('input[type="password"]')
+            .type(';,6E5RaH')
+            
+        //Iniciar sesión
+        cy.get(".button_register").click()
+
+        //Cerrar sesión
+        cy.get('.container_options_profile').find('img[alt="Cerrar sesión"]').first().click({force : true})
+    })
 })    

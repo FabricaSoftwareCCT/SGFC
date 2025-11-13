@@ -4,12 +4,21 @@ import axiosInstance from "../../../../config/axiosInstance"
 export const ReportEmployee = ({
 	contentKey,
 	empleado,
-	done
+	done,
+	filters
 }) => {
 	const [cursos, setCursos] = useState([])
 	const [listaCriterios, setListaCriterios] = useState({})
+	const [headers, setHeaders] = useState(["Curso", "Ficha", "Modalidad", "Dias de formación", "Estado", "Inicio", "Fin", "Progreso", "Certificación"])
 
 	const fetchData = async () => {
+		if (filters.presence) {
+			setHeaders([
+				...headers,
+				"Asistencias", "Inasistencias",
+			])
+		}
+
 		let cursoData = []
 		let criteriosData = {}
 
@@ -102,31 +111,35 @@ export const ReportEmployee = ({
 				style={label}
 			><b style={colorBlack}>Consultado el: </b> {new Date().toLocaleString("es-CO")}</span>
 			<br/>
-			<span
-				style={label}
-			><b style={colorBlack}>Nombre: </b> {empleado.nombres} {empleado.apellidos}</span>
-			<br/>
-			<span
-				style={label}
-			><b style={colorBlack}>Estado: </b> {empleado.estado}</span>
-			<br/>
-			<span
-				style={label}
-			><b style={colorBlack}>Correo: </b> {empleado.email}</span>
-			<br/>
-			<span
-				style={label}
-			><b style={colorBlack}>Documento: </b> {empleado.documento}</span>
-			<br/>
-			<span
-				style={label}
-			><b style={colorBlack}>Número Teléfonico: </b> {empleado.documento}</span>
-			<br/>
+			{filters.personalData && (
+				<>
+					<span
+						style={label}
+					><b style={colorBlack}>Nombre: </b> {empleado.nombres} {empleado.apellidos}</span>
+					<br/>
+					<span
+						style={label}
+					><b style={colorBlack}>Estado: </b> {empleado.estado}</span>
+					<br/>
+					<span
+						style={label}
+					><b style={colorBlack}>Correo: </b> {empleado.email}</span>
+					<br/>
+					<span
+						style={label}
+					><b style={colorBlack}>Documento: </b> {empleado.documento}</span>
+					<br/>
+					<span
+						style={label}
+					><b style={colorBlack}>Número Teléfonico: </b> {empleado.documento}</span>
+					<br/>	
+				</>
+			)}
 			<h3 style={label}>Cursos</h3>
 			<table style={tableStyle}>
 				<thead>
 					<tr>
-						{["Curso", "Ficha", "Modalidad", "Dias de formación", "Estado", "Inicio", "Fin", "Asistencias", "Inasistencias", "Progreso", "Certificación"].map((h) => 
+						{headers.map((h) => 
 							<th
 								key={h}
 								style={{
@@ -166,60 +179,66 @@ export const ReportEmployee = ({
 							>{c.Fin}</td>
 							<td
 								style={tdStyle}
-							>{c.Asistencias}</td>
-							<td
-								style={tdStyle}
-							>{c.Inasistencias}</td>
-							<td
-								style={tdStyle}
 							>{c.Progreso}</td>
 							<td
 								style={tdStyle}
 							>{c.Certificacion}</td>
+							{filters.presence && (
+								<>
+									<td
+										style={tdStyle}
+									>{c.Asistencias}</td>
+									<td
+										style={tdStyle}
+									>{c.Inasistencias}</td>
+								</>
+							)}
 						</tr>
 					)}
 				</tbody>
 			</table>
-			{Object.keys(listaCriterios).map((c) => 
-				<>
-					<h3 style={label}>Criterios del curso {c}</h3>
-					<table style={{
-						...tableStyle,
-						width: "30%"	
-					}}>
-						<thead>
-							<tr>
-								{["Criterio", "Mínimo para certificarse", "Valor"].map((h) => 
-									<th
-										key={h}
-										style={{
-											color: "#000",
-											border: "1px solid",
-											fontSize: "10px",
-											backgroundColor: "#FFF",
-											padding: "1px"
-										}}
-									>{h}</th>
-								)}
-							</tr>
-						</thead>
-						<tbody>
-							{listaCriterios[c].map((cr) => 
+			{filters.criteria && (
+				Object.keys(listaCriterios).map((c) => 
+					<>
+						<h3 style={label}>Criterios del curso {c}</h3>
+						<table style={{
+							...tableStyle,
+							width: "30%"	
+						}}>
+							<thead>
 								<tr>
-									<td
-										style={tdStyle}
-									>{cr.title}</td>
-									<td
-										style={tdStyle}
-									>{cr.min}</td>
-									<td
-										style={tdStyle}
-									>{cr.value}</td>
+									{["Criterio", "Mínimo para certificarse", "Valor"].map((h) => 
+										<th
+											key={h}
+											style={{
+												color: "#000",
+												border: "1px solid",
+												fontSize: "10px",
+												backgroundColor: "#FFF",
+												padding: "1px"
+											}}
+										>{h}</th>
+									)}
 								</tr>
-							)}
-						</tbody>
-					</table>
-				</>
+							</thead>
+							<tbody>
+								{listaCriterios[c].map((cr) => 
+									<tr>
+										<td
+											style={tdStyle}
+										>{cr.title}</td>
+										<td
+											style={tdStyle}
+										>{cr.min}</td>
+										<td
+											style={tdStyle}
+										>{cr.value}</td>
+									</tr>
+								)}
+							</tbody>
+						</table>
+					</>
+				)	
 			)}
 		</div>
 	)

@@ -35,6 +35,12 @@ export const GestionsEmployes = () => {
 	const [generating, setGenerating] = useState(false)
 	const [doneGenerating, setDoneGenerating] = useState(false)
 	const [reportContent, setReportContent] = useState(false)
+	const [showFilters, setShowFilters] = useState(false)
+	const [filters, setFilters] = useState({
+		personalData: true,
+		presence: true,
+		criteria: true
+	})
 
 	const pdfContent = useRef()
 
@@ -70,15 +76,15 @@ export const GestionsEmployes = () => {
 				setTotalItems(data.pagination?.totalItems || 0)
 			} else {
 				const userSessionString = localStorage.getItem("userSession") || sessionStorage.getItem("userSession")
-			if (!userSessionString) {
-				Swal.fire({
-					icon:"info",
-					title:"Error en el sistema",
-					text:"No se encontró la sesión de usuario.",
-					confirmButtonText:"Okay",
-												theme:"bulma",
-			customClass: { confirmButton: 'centered-swal-button' }
-				})
+				if (!userSessionString) {
+					Swal.fire({
+						icon:"info",
+						title:"Error en el sistema",
+						text:"No se encontró la sesión de usuario.",
+						confirmButtonText:"Okay",
+						theme:"bulma",
+						customClass: { confirmButton: 'centered-swal-button' }
+					})
 					return
 				}
 				const userSession = JSON.parse(userSessionString)
@@ -646,7 +652,7 @@ export const GestionsEmployes = () => {
 								style={{
 									marginTop: "20px",
 								}}
-								onClick={() => generarExcelEmpleado(selectedEmploye, () => setShowReportOptions(false))}
+								onClick={() => generarExcelEmpleado(selectedEmploye, () => setShowReportOptions(false), filters)}
 							>Descargar reporte</button>
 						:
 							<>
@@ -664,11 +670,12 @@ export const GestionsEmployes = () => {
 										done={() => {
 											generarReporte()
 										}}
+										filters={filters}
 									/>
 								}
 							</>
 						}
-						{doneGenerating && (
+						{doneGenerating && reportType === "pdf" && (
 							<a
 								className="button"
 								href={reportContent}
@@ -679,6 +686,52 @@ export const GestionsEmployes = () => {
 									textDecoration: "none"
 								}}
 							>Descargar</a>
+						)}
+						<button
+							className="filtersButtonEmployee"
+							onClick={() => setShowFilters(!showFilters)}
+						>Filtros {!showFilters ? <>&#x25BC;</> : <>&#x25B2;</>}</button>
+						{showFilters && (
+							<div
+								className="filterListEmployeeReport"
+							>
+								<div>
+									<input
+										type="checkbox"
+										className="employee-checkbox"
+										style={{marginRight: "5px"}}
+										checked={filters.personalData}
+										onChange={() => setFilters({...filters, personalData: !filters.personalData})}
+									/>
+									<label
+										className="checkbox-label"
+									>Incluir datos personales</label><br/>
+								</div>
+								<div>
+									<input
+										type="checkbox"
+										className="employee-checkbox"
+										style={{marginRight: "5px"}}
+										checked={filters.presence}
+										onChange={() => setFilters({...filters, presence: !filters.presence})}
+									/>
+									<label
+										className="checkbox-label"
+									>Incluir asistencias</label><br/>
+								</div>
+								<div>
+									<input
+										type="checkbox"
+										className="employee-checkbox"
+										style={{marginRight: "5px"}}
+										checked={filters.criteria}
+										onChange={() => setFilters({...filters, criteria: !filters.criteria})}
+									/>
+									<label
+										className="checkbox-label"
+									>Incluir criterios de certificación de cada curso</label><br/>
+								</div>
+							</div>
 						)}
 					</div>
 				</div>

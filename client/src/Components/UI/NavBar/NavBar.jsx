@@ -445,8 +445,6 @@ export const NavBar = ({ children }) => {
 		setShowSettingsMenu(false);
 	};
 
-	console.log(showSettingsMenu)
-
 	return (
 		<div className="navBar">
 			<div className="logo">SGFC</div>

@@ -607,7 +607,7 @@ const uploadImagesBase64 = async (req, res) => {
 		return res.status(500).json({ message: "Error al guardar la imagen." });
 	}
 };
-366
+
 const getCursoParticipants = async (req, res) => {
 	try {
 		const { courseId } = req.params;
@@ -738,7 +738,8 @@ const getCursoById = async (req, res) => {
 
 		curso.dataValues.cupos_usados = await InscripcionCurso.count({
 			where: {
-				curso_ID: id
+				curso_ID: id,
+				estado_inscripcion : "activo"
 			}
 		})
 		

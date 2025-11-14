@@ -2,9 +2,12 @@ import axiosInstance from '../../config/axiosInstance';
 
 export const getAllCursosForFilters = async () => {
   try {
-    const response = await axiosInstance.get('/api/reports/ObtenerCursos/admin/1');
-    const cursos = response.data?.curso?.cursos || [];
-    return cursos.map(c => ({ id: c.id, name: c.nombre_curso }));
+		const response = await axiosInstance.get('/api/courses/cursos');
+		const cursos = response.data || [];
+		return cursos.map((c) => ({
+			id: c.ID || c.Id || c.id || c.curso_ID,
+			name: c.nombre_curso || c.Nombre || c.nombre || 'Sin nombre',
+		}));
   } catch (error) {
     console.error('Error al obtener cursos:', error);
     throw error;
@@ -28,13 +31,55 @@ export const getAllLearnersForFilters = async () => {
 
 export const getCoursesByLearner = async (learnerId) => {
   try {
-    const response = await axiosInstance.get('/api/reports/courses-by-learner', {
-      params: { learnerId }
-    });
-    return response.data;
+		const normalizedLearnerId = Number(learnerId);
+		const learnerParam = !Number.isNaN(normalizedLearnerId)
+			? normalizedLearnerId
+			: learnerId;
+
+		const { data } = await axiosInstance.get('/api/reports/courses-by-learner', {
+			params: { learnerId: learnerParam },
+		});
+		const coursesRaw = data?.courses || data?.data || data?.curso || [];
+
+		const normalized = coursesRaw.map((course) => {
+			const courseId =
+				course?.id ??
+				course?.Id ??
+				course?.ID ??
+				course?.curso_ID ??
+				course?.Curso?.ID ??
+				course?.curso?.ID ??
+				course?.courseId ??
+				course?.aprendizCursoId ??
+				course?.id_curso ??
+				null;
+
+			const courseName =
+				course?.name ??
+				course?.nombre ??
+				course?.nombre_curso ??
+				course?.Curso?.nombre_curso ??
+				course?.curso?.nombre_curso ??
+				'Sin nombre';
+
+			return {
+				id: courseId,
+				name: courseName,
+				raw: course,
+			};
+		});
+
+		return {
+			success: data?.success !== false,
+			courses: normalized.filter((course) => course.id != null),
+		};
   } catch (error) {
     console.error('Error al obtener cursos del aprendiz:', error);
-    throw error;
+		return {
+			success: false,
+			message: error?.response?.data?.message || 'Error al obtener cursos',
+			courses: [],
+		};
   }
 };
 

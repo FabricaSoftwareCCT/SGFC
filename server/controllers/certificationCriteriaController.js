@@ -8,6 +8,8 @@ const InscripcionCurso = require("../models/InscripcionCurso");
 const { sendNotification } = require("../services/notificationService");
 const UsuarioEdita = require("../models/UsuarioEdita");
 const { addHistorial } = require("./historialController");
+const ActividadCurso = require("../models/ActividadCurso");
+const ActividadEntrega = require("../models/ActividadEntrega");
 
 let dbInstance;
 
@@ -383,17 +385,32 @@ const getAprenticeCriteria = async (req, res) => {
 			});
 		}
 
+		const actividades = await ActividadCurso.findAndCountAll({
+			where: {
+				curso_ID: course,
+			}
+		})
+
+		const subidas = await ActividadEntrega.findAll({
+			where: {
+				aprendiz_ID: userId,
+				estado_revision: "aprobada"
+			}
+		})
+
 		return res.status(200).json({
 			certification_status:
 				certificationData.dataValues.estado_certificacion,
 			denial_justification:
 				certificationData.dataValues.justificacion_rechazo ?? "",
 			criteria,
+			total_activities: actividades.count,
+			submitted_activities: subidas.map((a) => actividades.rows.map((ac) => ac.ID).includes(a.actividad_ID))?.length ?? 0
 		});
 	} catch (error) {
-		console.error(`Error al crear el criterio: ${error}`);
+		console.error(`Error al consultar los criterios del aprendiz: ${error}`);
 		return res.status(500).json({
-			message: "Error interno al editar el criterio de certificación",
+			message: "Error interno al consultar los criterios del aprendiz",
 		});
 	}
 };

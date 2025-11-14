@@ -35,7 +35,8 @@ export const generarExcelEmpleado = async (empleado, done, filters) => {
 				"Fin": (new Date(curso.fecha_fin)).toLocaleDateString("es-CO"),
 				"Progreso": `${parseInt((totalValue * 100) / totalMin)}%`,
 				"Certificación": estadoCurso.certification_status.toUpperCase(),
-				"Observación": estadoCurso.denial_justification
+				"Observación": estadoCurso.denial_justification,
+				"Entregas": `${estadoCurso.submitted_activities}/${estadoCurso.total_activities}`
 			}
 
 			if (filters.presence) {

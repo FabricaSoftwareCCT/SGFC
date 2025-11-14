@@ -9,7 +9,7 @@ export const ReportEmployee = ({
 }) => {
 	const [cursos, setCursos] = useState([])
 	const [listaCriterios, setListaCriterios] = useState({})
-	const [headers, setHeaders] = useState(["Curso", "Ficha", "Modalidad", "Dias de formación", "Estado", "Inicio", "Fin", "Progreso", "Certificación"])
+	const [headers, setHeaders] = useState(["Curso", "Ficha", "Modalidad", "Dias de formación", "Estado", "Inicio", "Fin", "Progreso", "Certificación", "Entregas"])
 
 	const fetchData = async () => {
 		if (filters.presence) {
@@ -51,7 +51,8 @@ export const ReportEmployee = ({
 				Inasistencias: asistencias.filter((a) => a.aprendiz.ID == empleado.ID && a.estado_asistencia === "Ausente").length,
 				Progreso: `${parseInt((totalValue * 100) / totalMin)}%`,
 				Certificacion: estadoCurso.certification_status.toUpperCase(),
-				Observacion: estadoCurso.denial_justification
+				Observacion: estadoCurso.denial_justification,
+				Entregas: `${estadoCurso.submitted_activities}/${estadoCurso.total_activities}`
 			})
 		}
 		
@@ -183,6 +184,9 @@ export const ReportEmployee = ({
 							<td
 								style={tdStyle}
 							>{c.Certificacion}</td>
+							<td
+								style={tdStyle}
+							>{c.Entregas}</td>
 							{filters.presence && (
 								<>
 									<td

@@ -2,6 +2,10 @@ import React, { useState, useMemo, useEffect, useRef } from 'react'; // ← AGRE
 import './Eficiencia-reporte.css';
 import Swal from 'sweetalert2';
 import 'sweetalert2/themes/bulma.css'
+import axiosInstance from '../../../config/axiosInstance';
+import { generarExcelEficiencia } from '../../../utils/Reports/Eficiencia';
+import { FormatEfficiency } from './FormatEfficiency/FormatEfficiency';
+import html2pdf from "html2pdf.js";
 
 export default function EficienciaReporte({ cursoSeleccionado, onVolver }) {
 	const [mostrarFiltro, setMostrarFiltro] = useState(false);
@@ -16,9 +20,51 @@ export default function EficienciaReporte({ cursoSeleccionado, onVolver }) {
 		tipoFiltro: '', // 'faltantes' o 'realizadas'
 		valor: ''
 	});
+	const [datosEstudiantes, setDatosEstudiantes] = useState([])
+	const [estudiantesFiltrados, setEstudiantesFiltrados] = useState([])
+	const [showReportOptions, setShowReportOptions] = useState(false)
+	const [reportType, setReportType] = useState("pdf");
+	const [generating, setGenerating] = useState(false);
+	const [doneGenerating, setDoneGenerating] = useState(false);
+	const [reportContent, setReportContent] = useState(false);
 
 	// AGREGAR LA REFERENCIA
 	const filtroRef = useRef(null);
+	const pdfContent = useRef();
+
+	const fetchEstudiantes = async () => {
+		try {
+			const aprendices = (await axiosInstance.get(`/api/courses/cursos/${cursoSeleccionado.id}/participants`))?.data.participants.map((a) => a.aprendiz)
+			let aprendicesData = []
+			for (let a of aprendices) {
+				const estadoCurso = (await axiosInstance.get(`/api/certification/course/${cursoSeleccionado.id}/aprendiz/${a.ID}`))?.data
+				aprendicesData.push(
+					{
+						nombre: a.nombres, 
+						apellido: a.apellidos, 
+						documento: a.documento, 
+						estado: a.estado, 
+						faltantes: estadoCurso.total_activities - estadoCurso.submitted_activities,
+						realizadas: estadoCurso.submitted_activities,
+						eficiencia: `${parseInt((estadoCurso.submitted_activities * 100) / estadoCurso.total_activities)}%`
+					}
+				)
+			}
+			setDatosEstudiantes(aprendicesData)
+		} catch (error) {
+			console.log(error)
+			await Swal.fire({
+				icon: 'error',
+				title: 'Error en el sistema',
+				text: 'Ocurrió un error al consultar los aprendices del curso',
+				confirmButtonText: 'Aceptar',
+				theme: 'bulma',
+				customClass: {
+					actions: 'swal2-center-actions'
+				}
+			})
+		}
+	}
 
 	// AGREGAR EL USEEFFECT PARA CERRAR AL HACER CLIC FUERA
 	useEffect(() => {
@@ -31,6 +77,8 @@ export default function EficienciaReporte({ cursoSeleccionado, onVolver }) {
 			}
 		}
 
+		fetchEstudiantes()
+
 		document.addEventListener('mousedown', handleClickOutside);
 
 		// Limpiar event listener cuando el componente se desmonta
@@ -39,98 +87,56 @@ export default function EficienciaReporte({ cursoSeleccionado, onVolver }) {
 		};
 	}, [mostrarFiltro]);
 
-	const datosEstudiantes = [
-		{ 
-			nombre: "Juan Carlos", 
-			apellido: "Pérez García", 
-			documento: "12345678", 
-			estado: "Activo", 
-			faltantes: 3, 
-			realizadas: 12,
-			eficiencia: "85%"
-		},
-		{ 
-			nombre: "María Fernanda", 
-			apellido: "López Martínez", 
-			documento: "87654321", 
-			estado: "Activo", 
-			faltantes: 1, 
-			realizadas: 14,
-			eficiencia: "93%"
-		},
-		{ 
-			nombre: "Carlos Alberto", 
-			apellido: "Rodríguez Silva", 
-			documento: "11223344", 
-			estado: "Inactivo", 
-			faltantes: 8, 
-			realizadas: 7,
-			eficiencia: "47%"
-		},
-		{ 
-			nombre: "Ana María", 
-			apellido: "González Pérez", 
-			documento: "44332211", 
-			estado: "Activo", 
-			faltantes: 0, 
-			realizadas: 15,
-			eficiencia: "100%"
-		},
-		{ 
-			nombre: "Pedro Antonio", 
-			apellido: "Hernández Díaz", 
-			documento: "55667788", 
-			estado: "Inactivo", 
-			faltantes: 5, 
-			realizadas: 10,
-			eficiencia: "67%"
-		}
-	];
+	useEffect(() => {
+		fetchEstudiantes()
+	}, [])
 
-	// Función para aplicar todos los filtros
-	const estudiantesFiltrados = useMemo(() => {
-		return datosEstudiantes.filter(estudiante => {
-			// Filtro por nombre
-			if (filtros.nombre && !estudiante.nombre.toLowerCase().includes(filtros.nombre.toLowerCase())) {
-				return false;
-			}
+	useEffect(() => {
+		setEstudiantesFiltrados(
+			datosEstudiantes.filter(estudiante => {
+				// Filtro por nombre
+				if (filtros.nombre && !estudiante.nombre.toLowerCase().includes(filtros.nombre.toLowerCase())) {
+					return false;
+				}
 
-			// Filtro por apellido
-			if (filtros.apellido && !estudiante.apellido.toLowerCase().includes(filtros.apellido.toLowerCase())) {
-				return false;
-			}
+				// Filtro por apellido
+				if (filtros.apellido && !estudiante.apellido.toLowerCase().includes(filtros.apellido.toLowerCase())) {
+					return false;
+				}
 
-			// Filtro por documento
-			if (filtros.documento && !estudiante.documento.includes(filtros.documento)) {
-				return false;
-			}
+				// Filtro por documento
+				if (filtros.documento && !estudiante.documento.includes(filtros.documento)) {
+					return false;
+				}
 
-			// Filtro por estado
-			const estadosSeleccionados = [];
-			if (filtros.estado.activo) estadosSeleccionados.push('Activo');
-			if (filtros.estado.inactivo) estadosSeleccionados.push('Inactivo');
-			
-			if (estadosSeleccionados.length > 0 && !estadosSeleccionados.includes(estudiante.estado)) {
-				return false;
-			}
+				// Filtro por estado
+				const estadosSeleccionados = [];
+				if (filtros.estado.activo) estadosSeleccionados.push('activo');
+				if (filtros.estado.inactivo) estadosSeleccionados.push('inactivo');
+				
+				if (estadosSeleccionados.length > 0 && !estadosSeleccionados.includes(estudiante.estado.toLowerCase())) {
+					return false;
+				}
 
-			// Filtro por actividades (faltantes o realizadas)
-			if (filtros.tipoFiltro && filtros.valor) {
-				if (filtros.tipoFiltro === 'faltantes') {
-					if (estudiante.faltantes !== parseInt(filtros.valor)) {
-						return false;
-					}
-				} else if (filtros.tipoFiltro === 'realizadas') {
-					if (estudiante.realizadas !== parseInt(filtros.valor)) {
-						return false;
+				// Filtro por actividades (faltantes o realizadas)
+				if (filtros.tipoFiltro && filtros.valor) {
+					if (filtros.tipoFiltro === 'faltantes') {
+						if (estudiante.faltantes !== parseInt(filtros.valor)) {
+							return false;
+						}
+					} else if (filtros.tipoFiltro === 'realizadas') {
+						if (estudiante.realizadas !== parseInt(filtros.valor)) {
+							return false;
+						}
 					}
 				}
-			}
 
-			// Si pasa todos los filtros, incluir el estudiante
-			return true;
-		});
-	}, [filtros]);
+				// Si pasa todos los filtros, incluir el estudiante
+				return true;
+			})
+		)
+	}, [datosEstudiantes, filtros])
+
 
 	const toggleFiltro = () => {
 		setMostrarFiltro(!mostrarFiltro);
@@ -176,18 +182,42 @@ export default function EficienciaReporte({ cursoSeleccionado, onVolver }) {
 		console.log('Filtros limpiados');
 	};
 
-	const generarReporte = () => {
+	const generarReporte = async () => {
 		console.log('Generando reporte de eficiencia...');
-		const datosReporte = estudiantesFiltrados.length > 0 ? estudiantesFiltrados : datosEstudiantes;
-		Swal.fire({
-			icon: 'success',
-			title: 'Reporte generado',
-			html: `Reporte de eficiencia generado exitosamente<br><strong>Total de estudiantes: ${datosReporte.length}</strong>`,
-			confirmButtonText: 'Aceptar',
-			confirmButtonColor: '#049019',
-			theme:"bulma",
-			customClass: { confirmButton: 'centered-swal-button' }
-		});
+		try {
+			if (reportType === "pdf") {
+				if (!pdfContent.current)
+					return
+				const worker = html2pdf().set({
+					margin: 10,
+					filename: "Reporte de eficiencia.pdf",
+					html2canvas: { scale: 2 },
+					jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+				}).from(pdfContent.current)
+				setGenerating(false)
+				setDoneGenerating(true)
+				setReportContent(await worker.output("bloburl"))
+				const datosReporte = estudiantesFiltrados.length > 0 ? estudiantesFiltrados : datosEstudiantes;
+				Swal.fire({
+					icon: 'success',
+					title: 'Reporte generado',
+					html: `Reporte de eficiencia generado exitosamente<br><strong>Total de estudiantes: ${datosReporte.length}</strong>`,
+					confirmButtonText: 'Aceptar',
+					confirmButtonColor: '#049019',
+					theme:"bulma",
+					customClass: { confirmButton: 'centered-swal-button' }
+				});
+			}
+		} catch (error) {
+			console.log(error)
+			Swal.fire({
+				icon:"error",
+				title:"Error al generar el reporte",
+				text:"Ocurrió un error al generar el reporte, intentelo otra vez",
+			})
+			setDoneGenerating(false)
+			setGenerating(false)
+		}
 	};
 
 	// Función para determinar la clase de eficiencia
@@ -225,7 +255,7 @@ export default function EficienciaReporte({ cursoSeleccionado, onVolver }) {
 			</div>
 			
 			<div className='container-tabla-eficiencia'>
-				<button className="button-generar-reporte-eficiencia" onClick={generarReporte}>
+				<button className="button-generar-reporte-eficiencia" onClick={() => setShowReportOptions(true)}>
 					Generar reporte
 				</button>
 				
@@ -380,6 +410,101 @@ export default function EficienciaReporte({ cursoSeleccionado, onVolver }) {
 					</div>
 				)}
 			</div>
+			{showReportOptions && (
+				<div className="modal-overlay">
+					<div
+						className="modal-background"
+						style={{
+							height: "fit-content",
+							paddingBottom: "20px",
+							width: "35%",
+						}}
+					>
+						<div className="container_return_EditCalendar">
+							<h5
+								onClick={() =>
+									setShowReportOptions(false)
+								}
+								style={{ cursor: "pointer" }}
+							>
+								Volver
+							</h5>
+							<button
+								onClick={() =>
+									setShowReportOptions(false)
+								}
+								className="closeModal"
+							></button>
+						</div>
+						<h2 className="modal-title-edit-calendar">
+							Tipo de reporte
+						</h2>
+						<div
+							className="statusButtons"
+							style={{
+								width: "90%",
+							}}
+						>
+							<button
+								className={`status-btn ${
+									reportType == "pdf" && "selected"
+								}`}
+								onClick={() => setReportType("pdf")}
+							>
+								PDF
+							</button>
+							<button
+								className={`status-btn ${
+									reportType == "excel" && "selected"
+								}`}
+								onClick={() => setReportType("excel")}
+							>
+								Excel
+							</button>
+						</div>
+						{reportType === "excel" ?
+							<button
+								className="button"
+								style={{
+									marginTop: "20px",
+								}}
+								onClick={() => generarExcelEficiencia(estudiantesFiltrados, () => setShowReportOptions(false))}
+							>Descargar reporte</button>
+						:
+							<>
+								<button
+									className="button"
+									style={{
+										marginTop: "20px",
+									}}
+									onClick={() => setGenerating(true)}
+								>Generar reporte</button>
+								{generating &&
+									<FormatEfficiency
+										contentKey={pdfContent}
+										aprendices={estudiantesFiltrados}
+										done={() => {
+											generarReporte()
+										}}
+									/>
+								}
+							</>
+						}
+						{doneGenerating && reportType === "pdf" && (
+							<a
+								className="button"
+								href={reportContent}
+								target="_blank"
+								rel="noopener noreferrer"
+								style={{
+									marginTop: "20px",
+									textDecoration: "none"
+								}}
+							>Descargar</a>
+						)}
+					</div>
+				</div>
+			)}
 		</div>
 	);
 }

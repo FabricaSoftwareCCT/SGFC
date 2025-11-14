@@ -405,7 +405,7 @@ const getAprenticeCriteria = async (req, res) => {
 				certificationData.dataValues.justificacion_rechazo ?? "",
 			criteria,
 			total_activities: actividades.count,
-			submitted_activities: subidas.map((a) => actividades.rows.map((ac) => ac.ID).includes(a.actividad_ID))?.length ?? 0
+			submitted_activities: subidas.map((a) => actividades.rows.filter((ac) => ac.ID).includes(a.actividad_ID))?.length ?? 0
 		});
 	} catch (error) {
 		console.error(`Error al consultar los criterios del aprendiz: ${error}`);

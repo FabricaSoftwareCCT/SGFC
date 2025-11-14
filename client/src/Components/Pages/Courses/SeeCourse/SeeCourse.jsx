@@ -276,7 +276,7 @@ export const SeeCourse = () => {
 									</button>
 								)}
 
-								{userSession && userSession.accountType === 'Empresa' && (
+								{userSession && userSession.accountType === 'Empresa' && !id && (
 									<button className='request-btn' onClick={() => navigate(`/SolicitarCurso/${encodeURIComponent(curso.nombre_curso)}`)}>
 										Solicitar Curso
 									</button>
@@ -293,7 +293,7 @@ export const SeeCourse = () => {
 									</button>
 								)}
 
-								{userSession && userSession.accountType === 'Instructor' && (
+								{userSession && userSession.accountType === 'Instructor' && userSession.id === curso.Instructor?.ID && (
 									<button className='manage-btn' onClick={() => navigate(`/Cursos/${id}/gestionar-asistencia`)}>
 										Gestionar Asistencias
 									</button>

@@ -1,17 +1,67 @@
 const path = require("path");
+const { Op } = require("sequelize");
 const CursoTieneMaterialDeApoyo = require("../models/CursoTieneMaterialDeApoyo");
 const MaterialDeApoyo = require("../models/MaterialDeApoyo");
-const { mkdirSync, writeFileAsync, writeFileSync } = require("fs");
+const { mkdirSync, writeFileSync } = require("fs");
 const Curso = require("../models/curso");
 const ActividadCurso = require("../models/ActividadCurso");
 const ActividadTieneMaterial = require("../models/ActividadTieneMaterial");
-
+const AsignacionCursoInstructor = require("../models/AsignacionCursoInstructor");
 
 let dbInstance;
 
 const setDb = (databaseInstance) => {
-	dbInstance = databaseInstance
-}
+	dbInstance = databaseInstance;
+};
+
+const instructorHasAcceptedAssignment = async (cursoId, instructorId) => {
+	if (!cursoId || !instructorId) {
+		return false;
+	}
+
+	const assignment = await AsignacionCursoInstructor.findOne({
+		where: {
+			curso_ID: cursoId,
+			instructor_ID: instructorId,
+			estado: "aceptada",
+		},
+	});
+
+	return Boolean(assignment);
+};
+
+const ensureInstructorOwnsMaterial = async (materialId, instructorId) => {
+	if (!instructorId) {
+		return false;
+	}
+
+	const links = await CursoTieneMaterialDeApoyo.findAll({
+		where: { material_apoyo_ID: materialId },
+		attributes: ["curso_ID"],
+	});
+
+	if (!links.length) {
+		return false;
+	}
+
+	const cursoIds = links
+		.map((link) => Number(link?.curso_ID))
+		.filter((cursoId) => !Number.isNaN(cursoId));
+
+	if (cursoIds.length === 0) {
+		return false;
+	}
+
+	const assignment = await AsignacionCursoInstructor.findOne({
+		where: {
+			curso_ID: { [Op.in]: cursoIds },
+			instructor_ID: instructorId,
+			estado: "aceptada",
+		},
+	});
+
+	return Boolean(assignment);
+};
 
 const obtenerMaterialCurso = async (req, res) => {
 	const { id } = req.params
@@ -66,7 +116,7 @@ const crearMaterial = async (req, res) => {
 			})
 		}
 
-		const curso = await Curso.findByPk(id)
+		const curso = await Curso.findByPk(id);
 
 		if (!curso) {
 			return res.status(404).json({
@@ -74,10 +124,16 @@ const crearMaterial = async (req, res) => {
 			})
 		}
 
-		if (accountType === "Instructor" && curso.dataValues.instructor_ID != userId) {
-			return res.status(403).json({
-				message: "No eres el instructor de este curso."
-			})
+		if (accountType === "Instructor") {
+			const hasAssignment = await instructorHasAcceptedAssignment(
+				curso.ID,
+				userId
+			);
+			if (!hasAssignment) {
+				return res.status(403).json({
+					message: "No eres el instructor asignado a este curso.",
+				});
+			}
 		}
 
 	if (!userId) {
@@ -179,9 +235,12 @@ const crearMaterial = async (req, res) => {
 }
 
 const actualizarMaterial = async (req, res) => {
-	const { id } = req.params
-	const { link } = req.body
-	const { accountType } = req.user
+	const { id } = req.params;
+	const { link } = req.body;
+	const { accountType } = req.user;
+	const userId = Number(
+		req.user?.id ?? req.user?.ID ?? req.user?.usuario_ID ?? req.user?.usuarioId
+	);
 
 	try {
 		if (
@@ -194,41 +253,62 @@ const actualizarMaterial = async (req, res) => {
 			});
 		}
 
-		const material = await MaterialDeApoyo.findByPk(id)
+		if (!userId) {
+			return res.status(401).json({
+				message: "Usuario no autenticado.",
+			});
+		}
+
+		const material = await MaterialDeApoyo.findByPk(id);
 
 		if (!material) {
 			return res.status(404).json({
-				message: "No se encontró el material de apoyo"
-			})
+				message: "No se encontró el material de apoyo",
+			});
+		}
+
+		if (accountType === "Instructor") {
+			const ownsMaterial = await ensureInstructorOwnsMaterial(
+				material.ID,
+				userId
+			);
+			if (!ownsMaterial) {
+				return res.status(403).json({
+					message: "No eres el instructor de este curso.",
+				});
+			}
 		}
 
 		switch (material.tipo_contenido.toLowerCase()) {
 			case "pdf":
-				break
+				break;
 			case "video":
-				break
+				break;
 			case "link":
 				await material.update({
-					contenido: link
-				})
-				break
+					contenido: link,
+				});
+				break;
 		}
 
 		return res.status(200).send({
-			message: "Se ha actualizado el criterio"
-		})
+			message: "Se ha actualizado el criterio",
+		});
 	} catch (error) {
-		console.error(`Error al actualizar el material ${error}`)
+		console.error(`Error al actualizar el material ${error}`);
 		res.status(500).send({
-			message: "Ocurrió un error interno al actualizar el material."
-		})
+			message: "Ocurrió un error interno al actualizar el material.",
+		});
 	}
-}
+};
 
 const eliminarMaterial = async (req, res) => {
 	try {
-		const { id } = req.params
-		const { accountType } = req.user
+		const { id } = req.params;
+		const { accountType } = req.user;
+		const userId = Number(
+			req.user?.id ?? req.user?.ID ?? req.user?.usuario_ID ?? req.user?.usuarioId
+		);
 
 		if (
 			accountType !== "Administrador" &&
@@ -240,28 +320,40 @@ const eliminarMaterial = async (req, res) => {
 			});
 		}
 
-		const material = await MaterialDeApoyo.findByPk(id)
+		const material = await MaterialDeApoyo.findByPk(id);
 
 		if (!material) {
 			return res.status(404).json({
-				message: "No se encontró el material de apoyo"
-			})
+				message: "No se encontró el material de apoyo",
+			});
+		}
+
+		if (accountType === "Instructor") {
+			const ownsMaterial = await ensureInstructorOwnsMaterial(
+				material.ID,
+				userId
+			);
+			if (!ownsMaterial) {
+				return res.status(403).json({
+					message: "No eres el instructor de este curso.",
+				});
+			}
 		}
 
 		material.update({
-			estado: "inactivo"
-		})
+			estado: "inactivo",
+		});
 
 		return res.status(200).send({
-			message: "Se ha eliminado el criterio"
-		})
+			message: "Se ha eliminado el criterio",
+		});
 	} catch (error) {
-		console.error(`Error al eliminar el material ${error}`)
+		console.error(`Error al eliminar el material ${error}`);
 		res.status(500).send({
-			message: "Ocurrió un error interno al eliminar el material."
-		})
+			message: "Ocurrió un error interno al eliminar el material.",
+		});
 	}
-}
+};
 
 module.exports = {
 	obtenerMaterialCurso,

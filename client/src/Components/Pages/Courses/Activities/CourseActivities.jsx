@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Swal from "sweetalert2";
 import "sweetalert2/themes/bulma.css";
@@ -384,6 +384,7 @@ const ActivityFormModal = ({
 const ActivityCard = ({
 	actividad,
 	isPrivileged,
+	canManageCourse,
 	onView,
 	onToggleState,
 	onDeliver,
@@ -446,7 +447,7 @@ const ActivityCard = ({
 				<button type="button" className="btn-outline" onClick={onView}>
 					Ver detalle
 				</button>
-				{isPrivileged ? (
+				{canManageCourse ? (
 					<>
 						<button type="button" className="btn-link" onClick={onEdit}>
 							Editar
@@ -466,7 +467,7 @@ const ActivityCard = ({
 							{actividad.estado === "activa" ? "Cerrar actividad" : "Reabrir"}
 						</button>
 					</>
-				) : (
+				) : !isPrivileged ? (
 					<button
 						type="button"
 						className="btn-link"
@@ -476,6 +477,10 @@ const ActivityCard = ({
 					>
 						{submission ? "Actualizar entrega" : "Enviar entrega"}
 					</button>
+				) : (
+					<span className="activity-hint">
+						Solo el instructor asignado o un gestor puede gestionar esta actividad.
+					</span>
 				)}
 			</div>
 		</div>
@@ -485,7 +490,7 @@ const ActivityCard = ({
 export const CourseActivities = () => {
 	const { id } = useParams();
 	const navigate = useNavigate();
-	const { isPrivileged, userId } = useUserSession();
+	const { isPrivileged, userId, accountType } = useUserSession();
 
 	const [course, setCourse] = useState(null);
 	const [activities, setActivities] = useState([]);
@@ -547,6 +552,67 @@ export const CourseActivities = () => {
 		});
 	}, [activities]);
 
+	const [isInstructorAssigned, setIsInstructorAssigned] = useState(false);
+
+	const refreshInstructorAssignment = useCallback(async () => {
+		if (accountType !== "instructor" || !userId) {
+			setIsInstructorAssigned(false);
+			return;
+		}
+
+		try {
+			const response = await axiosInstance.get(
+				`/api/courses/cursos-asignados/${userId}`
+			);
+			const assignments = Array.isArray(response.data) ? response.data : [];
+			const currentCourseId = Number(id);
+
+			const assigned = assignments.some((assignment) => {
+				const estado = (
+					assignment?.estado ||
+					assignment?.estado_asignacion ||
+					assignment?.estadoAsignacion ||
+					""
+				).toLowerCase();
+				const cursoAssignment = assignment?.Curso || assignment;
+				const assignedCourseId = Number(
+					cursoAssignment?.ID ??
+						cursoAssignment?.id ??
+						assignment?.curso_ID ??
+						assignment?.curso_id
+				);
+				return (
+					estado === "aceptada" &&
+					!Number.isNaN(assignedCourseId) &&
+					assignedCourseId === currentCourseId
+				);
+			});
+
+			setIsInstructorAssigned(assigned);
+		} catch (error) {
+			console.error("Error al obtener cursos asignados:", error);
+			setIsInstructorAssigned(false);
+		}
+	}, [accountType, userId, id]);
+
+	useEffect(() => {
+		if (accountType === "instructor" && userId) {
+			void refreshInstructorAssignment();
+		} else {
+			setIsInstructorAssigned(false);
+		}
+	}, [accountType, userId, refreshInstructorAssignment]);
+
+	const canManageCourse = useMemo(() => {
+		if (accountType === "administrador" || accountType === "gestor") {
+			return true;
+		}
+		if (accountType === "instructor") {
+			return isInstructorAssigned;
+		}
+		return false;
+	}, [accountType, isInstructorAssigned]);
+
 	const closeActivityForm = () =>
 		setActivityFormState((previous) => ({
 			...previous,
@@ -555,21 +621,46 @@ export const CourseActivities = () => {
 			mode: "create",
 		}));
 
-	const openCreateActivityForm = () =>
+	const notifyManageRestriction = () => {
+		void Swal.fire({
+			...swalConfig,
+			icon: "info",
+			title: "Sin permisos",
+			text: "Solo el instructor asignado o un administrador/gestor puede realizar esta acción.",
+		});
+	};
+
+	const openCreateActivityForm = () => {
+		if (!canManageCourse) {
+			notifyManageRestriction();
+			return;
+		}
 		setActivityFormState({
 			open: true,
 			mode: "create",
 			defaults: null,
 		});
+	};
 
-	const openEditActivityForm = (actividad) =>
+	const openEditActivityForm = (actividad) => {
+		if (!canManageCourse) {
+			notifyManageRestriction();
+			return;
+		}
 		setActivityFormState({
 			open: true,
 			mode: "edit",
 			defaults: mapActivityToFormDefaults(actividad),
 		});
+	};
 
 	const handleActivityFormSubmit = async (payload) => {
+		if (!canManageCourse) {
+			notifyManageRestriction();
+			closeActivityForm();
+			return;
+		}
+
 		const normalizedPayload = {
 			...payload,
 			materialIds: Array.isArray(payload.materialIds) ? payload.materialIds : [],
@@ -615,6 +706,10 @@ export const CourseActivities = () => {
 	};
 
 	const handleDeleteActivity = async (actividad) => {
+		if (!canManageCourse) {
+			notifyManageRestriction();
+			return;
+		}
 		try {
 			const result = await Swal.fire({
 				...swalConfig,
@@ -652,6 +747,10 @@ export const CourseActivities = () => {
 	};
 
 	const handleToggleEstado = async (actividad) => {
+		if (!canManageCourse) {
+			notifyManageRestriction();
+			return;
+		}
 		const nuevoEstado = actividad.estado === "activa" ? "cerrada" : "activa";
 		try {
 			const result = await Swal.fire({
@@ -752,7 +851,7 @@ export const CourseActivities = () => {
 									>
 										Volver al curso
 									</button>
-									{isPrivileged && (
+									{canManageCourse && (
 										<button
 											type="button"
 											className="btn-primary"
@@ -821,6 +920,7 @@ export const CourseActivities = () => {
 													key={actividad.ID}
 													actividad={actividad}
 													isPrivileged={isPrivileged}
+													canManageCourse={canManageCourse}
 													userId={userId}
 													onView={() =>
 														navigate(`/Cursos/${id}/actividades/${actividad.ID}`)
@@ -844,6 +944,7 @@ export const CourseActivities = () => {
 													key={actividad.ID}
 													actividad={actividad}
 													isPrivileged={isPrivileged}
+													canManageCourse={canManageCourse}
 													userId={userId}
 													onView={() =>
 														navigate(`/Cursos/${id}/actividades/${actividad.ID}`)

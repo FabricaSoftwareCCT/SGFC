@@ -13,6 +13,66 @@ const setDb = (databaseInstance) => {
 	dbInstance = databaseInstance;
 };
 
+const formatDateTime = (value) => {
+	if (!value) {
+		return "Sin definir";
+	}
+	const date = new Date(value);
+	if (Number.isNaN(date.getTime())) {
+		return "Sin definir";
+	}
+	return date.toLocaleString("es-CO", {
+		year: "numeric",
+		month: "long",
+		day: "numeric",
+		hour: "2-digit",
+		minute: "2-digit",
+	});
+};
+
+const buildListHtml = (items) =>
+	items
+		.filter((item) => item?.label && item?.value !== undefined && item?.value !== null)
+		.map(
+			(item) =>
+				`<li style="margin: 0.25rem 0;"><strong>${item.label}:</strong> ${item.value}</li>`
+		)
+		.join("");
+
+const buildActivityMessage = ({
+	heading,
+	intro,
+	activity,
+	courseName,
+	extraRows = [],
+}) => {
+	const details = [
+		{ label: "Curso", value: courseName || "Sin nombre" },
+		{ label: "Título", value: activity?.titulo || "Sin título" },
+		{
+			label: "Descripción",
+			value: activity?.descripcion || "Sin descripción registrada",
+		},
+		{
+			label: "Fecha de publicación",
+			value: formatDateTime(activity?.fecha_publicacion),
+		},
+		{ label: "Fecha límite", value: formatDateTime(activity?.fecha_limite) },
+		...extraRows,
+	];
+
+	return `
+		<div style="font-family: 'Inter', Arial, sans-serif; color: #0f172a; line-height: 1.5;">
+			<h2 style="color: #00c853; margin-bottom: 0.5rem;">${heading}</h2>
+			<p style="margin-top: 0;">${intro}</p>
+			<ul style="padding-left: 1.2rem;">
+				${buildListHtml(details)}
+			</ul>
+			<p style="margin-top: 1rem;">Ingresa a SGFC para revisar todos los detalles.</p>
+		</div>
+	`;
+};
+
 /**
  * Envía una notificación por email y la registra en la base de datos
  */
@@ -34,31 +94,191 @@ const sendNotification = async (
 
 		// ✅ Crear el registro con TODOS los campos requeridos
 		const notification = await dbInstance.Notificacion.create({
-			remitente_ID: remitenteId, // ✅ Campo requerido
-			destinatario_ID: destinatarioId, // ✅ Campo requerido
-			usuario_ID: destinatarioId, // Si también necesitas este campo
+			remitente_ID: remitenteId,
+			destinatario_ID: destinatarioId,
+			usuario_ID: destinatarioId,
 			tipo: type,
 			titulo: title,
 			mensaje: message,
 			sesion_ID: sessionId,
 			curso_ID: courseId,
 			estado: "pendiente",
-            fecha_envio: new Date()
+			fecha_envio: new Date(),
 		});
 
-		// Enviar el email
+		// Enviar el email (best-effort)
 		try {
 			await sendEmail(user.email, title, message);
 			await notification.update({ estado: "enviada" });
 			return { success: true, notification };
 		} catch (emailError) {
 			await notification.update({ estado: "fallida" });
-			throw emailError;
+			console.warn(
+				"No se pudo enviar el correo de notificación; la notificación in-app permanece registrada.",
+				{ destinatarioId, email: user.email, error: emailError?.message }
+			);
+			return { success: false, notification, error: emailError };
 		}
 	} catch (error) {
 		console.error("Error al enviar notificación:", error);
-		throw error;
+		return { success: false, error };
 	}
+};
+
+const notifyBulk = async ({
+	remitenteId = 1,
+	destinatarioIds = [],
+	type = "actividad",
+	title,
+	message,
+	courseId = null,
+}) => {
+	const uniqueRecipients = [
+		...new Set(
+			(destinatarioIds || []).map((id) => Number(id)).filter((id) => Number.isInteger(id))
+		),
+	];
+
+	if (uniqueRecipients.length === 0) {
+		return;
+	}
+
+	await Promise.all(
+		uniqueRecipients.map((destId) =>
+			sendNotification(
+				remitenteId || 1,
+				destId,
+				type,
+				title,
+				message,
+				null,
+				courseId
+			)
+		)
+	);
+};
+
+const notifyActivityEvent = async ({
+	remitenteId = 1,
+	destinatarioIds = [],
+	courseId = null,
+	courseName = "",
+	activity,
+	heading,
+	intro,
+	extraRows = [],
+	type = "actividad",
+}) => {
+	const activityPlain =
+		activity?.get && typeof activity.get === "function"
+			? activity.get({ plain: true })
+			: activity;
+
+	if (!activityPlain) {
+		return;
+	}
+
+	const title = `${heading} - ${activityPlain.titulo || "Actividad"}`;
+	const message = buildActivityMessage({
+		heading,
+		intro,
+		activity: activityPlain,
+		courseName,
+		extraRows,
+	});
+
+	await notifyBulk({
+		remitenteId,
+		destinatarioIds,
+		type,
+		title,
+		message,
+		courseId,
+	});
+};
+
+const notifyActivitySubmission = async ({
+	remitenteId,
+	instructorId,
+	courseId,
+	courseName,
+	activity,
+	apprenticeName,
+	comment,
+	fileName,
+	isResubmission = false,
+}) => {
+	if (!instructorId) {
+		return;
+	}
+
+	const heading = isResubmission
+		? "Reenvío de entrega registrado"
+		: "Nueva entrega registrada";
+	const intro = isResubmission
+		? `${apprenticeName} volvió a enviar su entrega.`
+		: `${apprenticeName} envió una entrega para esta actividad.`;
+
+	const extraRows = [
+		{ label: "Aprendiz", value: apprenticeName },
+		{ label: "Comentario", value: comment || "Sin comentarios" },
+		{ label: "Archivo", value: fileName || "Sin archivo adjunto" },
+	];
+
+	await notifyActivityEvent({
+		remitenteId,
+		destinatarioIds: [instructorId],
+		courseId,
+		courseName,
+		activity,
+		heading,
+		intro,
+		extraRows,
+	});
+};
+
+const notifyActivityReview = async ({
+	remitenteId,
+	apprenticeId,
+	courseId,
+	courseName,
+	activity,
+	reviewStatus,
+	feedback,
+}) => {
+	if (!apprenticeId) {
+		return;
+	}
+
+	const statusMap = {
+		aprobada: "Aprobada",
+		rechazada: "Rechazada",
+		pendiente: "Pendiente",
+	};
+	const statusLabel =
+		statusMap[(reviewStatus || "").toLowerCase()] || "Pendiente";
+
+	const heading = "Tu entrega fue revisada";
+	const intro = `El estado actual de tu entrega es <strong>${statusLabel}</strong>.`;
+
+	const extraRows = [
+		{ label: "Estado", value: statusLabel },
+		{
+			label: "Retroalimentación",
+			value: feedback || "Sin comentarios adicionales",
+		},
+	];
+
+	await notifyActivityEvent({
+		remitenteId,
+		destinatarioIds: [apprenticeId],
+		courseId,
+		courseName,
+		activity,
+		heading,
+		intro,
+		extraRows,
+	});
 };
 
 /**
@@ -410,5 +630,8 @@ module.exports = {
 	sendNotifiCursoApi,
 	getNotificacionesEstado,
 	createNotificacionMaterialApoyo,
-    sendProfileUpdateNotification
+	sendProfileUpdateNotification,
+	notifyActivityEvent,
+	notifyActivitySubmission,
+	notifyActivityReview,
 };

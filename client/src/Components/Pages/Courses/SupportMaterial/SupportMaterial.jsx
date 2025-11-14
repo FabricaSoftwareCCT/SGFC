@@ -7,7 +7,8 @@ import './SupportMaterial.css';
 import axiosInstance from '../../../../config/axiosInstance';
 import { useEffect } from 'react';
 import Swal from 'sweetalert2';
-import 'sweetalert2/themes/bulma.css'
+import 'sweetalert2/themes/bulma.css';
+import { useUserSession } from '../../../../hooks/useUserSession';
 
 export const SupportMaterial = () => {
 	const { curso } = useParams()
@@ -41,8 +42,11 @@ export const SupportMaterial = () => {
         cancelButtonText: 'Cancelar'
     };
 
-	const userSession = JSON.parse(localStorage.getItem('userSession')) || JSON.parse(sessionStorage.getItem('userSession'))
-	const accountType = userSession?.accountType
+	const { session, accountType, userId } = useUserSession();
+	const isAdmin = accountType === "administrador";
+	const isGestor = accountType === "gestor";
+	const isInstructor = accountType === "instructor";
+	const [assignedCourseIds, setAssignedCourseIds] = useState(new Set());
 
 	const fetchCursos = async () => {
 		try {
@@ -126,8 +130,12 @@ export const SupportMaterial = () => {
 		return `${nombreParte.slice(0, maxLongitud)}... ${extension}`;
 	};
 
-    const crearMaterial = async () => {
-		setSubiendoArchivo(true)
+	const crearMaterial = async () => {
+		if (!puedeSubirArchivos) {
+			notifyPermissionError();
+			return;
+		}
+		setSubiendoArchivo(true);
 		try {
             let requests = [];
             if (materialType === "PDF" || materialType === "Video") {
@@ -205,6 +213,10 @@ export const SupportMaterial = () => {
 	}
 
 	const editarMaterial = async () => {
+		if (!puedeGestionarMaterial) {
+			notifyPermissionError();
+			return;
+		}
 		try {
 			switch (editingMaterial.tipo_contenido) {
 				case "pdf":
@@ -247,6 +259,10 @@ export const SupportMaterial = () => {
 	}
 
 	const eliminarMaterial = async (id) => {
+		if (!puedeEliminarArchivos) {
+			notifyPermissionError();
+			return;
+		}
 		try {
 			const resp = await axiosInstance.delete(`/api/material/delete/${id}`)
 			fetchMaterial(cursoSeleccionado)
@@ -267,13 +283,68 @@ export const SupportMaterial = () => {
 		}
 	}
 
-	const esAprendiz = accountType === 'Aprendiz';
-	const puedeSubirArchivos = (accountType == "Administrador" || accountType == "Instructor") && (accountType == "Instructor" ? cursoSeleccionado?.instructor_ID === userSession.id : true);
-	const puedeEliminarArchivos = (accountType == "Administrador" || accountType == "Instructor");
+	const ownsSelectedCourse =
+		isInstructor &&
+		cursoSeleccionado &&
+		userId != null &&
+		assignedCourseIds.has(Number(cursoSeleccionado.ID));
+	const puedeGestionarMaterial =
+		isAdmin || isGestor || ownsSelectedCourse;
+	const puedeSubirArchivos = puedeGestionarMaterial;
+	const puedeEliminarArchivos = puedeGestionarMaterial;
+	const notifyPermissionError = () => {
+		void Swal.fire({
+			...swalConfig,
+			icon: 'info',
+			title: 'Sin permisos',
+			text: 'Solo el instructor asignado o un administrador/gestor puede modificar el material de este curso.',
+		});
+	};
 
 	useEffect(() => {
-		fetchCursos()
-	}, [])
+		fetchCursos();
+
+		if (isInstructor && userId) {
+			const fetchAssignments = async () => {
+				try {
+					const response = await axiosInstance.get(
+						`/api/courses/cursos-asignados/${userId}`
+					);
+					const assignments = Array.isArray(response.data)
+						? response.data
+						: [];
+					const acceptedIds = assignments
+						.filter((assignment) => {
+							const estado = (
+								assignment?.estado ||
+								assignment?.estado_asignacion ||
+								assignment?.estadoAsignacion ||
+								""
+							).toLowerCase();
+							return estado === "aceptada";
+						})
+						.map((assignment) => {
+							const cursoAssignment = assignment?.Curso || assignment;
+							return Number(
+								cursoAssignment?.ID ??
+									cursoAssignment?.id ??
+									assignment?.curso_ID ??
+									assignment?.curso_id
+							);
+						})
+						.filter((courseId) => !Number.isNaN(courseId));
+					setAssignedCourseIds(new Set(acceptedIds));
+				} catch (error) {
+					console.error("Error al obtener cursos asignados:", error);
+					setAssignedCourseIds(new Set());
+				}
+			};
+
+			void fetchAssignments();
+		} else {
+			setAssignedCourseIds(new Set());
+		}
+	}, [isInstructor, userId]);
 
 	return (
 		<>

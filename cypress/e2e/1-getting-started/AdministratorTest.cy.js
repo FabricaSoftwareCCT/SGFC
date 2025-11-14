@@ -154,6 +154,29 @@ describe('Probar el modulo de administrador', ()=>{
         cy.contains('button','Crear Curso').click()
     })
 
+    it('ingresar a las inscripciones de un curso',()=>{
+        cy.visit("http://localhost:5173/") 
+        cy.get(".button_signIn").first().click({force : true})
+
+        //Ingresar credenciales con el rol de gestor
+        cy.get('input[type="email"]').first()
+            .type('administrador@gmail.com')
+        cy.get('input[type="password"]')
+            .type('Admin1234*')
+       
+         //Iniciar sesión
+        cy.get(".button_register").click({force:true})
+
+        cy.get('.courses-menu').get('.courses').first().click({force:true})
+        cy.get('.courses-menu').find('.dropdown-courses').contains('button','Mis cursos').first().click({force:true})
+
+        //Seleccionar curso
+        cy.contains('button','Ver Curso Seleccionado').click()
+
+        //ver inscripciones
+        cy.contains('button','Ver Inscripciones').click()
+    })
+
     it.skip('Ingresar a Material de Apoyo',()=>{
         cy.visit("http://localhost:5173/") 
         cy.get(".button_signIn").first().click({force : true})
@@ -357,14 +380,14 @@ describe('Probar el modulo de administrador', ()=>{
 
         //Buscar Gestor
         cy.contains('button', 'Gestión de Gestores').first().click({force:true})
-        cy.get('.inputSearchContainer').find('input[id="inputNameCC"]').type('David')
+        cy.get('.inputSearchContainer').find('input[id="inputNameCC"]').type('455359556')
 
         //Ver pefil de un Gestor y Editar
         cy.get('.profile-btn').first().click({force:true})
         cy.get('.edit-button-updateInstructor').first().click({force:true})
 
         //Modificar datos del Gestor
-        cy.get('.modal-left-update').find('input[name="nombres"]').first().clear({force:true}).type('David Alejandro')
+        cy.get('.modal-left-update').find('input[name="nombres"]').first().clear({force:true}).type('James')
         cy.get('.edit-button-updateInstructor').first().click({force:true})
     })
 

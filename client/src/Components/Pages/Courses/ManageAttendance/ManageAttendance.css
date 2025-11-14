@@ -1,80 +1,542 @@
-/* Estilos para el título y subtítulo */
-.container_main_attendance {
+/* ManageAttendance.css */
+.manage-attendance-container {
     width: 100%;
-    height: auto;
+    min-height: 100vh;
+    padding: 2rem;
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+    color: #fff;
+}
+
+.attendance-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding: 0 1rem;
+}
+
+.attendance-header h2 {
+    font-size: 2.2rem;
+    font-weight: 600;
+    margin-bottom: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+}
+
+.header-icon {
+    color: #00c853;
+    font-size: 1.8rem;
+}
+
+.complementary {
+    color: #00c853;
+    font-weight: 700;
+}
+
+.course-info {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 1.2rem 1.5rem;
+    backdrop-filter: blur(10px);
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.course-ficha {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.course-dates {
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.7);
+    margin: 0;
+}
+
+.attendance-content {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 1.5rem;
+    max-width: 1100px;
+    margin: 0 auto;
+    align-items: start;
+}
+
+/* Calendar Styles - COMPACT AND BEAUTIFUL */
+.calendar-section {
+    display: flex;
+    justify-content: center;
+}
+
+.calendar-container {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 14px;
+    padding: 1.5rem;
+    backdrop-filter: blur(10px);
+    width: 100%;
+    max-width: 700px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.month-nav-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    color: #fff;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.month-nav-btn:hover {
+    background: rgba(0, 200, 83, 0.2);
+    border-color: #00c853;
+    transform: translateY(-1px);
+}
+
+.current-month {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #fff;
+    margin: 0;
+    text-transform: capitalize;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+    margin-bottom: 1.5rem;
+}
+
+.calendar-day-header {
+    text-align: center;
+    font-weight: 600;
+    color: #00c853;
+    padding: 0.8rem 0;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+}
+
+.calendar-day {
+    aspect-ratio: 1;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: start;
-}
-
-.container_main_attendance h2 {
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    padding: 0.5rem;
+    min-height: 60px;
     width: 100%;
-    height: auto;
-    color: #fff;
-    font-size: 40px;
-    text-align: center;
-    margin: 4rem 0rem 2rem 0;
 }
 
-.container_main_attendance>p {
-    width: auto;
-    height: auto;
-    font-size: 27px;
-    text-align: center;
-    color: #fff;
+.calendar-day:hover {
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateY(-1px);
 }
 
-.calendar-main-content {
-    width: 50%;
-    height: auto;
+.calendar-day.selectable {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.calendar-day.training-day {
+    background: rgba(0, 200, 83, 0.1);
+    border-color: rgba(0, 200, 83, 0.3);
+    box-shadow: 0 2px 8px rgba(0, 200, 83, 0.1);
+}
+
+.calendar-day.training-day.selectable:hover {
+    background: rgba(0, 200, 83, 0.15);
+    border-color: #00c853;
+    box-shadow: 0 4px 12px rgba(0, 200, 83, 0.2);
+    transform: translateY(-2px);
+}
+
+.calendar-day.selected {
+    background: linear-gradient(135deg, #00c853, #00a844);
+    border-color: #00c853;
+    color: #000;
+    font-weight: 700;
+    box-shadow: 0 4px 15px rgba(0, 200, 83, 0.3);
+    transform: scale(1.05);
+}
+
+.calendar-day.today {
+    border-color: #00c853;
+    background: rgba(0, 200, 83, 0.15);
+    color: #00c853;
+    font-weight: 600;
+}
+
+.calendar-day.other-month {
+    color: rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.02);
+    border-color: rgba(255, 255, 255, 0.03);
+}
+
+.calendar-day.empty {
+    background: transparent;
+    border: none;
+    cursor: default;
+}
+
+.calendar-day.empty:hover {
+    background: transparent;
+    transform: none;
+}
+
+.day-content {
     display: flex;
-    justify-content: left;
-    align-items: end;
-    margin-top: 3rem;
-    margin-right: 7rem;
-
-}
-
-
-/* Contenedor de la ilustración */
-.illustration-container {
-    width: 50%;
-    height: auto;
-    display: flex;
-    justify-content: right;
-    align-items: end;
-    margin-top: -14rem;
-    margin-right: -6rem;
-}
-
-.illustration-container img {
-    width: 20em;
-    height: auto;
-    margin-top: -10%;
-    left: 15rem;
-}
-
-.text-container-manageAttendance {
-    width: 50%;
-    height: 100%;
-    display: flex;
-    flex-direction: row;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
+    gap: 0.2rem;
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+.day-number {
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.calendar-day.selected .day-number {
+    color: #000;
+    font-size: 1rem;
+}
+
+.training-indicator {
+    color: #00c853;
+    font-size: 0.7rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    background: rgba(0, 200, 83, 0.2);
+    border-radius: 50%;
+    position: absolute;
+    top: 2px;
+    right: 2px;
+}
+
+.calendar-day.selected .training-indicator {
+    color: #000;
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.calendar-legend {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.legend-color {
+    width: 14px;
+    height: 14px;
+    border-radius: 3px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.legend-color.training-day {
+    background: rgba(0, 200, 83, 0.3);
+}
+
+.legend-color.selected-day {
+    background: #00c853;
+}
+
+.legend-color.current-day {
+    background: rgba(0, 200, 83, 0.15);
+    border-color: #00c853;
+}
+
+/* Sidebar Styles */
+.sidebar-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+}
+
+.training-info {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 1.2rem;
+    backdrop-filter: blur(10px);
+}
+
+.training-info h4 {
     color: #fff;
-    margin-top: 7rem;
-    font-size: 1.5rem;
+    font-size: 1.1rem;
+    margin-bottom: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.training-info h4 svg {
+    color: #00c853;
+}
+
+.training-days-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.training-day-item {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 0.8rem;
+    border-radius: 8px;
+    border-left: 3px solid #00c853;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.2s ease;
+}
+
+.training-day-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateX(2px);
+}
+
+.training-day-name {
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.9rem;
+}
+
+.training-day-time {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: #00c853;
+    font-weight: 600;
+    font-size: 0.8rem;
+    background: rgba(0, 200, 83, 0.1);
+    padding: 0.3rem 0.6rem;
+    border-radius: 5px;
+}
+
+.training-day-time svg {
+    font-size: 0.7rem;
+}
+
+.no-training-days {
+    color: rgba(255, 255, 255, 0.5);
+    font-style: italic;
+    text-align: center;
+    padding: 1rem;
+    font-size: 0.85rem;
+}
+
+.instructions {
+    background: rgba(0, 200, 83, 0.08);
+    border: 1px solid rgba(0, 200, 83, 0.2);
+    border-radius: 10px;
+    padding: 1rem;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 500;
+    font-size: 0.9rem;
 }
 
 .back-button-manageAttendance {
-    width: 7rem;
-    height: 3rem;
-    background-color: #00843d;
-    border-radius: 12px;
-    border-style: none;
-    color: #fff;
-    font-size: 20px;
+    width: 100%;
+    background: linear-gradient(135deg, #00c853 0%, #00a844 100%);
+    border: none;
+    border-radius: 8px;
+    color: #000;
+    font-weight: 700;
+    padding: 0.9rem 1.2rem;
     cursor: pointer;
-    margin-top: 4rem;
+    transition: all 0.3s ease;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    box-shadow: 0 4px 12px rgba(0, 200, 83, 0.3);
+}
+
+.back-button-manageAttendance:hover {
+    background: linear-gradient(135deg, #00e676 0%, #00c853 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 200, 83, 0.4);
+}
+
+/* Loading and Error States */
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-top: 2px solid #00c853;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 1.5rem;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.error-message {
+    background: rgba(255, 107, 107, 0.1);
+    border: 1px solid rgba(255, 107, 107, 0.3);
+    color: #ff6b6b;
+    padding: 1.2rem;
+    border-radius: 10px;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    font-size: 1rem;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .attendance-content {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+        max-width: 600px;
+    }
+    
+    .sidebar-section {
+        order: -1;
+    }
+    
+    .calendar-container {
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .manage-attendance-container {
+        padding: 1rem;
+    }
+    
+    .attendance-header h2 {
+        font-size: 1.8rem;
+        flex-direction: column;
+        gap: 0.4rem;
+    }
+    
+    .calendar-container {
+        padding: 1rem;
+    }
+    
+    .calendar-header {
+        margin-bottom: 1rem;
+    }
+    
+    .current-month {
+        font-size: 1.1rem;
+    }
+    
+    .calendar-grid {
+        gap: 4px;
+    }
+    
+    .calendar-day {
+        min-height: 50px;
+        padding: 0.3rem;
+    }
+    
+    .day-number {
+        font-size: 0.85rem;
+    }
+    
+    .training-indicator {
+        font-size: 0.6rem;
+        width: 14px;
+        height: 14px;
+    }
+    
+    .calendar-legend {
+        flex-direction: column;
+        gap: 0.8rem;
+        align-items: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .attendance-header h2 {
+        font-size: 1.5rem;
+    }
+    
+    .course-info {
+        padding: 1rem;
+    }
+    
+    .course-ficha {
+        font-size: 1rem;
+    }
+    
+    .course-dates {
+        font-size: 0.9rem;
+    }
+    
+    .calendar-container {
+        padding: 0.8rem;
+    }
+    
+    .calendar-day-header {
+        font-size: 0.75rem;
+        padding: 0.6rem 0;
+    }
+    
+    .calendar-day {
+        min-height: 45px;
+    }
+    
+    .day-number {
+        font-size: 0.8rem;
+    }
+    
+    .training-day-item {
+        padding: 0.7rem;
+        flex-direction: column;
+        gap: 0.4rem;
+        align-items: flex-start;
+    }
+    
+    .back-button-manageAttendance {
+        padding: 0.8rem 1rem;
+        font-size: 0.9rem;
+    }
 }

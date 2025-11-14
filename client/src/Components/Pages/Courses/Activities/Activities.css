@@ -922,10 +922,18 @@
 	display: flex;
 	flex-direction: column;
 	gap: 0.35rem;
+	max-width: 150px;
+	overflow: hidden;
 }
 
 .deliveries-table__file-name {
 	font-weight: 600;
+	display: inline-block;
+	max-width: 100%;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	color: #f8fff9;
 }
 
 .deliveries-table__file-size {

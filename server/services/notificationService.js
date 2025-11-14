@@ -39,6 +39,39 @@ const buildListHtml = (items) =>
 		)
 		.join("");
 
+const wrapEmailLayout = ({ title, content }) => `
+<table width="100%" bgcolor="#f4f4f4" cellpadding="0" cellspacing="0" style="font-family: Arial, sans-serif; margin:0; padding:0;">
+  <tr>
+    <td align="center">
+      <table width="100%" cellpadding="0" cellspacing="0" style="max-width:37.5rem; background:#fff; margin:1.25rem auto; border-radius:.5rem; box-shadow:0 0 .625rem rgba(0,0,0,0.1);">
+        <tr>
+          <td style="padding:1.875rem;">
+            <table width="100%" cellpadding="0" cellspacing="0">
+              <tr>
+                <td align="center" style="padding-bottom:1.25rem; border-bottom:.0625rem solid #eee;">
+                  <img src="cid:logo" alt="Logo de Fábrica de Software CCT" style="width:5rem; height:auto; margin-bottom:.9375rem; display:block;">
+                  <h1 style="color:#00843D; margin:0; font-size:1.5rem; font-family:Arial,sans-serif;">${title}</h1>
+                </td>
+              </tr>
+            </table>
+            <div style="padding:1.25rem 0; line-height:1.65; color:#1A1A1A; font-size:1rem;">
+              ${content}
+            </div>
+            <table width="100%" cellpadding="0" cellspacing="0">
+              <tr>
+                <td align="center" style="padding-top:1.25rem; border-top:.0625rem solid #eee; font-size:.75rem; color:#777;">
+                  <p style="margin:0;">Copyright © 2025 Fábrica de Software CCT - Regional Quindío</p>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+`;
+
 const buildActivityMessage = ({
 	heading,
 	intro,
@@ -61,16 +94,21 @@ const buildActivityMessage = ({
 		...extraRows,
 	];
 
-	return `
-		<div style="font-family: 'Inter', Arial, sans-serif; color: #0f172a; line-height: 1.5;">
-			<h2 style="color: #00c853; margin-bottom: 0.5rem;">${heading}</h2>
-			<p style="margin-top: 0;">${intro}</p>
-			<ul style="padding-left: 1.2rem;">
+	const body = `
+		<p style="margin-bottom:1.25rem;">${intro}</p>
+		<div style="background:#f7fafc; border:1px solid rgba(15,118,110,0.18); border-radius:.75rem; padding:1rem 1.25rem; margin-bottom:1.25rem;">
+			<h3 style="margin:0 0 .65rem 0; font-size:.9rem; text-transform:uppercase; letter-spacing:.08em; color:#0f766e;">Resumen de la actividad</h3>
+			<ul style="padding-left:1.2rem; margin:0; color:#1f2933; line-height:1.7;">
 				${buildListHtml(details)}
 			</ul>
-			<p style="margin-top: 1rem;">Ingresa a SGFC para revisar todos los detalles.</p>
 		</div>
+		<p style="margin:0;">Ingresa a SGFC para revisar todos los detalles y realizar el seguimiento correspondiente.</p>
 	`;
+
+	return wrapEmailLayout({
+		title: heading,
+		content: body,
+	});
 };
 
 /**

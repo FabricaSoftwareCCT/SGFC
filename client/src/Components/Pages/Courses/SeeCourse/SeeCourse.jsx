@@ -79,6 +79,7 @@ export const SeeCourse = () => {
 		slots_formacion: curso.slots_formacion ? JSON.parse(curso.slots_formacion) : []
 	};
 
+
 	return (
 		<>
 			<Header />

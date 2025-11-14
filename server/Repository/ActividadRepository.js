@@ -205,6 +205,35 @@ class ActividadRepository {
 		return db.ActividadEntrega.update(data, { where: { ID: id }, ...options });
 	}
 
+	static async hasInstructorAcceptedAssignment(cursoId, instructorId) {
+		this.#ensureDb();
+		if (!cursoId || !instructorId) {
+			return false;
+		}
+
+		const assignment = await db.AsignacionCursoInstructor.findOne({
+			where: {
+				curso_ID: cursoId,
+				instructor_ID: instructorId,
+				estado: "aceptada",
+			},
+		});
+
+		return Boolean(assignment);
+	}
+
+	static async findActiveParticipantsByCurso(cursoId, options = {}) {
+		this.#ensureDb();
+		return db.InscripcionCurso.findAll({
+			where: {
+				curso_ID: cursoId,
+				estado_inscripcion: "activo",
+			},
+			attributes: ["aprendiz_ID"],
+			...options,
+		});
+	}
+
 	static async deleteActividadById(id, options = {}) {
 		this.#ensureDb();
 		await db.ActividadEntrega.destroy({

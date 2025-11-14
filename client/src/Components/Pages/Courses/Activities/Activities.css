@@ -331,6 +331,15 @@
 	color: #ffe5ea;
 }
 
+.activity-hint {
+	display: block;
+	width: 100%;
+	font-size: 0.82rem;
+	color: rgba(255, 255, 255, 0.65);
+	text-align: left;
+	padding: 0.25rem 0.1rem;
+}
+
 .empty-state {
 	border: 1px dashed rgba(0, 230, 118, 0.35);
 	padding: 2.5rem;
@@ -971,6 +980,11 @@
 	border-color: rgba(0, 200, 83, 0.48);
 	color: #c1f8de;
 	background: rgba(0, 200, 83, 0.12);
+}
+
+.deliveries-table__hint {
+	font-size: 0.8rem;
+	color: rgba(226, 232, 240, 0.6);
 }
 
 .deliveries-table__empty {

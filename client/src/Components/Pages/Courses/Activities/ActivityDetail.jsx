@@ -15,6 +15,7 @@ import {
 	registerDelivery,
 	reviewDelivery,
 } from "../../../../api/activitiesApi";
+import axiosInstance from "../../../../config/axiosInstance";
 import { useUserSession } from "../../../../hooks/useUserSession";
 import {
 	DeliveryModal,
@@ -83,7 +84,7 @@ const PARTICIPANTS_PAGE_SIZE = 10;
 export const ActivityDetail = () => {
 	const { id: cursoId, actividadId } = useParams();
 	const navigate = useNavigate();
-	const { isPrivileged, userId } = useUserSession();
+	const { isPrivileged, userId, accountType } = useUserSession();
 
 	const [activity, setActivity] = useState(null);
 	const [courseMaterials, setCourseMaterials] = useState([]);
@@ -94,6 +95,7 @@ export const ActivityDetail = () => {
 	const [showReviewModal, setShowReviewModal] = useState(false);
 	const [reviewTarget, setReviewTarget] = useState(null);
 	const [materialModalOpen, setMaterialModalOpen] = useState(false);
+	const [isInstructorAssigned, setIsInstructorAssigned] = useState(false);
 	const [participantsState, setParticipantsState] = useState({
 		items: [],
 		total: 0,
@@ -192,6 +194,67 @@ export const ActivityDetail = () => {
 	const availableMaterials = useMemo(() => {
 		return courseMaterials.filter((material) => !attachedMaterialIds.has(material.ID));
 	}, [courseMaterials, attachedMaterialIds]);
+
+	const canManageCourse = useMemo(() => {
+		if (accountType === "administrador" || accountType === "gestor") {
+			return true;
+		}
+		if (accountType === "instructor") {
+			return isInstructorAssigned;
+		}
+		return false;
+	}, [accountType, isInstructorAssigned]);
+
+	const notifyManageRestriction = useCallback(() => {
+		void Swal.fire({
+			...swalConfig,
+			icon: "info",
+			title: "Sin permisos",
+			text: "Solo el instructor asignado o un administrador/gestor puede realizar esta acción.",
+		});
+	}, []);
+
+	useEffect(() => {
+		if (accountType !== "instructor" || !userId) {
+			setIsInstructorAssigned(false);
+			return;
+		}
+
+		const fetchAssignments = async () => {
+			try {
+				const response = await axiosInstance.get(
+					`/api/courses/cursos-asignados/${userId}`
+				);
+				const assignments = Array.isArray(response.data) ? response.data : [];
+				const assigned = assignments.some((assignment) => {
+					const estado = (
+						assignment?.estado ||
+						assignment?.estado_asignacion ||
+						assignment?.estadoAsignacion ||
+						""
+					).toLowerCase();
+					const cursoAssignment = assignment?.Curso || assignment;
+					const assignedCourseId = Number(
+						cursoAssignment?.ID ??
+							cursoAssignment?.id ??
+							assignment?.curso_ID ??
+							assignment?.curso_id
+					);
+					return (
+						estado === "aceptada" &&
+						!Number.isNaN(assignedCourseId) &&
+						assignedCourseId === Number(cursoId)
+					);
+				});
+				setIsInstructorAssigned(assigned);
+			} catch (error) {
+				console.error("Error al obtener cursos asignados:", error);
+				setIsInstructorAssigned(false);
+			}
+		};
+
+		void fetchAssignments();
+	}, [accountType, userId, cursoId]);
 
 	const currentSubmission = useMemo(() => {
 		if (!Array.isArray(activity?.entregas)) return null;
@@ -352,6 +415,10 @@ export const ActivityDetail = () => {
 	};
 
 	const handleReview = (entrega) => {
+		if (!canManageCourse) {
+			notifyManageRestriction();
+			return;
+		}
 		setReviewTarget(entrega);
 		setShowReviewModal(true);
 	};
@@ -391,6 +458,10 @@ export const ActivityDetail = () => {
 	};
 
 	const handleAttachMaterials = async (selectedIds) => {
+		if (!canManageCourse) {
+			notifyManageRestriction();
+			return;
+		}
 		const idsToAttach = selectedIds.filter((id) => !attachedMaterialIds.has(id));
 		if (idsToAttach.length === 0) {
 			setMaterialModalOpen(false);
@@ -425,6 +496,10 @@ export const ActivityDetail = () => {
 	};
 
 	const handleDetachMaterial = async (material) => {
+		if (!canManageCourse) {
+			notifyManageRestriction();
+			return;
+		}
 		const result = await Swal.fire({
 			...swalConfig,
 			icon: "question",
@@ -755,7 +830,7 @@ export const ActivityDetail = () => {
 									statusVariant = isLate ? "warning" : "success";
 									statusMessage = isLate
 										? "Entrega tardía"
-										: "Entregado a tiempo";
+										: "Aprobado";
 								} else if (normalized === "rechazada") {
 									statusVariant = "danger";
 									statusMessage = "Rechazada";
@@ -812,24 +887,30 @@ export const ActivityDetail = () => {
 										)}
 									</div>
 									<div className="deliveries-table__cell deliveries-table__actions">
-										{canDownload && (
-											<a
-												className="deliveries-table__button deliveries-table__button--ghost"
-												href={downloadUrl(submission.archivo_ruta)}
-												target="_blank"
-												rel="noopener noreferrer"
-											>
-												Descargar
-											</a>
-										)}
-										{canReview && (
-											<button
-												type="button"
-												className="deliveries-table__button"
-												onClick={() => handleReview(submission)}
-											>
-												Revisar
-											</button>
+										{canManageCourse ? (
+											<>
+												{canDownload && (
+													<a
+														className="deliveries-table__button deliveries-table__button--ghost"
+														href={downloadUrl(submission.archivo_ruta)}
+														target="_blank"
+														rel="noopener noreferrer"
+													>
+														Descargar
+													</a>
+												)}
+												{canReview && (
+													<button
+														type="button"
+														className="deliveries-table__button"
+														onClick={() => handleReview(submission)}
+													>
+														Revisar
+													</button>
+												)}
+											</>
+										) : (
+											<span className="deliveries-table__hint">Sin permisos</span>
 										)}
 									</div>
 								</div>
@@ -946,7 +1027,7 @@ export const ActivityDetail = () => {
 									>
 										Ver curso
 									</button>
-									{isPrivileged && availableMaterials.length > 0 && (
+									{canManageCourse && availableMaterials.length > 0 && (
 										<button
 											type="button"
 											className="btn-primary"
@@ -1022,7 +1103,7 @@ export const ActivityDetail = () => {
 						>
 							<div style={{ display: "flex", justifyContent: "space-between" }}>
 								<h2>Material asociado</h2>
-								{isPrivileged && activity.materiales?.length > 0 && (
+								{canManageCourse && activity.materiales?.length > 0 && (
 									<span style={{ fontSize: "0.85rem", opacity: 0.7 }}>
 										Puedes remover material individual usando el menú de cada elemento.
 									</span>
@@ -1068,7 +1149,7 @@ export const ActivityDetail = () => {
 														Descargar
 													</a>
 												)}
-												{isPrivileged && (
+												{canManageCourse && (
 													<button
 														type="button"
 														onClick={() => handleDetachMaterial(material)}
@@ -1091,7 +1172,7 @@ export const ActivityDetail = () => {
 							) : (
 								<div className="materials-empty">
 									No hay materiales asociados a la actividad.
-									{isPrivileged && availableMaterials.length > 0 && (
+									{canManageCourse && availableMaterials.length > 0 && (
 										<>
 											<br />
 											<button

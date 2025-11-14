@@ -738,7 +738,8 @@ const getCursoById = async (req, res) => {
 
 		curso.dataValues.cupos_usados = await InscripcionCurso.count({
 			where: {
-				curso_ID: id
+				curso_ID: id,
+				estado_inscripcion : "activo"
 			}
 		})
 		

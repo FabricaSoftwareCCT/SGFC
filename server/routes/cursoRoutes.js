@@ -3,7 +3,7 @@ const router = express.Router();
 const cursoController = require("../controllers/cursoController");
 const {authMiddleware} = require("../middlewares/authMiddleware");
 const upload = require("../config/multer");
-const { crearOActualizarInscripcion, inscripcionEmpleados, getAllInscripciones, updateStatusInscripciones } = require('../controllers/inscripcionCursoController');
+const { crearOActualizarInscripcion, inscripcionEmpleados, getAllInscripciones, updateStatusInscripciones, getCursosByAprendizId } = require('../controllers/inscripcionCursoController');
 // filepath: [userRoutes.js](http://_vscodecontentref_/2)
 
 // Rutas públicas (no requieren autenticación)
@@ -27,6 +27,9 @@ router.put("/cursos/:id", upload.single("imagen"), cursoController.updateCurso);
 
 // Obtener cursos asignados a un instructor
 router.get('/cursos-asignados/:instructor_ID', cursoController.obtenerCursosAsignadosAInstructor);
+
+// Obtener cursos de un aprendiz
+router.get('/cursos-aprendiz/:aprendizId', getCursosByAprendizId);
 
 // Obtener participantes de un curso
 router.get('/cursos/:courseId/participants', cursoController.getCursoParticipants);

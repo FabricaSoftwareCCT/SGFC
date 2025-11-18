@@ -28,18 +28,7 @@ export const SupportMaterial = () => {
     const [pendingLinks, setPendingLinks] = useState([]); // enlaces agregados aún no enviados
     const fileInputRef = useRef(null);
 
-	const swalConfig = {
-        theme: 'bulma',
-        customClass: {
-            confirmButton: 'button is-primary',
-            cancelButton: 'button is-light',
-            actions: 'swal2-actions-centered',
-            popup: 'swal2-popup-centered'
-        },
-        buttonsStyling: false,
-        confirmButtonText: 'Aceptar',
-        cancelButtonText: 'Cancelar'
-    };
+
 
 	const userSession = JSON.parse(localStorage.getItem('userSession')) || JSON.parse(sessionStorage.getItem('userSession'))
 	const accountType = userSession?.accountType
@@ -54,10 +43,15 @@ export const SupportMaterial = () => {
 		} catch (error) {
 			console.log(error)
 			Swal.fire({
-				...swalConfig,
 				icon: 'error',
 				title: 'Error',
-				text: 'Ocurrió un error al consultar los cursos'
+				text: 'Ocurrió un error al consultar los cursos',
+				confirmButtonText:"Entendido",
+                confirmButtonColor:"#00843d",
+                        theme: 'bulma',
+        				customClass: {
+    				actions: 'swal2-center-actions'
+        }
 			});
 		}
 	}
@@ -69,10 +63,14 @@ export const SupportMaterial = () => {
 		} catch (error) {
 			console.log(error)
 			Swal.fire({
-				...swalConfig,
 				icon: 'error',
 				title: 'Error',
-				text: 'Ocurrió un error al consultar el material de apoyo del curso'
+				text: 'Ocurrió un error al consultar el material de apoyo del curso',
+				confirmButtonColor:"#00843d",
+                        theme: 'bulma',
+        		customClass: {
+    		actions: 'swal2-center-actions'
+        }
 			});
 		}
 	}
@@ -140,10 +138,15 @@ export const SupportMaterial = () => {
                 const tipo = materialType.toLowerCase();
                 if (pendingFiles.length === 0) {
                     Swal.fire({
-                        ...swalConfig,
                         icon: 'warning',
                         title: 'Archivo requerido',
-                        text: `Selecciona uno o más archivos ${materialType}`
+                        text: `Selecciona uno o más archivos ${materialType}`,
+						confirmButtonColor:"#00843d",
+						confirmButtonText:"Entendido",
+                        theme: 'bulma',
+        		customClass: {
+    		actions: 'swal2-center-actions'
+        }
                     });
                     setSubiendoArchivo(false);
                     return;
@@ -163,10 +166,15 @@ export const SupportMaterial = () => {
                 }
                 if (linksToSend.length === 0) {
                     Swal.fire({
-                        ...swalConfig,
                         icon: 'warning',
                         title: 'Enlace requerido',
-                        text: 'Agrega uno o más enlaces'
+                        text: 'Agrega uno o más enlaces',
+						confirmButtonText:"Entendido",
+						confirmButtonColor:"#00843d",
+                        theme: 'bulma',
+        		customClass: {
+    		actions: 'swal2-center-actions'
+        }
                     });
                     setSubiendoArchivo(false);
                     return;
@@ -181,10 +189,15 @@ export const SupportMaterial = () => {
             const firstMsg = responses[0]?.data?.message;
             if (firstMsg) {
 				Swal.fire({
-                    ...swalConfig,
                     icon: 'success',
                     title: 'Éxito',
-                    text: firstMsg
+                    text: firstMsg,
+				confirmButtonText:"Okay",
+				confirmButtonColor:"#00843d",
+                    theme: 'bulma',
+        		customClass: {
+    		actions: 'swal2-center-actions'
+        }
                 });
 			}
             setShowMaterialCreation(false)
@@ -200,10 +213,15 @@ export const SupportMaterial = () => {
 		} catch (error) {
 			console.log(error)
 			Swal.fire({
-				...swalConfig,
 				icon: 'error',
 				title: 'Error',
-				text: 'Ocurrió un error al crear el material de apoyo'
+				text: 'Ocurrió un error al crear el material de apoyo',
+			confirmButtonText:"Entendido",
+			confirmButtonColor:"#00843d",
+                        theme: 'bulma',
+        		customClass: {
+    		actions: 'swal2-center-actions'
+        }
 			});
 			setSubiendoArchivo(false)
 		}
@@ -219,10 +237,15 @@ export const SupportMaterial = () => {
 				case "link":
 					if (editingMaterial.contenido.length < 1) {
 							Swal.fire({
-							...swalConfig,
 							icon: 'warning',
 							title: 'Enlace requerido',
-							text: 'Se debe proporcionar un enlace'
+							text: 'Se debe proporcionar un enlace',
+						confirmButtonText:"Entendido",
+						confirmButtonColor:"#00843d",
+                        theme: 'bulma',
+        		customClass: {
+    		actions: 'swal2-center-actions'
+        }
 						});
 						return
 					}
@@ -231,10 +254,15 @@ export const SupportMaterial = () => {
 					})
 					fetchMaterial(cursoSeleccionado)
 					Swal.fire({
-						...swalConfig,
 						icon: 'success',
 						title: 'Éxito',
-						text: resp.data.message
+						text: resp.data.message,
+						confirmButtonText:"Entendido",
+						confirmButtonColor:"#00843d",
+                        theme: 'bulma',
+        		customClass: {
+    		actions: 'swal2-center-actions'
+        }
 					});
 					setEditingMaterial(null)
 					break
@@ -242,10 +270,15 @@ export const SupportMaterial = () => {
 		} catch (error) {
 			console.log(error)
 			Swal.fire({
-				...swalConfig,
 				icon: 'error',
 				title: 'Error',
-				text: 'Ocurrió un error al actualizar el material de apoyo'
+				text: 'Ocurrió un error al actualizar el material de apoyo',
+				confirmButtonText:"Entendido",
+				confirmButtonColor:"#00843d",
+                    theme: 'bulma',
+        		customClass: {
+    		actions: 'swal2-center-actions'
+        }
 			});
 			setEditingMaterial(null)
 		}
@@ -256,18 +289,28 @@ export const SupportMaterial = () => {
 			const resp = await axiosInstance.delete(`/api/material/delete/${id}`)
 			fetchMaterial(cursoSeleccionado)
 			Swal.fire({
-				...swalConfig,
 				icon: 'success',
 				title: 'Eliminado',
-				text: resp.data.message
+				text: resp.data.message,
+				confirmButtonText:"Entendido",
+				confirmButtonColor:"#00843d",
+                        theme: 'bulma',
+        		customClass: {
+    		actions: 'swal2-center-actions'
+        }
 			});
 		} catch (error) {
 			console.log(error)
 			Swal.fire({
-				...swalConfig,
 				icon: 'error',
 				title: 'Error',
-				text: 'Ocurrió un error al eliminar el material de apoyo'
+				text: 'Ocurrió un error al eliminar el material de apoyo',
+				confirmButtonText:"Entendido",
+				confirmButtonColor:"#00843d",
+                    theme: 'bulma',
+        		customClass: {
+    		actions: 'swal2-center-actions'
+        }
 			});
 		}
 	}

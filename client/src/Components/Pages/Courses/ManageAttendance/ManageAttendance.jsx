@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Main } from '../../../Layouts/Main/Main';
 import { Footer } from '../../../Layouts/Footer/Footer';
 import axiosInstance from '../../../../config/axiosInstance';
-import { format, parseISO, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, startOfWeek, endOfWeek, isWithinInterval } from 'date-fns';
+import { format, parseISO, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, startOfWeek, endOfWeek, isWithinInterval, isAfter, isToday, isBefore, isEqual, startOfDay } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { AttendanceManagement } from '../SeeCourse/AttendanceManagement';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -84,15 +84,49 @@ export const ManageAttendance = () => {
         });
     };
 
-    // Función corregida: solo marca como training day si está dentro del rango del curso
+    // Función CORREGIDA: Permite seleccionar cualquier día desde el inicio del curso
+    const isSelectableDate = (date) => {
+        if (!curso?.fecha_inicio || !curso?.fecha_fin) {
+            console.log('No hay fechas de curso definidas');
+            return false;
+        }
+        
+        const startDateObj = startOfDay(parseISO(curso.fecha_inicio));
+        const endDateObj = startOfDay(parseISO(curso.fecha_fin));
+        const today = startOfDay(new Date());
+        const currentDate = startOfDay(date);
+        
+        console.log('=== VERIFICANDO FECHA ===');
+        console.log('Fecha a verificar:', currentDate);
+        console.log('Inicio curso:', startDateObj);
+        console.log('Fin curso:', endDateObj);
+        console.log('Hoy:', today);
+        
+        // Verificar si la fecha está dentro del rango del curso
+        const isInCourseRange = currentDate >= startDateObj && currentDate <= endDateObj;
+        
+        // Verificar si la fecha es hoy o una fecha pasada (no futuras)
+        const isTodayOrPast = currentDate <= today;
+        
+        console.log('Está en rango del curso:', isInCourseRange);
+        console.log('Es hoy o pasado:', isTodayOrPast);
+        console.log('Es seleccionable:', isInCourseRange && isTodayOrPast);
+        console.log('====================');
+        
+        // La fecha es seleccionable si está en el rango del curso y es hoy o pasada
+        return isInCourseRange && isTodayOrPast;
+    };
+
+    // Función para verificar si es día de formación (solo para mostrar visualmente)
     const isTrainingDay = (date) => {
         if (!trainingDays.length || !curso?.fecha_inicio || !curso?.fecha_fin) return false;
         
-        const startDateObj = parseISO(curso.fecha_inicio);
-        const endDateObj = parseISO(curso.fecha_fin);
+        const startDateObj = startOfDay(parseISO(curso.fecha_inicio));
+        const endDateObj = startOfDay(parseISO(curso.fecha_fin));
+        const currentDate = startOfDay(date);
         
         // Verificar si la fecha está dentro del rango del curso
-        if (!isWithinInterval(date, { start: startDateObj, end: endDateObj })) {
+        if (!(currentDate >= startDateObj && currentDate <= endDateObj)) {
             return false;
         }
         
@@ -225,14 +259,15 @@ export const ManageAttendance = () => {
                                         isTrainingDay, 
                                         getTrainingTime, 
                                         selectedDate, 
-                                        handleDateSelect
+                                        handleDateSelect,
+                                        isSelectableDate
                                     )}
                                 </div>
 
                                 <div className="calendar-legend">
                                     <div className="legend-item">
                                         <div className="legend-color training-day"></div>
-                                        <span>Día con curso</span>
+                                        <span>Día con formación</span>
                                     </div>
                                     <div className="legend-item">
                                         <div className="legend-color selected-day"></div>
@@ -273,7 +308,7 @@ export const ManageAttendance = () => {
                             </div>
 
                             <div className="instructions">
-                                <p>Haga clic en un día con curso para gestionar las asistencias</p>
+                                <p>Haga clic en cualquier día desde el inicio del curso hasta hoy para gestionar las asistencias</p>
                             </div>
 
                             <button 
@@ -302,14 +337,14 @@ export const ManageAttendance = () => {
 };
 
 // Función auxiliar para generar los días del calendario - CORREGIDA
-const generateCalendarDays = (currentMonth, startDate, endDate, isTrainingDay, getTrainingTime, selectedDate, onDateSelect) => {
+const generateCalendarDays = (currentMonth, startDate, endDate, isTrainingDay, getTrainingTime, selectedDate, onDateSelect, isSelectableDate) => {
     const monthStart = startOfMonth(currentMonth);
     const monthEnd = endOfMonth(currentMonth);
     const calendarStart = startOfWeek(monthStart, { weekStartsOn: 1 });
     const calendarEnd = endOfWeek(monthEnd, { weekStartsOn: 1 });
     
-    const startDateObj = parseISO(startDate);
-    const endDateObj = parseISO(endDate);
+    const startDateObj = startOfDay(parseISO(startDate));
+    const endDateObj = startOfDay(parseISO(endDate));
     
     const allDays = eachDayOfInterval({ start: calendarStart, end: calendarEnd });
     
@@ -320,9 +355,17 @@ const generateCalendarDays = (currentMonth, startDate, endDate, isTrainingDay, g
         const isToday = isSameDay(day, new Date());
         const isSelected = selectedDate && isSameDay(day, parseISO(selectedDate));
         const hasTraining = isTrainingDay(day);
-        const isInCourseRange = isWithinInterval(day, { start: startDateObj, end: endDateObj });
-        const isSelectable = hasTraining && isInCourseRange && isCurrentMonth;
+        const isSelectable = isSelectableDate(day) && isCurrentMonth;
         const trainingTime = getTrainingTime(day);
+        
+        console.log(`Día ${format(day, 'yyyy-MM-dd')}:`, {
+            isCurrentMonth,
+            isToday,
+            isSelected,
+            hasTraining,
+            isSelectable,
+            trainingTime
+        });
         
         const dayClassNames = [
             'calendar-day',
@@ -337,7 +380,16 @@ const generateCalendarDays = (currentMonth, startDate, endDate, isTrainingDay, g
             <div
                 key={day.toISOString()}
                 className={dayClassNames}
-                onClick={() => isSelectable && onDateSelect(format(day, 'yyyy-MM-dd'))}
+                onClick={() => {
+                    console.log('Clic en día:', format(day, 'yyyy-MM-dd'), 'Seleccionable:', isSelectable);
+                    if (isSelectable) {
+                        onDateSelect(format(day, 'yyyy-MM-dd'));
+                    }
+                }}
+                title={isSelectable ? 
+                    `Gestionar asistencia - ${hasTraining ? `Horario: ${trainingTime}` : 'Día disponible'}` : 
+                    'No disponible para gestión de asistencia'
+                }
             >
                 <div className="day-content">
                     <span className="day-number">{format(day, 'd')}</span>

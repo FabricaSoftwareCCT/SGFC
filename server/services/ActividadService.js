@@ -24,6 +24,39 @@ function ensureInitialized() {
 	}
 }
 
+async function resolveInstructorCourseOwnership(cursoData, instructorId) {
+	if (!cursoData || !cursoData.ID || instructorId == null) {
+		return {
+			hasAcceptedAssignment: false,
+			ownsByCursoRecord: false,
+		};
+	}
+
+	const normalizedInstructorId = Number(instructorId);
+	if (!Number.isInteger(normalizedInstructorId)) {
+		return {
+			hasAcceptedAssignment: false,
+			ownsByCursoRecord: false,
+		};
+	}
+
+	const latestAssignment =
+		await ActividadRepository.findLatestInstructorAssignment(
+			cursoData.ID,
+			normalizedInstructorId
+		);
+
+	const assignmentEstado = latestAssignment?.estado
+		? String(latestAssignment.estado).toLowerCase()
+		: null;
+
+	return {
+		hasAcceptedAssignment: assignmentEstado === "aceptada",
+		ownsByCursoRecord:
+			Number(cursoData.instructor_ID) === normalizedInstructorId,
+	};
+}
+
 async function ensureCursoAccesible({
 	cursoInput,
 	user,
@@ -52,13 +85,10 @@ async function ensureCursoAccesible({
 				throw createHttpError(401, "Usuario no autenticado.");
 			}
 
-			const hasAcceptedAssignment =
-				await ActividadRepository.hasInstructorAcceptedAssignment(
-					cursoData.ID,
-					userId
-				);
+			const { hasAcceptedAssignment, ownsByCursoRecord } =
+				await resolveInstructorCourseOwnership(cursoData, userId);
 
-			if (requireInstructorOwnership && !hasAcceptedAssignment) {
+			if (requireInstructorOwnership && !hasAcceptedAssignment && !ownsByCursoRecord) {
 				throw createHttpError(
 					403,
 					"No eres el instructor asignado a este curso."
@@ -266,14 +296,16 @@ class ActividadService {
 	}
 
 			const cursoData = curso.get ? curso.get({ plain: true }) : curso;
-			if (
-				accountType.toLowerCase() === "instructor" &&
-				Number(cursoData.instructor_ID) !== userId
-			) {
-				throw createHttpError(
-					403,
-					"Solo el instructor asignado puede crear actividades para este curso."
-				);
+			const normalizedAccountType = accountType.toLowerCase();
+			if (normalizedAccountType === "instructor") {
+				const { hasAcceptedAssignment, ownsByCursoRecord } =
+					await resolveInstructorCourseOwnership(cursoData, userId);
+				if (!hasAcceptedAssignment && !ownsByCursoRecord) {
+					throw createHttpError(
+						403,
+						"Solo el instructor asignado puede crear actividades para este curso."
+					);
+				}
 	}
 
 			const {
@@ -999,11 +1031,15 @@ class ActividadService {
 				throw createHttpError(403, "No tienes permisos para eliminar actividades.");
 			}
 
-			if (accountType === "instructor" && Number(curso.instructor_ID) !== userId) {
-				throw createHttpError(
-					403,
-					"Solo el instructor asignado puede eliminar actividades de este curso."
-				);
+			if (accountType === "instructor") {
+				const { hasAcceptedAssignment, ownsByCursoRecord } =
+					await resolveInstructorCourseOwnership(curso, userId);
+				if (!hasAcceptedAssignment && !ownsByCursoRecord) {
+					throw createHttpError(
+						403,
+						"Solo el instructor asignado puede eliminar actividades de este curso."
+					);
+				}
 			}
 
 			await ActividadRepository.deleteActividadById(actividadId);

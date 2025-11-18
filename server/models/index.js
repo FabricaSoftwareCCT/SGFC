@@ -22,6 +22,7 @@ const MaterialDeApoyo = require("./MaterialDeApoyo");
 const CursoTieneMaterialDeApoyo = require("./CursoTieneMaterialDeApoyo");
 const Horarios_instructor = require("./Horarios_instructor")
 const UsuarioEdita = require("./UsuarioEdita")
+const UserSecurity =  require("./UserSecurity");
 
 // Leer la URL de conexión (recomendada en producción)
 const DB_URL = process.env.DB_URL
@@ -87,6 +88,7 @@ async function initializeDatabase() {
   CursoTieneMaterialDeApoyo.init(sequelize);
   Horarios_instructor.init(sequelize)
   UsuarioEdita.init(sequelize)
+  UserSecurity.init(sequelize);
 
   // Asociar modelos
   const models = {
@@ -108,7 +110,8 @@ async function initializeDatabase() {
     MaterialDeApoyo,
     CursoTieneMaterialDeApoyo,
     Horarios_instructor,
-    UsuarioEdita
+    UsuarioEdita,
+    UserSecurity
   };
 
   Object.values(models).forEach((model) => {

@@ -2714,6 +2714,12 @@ const createEmpresa = async (req, res) => {
             });
         }
 
+		if (error.message && error.message !== 'Error en el servidor. Intente de nuevo más tarde.') {
+            return res.status(400).json({ 
+                message: error.message
+            });
+        }
+
         res.status(500).json({ 
             message: 'Error interno al crear la empresa',
             error: error.message 
@@ -2755,6 +2761,50 @@ const changeRole = async (req, res) => {
 	}
 }
 
+const securityData = async (req, res) => {
+	try{
+		const {
+			Question,
+			password
+		} = req.body;
+
+		const user = req.user;
+ 
+		if(!Question && !password){
+			res.status(400).json({message: 'Todos los datos son requeridos '})
+		}
+
+		await UserServices.CreateSecurity(Question, password, user.id)
+
+		res.status(200).json({message: 'Pregunta de seguridad creada'})
+
+	}catch (Error) {
+		console.log(Error)
+		res.status(500).json({
+			message: 'Error en el servidor'
+		})
+	}
+}
+
+const getSecurityData = async (req, res) => {
+	try{
+		const user = req.user;
+		const data = await UserServices.getSecutiry(user.id)
+
+		res.status(200).json({
+				Pregunta: data.SecurityData.dataValues.Pregunta
+		})
+	}catch (Err) {
+		console.error("Error al obtener datos de seguridad:", Err.message);
+        return res.status(500).json({ 
+            success: false, 
+            message: "Error interno del servidor al procesar la solicitud." 
+        });
+	}
+	}
+
+
+
 module.exports = {
 	subirDocumentoIdentidad,
 	getEmpresaById,
@@ -2787,5 +2837,7 @@ module.exports = {
 	getAllEmpresasForAdmin,
 	createEmpleadoForAdmin,
     createEmpresa,
-	changeRole
+	changeRole,
+	securityData,
+	getSecurityData
 };

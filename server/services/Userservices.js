@@ -1,6 +1,7 @@
 const { EmpresaRepository } = require("../Repository/EmpresaRepository");
 const {UserRepository} = require("../Repository/UserRepository");
 const { sendVerificationEmail } = require("./emailService");
+const bcrypt = require("bcrypt");
 
 class UserServices {
     static GetUser = async (token) => {
@@ -74,6 +75,49 @@ class UserServices {
             
             throw { status: 500, message: "Error en el servidor. Intente de nuevo más tarde." };
         }
+    }
+
+
+    static CreateSecurity = async (Question, Answer, Id) => {
+        try{
+
+            const SecurityExisting = await UserRepository.GetUserSecurity(Id);
+
+            if(SecurityExisting && SecurityExisting.SecurityData){
+                throw new Error('Usuario ya cuenta con una pregunta de seguridad registrada')
+            }
+
+            Answer = await bcrypt.hash(Answer, 10);
+            const user = await UserRepository.SecurityAnswer(Question, Answer, Id)
+
+            if(!user){
+                return false;
+            }
+
+            return true;
+
+        }catch (Error) {
+            if (Error.message && Error.message !== 'Error en el servidor') { 
+                console.log(Error) 
+                throw Error; 
+            }
+            
+            throw { status: 500, message: "Error en el servidor. Intente de nuevo más tarde." };
+        }
+    }
+
+    static getSecutiry = async (Id) => {
+        const data = await UserRepository.GetUserSecurity(Id);
+        
+        if(data === null){
+            throw new Error("Usuario no encontrado")
+        }
+
+        if(!data.SecurityData || !data.SecurityData.dataValues.Pregunta){ 
+            throw new Error("El usuario no tiene preguntas de seguridad asociadas")
+        }
+
+        return data;
     }
 }
 

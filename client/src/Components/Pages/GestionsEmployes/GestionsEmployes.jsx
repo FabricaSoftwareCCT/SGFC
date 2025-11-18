@@ -8,7 +8,6 @@ import { Main } from "../../../Components/Layouts/Main/Main"
 import { UpdateEmploye } from "./UpdateEmploye/UpdateEmploye"
 import axiosInstance from "../../../config/axiosInstance"
 import { useModal } from "../../../Context/ModalContext"
-import { InscribeEmployes } from "../GestionsEmployes/InscribeEmployes/InscribeEmployes"
 import Swal from 'sweetalert2';
 import 'sweetalert2/themes/bulma.css'
 
@@ -33,7 +32,6 @@ export const GestionsEmployes = () => {
   const userSession =
     JSON.parse(localStorage.getItem("userSession")) || JSON.parse(sessionStorage.getItem("userSession"))
 
-  const isLoggedIn = !!userSession
   const accountType = userSession?.accountType || null
   const isAdmin = accountType === "Administrador" || accountType === "Gestor"
 
@@ -173,6 +171,7 @@ export const GestionsEmployes = () => {
     setFilter(e.target.value)
   }
 
+
   const handleEmpresaChange = (e) => {
     setSelectedEmpresa(e.target.value)
   }
@@ -306,19 +305,7 @@ export const GestionsEmployes = () => {
                 {isAdmin && (
                   <>
                     <label htmlFor="selectEmpresa">Empresa</label>
-                    <select
-                      id="selectEmpresa"
-                      value={selectedEmpresa}
-                      onChange={handleEmpresaChange}
-                      className="filter-select"
-                    >
-                      <option value="">Todas las empresas</option>
-                      {empresas.map((empresa) => (
-                        <option key={empresa.ID} value={empresa.ID}>
-                          {empresa.nombre_empresa} - {empresa.NIT}
-                        </option>
-                      ))}
-                    </select>
+                    <input type="text" className="inputSearchContainer" value={selectedEmpresa} placeholder="Ingresar nombre empresa" onChange={handleEmpresaChange} />
 
                     <label htmlFor="selectTipoDocumento">Tipo de Documento</label>
                     <select

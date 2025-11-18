@@ -1,5 +1,5 @@
 const express = require("express");
-const { createEmpleado, getEmpleadosByEmpresaId, recordLogin, subirDocumentoIdentidad, getEmpresaById, refreshAccessToken, getAprendicesByEmpresa, registerUser, verifyEmail, loginUser,requestPasswordReset,resetPassword, getAllUsers, getUserProfile, getAprendices, getEmpresas, createEmpresa, getInstructores, getGestores, updateUserProfile,createInstructor, createGestor,logoutUser, createMasiveUsers, getEmpresaByNIT, requestNewVerificationEmail, checkProfileComplete, getAllEmpleadosForAdmin, getAllEmpresasForAdmin, createEmpleadoForAdmin, changeRole } = require("../controllers/userController");
+const { createEmpleado, getEmpleadosByEmpresaId, recordLogin, subirDocumentoIdentidad, getEmpresaById, refreshAccessToken, getAprendicesByEmpresa, registerUser, verifyEmail, loginUser,requestPasswordReset,resetPassword, getAllUsers, getUserProfile, getAprendices, getEmpresas, createEmpresa, getInstructores, getGestores, updateUserProfile,createInstructor, createGestor,logoutUser, createMasiveUsers, getEmpresaByNIT, requestNewVerificationEmail, checkProfileComplete, getAllEmpleadosForAdmin, getAllEmpresasForAdmin, createEmpleadoForAdmin, changeRole, securityData, getSecurityData } = require("../controllers/userController");
 const {registrarHorarios_instructor, getAllHorariosInstructores, updateHorariosInstructores, deleteHorariosInstructor} = require('../controllers/horariosIntructoresController')
 const { googleSignIn, googleSignUp } = require("../controllers/authGoogleController"); // Importar controlador de autenticación de Google
 const { authMiddleware, authorizeRoles } = require("../middlewares/authMiddleware");
@@ -55,6 +55,10 @@ router.get('/admin/empleados', authMiddleware, authorizeRoles(['Administrador', 
 router.get('/admin/empresas', authMiddleware, authorizeRoles(['Administrador', 'Gestor', 'Empresa']), getAllEmpresasForAdmin);
 router.post('/admin/empleados', authMiddleware, authorizeRoles(['Administrador', 'Gestor']), upload.single('foto_perfil'), createEmpleadoForAdmin);
 router.put("/admin/changerole/:id", authMiddleware, authorizeRoles(["Administrador"]), changeRole)
+
+//Ruta Pregunta de seguridad
+router.post('/security/', authMiddleware, securityData ); 
+router.get('/getSecurity/', authMiddleware, getSecurityData)
 
 router.get("/", (req, res) => {
   res.send("🚀 API funcionando correctamente");

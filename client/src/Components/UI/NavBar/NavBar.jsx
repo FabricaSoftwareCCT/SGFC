@@ -380,44 +380,6 @@ export const NavBar = ({ children }) => {
 
 			})
 
-			// Si fue aceptada, asigna el curso al instructor
-			if (nuevoEstado === "aceptada") {
-				const notif = notificationsList.find((n) => n.invitacion_ID === invitacionId)
-				if (notif) {
-					try {
-						const asignacionResponse = await axiosInstance.post("/api/courses/asignaciones", {
-							instructor_ID: notif.destinatario_ID,
-							curso_ID: notif.curso_ID,
-						})
-						 if (asignacionResponse.status >= 200 && asignacionResponse.status < 300) {
-						Swal.fire({
-							icon:"success",
-							title:"Cursos asignado",
-							text:asignacionResponse.data.message || "Curso asignado correctamente al instructor.",
-							theme:"bulma",
-							confirmButtonText: 'Aceptar',
-						customClass: { confirmButton: 'centered-swal-button' }
-
-						})
-						} else {
-                throw new Error(asignacionResponse.data.message || "Error en la asignación")
-            }
-
-					} catch (asignacionError) {
-						console.error("Error al asignar instructor:", asignacionError)
-						await Swal.fire({
-							icon: 'error',
-							title: 'Error en asignación',
-							text: asignacionError.response?.data?.message || "Error al asignar el instructor al curso.",
-							confirmButtonText: 'Aceptar',
-							confirmButtonColor:"#006c30",
-							theme:"bulma",
-						customClass: { confirmButton: 'centered-swal-button' }
-						})
-					}
-				}
-			}
-
 			setShowModalGeneral(false)
 		} catch (error) {
 			console.error("Error al cambiar estado de invitación:", error)

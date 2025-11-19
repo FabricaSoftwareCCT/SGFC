@@ -1,3 +1,7 @@
+const { where } = require("sequelize");
+const Criterio = require("../models/Criterio");
+const UsuarioTieneCriterios = require("../models/UsuarioTieneCriterios");
+
 const { literal } = require("sequelize");
 
 let db;
@@ -202,8 +206,50 @@ class ActividadRepository {
 		});
 	}
 
-	static async updateEntrega(id, data, options = {}) {
+	static async updateEntrega(id, curso, aprendiz, data, options = {}) {
 		this.#ensureDb();
+
+		const criteriosIds = (await db.CursoTieneCriterio.findAll({
+			where: {
+				curso_ID: curso
+			},
+			attributes: ["criterio_ID"]
+		})).map((c) => c.criterio_ID)
+
+		for (let criterioId of criteriosIds) {
+			const criterio = await UsuarioTieneCriterios.findOne({
+				where: {
+					criterio_ID: criterioId,
+					usuario_ID: aprendiz
+				},
+				include: {
+					model: Criterio,
+				}
+			})
+			if (criterio.Criterio.type == "Calificacion") {
+				if (data.estado_revision === "aprobada") {
+					await UsuarioTieneCriterios.update({
+						value: criterio.value + 1
+					}, {
+						where: {
+							criterio_ID: criterioId,
+							usuario_ID: aprendiz
+						},
+					})
+				} else {
+					if (criterio.value > 0)
+						await UsuarioTieneCriterios.update({
+							value: criterio.value - 1
+						}, {
+							where: {
+								criterio_ID: criterioId,
+								usuario_ID: aprendiz
+							},
+						})
+				}
+			}
+		}
+
 		return db.ActividadEntrega.update(data, { where: { ID: id }, ...options });
 	}
 

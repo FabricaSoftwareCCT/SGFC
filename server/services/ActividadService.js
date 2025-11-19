@@ -934,65 +934,65 @@ class ActividadService {
 		try {
 			ensureInitialized();
 
-	const entrega = await ActividadRepository.findEntregaById(entregaId);
-	if (!entrega) {
-		throw createHttpError(404, "Entrega no encontrada.");
-	}
+			const entrega = await ActividadRepository.findEntregaById(entregaId);
+			if (!entrega) {
+				throw createHttpError(404, "Entrega no encontrada.");
+			}
 
 			await ensureCursoAccesible({ cursoInput: entrega.actividad.curso, user });
 
 			const accountType = getAccountType(user).toLowerCase();
-	if (!isPrivilegedAccount(accountType)) {
+			if (!isPrivilegedAccount(accountType)) {
 				throw createHttpError(
 					403,
 					"No tienes permisos para revisar entregas."
 				);
-	}
+			}
 
-	const updates = {};
-	const estado = payload?.estado_revision || payload?.estado;
-	if (estado) {
-		const estadoLower = estado.toLowerCase();
-		if (!["pendiente", "aprobada", "rechazada"].includes(estadoLower)) {
-			throw createHttpError(400, "Estado de revisión inválido.");
-		}
-		updates.estado_revision = estadoLower;
-	}
+			const updates = {};
+			const estado = payload?.estado_revision || payload?.estado;
+			if (estado) {
+				const estadoLower = estado.toLowerCase();
+				if (!["pendiente", "aprobada", "rechazada"].includes(estadoLower)) {
+					throw createHttpError(400, "Estado de revisión inválido.");
+				}
+				updates.estado_revision = estadoLower;
+			}
 
-	if (payload?.retroalimentacion !== undefined) {
-		updates.retroalimentacion = payload.retroalimentacion?.trim() || null;
-	}
+			if (payload?.retroalimentacion !== undefined) {
+				updates.retroalimentacion = payload.retroalimentacion?.trim() || null;
+			}
 
-	if (file) {
-		if (entrega.retro_archivo_ruta) {
-			await deleteFileIfExists(entrega.retro_archivo_ruta);
-		}
+			if (file) {
+				if (entrega.retro_archivo_ruta) {
+					await deleteFileIfExists(entrega.retro_archivo_ruta);
+				}
 
-		const storedFile = await saveBufferFile({
-			buffer: file.buffer,
-			fileName: path.parse(file.originalname || `retroalimentacion-${Date.now()}`).base,
-			subdirectories: [
-				"actividades",
-				`curso-${entrega.actividad.curso.ID}`,
-				`actividad-${entrega.actividad.ID}`,
-				"feedback",
-				`entrega-${entrega.ID}`,
-			],
-		});
+				const storedFile = await saveBufferFile({
+					buffer: file.buffer,
+					fileName: path.parse(file.originalname || `retroalimentacion-${Date.now()}`).base,
+					subdirectories: [
+						"actividades",
+						`curso-${entrega.actividad.curso.ID}`,
+						`actividad-${entrega.actividad.ID}`,
+						"feedback",
+						`entrega-${entrega.ID}`,
+					],
+				});
 
-		updates.retro_archivo_ruta = storedFile.relativePath;
-	}
+				updates.retro_archivo_ruta = storedFile.relativePath;
+			}
 
-	const reviewerId = normalizeUserId(user);
-	if (!reviewerId) {
-		throw createHttpError(401, "Usuario no autenticado.");
-	}
-	updates.retro_fecha = new Date();
-	updates.retro_by = reviewerId;
+			const reviewerId = normalizeUserId(user);
+			if (!reviewerId) {
+				throw createHttpError(401, "Usuario no autenticado.");
+			}
+			updates.retro_fecha = new Date();
+			updates.retro_by = reviewerId;
 
-	await ActividadRepository.updateEntrega(entregaId, updates);
+			await ActividadRepository.updateEntrega(entregaId, entrega.actividad.curso.ID, entrega.aprendiz_ID, updates);
 
-	const entregaActualizada = await ActividadRepository.findEntregaById(entregaId);
+			const entregaActualizada = await ActividadRepository.findEntregaById(entregaId);
 			const entregaActualizadaPlain = toPlain(entregaActualizada);
 
 			await notifyActivityReview({

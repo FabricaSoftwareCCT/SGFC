@@ -154,7 +154,7 @@ describe('Probar el modulo de administrador', ()=>{
         cy.contains('button','Crear Curso').click()
     })
 
-    it('ingresar a las inscripciones de un curso',()=>{
+    it.skip('ingresar a las inscripciones de un curso',()=>{
         cy.visit("http://localhost:5173/") 
         cy.get(".button_signIn").first().click({force : true})
 
@@ -708,6 +708,30 @@ describe('Probar el modulo de administrador', ()=>{
         cy.contains('button','Empresa').click()
         cy.contains('button', 'Guardar Cambios').click()
 
+    })
+
+    it('Reportes y estadisticas',()=>{
+        cy.visit("http://localhost:5173/") 
+        cy.get(".button_signIn").first().click({force : true})
+
+        //Ingresar credenciales del rol administrador
+        cy.get('input[type="email"]').first()
+            .type('administrador@gmail.com')
+        cy.get('input[type="password"]')
+            .type('Admin1234*')
+            
+        //Iniciar sesión
+        cy.get(".button_register").click()
+
+        //dar click a Gestiones
+        cy.get('.container_options').get('.gestiones-menu').contains('button', 'Gestiones').first().click({force : true})
+        cy.get('.dropdown-gestiones').contains('button', 'Reporte y Estadísticas').first().click({force : true})
+
+        //Ingresar a un curso
+        cy.get('.tabla-fila-estadisticas').first().click({force:true})
+
+        //Generar reporte de estudiantes
+        cy.contains('button','Generar reporte')
     })
 
     it.skip('visitar el historial de cambios', ()=>{

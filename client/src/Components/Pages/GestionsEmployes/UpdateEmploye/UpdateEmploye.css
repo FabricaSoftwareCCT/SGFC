@@ -24,7 +24,7 @@
 .modal-bodyUpdateGestor {
     width: 90vw;
     max-width: 1000px;
-    height: 464px;
+    height: 565px;
     background-color: #1A1A1A;
     display: flex;
     justify-content: space-around;
@@ -325,17 +325,23 @@
   background-color: #005c2e;
 }
 
-
-
 .campo-tipo-documento{
     width: auto;
     height: auto;
     display: flex;
     align-items: center;
+    gap: 5.5rem;
+    margin: 0;
+    padding: 8px 0;
 }
 
-.campo-tipo-documento>strong,.campo-tipo-documento>span{
+.campo-tipo-documento>strong{
     width: auto;
     height: auto;
-    
+    color: #00843d;
 }
+/*
+.campo-tipo-documento>span{
+    width: auto;
+    height: auto;
+}*/

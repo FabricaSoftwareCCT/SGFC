@@ -125,8 +125,23 @@ export const GestionsInstructor = () => {
   };
 
   const visibleInstructors = getVisibleInstructors();
-  const centerInstructor = filteredInstructors.length > 0 ? 
-    filteredInstructors[(current + 1) % filteredInstructors.length] : null;
+
+  const resolveCenterInstructor = () => {
+    if (filteredInstructors.length === 0) {
+      return null;
+    }
+    if (filteredInstructors.length === 1) {
+      return filteredInstructors[0];
+    }
+    if (filteredInstructors.length === 2) {
+      const safeIndex = ((current % filteredInstructors.length) + filteredInstructors.length) % filteredInstructors.length;
+      return filteredInstructors[safeIndex];
+    }
+    const safeIndex = ((current + 1) % filteredInstructors.length + filteredInstructors.length) % filteredInstructors.length;
+    return filteredInstructors[safeIndex];
+  };
+
+  const centerInstructor = resolveCenterInstructor();
 
   return (
     <>

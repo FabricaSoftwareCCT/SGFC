@@ -198,21 +198,43 @@ const obtenerCursosAsignadosAInstructor = async (req, res) => {
 				.status(400)
 				.json({ mensaje: "El ID del instructor es obligatorio" });
 		}
-		const asignaciones = await AsignacionCursoInstructor.findAll({
-			where: {
-				[Sequelize.Op.and]: [
-					{instructor_ID: instructor_ID},
-					{estado: "aceptada"}
-				]
-			},
-			include: [
-				{
-					model: Curso,
-					attributes: ["ID", "nombre_curso", "descripcion", "imagen", "ficha"],
-				}
-			]
-		});
-		res.status(200).json(asignaciones);
+	const todasLasAsignaciones = await AsignacionCursoInstructor.findAll({
+		where: { instructor_ID },
+		include: [
+			{
+				model: Curso,
+				attributes: ["ID", "nombre_curso", "descripcion", "imagen", "ficha"],
+			}
+		]
+	});
+
+	const asignacionesMasRecientesPorCurso = new Map();
+	todasLasAsignaciones.forEach((asignacion) => {
+		const cursoId = asignacion.curso_ID;
+		const asignacionActual = asignacionesMasRecientesPorCurso.get(cursoId);
+		if (!asignacionActual) {
+			asignacionesMasRecientesPorCurso.set(cursoId, asignacion);
+			return;
+		}
+
+		const fechaActual = asignacionActual.fecha_asignacion ? new Date(asignacionActual.fecha_asignacion).getTime() : 0;
+		const fechaNueva = asignacion.fecha_asignacion ? new Date(asignacion.fecha_asignacion).getTime() : 0;
+
+		if (fechaNueva > fechaActual) {
+			asignacionesMasRecientesPorCurso.set(cursoId, asignacion);
+			return;
+		}
+
+		if (fechaNueva === fechaActual && Number(asignacion.ID) > Number(asignacionActual.ID)) {
+			asignacionesMasRecientesPorCurso.set(cursoId, asignacion);
+		}
+	});
+
+	const asignacionesAceptadas = Array.from(asignacionesMasRecientesPorCurso.values()).filter(
+		(asignacion) => asignacion.estado === "aceptada"
+	);
+
+	res.status(200).json(asignacionesAceptadas);
 	} catch (error) {
 		console.error("Error al obtener los cursos asignados:", error);
 		res

@@ -1,3 +1,5 @@
+const { literal } = require("sequelize");
+
 const { where } = require("sequelize");
 const Criterio = require("../models/Criterio");
 const UsuarioTieneCriterios = require("../models/UsuarioTieneCriterios");
@@ -251,21 +253,37 @@ class ActividadRepository {
 		return db.ActividadEntrega.update(data, { where: { ID: id }, ...options });
 	}
 
-	static async hasInstructorAcceptedAssignment(cursoId, instructorId) {
+	static async findLatestInstructorAssignment(cursoId, instructorId, options = {}) {
 		this.#ensureDb();
 		if (!cursoId || !instructorId) {
-			return false;
+			return null;
 		}
 
-		const assignment = await db.AsignacionCursoInstructor.findOne({
+		return db.AsignacionCursoInstructor.findOne({
 			where: {
 				curso_ID: cursoId,
 				instructor_ID: instructorId,
-				estado: "aceptada",
 			},
+			order: [
+				[literal("fecha_asignacion IS NULL"), "ASC"],
+				["fecha_asignacion", "DESC"],
+				["ID", "DESC"],
+			],
+			...options,
 		});
+	}
 
-		return Boolean(assignment);
+	static async hasInstructorAcceptedAssignment(cursoId, instructorId, options = {}) {
+		this.#ensureDb();
+		const assignment = await this.findLatestInstructorAssignment(
+			cursoId,
+			instructorId,
+			options
+		);
+		if (!assignment) {
+			return false;
+		}
+		return String(assignment.estado).toLowerCase() === "aceptada";
 	}
 
 	static async findActiveParticipantsByCurso(cursoId, options = {}) {

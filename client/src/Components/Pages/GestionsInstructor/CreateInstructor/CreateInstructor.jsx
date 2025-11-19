@@ -6,6 +6,8 @@ import { Routes, Route, useNavigate } from "react-router-dom";
 import fotoPerfilDefect from '../../../../assets/Icons/userDefect.png';
 import Swal from 'sweetalert2';
 import 'sweetalert2/themes/bulma.css'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faArrowLeft, faUser, faIdCard, faPhone, faEnvelope, faGraduationCap, faCamera } from '@fortawesome/free-solid-svg-icons';
 
 export const CreateInstructor = ({ onClose }) => {
 
@@ -47,8 +49,9 @@ export const CreateInstructor = ({ onClose }) => {
   };
 
   const closeModalCreateInstructor = () => {
-    document.getElementById("modal-overlayCreateInstructor").style.display =
-      "none";
+    if (onClose) onClose();
+    const overlay = document.getElementById("modal-overlayCreateInstructor");
+    if (overlay) overlay.style.display = "none";
   };
 
   // Enviar datos al backend
@@ -114,141 +117,199 @@ export const CreateInstructor = ({ onClose }) => {
   };
 
   return (
-    <div id="modal-overlayCreateInstructor">
-      <form className="modal-bodyCreateInstructor" onSubmit={handleSubmit}>
-        <div className="modal-left">
-          <label>
-            Nombres
-            <input
-              type="text"
-              name="nombres"
-              value={formData.nombres}
-              onChange={handleInputChange}
-              required
-            />
-          </label>
-          <label>
-            Apellidos
-            <input
-              type="text"
-              name="apellidos"
-              value={formData.apellidos}
-              onChange={handleInputChange}
-              required
-            />
-          </label>
-          <label>
-            Cédula
-            <input
-              type="number"
-              name="documento"
-              value={formData.documento}
-              onChange={handleInputChange}
-              required
-            />
-          </label>
-          <label>
-            Título
-            <input
-              type="text"
-              name="titulo_profesional"
-              value={formData.titulo_profesional}
-              onChange={handleInputChange}
-              required
-            />
-          </label>
-          <label>
-            Celular
-            <input
-              type="number"
-              name="celular"
-              value={formData.celular}
-              onChange={handleInputChange}
-              required
-            />
-          </label>
-          <label>
-            Email
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleInputChange}
-              required
-            />
-          </label>
+    <div id="modal-overlayCreateInstructor" className="modal-overlay-create">
+      <div className="modal-container-create">
+        <div className="modal-header-create">
+          <div className="header-content-create">
+            <h2>
+              <FontAwesomeIcon icon={faUser} className="header-icon" />
+              Crear Nuevo Instructor
+            </h2>
+            <button 
+              type="button" 
+              onClick={closeModalCreateInstructor}
+              className="close-btn-create"
+            >
+              <FontAwesomeIcon icon={faArrowLeft} />
+              <span>Volver</span>
+            </button>
+          </div>
         </div>
 
-        <div className="modal-right">
-          <input
-            type="file"
-            accept="image/*"
-            ref={fileInputRef}
-            onChange={handleFileChange}
-            hidden
-          />
+        <form className="modal-body-create" onSubmit={handleSubmit}>
+          <div className="modal-content-create">
+            {/* Columna izquierda - Información */}
+            <div className="info-column-create">
+              <div className="form-section-create">
+                <h3 className="section-title-create">Información Personal</h3>
+                <div className="form-grid-create">
+                  <div className="input-group-create">
+                    <label className="input-label-create">
+                      <FontAwesomeIcon icon={faUser} />
+                      Nombres
+                    </label>
+                    <input
+                      type="text"
+                      name="nombres"
+                      value={formData.nombres}
+                      onChange={handleInputChange}
+                      className="input-field-create"
+                      placeholder="Ingrese los nombres"
+                      required
+                    />
+                  </div>
 
-          <label
-            className="upload-area"
-            onClick={() => fileInputRef.current.click()}
-          >
-            {preview ? (
-              <img
-                src={preview}
-                alt="Vista previa"
-                className="preview-image"
-              />
-            ) : (
-              <div className="upload-placeholder">
-                <img
-                  src={addIMG}
-                  alt="icono agregar imagen"
-                  className="icon"
-                />
-                <p>Arrastra o sube la foto del curso aquí.</p>
+                  <div className="input-group-create">
+                    <label className="input-label-create">
+                      <FontAwesomeIcon icon={faUser} />
+                      Apellidos
+                    </label>
+                    <input
+                      type="text"
+                      name="apellidos"
+                      value={formData.apellidos}
+                      onChange={handleInputChange}
+                      className="input-field-create"
+                      placeholder="Ingrese los apellidos"
+                      required
+                    />
+                  </div>
+
+                  <div className="input-group-create">
+                    <label className="input-label-create">
+                      <FontAwesomeIcon icon={faIdCard} />
+                      Cédula
+                    </label>
+                    <input
+                      type="text"
+                      name="documento"
+                      value={formData.documento}
+                      onChange={handleInputChange}
+                      className="input-field-create"
+                      placeholder="Ingrese la cédula"
+                      required
+                    />
+                  </div>
+
+                  <div className="input-group-create">
+                    <label className="input-label-create">
+                      <FontAwesomeIcon icon={faGraduationCap} />
+                      Título Profesional
+                    </label>
+                    <input
+                      type="text"
+                      name="titulo_profesional"
+                      value={formData.titulo_profesional}
+                      onChange={handleInputChange}
+                      className="input-field-create"
+                      placeholder="Ingrese el título profesional"
+                      required
+                    />
+                  </div>
+
+                  <div className="input-group-create">
+                    <label className="input-label-create">
+                      <FontAwesomeIcon icon={faPhone} />
+                      Celular
+                    </label>
+                    <input
+                      type="text"
+                      name="celular"
+                      value={formData.celular}
+                      onChange={handleInputChange}
+                      className="input-field-create"
+                      placeholder="Ingrese el celular"
+                      required
+                    />
+                  </div>
+
+                  <div className="input-group-create">
+                    <label className="input-label-create">
+                      <FontAwesomeIcon icon={faEnvelope} />
+                      Email
+                    </label>
+                    <input
+                      type="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      className="input-field-create"
+                      placeholder="Ingrese el email"
+                      required
+                    />
+                  </div>
+
+                  <div className="input-group-create">
+                    <label className="input-label-create">Estado</label>
+                    <div className="status-buttons-create">
+                      {["Activo", "Inactivo"].map((estado) => {
+                        const isSelected = (formData.estado || "").toLowerCase() === estado.toLowerCase();
+                        return (
+                          <button
+                            key={estado}
+                            type="button"
+                            className={`status-btn-create ${isSelected ? "active" : ""}`}
+                            onClick={() => setFormData({ ...formData, estado })}
+                          >
+                            <span className="status-dot-create"></span>
+                            {estado}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
               </div>
-            )}
-          </label>
+            </div>
 
-          <div className="status-container">
-            <span>Estado:</span>
-            <div className="status-buttons">
-              <button
-                type="button"
-                className={`status ${formData.estado === "Activo" ? "active" : ""
-                  }`}
-                onClick={() => setFormData({ ...formData, estado: "Activo" })}
-              >
-                Activo
-              </button>
-              <button
-                type="button"
-                className={`status ${formData.estado === "Inactivo" ? "active" : ""
-                  }`}
-                onClick={() =>
-                  setFormData({ ...formData, estado: "Inactivo" })
-                }
-              >
-                Inactivo
+            {/* Columna derecha - Imagen */}
+            <div className="image-column-create">
+              <div className="image-section-create">
+                <div className="image-container-create">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    ref={fileInputRef}
+                    onChange={handleFileChange}
+                    id="imageUploadCreate"
+                    className="file-input-create"
+                  />
+                  <label
+                    className="image-upload-create"
+                    htmlFor="imageUploadCreate"
+                  >
+                    {preview ? (
+                      <img
+                        src={preview}
+                        alt="Vista previa"
+                        className="profile-image-create"
+                      />
+                    ) : (
+                      <div className="image-placeholder-create">
+                        <FontAwesomeIcon icon={faCamera} className="placeholder-icon-create" />
+                        <span>Haz clic para subir imagen</span>
+                      </div>
+                    )}
+                    <div className="upload-overlay-create">
+                      <FontAwesomeIcon icon={faCamera} />
+                      <span>Cambiar imagen</span>
+                    </div>
+                  </label>
+                </div>
+                
+                <div className="image-info-create">
+                  <p>Recomendado: Imagen cuadrada 500x500px</p>
+                </div>
+              </div>
+
+              <button type="submit" className="submit-btn-create">
+                <FontAwesomeIcon icon={faUser} />
+                <span>Crear Instructor</span>
               </button>
             </div>
           </div>
-
-          <button type="submit" className="save-button">
-            Guardar
-          </button>
-        </div>
-
-        <div className="container_return_AssignInstructor">
-          <h5>Volver</h5>
-          <button
-            type="button"
-            onClick={closeModalCreateInstructor}
-            className="closeModal"
-          ></button>
-        </div>
-      </form>
+        </form>
+      </div>
     </div>
   );
-
 };

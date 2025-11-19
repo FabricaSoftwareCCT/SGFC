@@ -309,7 +309,7 @@ const crearNotificacionInvitacionCursoInstructor = async (req, res) => {
 					["06:00", "07:00", "08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00", "21:00", "22:00"].map((t) => 
 						`
 							<tr>
-								<th style=${bs}>6:00</th>
+								<th style=${bs}>${t}</th>
 								<td style=${bs}>${isHorary("Lunes-"+t)}</td>
 								<td style=${bs}>${isHorary("Martes-"+t)}</td>
 								<td style=${bs}>${isHorary("Miércoles-"+t)}</td>
@@ -325,6 +325,10 @@ const crearNotificacionInvitacionCursoInstructor = async (req, res) => {
 				href="http://localhost:5173/SupportMaterial/${curso.ID}"
 				style="color: #00843d"
 			>Ver material del curso</a>
+			<a
+				href="http://localhost:5173/Cursos/${curso.ID}"
+				style="color: #00843d"
+			>Link del curso</a>
 			<br><p>Por favor, acepta o rechaza la invitación.</p>
 		`;
 		const tipo = "invitacion_cursoInstructor"

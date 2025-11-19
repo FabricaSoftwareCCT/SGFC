@@ -143,6 +143,61 @@
   box-shadow: 0 6px 18px rgba(0,0,0,0.22);
 }
 
+/* Contenedor de botones - separados y centrados */
+.custom-actions {
+    display: flex !important;
+    justify-content: center !important;
+    gap: 20px !important;
+    width: 100% !important;
+    padding: 10px 0 !important;
+}
+
+/* Botón de ELIMINAR - ROJO (#ff2b56) */
+.custom-confirm-btn {
+    background-color: #ec2323 !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 6px !important;
+    padding: 12px 25px !important;
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    transition: background-color 0.3s ease !important;
+    min-width: 140px !important;
+}
+
+.custom-confirm-btn:hover {
+    background-color: #e02626 !important;
+}
+
+/* Botón de CANCELAR - VERDE (#006f33) */
+.custom-cancel-btn {
+    background-color: #006f33 !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 6px !important;
+    padding: 12px 25px !important;
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    transition: background-color 0.3s ease !important;
+    min-width: 140px !important;
+}
+
+.custom-cancel-btn:hover {
+    background-color: #005a29 !important;
+}
+
+.custom-actions-simple {
+    gap: 20px !important;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-content: center;
+    justify-content: center;
+    align-items: center;
+}
+
 .resultado-item:focus-within, .asignado-item:focus-within {
   outline: 2px solid rgba(0, 132, 61, 0.6);
   outline-offset: 2px;

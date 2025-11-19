@@ -88,6 +88,26 @@ export const GestionUsuarios = () => {
 		return fotoPerfilDefect;
 	}
 
+	const truncarNombreArchivo = (nombre, maxLongitud = 15) => {
+		if (!nombre) return '';
+
+		const ultimoPunto = nombre.lastIndexOf('.');
+		if (ultimoPunto === -1) {
+			return nombre.length > maxLongitud 
+				? `${nombre.slice(0, maxLongitud)}...`
+				: nombre;
+		}
+
+		const nombreParte = nombre.slice(0, ultimoPunto);
+		const extension = nombre.slice(ultimoPunto);
+
+		if (nombreParte.length <= maxLongitud) {
+			return nombre;
+		}
+
+		return `${nombreParte.slice(0, maxLongitud)}... ${extension}`;
+	};
+
 	const renderUser = (user) => {
 		const nombre = user.nombres ? `${user.nombres} ${user.apellidos}` : "Sin definir"
 		const documento = user.documento ?? "Sin definir"
@@ -383,7 +403,7 @@ export const GestionUsuarios = () => {
 													})}
 												/>
 											:
-												<span className="valor-campo">{selectedUser.email}</span>
+												<span className="valor-campo">{truncarNombreArchivo(selectedUser.email,13)}</span>
 											}
 										</p>
 										<p>
@@ -414,7 +434,7 @@ export const GestionUsuarios = () => {
 											<strong>Rol:</strong>
 											{editing ? 
 												<div className="status-buttons">
-													{['Aprendiz', 'Empresa', 'Instructor', 'Administrador', 'Gestor'].map((rol) => (
+													{['Aprendiz', 'Instructor', 'Administrador', 'Gestor'].map((rol) => (
 														<button
 															key={rol}
 															className={`status ${selectedUser.accountType === rol ? "active" : ""}`}

@@ -2235,6 +2235,32 @@ const createEmpleado = async (req, res) => {
 	}
 };
 
+const getCursosAprendiz = async (req, res) => {
+	try {
+		const { id } = req.params
+		
+		const { count, rows } = await InscripcionCurso.findAndCountAll({
+			where: {
+				aprendiz_ID: id
+			},
+			include: {
+				model: Curso,
+			},
+			attributes: ["curso_ID"]
+		})
+
+		const cursos = rows.map((c) => c.Curso)
+
+		res.status(200).json({
+			cursos,
+			cantidad: count
+		})
+	} catch (error) {
+		console.error(`Error al consultar los cursos de un apreniz: `, error)
+		res.status(500).json({ message: "Error al consultar los cursos de un empleado." })
+	}
+}
+
 // Obtener todos los empleados para administradores con filtros avanzados
 const getAllEmpleadosForAdmin = async (req, res) => {
 	try {
@@ -2735,6 +2761,18 @@ const changeRole = async (req, res) => {
 			})
 		}
 
+		if (!role) {
+			return res.status(401).json({
+				message: "Se debe especificar el rol"
+			})
+		}
+
+		if (role === 'Empresa') {
+			return res.status(401).json({
+				message: "No se puede cambiar el rol del usuario a empresa"
+			})
+		}
+
 		user.update({
 			accountType: role
 		})
@@ -2787,5 +2825,6 @@ module.exports = {
 	getAllEmpresasForAdmin,
 	createEmpleadoForAdmin,
     createEmpresa,
-	changeRole
+	changeRole,
+	getCursosAprendiz
 };

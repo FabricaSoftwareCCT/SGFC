@@ -20,6 +20,7 @@ const reporteRoutes = require("./routes/ReporteRoutes");
 const certificationCriteriaRoutes = require("./routes/certificationCriteriaRoutes")
 const materialRoutes = require("./routes/materialRoutes")
 const historialRoutes = require("./routes/historialRoutes")
+const actividadRoutes = require("./routes/actividadRoutes")
 
 // libreria para programar tareas
 const cron = require('node-cron');
@@ -60,7 +61,7 @@ app.use(
       }
     },
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
   })
 );
@@ -89,6 +90,7 @@ app.use("/api/reports", reporteRoutes);
 app.use("/api/certification", certificationCriteriaRoutes)
 app.use("/api/material", materialRoutes)
 app.use("/api/historial", historialRoutes)
+app.use("/api/activities", actividadRoutes)
 
 // Importar utilidades para gestión de índices
 const { ensureIndexesSmart, dropDuplicateIndexes } = require('./utils/indexManagement');
@@ -107,6 +109,7 @@ async function startServer() {
     const certificationCriteriaController = require("./controllers/certificationCriteriaController")
     const materialController = require("./controllers/materialController");
     const historialController = require("./controllers/historialController")
+    const { ActividadController } = require("./controllers/actividadController");
 
     attendanceController.setDb(db);
     cursoController.setDb(db);
@@ -115,6 +118,7 @@ async function startServer() {
     certificationCriteriaController.setDb(db);
     materialController.setDb(db);
     historialController.setDb(db);
+    ActividadController.setDb(db);
     
     // Inicializar ReportRepository con la instancia de la base de datos
     const { setDb: setReportDb } = require('./Repository/ReportRepository');

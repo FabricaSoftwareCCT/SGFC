@@ -22,6 +22,17 @@ async function ensureIndexesSmart(sequelize) {
       .map(c => String(c)).sort();
     const desiredCols = normalizeColumns(desiredFields);
     const existingIsUnique = !!(existingIdx.unique || existingIdx.indisunique || existingIdx.non_unique === 0);
+    
+    // Si el índice existente contiene todas las columnas deseadas y es único, considerarlo como duplicado
+    // Esto maneja el caso de claves primarias compuestas que incluyen las columnas deseadas
+    const existingContainsDesired = desiredCols.every(col => existingCols.includes(col));
+    const isPrimaryKey = !!(existingIdx.primary || existingIdx.Key_name === 'PRIMARY');
+    
+    // Si es una clave primaria que contiene las columnas deseadas, no crear índice adicional
+    if (isPrimaryKey && existingContainsDesired) {
+      return true;
+    }
+    
     return JSON.stringify(existingCols) === JSON.stringify(desiredCols) && existingIsUnique === !!desiredUnique;
   }
 
@@ -83,13 +94,45 @@ async function ensureIndexesSmart(sequelize) {
 
     for (const idx of desired) {
       const name = idx.name || buildDeterministicName(tableName, idx.fields, idx.unique);
+      
+      // Verificar si ya existe un índice con el mismo nombre
+      const indexWithSameName = existing.find(ex => ex.name === name);
+      if (indexWithSameName) {
+        continue;
+      }
+      
+      // Verificar si ya existe un índice equivalente
       const alreadyExists = existing.some(ex => areSameIndex(ex, idx.fields, idx.unique));
       if (alreadyExists) continue;
+      
+      // Verificar si existe un índice único compuesto que incluya estas columnas
+      if (idx.unique) {
+        const hasCompositeUnique = existing.some(ex => {
+          const exCols = (ex.columns || ex.column_names || ex.fields || ex.attributes || [])
+            .map(c => String(c));
+          const desiredCols = normalizeColumns(idx.fields);
+          const isUnique = !!(ex.unique || ex.indisunique || ex.non_unique === 0);
+          return isUnique && desiredCols.every(col => exCols.includes(col));
+        });
+        if (hasCompositeUnique) {
+          continue;
+        }
+      }
 
-      await queryInterface.addIndex(tableName, idx.fields, {
-        name,
-        unique: !!idx.unique
-      });
+      try {
+        await queryInterface.addIndex(tableName, idx.fields, {
+          name,
+          unique: !!idx.unique
+        });
+      } catch (error) {
+        // Si el índice ya existe (por nombre o estructura), ignorar el error
+        if (error.name === 'SequelizeDatabaseError' && 
+            (error.original?.code === 'ER_DUP_KEYNAME' || error.original?.errno === 1061)) {
+          console.log(`Índice ${name} ya existe en ${tableName}, omitiendo...`);
+          continue;
+        }
+        throw error;
+      }
     }
   }
 }

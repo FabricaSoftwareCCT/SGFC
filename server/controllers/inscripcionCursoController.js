@@ -3,10 +3,11 @@
 const InscripcionCurso = require("../models/InscripcionCurso");
 const Curso = require("../models/curso");
 const Usuario = require("../models/User");
-const Empresa = require("../models/empresa")
+const Empresa = require("../models/empresa");
+const { Op } = require("sequelize");
 const { json } = require("sequelize");
 const e = require("express");
-const {sendRegistrationStatusEmail} = require('../services/emailService')
+const {sendRegistrationStatusEmail, sendCourseEnrollmentEmail} = require('../services/emailService')
 
 const crearOActualizarInscripcion = async (req, res) => {
   const { curso_ID, aprendiz_ID, nuevoEstado } = req.body;
@@ -193,6 +194,24 @@ const inscripcionEmpleados = async (req, res ) => {
           return inscribir
         })
       )
+
+      const emails = await Promise.all(
+        empleados.map(async (e) =>{
+          const consult = await Usuario.findByPk(e.ID)
+          const consult2 = await Curso.findByPk(curso_ID)
+          return {
+              email : consult.dataValues.email,
+              nombres : consult.dataValues.nombres,
+              curso : consult2.dataValues.nombre_curso,
+          }
+        })
+      )
+
+      await Promise.all(
+        emails.map((e) =>{
+          sendCourseEnrollmentEmail(e.email, e.nombres, e.curso)
+        })
+      )
       res.status(200).json({
         message : 'Se inscribieron los empleados al curso',
         noInscritos: verificarCursos
@@ -297,9 +316,76 @@ const updateStatusInscripciones = async (req, res) =>{
   }
 }
 
+const getCursosByAprendizId = async (req, res) => {
+  try {
+    const { aprendizId } = req.params;
+
+    if (!aprendizId) {
+      return res.status(400).json({
+        message: "El ID del aprendiz es obligatorio"
+      });
+    }
+
+    const aprendiz = await Usuario.findByPk(aprendizId);
+    if (!aprendiz || aprendiz.accountType !== 'Aprendiz') {
+      return res.status(404).json({
+        message: "Aprendiz no encontrado o no válido"
+      });
+    }
+
+    const inscripciones = await InscripcionCurso.findAll({
+      where: {
+        aprendiz_ID: aprendizId,
+        estado_inscripcion: { [Op.in]: ['activo', 'pendiente'] }
+      }
+    });
+
+    const cursoIds = inscripciones.map(ins => ins.curso_ID).filter(Boolean);
+    
+    if (cursoIds.length === 0) {
+      return res.status(200).json([]);
+    }
+
+    const cursos = await Curso.findAll({
+      where: {
+        ID: { [Op.in]: cursoIds }
+      },
+      include: [
+        {
+          model: Usuario,
+          as: 'Instructor',
+          attributes: ['nombres', 'apellidos']
+        },
+        {
+          model: Empresa,
+          as: 'Empresa',
+          attributes: ['nombre_empresa']
+        }
+      ]
+    });
+
+    const cursosConEstado = cursos.map(curso => {
+      const inscripcion = inscripciones.find(ins => ins.curso_ID === curso.ID);
+      return {
+        ...curso.dataValues,
+        ID: curso.ID || curso.id,
+        estado_inscripcion: inscripcion ? inscripcion.estado_inscripcion : null
+      };
+    });
+
+    return res.status(200).json(cursosConEstado);
+  } catch (error) {
+    console.error("Error al obtener cursos del aprendiz:", error);
+    return res.status(500).json({
+      message: "Error al obtener los cursos del aprendiz"
+    });
+  }
+};
+
 module.exports = {
   crearOActualizarInscripcion,
   inscripcionEmpleados,
   getAllInscripciones,
-  updateStatusInscripciones
+  updateStatusInscripciones,
+  getCursosByAprendizId
 };

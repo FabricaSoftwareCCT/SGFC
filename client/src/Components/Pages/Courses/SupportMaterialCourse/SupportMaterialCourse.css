@@ -228,6 +228,19 @@
     font-size: 1.1rem;
 }
 
+.swal-cancel-custom {
+    background-color: #c63223 !important;  /* Tu color rojo personalizado */
+    border: none !important;
+    color: white !important;
+    font-weight: 600 !important;
+    padding: 12px 20px !important;
+    border-radius: 20px !important;
+}
+
+.swal-cancel-custom:hover {
+    background-color: #a82a1d !important;  /* Color más oscuro para hover */
+}
+
 /* ========== RESPONSIVE ========== */
 
 /* Tablets */

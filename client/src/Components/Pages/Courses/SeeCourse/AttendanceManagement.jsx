@@ -28,24 +28,6 @@ export const AttendanceManagement = ({ open, onClose, courseId, selectedDate }) 
     const [showApprenticeDetails, setShowApprenticeDetails] = useState(false);
     const [selectedApprentice, setSelectedApprentice] = useState(null);
 
-    const swalConfig = {
-        theme: 'bulma',
-        customClass: {
-            actions: 'swal2-center-actions',
-            confirmButton: 'swal2-confirm-bulma'
-        },
-        buttonsStyling: false,
-        confirmButtonText: 'Aceptar',
-        showClass: {
-            popup: 'swal2-noanimation',
-            backdrop: 'swal2-noanimation'
-        },
-        hideClass: {
-            popup: '',
-            backdrop: ''
-        }
-    };
-
     useEffect(() => {
         if (open) {
             setShowOptions(true);
@@ -234,24 +216,30 @@ export const AttendanceManagement = ({ open, onClose, courseId, selectedDate }) 
             setShowOptions(true);
 
             await Swal.fire({
-                ...swalConfig,
                 icon: 'success',
                 title: 'Asistencias registradas',
-                text: 'Asistencias registradas exitosamente'
+                text: 'Asistencias registradas exitosamente',
+                confirmButtonColor:"#00843d",
+                theme: 'bulma',
+        customClass: {
+            actions: 'swal2-center-actions',
+            confirmButton: 'swal2-confirm-bulma'
+        },
             });
 
         } catch (error) {
             console.error('Error al guardar asistencias:', error);
-            console.error('Detalles del error:', error.response?.data);
-            
-            const errorMessage = error.response?.data?.message || 'Error al guardar las asistencias';
-            setError(errorMessage);
-            
-            await Swal.fire({
-                ...swalConfig,
+            setError('Error al guardar las asistencias');
+                        await Swal.fire({
                 icon: 'error',
                 title: 'Error',
-                text: errorMessage
+                text: 'Error al guardar las asistencias',
+                confirmButtonText:"Okay",
+                confirmButtonColor:"#00843d",
+                        theme: 'bulma',
+        customClass: {
+          actions: 'swal2-center-actions'
+        }
             });
         } finally {
             setLoading(false);
@@ -341,10 +329,15 @@ export const AttendanceManagement = ({ open, onClose, courseId, selectedDate }) 
             await fetchAttendanceRecords();
 
             await Swal.fire({
-                ...swalConfig,
                 icon: 'success',
                 title: 'Asistencia actualizada',
-                text: `Asistencia cambiada a ${newStatus}`
+                text: `Asistencia cambiada a ${newStatus}`,
+                           confirmButtonText:"Okay",
+                confirmButtonColor:"#00843d",
+                        theme: 'bulma',
+        customClass: {
+          actions: 'swal2-center-actions'
+        }
             });
 
         } catch (error) {
@@ -354,11 +347,16 @@ export const AttendanceManagement = ({ open, onClose, courseId, selectedDate }) 
             const errorMessage = error.response?.data?.message || 'Error al actualizar la asistencia';
             setError(errorMessage);
 
-            await Swal.fire({
-                ...swalConfig,
+                        await Swal.fire({
                 icon: 'error',
                 title: 'Error',
-                text: errorMessage
+                text: 'Error al actualizar la asistencia',
+                           confirmButtonText:"Okay",
+                confirmButtonColor:"#00843d",
+                        theme: 'bulma',
+        customClass: {
+          actions: 'swal2-center-actions'
+        }
             });
         }
     };

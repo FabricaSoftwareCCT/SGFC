@@ -97,28 +97,29 @@ export default function ReporteEstadisticas() {
 				const data = await getCursos(currentPage);
 
 				if(!data){
-          Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'Error al cargar datos',
-            confirmButtonText: 'Aceptar',
-            confirmButtonColor: '#d33',
-            theme:"bulma",
-                customClass: { confirmButton: 'centered-swal-button' }
-          });
+					Swal.fire({
+						icon: 'error',
+						title: 'Error',
+						text: 'Error al cargar datos',
+						confirmButtonText: 'Aceptar',
+						confirmButtonColor: '#d33',
+						theme:"bulma",
+							customClass: { confirmButton: 'centered-swal-button' }
+					});
 				}
 				//Acutalizar estado
 				setdatosCurso(data);
 			}catch(err){
-        Swal.fire({
-          icon: 'error',
-          title: 'Error del servidor',
-          text: 'Error en servidor',
-          confirmButtonText: 'Aceptar',
-          confirmButtonColor: '#d33',
-                theme:"bulma",
-      customClass: { confirmButton: 'centered-swal-button' }
-        });
+				console.log(err)
+				Swal.fire({
+					icon: 'error',
+					title: 'Error del servidor',
+					text: 'Error en servidor',
+					confirmButtonText: 'Aceptar',
+					confirmButtonColor: '#d33',
+					theme:"bulma",
+					customClass: { confirmButton: 'centered-swal-button' }
+				});
 			}
 		}
 		fetchData()
@@ -192,7 +193,17 @@ export default function ReporteEstadisticas() {
 	// Función para manejar el clic en una fila
 	const handleFilaClick = (curso) => {
 		if (!curso.empleados || curso.empleados === 0) {
-			alert('Este curso no tiene empleados registrados. No se puede generar un reporte.');
+			Swal.fire({
+          icon:"error",
+          title:"Error del sistema",
+          text:"Este curso no tiene empleados registrados. No se puede generar un reporte.",
+          confirmButtonText:"Okay",
+          theme:"bulma",
+          customClass:{
+        confirmButton: 'button is-primary',
+        actions: 'swal2-actions-centered'
+                }
+              })
 			return;
 		}
 		setCursoSeleccionado(curso);
@@ -244,93 +255,116 @@ export default function ReporteEstadisticas() {
 	};
 
 const generarExcelHistorial = async () => {
-    try {
-        let cursosIds = (cursosFiltrados.length > 0 ? cursosFiltrados : datosCurso).map((c) => c.id)
-        let cursosData = []
-        let empleadosData = []
+	try {
+		const empleados = (await axiosInstance.get(`/api/users/admin/empleados?limit=99999`)).data.empleados
+		let cursosIds = (cursosFiltrados.length > 0 ? cursosFiltrados : datosCurso).map((c) => c.id)
+		let cursosData = []
+		let empleadosData = []
 
-        console.log("Consultando cursos...")
-        for (let cursoId of cursosIds) {
-            const curso = (await axiosInstance.get(`/api/courses/cursos/${cursoId}`)).data
-            cursosData.push({
-                "Curso": curso.nombre_curso,
-                "Tipo": curso.tipo_oferta,
-                "Estado": curso.estado,
-                "Ficha": curso.ficha,
-                "Inicio": new Date(curso.fecha_inicio).toLocaleDateString("es-CO"),
-                "Fin": new Date(curso.fecha_fin).toLocaleDateString("es-CO"),
-                "Duración en días": curso.duracion_dias ?? "Sin determinar",
-                "Lugar de formación": curso.lugar_formacion ?? "Sin especificar",
-                "Instructor": curso.Instructor ? `${curso.Instructor.nombres} ${curso.Instructor.apellidos}` : "Pendiente",
-                "Cantidad de aprendices": curso.cupos_usados
-            })
-        }
+		console.log("Consultando cursos...")
+		for (let cursoId of cursosIds) {
+			const curso = (await axiosInstance.get(`/api/courses/cursos/${cursoId}`)).data
+			for (let empleado of empleados) {
+				console.log(empleado.ID)
+			}
+			cursosData.push({
+				"Curso": curso.nombre_curso,
+				"Tipo": curso.tipo_oferta,
+				"Estado": curso.estado,
+				"Ficha": curso.ficha,
+				"Inicio": new Date(curso.fecha_inicio).toLocaleDateString("es-CO"),
+				"Fin": new Date(curso.fecha_fin).toLocaleDateString("es-CO"),
+				"Duración en días": curso.duracion_dias ?? "Sin determinar",
+				"Lugar de formación": curso.lugar_formacion ?? "Sin especificar",
+				"Instructor": curso.Instructor ? `${curso.Instructor.nombres} ${curso.Instructor.apellidos}` : "Pendiente",
+				"Cantidad de aprendices": curso.cupos_usados,
+			})
+		}
 
-        console.log("Consultando empleados...")
-        const empleados = (await axiosInstance.get(`/api/users/admin/empleados?limit=99999`)).data.empleados
-        empleadosData = empleados.map((e) => ({
-            "Nombre": `${e.nombres} ${e.apellidos}`,
-            "Documento": e.documento,
-            "Numero teléfonico": e.celular,
-            "Email": e.email,
-            "Estado": e.estado,
-            "Cursos": Array.isArray(e.cursos) ? e.cursos.join("\n") : "",
-            "Empresa": e?.Empresa?.nombre_empresa || "Sin empresa"
-        }))
+		console.log("Consultando empleados...")
+		empleadosData = empleados.map((e) => ({
+			"Nombre": `${e.nombres} ${e.apellidos}`,
+			"Documento": e.documento,
+			"Numero teléfonico": e.celular,
+			"Email": e.email,
+			"Estado": e.estado,
+			"Cursos": Array.isArray(e.cursos) ? e.cursos.join("\n") : "",
+			"Empresa": e?.Empresa?.nombre_empresa || "Sin empresa"
+		}))
 
-        const workBook = xlsx.utils.book_new()
-        xlsx.utils.book_append_sheet(workBook, xlsx.utils.json_to_sheet(cursosData), "Cursos")
-        xlsx.utils.book_append_sheet(workBook, xlsx.utils.json_to_sheet(empleadosData), "Empleados")
-        xlsx.writeFile(workBook, "reporte.xlsx", { compression: true })
-    } catch (error) {
-        console.error("Error generando Excel:", error)
-        alert(`Error al generar Excel\n\n${formatDetailedError(error)}`)
-    } finally {
-        setGenerating(false)
-    }
+		const workBook = xlsx.utils.book_new()
+		xlsx.utils.book_append_sheet(workBook, xlsx.utils.json_to_sheet(cursosData), "Cursos")
+		xlsx.utils.book_append_sheet(workBook, xlsx.utils.json_to_sheet(empleadosData), "Empleados")
+		xlsx.writeFile(workBook, "reporte.xlsx", { compression: true })
+	} catch (error) {
+		console.error("Error generando Excel:", error)
+		Swal.fire({
+          icon:"error",
+  		title:"Error al generar Excel",
+          text:`Error al generar Excel\n\n${formatDetailedError(error)}`,
+          confirmButtonText:"Okay",
+          theme:"bulma",
+          customClass:{
+        confirmButton: 'button is-primary',
+        actions: 'swal2-actions-centered'
+                }
+              })
+	} finally {
+		setGenerating(false)
+	}
 }
 
 const generarReporteDesdeElemento = async (targetElement) => {
-    try {
-        if (reportType === "pdf") {
-            if (!targetElement) throw new Error("No hay contenido para generar el PDF")
+	try {
+		if (reportType === "pdf") {
+			if (!targetElement) throw new Error("No hay contenido para generar el PDF")
 
-            // Forzar reflow y pequeña espera para layout estable
-            // eslint-disable-next-line no-unused-expressions
-            targetElement.offsetHeight
-            await new Promise(r => setTimeout(r, 150))
+			// Forzar reflow y pequeña espera para layout estable
+			// eslint-disable-next-line no-unused-expressions
+			targetElement.offsetHeight
+			await new Promise(r => setTimeout(r, 150))
 
-            const worker = html2pdf().set({
-                margin: 10,
-                filename: "reporte_cursos.pdf",
-                html2canvas: {
-                    scale: 2,
-                    useCORS: true,
-                    allowTaint: true,
-                    backgroundColor: '#FFFFFF',
-                },
-                jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-                pagebreak: { mode: [ 'css', 'avoid-all', 'legacy' ] }
-            }).from(targetElement)
+			const worker = html2pdf().set({
+				margin: 10,
+				filename: "reporte_cursos.pdf",
+				html2canvas: {
+					scale: 2,
+					useCORS: true,
+					allowTaint: true,
+					backgroundColor: '#FFFFFF',
+				},
+				jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+				pagebreak: { mode: [ 'css', 'avoid-all', 'legacy' ] }
+			}).from(targetElement)
 
-            // Generar blob y descargar automáticamente
-            const blob = await worker.output("blob")
-            const blobUrl = URL.createObjectURL(blob)
-            const filename = "reporte_cursos.pdf"
-            setReportFilename(filename)
-            setReportContent(blobUrl)
-            // Auto-descarga
-            const a = document.createElement('a')
-            a.href = blobUrl
-            a.download = filename
-            document.body.appendChild(a)
-            a.click()
-            document.body.removeChild(a)
-            setDoneGenerating(true)
-        }
-    } catch (err) {
-        console.error("Error generando PDF:", err)
-        alert(`Error al generar PDF\n\n${formatDetailedError(err)}`)
+			// Generar blob y descargar automáticamente
+			const blob = await worker.output("blob")
+			const blobUrl = URL.createObjectURL(blob)
+			const filename = "reporte_cursos.pdf"
+			setReportFilename(filename)
+			setReportContent(blobUrl)
+			// Auto-descarga
+			const a = document.createElement('a')
+			a.href = blobUrl
+			a.download = filename
+			document.body.appendChild(a)
+			a.click()
+			document.body.removeChild(a)
+			setDoneGenerating(true)
+		}
+	} catch (err) {
+		console.error("Error generando PDF:", err)
+		Swal.fire({
+          icon:"error",
+  		title:"Error al generar PDF",
+          text:`Error al generar PDF\n\n${formatDetailedError(err)}`,
+          confirmButtonText:"Okay",
+          theme:"bulma",
+          customClass:{
+        confirmButton: 'button is-primary',
+        actions: 'swal2-actions-centered'
+                }
+              })
         setDoneGenerating(false)
     } finally {
         setGenerating(false)
@@ -457,7 +491,7 @@ const generarReporteDesdeElemento = async (targetElement) => {
 						{/* Información de resultados */}
 						<div className="filtro-info-estadisticas">
 							<div className="filtro-resultados-estadisticas">
-								Resultados: {cursosFiltrados.length} de {datosCurso.length} cursos
+								Resultados: {cursosFiltrados?.length ?? 0} de {datosCurso?.length ?? 0} cursos
 							</div>
 						</div>
 
@@ -591,15 +625,15 @@ const generarReporteDesdeElemento = async (targetElement) => {
 						>
 							{generating ? "Generando..." : "Generar reporte"}
 						</button>
-                        {(generating  && reportType === "pdf") && (
-                            <div style={{ position: "absolute", left: "-10000px", top: 0 }}>
-                                <FormatCourse
-                                    contentKey={pdfContent}
-                                    cursos={(cursosFiltrados.length > 0 ? cursosFiltrados : datosCurso).map((c) => c.id)}
-                                    onReady={(el) => generarReporteDesdeElemento(el)}
-                                />
-                            </div>
-                        )}
+						{(generating  && reportType === "pdf") && (
+							<div style={{ position: "absolute", left: "-10000px", top: 0 }}>
+								<FormatCourse
+									contentKey={pdfContent}
+									cursos={(cursosFiltrados.length > 0 ? cursosFiltrados : datosCurso).map((c) => c.id)}
+									onReady={(el) => generarReporteDesdeElemento(el)}
+								/>
+							</div>
+						)}
 						{doneGenerating && reportContent && (
 							<a
 								className="button"

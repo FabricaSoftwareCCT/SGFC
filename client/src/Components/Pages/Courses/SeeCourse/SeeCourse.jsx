@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import './SeeCourse.css';
 import { useNavigate } from 'react-router-dom';
 import { Header } from '../../../Layouts/Header/Header';
@@ -21,6 +21,7 @@ export const SeeCourse = () => {
 	const navigate = useNavigate();
 	const [showModal, setShowModal] = useState(false);
 	const [temario, setTemario] = useState([]);
+	const [isUserEnrolled, setIsUserEnrolled] = useState(false);
 	
 	// Estado para la duración del curso
 	const [duracionCurso, setDuracionCurso] = useState({
@@ -62,12 +63,45 @@ export const SeeCourse = () => {
 		}
 	};
 
+	const checkEnrollmentStatus = useCallback(async () => {
+		if (!userSession || userSession.accountType !== "Aprendiz") {
+			setIsUserEnrolled(false);
+			return;
+		}
+
+		try {
+			const response = await axiosInstance.get(
+				`api/courses/getAllInscripciones/${id}`
+			);
+
+			const userId = Number(userSession?.ID || userSession?.id);
+			const estaInscrito = Array.isArray(response.data)
+				? response.data.some((registro) => {
+						const registroId = Number(registro?.id);
+						const estado = (registro?.estado || "").toLowerCase();
+						return registroId === userId && estado !== "rechazado";
+				  })
+				: false;
+
+			setIsUserEnrolled(estaInscrito);
+		} catch (error) {
+			console.error("Error al verificar la inscripción:", error);
+			setIsUserEnrolled(false);
+		}
+	}, [id, userSession]);
+
 	useEffect(() => {
 		fetchCurso();
-		if (userSession && userSession.empresa_ID) {
-			fetchEmpresa()
+		if (userSession?.empresa_ID) {
+			fetchEmpresa();
 		}
-	}, [id]);
+	}, [id, userSession?.empresa_ID]);
+
+	useEffect(() => {
+		if (userSession?.accountType === "Aprendiz") {
+			checkEnrollmentStatus();
+		}
+	}, [checkEnrollmentStatus, userSession?.accountType]);
 
 	if (!curso) {
 		return <p>Cargando...</p>;
@@ -78,6 +112,10 @@ export const SeeCourse = () => {
 		endDate: curso.fecha_fin ? curso.fecha_fin.split('T')[0] : '',
 		slots_formacion: curso.slots_formacion ? JSON.parse(curso.slots_formacion) : []
 	};
+
+	const isApprentice = userSession?.accountType === "Aprendiz";
+	const userCanSeeActivities = !isApprentice || isUserEnrolled;
+	const userCanEnroll = isApprentice && !isUserEnrolled;
 
 	return (
 		<>
@@ -210,6 +248,14 @@ export const SeeCourse = () => {
 
 							{/* Botones de Acción */}
 							<div className="action-buttons">
+								{userCanSeeActivities && (
+									<button
+										className="material-btn"
+										onClick={() => navigate(`/Cursos/${id}/actividades`)}
+									>
+										Ver Actividades
+									</button>
+								)}
 								<button className='material-btn' onClick={()=> navigate(`/SupportMaterialCourse/${id}`)}>
 									<FontAwesomeIcon icon={faBookOpen} className="btn-icon" />
 									Ver Material
@@ -230,19 +276,24 @@ export const SeeCourse = () => {
 									</button>
 								)}
 
-								{userSession && userSession.accountType === 'Empresa' && (
+								{userSession && userSession.accountType === 'Empresa' && !id && (
 									<button className='request-btn' onClick={() => navigate(`/SolicitarCurso/${encodeURIComponent(curso.nombre_curso)}`)}>
 										Solicitar Curso
 									</button>
 								)}
 
-								{userSession && userSession.accountType === "Aprendiz" &&(
-									<button className='enroll-btn' onClick={() => navigate(`/SolicitarCursoAp/${encodeURIComponent(curso.nombre_curso)}`)}>
+								{userCanEnroll && (
+									<button
+										className="enroll-btn"
+										onClick={() =>
+											navigate(`/SolicitarCursoAp/${encodeURIComponent(curso.nombre_curso)}`)
+										}
+									>
 										Inscribirse
 									</button>
 								)}
 
-								{userSession && userSession.accountType === 'Instructor' && (
+								{userSession && userSession.accountType === 'Instructor' && userSession.id === curso.Instructor?.ID && (
 									<button className='manage-btn' onClick={() => navigate(`/Cursos/${id}/gestionar-asistencia`)}>
 										Gestionar Asistencias
 									</button>

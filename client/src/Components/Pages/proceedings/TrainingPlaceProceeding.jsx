@@ -250,8 +250,8 @@ export const TrainingPlaceProceeding = () => {
                     icon:"success",
                     title:"¡Éxito!",
                     text:"¡Acta de lugar de formación enviada correctamente!",
-                    confirmButtonColor:"#05ab13",
-                    timer:3000,
+                    confirmButtonColor:"#00843d",
+                    timer:4000,
                     timerProgressBar: true,
                                   theme:"bulma",
       customClass: { confirmButton: 'centered-swal-button' }

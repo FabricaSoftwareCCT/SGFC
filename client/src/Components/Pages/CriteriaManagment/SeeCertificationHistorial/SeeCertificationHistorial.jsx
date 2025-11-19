@@ -187,7 +187,16 @@ export const SeeCertificationHistorial = () => {
 			}
 		} catch (error) {
 			console.log(error)
-			alert("Ocurrió un error al generar el reporte")
+			Swal.fire({
+          icon:"error",
+          title:"Error en reporte",
+          text:"Ocurrió un error al generar el reporte",
+          theme:"bulma",
+          customClass:{
+        confirmButton: 'button is-primary',
+        actions: 'swal2-actions-centered'
+                }
+              })
 			setDoneGenerating(false)
 			setGenerating(false)
 		}

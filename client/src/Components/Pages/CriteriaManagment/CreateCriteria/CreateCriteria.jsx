@@ -266,7 +266,7 @@ export const CreateCriteria = () => {
 							<div
 								className="create-criteria-field"
 							>
-								<label>Minimo:</label>
+								<label>Mínimo:</label>
 								<input
 									type="number"
 									className="search-input"

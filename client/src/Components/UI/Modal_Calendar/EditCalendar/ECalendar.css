@@ -120,6 +120,7 @@
 }
 
 .calendar-container-edit {
+  width: 90%;
   display: flex;
   justify-content: center;
   align-items: start;

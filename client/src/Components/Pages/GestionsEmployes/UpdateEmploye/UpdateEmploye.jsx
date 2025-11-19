@@ -7,6 +7,8 @@ import buttonEdit from '../../../../assets/Icons/buttonEdit.png';
 import { validateEmail, validateNumber, validateText, validateNIT } from "../../../../utils/Validators/formValidator";
 import Swal from 'sweetalert2';
 import 'sweetalert2/themes/bulma.css'
+import { useNavigate } from 'react-router-dom';
+
 
 export const UpdateEmploye = ({ empleado }) => {
   const [isEditing, setIsEditing] = useState(false);
@@ -34,6 +36,27 @@ export const UpdateEmploye = ({ empleado }) => {
     PPT: "Permiso por permanencia temporal",
     pendiente: "Pendiente",
   };
+
+	const truncarNombreArchivo = (nombre, maxLongitud = 15) => {
+		if (!nombre) return '';
+
+		const ultimoPunto = nombre.lastIndexOf('.');
+		if (ultimoPunto === -1) {
+			return nombre.length > maxLongitud 
+				? `${nombre.slice(0, maxLongitud)}...`
+				: nombre;
+		}
+
+		const nombreParte = nombre.slice(0, ultimoPunto);
+		const extension = nombre.slice(ultimoPunto);
+
+		if (nombreParte.length <= maxLongitud) {
+			return nombre;
+		}
+
+		return `${nombreParte.slice(0, maxLongitud)}... ${extension}`;
+	};
+
 
   const handlePDFChange = (e) => {
     const selectedPDF = e.target.files[0];
@@ -113,6 +136,21 @@ export const UpdateEmploye = ({ empleado }) => {
     
     return errors;
   };
+
+  const navigate = useNavigate();
+
+const handleCourse = () => {
+  console.log('ID del empleado:', formData.ID);
+  console.log('Navegando a mis cursos...');
+  
+  closeModalUpdateEmploye();
+  navigate('/mis-Cursos', { 
+    state: { 
+      empleadoId: formData.ID,
+      empleadoNombre: formData.nombres 
+    } 
+  });
+}
 
   const handleButtonClick = async (e) => {
     e.preventDefault();
@@ -341,7 +379,7 @@ export const UpdateEmploye = ({ empleado }) => {
               <span className="valor-campo">{formData.pdf_documento || ""}</span>
             )}
           </p>
-
+            <p>
           <div className="campo-tipo-documento">
             <strong>Tipo documento:</strong>
             {isEditing ? (
@@ -375,7 +413,7 @@ export const UpdateEmploye = ({ empleado }) => {
               </span>
             )}
           </div>
-
+          </p>
           <p>
             <strong>Documento:</strong>{" "}
             {isEditing ? (
@@ -415,7 +453,7 @@ export const UpdateEmploye = ({ empleado }) => {
                 onChange={handleChange}
               />
             ) : (
-              <span className="valor-campo">{formData.email || ""}</span>
+              <span className="valor-campo">{truncarNombreArchivo(formData.email,13 || "")}</span>
             )}
           </p>
           <p>
@@ -474,8 +512,8 @@ export const UpdateEmploye = ({ empleado }) => {
           <button type="submit" className="edit-button-updateInstructor">
             {isEditing ? "Guardar Cambios" : "Actualizar Perfil"}
           </button>
+          <button className={"button"} onClick={handleCourse}>Ver curso</button>
         </div>
-
         <div className="container_return_UpdateGestor">
           <h5>Volver</h5>
           <button

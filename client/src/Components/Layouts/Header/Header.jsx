@@ -234,10 +234,6 @@ export const Header = ({
 									label: "Buscar cursos",
 									path: "/Cursos/BuscarCursos",
 								},
-								{
-									label: "Solicitar curso",
-									path: "/SolicitarCursoAp"
-								},
 							];
 							break;
 						default:

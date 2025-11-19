@@ -193,7 +193,17 @@ export default function ReporteEstadisticas() {
 	// Función para manejar el clic en una fila
 	const handleFilaClick = (curso) => {
 		if (!curso.empleados || curso.empleados === 0) {
-			alert('Este curso no tiene empleados registrados. No se puede generar un reporte.');
+			Swal.fire({
+          icon:"error",
+          title:"Error del sistema",
+          text:"Este curso no tiene empleados registrados. No se puede generar un reporte.",
+          confirmButtonText:"Okay",
+          theme:"bulma",
+          customClass:{
+        confirmButton: 'button is-primary',
+        actions: 'swal2-actions-centered'
+                }
+              })
 			return;
 		}
 		setCursoSeleccionado(curso);
@@ -282,16 +292,26 @@ const generarExcelHistorial = async () => {
 			"Empresa": e?.Empresa?.nombre_empresa || "Sin empresa"
 		}))
 
-		const workBook = xlsx.utils.book_new()
-		xlsx.utils.book_append_sheet(workBook, xlsx.utils.json_to_sheet(cursosData), "Cursos")
-		xlsx.utils.book_append_sheet(workBook, xlsx.utils.json_to_sheet(empleadosData), "Empleados")
-		xlsx.writeFile(workBook, "reporte.xlsx", { compression: true })
-	} catch (error) {
-		console.error("Error generando Excel:", error)
-		alert(`Error al generar Excel\n\n${formatDetailedError(error)}`)
-	} finally {
-		setGenerating(false)
-	}
+        const workBook = xlsx.utils.book_new()
+        xlsx.utils.book_append_sheet(workBook, xlsx.utils.json_to_sheet(cursosData), "Cursos")
+        xlsx.utils.book_append_sheet(workBook, xlsx.utils.json_to_sheet(empleadosData), "Empleados")
+        xlsx.writeFile(workBook, "reporte.xlsx", { compression: true })
+    } catch (error) {
+        console.error("Error generando Excel:", error)
+		Swal.fire({
+          icon:"error",
+          title:"Error al generar Excel",
+          text:`Error al generar Excel\n\n${formatDetailedError(error)}`,
+          confirmButtonText:"Okay",
+          theme:"bulma",
+          customClass:{
+        confirmButton: 'button is-primary',
+        actions: 'swal2-actions-centered'
+                }
+              })
+    } finally {
+        setGenerating(false)
+    }
 }
 
 const generarReporteDesdeElemento = async (targetElement) => {
@@ -317,28 +337,38 @@ const generarReporteDesdeElemento = async (targetElement) => {
 				pagebreak: { mode: [ 'css', 'avoid-all', 'legacy' ] }
 			}).from(targetElement)
 
-			// Generar blob y descargar automáticamente
-			const blob = await worker.output("blob")
-			const blobUrl = URL.createObjectURL(blob)
-			const filename = "reporte_cursos.pdf"
-			setReportFilename(filename)
-			setReportContent(blobUrl)
-			// Auto-descarga
-			const a = document.createElement('a')
-			a.href = blobUrl
-			a.download = filename
-			document.body.appendChild(a)
-			a.click()
-			document.body.removeChild(a)
-			setDoneGenerating(true)
-		}
-	} catch (err) {
-		console.error("Error generando PDF:", err)
-		alert(`Error al generar PDF\n\n${formatDetailedError(err)}`)
-		setDoneGenerating(false)
-	} finally {
-		setGenerating(false)
-	}
+            // Generar blob y descargar automáticamente
+            const blob = await worker.output("blob")
+            const blobUrl = URL.createObjectURL(blob)
+            const filename = "reporte_cursos.pdf"
+            setReportFilename(filename)
+            setReportContent(blobUrl)
+            // Auto-descarga
+            const a = document.createElement('a')
+            a.href = blobUrl
+            a.download = filename
+            document.body.appendChild(a)
+            a.click()
+            document.body.removeChild(a)
+            setDoneGenerating(true)
+        }
+    } catch (err) {
+        console.error("Error generando PDF:", err)
+		Swal.fire({
+          icon:"error",
+          title:"Error al generar PDF",
+          text:`Error al generar PDF\n\n${formatDetailedError(err)}`,
+          confirmButtonText:"Okay",
+          theme:"bulma",
+          customClass:{
+        confirmButton: 'button is-primary',
+        actions: 'swal2-actions-centered'
+                }
+              })
+        setDoneGenerating(false)
+    } finally {
+        setGenerating(false)
+    }
 };
 
 	// Contador de filtros activos

@@ -96,13 +96,18 @@ export const SupportMaterial = () => {
 	
 	const handleEliminarArchivo = (archivoId) => {
 		Swal.fire({
-			...swalConfig,
 			title: '¿Estás seguro?',
 			text: "¿Quieres eliminar este archivo? Esta acción no se puede deshacer.",
 			icon: 'warning',
 			showCancelButton: true,
 			confirmButtonText: 'Sí, eliminar',
-			cancelButtonText: 'Cancelar'
+			confirmButtonColor:"#006f33",
+			cancelButtonText: 'Cancelar',
+			cancelButtonColor:"#c63223",
+			theme:"bulma",
+			customClass:{
+        actions: 'swal2-actions-centered'
+			}
 		}).then((result) => {
 			if (result.isConfirmed) {
 				eliminarMaterial(archivoId)

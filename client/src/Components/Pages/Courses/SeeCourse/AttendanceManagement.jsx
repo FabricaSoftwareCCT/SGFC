@@ -230,10 +230,15 @@ export const AttendanceManagement = ({ open, onClose, courseId, selectedDate }) 
             setShowOptions(true);
 
             await Swal.fire({
-                ...swalConfig,
                 icon: 'success',
                 title: 'Asistencias registradas',
-                text: 'Asistencias registradas exitosamente'
+                text: 'Asistencias registradas exitosamente',
+                confirmButtonColor:"#00843d",
+                theme: 'bulma',
+        customClass: {
+            actions: 'swal2-center-actions',
+            confirmButton: 'swal2-confirm-bulma'
+        },
             });
 
         } catch (error) {

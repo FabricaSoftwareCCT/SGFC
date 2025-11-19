@@ -871,7 +871,10 @@ export const ActivityDetail = () => {
 									<div className="deliveries-table__cell">
 										{submission ? (
 											<div className="deliveries-table__file">
-												<span className="deliveries-table__file-name">
+												<span
+													className="deliveries-table__file-name"
+													title={fileLabel}
+												>
 													{fileLabel}
 												</span>
 												{formattedSize && (

@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import "./Modal_Inscripcion.css";
 import axiosInstance from '../../../config/axiosInstance';
+import Swal from 'sweetalert2';
+import 'sweetalert2/themes/bulma.css'
 
-export const Modal_Inscripcion = ({ onClose, onCursosSeleccionados }) => {
+export const Modal_Inscripcion = ({ onClose, onCursosSeleccionados, id }) => {
   const [cursosDisponibles, setCursosDisponibles] = useState([]);
   const [cursoSeleccionado, setCursoSeleccionado] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -21,11 +23,17 @@ export const Modal_Inscripcion = ({ onClose, onCursosSeleccionados }) => {
     const cargarCursosDisponibles = async () => {
       setLoading(true);
       try {
-        const userSession = JSON.parse(userSessionString);
-        const empresaId = userSession.empresa_ID;
-        const cursosRes = await axiosInstance.get(`/api/courses/empresa/${empresaId}`); 
-        const cursosData = Array.isArray(cursosRes.data) ? cursosRes.data : cursosRes.data.cursos || [];
-        setCursosDisponibles(cursosData);
+        if(id){
+          const cursosRes = await axiosInstance.get(`/api/courses/empresa/${id.ID}`); 
+          const cursosData = Array.isArray(cursosRes.data) ? cursosRes.data : cursosRes.data.cursos || [];
+          setCursosDisponibles(cursosData);   
+        } else {
+          const userSession = JSON.parse(userSessionString);
+          const empresaId = userSession.empresa_ID;
+          const cursosRes = await axiosInstance.get(`/api/courses/empresa/${empresaId}`); 
+          const cursosData = Array.isArray(cursosRes.data) ? cursosRes.data : cursosRes.data.cursos || [];
+          setCursosDisponibles(cursosData);
+        }
       } catch (error) {
         console.error('Error al cargar cursos:', error);
         setCursosDisponibles([]);
@@ -45,7 +53,17 @@ export const Modal_Inscripcion = ({ onClose, onCursosSeleccionados }) => {
     e.preventDefault();
     
     if (!cursoSeleccionado) {
-      alert('Por favor selecciona un curso');
+Swal.fire({
+    icon: "info",
+    title: "Elige un curso",
+    text: "Por favor selecciona un curso",
+    confirmButtonText: "Okay",
+    theme:"bulma",
+    customClass: {
+        actions: 'swal2-actions-centered',
+        popup: 'swal2-popup-centered'
+    }
+})
       return;
     }
 
@@ -58,12 +76,34 @@ export const Modal_Inscripcion = ({ onClose, onCursosSeleccionados }) => {
         onCursosSeleccionados([cursoCompleto]);
       }
       
-      alert(`Curso "${cursoCompleto?.nombre_curso}" seleccionado correctamente`);
+await Swal.fire({
+    icon: 'success',
+    title: 'Curso seleccionado',
+    text: `Curso "${cursoCompleto?.nombre_curso}" seleccionado correctamente`,
+    confirmButtonText: 'Aceptar',
+    confirmButtonColor: '#006f33',
+    theme: "bulma",
+    customClass: {
+        actions: 'swal2-actions-centered',
+        popup: 'swal2-popup-centered'
+    }
+});
       onClose();
       
     } catch (error) {
       console.error("Error al procesar el curso:", error);
-      alert("Hubo un error al procesar la selección del curso");
+await Swal.fire({
+    icon: 'error',
+    title: 'Error',
+    text: 'Hubo un error al procesar la selección del curso',
+    confirmButtonText: 'Entendido',
+    confirmButtonColor: '#d33',
+    theme: "bulma",
+    customClass: {
+        actions: 'swal2-actions-centered',
+        popup: 'swal2-popup-centered'
+    }
+});
     }
   };
 

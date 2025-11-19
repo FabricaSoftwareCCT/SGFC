@@ -6,85 +6,54 @@ import { Main } from "../../../Components/Layouts/Main/Main";
 import { UpdateInstructor } from "./UpdateInstructor/UpdateInstructor";
 import axiosInstance from "../../../config/axiosInstance";
 import Swal from 'sweetalert2';
-import 'sweetalert2/themes/bulma.css'
-// import { useNavigate } from "react-router-dom";
+import 'sweetalert2/themes/bulma.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faUserPlus, faChartLine, faCheck, faUsers, faSearch, faFolderOpen, faIdCard, faPhone, faEnvelope } from '@fortawesome/free-solid-svg-icons';
 
 export const GestionsInstructor = () => {
-  const [instructors, setInstructors] = useState([]); // Estado para almacenar los instructores
-  const [filteredInstructors, setFilteredInstructors] = useState([]); // Estado para los instructores filtrados
-  const [filter, setFilter] = useState(""); // Estado para el valor del filtro
-  const [current, setCurrent] = useState(0); // Estado para el carrusel
+  const [instructors, setInstructors] = useState([]);
+  const [filteredInstructors, setFilteredInstructors] = useState([]);
+  const [filter, setFilter] = useState("");
+  const [current, setCurrent] = useState(0);
   const [selectedState, setSelectedState] = useState({
     activo: true,
     inactivo: true,
   });
-  const [selectedInstructor, setSelectedInstructor] = useState(null); // Estado para el instructor seleccionado
+  const [selectedInstructor, setSelectedInstructor] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-
-  // Validación de sesión de usuario y rol de administrador
-  // const userSessionString = sessionStorage.getItem("userSession");
-  // const userSession = userSessionString ? JSON.parse(userSessionString) : null;
-
-  const showModalSeeProfile = (instructor) => {
-    setSelectedInstructor(instructor);
-  };
-
-
-  // Función para obtener los instructores desde el backend
   const fetchInstructors = async () => {
+    setLoading(true);
     try {
       const response = await axiosInstance.get('/api/users/instructores');
-      setInstructors(response.data); // Guardar los datos en el estado
-      setFilteredInstructors(response.data); // Inicialmente, los instructores filtrados son todos
+      setInstructors(response.data);
+      setFilteredInstructors(response.data);
     } catch (error) {
       console.error('Error al obtener los instructores:', error);
       Swal.fire({
-        icon :"error",
-        title:"Error en el sistema",
-        text:"Hubo un problema al cargar los instructores. Por favor, inténtalo más tarde.",
-        confirmButtonText:"Okay",
-              theme:"bulma",
-      customClass: { confirmButton: 'centered-swal-button' }
-      })
+        icon: "error",
+        title: "Error en el sistema",
+        text: "Hubo un problema al cargar los instructores. Por favor, inténtalo más tarde.",
+        confirmButtonText: "Okay",
+        theme: "bulma",
+        customClass: { confirmButton: 'centered-swal-button' }
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Llamar a la función al cargar el componente
   useEffect(() => {
     fetchInstructors();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     applyFilters();
   }, [selectedState, filter, instructors]);
 
-  // Función para manejar el cambio en el input de filtro
   const handleFilterChange = (e) => {
     const value = e.target.value.toLowerCase();
     setFilter(value);
-
-    // Filtrar los instructores según el nombre, apellidos o cédula
-    const filtered = instructors.filter((instructor) =>
-      instructor.nombres.toLowerCase().includes(value) ||
-      instructor.apellidos.toLowerCase().includes(value) ||
-      instructor.documento.toLowerCase().includes(value)
-    );
-
-    // Aplicar también el filtro de estado
-    const filteredByState = filtered.filter((instructor) => {
-      if (selectedState.activo && instructor.estado.toLowerCase() === 'activo') {
-        return true;
-      }
-      if (selectedState.inactivo && instructor.estado.toLowerCase() === 'inactivo') {
-        return true;
-      }
-      return false;
-    });
-
-    setFilteredInstructors(filteredByState);
-    setCurrent(0); // Reiniciar el índice del carrusel
   };
 
   const applyFilters = () => {
@@ -109,180 +78,285 @@ export const GestionsInstructor = () => {
     setCurrent(0);
   };
 
+  const next = () => {
+    if (filteredInstructors.length > 1) {
+      setCurrent((prev) => (prev + 1) % filteredInstructors.length);
+    }
+  };
 
-
-  const next = () => setCurrent((prev) => (prev + 1) % filteredInstructors.length);
-  const prev = () => setCurrent((prev) => (prev - 1 + filteredInstructors.length) % filteredInstructors.length);
+  const prev = () => {
+    if (filteredInstructors.length > 1) {
+      setCurrent((prev) => (prev - 1 + filteredInstructors.length) % filteredInstructors.length);
+    }
+  };
 
   const showModalCreateInstructor = () => {
     const modalCreateInstructor = document.getElementById("modal-overlayCreateInstructor");
     if (modalCreateInstructor) {
-      modalCreateInstructor.style.display = "flex"; // Cambia el display a flex para mostrar el modal
+      modalCreateInstructor.style.display = "flex";
     }
   };
 
-  const getImageSrcFromBase64 = (base64) => {
-    if (!base64) return 'default-profile.png'; // Ruta a imagen por defecto
+  const showModalSeeProfile = (instructor) => {
+    setSelectedInstructor(instructor);
+  };
 
-    // Detectar tipo MIME por encabezado base64
+  const getImageSrcFromBase64 = (base64) => {
+    if (!base64) return '/default-profile.png';
     if (base64.startsWith('iVBOR')) {
       return `data:image/png;base64,${base64}`;
     } else if (base64.startsWith('/9j/')) {
       return `data:image/jpeg;base64,${base64}`;
     } else {
-      // Si no puedes detectar, asume jpeg por defecto
       return `data:image/jpeg;base64,${base64}`;
     }
   };
+
+  const getVisibleInstructors = () => {
+    if (filteredInstructors.length === 0) return [];
+    if (filteredInstructors.length === 1) return [filteredInstructors[0]];
+    
+    const visible = [];
+    for (let i = 0; i < Math.min(3, filteredInstructors.length); i++) {
+      const index = (current + i) % filteredInstructors.length;
+      visible.push(filteredInstructors[index]);
+    }
+    return visible;
+  };
+
+  const visibleInstructors = getVisibleInstructors();
+  const centerInstructor = filteredInstructors.length > 0 ? 
+    filteredInstructors[(current + 1) % filteredInstructors.length] : null;
 
   return (
     <>
       <Header />
       <Main>
-        <div className="container_GestionsInstructor">
-          <h2>
-            Mis <span className="complementary">Instructores</span>
-          </h2>
-
-          <div className="containerGestionsInstructorOptions">
-            <div className="containerConsultInstructor">
-              <p>Filtrar por:</p>
-              <div className="containerFiltersInstructor">
-                <label htmlFor="inputNameCC">Nombre o Cédula</label>
-                <div className="inputSearchContainer">
-                  <input
-                    type="text"
-                    id="inputNameCC"
-                    placeholder="Escriba el nombre o la cédula"
-                    value={filter}
-                    onChange={handleFilterChange} // Manejar el cambio en el input
-                  />
-                </div>
-
-                <label>Estado</label>
-                <div className="statusButtons">
-                  <button
-                    className={`inactive ${selectedState.inactivo ? 'selected' : ''}`}
-                    onClick={() => {
-                      setSelectedState((prevState) => ({
-                        ...prevState,
-                        inactivo: !prevState.inactivo,
-                      }));
-                    }}
-                  >
-                    Inactivos
-                  </button>
-                  <button
-                    className={`active ${selectedState.activo ? 'selected' : ''}`}
-                    onClick={() => {
-                      setSelectedState((prevState) => ({
-                        ...prevState,
-                        activo: !prevState.activo,
-                      }));
-                    }}
-                  >
-                    Activos
-                  </button>
+        <div className="gestion-instructors-container">
+          {/* Header */}
+          <div className="instructors-header-improved">
+            <div className="header-content-improved">
+              <h1>Gestión de <span>Instructores</span></h1>
+              <div className="header-stats-improved">
+                <div className="stat-item-improved">
+                  <span className="stat-number">{filteredInstructors.length}</span>
+                  <span className="stat-label">
+                    {selectedState.activo && !selectedState.inactivo ? 'Activos' : 
+                     !selectedState.activo && selectedState.inactivo ? 'Inactivos' : 'Filtrados'}
+                  </span>
                 </div>
               </div>
-              <button className="btn_createInstructor" onClick={showModalCreateInstructor}>Agregar Instructor</button>
+            </div>
+          </div>
 
+          {/* Layout Principal */}
+          <div className="main-content-improved">
+            {/* Columna Izquierda - Carrusel */}
+            <div className="carousel-section-improved">
+              <div className="carousel-panel-improved">
+                {loading ? (
+                  <div className="loading-state-improved">
+                    <div className="loading-spinner-improved"></div>
+                    <p>Cargando instructores...</p>
+                  </div>
+                ) : filteredInstructors.length > 0 ? (
+                  <div className="carousel-content-improved">
+                    {/* Navegación del Carrusel */}
+                    <div className="carousel-navigation">
+                      {filteredInstructors.length > 1 && (
+                        <>
+                          <button className="carousel-arrow-improved left" onClick={prev}>
+                            ❮
+                          </button>
+                          <button className="carousel-arrow-improved right" onClick={next}>
+                            ❯
+                          </button>
+                        </>
+                      )}
+                    </div>
+
+                    {/* Carrusel de Instructores */}
+                    <div className="carousel-track-improved">
+                      {visibleInstructors.map((instructor, index) => {
+                        const isCenter = filteredInstructors.length === 1 ? true : 
+                                       filteredInstructors.length === 2 ? index === 0 : index === 1;
+                        const positionClass = isCenter ? 'card-center-improved' : 'card-side-improved';
+                        
+                        return (
+                          <div className={`instructor-card-improved ${positionClass}`} key={instructor.ID || index}>
+                            <div className="instructor-image-container">
+                              <img
+                                src={getImageSrcFromBase64(instructor?.foto_perfil)}
+                                alt={`${instructor.nombres} ${instructor.apellidos}`}
+                                className="instructor-image-improved"
+                                onError={(e) => {
+                                  e.target.src = '/default-profile.png';
+                                }}
+                              />
+                              <div className={`status-badge ${instructor?.estado?.toLowerCase()}`}>
+                                {instructor?.estado}
+                              </div>
+                            </div>
+                            {isCenter && (
+                              <div className="instructor-mini-info">
+                                <h4>{instructor.nombres} {instructor.apellidos}</h4>
+                                <p>{instructor.titulo_profesional}</p>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {/* Información Detallada del Instructor Central */}
+                    {centerInstructor && (
+                      <div className="instructor-info-improved">
+                        <div className="instructor-details-card">
+                          <h3>{centerInstructor.nombres} {centerInstructor.apellidos}</h3>
+                          <p className="instructor-title">{centerInstructor.titulo_profesional}</p>
+                          
+                          <div className="instructor-contact-info">
+                            <div className="contact-item">
+                              <FontAwesomeIcon icon={faIdCard} />
+                              <span>Cédula: {centerInstructor.documento}</span>
+                            </div>
+                            <div className="contact-item">
+                              <FontAwesomeIcon icon={faPhone} />
+                              <span>Celular: {centerInstructor.celular}</span>
+                            </div>
+                            <div className="contact-item">
+                              <FontAwesomeIcon icon={faEnvelope} />
+                              <span>Email: {centerInstructor.email}</span>
+                            </div>
+                          </div>
+
+                          <button
+                            className="view-profile-btn-improved"
+                            onClick={() => showModalSeeProfile(centerInstructor)}
+                          >
+                            Ver Perfil Completo
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Indicador de Posición */}
+                    {filteredInstructors.length > 1 && (
+                      <div className="carousel-indicator-improved">
+                        <span className="current-position">
+                          {current + 1} de {filteredInstructors.length}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="no-instructors-improved">
+                    <div className="no-instructors-icon">
+                      <FontAwesomeIcon icon={faFolderOpen} />
+                    </div>
+                    <h3>No se encontraron instructores</h3>
+                    <p>No hay instructores disponibles con los filtros seleccionados</p>
+                    <button
+                      className="reset-filters-btn-improved"
+                      onClick={() => {
+                        setFilter("");
+                        setSelectedState({ activo: true, inactivo: true });
+                      }}
+                    >
+                      Mostrar todos los instructores
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
 
-            <div className="containerGestionsInstructorResults">
-
-              {/* Mostrar flecha izquierda solo si hay más de un resultado */}
-              {filteredInstructors.length > 1 && (
-                <button className="arrow-results left" onClick={prev}>❮</button>
-              )}
-
-              <div className="carousel-container_2-results">
-                <div className="carousel-track-results">
-                  {filteredInstructors.length === 0 ? (
-                    // Mostrar mensaje si no hay resultados
-                    <p className="no-results">No hay resultados</p>
-                  ) : (
-                    // Mostrar una carta si hay un solo resultado
-                    filteredInstructors.length === 1 ? (
-                      <div className="carousel-card-results card-center">
-                        <img
-                          src={getImageSrcFromBase64(filteredInstructors[0]?.foto_perfil)}
-                          alt="Instructor"
-                          className="carousel-image-results"
-                        />
-                      </div>
-                    ) : (
-                      // Mostrar una carta centrada con flechas si hay dos resultados
-                      filteredInstructors.length === 2 ? (
-                        [0].map((offset) => {
-                          const index = (current + offset) % filteredInstructors.length;
-                          const instructor = filteredInstructors[index];
-
-                          return (
-                            <div className="carousel-card-results card-center" key={index}>
-                              <img
-                                src={getImageSrcFromBase64(instructor?.foto_perfil)}
-                                alt="Instructor"
-                                className="carousel-image-results"
-                              />
-                            </div>
-                          );
-                        })
-                      ) : (
-                        // Mostrar tres cartas si hay tres o más resultados
-                        [0, 1, 2].map((offset) => {
-                          const index = (current + offset) % filteredInstructors.length;
-                          const instructor = filteredInstructors[index];
-
-                          let positionClass = '';
-                          if (offset === 1) {
-                            positionClass = 'card-center';
-                          } else {
-                            positionClass = 'card-side';
-                          }
-
-                          return (
-                            <div className={`carousel-card-results ${positionClass}`} key={index}>
-                              <img
-                                src={getImageSrcFromBase64(instructor?.foto_perfil)}
-                                alt="Instructor"
-                                className="carousel-image-results"
-                              />
-                            </div>
-                          );
-                        })
-                      )
-                    )
-                  )}
+            {/* Columna Derecha - Panel de Control */}
+            <div className="control-panel-improved">
+              {/* Filtros y Búsqueda */}
+              <div className="filters-card-improved">
+                <h3>Filtros y Búsqueda</h3>
+                
+                <div className="search-container-improved">
+                  <div className="input-search-improved">
+                    <FontAwesomeIcon icon={faSearch} className="search-icon" />
+                    <input
+                      type="text"
+                      placeholder="Buscar instructor..."
+                      value={filter}
+                      onChange={handleFilterChange}
+                      className="search-input"
+                    />
+                  </div>
                 </div>
 
-                {/* Mostrar información del instructor actual (centrado) */}
-                {filteredInstructors.length > 0 && (() => {
-                  const centerIndex = (current + 1) % filteredInstructors.length;
-                  const currentInstructor = filteredInstructors[centerIndex];
-                  return (
-                    <div className="instructor-info">
-                      <h3>{currentInstructor?.nombres} {currentInstructor?.apellidos}</h3>
-                      <p>{currentInstructor?.titulo_profesional}</p>
-                      <button
-                        className="profile-btn"
-                        onClick={() => showModalSeeProfile(currentInstructor)}
-                      >
-                        Ver perfil
-                      </button>
-                    </div>
-                  );
-                })()}
+                <div className="filters-group">
+                  <label>Estado del Instructor</label>
+                  <div className="status-filters-improved">
+                    <button
+                      className={`status-filter-btn ${selectedState.activo ? 'active' : ''}`}
+                      onClick={() => setSelectedState(prev => ({ ...prev, activo: !prev.activo }))}
+                    >
+                      <span className="status-indicator active"></span>
+                      Activos
+                    </button>
+                    <button
+                      className={`status-filter-btn ${selectedState.inactivo ? 'active' : ''}`}
+                      onClick={() => setSelectedState(prev => ({ ...prev, inactivo: !prev.inactivo }))}
+                    >
+                      <span className="status-indicator inactive"></span>
+                      Inactivos
+                    </button>
+                  </div>
+                </div>
+
+                <button className="create-instructor-btn-improved" onClick={showModalCreateInstructor}>
+                  <FontAwesomeIcon icon={faUserPlus} />
+                  <span>Agregar Instructor</span>
+                </button>
               </div>
 
-              {/* Mostrar flecha derecha solo si hay más de un resultado */}
-              {filteredInstructors.length > 1 && (
-                <button className="arrow-results right" onClick={next}>❯</button>
-              )}
+              {/* Estadísticas */}
+              <div className="stats-card-improved">
+                <h3>Estadísticas</h3>
+                <div className="stats-grid-improved">
+                  <div className="stat-card-improved">
+                    <div className="stat-icon">
+                      <FontAwesomeIcon icon={faUsers} />
+                    </div>
+                    <div className="stat-content">
+                      <span className="stat-value">{instructors.length}</span>
+                      <span className="stat-label">Total Instructores</span>
+                    </div>
+                  </div>
+                  <div className="stat-card-improved">
+                    <div className="stat-icon">
+                      <FontAwesomeIcon icon={faCheck} />
+                    </div>
+                    <div className="stat-content">
+                      <span className="stat-value">
+                        {instructors.filter(i => i.estado?.toLowerCase() === 'activo').length}
+                      </span>
+                      <span className="stat-label">Activos</span>
+                    </div>
+                  </div>
+                  <div className="stat-card-improved">
+                    <div className="stat-icon">
+                      <FontAwesomeIcon icon={faChartLine} />
+                    </div>
+                    <div className="stat-content">
+                      <span className="stat-value">
+                        {instructors.filter(i => i.estado?.toLowerCase() === 'inactivo').length}
+                      </span>
+                      <span className="stat-label">Inactivos</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </Main>
+
       {selectedInstructor && (
         <UpdateInstructor
           instructor={selectedInstructor}
@@ -293,5 +367,4 @@ export const GestionsInstructor = () => {
       <Footer />
     </>
   );
-
 };

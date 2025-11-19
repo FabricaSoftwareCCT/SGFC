@@ -1,5 +1,7 @@
 import * as xlsx from "xlsx"
 import axiosInstance from "../../config/axiosInstance"
+import Swal from 'sweetalert2';
+import 'sweetalert2/themes/bulma.css'
 
 export const generarExcelHistorial = async (aprentices, curso, id, done) => {
 	try {
@@ -28,7 +30,17 @@ export const generarExcelHistorial = async (aprentices, curso, id, done) => {
 		done()
 	} catch (error) {
 		console.log(error)
-		alert("Ocurrió un error al general el excel")
+        Swal.fire({
+          icon:"error",
+          title:"Error del sistema",
+          text:"Ocurrió un error al general el excel",
+          confirmButtonText:"Okay",
+          theme:"bulma",
+          customClass:{
+        confirmButton: 'button is-primary',
+        actions: 'swal2-actions-centered'
+                }
+              })
 	}
 }
 
@@ -50,6 +62,16 @@ export const generarExcelCriterios = async (id, curso, done) => {
 		done()
 	} catch (error) {
 		console.log(error)
-		alert("Ocurrió un error al general el excel")
+		Swal.fire({
+          icon:"error",
+          title:"Error del sistema",
+          text:"Ocurrió un error al general el excel",
+          confirmButtonText:"Okay",
+          theme:"bulma",
+          customClass:{
+        confirmButton: 'button is-primary',
+        actions: 'swal2-actions-centered'
+                }
+              })
 	}
 }

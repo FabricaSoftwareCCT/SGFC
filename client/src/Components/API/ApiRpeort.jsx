@@ -37,6 +37,15 @@ export const getCursos = async (page) => {
 	
 }
 
+export const getIdCurso = async (id) => {
+    const res = await fetch(`http://localhost:3001/api/courses/cursos/${id}`, {
+        method : "GET",
+        credentials : "include"
+    })
+    const data = await res.json()
+    return data
+}
+
 export const getAllInscripciones = async (page) =>{
 	const res = await fetch(`http://localhost:3001/api/courses/getAllInscripciones/${page}`,{
 		method : "GET",

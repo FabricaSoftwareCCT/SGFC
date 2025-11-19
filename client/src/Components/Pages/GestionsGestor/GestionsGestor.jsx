@@ -6,38 +6,28 @@ import { Main } from "../../Layouts/Main/Main";
 import { UpdateGestor } from "./UpdateGestor/UpdateGestor";
 import axiosInstance from "../../../config/axiosInstance";
 import Swal from 'sweetalert2';
-import 'sweetalert2/themes/bulma.css'
-// import { useNavigate } from "react-router-dom";
+import 'sweetalert2/themes/bulma.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faUserPlus, faChartLine, faCheck, faUsers, faSearch, faFolderOpen, faIdCard, faPhone, faEnvelope } from '@fortawesome/free-solid-svg-icons';
 
 export const GestionsGestor = () => {
-  // const navigate = useNavigate();
-  const [gestores, setGestores] = useState([]); // Estado para almacenar los gestores
-  const [filteredGestors, setfilteredGestorses] = useState([]); // Estado para los gestores filtrados
-  const [filter, setFilter] = useState(""); // Estado para el valor del filtro
-  const [current, setCurrent] = useState(0); // Estado para el carrusel
+  const [gestores, setGestores] = useState([]);
+  const [filteredGestors, setfilteredGestorses] = useState([]);
+  const [filter, setFilter] = useState("");
+  const [current, setCurrent] = useState(0);
   const [selectedState, setSelectedState] = useState({
     activo: true,
     inactivo: true,
   });
+  const [selectedGestor, setSelectedGestor] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // Validación de sesión de usuario y rol de administrador
-  // const userSessionString = sessionStorage.getItem("userSession");
-  // const userSession = userSessionString ? JSON.parse(userSessionString) : null;
-
-  const [selectedGestor, setSelectedGestor] = useState(null); // Estado para el instructor seleccionado
-
-  const showModalSeeProfile = (gestor) => {
-    setSelectedGestor(gestor);
-  };
-
-
-
-  // Función para obtener los gestores desde el backend
   const fetchGestor = async () => {
+    setLoading(true);
     try {
       const response = await axiosInstance.get('/api/users/gestores');
-      setGestores(response.data); // Guardar los datos en el estado
-      setfilteredGestorses(response.data); // Inicialmente, los gestores filtrados son todos
+      setGestores(response.data);
+      setfilteredGestorses(response.data);
     } catch (error) {
       console.error('Error al obtener los Gestores:', error);
       Swal.fire({
@@ -46,24 +36,22 @@ export const GestionsGestor = () => {
         text: 'Hubo un problema al cargar los Gestores. Por favor, inténtalo más tarde.',
         confirmButtonText: 'Entendido',
         confirmButtonColor: '#00a144',
-                      theme:"bulma",
-      customClass: { confirmButton: 'centered-swal-button' }
+        theme: "bulma",
+        customClass: { confirmButton: 'centered-swal-button' }
       });
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Llamar a la función al cargar el componente
   useEffect(() => {
     fetchGestor();
   }, []);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     applyFilters();
   }, [selectedState, filter, gestores]);
 
-
-  // Función para manejar el cambio en el input de filtro
   const handleFilterChange = (e) => {
     const value = e.target.value.toLowerCase();
     setFilter(value);
@@ -91,185 +79,293 @@ export const GestionsGestor = () => {
     setCurrent(0);
   };
 
-  const next = () => setCurrent((prev) => (prev + 1) % filteredGestors.length);
-  const prev = () => setCurrent((prev) => (prev - 1 + filteredGestors.length) % filteredGestors.length);
+  const next = () => {
+    if (filteredGestors.length > 1) {
+      setCurrent((prev) => (prev + 1) % filteredGestors.length);
+    }
+  };
+
+  const prev = () => {
+    if (filteredGestors.length > 1) {
+      setCurrent((prev) => (prev - 1 + filteredGestors.length) % filteredGestors.length);
+    }
+  };
 
   const showModalCreateGestor = () => {
     const modalCreateGestor = document.getElementById("modal-overlayCreateGestor");
     if (modalCreateGestor) {
-      modalCreateGestor.style.display = "flex"; // Cambia el display a flex para mostrar el modal
+      modalCreateGestor.style.display = "flex";
     }
   };
 
-   const getImageSrcFromBase64 = (base64) => {
-  if (!base64) return 'default-profile.png'; // Ruta a imagen por defecto
+  const showModalSeeProfile = (gestor) => {
+    setSelectedGestor(gestor);
+  };
 
-  // Detectar tipo MIME por encabezado base64
-  if (base64.startsWith('iVBOR')) {
-    return `data:image/png;base64,${base64}`;
-  } else if (base64.startsWith('/9j/')) {
-    return `data:image/jpeg;base64,${base64}`;
-  } else {
-    // Si no puedes detectar, asume jpeg por defecto
-    return `data:image/jpeg;base64,${base64}`;
-  }
-};
+  const getImageSrcFromBase64 = (base64) => {
+    if (!base64) return '/default-profile.png';
+    if (base64.startsWith('iVBOR')) {
+      return `data:image/png;base64,${base64}`;
+    } else if (base64.startsWith('/9j/')) {
+      return `data:image/jpeg;base64,${base64}`;
+    } else {
+      return `data:image/jpeg;base64,${base64}`;
+    }
+  };
 
-    return (
-      <> <Header />
-        <Main>
-          <div className="container_GestionsGestor">
-            <h2>
-              Mis <span className="complementary">Gestores</span>
-            </h2>
+  const getVisibleGestores = () => {
+    if (filteredGestors.length === 0) return [];
+    if (filteredGestors.length === 1) return [filteredGestors[0]];
+    
+    const visible = [];
+    for (let i = 0; i < Math.min(3, filteredGestors.length); i++) {
+      const index = (current + i) % filteredGestors.length;
+      visible.push(filteredGestors[index]);
+    }
+    return visible;
+  };
 
-            <div className="containerGestionsGestorOptions">
-              <div className="containerConsultGestor">
-                <p>Filtrar por:</p>
-                <div className="containerFiltersGestor">
-                  <label htmlFor="inputNameCC">Nombre o Cédula</label>
-                  <div className="inputSearchContainer">
-                    <input
-                      type="text"
-                      id="inputNameCC"
-                      placeholder="Escriba el nombre o la cédula"
-                      value={filter}
-                      onChange={handleFilterChange} // Manejar el cambio en el input
-                    />
-                  </div>
+  const visibleGestores = getVisibleGestores();
+  const centerGestor = filteredGestors.length > 0 ? 
+    filteredGestors[(current + 1) % filteredGestors.length] : null;
 
-                  <label>Estado</label>
-                  <div className="statusButtons">
-                    <button
-                      className={`inactive ${selectedState.inactivo ? 'selected' : ''}`}
-                      onClick={() => {
-                        setSelectedState((prevState) => ({
-                          ...prevState,
-                          inactivo: !prevState.inactivo,
-                        }));
-                      }}
-                    >
-                      Inactivos
-                    </button>
-                    <button
-                      className={`active ${selectedState.activo ? 'selected' : ''}`}
-                      onClick={() => {
-                        setSelectedState((prevState) => ({
-                          ...prevState,
-                          activo: !prevState.activo,
-                        }));
-                      }}
-                    >
-                      Activos
-                    </button>
-                  </div>
+  return (
+    <>
+      <Header />
+      <Main>
+        <div className="gestion-gestores-container">
+          {/* Header */}
+          <div className="gestores-header-improved">
+            <div className="header-content-improved">
+              <h1>Gestión de <span>Gestores</span></h1>
+              <div className="header-stats-improved">
+                <div className="stat-item-improved">
+                  <span className="stat-number">{filteredGestors.length}</span>
+                  <span className="stat-label">
+                    {selectedState.activo && !selectedState.inactivo ? 'Activos' : 
+                     !selectedState.activo && selectedState.inactivo ? 'Inactivos' : 'Filtrados'}
+                  </span>
                 </div>
-                <button className="btn_createGestor" onClick={showModalCreateGestor}>Agregar Gestor</button>
-
-              </div>
-
-              <div className="containerGestionsGestorResults">
-                {/* Mostrar flecha izquierda solo si hay más de un resultado */}
-                {filteredGestors.length > 1 && (
-                  <button className="arrow-results left" onClick={prev}>❮</button>
-                )}
-
-              <div className="carousel-container_2-results">
-                <div className="carousel-track-results">
-                  {filteredGestors.length === 0 ? (
-                    // Mostrar mensaje si no hay resultados
-                    <p className="no-results">No hay resultados</p>
-                  ) : (
-                    // Mostrar una carta si hay un solo resultado
-                    filteredGestors.length === 1 ? (
-                      <div className="carousel-card-results card-center">
-                        <img
-                          src={getImageSrcFromBase64(filteredGestors[0]?.foto_perfil)}
-                          alt="gestor"
-                          className="carousel-image-results"
-                        />
-                      </div>
-                    ) : (
-                      // Mostrar una carta centrada con flechas si hay dos resultados
-                      filteredGestors.length === 2 ? (
-                        [0].map((offset) => {
-                          const index = (current + offset) % filteredGestors.length;
-                          const gestor = filteredGestors[index];
-
-                          return (
-                            <div className="carousel-card-results card-center" key={index}>
-                              <img
-                                src={getImageSrcFromBase64(gestor?.foto_perfil)}
-                                alt="gestor"
-                                className="carousel-image-results"
-                              />                 
-                            </div>
-                          );
-                        })
-                      ) : (
-                        // Mostrar tres cartas si hay tres o más resultados
-                        [0, 1, 2].map((offset) => {
-                          const index = (current + offset) % filteredGestors.length;
-                          const gestor = filteredGestors[index];
-
-                          let positionClass = '';
-                          if (offset === 1) {
-                            positionClass = 'card-center';
-                          } else {
-                            positionClass = 'card-side';
-                          }
-
-                          return (
-                            <div className={`carousel-card-results ${positionClass}`} key={index}>
-                              <img
-                                src={getImageSrcFromBase64(gestor?.foto_perfil)}
-                                alt="gestor"
-                                className="carousel-image-results"
-                              />
-                            </div>
-                          );
-                        })
-                      )
-                    )
-                  )}
-                </div>
-
-                {/* Mostrar información del gestor actual (centrado) */}
-                {filteredGestors.length > 0 && (() => {
-                  const centerIndex = (current + 1) % filteredGestors.length;
-                  const currentGestor = filteredGestors[centerIndex];
-                  return (
-                    <div className="instructor-info">
-                      <h3>{currentGestor?.nombres} {currentGestor?.apellidos}</h3>
-                      <p>{currentGestor?.titulo_profesional}</p>
-                      <button
-                        className="profile-btn"
-                        onClick={() => showModalSeeProfile(currentGestor)}
-                      >
-                        Ver perfil
-                      </button>
-                    </div>
-                  );
-                })()}
-              </div>
-
-
-                {/* Mostrar flecha derecha solo si hay más de un resultado */}
-                {filteredGestors.length > 1 && (
-                  <button className="arrow-results right" onClick={next}>❯</button>
-                )}
               </div>
             </div>
           </div>
-        </Main>
-        {selectedGestor && (
-          <UpdateGestor
-            gestor={selectedGestor}
-            onClose={() => setSelectedGestor(null)}
-          />
-        )}
-        <Footer />
-      </>
-    );
-  }
-  
+
+          {/* Layout Principal */}
+          <div className="main-content-improved">
+            {/* Columna Izquierda - Carrusel */}
+            <div className="carousel-section-improved">
+              <div className="carousel-panel-improved">
+                {loading ? (
+                  <div className="loading-state-improved">
+                    <div className="loading-spinner-improved"></div>
+                    <p>Cargando gestores...</p>
+                  </div>
+                ) : filteredGestors.length > 0 ? (
+                  <div className="carousel-content-improved">
+                    {/* Navegación del Carrusel */}
+                    <div className="carousel-navigation">
+                      {filteredGestors.length > 1 && (
+                        <>
+                          <button className="carousel-arrow-improved left" onClick={prev}>
+                            ❮
+                          </button>
+                          <button className="carousel-arrow-improved right" onClick={next}>
+                            ❯
+                          </button>
+                        </>
+                      )}
+                    </div>
+
+                    {/* Carrusel de Gestores */}
+                    <div className="carousel-track-improved">
+                      {visibleGestores.map((gestor, index) => {
+                        const isCenter = filteredGestors.length === 1 ? true : 
+                                       filteredGestors.length === 2 ? index === 0 : index === 1;
+                        const positionClass = isCenter ? 'card-center-improved' : 'card-side-improved';
+                        
+                        return (
+                          <div className={`gestor-card-improved ${positionClass}`} key={gestor.ID || index}>
+                            <div className="gestor-image-container">
+                              <img
+                                src={getImageSrcFromBase64(gestor?.foto_perfil)}
+                                alt={`${gestor.nombres} ${gestor.apellidos}`}
+                                className="gestor-image-improved"
+                                onError={(e) => {
+                                  e.target.src = '/default-profile.png';
+                                }}
+                              />
+                              <div className={`status-badge ${gestor?.estado?.toLowerCase()}`}>
+                                {gestor?.estado}
+                              </div>
+                            </div>
+                            {isCenter && (
+                              <div className="gestor-mini-info">
+                                <h4>{gestor.nombres} {gestor.apellidos}</h4>
+                                <p>{gestor.titulo_profesional || 'Gestor'}</p>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {/* Información Detallada del Gestor Central */}
+                    {centerGestor && (
+                      <div className="gestor-info-improved">
+                        <div className="gestor-details-card">
+                          <h3>{centerGestor.nombres} {centerGestor.apellidos}</h3>
+                          <p className="gestor-title">{centerGestor.titulo_profesional || 'Gestor'}</p>
+                          
+                          <div className="gestor-contact-info">
+                            <div className="contact-item">
+                              <FontAwesomeIcon icon={faIdCard} />
+                              <span>Cédula: {centerGestor.documento}</span>
+                            </div>
+                            <div className="contact-item">
+                              <FontAwesomeIcon icon={faPhone} />
+                              <span>Celular: {centerGestor.celular}</span>
+                            </div>
+                            <div className="contact-item">
+                              <FontAwesomeIcon icon={faEnvelope} />
+                              <span>Email: {centerGestor.email}</span>
+                            </div>
+                          </div>
+
+                          <button
+                            className="view-profile-btn-improved"
+                            onClick={() => showModalSeeProfile(centerGestor)}
+                          >
+                            Ver Perfil Completo
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Indicador de Posición */}
+                    {filteredGestors.length > 1 && (
+                      <div className="carousel-indicator-improved">
+                        <span className="current-position">
+                          {current + 1} de {filteredGestors.length}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="no-gestores-improved">
+                    <div className="no-gestores-icon">
+                      <FontAwesomeIcon icon={faFolderOpen} />
+                    </div>
+                    <h3>No se encontraron gestores</h3>
+                    <p>No hay gestores disponibles con los filtros seleccionados</p>
+                    <button
+                      className="reset-filters-btn-improved"
+                      onClick={() => {
+                        setFilter("");
+                        setSelectedState({ activo: true, inactivo: true });
+                      }}
+                    >
+                      Mostrar todos los gestores
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Columna Derecha - Panel de Control */}
+            <div className="control-panel-improved">
+              {/* Filtros y Búsqueda */}
+              <div className="filters-card-improved">
+                <h3>Filtros y Búsqueda</h3>
+                
+                <div className="search-container-improved">
+                  <div className="input-search-improved">
+                    <FontAwesomeIcon icon={faSearch} className="search-icon" />
+                    <input
+                      type="text"
+                      placeholder="Buscar gestor..."
+                      value={filter}
+                      onChange={handleFilterChange}
+                      className="search-input"
+                    />
+                  </div>
+                </div>
+
+                <div className="filters-group">
+                  <label>Estado del Gestor</label>
+                  <div className="status-filters-improved">
+                    <button
+                      className={`status-filter-btn ${selectedState.activo ? 'active' : ''}`}
+                      onClick={() => setSelectedState(prev => ({ ...prev, activo: !prev.activo }))}
+                    >
+                      <span className="status-indicator active"></span>
+                      Activos
+                    </button>
+                    <button
+                      className={`status-filter-btn ${selectedState.inactivo ? 'active' : ''}`}
+                      onClick={() => setSelectedState(prev => ({ ...prev, inactivo: !prev.inactivo }))}
+                    >
+                      <span className="status-indicator inactive"></span>
+                      Inactivos
+                    </button>
+                  </div>
+                </div>
+
+                <button className="create-gestor-btn-improved" onClick={showModalCreateGestor}>
+                  <FontAwesomeIcon icon={faUserPlus} />
+                  <span>Agregar Gestor</span>
+                </button>
+              </div>
+
+              {/* Estadísticas */}
+              <div className="stats-card-improved">
+                <h3>Estadísticas</h3>
+                <div className="stats-grid-improved">
+                  <div className="stat-card-improved">
+                    <div className="stat-icon">
+                      <FontAwesomeIcon icon={faUsers} />
+                    </div>
+                    <div className="stat-content">
+                      <span className="stat-value">{gestores.length}</span>
+                      <span className="stat-label">Total Gestores</span>
+                    </div>
+                  </div>
+                  <div className="stat-card-improved">
+                    <div className="stat-icon">
+                      <FontAwesomeIcon icon={faCheck} />
+                    </div>
+                    <div className="stat-content">
+                      <span className="stat-value">
+                        {gestores.filter(g => g.estado?.toLowerCase() === 'activo').length}
+                      </span>
+                      <span className="stat-label">Activos</span>
+                    </div>
+                  </div>
+                  <div className="stat-card-improved">
+                    <div className="stat-icon">
+                      <FontAwesomeIcon icon={faChartLine} />
+                    </div>
+                    <div className="stat-content">
+                      <span className="stat-value">
+                        {gestores.filter(g => g.estado?.toLowerCase() === 'inactivo').length}
+                      </span>
+                      <span className="stat-label">Inactivos</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Main>
+
+      {selectedGestor && (
+        <UpdateGestor
+          gestor={selectedGestor}
+          onClose={() => setSelectedGestor(null)}
+        />
+      )}
+
+      <Footer />
+    </>
+  );
+};

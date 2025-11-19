@@ -1,5 +1,5 @@
-/* Estilos base del modal - Igual al modal de empresa */
-.modal-overlay {
+/* Estilos base del modal - Específicos para empresa */
+.modal-empresa-overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -12,19 +12,19 @@
   z-index: 1000;
 }
 
-.modal-content {
+.modal-empresa-content {
   background: white;
   border-radius: 8px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   width: 90%;
-  max-width: 500px;
+  max-width: 600px;
   max-height: 90vh;
   overflow: hidden;
   display: flex;
   flex-direction: column;
 }
 
-.modal-header {
+.modal-empresa-header {
   padding: 20px;
   display: flex;
   justify-content: space-between;
@@ -32,19 +32,19 @@
   background: #1B2821;
 }
 
-.modal-header h2 {
+.modal-empresa-header h2 {
   margin: 0;
   color: #fff;
   font-size: 1.5rem;
   font-weight: 600;
 }
 
-.close-button {
+.modal-empresa-close-button {
   background: none;
   border: none;
   font-size: 24px;
   cursor: pointer;
-  color: #666;
+  color: #fff;
   padding: 0;
   width: 30px;
   height: 30px;
@@ -53,13 +53,13 @@
   justify-content: center;
 }
 
-.close-button:hover {
-  color: #333;
-  background: #e0e0e0;
+.modal-empresa-close-button:hover {
+  color: #e0e0e0;
+  background: rgba(255, 255, 255, 0.1);
   border-radius: 50%;
 }
 
-.modal-body {
+.modal-empresa-body {
   display: flex;
   flex-direction: column;
   padding: 20px;
@@ -69,72 +69,85 @@
   gap: 0.4rem;
 }
 
-.form-group {
+.modal-empresa-form-group {
   margin-bottom: 0;
 }
 
-.form-group label {
+.modal-empresa-form-group label {
   display: block;
-  margin-bottom: 15px;
+  margin-bottom: 8px;
   font-weight: 600;
   color: #fff;
   font-size: 14px;
 }
 
-/* Lista de cursos */
-.cursos-list {
+/* Campo de búsqueda */
+.modal-empresa-search-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #444;
+  border-radius: 4px;
+  background: #2d2d2d;
+  color: #fff;
+  font-size: 14px;
+  margin-bottom: 15px;
+}
+
+.modal-empresa-search-input:focus {
+  outline: none;
+  border-color: #007bff;
+  background: #353535;
+}
+
+.modal-empresa-search-input::placeholder {
+  color: #888;
+}
+
+/* Lista de empresas */
+.modal-empresa-list {
   background: #fff;
   max-height: 400px;
   overflow-y: auto;
+  border-radius: 4px;
 }
 
-.curso-option {
+.modal-empresa-option {
   display: flex;
   align-items: flex-start;
   padding: 15px;
-  border-bottom: 0px solid #f0f0f0;
+  border-bottom: 1px solid #444;
   cursor: pointer;
   transition: background-color 0.2s;
   background: #353535;
 }
 
-.swal2-actions-centered {
-    display: flex !important;
-    justify-content: center !important;
-    width: 100% !important;
+.modal-empresa-option:hover {
+  background: #3a3a3a;
 }
 
-.swal2-popup-centered .swal2-actions {
-    justify-content: center !important;
-}
-
-.curso-option:hover {
-  background: #353535;
-}
-
-.curso-option:last-child {
+.modal-empresa-option:last-child {
   border-bottom: none;
 }
 
-.curso-option.curso-selected {
-  background: #353535;
-  border-left: 3px solid #007bff;
+.modal-empresa-option.modal-empresa-selected {
+  background: #2a4d3e;
+  border-left: 3px solid #00843D;
 }
 
 /* Radio button */
-.radio-container {
+.modal-empresa-radio-container {
   position: relative;
   margin-right: 12px;
   margin-top: 2px;
 }
 
-.radio-input {
+.modal-empresa-radio-input {
   position: absolute;
   opacity: 0;
   cursor: pointer;
 }
 
-.radio-checkmark {
+.modal-empresa-radio-checkmark {
   width: 18px;
   height: 18px;
   border: 2px solid #ccc;
@@ -146,12 +159,12 @@
   background: #fff;
 }
 
-.radio-input:checked + .radio-checkmark {
-  border-color: #007bff;
-  background: #007bff;
+.modal-empresa-radio-input:checked + .modal-empresa-radio-checkmark {
+  border-color: #00843D;
+  background: #00843D;
 }
 
-.radio-input:checked + .radio-checkmark::after {
+.modal-empresa-radio-input:checked + .modal-empresa-radio-checkmark::after {
   content: '';
   width: 8px;
   height: 8px;
@@ -159,57 +172,63 @@
   background: white;
 }
 
-/* Detalles del curso */
-.curso-details {
+/* Detalles de la empresa */
+.modal-empresa-details {
   flex: 1;
 }
 
-.curso-title {
+.modal-empresa-title {
   font-weight: 600;
   color: #fff;
-  margin-bottom: 5px;
-  font-size: 14px;
+  margin-bottom: 8px;
+  font-size: 15px;
 }
 
-.curso-cupos {
-  font-size: 12px;
-  color: #28a745;
-  font-weight: 500;
+.modal-empresa-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
   margin-bottom: 8px;
 }
 
-.curso-description {
+.modal-empresa-rut,
+.modal-empresa-industria {
   font-size: 12px;
-  color: #fff;
+  color: #ccc;
+  font-weight: 500;
+}
+
+.modal-empresa-direccion {
+  font-size: 12px;
+  color: #aaa;
   line-height: 1.4;
-  margin-top: 5px;
 }
 
 /* Estados */
-.loading-state,
-.empty-state {
+.modal-empresa-loading,
+.modal-empresa-empty {
   text-align: center;
   padding: 40px 20px;
-  color: #666;
+  color: #aaa;
   font-style: italic;
-  background: #f9f9f9;
+  background: #2d2d2d;
   border-radius: 4px;
-  border: 1px dashed #ddd;
+  border: 1px dashed #555;
 }
 
-.selected-info {
+.modal-empresa-selected-info {
   margin-top: 15px;
   padding: 12px;
-  background: #353535;
-  border: 1px solid #4caf50;
+  background: #2a4d3e;
+  border: 1px solid #00843D;
   border-radius: 4px;
-  color: #2e7d32;
+  color: #4caf50;
   font-size: 14px;
   text-align: center;
 }
 
 /* Footer y botones */
-.modal-footer {
+.modal-empresa-footer {
   padding: 20px;
   display: flex;
   gap: 10px;
@@ -217,7 +236,7 @@
   background: #353535;
 }
 
-.btn-cancel {
+.modal-empresa-btn-cancel {
   padding: 10px 20px;
   border: 1px solid #ff6b6b;
   background: #353535;
@@ -228,11 +247,11 @@
   transition: all 0.2s;
 }
 
-.btn-cancel:hover {
+.modal-empresa-btn-cancel:hover {
   filter: contrast(1.1);
 }
 
-.btn-confirm {
+.modal-empresa-btn-confirm {
   padding: 10px 20px;
   border: none;
   background: #00843D;
@@ -243,30 +262,30 @@
   transition: all 0.2s;
 }
 
-.btn-confirm:hover:not(:disabled) {
+.modal-empresa-btn-confirm:hover:not(:disabled) {
   background: #00843ed5;
 }
 
-.btn-confirm:disabled {
+.modal-empresa-btn-confirm:disabled {
   background: #6c757d;
   cursor: not-allowed;
 }
 
 /* Scrollbar */
-.cursos-list::-webkit-scrollbar {
+.modal-empresa-list::-webkit-scrollbar {
   width: 6px;
 }
 
-.cursos-list::-webkit-scrollbar-track {
-  background: #f1f1f1;
+.modal-empresa-list::-webkit-scrollbar-track {
+  background: #2d2d2d;
   border-radius: 3px;
 }
 
-.cursos-list::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
+.modal-empresa-list::-webkit-scrollbar-thumb {
+  background: #555;
   border-radius: 3px;
 }
 
-.cursos-list::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
+.modal-empresa-list::-webkit-scrollbar-thumb:hover {
+  background: #777;
 }

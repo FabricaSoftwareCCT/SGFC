@@ -11,6 +11,7 @@
 
 /* Mejorado container_profile con dos secciones claramente divididas y más ancho */
 .container_profile {
+  position: relative;
   width: 24rem;
   height: auto;
   background-color: #2a2a2a;
@@ -141,22 +142,24 @@
 /* Botones de edición */
 .updateProfile {
   position: absolute;
-  z-index: 0;
-  top: 6.1rem;
-  right: 3rem;
-  width: 4rem;
-  height: 4rem;
-  background-color: #b0b0b0;
-  border-radius: 10px;
-  border-style: none;
-  background: center / 70% no-repeat url("../../../assets/Icons/buttonEdit.png"), #b0b0b0;
+  top: 1rem;
+  right: 1rem;
+  font-size: 1.5rem;
+  background: transparent;
+  border: none;
   cursor: pointer;
   transition: all 0.2s ease;
+  z-index: 10;
 }
 
 .updateProfile:hover {
-  background-color: #00843e3f;
-  transform: scale(1.05);
+  background-color: transparent;
+  transform: scale(1.55);
+}
+
+.svg-inline--fa fa-pen-to-square edit-button {
+  color: #00843d;
+  font-size: 1.4rem;
 }
 
 .updateProfile.cancel {
@@ -609,6 +612,46 @@
   padding: 2rem;
   background-color: #1a1a1a;
   border-radius: 15px;
+}
+.manager_status_badge {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 1rem;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  margin-top: 0.5rem;
+}
+
+/* Botones de acción en el perfil para Aprendiz e Instructor */
+.profile_action_buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Select para estado de empresa editable */
+.empresa_status_select {
+  padding: 0.5rem;
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  color: #ffffff;
+  font-size: 14px;
+  outline: none;
+  cursor: pointer;
+}
+
+.empresa_status_select:focus {
+  border-color: #00843e3f;
+}
+
+.empresa_status_select option {
+  background-color: #2a2a2a;
+  color: #ffffff;
 }
 
 /* Estilos mejorados para curso_row */

@@ -17,6 +17,7 @@ const registerAttendance = async (req, res) => {
         const { usuario_ID, estado, fecha } = req.body;
         const registrador_ID = req.user.id;
 
+        
         // Validar fecha futura
         const fechaAsistencia = new Date(fecha);
         const hoy = new Date();
@@ -292,7 +293,6 @@ const getAttendanceRecords = async (req, res) => {
             offset: (parseInt(page) - 1) * parseInt(limit)
         });
 
-        console.log('Registros encontrados:', records.length);
         if (records.length > 0) {
             console.log('Estructura del primer registro:', JSON.stringify(records[0], null, 2));
         } else {

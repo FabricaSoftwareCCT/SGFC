@@ -209,7 +209,7 @@ export const UpdateCourse = () => {
 					confirmButtonText: 'Entendido',
 					theme: "bulma",
 					customClass: {
-						confirmButton: 'button is-primary',
+						confirmButton:'custom-green-btn',
 						actions: 'swal2-actions-centered',
 						popup: 'swal2-popup-centered'
 					},
@@ -531,7 +531,7 @@ export const UpdateCourse = () => {
 												</button>
 												<button
 													className={`option-btn ${curso.estado?.toLowerCase() === "en oferta" ? "active" : ""}`}
-													onClick={(e) => {
+													onClick={ (e) => {
 														e.preventDefault();
 														setCurso({ ...curso, estado: "En oferta" });
 													}}
@@ -541,11 +541,25 @@ export const UpdateCourse = () => {
 												</button>
 												<button 
 													className={`option-btn-cancel ${curso.estado?.toLowerCase() === "cancelado" ? "active" : ""}`}
-													onClick={(e) => {
+													onClick={ async (e) => {
 														e.preventDefault();
 														if (curso.estado?.toLowerCase() !== "cancelado") {
-															const confirmar = window.confirm("¿Estás seguro de que deseas cancelar este curso? Esta acción no se puede deshacer.");
-															if (confirmar) {
+															const result = await Swal.fire({
+																icon: "warning",
+																title: "Cancelar curso",
+																text: "¿Estás seguro de que deseas cancelar este curso? Esta acción no se puede deshacer.",
+																showCancelButton: true,
+																confirmButtonText: 'Sí, cancelar',
+																cancelButtonText: 'No, mantener',
+																theme: "bulma",
+																customClass: {
+																	confirmButton: 'button is-danger custom-confirm-btn',
+																	cancelButton: 'button is-light custom-cancel-btn',
+																	actions: 'swal2-actions-centered custom-actions'
+																},
+																buttonsStyling: false
+															});
+															if (result.isConfirmed) {
 																setCurso({ ...curso, estado: "Cancelado" });
 															}
 														}
@@ -557,11 +571,25 @@ export const UpdateCourse = () => {
 												</button>
 												<button
 													className={`option-btn-cancel ${curso.estado?.toLowerCase() === "finalizado" ? "active" : ""}`}
-													onClick={(e) => {
+													onClick={async (e) => {
 														e.preventDefault();
 														if (curso.estado?.toLowerCase() !== "finalizado") {
-															const confirmar = window.confirm("¿Estás seguro de que deseas finalizar este curso? Esta acción no se puede deshacer.");
-															if (confirmar) {
+															const result = await Swal.fire({
+																icon: "warning",
+																title: "Finalizar curso",
+																text: "¿Estás seguro de que deseas finalizar este curso? Esta acción no se puede deshacer.",
+																showCancelButton: true,
+																confirmButtonText: 'Sí, finalizar',
+																cancelButtonText: 'No, mantener',
+																theme: "bulma",
+																customClass: {
+																	confirmButton: 'button is-danger custom-confirm-btn',
+																	cancelButton: 'button is-light custom-cancel-btn',
+																	actions: 'swal2-actions-centered custom-actions'
+																},
+																buttonsStyling: false
+															});
+															if (result.isConfirmed) {
 																setCurso({ ...curso, estado: "Finalizado" });
 															}
 														}

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axiosInstance from '../../../../config/axiosInstance';
-import { format, parseISO, startOfDay, endOfDay, isToday, isBefore, isEqual } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { Modal_General } from '../../../UI/Modal_General/Modal_General';
 import { useNavigate } from 'react-router-dom';
@@ -207,30 +207,11 @@ export const AttendanceManagement = ({ open, onClose, courseId, selectedDate }) 
         }
     };
 
-    // FUNCIÓN CORREGIDA: Manejo de guardar asistencias
+    // FUNCIÓN SIMPLIFICADA: Igual que la de tu compañero
     const handleSaveAttendance = async () => {
         try {
             setLoading(true);
             setError(null);
-
-            // Verificar que la fecha seleccionada no sea futura
-            const selectedDateObj = parseISO(selectedDate);
-            const today = new Date();
-            
-            // Comparar solo las fechas (sin horas)
-            const selectedDateOnly = new Date(selectedDateObj.getFullYear(), selectedDateObj.getMonth(), selectedDateObj.getDate());
-            const todayOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-            
-            if (selectedDateOnly > todayOnly) {
-                setError('No se pueden registrar asistencias para fechas futuras');
-                await Swal.fire({
-                    ...swalConfig,
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'No se pueden registrar asistencias para fechas futuras'
-                });
-                return;
-            }
 
             const formattedDate = format(parseISO(selectedDate), 'yyyy-MM-dd');
 
@@ -326,32 +307,13 @@ export const AttendanceManagement = ({ open, onClose, courseId, selectedDate }) 
         setSelectedOption('update');
     };
 
-    // FUNCIÓN CORREGIDA: Manejo de toggle de asistencia
+    // FUNCIÓN SIMPLIFICADA: Igual que la de tu compañero
     const handleToggleAttendance = async () => {
         if (!selectedApprentice) return;
 
         const newStatus = selectedApprentice.attendanceStatus === 'Presente' ? 'Ausente' : 'Presente';
         
         try {
-            // Verificar que la fecha seleccionada no sea futura
-            const selectedDateObj = parseISO(selectedDate);
-            const today = new Date();
-            
-            // Comparar solo las fechas (sin horas)
-            const selectedDateOnly = new Date(selectedDateObj.getFullYear(), selectedDateObj.getMonth(), selectedDateObj.getDate());
-            const todayOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-            
-            if (selectedDateOnly > todayOnly) {
-                setError('No se pueden actualizar asistencias para fechas futuras');
-                await Swal.fire({
-                    ...swalConfig,
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'No se pueden actualizar asistencias para fechas futuras'
-                });
-                return;
-            }
-
             const existingRecord = attendanceRecords.find(
                 record => record?.aprendiz?.ID === selectedApprentice.aprendiz.ID
             );
@@ -406,67 +368,70 @@ export const AttendanceManagement = ({ open, onClose, courseId, selectedDate }) 
     if (showOptions) {
         return (
             <div className="modal-overlay-attendance">
-                <div className="modal-container-attendance">
-                    <div className="modal-header-attendance">
-                        <div className="header-content-attendance">
-                            <h2>
-                                <span className="header-icon-attendance">📊</span>
-                                Gestión de Asistencias
-                            </h2>
-                        </div>
+            <div className="modal-container-attendance">
+                <div className="modal-header-attendance">
+                    <div className="header-content-attendance">
+                        <button className="back-btn-attendance" onClick={onClose}> {/* Cambiado de handleBack a onClose */}
+                            ← Volver
+                        </button>
+                        <h2>
+                            <span className="header-icon-attendance">📊</span>
+                            Gestión de Asistencias
+                        </h2>
                     </div>
+                </div>
 
-                    <div className="modal-body-attendance">
-                        <p className="instruction-text-attendance">
-                            Por favor seleccione una de las siguientes opciones
-                        </p>
+                <div className="modal-body-attendance">
+                    <p className="instruction-text-attendance">
+                        Por favor seleccione una de las siguientes opciones
+                    </p>
 
-                        <div className="options-grid-attendance">
-                            <div 
-                                className={`option-card-attendance ${selectedOption === 'add' ? 'selected' : ''}`}
-                                onClick={() => handleOptionSelect('add')}
-                            >
-                                <div className="option-icon-container-attendance">
-                                    <img 
-                                        src="/src/assets/Icons/agregar-archivo.png" 
-                                        alt="Agregar Asistencia"
-                                        className="option-icon-attendance"
-                                    />
-                                </div>
-                                <p className="option-text-attendance">Agregar Asistencia</p>
+                    <div className="options-grid-attendance">
+                        <div 
+                            className={`option-card-attendance ${selectedOption === 'add' ? 'selected' : ''}`}
+                            onClick={() => handleOptionSelect('add')}
+                        >
+                            <div className="option-icon-container-attendance">
+                                <img 
+                                    src="/src/assets/Icons/agregar-archivo.png" 
+                                    alt="Agregar Asistencia"
+                                    className="option-icon-attendance"
+                                />
                             </div>
+                            <p className="option-text-attendance">Agregar Asistencia</p>
+                        </div>
 
-                            <div 
-                                className={`option-card-attendance ${selectedOption === 'update' ? 'selected' : ''}`}
-                                onClick={() => handleOptionSelect('update')}
-                            >
-                                <div className="option-icon-container-attendance">
-                                    <img 
-                                        src="/src/assets/Icons/actualizar (1).png" 
-                                        alt="Actualizar Asistencia"
-                                        className="option-icon-attendance"
-                                    />
-                                </div>
-                                <p className="option-text-attendance">Actualizar Asistencia</p>
+                        <div 
+                            className={`option-card-attendance ${selectedOption === 'update' ? 'selected' : ''}`}
+                            onClick={() => handleOptionSelect('update')}
+                        >
+                            <div className="option-icon-container-attendance">
+                                <img 
+                                    src="/src/assets/Icons/actualizar (1).png" 
+                                    alt="Actualizar Asistencia"
+                                    className="option-icon-attendance"
+                                />
                             </div>
+                            <p className="option-text-attendance">Actualizar Asistencia</p>
+                        </div>
 
-                            <div 
-                                className={`option-card-attendance ${selectedOption === 'view' ? 'selected' : ''}`}
-                                onClick={() => handleOptionSelect('view')}
-                            >
-                                <div className="option-icon-container-attendance">
-                                    <img 
-                                        src="/src/assets/Icons/archivos.png" 
-                                        alt="Consultar Asistencias"
-                                        className="option-icon-attendance"
-                                    />
-                                </div>
-                                <p className="option-text-attendance">Consultar Asistencias</p>
+                        <div 
+                            className={`option-card-attendance ${selectedOption === 'view' ? 'selected' : ''}`}
+                            onClick={() => handleOptionSelect('view')}
+                        >
+                            <div className="option-icon-container-attendance">
+                                <img 
+                                    src="/src/assets/Icons/archivos.png" 
+                                    alt="Consultar Asistencias"
+                                    className="option-icon-attendance"
+                                />
                             </div>
+                            <p className="option-text-attendance">Consultar Asistencias</p>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
         );
     }
 

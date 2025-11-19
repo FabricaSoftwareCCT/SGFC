@@ -463,7 +463,7 @@ export const GestionsEmployes = () => {
 															<div className="employee-status-section">
 																<div className="estado-wrapper">
 																	<strong>Estado:</strong>
-																	<span className={`status-badge ${employe.estado || "inactivo"}`}>
+																	<span className={`status-badge ${employe.estado || "inactivo"}`} style={{position: "static"}}>
 																		{employe.estado || "Inactivo"}
 																	</span>
 																</div>

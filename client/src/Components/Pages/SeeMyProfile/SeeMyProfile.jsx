@@ -518,7 +518,7 @@ export const SeeMyProfile = () => {
 									></div>
 									<div className="status_text">
 										<span className="status_label">{perfil?.estado === "activo" ? "Activo" : "Inactivo"}</span>
-										<span className="status_role">Manager</span>
+										<span className="status_role">{tipoCuenta}</span>
 									</div>
 								</div>
 							)}

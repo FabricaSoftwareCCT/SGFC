@@ -19,16 +19,19 @@ import {
 import { useModal } from "../../../Context/ModalContext"
 import Swal from 'sweetalert2';
 import 'sweetalert2/themes/bulma.css'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faInstagram, faFacebook, faLinkedin, faTwitter } from "@fortawesome/free-brands-svg-icons";
+import { faEye, faEyeSlash, faFolder, faPlus, faGlobe, faPenToSquare } from '@fortawesome/free-solid-svg-icons';
 
 export const SeeMyProfile = () => {
   const location = useLocation()
   const navigate = useNavigate()
   const userId = location.state?.userId
-  const requiresCompletion = location.state?.requiresCompletion // ← NUEVO
+  const requiresCompletion = location.state?.requiresCompletion
   const fotoPerfilInputRef = React.useRef(null)
   const logoEmpresaInputRef = React.useRef(null)
   const [perfil, setPerfil] = useState(null)
-  const [perfilOriginal, setPerfilOriginal] = useState(null) // Guardar el perfil original
+  const [perfilOriginal, setPerfilOriginal] = useState(null)
   const [tipoCuenta, setTipoCuenta] = useState("")
   const [editMode, setEditMode] = useState(false)
   const [departamentos, setDepartamentos] = useState([])
@@ -40,21 +43,17 @@ export const SeeMyProfile = () => {
   const { setShowModalGeneral, setModalGeneralContent } = useModal()
 
   const getImageSrcFromBase64 = (value) => {
-    // Fallback inmediato si no hay valor
     if (!value) return fotoPerfilDefect
 
-    // Si ya viene como data URL o URL absoluta, úsala tal cual
     if (typeof value === "string" && (value.startsWith("data:") || value.startsWith("http"))) {
       return value
     }
 
-    // Si en BD guardaron una ruta relativa (p.ej. ../Img/userDefect.png), usar por defecto
     if (typeof value === "string" && /(\.png|\.jpg|\.jpeg|\.gif)$/i.test(value)) {
       return fotoPerfilDefect
     }
 
     const base64 = value
-    // Detectar tipo MIME por encabezado base64
     if (typeof base64 === "string" && base64.startsWith("iVBOR")) {
       return `data:image/png;base64,${base64}`
     }
@@ -62,76 +61,71 @@ export const SeeMyProfile = () => {
       return `data:image/jpeg;base64,${base64}`
     }
 
-    // Si la cadena es muy corta, probablemente no es una imagen base64 válida
     if (typeof base64 === "string" && base64.length < 100) {
       return fotoPerfilDefect
     }
 
-    // Último recurso: asumir jpeg
     return `data:image/jpeg;base64,${base64}`
   }
 
   useEffect(() => {
-    // Si viene por redirección de perfil incompleto, activar modo edición automáticamente
     if (requiresCompletion) {
       setEditMode(true)
-			Swal.fire({
-				icon:"info",
-				title:"Completar datos de perfil",
-				text:"Por favor completa tu perfil para continuar usando la aplicación",
-				confirmButtonText:"Aceptar",
-				theme:"bulma",
-      customClass: { confirmButton: 'centered-swal-button' }
-			})
+      Swal.fire({
+        icon:"info",
+        title:"Completar datos de perfil",
+        text:"Por favor completa tu perfil para continuar usando la aplicación",
+        confirmButtonText:"Aceptar",
+        theme:"bulma",
+        customClass: { confirmButton: 'centered-swal-button' }
+      })
     }
 
-  const fetchProfile = async () => {
-    try {
-      const response = await axiosInstance.get(`/api/users/profile/${userId}`)
-      
-      // Asegurar que sitio_web tenga la estructura correcta
-      const profileData = response.data
-      if (profileData.Empresa && !profileData.Empresa.sitio_web) {
-        profileData.Empresa.sitio_web = {
-          facebook: "",
-          instagram: "",
-          linkedin: "",
-          twitter: "",
-          web: ""
+    const fetchProfile = async () => {
+      try {
+        const response = await axiosInstance.get(`/api/users/profile/${userId}`)
+        
+        const profileData = response.data
+        if (profileData.Empresa && !profileData.Empresa.sitio_web) {
+          profileData.Empresa.sitio_web = {
+            facebook: "",
+            instagram: "",
+            linkedin: "",
+            twitter: "",
+            web: ""
+          }
         }
-      }
-      
-      setPerfil(profileData)
-      setPerfilOriginal(profileData)
-      setTipoCuenta(profileData.accountType)
+        
+        setPerfil(profileData)
+        setPerfilOriginal(profileData)
+        setTipoCuenta(profileData.accountType)
 
-      // Si es empresa, cargar ubicaciones y establecer valores por defecto
-      if (profileData.accountType === "Empresa" && profileData.Empresa) {
-        await cargarUbicaciones(profileData.Empresa)
-        await fetchCursos()
-      }
+        if (profileData.accountType === "Empresa" && profileData.Empresa) {
+          await cargarUbicaciones(profileData.Empresa)
+          await fetchCursos()
+        }
 
-      if (profileData.accountType === "Instructor") {
-        await fetchCursosInstructor()
-      }
-    } catch (error) {
-      console.error("Error al obtener el perfil:", error)
+        if (profileData.accountType === "Instructor") {
+          await fetchCursosInstructor()
+        }
+      } catch (error) {
+        console.error("Error al obtener el perfil:", error)
         Swal.fire({
-					icon:"error",
-					title:"Error Perfil",
-					text:"Ocurrio un error en el perfil",
-					confirmButtonText:"Aceptar",
-					confirmButtonColor:"#d33",
-					theme:"bulma",
-      customClass: { confirmButton: 'centered-swal-button' }
-				})
+          icon:"error",
+          title:"Error Perfil",
+          text:"Ocurrio un error en el perfil",
+          confirmButtonText:"Aceptar",
+          confirmButtonColor:"#d33",
+          theme:"bulma",
+          customClass: { confirmButton: 'centered-swal-button' }
+        })
+      }
     }
-  }
 
-  if (userId) {
-    fetchProfile()
-  }
-}, [userId, requiresCompletion])
+    if (userId) {
+      fetchProfile()
+    }
+  }, [userId, requiresCompletion])
 
   const fetchCursos = async () => {
     const response = await axiosInstance.get(`/api/users/profile/${userId}`)
@@ -154,14 +148,14 @@ export const SeeMyProfile = () => {
           }),
       )
     } catch (error) {
-			Swal.fire({
-				icon:"error",
-				title:"Error al consultar",
-				text:"Ocurrió un error al consultar los cursos",
-				confirmButtonText:"Okay",
-				theme:"bulma",
-      customClass: { confirmButton: 'centered-swal-button' }
-			})
+      Swal.fire({
+        icon:"error",
+        title:"Error al consultar",
+        text:"Ocurrió un error al consultar los cursos",
+        confirmButtonText:"Okay",
+        theme:"bulma",
+        customClass: { confirmButton: 'centered-swal-button' }
+      })
       console.log(error)
     }
   }
@@ -172,10 +166,9 @@ export const SeeMyProfile = () => {
       console.log("Respuesta de cursos asignados:", response.data)
       
       if (response.data && Array.isArray(response.data)) {
-        // Mapear las asignaciones para extraer los cursos
         const cursosAsignados = response.data
-          .filter(asignacion => asignacion.Curso) // Filtrar solo asignaciones con curso
-          .map(asignacion => asignacion.Curso) // Extraer el curso de cada asignación
+          .filter(asignacion => asignacion.Curso)
+          .map(asignacion => asignacion.Curso)
         
         setCursos(cursosAsignados)
       } else {
@@ -188,118 +181,113 @@ export const SeeMyProfile = () => {
   }
 
   const cargarUbicaciones = async (empresaData) => {
-  try {
-    const departamentosRes = await axiosInstance.get("/api/ubicaciones/departamentos")
-    const departamentosData = Array.isArray(departamentosRes.data)
-      ? departamentosRes.data
-      : departamentosRes.data.data || []
-    setDepartamentos(departamentosData)
+    try {
+      const departamentosRes = await axiosInstance.get("/api/ubicaciones/departamentos")
+      const departamentosData = Array.isArray(departamentosRes.data)
+        ? departamentosRes.data
+        : departamentosRes.data.data || []
+      setDepartamentos(departamentosData)
 
-    if (empresaData.ciudad_ID) {
-      const ciudadRes = await axiosInstance.get(`/api/ubicaciones/ciudades/${empresaData.ciudad_ID}`)
-      const ciudadData = ciudadRes.data
+      if (empresaData.ciudad_ID) {
+        const ciudadRes = await axiosInstance.get(`/api/ubicaciones/ciudades/${empresaData.ciudad_ID}`)
+        const ciudadData = ciudadRes.data
 
-      if (ciudadData.departamento_ID) {
-        // Establecer como string para los selects
-        setDepartamentoSeleccionado(ciudadData.departamento_ID.toString())
-        setCiudadSeleccionada(empresaData.ciudad_ID.toString())
+        if (ciudadData.departamento_ID) {
+          setDepartamentoSeleccionado(ciudadData.departamento_ID.toString())
+          setCiudadSeleccionada(empresaData.ciudad_ID.toString())
 
-        // Cargar ciudades del departamento
-        const ciudadesRes = await axiosInstance.get(
-          `/api/ubicaciones/departamentos/${ciudadData.departamento_ID}/ciudades`,
-        )
-        const ciudadesData = Array.isArray(ciudadesRes.data) ? ciudadesRes.data : ciudadesRes.data.data || []
-        setCiudades(ciudadesData)
+          const ciudadesRes = await axiosInstance.get(
+            `/api/ubicaciones/departamentos/${ciudadData.departamento_ID}/ciudades`,
+          )
+          const ciudadesData = Array.isArray(ciudadesRes.data) ? ciudadesRes.data : ciudadesRes.data.data || []
+          setCiudades(ciudadesData)
+        }
       }
+    } catch (error) {
+      console.error("Error al cargar ubicaciones:", error)
     }
-  } catch (error) {
-    console.error("Error al cargar ubicaciones:", error)
   }
-}
 
-const handleInputChange = (e) => {
-  const { name, value } = e.target
+  const handleInputChange = (e) => {
+    const { name, value } = e.target
 
-  if (name.startsWith("Empresa.")) {
-    const key = name.split(".")[1]
-    
-    // Manejar campos anidados como sitio_web
-    if (name.startsWith("Empresa.sitio_web.")) {
-      const socialKey = name.split(".")[2]
-      setPerfil((prevPerfil) => ({
-        ...prevPerfil,
-        Empresa: {
-          ...prevPerfil.Empresa,
-          sitio_web: {
-            ...prevPerfil.Empresa?.sitio_web,
-            [socialKey]: value
-          }
-        },
-      }))
+    if (name.startsWith("Empresa.")) {
+      const key = name.split(".")[1]
+      
+      if (name.startsWith("Empresa.sitio_web.")) {
+        const socialKey = name.split(".")[2]
+        setPerfil((prevPerfil) => ({
+          ...prevPerfil,
+          Empresa: {
+            ...prevPerfil.Empresa,
+            sitio_web: {
+              ...prevPerfil.Empresa?.sitio_web,
+              [socialKey]: value
+            }
+          },
+        }))
+      } else {
+        setPerfil((prevPerfil) => ({
+          ...prevPerfil,
+          Empresa: {
+            ...prevPerfil.Empresa,
+            [key]: value,
+          },
+        }))
+      }
     } else {
-      setPerfil((prevPerfil) => ({
-        ...prevPerfil,
-        Empresa: {
-          ...prevPerfil.Empresa,
-          [key]: value,
-        },
-      }))
+      setPerfil({ ...perfil, [name]: value })
     }
-  } else {
-    setPerfil({ ...perfil, [name]: value })
   }
-}
 
   const handleDepartamentoChange = async (e) => {
-  const departamentoId = e.target.value
-  setDepartamentoSeleccionado(departamentoId)
-  setCiudadSeleccionada("")
+    const departamentoId = e.target.value
+    setDepartamentoSeleccionado(departamentoId)
+    setCiudadSeleccionada("")
 
-  // Actualizar el perfil inmediatamente
-  setPerfil((prev) => ({
-    ...prev,
-    Empresa: {
-      ...prev.Empresa,
-      departamento_ID: departamentoId ? Number.parseInt(departamentoId) : null,
-      ciudad_ID: null, // Resetear ciudad cuando cambia departamento
-    },
-  }))
+    setPerfil((prev) => ({
+      ...prev,
+      Empresa: {
+        ...prev.Empresa,
+        departamento_ID: departamentoId ? Number.parseInt(departamentoId) : null,
+        ciudad_ID: null,
+      },
+    }))
 
-  if (departamentoId) {
-    try {
-      const ciudadesRes = await axiosInstance.get(`/api/ubicaciones/departamentos/${departamentoId}/ciudades`)
-      const ciudadesData = Array.isArray(ciudadesRes.data) ? ciudadesRes.data : ciudadesRes.data.data || []
-      setCiudades(ciudadesData)
-    } catch (error) {
-      console.error("Error al cargar ciudades:", error)
-      Swal.fire({
-					icon:"error",
-					title:"Error en el sistema",
-					text:"No se pudieron cargar las ciudades",
-					confirmButtonText:"Okay",
-					theme:"bulma",
-      customClass: { confirmButton: 'centered-swal-button' }
-				})
+    if (departamentoId) {
+      try {
+        const ciudadesRes = await axiosInstance.get(`/api/ubicaciones/departamentos/${departamentoId}/ciudades`)
+        const ciudadesData = Array.isArray(ciudadesRes.data) ? ciudadesRes.data : ciudadesRes.data.data || []
+        setCiudades(ciudadesData)
+      } catch (error) {
+        console.error("Error al cargar ciudades:", error)
+        Swal.fire({
+          icon:"error",
+          title:"Error en el sistema",
+          text:"No se pudieron cargar las ciudades",
+          confirmButtonText:"Okay",
+          theme:"bulma",
+          customClass: { confirmButton: 'centered-swal-button' }
+        })
+        setCiudades([])
+      }
+    } else {
       setCiudades([])
     }
-  } else {
-    setCiudades([])
   }
-}
 
-const handleCiudadChange = (e) => {
-  const ciudadId = e.target.value
-  setCiudadSeleccionada(ciudadId)
+  const handleCiudadChange = (e) => {
+    const ciudadId = e.target.value
+    setCiudadSeleccionada(ciudadId)
 
-  // Actualizar el perfil inmediatamente
-  setPerfil((prev) => ({
-    ...prev,
-    Empresa: {
-      ...prev.Empresa,
-      ciudad_ID: ciudadId ? Number.parseInt(ciudadId) : null,
-    },
-  }))
-}
+    setPerfil((prev) => ({
+      ...prev,
+      Empresa: {
+        ...prev.Empresa,
+        ciudad_ID: ciudadId ? Number.parseInt(ciudadId) : null,
+      },
+    }))
+  }
 
   const handleFileChange = (e, type) => {
     const file = e.target.files[0]
@@ -319,148 +307,133 @@ const handleCiudadChange = (e) => {
     reader.readAsDataURL(file)
   }
 
-  const handleModelCancel = (model) => {
-    setEditMode(!model)
+  const handleCancel = () => {
+    setEditMode(false)
     setPerfil(perfilOriginal)
   }
 
-  console.log("Estado actual del perfil:", {
-  departamentoSeleccionado,
-  ciudadSeleccionada,
-  empresa: perfil?.Empresa
-})
-
-const handleSaveChanges = async () => {
-  // Mezclar datos originales y actuales para evitar null/undefined
-  const empresaBase = perfilOriginal?.Empresa || {}
-  const empresaActual = perfil?.Empresa || {}
-  const empresaSnapshot = {
-    ...empresaBase,
-    ...empresaActual,
-    // Ubicación prioriza lo seleccionado en UI
-    departamento_ID: departamentoSeleccionado
-      ? Number.parseInt(departamentoSeleccionado)
-      : (empresaActual.departamento_ID ?? empresaBase.departamento_ID ?? null),
-    ciudad_ID: ciudadSeleccionada
-      ? Number.parseInt(ciudadSeleccionada)
-      : (empresaActual.ciudad_ID ?? empresaBase.ciudad_ID ?? null),
-  }
-
-  let erroresTipoCuenta = {}
-
-  const ValidationGeneral = {
-    nombre: validateText(perfil?.nombres || ""),
-    apellidos: validateText(perfil?.apellidos || ""),
-    email: validateEmail(perfil?.email || ""),
-    Celular: validateNumber(perfil?.celular || ""),
-  }
-
-  if (tipoCuenta === "Empresa") {
-    // Validación directa sin variables intermedias
-    erroresTipoCuenta = {
-      nombre_empresa:
-        empresaSnapshot.nombre_empresa && empresaSnapshot.nombre_empresa.trim().length > 0
-          ? ""
-          : "El nombre de la empresa es obligatorio",
-      direccion:
-        empresaSnapshot.direccion && empresaSnapshot.direccion.trim().length > 0 ? "" : "La dirección es obligatoria",
-      telefono: validateNumber(empresaSnapshot.telefono || ""),
-      email: validateEmail(empresaSnapshot.email_empresa || ""),
-      nit: validateNIT(empresaSnapshot?.NIT || ""),
-      descripcion: empresaSnapshot.descripcion && empresaSnapshot.descripcion.trim().length > 0 
-        ? "" 
-        : "La descripción es obligatoria",
+  const handleSaveChanges = async () => {
+    const empresaBase = perfilOriginal?.Empresa || {}
+    const empresaActual = perfil?.Empresa || {}
+    const empresaSnapshot = {
+      ...empresaBase,
+      ...empresaActual,
+      departamento_ID: departamentoSeleccionado
+        ? Number.parseInt(departamentoSeleccionado)
+        : (empresaActual.departamento_ID ?? empresaBase.departamento_ID ?? null),
+      ciudad_ID: ciudadSeleccionada
+        ? Number.parseInt(ciudadSeleccionada)
+        : (empresaActual.ciudad_ID ?? empresaBase.ciudad_ID ?? null),
     }
-  }
 
-  const error = {
-    ...ValidationGeneral,
-    ...erroresTipoCuenta,
-  }
+    let erroresTipoCuenta = {}
+
+    const ValidationGeneral = {
+      nombre: validateText(perfil?.nombres || ""),
+      apellidos: validateText(perfil?.apellidos || ""),
+      email: validateEmail(perfil?.email || ""),
+      Celular: validateNumber(perfil?.celular || ""),
+    }
+
+    if (tipoCuenta === "Empresa") {
+      erroresTipoCuenta = {
+        nombre_empresa:
+          empresaSnapshot.nombre_empresa && empresaSnapshot.nombre_empresa.trim().length > 0
+            ? ""
+            : "El nombre de la empresa es obligatorio",
+        direccion:
+          empresaSnapshot.direccion && empresaSnapshot.direccion.trim().length > 0 ? "" : "La dirección es obligatoria",
+        telefono: validateNumber(empresaSnapshot.telefono || ""),
+        email: validateEmail(empresaSnapshot.email_empresa || ""),
+        nit: validateNIT(empresaSnapshot?.NIT || ""),
+        descripcion: empresaSnapshot.descripcion && empresaSnapshot.descripcion.trim().length > 0 
+          ? "" 
+          : "La descripción es obligatoria",
+      }
+    }
+
+    const error = {
+      ...ValidationGeneral,
+      ...erroresTipoCuenta,
+    }
 
     const hastErrors = await createMensajeError(error)
     if (hastErrors != null) {
-			Swal.fire({
-				icon: 'error',
-				title: 'Error de validación',
-				html: hastErrors,
-				confirmButtonText: 'Aceptar',
-				confirmButtonColor: '#d33',
-				theme:"bulma",
-      customClass: { confirmButton: 'centered-swal-button' }
-			});
-      setPerfil(perfilOriginal) // Revertir cambios locales
+      Swal.fire({
+        icon: 'error',
+        title: 'Error de validación',
+        html: hastErrors,
+        confirmButtonText: 'Aceptar',
+        confirmButtonColor: '#d33',
+        theme:"bulma",
+        customClass: { confirmButton: 'centered-swal-button' }
+      });
+      setPerfil(perfilOriginal)
       return
     }
 
-  try {
-    // Construir payload seguro
-    const payload = { ...perfil }
+    try {
+      const payload = { ...perfil }
 
-    if (tipoCuenta === "Empresa" && perfil.Empresa) {
-      // Construir el objeto sitio_web correctamente
-      const sitio_web = {
-        facebook: perfil.Empresa.sitio_web?.facebook || "",
-        instagram: perfil.Empresa.sitio_web?.instagram || "",
-        linkedin: perfil.Empresa.sitio_web?.linkedin || "",
-        twitter: perfil.Empresa.sitio_web?.twitter || "",
-        web: perfil.Empresa.sitio_web?.web || ""
-      }
-
-      // Limpiar campos vacíos del sitio_web
-      Object.keys(sitio_web).forEach(key => {
-        if (!sitio_web[key]) {
-          delete sitio_web[key]
+      if (tipoCuenta === "Empresa" && perfil.Empresa) {
+        const sitio_web = {
+          facebook: perfil.Empresa.sitio_web?.facebook || "",
+          instagram: perfil.Empresa.sitio_web?.instagram || "",
+          linkedin: perfil.Empresa.sitio_web?.linkedin || "",
+          twitter: perfil.Empresa.sitio_web?.twitter || "",
+          web: perfil.Empresa.sitio_web?.web || ""
         }
-      })
 
-      const empresaPayload = {
-        ...perfil.Empresa,
-        nombre_empresa: (perfil.Empresa.nombre_empresa || "").trim(),
-        direccion: (perfil.Empresa.direccion || "").trim(),
-        descripcion: (perfil.Empresa.descripcion || "").trim(),
-        sitio_web: Object.keys(sitio_web).length > 0 ? sitio_web : undefined
+        Object.keys(sitio_web).forEach(key => {
+          if (!sitio_web[key]) {
+            delete sitio_web[key]
+          }
+        })
+
+        const empresaPayload = {
+          ...perfil.Empresa,
+          nombre_empresa: (perfil.Empresa.nombre_empresa || "").trim(),
+          direccion: (perfil.Empresa.direccion || "").trim(),
+          descripcion: (perfil.Empresa.descripcion || "").trim(),
+          sitio_web: Object.keys(sitio_web).length > 0 ? sitio_web : undefined
+        }
+
+        if (empresaPayload.departamento_ID) {
+          empresaPayload.departamento_ID = Number.parseInt(empresaPayload.departamento_ID)
+        }
+        if (empresaPayload.ciudad_ID) {
+          empresaPayload.ciudad_ID = Number.parseInt(empresaPayload.ciudad_ID)
+        }
+
+        payload.documento = empresaPayload.NIT
+        payload.empresa = JSON.stringify(empresaPayload)
       }
 
-      // Asegurarse de que los IDs sean números
-      if (empresaPayload.departamento_ID) {
-        empresaPayload.departamento_ID = Number.parseInt(empresaPayload.departamento_ID)
-      }
-      if (empresaPayload.ciudad_ID) {
-        empresaPayload.ciudad_ID = Number.parseInt(empresaPayload.ciudad_ID)
-      }
-
-      payload.documento = empresaPayload.NIT
-      payload.empresa = JSON.stringify(empresaPayload)
-    }
-
-    console.log("Payload a enviar:", payload) // Para debug
+      console.log("Payload a enviar:", payload)
 
       await axiosInstance.put(`/api/users/perfil/actualizar/${userId}`, payload)
-			Swal.fire({
-				icon: 'success',
-				title: 'Perfil actualizado',
-				text: 'Perfil actualizado con éxito',
-				confirmButtonText: 'Aceptar',
-				confirmButtonColor: '#049019',
-				theme:"bulma",
+      Swal.fire({
+        icon: 'success',
+        title: 'Perfil actualizado',
+        text: 'Perfil actualizado con éxito',
+        confirmButtonText: 'Aceptar',
+        confirmButtonColor: '#049019',
+        theme:"bulma",
         customClass: { confirmButton: 'centered-swal-button' }
-			});
+      });
 
-    // Recargar perfil desde backend
-    const response = await axiosInstance.get(`/api/users/profile/${userId}`)
-    setPerfil(response.data)
-    setPerfilOriginal(response.data)
+      const response = await axiosInstance.get(`/api/users/profile/${userId}`)
+      setPerfil(response.data)
+      setPerfilOriginal(response.data)
 
-    setEditMode(false)
+      setEditMode(false)
 
-    // Si venía de redirección por perfil incompleto, redirigir al home
-    if (requiresCompletion) {
-      navigate("/")
-    }
-  } catch (error) {
-    console.error("Error al actualizar el perfil:", error)
-    console.error("Error response:", error.response)
+      if (requiresCompletion) {
+        navigate("/")
+      }
+    } catch (error) {
+      console.error("Error al actualizar el perfil:", error)
+      console.error("Error response:", error.response)
 
       let errorMessage = "Hubo un error al actualizar el perfil"
       if (error.response?.data?.message) {
@@ -472,23 +445,22 @@ const handleSaveChanges = async () => {
       } else if (error.message) {
         errorMessage = error.message
       }
-			Swal.fire({
-				icon: 'error',
-				title: 'Error',
-				text: errorMessage,
-				confirmButtonText: 'Aceptar',
-				confirmButtonColor: '#d33',
-				theme:"bulma",
-      customClass: { confirmButton: 'centered-swal-button' }
-			});
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: errorMessage,
+        confirmButtonText: 'Aceptar',
+        confirmButtonColor: '#d33',
+        theme:"bulma",
+        customClass: { confirmButton: 'centered-swal-button' }
+      });
 
-    if (perfilOriginal) {
-      setPerfil(perfilOriginal)
+      if (perfilOriginal) {
+        setPerfil(perfilOriginal)
+      }
     }
   }
-}
 
-  // Indicador simple de perfil incompleto (datos básicos)
   const perfilIncompleto = !perfil || !perfil.nombres || !perfil.apellidos || !perfil.email
 
   return (
@@ -517,6 +489,21 @@ const handleSaveChanges = async () => {
               />
               <h3 className="profile_role">{tipoCuenta}</h3>
               <p className="profile_email">{perfil?.email || ""}</p>
+              
+              {/* Estado del Manager - Movido a la izquierda */}
+              {tipoCuenta === "Empresa" && (
+                <div className="manager_status_badge">
+                  <div
+                    className={`status_indicator ${
+                      perfil?.estado === "activo" ? "status_active" : "status_inactive"
+                    }`}
+                  ></div>
+                  <div className="status_text">
+                    <span className="status_label">{perfil?.estado === "activo" ? "Activo" : "Inactivo"}</span>
+                    <span className="status_role">Manager</span>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Sección inferior: datos del usuario */}
@@ -559,6 +546,7 @@ const handleSaveChanges = async () => {
                     placeholder="Ingrese su email..."
                     value={perfil?.email || ""}
                     onChange={handleInputChange}
+                    disabled={!editMode}
                   />
                 ) : (
                   <span className="profile_value">{perfil?.email || ""}</span>
@@ -575,24 +563,34 @@ const handleSaveChanges = async () => {
                     placeholder="Ingrese su celular..."
                     value={perfil?.celular || ""}
                     onChange={handleInputChange}
+                    disabled={!editMode}
                   />
                 ) : (
                   <span className="profile_value">{perfil?.celular || ""}</span>
                 )}
               </div>
+
+              {/* Botones de acción para roles que pueden editar */}
+              {(tipoCuenta === "Aprendiz" || tipoCuenta === "Instructor") && editMode && (
+                <div className="profile_action_buttons">
+                  <button className="btn_guardar" onClick={handleSaveChanges}>
+                    Guardar
+                  </button>
+                  <button className="btn_cancelar" onClick={handleCancel}>
+                    Cancelar
+                  </button>
+                </div>
+              )}
             </div>
 
-            {(tipoCuenta === "Aprendiz" || tipoCuenta === "Empresa" || tipoCuenta === "Instructor") && (
-              <>
-                <button
-                  className={`updateProfile ${editMode ? "" : ""}`}
-                  onClick={() => handleModelCancel(editMode)}
-                >
-                  {editMode ? "" : ""}
-                </button>
-
-                {/* {editMode && <button className="updateProfile1" onClick={handleSaveChanges}></button>} */}
-              </>
+            {/* Botón de editar para roles que pueden editar - se oculta en modo edición */}
+            {(tipoCuenta === "Aprendiz" || tipoCuenta === "Empresa" || tipoCuenta === "Instructor") && !editMode && (
+              <button
+                className="updateProfile"
+                onClick={() => setEditMode(true)}
+              >
+                <FontAwesomeIcon icon={faPenToSquare} className="edit-button" />
+              </button>
             )}
           </div>
 
@@ -633,7 +631,7 @@ const handleSaveChanges = async () => {
                         <button className="btn_guardar" onClick={handleSaveChanges}>
                           Guardar
                         </button>
-                        <button className="btn_cancelar" onClick={() => handleModelCancel(editMode)}>
+                        <button className="btn_cancelar" onClick={handleCancel}>
                           Cancelar
                         </button>
                       </div>
@@ -746,6 +744,7 @@ const handleSaveChanges = async () => {
                 className="empresa_input_nombre"
                 value={perfil?.Empresa?.nombre_empresa || ""}
                 onChange={handleInputChange}
+                disabled={!editMode}
               />
             ) : (
               perfil?.Empresa?.nombre_empresa || ""
@@ -760,6 +759,7 @@ const handleSaveChanges = async () => {
                 className="empresa_input_nit"
                 value={perfil?.Empresa?.NIT || ""}
                 onChange={handleInputChange}
+                disabled={!editMode}
               />
             ) : (
               perfil?.Empresa?.NIT || ""
@@ -769,16 +769,34 @@ const handleSaveChanges = async () => {
       </div>
 
       <div className="empresa_header_right">
+        {/* Estado de la Empresa - Reemplaza al del Manager */}
         <div className="empresa_status_badge">
-          <div
-            className={`status_indicator ${
-              perfil?.estado === "activo" ? "status_active" : "status_inactive"
-            }`}
-          ></div>
-          <div className="status_text">
-            <span className="status_label">{perfil?.estado === "activo" ? "Activo" : "Inactivo"}</span>
-            <span className="status_role">Manager</span>
-          </div>
+          {editMode ? (
+            <select
+              name="Empresa.estado"
+              className="empresa_status_select"
+              value={perfil?.Empresa?.estado || "activo"}
+              onChange={handleInputChange}
+              disabled={!editMode}
+            >
+              <option value="activo">Activo</option>
+              <option value="inactivo">Inactivo</option>
+            </select>
+          ) : (
+            <>
+              <div
+                className={`status_indicator ${
+                  perfil?.Empresa?.estado === "activo" ? "status_active" : "status_inactive"
+                }`}
+              ></div>
+              <div className="status_text">
+                <span className="status_label">
+                  {perfil?.Empresa?.estado === "activo" ? "Activo" : "Inactivo"}
+                </span>
+                <span className="status_role">Empresa</span>
+              </div>
+            </>
+          )}
         </div>
 
         {editMode && (
@@ -786,7 +804,7 @@ const handleSaveChanges = async () => {
             <button className="btn_guardar" onClick={handleSaveChanges}>
               Guardar
             </button>
-            <button className="btn_cancelar" onClick={() => handleModelCancel(editMode)}>
+            <button className="btn_cancelar" onClick={handleCancel}>
               Cancelar
             </button>
           </div>
@@ -794,7 +812,7 @@ const handleSaveChanges = async () => {
       </div>
     </div>
 
-    {/* Datos Empresa - ACTUALIZADO CON NUEVOS CAMPOS */}
+    {/* Datos Empresa */}
     <div className="empresa_datos_section">
       <h3 className="section_title">Datos Empresa</h3>
       <div className="empresa_datos_grid">
@@ -808,6 +826,7 @@ const handleSaveChanges = async () => {
               placeholder="Ingrese un teléfono..."
               value={perfil?.Empresa?.telefono || ""}
               onChange={handleInputChange}
+              disabled={!editMode}
             />
           ) : (
             <span className="empresa_value">{perfil?.Empresa?.telefono || "-"}</span>
@@ -824,6 +843,7 @@ const handleSaveChanges = async () => {
               placeholder="Ingrese una dirección..."
               value={perfil?.Empresa?.direccion || ""}
               onChange={handleInputChange}
+              disabled={!editMode}
             />
           ) : (
             <span className="empresa_value">{perfil?.Empresa?.direccion || "-"}</span>
@@ -840,6 +860,7 @@ const handleSaveChanges = async () => {
               placeholder="Ingrese un email..."
               value={perfil?.Empresa?.email_empresa || ""}
               onChange={handleInputChange}
+              disabled={!editMode}
             />
           ) : (
             <span className="empresa_value">{perfil?.Empresa?.email_empresa || "-"}</span>
@@ -854,6 +875,7 @@ const handleSaveChanges = async () => {
               className="empresa_input-s"
               value={perfil?.Empresa?.categoria || ""}
               onChange={handleInputChange}
+              disabled={!editMode}
             >
               <option value="">Seleccione una categoría...</option>
               <option value="tecnologia">Tecnología</option>
@@ -884,6 +906,7 @@ const handleSaveChanges = async () => {
               className="empresa_input-s"
               value={departamentoSeleccionado || ""}  
               onChange={handleDepartamentoChange}
+              disabled={!editMode}
             >
               <option value="">Seleccione un departamento...</option>
               {departamentos.map((dep) => (
@@ -905,6 +928,7 @@ const handleSaveChanges = async () => {
               className={`empresa_input-s ${!departamentoSeleccionado ? 'select-disabled' : ''}`}
               value={ciudadSeleccionada || ""}
               onChange={handleCiudadChange}
+              disabled={!editMode || !departamentoSeleccionado}
             >
               <option value="">Seleccione una ciudad...</option>
               {ciudades.map((ciudad) => (
@@ -919,7 +943,7 @@ const handleSaveChanges = async () => {
         </div>
       </div>
 
-      {/* NUEVO: Descripción de la Empresa */}
+      {/* Descripción de la Empresa */}
       <div className="empresa_field_full">
         <label>Descripción de la Empresa:</label>
         {editMode ? (
@@ -930,6 +954,7 @@ const handleSaveChanges = async () => {
             value={perfil?.Empresa?.descripcion || ""}
             onChange={handleInputChange}
             rows="4"
+            disabled={!editMode}
           />
         ) : (
           <div className="empresa_descripcion">
@@ -938,14 +963,14 @@ const handleSaveChanges = async () => {
         )}
       </div>
 
-      {/* NUEVO: Enlaces de Redes Sociales */}
+      {/* Enlaces de Redes Sociales */}
       {(perfil?.Empresa?.sitio_web && Object.keys(perfil.Empresa.sitio_web).some(key => perfil.Empresa.sitio_web[key])) || editMode ? (
         <div className="empresa_redes_sociales">
           <h4 className="redes_sociales_title">Enlaces de Contacto</h4>
           <div className="redes_sociales_grid">
             {/* Sitio Web */}
             <div className="red_social_item">
-              <label>🌐 Sitio Web:</label>
+              <label><FontAwesomeIcon icon={faGlobe} /> Sitio Web:</label>
               {editMode ? (
                 <input
                   type="url"
@@ -954,6 +979,7 @@ const handleSaveChanges = async () => {
                   placeholder="https://www.empresa.com"
                   value={perfil?.Empresa?.sitio_web?.web || ""}
                   onChange={handleInputChange}
+                  disabled={!editMode}
                 />
               ) : (
                 perfil?.Empresa?.sitio_web?.web ? (
@@ -968,7 +994,7 @@ const handleSaveChanges = async () => {
 
             {/* Facebook */}
             <div className="red_social_item">
-              <label>📘 Facebook:</label>
+              <label><FontAwesomeIcon icon={faFacebook} />Facebook:</label>
               {editMode ? (
                 <input
                   type="url"
@@ -977,6 +1003,7 @@ const handleSaveChanges = async () => {
                   placeholder="https://facebook.com/empresa"
                   value={perfil?.Empresa?.sitio_web?.facebook || ""}
                   onChange={handleInputChange}
+                  disabled={!editMode}
                 />
               ) : (
                 perfil?.Empresa?.sitio_web?.facebook ? (
@@ -991,7 +1018,7 @@ const handleSaveChanges = async () => {
 
             {/* Instagram */}
             <div className="red_social_item">
-              <label>📷 Instagram:</label>
+              <label><FontAwesomeIcon icon={faInstagram} /> Instagram:</label>
               {editMode ? (
                 <input
                   type="url"
@@ -1000,6 +1027,7 @@ const handleSaveChanges = async () => {
                   placeholder="https://instagram.com/empresa"
                   value={perfil?.Empresa?.sitio_web?.instagram || ""}
                   onChange={handleInputChange}
+                  disabled={!editMode}
                 />
               ) : (
                 perfil?.Empresa?.sitio_web?.instagram ? (
@@ -1014,7 +1042,7 @@ const handleSaveChanges = async () => {
 
             {/* LinkedIn */}
             <div className="red_social_item">
-              <label>💼 LinkedIn:</label>
+              <label><FontAwesomeIcon icon={faLinkedin} /> LinkedIn:</label>
               {editMode ? (
                 <input
                   type="url"
@@ -1023,6 +1051,7 @@ const handleSaveChanges = async () => {
                   placeholder="https://linkedin.com/company/empresa"
                   value={perfil?.Empresa?.sitio_web?.linkedin || ""}
                   onChange={handleInputChange}
+                  disabled={!editMode}
                 />
               ) : (
                 perfil?.Empresa?.sitio_web?.linkedin ? (
@@ -1037,7 +1066,7 @@ const handleSaveChanges = async () => {
 
             {/* Twitter */}
             <div className="red_social_item">
-              <label>🐦 Twitter:</label>
+              <label><FontAwesomeIcon icon={faTwitter} /> Twitter:</label>
               {editMode ? (
                 <input
                   type="url"
@@ -1046,6 +1075,7 @@ const handleSaveChanges = async () => {
                   placeholder="https://twitter.com/empresa"
                   value={perfil?.Empresa?.sitio_web?.twitter || ""}
                   onChange={handleInputChange}
+                  disabled={!editMode}
                 />
               ) : (
                 perfil?.Empresa?.sitio_web?.twitter ? (
@@ -1191,6 +1221,7 @@ const handleSaveChanges = async () => {
                         placeholder="Ingrese un email..."
                         value={perfil?.email || ""}
                         onChange={handleInputChange}
+                        disabled={!editMode}
                       />
                     ) : (
                       <span className="aprendiz_value">{perfil?.email || "-"}</span>
@@ -1207,6 +1238,7 @@ const handleSaveChanges = async () => {
                         placeholder="Ingrese un celular..."
                         value={perfil?.celular || ""}
                         onChange={handleInputChange}
+                        disabled={!editMode}
                       />
                     ) : (
                       <span className="aprendiz_value">{perfil?.celular || "-"}</span>

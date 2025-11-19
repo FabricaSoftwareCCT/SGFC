@@ -101,7 +101,7 @@
 }
 
 .manager-section::before {
-  content: "👤 Manager";
+  content: "Manager";
   position: sticky;
   top: 0;
   background: #00843d;
@@ -124,7 +124,7 @@
 }
 
 .empresa-section::before {
-  content: "🏢 Empresa";
+  content: "Empresa";
   position: sticky;
   top: 0;
   background: #00843d;
@@ -333,7 +333,7 @@
 }
 
 .social-links-title::before {
-  content: "🔗";
+  content: "";
   font-size: 0.9rem;
 }
 

@@ -365,10 +365,10 @@ const generarReporteDesdeElemento = async (targetElement) => {
         actions: 'swal2-actions-centered'
                 }
               })
-		setDoneGenerating(false)
-	} finally {
-		setGenerating(false)
-	}
+        setDoneGenerating(false)
+    } finally {
+        setGenerating(false)
+    }
 };
 
 	// Contador de filtros activos

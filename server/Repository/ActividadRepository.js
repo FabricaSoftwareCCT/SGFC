@@ -1,16 +1,8 @@
-<<<<<<< HEAD
-const { literal } = require("sequelize");
-
-const { where } = require("sequelize");
-const Criterio = require("../models/Criterio");
-const UsuarioTieneCriterios = require("../models/UsuarioTieneCriterios");
-=======
 const { where } = require("sequelize");
 const Criterio = require("../models/Criterio");
 const UsuarioTieneCriterios = require("../models/UsuarioTieneCriterios");
 
 const { literal } = require("sequelize");
->>>>>>> bb83f9707a1659855e39fc9141c247a6cf97ab27
 
 let db;
 

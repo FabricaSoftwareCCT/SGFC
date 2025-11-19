@@ -20,7 +20,9 @@ const registerAttendance = async (req, res) => {
         
         // Validar fecha futura
         const fechaAsistencia = new Date(fecha);
+        console.log(fechaAsistencia, "hola")
         const hoy = new Date();
+        console.log(hoy, "hola2")
         hoy.setHours(0, 0, 0, 0);
 
         if (fechaAsistencia > hoy) {

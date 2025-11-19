@@ -24,7 +24,6 @@ import { faInstagram, faFacebook, faLinkedin, faTwitter } from "@fortawesome/fre
 import { faGlobe, faPenToSquare } from '@fortawesome/free-solid-svg-icons';
 
 export const SeeMyProfile = () => {
-<<<<<<< HEAD
   const location = useLocation()
   const navigate = useNavigate()
   const userId = location.state?.userId
@@ -42,25 +41,6 @@ export const SeeMyProfile = () => {
   const [cursos, setCursos] = useState([])
   const [instructores, setInstructores] = useState([])
   const { setShowModalGeneral, setModalGeneralContent } = useModal()
-=======
-	const location = useLocation()
-	const navigate = useNavigate()
-	const userId = location.state?.userId
-	const requiresCompletion = location.state?.requiresCompletion
-	const fotoPerfilInputRef = React.useRef(null)
-	const logoEmpresaInputRef = React.useRef(null)
-	const [perfil, setPerfil] = useState(null)
-	const [perfilOriginal, setPerfilOriginal] = useState(null)
-	const [tipoCuenta, setTipoCuenta] = useState("")
-	const [editMode, setEditMode] = useState(false)
-	const [departamentos, setDepartamentos] = useState([])
-	const [ciudades, setCiudades] = useState([])
-	const [departamentoSeleccionado, setDepartamentoSeleccionado] = useState("")
-	const [ciudadSeleccionada, setCiudadSeleccionada] = useState("")
-	const [cursos, setCursos] = useState([])
-	const [instructores, setInstructores] = useState([])
-	const { setShowModalGeneral, setModalGeneralContent } = useModal()
->>>>>>> bb83f9707a1659855e39fc9141c247a6cf97ab27
 
   const fetchCursos = useCallback(async () => {
     if (!userId) {
@@ -1210,7 +1190,6 @@ export const SeeMyProfile = () => {
 								</div>
 							</div>
 
-<<<<<<< HEAD
               {/* Datos Empleado */}
               <div className="aprendiz_datos_section">
                 <h3 className="section_title">Datos Empleado</h3>
@@ -1237,34 +1216,6 @@ export const SeeMyProfile = () => {
                       disabled={!editMode}
                     />
                   </div>
-=======
-							{/* Datos Empleado */}
-							<div className="aprendiz_datos_section">
-								<h3 className="section_title">Datos Empleado</h3>
-								<div className="aprendiz_empresa_info">
-									<p>
-										<strong>Nombre empresa:</strong>{" "}
-                    {perfil?.Empresa?.nombre_empresa || "Sin información"}
-									</p>
-									<p>
-										<strong>NIT:</strong>{" "}
-                    {perfil?.Empresa?.NIT || "No registrado"}
-									</p>
-								</div>
-								<div className="aprendiz_datos_grid">
-									<div className="aprendiz_field">
-										<label>Nombre:</label>
-										<input
-											type="text"
-											name="nombres"
-											className="aprendiz_input"
-											placeholder="Ingrese un nombre..."
-											value={perfil?.nombres || ""}
-											onChange={handleInputChange}
-											disabled={!editMode}
-										/>
-									</div>
->>>>>>> bb83f9707a1659855e39fc9141c247a6cf97ab27
 
 									<div className="aprendiz_field">
 										<label>Apellido:</label>

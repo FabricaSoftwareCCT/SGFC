@@ -389,7 +389,7 @@ export const NavBar = ({ children }) => {
 							instructor_ID: notif.destinatario_ID,
 							curso_ID: notif.curso_ID,
 						})
-						 if (asignacionResponse.status >= 200 && asignacionResponse.status < 300) {
+						if (asignacionResponse.status >= 200 && asignacionResponse.status < 300) {
 						Swal.fire({
 							icon:"success",
 							title:"Cursos asignado",

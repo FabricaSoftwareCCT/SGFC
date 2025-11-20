@@ -86,6 +86,7 @@ export const SeeMyProfile = () => {
         const response = await axiosInstance.get(`/api/users/profile/${userId}`)
         
         const profileData = response.data
+        console.log(profileData.Empresa)
         if (profileData.Empresa && !profileData.Empresa.sitio_web) {
           profileData.Empresa.sitio_web = {
             facebook: "",

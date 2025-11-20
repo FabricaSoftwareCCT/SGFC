@@ -31,6 +31,8 @@ const Usuario = require("../models/User");
 const { addHistorial } = require("./historialController");
 const Curso = require("../models/curso");
 const InscripcionCurso = require("../models/InscripcionCurso");
+const { log } = require("console");
+const { console } = require("inspector");
 const fotoDefectPerfil = "../Img/userDefect.png"; // Importar la imagen por defecto
 
 //registrar usuario (empresa o aprendiz)
@@ -674,10 +676,17 @@ const getUserProfile = async (req, res) => {
 			],
 		});
 
+		if (usuario.Empresa?.sitio_web && typeof usuario.Empresa.sitio_web === "string") {
+			try {
+				usuario.Empresa.sitio_web = JSON.parse(usuario.Empresa.sitio_web)
+			} catch (error) {
+				res.status(500).json({error : "No se logro terminar de transformar"})
+			}
+		}
+
 		if (!usuario) {
 			return res.status(404).json({ error: "Usuario no encontrado" });
 		}
-
 		res.json(usuario);
 	} catch (error) {
 		console.error("Error al obtener el perfil del usuario:", error);
@@ -1115,15 +1124,15 @@ const updateUserProfile = async (req, res) => {
 				let empresaData;
 				try {
 					empresaData =
-						typeof req.body.empresa === "string"
-							? JSON.parse(req.body.empresa)
-							: req.body.empresa;
+					typeof req.body.empresa === "string"
+					? JSON.parse(req.body.empresa)
+					: req.body.empresa;
 				} catch (e) {
 					return res
 						.status(400)
 						.json({ message: "Formato de empresa inválido." });
 				}
-
+				
 				const {
 					NIT,
 					categoria,
@@ -1138,7 +1147,7 @@ const updateUserProfile = async (req, res) => {
 					ciudad_ID,
 					departamento_ID,
 				} = empresaData;
-
+				
 				// Validaciones únicas para Empresa (NIT y email_empresa)
 				try {
 					const empresaIdActual = user.Empresa.ID;
@@ -1152,8 +1161,8 @@ const updateUserProfile = async (req, res) => {
 								.json({
 									message:
 										"El NIT de la empresa ya está registrado.",
-								});
-						}
+									});
+								}
 					}
 					if (
 						email_empresa &&
@@ -1172,18 +1181,18 @@ const updateUserProfile = async (req, res) => {
 									message:
 										"El email de la empresa ya está registrado.",
 								});
-						}
+							}
 					}
 				} catch (e) {
 					return res
-						.status(500)
-						.json({
+					.status(500)
+					.json({
 							message: "Error validando unicidad de empresa.",
 						});
-				}
-
-				if (NIT !== undefined) user.Empresa.NIT = NIT;
-				if (email_empresa !== undefined)
+					}
+					
+					if (NIT !== undefined) user.Empresa.NIT = NIT;
+					if (email_empresa !== undefined)
 					user.Empresa.email_empresa = email_empresa;
 				if (nombre_empresa !== undefined)
 					user.Empresa.nombre_empresa = nombre_empresa;
@@ -1194,18 +1203,18 @@ const updateUserProfile = async (req, res) => {
 				if (estadoEmpresa !== undefined) user.Empresa.estado = estadoEmpresa;
 				if (descripcion != undefined) user.descripcion = descripcion;
 				if (sitio_web != undefined) user.sitio_web = sitio_web;
-
+				
 				if (req.files?.img_empresa?.[0]) {
 					user.Empresa.img_empresa =
 						req.files.img_empresa[0].buffer.toString("base64");
-				} else if (img_empresa !== undefined) {
+					} else if (img_empresa !== undefined) {
 					user.Empresa.img_empresa = img_empresa;
 				}
 
 				await user.Empresa.save();
 			}
 
-                // Detectar cambios comparando snapshot vs valores actuales
+			// Detectar cambios comparando snapshot vs valores actuales
                 const changedFields = [];
                 const labels = {
                     email: 'Correo',
@@ -1223,10 +1232,10 @@ const updateUserProfile = async (req, res) => {
                 for (const key of Object.keys(originalValues)) {
                     if (originalValues[key] !== user[key]) {
                         if (key === 'foto_perfil') {
-                            photoChanged = true;
+							photoChanged = true;
                             // Para foto de perfil, solo indicar que cambió sin mostrar el contenido
                             changedFields.push({ 
-                                key, 
+								key, 
                                 label: labels[key] || key, 
                                 before: originalValues[key] ? 'Imagen anterior' : 'Sin imagen', 
                                 after: user[key] ? 'Nueva imagen' : 'Sin imagen'
@@ -1241,14 +1250,14 @@ const updateUserProfile = async (req, res) => {
                         }
                     }
                 }
-
+				
 			await user.save();
 
                 // Enviar notificación sólo si: el usuario objetivo es Gestor y hubo cambios
                 if (user.accountType === 'Gestor' && changedFields.length > 0) {
                     try {
-                        await sendProfileUpdateNotification(
-                            Number(loggedInUser.id) || null, // remitente (admin)
+						await sendProfileUpdateNotification(
+							Number(loggedInUser.id) || null, // remitente (admin)
                             user.ID,                           // destinatario (gestor)
                             {                                 // datos del usuario
                                 nombres: user.nombres,
@@ -1282,7 +1291,7 @@ const updateUserProfile = async (req, res) => {
 				//documento : NIT,
 				email: email,
 			};
-
+			
 			const camposVacios = [];
 			for (const [campo, valor] of Object.entries(camposObligatorios)) {
 				if (
@@ -1292,7 +1301,7 @@ const updateUserProfile = async (req, res) => {
 					camposVacios.push(campo);
 				}
 			}
-
+			
 			if (camposVacios.length > 0) {
 				return res.status(400).json({
 					message: `No se pudo guardar el perfil de empresa. Los siguientes campos son obligatorios y no pueden estar vacíos: ${camposVacios.join(
@@ -1300,7 +1309,7 @@ const updateUserProfile = async (req, res) => {
 					)}. Intente nuevamente.`,
 				});
 			}
-
+			
 			// Validaciones únicas para Empresa (email y documento/NIT)
 			if (email && email !== user.email) {
 				const existingEmail = await User.findOne({ where: { email } });
@@ -1309,10 +1318,10 @@ const updateUserProfile = async (req, res) => {
 						.status(400)
 						.json({
 							message:
-								"El correo electrónico ya está registrado.",
+							"El correo electrónico ya está registrado.",
 						});
-				}
-				user.email = email;
+					}
+					user.email = email;
 			}
 			if (nombres) user.nombres = nombres;
 			if (apellidos) user.apellidos = apellidos;
@@ -1335,22 +1344,24 @@ const updateUserProfile = async (req, res) => {
 				user.estado = estado;
 			}
 			if (foto_perfil) user.foto_perfil = foto_perfil;
-
+			
 			// Actualizar datos de la empresa - MEJORADO
 			if (req.body.empresa && user.Empresa) {
 				let empresaData;
 				try {
 					// Si viene como string, parsearlo, si ya es objeto, usarlo directamente
 					empresaData =
-						typeof req.body.empresa === "string"
-							? JSON.parse(req.body.empresa)
-							: req.body.empresa;
+					typeof req.body.empresa === "string"
+					? JSON.parse(req.body.empresa)
+					: req.body.empresa;
+					
 				} catch (e) {
 					return res
-						.status(400)
-						.json({ message: "Formato de empresa inválido." });
+					.status(400)
+					.json({ message: "Formato de empresa inválido." });
 				}
-
+				
+				//console.log(empresaData)
 				const {
 					NIT,
 					categoria,
@@ -1360,6 +1371,8 @@ const updateUserProfile = async (req, res) => {
 					img_empresa,
 					nombre_empresa,
 					telefono,
+					descripcion,
+					sitio_web,
 					ciudad_ID,
 				} = empresaData;
 
@@ -1404,6 +1417,8 @@ const updateUserProfile = async (req, res) => {
 				if (direccion) user.Empresa.direccion = direccion;
 				if (categoria) user.Empresa.categoria = categoria;
 				if (telefono) user.Empresa.telefono = telefono;
+				if (descripcion) user.Empresa.descripcion = descripcion;
+				if (sitio_web) user.Empresa.sitio_web = sitio_web 
 				if (ciudad_ID) user.Empresa.ciudad_ID = ciudad_ID;
 
 				// Procesar imagen de empresa si viene en archivos

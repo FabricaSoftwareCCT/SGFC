@@ -263,7 +263,7 @@ const handleSaveUpdate = async () => {
               </div>
 
               <div className="button-group">
-                <button className="btn-save" onClick={handleSaveUpdate}>
+                <button className="btn-save" onClick={handleSave}>
                   Guardar
                 </button>
                 <button className="btn-cancel" onClick={handleCancel}>

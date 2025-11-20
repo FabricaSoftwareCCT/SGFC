@@ -8,6 +8,8 @@ import { useModal } from "../../../../Context/ModalContext";
 import { validateEmail, validateNumber, validateText } from "../../../../utils/Validators/formValidator";
 import Swal from 'sweetalert2';
 import 'sweetalert2/themes/bulma.css'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faArrowLeft, faUser, faIdCard, faPhone, faEnvelope, faCamera } from '@fortawesome/free-solid-svg-icons';
 
 export const CreateGestor = ({ onClose }) => {
   // 1. Todos los Hooks al inicio del componente
@@ -58,7 +60,8 @@ export const CreateGestor = ({ onClose }) => {
     if (onClose) {
       onClose();
     } else {
-      document.getElementById("modal-overlayCreateGestor").style.display = "none";
+      const overlay = document.getElementById("modal-overlayCreateGestor");
+      if (overlay) overlay.style.display = "none";
     }
   };
 
@@ -242,132 +245,184 @@ export const CreateGestor = ({ onClose }) => {
     }
   };
 
-
   return (
-    <div id="modal-overlayCreateGestor">
-      <form className="modal-bodyCreateGestor" onSubmit={handleSubmit}>
-        <div className="modal-left">
-          <label>
-            Nombres
-            <input
-              type="text"
-              name="nombres"
-              value={formData.nombres}
-              onChange={handleInputChange}
-              required
-            />
-          </label>
-          <label>
-            Apellidos
-            <input
-              type="text"
-              name="apellidos"
-              value={formData.apellidos}
-              onChange={handleInputChange}
-              required
-            />
-          </label>
-          <label>
-            Documento
-            <input
-              type="text"
-              name="documento"
-              value={formData.documento}
-              onChange={handleInputChange}
-              required
-            />
-          </label>
-          <label>
-            Celular
-            <input
-              type="text"
-              name="celular"
-              value={formData.celular}
-              onChange={handleInputChange}
-              required
-            />
-          </label>
-          <label>
-            Email
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleInputChange}
-              required
-            />
-          </label>
+    <div id="modal-overlayCreateGestor" className="modal-overlay-create-gestor">
+      <div className="modal-container-create-gestor">
+        <div className="modal-header-create-gestor">
+          <div className="header-content-create-gestor">
+            <h2>
+              <FontAwesomeIcon icon={faUser} className="header-icon" />
+              Crear Nuevo Gestor
+            </h2>
+            <button 
+              type="button" 
+              onClick={closeModalCreateGestor}
+              className="close-btn-create-gestor"
+            >
+              <FontAwesomeIcon icon={faArrowLeft} />
+              <span>Volver</span>
+            </button>
+          </div>
         </div>
 
-        <div className="modal-right">
-          <input
-            type="file"
-            accept="image/*"
-            ref={fileInputRef}
-            onChange={handleFileChange}
-            hidden
-          />
+        <form className="modal-body-create-gestor" onSubmit={handleSubmit}>
+          <div className="modal-content-create-gestor">
+            {/* Columna izquierda - Información */}
+            <div className="info-column-create-gestor">
+              <div className="form-section-create-gestor">
+                <h3 className="section-title-create-gestor">Información Personal</h3>
+                <div className="form-grid-create-gestor">
+                  <div className="input-group-create-gestor">
+                    <label className="input-label-create-gestor">
+                      <FontAwesomeIcon icon={faUser} />
+                      Nombres
+                    </label>
+                    <input
+                      type="text"
+                      name="nombres"
+                      value={formData.nombres}
+                      onChange={handleInputChange}
+                      className="input-field-create-gestor"
+                      placeholder="Ingrese los nombres"
+                      required
+                    />
+                  </div>
 
-          <label
-            className="upload-area"
-            onClick={() => fileInputRef.current.click()}
-          >
-            {preview ? (
-              <img
-                src={preview}
-                alt="Vista previa"
-                className="preview-image"
-              />
-            ) : (
-              <div className="upload-placeholder">
-                <img
-                  src={addIMG}
-                  alt="icono agregar imagen"
-                  className="icon"
-                />
-                <p>Arrastra o sube la foto del gestor aquí.</p>
+                  <div className="input-group-create-gestor">
+                    <label className="input-label-create-gestor">
+                      <FontAwesomeIcon icon={faUser} />
+                      Apellidos
+                    </label>
+                    <input
+                      type="text"
+                      name="apellidos"
+                      value={formData.apellidos}
+                      onChange={handleInputChange}
+                      className="input-field-create-gestor"
+                      placeholder="Ingrese los apellidos"
+                      required
+                    />
+                  </div>
+
+                  <div className="input-group-create-gestor">
+                    <label className="input-label-create-gestor">
+                      <FontAwesomeIcon icon={faIdCard} />
+                      Documento
+                    </label>
+                    <input
+                      type="text"
+                      name="documento"
+                      value={formData.documento}
+                      onChange={handleInputChange}
+                      className="input-field-create-gestor"
+                      placeholder="Ingrese el documento"
+                      required
+                    />
+                  </div>
+
+                  <div className="input-group-create-gestor">
+                    <label className="input-label-create-gestor">
+                      <FontAwesomeIcon icon={faPhone} />
+                      Celular
+                    </label>
+                    <input
+                      type="text"
+                      name="celular"
+                      value={formData.celular}
+                      onChange={handleInputChange}
+                      className="input-field-create-gestor"
+                      placeholder="Ingrese el celular"
+                      required
+                    />
+                  </div>
+
+                  <div className="input-group-create-gestor">
+                    <label className="input-label-create-gestor">
+                      <FontAwesomeIcon icon={faEnvelope} />
+                      Email
+                    </label>
+                    <input
+                      type="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      className="input-field-create-gestor"
+                      placeholder="Ingrese el email"
+                      required
+                    />
+                  </div>
+
+                  <div className="input-group-create-gestor">
+                    <label className="input-label-create-gestor">Estado</label>
+                    <div className="status-buttons-create-gestor">
+                      {["Activo", "Inactivo"].map((estado) => {
+                        const isSelected = (formData.estado || "").toLowerCase() === estado.toLowerCase();
+                        return (
+                          <button
+                            key={estado}
+                            type="button"
+                            className={`status-btn-create-gestor ${isSelected ? "active" : ""}`}
+                            onClick={() => setFormData({ ...formData, estado })}
+                          >
+                            <span className="status-dot-create-gestor"></span>
+                            {estado}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
               </div>
-            )}
-          </label>
+            </div>
 
-          <div className="status-container">
-            <span>Estado:</span>
-            <div className="status-buttons">
-              <button
-                type="button"
-                className={`status ${formData.estado === "Activo" ? "active" : ""
-                  }`}
-                onClick={() => setFormData({ ...formData, estado: "Activo" })}
-              >
-                Activo
-              </button>
-              <button
-                type="button"
-                className={`status ${formData.estado === "Inactivo" ? "active" : ""
-                  }`}
-                onClick={() =>
-                  setFormData({ ...formData, estado: "Inactivo" })
-                }
-              >
-                Inactivo
+            {/* Columna derecha - Imagen */}
+            <div className="image-column-create-gestor">
+              <div className="image-section-create-gestor">
+                <div className="image-container-create-gestor">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    ref={fileInputRef}
+                    onChange={handleFileChange}
+                    id="imageUploadCreateGestor"
+                    className="file-input-create-gestor"
+                  />
+                  <label
+                    className="image-upload-create-gestor"
+                    htmlFor="imageUploadCreateGestor"
+                  >
+                    {preview ? (
+                      <img
+                        src={preview}
+                        alt="Vista previa"
+                        className="profile-image-create-gestor"
+                      />
+                    ) : (
+                      <div className="image-placeholder-create-gestor">
+                        <FontAwesomeIcon icon={faCamera} className="placeholder-icon-create-gestor" />
+                        <span>Haz clic para subir imagen</span>
+                      </div>
+                    )}
+                    <div className="upload-overlay-create-gestor">
+                      <FontAwesomeIcon icon={faCamera} />
+                      <span>Cambiar imagen</span>
+                    </div>
+                  </label>
+                </div>
+                
+                <div className="image-info-create-gestor">
+                  <p>Recomendado: Imagen cuadrada 500x500px</p>
+                </div>
+              </div>
+
+              <button type="submit" className="submit-btn-create-gestor">
+                <FontAwesomeIcon icon={faUser} />
+                <span>Crear Gestor</span>
               </button>
             </div>
           </div>
-
-          <button type="submit" className="save-button">
-            Guardar
-          </button>
-          
-        </div>
-        <div className="container_return_AssignInstructor">
-        <a onClick={() => closeModalCreateGestor(false)} className="text-return">Volver</a>
-          <button
-            type="button"
-            onClick={closeModalCreateGestor}
-            className="closeModal"
-          ></button>
-        </div>
-      </form>
+        </form>
+      </div>
     </div>
   );
 };

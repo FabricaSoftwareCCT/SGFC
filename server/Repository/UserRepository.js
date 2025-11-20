@@ -28,16 +28,17 @@ class UserRepository {
     }
 
     static SecurityAnswer = async (Question, Answer, Id) => {
-        try {
-            return UserSecurity.create({
-                userId: Id,
-                SecurityQuestion: Question,
-                AnswerHash: Answer
-            })
-        }catch (Err){
-            throw new Error ({ status: 500, message: "Error en el servidor"})
-        }
+    try {
+        return UserSecurity.create({
+            userId: Id,
+            SecurityQuestion: Question,
+            AnswerHash: Answer
+        });
+    } catch (Err) {
+        console.error('Error al intentar crear la pregunta de seguridad:', Err);
+        throw { status: 500, message: "Error en el servidor. Intente de nuevo más tarde." };
     }
+}
 
     static GetUserSecurity = async (id) => {
         try{

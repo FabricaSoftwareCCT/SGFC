@@ -116,7 +116,7 @@ const handleSaveUpdate = async () => {
       }
 
       //Petición
-      const response = postSecurityQuestion(newQuestion, newAnswer);
+      const response = await postSecurityQuestion(newQuestion, newAnswer);
       console.log(response)
 
       if(response.status === 200) {

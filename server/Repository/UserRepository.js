@@ -47,7 +47,8 @@ class UserRepository {
                 model: UserSecurity,
                 as: 'SecurityData',
                 attributes: [
-                    ['SecurityQuestion', 'Pregunta', 'AnswerHash', 'respuesta']
+                    ['SecurityQuestion', 'Pregunta'],
+                    [ 'AnswerHash', 'respuesta']
                 ]
             }],
             where: {

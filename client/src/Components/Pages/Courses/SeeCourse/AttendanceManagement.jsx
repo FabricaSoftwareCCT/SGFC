@@ -41,11 +41,12 @@ export const AttendanceManagement = ({ open, onClose, courseId, selectedDate }) 
             fetchAttendanceRecords();
         }
     }, [selectedOption, selectedDate, selectedAttendance]);
-
+    
     const fetchParticipants = async () => {
         try {
             setLoading(true);
             setError(null);
+            console.log(selectedDate)
             const response = await axiosInstance.get(`/api/courses/cursos/${courseId}/participants`);
             if (response.data.success) {
                 setParticipants(response.data.participants);
@@ -71,11 +72,16 @@ export const AttendanceManagement = ({ open, onClose, courseId, selectedDate }) 
     const fetchAttendanceRecords = async () => {
         try {
             setLoading(true);
-            const response = await axiosInstance.get(`/api/attendance/courses/${courseId}/get`, {
-                params: {
-                    limit: 100
-                }
-            });
+            console.log(selectedDate)
+           const response = await axiosInstance.get(`/api/attendance/courses/${courseId}/get`,
+            {
+            params: {
+            startDate: selectedDate,
+            limit: 100
+        }
+    }
+);
+
 
             if (response.data.success) {
                 const records = response.data.records || [];
@@ -229,17 +235,16 @@ export const AttendanceManagement = ({ open, onClose, courseId, selectedDate }) 
 
         } catch (error) {
             console.error('Error al guardar asistencias:', error);
-            setError('Error al guardar las asistencias');
-                        await Swal.fire({
+            console.error('Detalles del error:', error.response?.data);
+            
+            const errorMessage = error.response?.data?.message || 'Error al guardar las asistencias';
+            setError(errorMessage);
+            
+            await Swal.fire({
+                ...swalConfig,
                 icon: 'error',
                 title: 'Error',
-                text: 'Error al guardar las asistencias',
-                confirmButtonText:"Okay",
-                confirmButtonColor:"#00843d",
-                        theme: 'bulma',
-        customClass: {
-          actions: 'swal2-center-actions'
-        }
+                text: errorMessage
             });
         } finally {
             setLoading(false);

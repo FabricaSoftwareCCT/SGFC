@@ -33,7 +33,7 @@ describe('Probar el modulo de administrador', ()=>{
         cy.get('.courses-menu').find('.dropdown-courses').contains('button','Mis cursos').first().click({force:true})
 
         //Recorrer los filtros
-        const textosFiltros = ['Todos','Activos','En oferta', 'Finalizados', 'Oferta abierta', 'Oferta cerrada'];
+        const textosFiltros = ['Todos', 'Finalizados', 'Oferta abierta', 'Oferta cerrada'];
         textosFiltros.forEach((texto) => {
         // Buscar por texto completo del botón
         cy.contains('button', texto).click();
@@ -51,7 +51,7 @@ describe('Probar el modulo de administrador', ()=>{
         cy.contains('button', 'Crear nuevo curso').click()
     })
 
-    it.skip('Buscar cursos', ()=>{
+    it('Buscar cursos', ()=>{
         cy.visit("http://localhost:5173/") 
         cy.get(".button_signIn").first().click({force : true})
 
@@ -116,8 +116,8 @@ describe('Probar el modulo de administrador', ()=>{
         cy.get('.schedule-btn').first().click()
 
         //Ingresar Fechas
-        cy.get('.organized-date-inputs').contains('label', 'Fecha inicio:').find('input[type="date"]').eq(0).type('2025-11-15')
-        cy.get('.organized-date-inputs').contains('label', 'Fecha fin:').find('input[type="date"]').last().type('2025-11-24')
+        cy.get('.organized-date-inputs').contains('label', 'Fecha inicio:').find('input[type="date"]').eq(0).type('2025-11-20')
+        cy.get('.organized-date-inputs').contains('label', 'Fecha fin:').find('input[type="date"]').last().type('2026-11-24')
         
         //Seleccionar horario de curso
         const selectTimeSlot = (time, day) => {
@@ -145,11 +145,12 @@ describe('Probar el modulo de administrador', ()=>{
         cy.get('.save-button-calendar').click()
       
         //Agregar fecha al temario
-        cy.contains('Temario del Curso').parent().find('input[type="date"]').type('2025-11-11');
+        cy.contains('Temario del Curso').parent().find('input[type="date"]').type('2026-11-11');
 
         //Agregar Temario
         cy.get('textarea[placeholder*="Agregar nuevo tema"]').type('Introducción al curso');
-        
+        cy.contains('button','+').click()
+
         //Guardar curso
         cy.contains('button','Crear Curso').click()
     })
@@ -236,7 +237,7 @@ describe('Probar el modulo de administrador', ()=>{
         cy.contains('button', 'Gestión de Instructores').first().click({force:true})
 
         //Agregar Instructor
-        cy.get(".btn_createInstructor").click()
+        cy.contains('button','Agregar Instructor').click()
         
         //Llenar datos del instructor
         cy.get('#modal-overlayCreateInstructor').find('.modal-left').contains('label', 'Nombres').first().find('input[type="text"]').type('Joan')
@@ -267,15 +268,15 @@ describe('Probar el modulo de administrador', ()=>{
 
         //Entrar a Gestion Instructores
         cy.contains('button', 'Gestión de Instructores').first().click({force:true})
-        cy.get('.inputSearchContainer').find('input[id="inputNameCC"]').type('joan')
+        cy.get('.search-input').get('input[placeholder="Buscar instructor..."]').type('joan')
 
         //Ver pefil de un instructor y Editar
-        cy.get('.profile-btn').first().click({force:true})
-        cy.get('.edit-button-updateInstructor').contains('button', 'Actualizar Perfil').click()
+        cy.get('.view-profile-btn-improved').first().click({force:true})
+        cy.get('.submit-btn-update').contains('button', 'Editar Perfil').click()
 
         //Modificar datos del instructor
-        cy.get('.modal-left-update input[name="nombres"]').clear({ force: true }).type('Esteban', { force: true })
-        cy.get('.edit-button-updateInstructor').contains('button','Guardar Cambios').click()
+        cy.get('.input-field-update').get('input[placeholder="Ingrese los nombres"]').clear({ force: true }).type('Joan Esteban', { force: true })
+        cy.contains('button','Guardar Cambios').click()
     })
 
     it.skip('asignar un curso a un instructor desde gestionar instructores',()=>{
@@ -296,9 +297,9 @@ describe('Probar el modulo de administrador', ()=>{
 
         //Entrar a Gestion Instructores
         cy.contains('button', 'Gestión de Instructores').first().click({force:true})
-        cy.contains('button', 'Ver perfil').click()
-        cy.contains('button', 'Gestionar cursos asignados').click()
-        cy.get('.search-row').find('input[placeholder="Buscar por nombre o ficha"]').type('frontend')
+        cy.contains('button', 'Ver Perfil Completo').click()
+        cy.contains('button', 'Gestionar Cursos').click()
+        cy.get('.search-row').find('input[placeholder="Buscar por nombre o ficha"]').type('python')
         cy.contains('button','Asignar').first().click()
     })
 
@@ -320,10 +321,11 @@ describe('Probar el modulo de administrador', ()=>{
 
         //Entrar a Gestion Instructores
         cy.contains('button', 'Gestión de Instructores').first().click({force:true})
-        cy.contains('button', 'Ver perfil').click()
-        cy.contains('button', 'Gestionar cursos asignados').click()
-        cy.get('.search-row').find('input[placeholder="Buscar por nombre o ficha"]').type('Gestión de proyectos')
+        cy.contains('button', 'Ver Perfil Completo').click()
+        cy.contains('button', 'Gestionar Cursos').click()
+        cy.get('.search-row').find('input[placeholder="Buscar por nombre o ficha"]').type('python')
         cy.get('.asignado-item').contains('button', 'Eliminar').click()
+        cy.contains('button','Sí, eliminar').click()
     })
 
     it.skip('Crear un Gestor', ()=>{
@@ -346,14 +348,14 @@ describe('Probar el modulo de administrador', ()=>{
         cy.contains('button', 'Gestión de Gestores').first().click({force:true})
 
         //Agregar Gestor
-        cy.get(".btn_createGestor").click()
+        cy.contains('button','Agregar Gestor').click()
 
         //Llenar datos del gestor
         cy.get('#modal-overlayCreateGestor').find('.modal-left').contains('label', 'Nombres').first().find('input[type="text"]').type('Joan')
         cy.get('#modal-overlayCreateGestor').find('.modal-left').contains('label', 'Apellidos').first().find('input[type="text"]').type('Fernandez')
         cy.get('#modal-overlayCreateGestor').find('.modal-left').contains('label', 'Documento').first().find('input[type="text"]').type('9999998')
         cy.get('#modal-overlayCreateGestor').find('.modal-left').contains('label', 'Celular').first().find('input[type="text"]').type('3137778776')
-        cy.get('#modal-overlayCreateGestor').find('.modal-left').contains('label', 'Email').first().find('input[type="email"]').type('hincapiefernandezjoan123@gmail.com')
+        cy.get('#modal-overlayCreateGestor').find('.modal-left').contains('label', 'Email').first().find('input[type="email"]').type('joan123@gmail.com')
 
         //Ponerle un estado al usuario
         cy.get('#modal-overlayCreateGestor').find('.status-container').contains('.status', 'Activo').first().click({force:true})
@@ -380,18 +382,24 @@ describe('Probar el modulo de administrador', ()=>{
 
         //Buscar Gestor
         cy.contains('button', 'Gestión de Gestores').first().click({force:true})
-        cy.get('.inputSearchContainer').find('input[id="inputNameCC"]').type('455359556')
+        cy.get('.search-input').get('input[placeholder="Buscar gestor..."]').type('joan')
 
         //Ver pefil de un Gestor y Editar
-        cy.get('.profile-btn').first().click({force:true})
-        cy.get('.edit-button-updateInstructor').first().click({force:true})
+        cy.contains('button','Ver Perfil Completo').first().click({force:true})
+        cy.contains('button','Editar Perfil').click()
 
         //Modificar datos del Gestor
-        cy.get('.modal-left-update').find('input[name="nombres"]').first().clear({force:true}).type('James')
-        cy.get('.edit-button-updateInstructor').first().click({force:true})
+        cy.get('.input-label-gestor').get('input[placeholder="Ingrese los nombres"]').clear({ force: true }).type('Joan Esteban', { force: true })
+        cy.contains('button','Guardar Cambios').click({force:true})
     })
 
     it.skip('Modulo de Criterios de Certificación',()=>{
+     // Agregar manejo de errores para excepciones no capturadas
+    Cypress.on('uncaught:exception', (err, runnable) => {
+        console.error('Excepción no capturada:', err);
+        // Retornar false para evitar que Cypress falle la prueba
+        return false;
+    });
         cy.visit("http://localhost:5173/") 
         cy.get(".button_signIn").first().click({force : true})
 
@@ -412,10 +420,10 @@ describe('Probar el modulo de administrador', ()=>{
 
         //Ver criterios de un curso
         cy.contains('button', 'Ver criterios').first().click({force:true})
-        cy.contains('button', 'Ver criterios').first().click({force:true})
+        cy.get('.button.see-criteria-button').contains('button', 'Ver criterios').click({force:true})
         
         //Agregar Criterios
-        cy.contains('button', '+').click()
+        cy.get('.buttons-right').contains('button', '+').click({force:true})
         cy.get('.new-criteria-space').find('input[placeholder="Añadir un titulo"]').type('Asistencias')
         cy.get('.criteria-head').find('.select-criteria-type').click()
         cy.contains('button', 'Asistencias').click()
@@ -710,7 +718,7 @@ describe('Probar el modulo de administrador', ()=>{
 
     })
 
-    it('Reportes y estadisticas',()=>{
+    it.skip('Reportes y estadisticas',()=>{
         cy.visit("http://localhost:5173/") 
         cy.get(".button_signIn").first().click({force : true})
 

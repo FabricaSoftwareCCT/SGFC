@@ -122,6 +122,12 @@ class Usuario extends Model {
     this.hasMany(models.Asistencia, {
       foreignKey: 'aprendiz_ID',
       as: 'asistencias'
+    });
+
+    this.hasOne(models.UserSecurity, {
+      foreignKey: 'userId',
+      as: 'SecurityData',
+      onDelete: 'CASCADE'
     })
   }
 

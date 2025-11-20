@@ -7,13 +7,11 @@ module.exports = defineConfig({
       return config;
     },
     // Añade estas configuraciones dentro de e2e
-    baseUrl: 'http://localhost:5173', // o la URL de tu aplicación
-    specPattern: 'cypress/e2e/**/*.cy.{js,jsx,ts,tsx}',
   },
   
   // Configuraciones globales
-  viewportWidth: 1280,
-  viewportHeight: 720,
+  viewportWidth: 1920,
+  viewportHeight: 1080,
   chromeWebSecurity: false,
   defaultCommandTimeout: 10000,
   pageLoadTimeout: 30000, // Aumenta timeout de carga de página

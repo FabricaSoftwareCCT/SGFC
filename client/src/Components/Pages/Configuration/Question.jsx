@@ -2,52 +2,160 @@ import React, { useState } from 'react';
 import Swal from 'sweetalert2';
 import './Question.css';
 import 'sweetalert2/themes/bulma.css'
+import { useEffect } from 'react';
+import { getSecurityQuestion, postSecurityQuestion, updateSecurityQuestion } from '../../API/ApiSecurityQuestion';
 
 const Question = () => {
   // Estado inicial: ya tiene una pregunta guardada (como en la imagen)
-  const [hasQuestion, setHasQuestion] = useState(true);
+  const [hasQuestion, setHasQuestion] = useState(false);
   const [question, setQuestion] = useState('');
   const [answer, setAnswer] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [newQuestion, setNewQuestion] = useState('');
   const [newAnswer, setNewAnswer] = useState('');
 
-  const handleSave = () => {
-    if (newQuestion.trim() && newAnswer.trim()) {
-      setQuestion(newQuestion);
-      setAnswer(newAnswer);
-      setHasQuestion(true);
-      setIsEditing(false);
-      setNewQuestion('');
-      setNewAnswer('');
+
+useEffect(()  => { 
+  const fetchData = async () => {
+    try{
+        const response = await getSecurityQuestion();
+        if(response){
+          setQuestion(response)
+          setHasQuestion(true)
+        }else {
+          setHasQuestion(false);
+        }
       
-      // Mostrar alerta de éxito
+    }catch(err){
+      console.log("Error al obtener los datos", err)
+      setHasQuestion(false);
+    }
+  };
+  fetchData()
+}, [])
+
+const handleSaveUpdate = async () => {
+    try {
+      if (newQuestion.trim() && newAnswer.trim()) {
+        setHasQuestion(true);
+        setIsEditing(false);
+        setNewQuestion('');
+        setNewAnswer('');
+      }else {
+        Swal.fire({
+          title: 'Error',
+          text: 'Por favor, completa tanto la pregunta como la respuesta',
+          icon: 'error',
+          confirmButtonText: 'Entendido',
+          confirmButtonColor: '#d33',
+          theme: 'bulma',
+          customClass: {
+            actions: 'swal2-center-actions'
+          }
+        });
+      }
+
+      const response = updateSecurityQuestion(newQuestion, newAnswer);
+      
+      if(response.status === 200) {
+        setQuestion(response);
+          setHasQuestion(true);
+          setIsEditing(false);
+          setNewQuestion('');
+          setNewAnswer('');
+
+        Swal.fire({
+          title: '¡Éxito!',
+          text: 'Pregunta de seguridad actualizada correctamente',
+          icon: 'success',
+          confirmButtonText: 'Aceptar',
+          confirmButtonColor: '#01873d',
+          theme: 'bulma',
+          timer: 3000,
+          timerProgressBar: true,
+          customClass: {
+            actions: 'swal2-center-actions'
+          }
+        });
+      }
+
+    }catch (error) {
       Swal.fire({
-        title: '¡Éxito!',
-        text: 'Pregunta de seguridad guardada correctamente',
-        icon: 'success',
-        confirmButtonText: 'Aceptar',
-        confirmButtonColor: '#01873d',
-        theme: 'bulma',
-        timer: 3000,
+        title: "Error de registro",
+        text: error.response?.data?.message || 'Error en el servidor',
+        timer: 1500,
+        icon: 'error',
+        theme: 'bulma', 
         timerProgressBar: true,
         customClass: {
           actions: 'swal2-center-actions'
         }
-      });
-    } else {
-      // Mostrar alerta de error si los campos están vacíos
+      })
+    }
+}
+
+  const handleSave = async () => {
+    try {
+      if (newQuestion.trim() && newAnswer.trim()) {
+        setHasQuestion(true);
+        setIsEditing(false);
+        setNewQuestion('');
+        setNewAnswer('');
+      }else {
+        Swal.fire({
+          title: 'Error',
+          text: 'Por favor, completa tanto la pregunta como la respuesta',
+          icon: 'error',
+          confirmButtonText: 'Entendido',
+          confirmButtonColor: '#d33',
+          theme: 'bulma',
+          customClass: {
+            actions: 'swal2-center-actions'
+          }
+        });
+      }
+
+      //Petición
+      const response = postSecurityQuestion(newQuestion, newAnswer);
+      console.log(response)
+
+      if(response.status === 200) {
+
+        setQuestion(newQuestion);
+        setHasQuestion(true);
+        setIsEditing(false);
+        setNewQuestion('');
+        setNewAnswer('');
+
+        Swal.fire({
+          title: '¡Éxito!',
+          text: 'Pregunta de seguridad guardada correctamente',
+          icon: 'success',
+          confirmButtonText: 'Aceptar',
+          confirmButtonColor: '#01873d',
+          theme: 'bulma',
+          timer: 3000,
+          timerProgressBar: true,
+          customClass: {
+            actions: 'swal2-center-actions'
+          }
+        });
+      }
+      
+    } catch (error) {
+      
       Swal.fire({
-        title: 'Error',
-        text: 'Por favor, completa tanto la pregunta como la respuesta',
+        title: "Error de registro",
+        text: error.response?.data?.message || 'Error en el servidor',
+        timer: 1500,
         icon: 'error',
-        confirmButtonText: 'Entendido',
-        confirmButtonColor: '#d33',
-        theme: 'bulma',
+        theme: 'bulma', 
+        timerProgressBar: true,
         customClass: {
           actions: 'swal2-center-actions'
         }
-      });
+      })
+      
     }
   };
 
@@ -119,11 +227,6 @@ const Question = () => {
                   <span className="display-label">Pregunta:</span>
                   <span className="display-value">{question}</span>
                 </div>
-                
-                <div className="display-group">
-                  <span className="display-label">Respuesta:</span>
-                  <span className="display-value">{answer}</span>
-                </div>
               </div>
 
               <div className="button-group-single">
@@ -160,7 +263,7 @@ const Question = () => {
               </div>
 
               <div className="button-group">
-                <button className="btn-save" onClick={handleSave}>
+                <button className="btn-save" onClick={handleSaveUpdate}>
                   Guardar
                 </button>
                 <button className="btn-cancel" onClick={handleCancel}>
@@ -192,7 +295,7 @@ const Question = () => {
                   placeholder="Ingrese una respuesta..."
                   value={newAnswer}
                   onChange={(e) => setNewAnswer(e.target.value)}
-                />
+                />  
               </div>
 
               <div className="button-group">

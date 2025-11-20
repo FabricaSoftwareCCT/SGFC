@@ -42,9 +42,7 @@ export const SeeCourseCriteria = () => {
 
 	async function fetchCourse() {
 		try {
-			const response = await axiosInstance.get(
-				`api/courses/cursos/${id}`
-			);
+			const response = await axiosInstance.get(`api/courses/cursos/${id}`);
 			setCurso(response.data);
 		} catch (error) {
 			console.error("Error al obtener el curso:", error);

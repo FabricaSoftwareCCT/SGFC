@@ -72,11 +72,12 @@ export const CriteriaManagement = () => {
     };
 
 	function seeCourseCriteria () {
-		navigate(`/Gestiones/Criterios/Ver/${getCurso().ID}`)
+		const curso = getCurso()
+		navigate(`/Gestiones/Criterios/Ver/${curso?.ID}`)
 	}
 
 	function seeCourseCriteriaHistorial () {
-		navigate(`/Gestiones/Criterios/Historial/${getCurso().ID}`)
+		navigate(`/Gestiones/Criterios/Historial/${getCurso()?.ID}`)
 	}
 
 	useEffect(() => {

@@ -22,6 +22,7 @@ const MaterialDeApoyo = require("./MaterialDeApoyo");
 const CursoTieneMaterialDeApoyo = require("./CursoTieneMaterialDeApoyo");
 const Horarios_instructor = require("./Horarios_instructor")
 const UsuarioEdita = require("./UsuarioEdita")
+const UserSecurity =  require("./UserSecurity");
 const CursoTemarioTema = require("./CursoTemarioTema");
 const CursoTemarioRecurso = require("./CursoTemarioRecurso");
 const ActividadCurso = require("./ActividadCurso");
@@ -92,6 +93,7 @@ async function initializeDatabase() {
   CursoTieneMaterialDeApoyo.init(sequelize);
   Horarios_instructor.init(sequelize)
   UsuarioEdita.init(sequelize)
+  UserSecurity.init(sequelize);
   CursoTemarioTema.init(sequelize);
   CursoTemarioRecurso.init(sequelize);
   ActividadCurso.init(sequelize);
@@ -119,6 +121,7 @@ async function initializeDatabase() {
     CursoTieneMaterialDeApoyo,
     Horarios_instructor,
     UsuarioEdita,
+    UserSecurity,
     CursoTemarioTema,
     CursoTemarioRecurso,
     ActividadCurso,

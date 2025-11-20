@@ -1,4 +1,5 @@
-const User = require("../models/User")
+const User = require("../models/User");
+const UserSecurity = require("../models/UserSecurity");
 
 class UserRepository {
     static GetUserById = async (id) =>  {
@@ -26,6 +27,58 @@ class UserRepository {
         }
     }
 
+    static SecurityAnswer = async (Question, Answer, Id) => {
+        try {
+            return UserSecurity.create({
+                userId: Id,
+                SecurityQuestion: Question,
+                AnswerHash: Answer
+            })
+        }catch (Err){
+            throw new Error ({ status: 500, message: "Error en el servidor"})
+        }
+    }
+
+    static GetUserSecurity = async (id) => {
+        try{
+        return User.findOne({
+            attributes: [], 
+            include: [{
+                model: UserSecurity,
+                as: 'SecurityData',
+                attributes: [
+                    ['SecurityQuestion', 'Pregunta', 'AnswerHash', 'respuesta']
+                ]
+            }],
+            where: {
+                ID: id
+            }
+        });
+        }catch (Err){
+            console.log(Err)
+            throw new Error({status: 500, message: "Error en el servidor"})
+        }
+    }
+
+    static updateUser = async (id, Question, Answer) => {
+        try{
+            return UserSecurity.update(
+                {
+                    SecurityQuestion: Question,
+                    AnswerHash: Answer
+                },
+                {
+                    where: {
+                        userId: id
+                    }
+                }
+            );
+
+        }catch(Err){4
+            console.log(Err)
+            throw new Error ({ status: 500, message: "Error en el servidor"})
+        }
+    }
 }
 
 module.exports = { UserRepository }

@@ -8,9 +8,9 @@ import { Main } from "../../../Components/Layouts/Main/Main"
 import { UpdateEmploye } from "./UpdateEmploye/UpdateEmploye"
 import axiosInstance from "../../../config/axiosInstance"
 import { useModal } from "../../../Context/ModalContext"
-import { InscribeEmployes } from "../GestionsEmployes/InscribeEmployes/InscribeEmployes"
 import Swal from 'sweetalert2';
 import 'sweetalert2/themes/bulma.css'
+import { getEmployeebyCompany } from "../../API/ApiEmpresa"
 import { ReportEmployee } from "./ReportEmployee/ReportEmployee"
 import { generarExcelEmpleado } from "../../../utils/Reports/Empleados"
 import html2pdf from "html2pdf.js"
@@ -182,9 +182,26 @@ export const GestionsEmployes = () => {
 			return estado === selectedState
 		})
 
-		setFilteredEmployes(filteredByState)
-		setCurrent(0)
-	}
+    setFilteredEmployes(filteredByState)
+    setCurrent(0)
+  }
+
+  //Solicitar empleados por empresa //Se requiere un promise para retrasear la respuesta
+  // del usuario y lograr que se mande la peticion correctamente
+const fetchEmployebyCompany = async (value) => {
+    try {
+        if (value.trim() === "") {
+        const response = await getEmployeebyCompany(value)
+        console.log("Respuesta de la API para empleados por empresa:", response);
+        const employee = response.data.User || []
+        setFilteredEmployes(employee);
+        }else {
+        setFilteredEmployes(employes);
+        }
+    }catch(err){
+      console.log(err)
+    }
+}
 
 	const handleFilterChange = (e) => {
 		setFilter(e.target.value)
@@ -192,6 +209,7 @@ export const GestionsEmployes = () => {
 
 	const handleEmpresaChange = (e) => {
 		setSelectedEmpresa(e.target.value)
+    fetchEmployebyCompany(selectedEmpresa)
 	}
 
 	const handleTipoDocumentoChange = (e) => {

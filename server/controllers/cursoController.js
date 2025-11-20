@@ -801,7 +801,6 @@ const getCursoParticipants = async (req, res) => {
 const getCursoById = async (req, res) => {
 	try {
 		const { id } = req.params;
-
 		const curso = await Curso.findByPk(id, {
 			include: [
 				{

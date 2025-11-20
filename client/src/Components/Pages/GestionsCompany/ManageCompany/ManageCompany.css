@@ -1,5 +1,5 @@
 /* Modal Overlay */
-.modal-overlay-manager {
+.modal-overlay-company {
   position: fixed;
   top: 0;
   left: 0;
@@ -14,9 +14,9 @@
   padding: 15px;
 }
 
-.modal-container-manager {
+.modal-container-company {
   width: 100%;
-  max-width: 800px;
+  max-width: 900px;
   max-height: 80vh;
   background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -28,7 +28,7 @@
 }
 
 /* Header */
-.modal-header-manager {
+.modal-header-company {
   background: linear-gradient(135deg, rgba(0, 132, 61, 0.2) 0%, rgba(0, 200, 83, 0.15) 100%);
   border-bottom: 1px solid rgba(0, 200, 83, 0.3);
   padding: 1.2rem 1.5rem;
@@ -36,13 +36,13 @@
   flex-shrink: 0;
 }
 
-.header-content-manager {
+.header-content-company {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-.header-content-manager h2 {
+.header-content-company h2 {
   color: #fff;
   font-size: 1.3rem;
   font-weight: 600;
@@ -52,11 +52,11 @@
   gap: 0.6rem;
 }
 
-.header-icon-manager {
+.header-icon-company {
   color: #00c853;
 }
 
-.close-btn-manager {
+.close-btn-company {
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 8px;
@@ -71,21 +71,21 @@
   backdrop-filter: blur(10px);
 }
 
-.close-btn-manager:hover {
+.close-btn-company:hover {
   background: rgba(0, 200, 83, 0.2);
   border-color: #00c853;
   transform: translateY(-1px);
 }
 
 /* Body */
-.modal-body-manager {
+.modal-body-company {
   flex: 1;
   overflow: hidden;
   display: flex;
   flex-direction: column;
 }
 
-.modal-content-manager {
+.modal-content-company {
   display: grid;
   grid-template-columns: 1fr 280px;
   height: 100%;
@@ -95,7 +95,7 @@
 }
 
 /* Columna Izquierda - Información */
-.info-column-manager {
+.info-column-company {
   padding: 1.5rem;
   overflow-y: auto;
   display: flex;
@@ -106,7 +106,7 @@
 }
 
 /* Sección del Formulario */
-.form-section-manager {
+.form-section-company {
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
@@ -115,7 +115,7 @@
   flex-shrink: 0;
 }
 
-.section-title-manager {
+.section-title-company {
   color: #fff;
   font-size: 1.1rem;
   font-weight: 600;
@@ -125,19 +125,19 @@
   gap: 0.4rem;
 }
 
-.form-grid-manager {
+.form-grid-company {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
 }
 
-.input-group-manager {
+.input-group-company {
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
 }
 
-.input-label-manager {
+.input-label-company {
   color: rgba(255, 255, 255, 0.8);
   font-size: 0.8rem;
   font-weight: 500;
@@ -146,12 +146,12 @@
   gap: 0.4rem;
 }
 
-.input-label-manager svg {
+.input-label-company svg {
   color: #00c853;
   width: 12px;
 }
 
-.input-field-manager {
+.input-field-company {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
@@ -163,14 +163,14 @@
   height: 40px;
 }
 
-.input-field-manager:focus {
+.input-field-company:focus {
   outline: none;
   border-color: #00c853;
   background: rgba(255, 255, 255, 0.08);
   box-shadow: 0 0 0 2px rgba(0, 200, 83, 0.2);
 }
 
-.display-field-manager {
+.display-field-company {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
@@ -184,12 +184,12 @@
 }
 
 /* Botones de Estado */
-.status-buttons-manager {
+.status-buttons-company {
   display: flex;
   gap: 0.6rem;
 }
 
-.status-btn-manager {
+.status-btn-company {
   flex: 1;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -207,13 +207,13 @@
   height: 40px;
 }
 
-.status-btn-manager:hover {
+.status-btn-company:hover {
   background: rgba(0, 200, 83, 0.1);
   border-color: rgba(0, 200, 83, 0.3);
   transform: translateY(-1px);
 }
 
-.status-btn-manager.active {
+.status-btn-company.active {
   background: rgba(0, 200, 83, 0.2);
   border-color: #00c853;
   color: #00c853;
@@ -221,24 +221,24 @@
   box-shadow: 0 2px 8px rgba(0, 200, 83, 0.2);
 }
 
-.status-dot-manager {
+.status-dot-company {
   width: 6px;
   height: 6px;
   border-radius: 50%;
   background: currentColor;
 }
 
-.status-btn-manager.active .status-dot-manager {
-  animation: pulse-manager 2s infinite;
+.status-btn-company.active .status-dot-company {
+  animation: pulse-company 2s infinite;
 }
 
-@keyframes pulse-manager {
+@keyframes pulse-company {
   0% { opacity: 1; }
   50% { opacity: 0.5; }
   100% { opacity: 1; }
 }
 
-.status-display-manager {
+.status-display-company {
   padding: 0.6rem 0.8rem;
   border-radius: 8px;
   font-size: 0.8rem;
@@ -252,22 +252,29 @@
   height: 40px;
 }
 
-.status-display-manager.activo {
+.status-display-company.activo {
   background: rgba(0, 200, 83, 0.15);
   color: #00c853;
   border-color: rgba(0, 200, 83, 0.4);
   box-shadow: 0 2px 8px rgba(0, 200, 83, 0.1);
 }
 
-.status-display-manager.inactivo {
+.status-display-company.inactivo {
   background: rgba(255, 107, 107, 0.15);
   color: #ff6b6b;
   border-color: rgba(255, 107, 107, 0.4);
   box-shadow: 0 2px 8px rgba(255, 107, 107, 0.1);
 }
 
+.status-display-company.suspendido {
+  background: rgba(255, 193, 7, 0.15);
+  color: #ffc107;
+  border-color: rgba(255, 193, 7, 0.4);
+  box-shadow: 0 2px 8px rgba(255, 193, 7, 0.1);
+}
+
 /* Columna Derecha - Imagen */
-.image-column-manager {
+.image-column-company {
   background: rgba(255, 255, 255, 0.02);
   border-left: 1px solid rgba(255, 255, 255, 0.1);
   padding: 1.5rem;
@@ -278,7 +285,7 @@
   overflow: hidden;
 }
 
-.image-section-manager {
+.image-section-company {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -287,7 +294,7 @@
   min-height: 0;
 }
 
-.image-container-manager {
+.image-container-company {
   width: 100%;
   display: flex;
   justify-content: center;
@@ -297,7 +304,7 @@
 }
 
 /* Contenedor para imagen cuando NO está editando */
-.image-display-manager {
+.image-display-company {
   width: 200px;
   height: 240px;
   border: 2px solid rgba(255, 255, 255, 0.1);
@@ -311,7 +318,7 @@
 }
 
 /* Contenedor para imagen cuando SÍ está editando */
-.image-upload-manager {
+.image-upload-company {
   width: 200px;
   height: 240px;
   border: 2px dashed rgba(255, 255, 255, 0.2);
@@ -327,25 +334,25 @@
   flex-shrink: 0;
 }
 
-.image-upload-manager.editable:hover {
+.image-upload-company.editable:hover {
   border-color: #00c853;
   background: rgba(0, 200, 83, 0.05);
   transform: translateY(-2px);
 }
 
-.file-input-manager {
+.file-input-company {
   display: none;
 }
 
 /* IMAGEN CORREGIDA - Se muestra completa siempre */
-.profile-image-manager {
+.profile-image-company {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
 }
 
-.image-placeholder-manager {
+.image-placeholder-company {
   text-align: center;
   color: rgba(255, 255, 255, 0.5);
   font-size: 0.85rem;
@@ -359,12 +366,12 @@
   height: 100%;
 }
 
-.placeholder-icon-manager {
+.placeholder-icon-company {
   font-size: 2.5rem;
   color: rgba(255, 255, 255, 0.3);
 }
 
-.upload-overlay-manager {
+.upload-overlay-company {
   position: absolute;
   top: 0;
   left: 0;
@@ -385,11 +392,11 @@
   gap: 0.5rem;
 }
 
-.image-upload-manager.editable:hover .upload-overlay-manager {
+.image-upload-company.editable:hover .upload-overlay-company {
   opacity: 1;
 }
 
-.image-info-manager {
+.image-info-company {
   text-align: center;
   padding: 0.7rem;
   background: rgba(255, 255, 255, 0.05);
@@ -398,7 +405,7 @@
   max-width: 200px;
 }
 
-.image-info-manager p {
+.image-info-company p {
   color: rgba(255, 255, 255, 0.6);
   font-size: 0.75rem;
   margin: 0;
@@ -406,7 +413,7 @@
 }
 
 /* BOTÓN */
-.submit-btn-manager {
+.submit-btn-company {
   width: 100%;
   background: linear-gradient(135deg, #00c853 0%, #00a844 100%);
   border: none;
@@ -426,121 +433,121 @@
   flex-shrink: 0;
 }
 
-.submit-btn-manager:hover {
+.submit-btn-company:hover {
   background: linear-gradient(135deg, #00e676 0%, #00c853 100%);
   transform: translateY(-2px);
   box-shadow: 0 6px 16px rgba(0, 200, 83, 0.4);
 }
 
 /* Scrollbars */
-.info-column-manager::-webkit-scrollbar {
+.info-column-company::-webkit-scrollbar {
   width: 5px;
 }
 
-.info-column-manager::-webkit-scrollbar-track {
+.info-column-company::-webkit-scrollbar-track {
   background: rgba(255, 255, 255, 0.05);
   border-radius: 3px;
 }
 
-.info-column-manager::-webkit-scrollbar-thumb {
+.info-column-company::-webkit-scrollbar-thumb {
   background: rgba(0, 200, 83, 0.3);
   border-radius: 3px;
 }
 
 /* Responsive */
 @media (max-width: 968px) {
-  .modal-content-manager {
+  .modal-content-company {
     grid-template-columns: 1fr;
   }
   
-  .image-column-manager {
+  .image-column-company {
     border-left: none;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
     padding: 1.2rem;
   }
   
-  .form-grid-manager {
+  .form-grid-company {
     grid-template-columns: 1fr;
   }
   
-  .image-display-manager,
-  .image-upload-manager {
+  .image-display-company,
+  .image-upload-company {
     width: 180px;
     height: 220px;
   }
 }
 
 @media (max-width: 768px) {
-  .modal-container-manager {
+  .modal-container-company {
     max-height: 85vh;
   }
   
-  .modal-header-manager {
+  .modal-header-company {
     padding: 1rem;
   }
   
-  .header-content-manager h2 {
+  .header-content-company h2 {
     font-size: 1.2rem;
   }
   
-  .info-column-manager {
+  .info-column-company {
     padding: 1.2rem;
   }
   
-  .image-display-manager,
-  .image-upload-manager {
+  .image-display-company,
+  .image-upload-company {
     width: 160px;
     height: 200px;
   }
 }
 
 @media (max-width: 480px) {
-  .modal-overlay-manager {
+  .modal-overlay-company {
     padding: 10px;
   }
   
-  .modal-container-manager {
+  .modal-container-company {
     border-radius: 12px;
     max-height: 90vh;
   }
   
-  .modal-header-manager {
+  .modal-header-company {
     padding: 0.8rem;
   }
   
-  .header-content-manager h2 {
+  .header-content-company h2 {
     font-size: 1.1rem;
   }
   
-  .close-btn-manager span {
+  .close-btn-company span {
     display: none;
   }
   
-  .info-column-manager {
+  .info-column-company {
     padding: 1rem;
     gap: 1.2rem;
   }
   
-  .form-section-manager {
+  .form-section-company {
     padding: 1rem;
   }
   
-  .image-column-manager {
+  .image-column-company {
     padding: 1rem;
   }
   
-  .image-display-manager,
-  .image-upload-manager {
+  .image-display-company,
+  .image-upload-company {
     width: 140px;
     height: 180px;
   }
   
-  .submit-btn-manager {
+  .submit-btn-company {
     padding: 0.8rem 1rem;
     font-size: 0.9rem;
   }
   
-  .status-buttons-manager {
+  .status-buttons-company {
     flex-direction: column;
   }
 }

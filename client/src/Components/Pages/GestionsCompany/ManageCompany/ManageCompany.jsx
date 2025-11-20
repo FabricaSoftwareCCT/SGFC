@@ -1,16 +1,17 @@
-import { useState, useEffect } from "react";
-import "./UpdateCompany.css";
+import React, { useState, useEffect } from "react";
+import "./ManageCompany.css";
 import axiosInstance from "../../../../config/axiosInstance";
 import PropTypes from "prop-types";
 import fotoPerfilDefect from "../../../../assets/Icons/userDefect.png";
 import { validateEmail, validateNumber, validateText, validateAddress, validateNIT } from "../../../../utils/Validators/formValidator";
 import Swal from 'sweetalert2';
-import 'sweetalert2/themes/bulma.css'
+import 'sweetalert2/themes/bulma.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faArrowLeft, faBuilding, faIdCard, faPhone, faEnvelope, faMapMarkerAlt, faCamera, faTag } from '@fortawesome/free-solid-svg-icons';
 
-// Modal para gestionar datos de una Empresa
 export const ManageCompany = ({ empresa, onClose }) => {
   const datosEmpresa = empresa?.Empresa || {};
-  const userId = empresa?.ID; // ID de usuario requerido por el backend
+  const userId = empresa?.ID;
   const [isEditing, setIsEditing] = useState(false);
   const [departamentos, setDepartamentos] = useState([]);
   const [ciudades, setCiudades] = useState([]);
@@ -23,10 +24,9 @@ export const ManageCompany = ({ empresa, onClose }) => {
     telefono: datosEmpresa.telefono || "",
     direccion: datosEmpresa.direccion || "",
     email_empresa: datosEmpresa.email_empresa || "",
-    // Preselección de ciudad/departamento desde perfil si existen
     ciudad_ID: datosEmpresa?.Ciudad?.ID || datosEmpresa.ciudad_ID || null,
     departamento_ID: datosEmpresa?.Ciudad?.Departamento?.ID || null,
-    logo: datosEmpresa.img_empresa || null, // img_empresa en backend
+    logo: datosEmpresa.img_empresa || null,
   });
 
   useEffect(() => {
@@ -42,7 +42,6 @@ export const ManageCompany = ({ empresa, onClose }) => {
     fetchDepartamentos();
   }, []);
 
-  // Cargar departamento desde ciudad_ID si existe
   useEffect(() => {
     const fetchDepartamentoFromCiudad = async () => {
       if (formData.ciudad_ID && !formData.departamento_ID) {
@@ -59,26 +58,6 @@ export const ManageCompany = ({ empresa, onClose }) => {
     fetchDepartamentoFromCiudad();
   }, [formData.ciudad_ID]);
 
-  	const truncarNombreArchivo = (nombre, maxLongitud = 15) => {
-		if (!nombre) return '';
-
-		const ultimoPunto = nombre.lastIndexOf('.');
-		if (ultimoPunto === -1) {
-			return nombre.length > maxLongitud 
-				? `${nombre.slice(0, maxLongitud)}...`
-				: nombre;
-		}
-
-		const nombreParte = nombre.slice(0, ultimoPunto);
-		const extension = nombre.slice(ultimoPunto);
-
-		if (nombreParte.length <= maxLongitud) {
-			return nombre;
-		}
-
-		return `${nombreParte.slice(0, maxLongitud)}... ${extension}`;
-	};
-
   useEffect(() => {
     const fetchCiudades = async () => {
       if (!formData.departamento_ID && !formData.ciudad_ID) return;
@@ -90,7 +69,6 @@ export const ManageCompany = ({ empresa, onClose }) => {
             ? res.data
             : (res.data?.data || res.data?.ciudades || []);
           setCiudades(payload || []);
-          // Si hay ciudad_ID previa, asegurar que siga seleccionada si existe en el payload
           if (formData.ciudad_ID && !payload.find(c => c.ID === formData.ciudad_ID)) {
             setFormData(prev => ({ ...prev, ciudad_ID: null }));
           }
@@ -100,10 +78,8 @@ export const ManageCompany = ({ empresa, onClose }) => {
     fetchCiudades();
   }, [formData.departamento_ID, formData.ciudad_ID]);
 
-  const closeModal = () => {
+  const closeModalCompany = () => {
     if (onClose) onClose();
-    const overlay = document.getElementById("modal-overlayUpdateEmpresa");
-    if (overlay) overlay.style.display = "none";
   };
 
   const handleChange = (e) => {
@@ -123,9 +99,14 @@ export const ManageCompany = ({ empresa, onClose }) => {
     setFormData((prev) => ({ ...prev, ciudad_ID }));
   };
 
-  const handleLogoChange = (e) => {
+  const handleImageChange = (e) => {
     const file = e.target.files[0];
-    if (file) setFormData((p) => ({ ...p, logo: file }));
+    if (file) {
+      setFormData((prev) => ({
+        ...prev,
+        logo: file,
+      }));
+    }
   };
 
   const handleEstadoChange = (estado) => {
@@ -135,69 +116,40 @@ export const ManageCompany = ({ empresa, onClose }) => {
   const validateFields = () => {
     const errors = [];
     
-    // Validar nombre de empresa
     if (formData.nombre_empresa.trim() === '') {
       errors.push('El nombre de la empresa es obligatorio');
     }
     
-    // Validar NIT
     const nitError = validateNIT(formData.NIT);
     if (nitError) errors.push(nitError);
     
-    // Validar categoría
     if (formData.categoria.trim() === '') {
       errors.push('La categoría es obligatoria');
     }
     
-    // Validar teléfono
     const telefonoError = validateNumber(formData.telefono);
     if (telefonoError) errors.push(telefonoError);
     
-    // Validar dirección
     const direccionError = validateAddress(formData.direccion);
     if (direccionError) errors.push(direccionError);
     
-    // Validar email de empresa
     const emailError = validateEmail(formData.email_empresa);
     if (emailError) errors.push(emailError);
     
     return errors;
   };
 
-  const getLogoSrc = (logo) => {
-    // Fallback inmediato si no hay valor
+  const getImageSrc = (logo) => {
     if (!logo) return fotoPerfilDefect;
-
     if (logo instanceof File) return URL.createObjectURL(logo);
-    
     if (typeof logo === "string") {
-      // Si ya viene como data URL o URL absoluta, úsala tal cual
-      if (logo.startsWith('data:') || logo.startsWith('http')) {
-        return logo;
-      }
-
-      // Si en BD guardaron una ruta relativa (p.ej. ../Img/userDefect.png), usar por defecto
-      if (/(\.png|\.jpg|\.jpeg|\.gif)$/i.test(logo)) {
-        return fotoPerfilDefect;
-      }
-
-      // Detectar tipo MIME por encabezado base64
-      if (logo.startsWith('iVBOR')) {
-        return `data:image/png;base64,${logo}`;
-      }
-      if (logo.startsWith('/9j/')) {
-        return `data:image/jpeg;base64,${logo}`;
-      }
-
-      // Si la cadena es muy corta, probablemente no es una imagen base64 válida
-      if (logo.length < 100) {
-        return fotoPerfilDefect;
-      }
-
-      // Último recurso: asumir jpeg
+      if (logo.startsWith('data:') || logo.startsWith('http')) return logo;
+      if (/(\.png|\.jpg|\.jpeg|\.gif)$/i.test(logo)) return fotoPerfilDefect;
+      if (logo.startsWith('iVBOR')) return `data:image/png;base64,${logo}`;
+      if (logo.startsWith('/9j/')) return `data:image/jpeg;base64,${logo}`;
+      if (logo.length < 100) return fotoPerfilDefect;
       return `data:image/jpeg;base64,${logo}`;
     }
-    
     return fotoPerfilDefect;
   };
 
@@ -214,13 +166,12 @@ export const ManageCompany = ({ empresa, onClose }) => {
         title: 'Error de identificación',
         text: 'No se pudo identificar el usuario de la empresa.',
         confirmButtonColor: '#d33',
-              theme:"bulma",
-      customClass: { confirmButton: 'centered-swal-button' }
+        theme: "bulma",
+        customClass: { confirmButton: 'centered-swal-button' }
       });
       return;
     }
 
-    // Validar todos los campos antes de enviar
     const errors = validateFields();
     if (errors.length > 0) {
       await Swal.fire({
@@ -236,8 +187,8 @@ export const ManageCompany = ({ empresa, onClose }) => {
         `,
         confirmButtonText: 'Entendido',
         confirmButtonColor: '#3085d6',
-              theme:"bulma",
-      customClass: { confirmButton: 'centered-swal-button' }
+        theme: "bulma",
+        customClass: { confirmButton: 'centered-swal-button' }
       });
       return;
     }
@@ -256,8 +207,7 @@ export const ManageCompany = ({ empresa, onClose }) => {
         ciudad_ID: formData.ciudad_ID || null,
         departamento_ID: formData.departamento_ID || null,
       };
-      // Debug client-side
-      console.log("Actualizando empresa con payload:", empresaPayload);
+      
       body.append("empresa", JSON.stringify(empresaPayload));
       if (formData.logo instanceof File) {
         body.append("img_empresa", formData.logo);
@@ -268,15 +218,15 @@ export const ManageCompany = ({ empresa, onClose }) => {
       });
 
       if (response?.status >= 200 && response?.status < 300) {
-  await Swal.fire({
+        await Swal.fire({
           icon: 'success',
           title: '¡Éxito!',
           text: response?.data?.message || "Empresa actualizada correctamente",
           confirmButtonColor: '#3085d6',
           timer: 3000,
           timerProgressBar: true,
-              theme:"bulma",
-      customClass: { confirmButton: 'centered-swal-button' }
+          theme: "bulma",
+          customClass: { confirmButton: 'centered-swal-button' }
         });
       } else {
         await Swal.fire({
@@ -284,13 +234,14 @@ export const ManageCompany = ({ empresa, onClose }) => {
           title: 'Error',
           text: 'No se pudo actualizar la empresa.',
           confirmButtonColor: '#d33',
-                        theme:"bulma",
-      customClass: { confirmButton: 'centered-swal-button' }
+          theme: "bulma",
+          customClass: { confirmButton: 'centered-swal-button' }
         });
         return;
       }
       setIsEditing(false);
       window.location.reload();
+      closeModalCompany();
     } catch (error) {
       console.error(`Error al actualizar la empresa:`, error.response?.data || error.message);
       await Swal.fire({
@@ -298,186 +249,336 @@ export const ManageCompany = ({ empresa, onClose }) => {
         title: 'Error al actualizar',
         text: 'Hubo un error al actualizar la empresa. Por favor, inténtelo de nuevo.',
         confirmButtonColor: '#d33',
-                      theme:"bulma",
-      customClass: { confirmButton: 'centered-swal-button' }
+        theme: "bulma",
+        customClass: { confirmButton: 'centered-swal-button' }
       });
     }
   };
 
+  if (!empresa) return null;
+
   return (
-		<div id="modal-overlayUpdateInstructor" style={{ display: "flex" }}>
-      <form className="modal-bodyUpdateInstructor" onSubmit={handleSubmit}>
-        <div className="modal-left-update">
-          <p>
-            <strong>Nombre:</strong>{" "}
-            {isEditing ? (
-              <input
-                type="text"
-                name="nombre_empresa"
-                className="input_updateData"
-                value={formData.nombre_empresa}
-                onChange={handleChange}
-              />
-            ) : (
-              <span className="valor-campo">{formData.nombre_empresa}</span>
-            )}
-          </p>
-          <p>
-            <strong>NIT:</strong>{" "}
-            {isEditing ? (
-              <input
-                type="text"
-                name="NIT"
-                className="input_updateData"
-                value={formData.NIT}
-                onChange={handleChange}
-              />
-            ) : (
-              <span className="valor-campo">{formData.NIT}</span>
-            )}
-          </p>
-          <p>
-            <strong>Categoría:</strong>{" "}
-            {isEditing ? (
-              <input
-                type="text"
-                name="categoria"
-                className="input_updateData"
-                value={formData.categoria}
-                onChange={handleChange}
-              />
-            ) : (
-              <span className="valor-campo">{formData.categoria}</span>
-            )}
-          </p>
-          <p>
-            <strong>Departamento:</strong>{" "}
-            {isEditing ? (
-              <select className="input_updateData" value={formData.departamento_ID || ""} onChange={handleSelectDepartamento}>
-                <option value="">Seleccione...</option>
-                {departamentos.map((d) => (
-                  <option key={d.ID} value={d.ID}>{d.nombre}</option>
-                ))}
-              </select>
-            ) : (
-              <span className="valor-campo">{departamentos.find(d => d.ID === formData.departamento_ID)?.nombre || "-"}</span>
-            )}
-          </p>
-          <p>
-            <strong>Ciudad:</strong>{" "}
-            {isEditing ? (
-              <select className="input_updateData" value={formData.ciudad_ID || ""} onChange={handleSelectCiudad} disabled={!formData.departamento_ID}>
-                <option value="">Seleccione...</option>
-                {ciudades.map((c) => (
-                  <option key={c.ID} value={c.ID}>{c.nombre}</option>
-                ))}
-              </select>
-            ) : (
-              <span className="valor-campo">{ciudades.find(c => c.ID === formData.ciudad_ID)?.nombre || "-"}</span>
-            )}
-          </p>
-          <p>
-            <strong>Teléfono:</strong>{" "}
-            {isEditing ? (
-              <input
-                type="text"
-                name="telefono"
-                className="input_updateData"
-                value={formData.telefono}
-                onChange={handleChange}
-              />
-            ) : (
-              <span className="valor-campo">{formData.telefono || "-"}</span>
-            )}
-          </p>
-          <p>
-            <strong>Dirección:</strong>{" "}
-            {isEditing ? (
-              <input
-                type="text"
-                name="direccion"
-                className="input_updateData"
-                value={formData.direccion}
-                onChange={handleChange}
-              />
-            ) : (
-              <span className="valor-campo">{truncarNombreArchivo(formData.direccion,20 || "-")}</span>
-            )}
-          </p>
-          <p>
-            <strong>Email:</strong>{" "}
-            {isEditing ? (
-              <input
-                type="email"
-                name="email_empresa"
-                className="input_updateData"
-                value={formData.email_empresa}
-                onChange={handleChange}
-              />
-            ) : (
-              <span className="valor-campo">{truncarNombreArchivo(formData.email_empresa,15 || "-")}</span>
-            )}
-          </p>
-          <p>
-            <strong>Estado:</strong>{" "}
-            {isEditing ? (
-              <div className="status-buttons">
-                {["Activo", "Inactivo", "suspendido"].map((estado) => (
-                  <button
-                    key={estado}
-                    type="button"
-                    className={`status ${formData.estado === estado.toLowerCase() ? "active" : ""}`}
-                    onClick={() => handleEstadoChange(estado)}
-                  >
-                    {estado}
-                  </button>
-                ))}
+    <div id="modal-overlayManageCompany" className="modal-overlay-company">
+      <div className="modal-container-company">
+        <div className="modal-header-company">
+          <div className="header-content-company">
+            <h2>
+              <FontAwesomeIcon icon={faBuilding} className="header-icon-company" />
+              Perfil de la Empresa
+            </h2>
+            <button 
+              type="button" 
+              onClick={closeModalCompany}
+              className="close-btn-company"
+            >
+              <FontAwesomeIcon icon={faArrowLeft} />
+              <span>Volver</span>
+            </button>
+          </div>
+        </div>
+
+        <form className="modal-body-company" onSubmit={handleSubmit}>
+          <div className="modal-content-company">
+            {/* Columna izquierda - Información */}
+            <div className="info-column-company">
+              <div className="form-section-company">
+                <h3 className="section-title-company">Información de la Empresa</h3>
+                <div className="form-grid-company">
+                  <div className="input-group-company">
+                    <label className="input-label-company">
+                      <FontAwesomeIcon icon={faBuilding} />
+                      Nombre
+                    </label>
+                    {isEditing ? (
+                      <input
+                        type="text"
+                        name="nombre_empresa"
+                        value={formData.nombre_empresa || ""}
+                        onChange={handleChange}
+                        className="input-field-company"
+                        placeholder="Ingrese el nombre de la empresa"
+                      />
+                    ) : (
+                      <div className="display-field-company">
+                        {formData.nombre_empresa || "No especificado"}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="input-group-company">
+                    <label className="input-label-company">
+                      <FontAwesomeIcon icon={faIdCard} />
+                      NIT
+                    </label>
+                    {isEditing ? (
+                      <input
+                        type="text"
+                        name="NIT"
+                        value={formData.NIT || ""}
+                        onChange={handleChange}
+                        className="input-field-company"
+                        placeholder="Ingrese el NIT"
+                      />
+                    ) : (
+                      <div className="display-field-company">
+                        {formData.NIT || "No especificado"}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="input-group-company">
+                    <label className="input-label-company">
+                      <FontAwesomeIcon icon={faTag} />
+                      Categoría
+                    </label>
+                    {isEditing ? (
+                      <input
+                        type="text"
+                        name="categoria"
+                        value={formData.categoria || ""}
+                        onChange={handleChange}
+                        className="input-field-company"
+                        placeholder="Ingrese la categoría"
+                      />
+                    ) : (
+                      <div className="display-field-company">
+                        {formData.categoria || "No especificado"}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="input-group-company">
+                    <label className="input-label-company">
+                      <FontAwesomeIcon icon={faMapMarkerAlt} />
+                      Departamento
+                    </label>
+                    {isEditing ? (
+                      <select 
+                        value={formData.departamento_ID || ""} 
+                        onChange={handleSelectDepartamento}
+                        className="input-field-company"
+                      >
+                        <option value="">Seleccione...</option>
+                        {departamentos.map((d) => (
+                          <option key={d.ID} value={d.ID}>{d.nombre}</option>
+                        ))}
+                      </select>
+                    ) : (
+                      <div className="display-field-company">
+                        {departamentos.find(d => d.ID === formData.departamento_ID)?.nombre || "No especificado"}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="input-group-company">
+                    <label className="input-label-company">
+                      <FontAwesomeIcon icon={faMapMarkerAlt} />
+                      Ciudad
+                    </label>
+                    {isEditing ? (
+                      <select 
+                        value={formData.ciudad_ID || ""} 
+                        onChange={handleSelectCiudad} 
+                        disabled={!formData.departamento_ID}
+                        className="input-field-company"
+                      >
+                        <option value="">Seleccione...</option>
+                        {ciudades.map((c) => (
+                          <option key={c.ID} value={c.ID}>{c.nombre}</option>
+                        ))}
+                      </select>
+                    ) : (
+                      <div className="display-field-company">
+                        {ciudades.find(c => c.ID === formData.ciudad_ID)?.nombre || "No especificado"}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="input-group-company">
+                    <label className="input-label-company">
+                      <FontAwesomeIcon icon={faPhone} />
+                      Teléfono
+                    </label>
+                    {isEditing ? (
+                      <input
+                        type="text"
+                        name="telefono"
+                        value={formData.telefono || ""}
+                        onChange={handleChange}
+                        className="input-field-company"
+                        placeholder="Ingrese el teléfono"
+                      />
+                    ) : (
+                      <div className="display-field-company">
+                        {formData.telefono || "No especificado"}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="input-group-company">
+                    <label className="input-label-company">
+                      <FontAwesomeIcon icon={faMapMarkerAlt} />
+                      Dirección
+                    </label>
+                    {isEditing ? (
+                      <input
+                        type="text"
+                        name="direccion"
+                        value={formData.direccion || ""}
+                        onChange={handleChange}
+                        className="input-field-company"
+                        placeholder="Ingrese la dirección"
+                      />
+                    ) : (
+                      <div className="display-field-company">
+                        {formData.direccion || "No especificado"}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="input-group-company">
+                    <label className="input-label-company">
+                      <FontAwesomeIcon icon={faEnvelope} />
+                      Email
+                    </label>
+                    {isEditing ? (
+                      <input
+                        type="email"
+                        name="email_empresa"
+                        value={formData.email_empresa || ""}
+                        onChange={handleChange}
+                        className="input-field-company"
+                        placeholder="Ingrese el email"
+                      />
+                    ) : (
+                      <div className="display-field-company">
+                        {formData.email_empresa || "No especificado"}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="input-group-company">
+                    <label className="input-label-company">Estado</label>
+                    {isEditing ? (
+                      <div className="status-buttons-company">
+                        {["Activo", "Inactivo", "Suspendido"].map((estado) => {
+                          const isSelected = (formData.estado || "").toLowerCase() === estado.toLowerCase();
+                          return (
+                            <button
+                              key={estado}
+                              type="button"
+                              className={`status-btn-company ${isSelected ? "active" : ""}`}
+                              onClick={() => handleEstadoChange(estado)}
+                            >
+                              <span className="status-dot-company"></span>
+                              {estado}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <div className={`status-display-company ${formData.estado?.toLowerCase()}`}>
+                        <span className="status-dot-company"></span>
+                        {formData.estado || "No especificado"}
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
-            ) : (
-              <span className="valor-campo">{formData.estado}</span>
-            )}
-          </p>
-        </div>
+            </div>
 
-        <div className="modal-right">
-          <input
-            type="file"
-            accept="image/*"
-            hidden={!isEditing}
-            disabled={!isEditing}
-            onChange={handleLogoChange}
-            id="imageUpload"
-          />
+            {/* Columna derecha - Imagen */}
+            <div className="image-column-company">
+              <div className="image-section-company">
+                <div className="image-container-company">
+                  {isEditing ? (
+                    <>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageChange}
+                        id="imageUploadCompany"
+                        className="file-input-company"
+                      />
+                      <label
+                        className="image-upload-company editable"
+                        htmlFor="imageUploadCompany"
+                      >
+                        {formData.logo instanceof File ? (
+                          <img
+                            src={URL.createObjectURL(formData.logo)}
+                            alt="Vista previa"
+                            className="profile-image-company"
+                            onError={(e) => {
+                              e.target.src = fotoPerfilDefect;
+                            }}
+                          />
+                        ) : formData.logo ? (
+                          <img
+                            src={getImageSrc(formData.logo)}
+                            alt="Logo de la empresa"
+                            className="profile-image-company"
+                            onError={(e) => {
+                              e.target.src = fotoPerfilDefect;
+                            }}
+                          />
+                        ) : (
+                          <div className="image-placeholder-company">
+                            <FontAwesomeIcon icon={faCamera} className="placeholder-icon-company" />
+                            <span>Haz clic para subir logo</span>
+                          </div>
+                        )}
+                        <div className="upload-overlay-company">
+                          <FontAwesomeIcon icon={faCamera} />
+                          <span>Cambiar logo</span>
+                        </div>
+                      </label>
+                    </>
+                  ) : (
+                    <div className="image-display-company">
+                      {formData.logo ? (
+                        <img
+                          src={getImageSrc(formData.logo)}
+                          alt="Logo de la empresa"
+                          className="profile-image-company"
+                          onError={(e) => {
+                            e.target.src = fotoPerfilDefect;
+                          }}
+                        />
+                      ) : (
+                        <div className="image-placeholder-company">
+                          <FontAwesomeIcon icon={faBuilding} className="placeholder-icon-company" />
+                          <span>Sin logo</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+                
+                {!isEditing && (
+                  <div className="image-info-company">
+                    <p>Activa el modo edición para cambiar el logo</p>
+                  </div>
+                )}
+              </div>
 
-          <label
-            className={`upload-area-update ${!isEditing ? "read-only-border" : ""}`}
-            htmlFor="imageUpload"
-          >
-            {(() => {
-              const src = getLogoSrc(formData.logo);
-              return (
-                <img 
-                  src={src} 
-                  alt="Logo" 
-                className="preview-image-update"
-                  onError={(e) => {
-                    e.currentTarget.src = fotoPerfilDefect;
-                  }}
-                />
-              );
-            })()}
-          </label>
-
-          <button type="submit" className="edit-button-updateEmpresa">
-            {isEditing ? "Guardar Cambios" : "Editar Empresa"}
-          </button>
-        </div>
-
-        <div className="container_return_UpdateEmpresa">
-          <h5>Volver</h5>
-          <button type="button" onClick={closeModal} className="closeModal"></button>
-        </div>
-      </form>
+              <button type="submit" className="submit-btn-company">
+                {isEditing ? (
+                  <>
+                    <FontAwesomeIcon icon={faBuilding} />
+                    <span>Guardar Cambios</span>
+                  </>
+                ) : (
+                  <>
+                    <FontAwesomeIcon icon={faBuilding} />
+                    <span>Editar Empresa</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
     </div>
   );
 };

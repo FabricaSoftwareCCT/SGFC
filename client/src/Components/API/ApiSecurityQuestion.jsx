@@ -14,3 +14,12 @@ export const postSecurityQuestion = async (pregunta, Answer) => {
 
     return response;
 }
+
+export const updateSecurityQuestion = async (pregunta, Answer) => {
+    const response = await axiosInstance.put('http://localhost:3001/api/users/updateSecurity/', {
+        Question: pregunta,
+        password: Answer
+    });
+
+    return response.data;
+}

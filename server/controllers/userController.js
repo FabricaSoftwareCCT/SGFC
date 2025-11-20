@@ -2801,9 +2801,34 @@ const getSecurityData = async (req, res) => {
             message: "Error interno del servidor al procesar la solicitud." 
         });
 	}
+}
+
+const updateSecurity = async (req, res) => {
+	try{
+		const user = req.user;
+		const {
+			Question,
+			Answer
+		} = req.body;
+
+		if(!Question && !Answer){
+			res.status(400).json({ message: "Todos los datos son requeridos"})
+		}
+
+		await UserServices.updateSecurityQuestion(user.id, Question, Answer);
+
+		res.status(200).json({
+			message: "Pregunta de seguridad actualizada correctamente"
+		})
+
+	}catch(Err){
+		console.error("Error al obtener datos: ",  Err.message)
+		res.status(500).json({
+			success: false,
+			message: "Error interno del servidor al procesasr la solicitud"
+		})
 	}
-
-
+}
 
 module.exports = {
 	subirDocumentoIdentidad,
@@ -2839,5 +2864,6 @@ module.exports = {
     createEmpresa,
 	changeRole,
 	securityData,
-	getSecurityData
+	getSecurityData,
+	updateSecurity
 };

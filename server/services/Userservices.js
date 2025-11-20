@@ -119,6 +119,29 @@ class UserServices {
 
         return data;
     }
+
+    static updateSecurityQuestion = async (Id, Question, Answer) => {
+        const User = await UserRepository.GetUserSecurity(Id);
+
+        if(!User || User === null){
+            throw new Error("Usuario no encontrado")
+        }
+
+        const isPasswordValid = await bcrypt.compare(Answer, User.SecurityData?.dataValues?.respuesta);
+
+        if(!isPasswordValid){
+            throw new Error("La respuesta proporcionada no es correcta")
+        }
+
+        const user =  await UserRepository.updateUser(Id, Question, Answer);
+
+        if(!user){
+            throw new Error("No se pudo actualizar la pregunta de seguridad")
+        }
+
+        return user;
+        
+    }
 }
 
 module.exports = {UserServices}

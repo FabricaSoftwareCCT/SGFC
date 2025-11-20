@@ -34,6 +34,66 @@ useEffect(()  => {
   fetchData()
 }, [])
 
+const handleSaveUpdate = async () => {
+    try {
+      if (newQuestion.trim() && newAnswer.trim()) {
+        setHasQuestion(true);
+        setIsEditing(false);
+        setNewQuestion('');
+        setNewAnswer('');
+      }else {
+        Swal.fire({
+          title: 'Error',
+          text: 'Por favor, completa tanto la pregunta como la respuesta',
+          icon: 'error',
+          confirmButtonText: 'Entendido',
+          confirmButtonColor: '#d33',
+          theme: 'bulma',
+          customClass: {
+            actions: 'swal2-center-actions'
+          }
+        });
+      }
+
+      const response = updateSecurityQuestion(newQuestion, newAnswer);
+      
+      if(response.status === 200) {
+        setQuestion(response);
+          setHasQuestion(true);
+          setIsEditing(false);
+          setNewQuestion('');
+          setNewAnswer('');
+
+        Swal.fire({
+          title: '¡Éxito!',
+          text: 'Pregunta de seguridad actualizada correctamente',
+          icon: 'success',
+          confirmButtonText: 'Aceptar',
+          confirmButtonColor: '#01873d',
+          theme: 'bulma',
+          timer: 3000,
+          timerProgressBar: true,
+          customClass: {
+            actions: 'swal2-center-actions'
+          }
+        });
+      }
+
+    }catch (error) {
+      Swal.fire({
+        title: "Error de registro",
+        text: error.response?.data?.message || 'Error en el servidor',
+        timer: 1500,
+        icon: 'error',
+        theme: 'bulma', 
+        timerProgressBar: true,
+        customClass: {
+          actions: 'swal2-center-actions'
+        }
+      })
+    }
+}
+
   const handleSave = async () => {
     try {
       if (newQuestion.trim() && newAnswer.trim()) {
@@ -203,7 +263,7 @@ useEffect(()  => {
               </div>
 
               <div className="button-group">
-                <button className="btn-save" onClick={handleSave}>
+                <button className="btn-save" onClick={handleSaveUpdate}>
                   Guardar
                 </button>
                 <button className="btn-cancel" onClick={handleCancel}>

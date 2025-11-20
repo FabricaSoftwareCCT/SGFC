@@ -47,7 +47,7 @@ class UserRepository {
                 model: UserSecurity,
                 as: 'SecurityData',
                 attributes: [
-                    ['SecurityQuestion', 'Pregunta']
+                    ['SecurityQuestion', 'Pregunta', 'AnswerHash', 'respuesta']
                 ]
             }],
             where: {
@@ -57,6 +57,26 @@ class UserRepository {
         }catch (Err){
             console.log(Err)
             throw new Error({status: 500, message: "Error en el servidor"})
+        }
+    }
+
+    static updateUser = async (id, Question, Answer) => {
+        try{
+            return UserSecurity.update(
+                {
+                    SecurityQuestion: Question,
+                    AnswerHash: Answer
+                },
+                {
+                    where: {
+                        userId: id
+                    }
+                }
+            );
+
+        }catch(Err){4
+            console.log(Err)
+            throw new Error ({ status: 500, message: "Error en el servidor"})
         }
     }
 }

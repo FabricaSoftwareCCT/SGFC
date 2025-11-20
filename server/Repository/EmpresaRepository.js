@@ -1,5 +1,5 @@
 const Empresa = require("../models/empresa")
-
+const User = require("../models/User")
 
 
 class EmpresaRepository {
@@ -47,6 +47,36 @@ class EmpresaRepository {
     static searchCompanyByPhone = async (phone) => {
         try{
             return Empresa.findOne({where: { telefono: phone}})
+        }catch(err){
+            console.log(err)
+            throw new Error ({status: 500, message: "Error en serviodr"})
+        }
+    }
+
+    static searchEmployeeByCompanyID = async (companyName) => {
+        try{
+            const empresaConEmpleados = await Empresa.findOne({
+                where: {nombre_empresa: companyName },
+                attributes: ['nombre_empresa'],
+                include: [{
+                    model: User,
+                    as: 'Usuarios', 
+                    attributes: [
+                    'nombres',
+                    'apellidos',
+                    'estado',
+                    'documento',
+                    'tipoDocumento',
+                    'celular',
+                    'email',],
+                    where: {
+                        accountType: 'Aprendiz'
+                    },
+                required: true }]
+            });
+
+            return empresaConEmpleados;
+            
         }catch(err){
             console.log(err)
             throw new Error ({status: 500, message: "Error en serviodr"})

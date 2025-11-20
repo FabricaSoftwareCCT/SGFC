@@ -2834,7 +2834,8 @@ const securityData = async (req, res) => {
 	}catch (Error) {
 		console.log(Error)
 		res.status(500).json({
-			message: 'Error en el servidor'
+			message: 'Error en el servidor',
+			Error: Error
 		})
 	}
 }

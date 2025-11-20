@@ -3,7 +3,7 @@ import Swal from 'sweetalert2';
 import './Question.css';
 import 'sweetalert2/themes/bulma.css'
 import { useEffect } from 'react';
-import { getSecurityQuestion, postSecurityQuestion } from '../../API/ApiSecurityQuestion';
+import { getSecurityQuestion, postSecurityQuestion, updateSecurityQuestion } from '../../API/ApiSecurityQuestion';
 
 const Question = () => {
   // Estado inicial: ya tiene una pregunta guardada (como en la imagen)

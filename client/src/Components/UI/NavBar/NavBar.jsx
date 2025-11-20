@@ -25,7 +25,8 @@ export const NavBar = ({ children }) => {
 	const [processingSolicitud, setProcessingSolicitud] = useState(null)
 	const [justificationDenial, setJustificationDenial] = useState("")
 	const [activeNotification, setActiveNotification] = useState(null)
-	const [Filter, setFilter] = useState([])
+	const [Filter, setFilter] = useState("All")
+	const [filteredNotifications, setFilteredNotifications] = useState([]);
 	const [inputElement, setInputElement] = useState("")
 	const [Date, setDate] = useState("")
 	const [DateEnd, setDateEnd] = useState("")
@@ -96,8 +97,10 @@ export const NavBar = ({ children }) => {
 			// no mostrar notificaciones aceptadas o rechazadas
 			res.data.notifications = res.data.notifications.filter(notif => notif.estado !== 'aceptada' && notif.estado !== 'rechazada');
 			setNotificationsList(res.data.notifications || []);
+			setFilteredNotifications(res.data.notifications || []);
 		} catch (err) {
 			setNotificationsList([])
+			setFilteredNotifications([])
 		}
 		setLoadingNotifications(false)
 	}
@@ -217,7 +220,7 @@ export const NavBar = ({ children }) => {
 							disabled={notif.estadoInvitacion || processingInvitation === notif.invitacion_ID}
 						>
 							{processingInvitation === notif.invitacion_ID ? 'Procesando...' : 
-							 notif.estadoInvitacion === 'aceptada' ? '✓ Aceptada' : 'Aceptar'}
+							notif.estadoInvitacion === 'aceptada' ? '✓ Aceptada' : 'Aceptar'}
 						</button>
 						<button
 							className={`notification-btn-reject ${notif.estadoInvitacion ? 'disabled' : ''}`}
@@ -225,7 +228,7 @@ export const NavBar = ({ children }) => {
 							disabled={notif.estadoInvitacion || processingInvitation === notif.invitacion_ID}
 						>
 							{processingInvitation === notif.invitacion_ID ? 'Procesando...' : 
-							 notif.estadoInvitacion === 'rechazada' ? '✗ Rechazada' : 'Rechazar'}
+							notif.estadoInvitacion === 'rechazada' ? '✗ Rechazada' : 'Rechazar'}
 						</button>
 					</div>
 				)}
@@ -296,13 +299,13 @@ export const NavBar = ({ children }) => {
 		try {
 			const value = e.target.value;
 			if(value =="All"){
-				setFilter(notificationsList)
+				setFilteredNotifications(notificationsList)
 				setLoadingNotifications(false)
 				return;
 			}
 
 			const filter = notificationsList.filter((notif) => notif.estado === value);
-			setFilter(filter);
+			setFilteredNotifications(filter);
 		}catch(err){
 					Swal.fire({
 				icon: 'error',
@@ -318,8 +321,14 @@ export const NavBar = ({ children }) => {
 	}
 
 	useEffect(() => {
-		setFilter(notificationsList)
 		setLoadingNotifications(true);
+
+		let currentFilter = notificationsList;
+
+		if(Filter !== "All"){
+			currentFilter = currentFilter.filter((notif) => notif.estado === Filter);
+		}
+
 		try{
 			setFilter(notificationsList)
 			const SearchName = notificationsList.filter((notif )=>  {
@@ -328,7 +337,7 @@ export const NavBar = ({ children }) => {
 				const dateMatch = !Date && !DateEnd || (notif.fecha_envio >= Date && notif.fecha_envio <= DateEnd);
 				return charNotifications || remitenteNotifications || dateMatch;
 		});
-			setFilter(SearchName)
+			setFilteredNotifications(SearchName)
 			setLoadingNotifications(false);
 		}catch(err){
 				Swal.fire({
@@ -341,7 +350,7 @@ export const NavBar = ({ children }) => {
 			})
 			setLoadingNotifications(false);
 		}
-	}, [inputElement])
+	}, [inputElement, notificationsList, Date, DateEnd, Filter])
 
 	useEffect(() => {
 		if (activeNotification)
@@ -527,10 +536,10 @@ export const NavBar = ({ children }) => {
 									<div className="notification-item">
 										{loadingNotifications ? (	
 										<div>Cargando...</div>
-											) : Filter.length === 0 ? (
+											) : filteredNotifications.length === 0 ? (
 												<div>Sin notificaciones</div>
 											) : (
-											Filter.map((notif) => (
+											filteredNotifications.map((notif) => (
 											<div className="notification">
 												<div
 													className="SubContentNotif"

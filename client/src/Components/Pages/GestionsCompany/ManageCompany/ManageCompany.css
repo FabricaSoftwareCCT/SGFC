@@ -1,5 +1,5 @@
 /* Modal Overlay */
-.modal-overlay-create-gestor {
+.modal-overlay-company {
   position: fixed;
   top: 0;
   left: 0;
@@ -7,14 +7,14 @@
   height: 100%;
   background: rgba(0, 0, 0, 0.8);
   backdrop-filter: blur(10px);
-  display: none;
+  display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
   padding: 15px;
 }
 
-.modal-container-create-gestor {
+.modal-container-company {
   width: 100%;
   max-width: 900px;
   max-height: 80vh;
@@ -28,7 +28,7 @@
 }
 
 /* Header */
-.modal-header-create-gestor {
+.modal-header-company {
   background: linear-gradient(135deg, rgba(0, 132, 61, 0.2) 0%, rgba(0, 200, 83, 0.15) 100%);
   border-bottom: 1px solid rgba(0, 200, 83, 0.3);
   padding: 1.2rem 1.5rem;
@@ -36,13 +36,13 @@
   flex-shrink: 0;
 }
 
-.header-content-create-gestor {
+.header-content-company {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-.header-content-create-gestor h2 {
+.header-content-company h2 {
   color: #fff;
   font-size: 1.3rem;
   font-weight: 600;
@@ -52,11 +52,11 @@
   gap: 0.6rem;
 }
 
-.header-icon {
+.header-icon-company {
   color: #00c853;
 }
 
-.close-btn-create-gestor {
+.close-btn-company {
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 8px;
@@ -71,21 +71,21 @@
   backdrop-filter: blur(10px);
 }
 
-.close-btn-create-gestor:hover {
+.close-btn-company:hover {
   background: rgba(0, 200, 83, 0.2);
   border-color: #00c853;
   transform: translateY(-1px);
 }
 
 /* Body */
-.modal-body-create-gestor {
+.modal-body-company {
   flex: 1;
   overflow: hidden;
   display: flex;
   flex-direction: column;
 }
 
-.modal-content-create-gestor {
+.modal-content-company {
   display: grid;
   grid-template-columns: 1fr 280px;
   height: 100%;
@@ -95,7 +95,7 @@
 }
 
 /* Columna Izquierda - Información */
-.info-column-create-gestor {
+.info-column-company {
   padding: 1.5rem;
   overflow-y: auto;
   display: flex;
@@ -106,7 +106,7 @@
 }
 
 /* Sección del Formulario */
-.form-section-create-gestor {
+.form-section-company {
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
@@ -115,7 +115,7 @@
   flex-shrink: 0;
 }
 
-.section-title-create-gestor {
+.section-title-company {
   color: #fff;
   font-size: 1.1rem;
   font-weight: 600;
@@ -125,19 +125,19 @@
   gap: 0.4rem;
 }
 
-.form-grid-create-gestor {
+.form-grid-company {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
 }
 
-.input-group-create-gestor {
+.input-group-company {
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
 }
 
-.input-label-create-gestor {
+.input-label-company {
   color: rgba(255, 255, 255, 0.8);
   font-size: 0.8rem;
   font-weight: 500;
@@ -146,12 +146,12 @@
   gap: 0.4rem;
 }
 
-.input-label-create-gestor svg {
+.input-label-company svg {
   color: #00c853;
   width: 12px;
 }
 
-.input-field-create-gestor {
+.input-field-company {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
@@ -163,20 +163,33 @@
   height: 40px;
 }
 
-.input-field-create-gestor:focus {
+.input-field-company:focus {
   outline: none;
   border-color: #00c853;
   background: rgba(255, 255, 255, 0.08);
   box-shadow: 0 0 0 2px rgba(0, 200, 83, 0.2);
 }
 
+.display-field-company {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 0.7rem 0.9rem;
+  color: #fff;
+  font-size: 0.85rem;
+  backdrop-filter: blur(10px);
+  height: 40px;
+  display: flex;
+  align-items: center;
+}
+
 /* Botones de Estado */
-.status-buttons-create-gestor {
+.status-buttons-company {
   display: flex;
   gap: 0.6rem;
 }
 
-.status-btn-create-gestor {
+.status-btn-company {
   flex: 1;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -194,13 +207,13 @@
   height: 40px;
 }
 
-.status-btn-create-gestor:hover {
+.status-btn-company:hover {
   background: rgba(0, 200, 83, 0.1);
   border-color: rgba(0, 200, 83, 0.3);
   transform: translateY(-1px);
 }
 
-.status-btn-create-gestor.active {
+.status-btn-company.active {
   background: rgba(0, 200, 83, 0.2);
   border-color: #00c853;
   color: #00c853;
@@ -208,25 +221,60 @@
   box-shadow: 0 2px 8px rgba(0, 200, 83, 0.2);
 }
 
-.status-dot-create-gestor {
+.status-dot-company {
   width: 6px;
   height: 6px;
   border-radius: 50%;
   background: currentColor;
 }
 
-.status-btn-create-gestor.active .status-dot-create-gestor {
-  animation: pulse 2s infinite;
+.status-btn-company.active .status-dot-company {
+  animation: pulse-company 2s infinite;
 }
 
-@keyframes pulse {
+@keyframes pulse-company {
   0% { opacity: 1; }
   50% { opacity: 0.5; }
   100% { opacity: 1; }
 }
 
+.status-display-company {
+  padding: 0.6rem 0.8rem;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  backdrop-filter: blur(10px);
+  border: 1px solid;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  height: 40px;
+}
+
+.status-display-company.activo {
+  background: rgba(0, 200, 83, 0.15);
+  color: #00c853;
+  border-color: rgba(0, 200, 83, 0.4);
+  box-shadow: 0 2px 8px rgba(0, 200, 83, 0.1);
+}
+
+.status-display-company.inactivo {
+  background: rgba(255, 107, 107, 0.15);
+  color: #ff6b6b;
+  border-color: rgba(255, 107, 107, 0.4);
+  box-shadow: 0 2px 8px rgba(255, 107, 107, 0.1);
+}
+
+.status-display-company.suspendido {
+  background: rgba(255, 193, 7, 0.15);
+  color: #ffc107;
+  border-color: rgba(255, 193, 7, 0.4);
+  box-shadow: 0 2px 8px rgba(255, 193, 7, 0.1);
+}
+
 /* Columna Derecha - Imagen */
-.image-column-create-gestor {
+.image-column-company {
   background: rgba(255, 255, 255, 0.02);
   border-left: 1px solid rgba(255, 255, 255, 0.1);
   padding: 1.5rem;
@@ -237,7 +285,7 @@
   overflow: hidden;
 }
 
-.image-section-create-gestor {
+.image-section-company {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -246,7 +294,7 @@
   min-height: 0;
 }
 
-.image-container-create-gestor {
+.image-container-company {
   width: 100%;
   display: flex;
   justify-content: center;
@@ -255,11 +303,22 @@
   min-height: 0;
 }
 
-.file-input-create-gestor {
-  display: none;
+/* Contenedor para imagen cuando NO está editando */
+.image-display-company {
+  width: 200px;
+  height: 240px;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.03);
+  flex-shrink: 0;
 }
 
-.image-upload-create-gestor {
+/* Contenedor para imagen cuando SÍ está editando */
+.image-upload-company {
   width: 200px;
   height: 240px;
   border: 2px dashed rgba(255, 255, 255, 0.2);
@@ -272,22 +331,28 @@
   overflow: hidden;
   position: relative;
   background: rgba(255, 255, 255, 0.03);
+  flex-shrink: 0;
 }
 
-.image-upload-create-gestor:hover {
+.image-upload-company.editable:hover {
   border-color: #00c853;
   background: rgba(0, 200, 83, 0.05);
   transform: translateY(-2px);
 }
 
-.profile-image-create-gestor {
+.file-input-company {
+  display: none;
+}
+
+/* IMAGEN CORREGIDA - Se muestra completa siempre */
+.profile-image-company {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
 }
 
-.image-placeholder-create-gestor {
+.image-placeholder-company {
   text-align: center;
   color: rgba(255, 255, 255, 0.5);
   font-size: 0.85rem;
@@ -301,12 +366,12 @@
   height: 100%;
 }
 
-.placeholder-icon-create-gestor {
+.placeholder-icon-company {
   font-size: 2.5rem;
   color: rgba(255, 255, 255, 0.3);
 }
 
-.upload-overlay-create-gestor {
+.upload-overlay-company {
   position: absolute;
   top: 0;
   left: 0;
@@ -327,11 +392,11 @@
   gap: 0.5rem;
 }
 
-.image-upload-create-gestor:hover .upload-overlay-create-gestor {
+.image-upload-company.editable:hover .upload-overlay-company {
   opacity: 1;
 }
 
-.image-info-create-gestor {
+.image-info-company {
   text-align: center;
   padding: 0.7rem;
   background: rgba(255, 255, 255, 0.05);
@@ -340,15 +405,15 @@
   max-width: 200px;
 }
 
-.image-info-create-gestor p {
+.image-info-company p {
   color: rgba(255, 255, 255, 0.6);
   font-size: 0.75rem;
   margin: 0;
   line-height: 1.3;
 }
 
-/* Botón de enviar */
-.submit-btn-create-gestor {
+/* BOTÓN */
+.submit-btn-company {
   width: 100%;
   background: linear-gradient(135deg, #00c853 0%, #00a844 100%);
   border: none;
@@ -368,125 +433,121 @@
   flex-shrink: 0;
 }
 
-.submit-btn-create-gestor:hover {
+.submit-btn-company:hover {
   background: linear-gradient(135deg, #00e676 0%, #00c853 100%);
   transform: translateY(-2px);
   box-shadow: 0 6px 16px rgba(0, 200, 83, 0.4);
 }
 
 /* Scrollbars */
-.info-column-create-gestor::-webkit-scrollbar {
+.info-column-company::-webkit-scrollbar {
   width: 5px;
 }
 
-.info-column-create-gestor::-webkit-scrollbar-track {
+.info-column-company::-webkit-scrollbar-track {
   background: rgba(255, 255, 255, 0.05);
   border-radius: 3px;
 }
 
-.info-column-create-gestor::-webkit-scrollbar-thumb {
+.info-column-company::-webkit-scrollbar-thumb {
   background: rgba(0, 200, 83, 0.3);
   border-radius: 3px;
 }
 
-/* Para Chrome, Safari, Edge */
-input[type="number"]::-webkit-inner-spin-button,
-input[type="number"]::-webkit-outer-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-
 /* Responsive */
 @media (max-width: 968px) {
-  .modal-content-create-gestor {
+  .modal-content-company {
     grid-template-columns: 1fr;
   }
   
-  .image-column-create-gestor {
+  .image-column-company {
     border-left: none;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
     padding: 1.2rem;
   }
   
-  .form-grid-create-gestor {
+  .form-grid-company {
     grid-template-columns: 1fr;
   }
   
-  .image-upload-create-gestor {
+  .image-display-company,
+  .image-upload-company {
     width: 180px;
     height: 220px;
   }
 }
 
 @media (max-width: 768px) {
-  .modal-container-create-gestor {
+  .modal-container-company {
     max-height: 85vh;
   }
   
-  .modal-header-create-gestor {
+  .modal-header-company {
     padding: 1rem;
   }
   
-  .header-content-create-gestor h2 {
+  .header-content-company h2 {
     font-size: 1.2rem;
   }
   
-  .info-column-create-gestor {
+  .info-column-company {
     padding: 1.2rem;
   }
   
-  .image-upload-create-gestor {
+  .image-display-company,
+  .image-upload-company {
     width: 160px;
     height: 200px;
   }
 }
 
 @media (max-width: 480px) {
-  .modal-overlay-create-gestor {
+  .modal-overlay-company {
     padding: 10px;
   }
   
-  .modal-container-create-gestor {
+  .modal-container-company {
     border-radius: 12px;
     max-height: 90vh;
   }
   
-  .modal-header-create-gestor {
+  .modal-header-company {
     padding: 0.8rem;
   }
   
-  .header-content-create-gestor h2 {
+  .header-content-company h2 {
     font-size: 1.1rem;
   }
   
-  .close-btn-create-gestor span {
+  .close-btn-company span {
     display: none;
   }
   
-  .info-column-create-gestor {
+  .info-column-company {
     padding: 1rem;
     gap: 1.2rem;
   }
   
-  .form-section-create-gestor {
+  .form-section-company {
     padding: 1rem;
   }
   
-  .image-column-create-gestor {
+  .image-column-company {
     padding: 1rem;
   }
   
-  .image-upload-create-gestor {
+  .image-display-company,
+  .image-upload-company {
     width: 140px;
     height: 180px;
   }
   
-  .submit-btn-create-gestor {
+  .submit-btn-company {
     padding: 0.8rem 1rem;
     font-size: 0.9rem;
   }
   
-  .status-buttons-create-gestor {
+  .status-buttons-company {
     flex-direction: column;
   }
 }

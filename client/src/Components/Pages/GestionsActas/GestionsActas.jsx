@@ -1,4 +1,4 @@
-import { useState, useEffect, act } from "react";
+import { useState, useEffect } from "react";
 import { Header } from "../../Layouts/Header/Header";
 import { Main } from "../../Layouts/Main/Main";
 import "./GestionsActas.css";
@@ -10,7 +10,9 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { Modal_General } from '../../UI/Modal_General/Modal_General';
 import agregarArchivo from '../../../assets/Icons/agregar-archivo.png';
 import Swal from 'sweetalert2';
-import 'sweetalert2/themes/bulma.css'
+import 'sweetalert2/themes/bulma.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSearch, faFileAlt, faFilePdf, faUpload, faCalendarAlt, faFilter, faArrowLeft, faEye } from '@fortawesome/free-solid-svg-icons';
 
 const categoriasDisponibles = [
 	'Solicitud', 'Concertacion', 'Lugar_formacion', 'Matricula'
@@ -19,7 +21,7 @@ const estadosDisponibles = ['pendiente', 'aprobada', 'rechazada'];
 
 export const GestionsActas = () => {
 	const [actas, setActas] = useState([]);
-	const [actasOriginales, setActasOriginales] = useState([]); // Guardar todas las actas
+	const [actasOriginales, setActasOriginales] = useState([]);
 	const [filtro, setFiltro] = useState("");
 	const [categoriasSeleccionadas, setCategoriasSeleccionadas] = useState([]);
 	const [estadosSeleccionados, setEstadosSeleccionados] = useState([]);
@@ -27,8 +29,8 @@ export const GestionsActas = () => {
 	const { setShowModalGeneral, setModalGeneralContent } = useModal();
 	const [showTipoActaModal, setShowTipoActaModal] = useState(false);
 	const [tipoActaSeleccionada, setTipoActaSeleccionada] = useState(null);
-  const [Date, setDate] = useState("");
-  const [DateFin, setDateFin] = useState("");
+	const [fechaInicio, setFechaInicio] = useState("");
+	const [fechaFin, setFechaFin] = useState("");
 	const [observation, setObservation] = useState()
 	const [selectedActa, setSelectedActa] = useState()
 	const [newState, setNewState] = useState("")
@@ -38,23 +40,18 @@ export const GestionsActas = () => {
 		const fetchActas = async () => {
 			try {
 				const res = await axiosInstance.get("/api/actas/actas");
-				setActasOriginales(res.data); // Guardar todas las actas
+				setActasOriginales(res.data);
 
-				// Obtener usuario logueado
 				const userData = JSON.parse(sessionStorage.getItem('userSession') || '{}');
 
-				// Filtrar según el tipo de usuario
 				if (userData.accountType === 'Administrador' || userData.accountType === "Gestor") {
-					// Administrador ve todas las actas
 					setActas(res.data);
 				} else if (userData.accountType === 'Instructor') {
-					// Instructor solo ve sus propias actas
 					const actasDelInstructor = res.data.filter(acta =>
 						acta.instructor_ID === userData.id || acta.instructorId === userData.id
 					);
 					setActas(actasDelInstructor);
 				} else {
-					// Otros tipos de usuario no ven actas o ven según otras reglas
 					setActas([]);
 				}
 
@@ -63,32 +60,31 @@ export const GestionsActas = () => {
 				setActasOriginales([]);
 				console.error("Error al cargar actas:", error);
 				await Swal.fire({
-          icon: "error",
-          title: "Error al cargar actas",
-          text: "Ha ocurrido un error al cargar el acta, por favor vuelva a intentarlo más tarde",
-          confirmButtonText: "Entendido",
-          confirmButtonColor: "#d33",
-                theme:"bulma",
-      customClass: { confirmButton: 'centered-swal-button' }
-        });
+					icon: "error",
+					title: "Error al cargar actas",
+					text: "Ha ocurrido un error al cargar el acta, por favor vuelva a intentarlo más tarde",
+					confirmButtonText: "Entendido",
+					confirmButtonColor: "#d33",
+					theme: "bulma",
+					customClass: { confirmButton: 'centered-swal-button' }
+				});
 			}
 		};
 
-		// Obtener información del usuario logueado
 		const obtenerUsuarioLogueado = async () => {
 			try {
 				const userData = JSON.parse(sessionStorage.getItem('userSession') || '{}');
 				setUsuarioLogueado(userData);
 			} catch (error) {
 				console.error('Error al obtener datos del usuario:', error);
-			await Swal.fire({
-          icon: 'error',
-          title: 'Error de sesión',
-          text: 'No se pudieron cargar los datos del usuario. Por favor, inicie sesión nuevamente.',
-          confirmButtonColor: '#d33',
-                theme:"bulma",
-      customClass: { confirmButton: 'centered-swal-button' }
-        });
+				await Swal.fire({
+					icon: 'error',
+					title: 'Error de sesión',
+					text: 'No se pudieron cargar los datos del usuario. Por favor, inicie sesión nuevamente.',
+					confirmButtonColor: '#d33',
+					theme: "bulma",
+					customClass: { confirmButton: 'centered-swal-button' }
+				});
 				setUsuarioLogueado(null);
 			}
 		};
@@ -97,7 +93,6 @@ export const GestionsActas = () => {
 		fetchActas();
 	}, []);
 
-	// Verificar si el usuario es administrador
 	const esAdministrador = () => {
 		return usuarioLogueado && usuarioLogueado.accountType === 'Administrador';
 	};
@@ -106,12 +101,10 @@ export const GestionsActas = () => {
 		return usuarioLogueado && usuarioLogueado.accountType === 'Gestor';
 	};
 
-	// Verificar si el usuario es instructor
 	const esInstructor = () => {
 		return usuarioLogueado && usuarioLogueado.accountType === 'Instructor';
 	};
 
-	// Manejar selección de categorías (multi-selección)
 	const handleCategoriaClick = (categoria) => {
 		setCategoriasSeleccionadas((prev) =>
 			prev.includes(categoria)
@@ -120,7 +113,6 @@ export const GestionsActas = () => {
 		);
 	};
 
-	// Manejar selección de estado (único)
 	const handleEstadoClick = (estado) => {
 		setEstadosSeleccionados((prev) =>
 			prev.includes(estado)
@@ -129,18 +121,14 @@ export const GestionsActas = () => {
 		);
 	};
 
-	// Filtrado por ID, estado y categorías seleccionadas
+	// Filtrar actas basado en todos los criterios
 	const actasFiltradas = actas.filter((acta) => {
 		const idMatch = filtro === "" || String(acta.ID).includes(filtro);
 		const estadoMatch = estadosSeleccionados.length === 0 || estadosSeleccionados.includes(acta.estado_acta);
 		const categoriaMatch = categoriasSeleccionadas.length === 0 || categoriasSeleccionadas.includes(acta.tipo_acta);
-    const dateMatch = !Date && !DateFin || (acta.fecha_acta >= Date && acta.fecha_acta <= DateFin);
+		const dateMatch = !fechaInicio && !fechaFin || (acta.fecha_acta >= fechaInicio && acta.fecha_acta <= fechaFin);
 		return idMatch && estadoMatch && categoriaMatch && dateMatch;
 	});
-
-  console.log(actasFiltradas)
-
-  
 
 	const handleVerOpcionesPDF = (acta) => {
 		if (!newState)
@@ -152,248 +140,196 @@ export const GestionsActas = () => {
 
 		const handleChangeEstado = async () => {
 			if (!esAdministrador()) {
-        await Swal.fire({
-          icon: "info",
-          title: "No tiene permiso",
-          text: "Solo los administradores pueden cambiar el estado del acta",
-          confirmButtonText: "Okay",
-          confirmButtonColor: "#3085d6",
-          timer: 3500,
-          timerProgressBar: true,
-                theme:"bulma",
-      customClass: { confirmButton: 'centered-swal-button' }
-        });
+				await Swal.fire({
+					icon: "info",
+					title: "No tiene permiso",
+					text: "Solo los administradores pueden cambiar el estado del acta",
+					confirmButtonText: "Okay",
+					confirmButtonColor: "#3085d6",
+					timer: 3500,
+					timerProgressBar: true,
+					theme: "bulma",
+					customClass: { confirmButton: 'centered-swal-button' }
+				});
 				return;
 			}
 
 			try {
-				const userData = JSON.parse(sessionStorage.getItem('userSession') || '{}');     
+				const userData = JSON.parse(sessionStorage.getItem('userSession') || '{}');
 				const respo = await axiosInstance.put(`/api/actas/${acta.ID}/estado`, { estado_acta: newState, observacion: observation });
 				const updatedEstado = respo.data.acta;
 				setNewState()
 				setObservation()
-				try{
-					console.log('datos acta', acta.ID, updatedEstado);
+				try {
 					const response = await axiosInstance.post('/api/notifications/solicitudNotificacion', {
 						remitente_ID: userData.id,
-						actaID : acta.ID,
-						estado: updatedEstado, 
+						actaID: acta.ID,
+						estado: updatedEstado,
 					})
 					await Swal.fire({
-            icon: "success",
-            title: "¡Éxito!",
-            text: "Notificación de estado de solicitud de curso enviada correctamente",
-            confirmButtonText: "Entiendo",
-            confirmButtonColor: "#00843d",
-            timer: 5000,
-            timerProgressBar: true,
-                  theme:"bulma",
-      customClass: { confirmButton: 'centered-swal-button' }
-          });
-        } catch (error) {
-          console.error('Error al enviar notificación de estado de solicitud de curso:', error);
-          await Swal.fire({
-            icon: "error",
-            title: "Error al enviar notificación",
-            text: "Ha ocurrido un error al enviar una notificación de estado de solicitud de curso, por favor, intentelo más tarde.",
-            confirmButtonText: "Okay",
-            confirmButtonColor: "#d33",
-                  theme:"bulma",
-      customClass: { confirmButton: 'centered-swal-button' }
-          });
-        }
-		/*
-        await Swal.fire({
-          icon: "success",
-          title: "¡Éxito!",
-          text: "Estado actualizado correctamente",
-          confirmButtonColor: "#00843d",
-          timer: 5000,
-          timerProgressBar: true,
-                theme:"bulma",
-      customClass: { confirmButton: 'centered-swal-button' }
-        });
-        */
-        setShowModalGeneral(false);
-        window.location.reload();
-      } catch (error) {
-        await Swal.fire({
-          icon: "error",
-          title: "Error",
-          text: "Error al actualizar el estado del acta",
-          confirmButtonColor: "#d33",
-                theme:"bulma",
-      customClass: { confirmButton: 'centered-swal-button' }
-        });
+						icon: "success",
+						title: "¡Éxito!",
+						text: "Notificación de estado de solicitud de curso enviada correctamente",
+						confirmButtonText: "Entiendo",
+						confirmButtonColor: "#00843d",
+						timer: 5000,
+						timerProgressBar: true,
+						theme: "bulma",
+						customClass: { confirmButton: 'centered-swal-button' }
+					});
+				} catch (error) {
+					console.error('Error al enviar notificación de estado de solicitud de curso:', error);
+					await Swal.fire({
+						icon: "error",
+						title: "Error al enviar notificación",
+						text: "Ha ocurrido un error al enviar una notificación de estado de solicitud de curso, por favor, intentelo más tarde.",
+						confirmButtonText: "Okay",
+						confirmButtonColor: "#d33",
+						theme: "bulma",
+						customClass: { confirmButton: 'centered-swal-button' }
+					});
+				}
+				setShowModalGeneral(false);
+				window.location.reload();
+			} catch (error) {
+				await Swal.fire({
+					icon: "error",
+					title: "Error",
+					text: "Error al actualizar el estado del acta",
+					confirmButtonColor: "#d33",
+					theme: "bulma",
+					customClass: { confirmButton: 'centered-swal-button' }
+				});
 			}
 		};
 
 		setModalGeneralContent(
-			<div style={{ textAlign: "center", width: "auto", height: "auto" }}>
-				<h3 style={{ textAlign: "center", width: "auto", height: "auto", marginTop: "1rem" }}>¿Qué deseas ver?</h3>
-				<div style={{
-					display: "flex",
-					flexDirection: "column",
-					gap: "1rem",
-					margin: "1rem 0",
-					width: "auto",
-					height: "auto"
-				}}>
-					<NavLink
-						to="#"
-						onClick={e => {
-							e.preventDefault();
-							const baseUrl = acta.tipo_acta === 'Solicitud'
-								? 'http://localhost:3001/uploads/solicitudes'
-								: 'http://localhost:3001/uploads/documentos';
-							window.open(`${baseUrl}/${acta.pdf_acta}`, "_blank");
-						}}
-						className={"Acta-Boton"}
-					>
-						Acta
-					</NavLink>
-					<NavLink
-						to="#"
-						onClick={e => {
-							e.preventDefault();
-							if (acta.pdf_radicado) {
-								const baseUrl = acta.tipo_acta === 'Solicitud'
-									? 'http://localhost:3001/uploads/solicitudes'
-									: 'http://localhost:3001/uploads/documentos';
-								window.open(`${baseUrl}/${acta.pdf_radicado}`, "_blank");
-							}
-						}}
-						className={"Acta-Boton"}
-						style={{
-							opacity: acta.pdf_radicado ? 1 : 0.5,
-							pointerEvents: acta.pdf_radicado ? "auto" : "none",
-						}}
-					>
-						Radicado
-					</NavLink>
-					{/*acta.tipo_acta == "Concertacion" && (
-						<button
-							className={"Acta-Boton"}
-						>
-							Editar acta
-						</button>
-					)*/}
-					<label
-						style={{
-							background: "#007bff",
-							color: "#fff",
-							padding: "0.5rem 1rem",
-							borderRadius: "5px",
-							fontWeight: "bold",
-							cursor: "pointer",
-							width: "100%",
-							height: "auto"
-						}}
-					>
-						Subir PDF Radicado
-						<input
-							type="file"
-							accept="application/pdf"
-							style={{ display: "none" }}
-							onChange={e => {
-								const file = e.target.files[0];
-								if (file) {
-									handleUploadRadicado(acta.ID, file);
-								}
-							}}
-						/>
-					</label>
-
-					{/* Sección de cambio de estado - SOLO para administradores */}
-					{esAdministrador() && (
-						<div style={{
-							textAlign: "center",
-							width: "auto",
-							height: "auto",
-							display: "flex",
-							flexDirection: "column",
-							alignItems: "center"
-						}}>
-							<label style={{
-								fontWeight: "bold",
-								width: "auto",
-								height: "auto",
-								marginTop: "1rem"
-							}}>
-								Cambiar estado del acta:
-							</label>
-							<select
-								defaultValue={acta.estado_acta}
-								value={newState}
-								onChange={e => { setNewState(e.target.value) }}
-								className="selectEstadoActa"
-							>
-								<option value="pendiente">Pendiente</option>
-								<option value="aprobada">Aprobada</option>
-								<option value="rechazada">Rechazada</option>
-							</select>
-							{newState !== "pendiente" &&
-								<>
-									<label
-										style={{
-											fontWeight: "bold",
-											width: "auto",
-											height: "auto",
-										}}
-									>
-										Observación
-									</label>
-									<textarea
-										type="text"
-										className="search-input reason-textarea"
-										placeholder="Escriba aquí una observación respecto al acta..."
-										value={observation}
-										onChange={(e) => {
-											setObservation(e.target.value)
-										}}
-									/>
-								</>
-							}
+			<div className="modal-actas-overlay">
+				<div className="modal-actas-container">
+					<div className="modal-actas-header">
+						<div className="modal-actas-header-content">
+							<h2>
+								<FontAwesomeIcon icon={faFileAlt} className="modal-actas-header-icon" />
+								Opciones del Acta #{acta.ID}
+							</h2>
 							<button
-								onClick={handleChangeEstado}
-								style={{
-									background: "#00843d",
-									color: "#fff",
-									padding: "0.5rem 1rem",
-									borderRadius: "5px",
-									fontWeight: "bold",
-									width: "auto",
-									height: "auto",
-									borderStyle: "none",
-									marginTop: "0.5rem"
-								}}
+								type="button"
+								onClick={() => setShowModalGeneral(false)}
+								className="modal-actas-close-btn"
 							>
-								Guardar Estado
+								<FontAwesomeIcon icon={faArrowLeft} />
+								<span>Volver</span>
 							</button>
 						</div>
-					)}
+					</div>
 
-					{/* Mensaje informativo para no administradores */}
-					{!esAdministrador() && (
-						<>
-							<div style={{
-								textAlign: "center",
-								padding: "1rem",
-								color: "#666",
-								fontStyle: "italic",
-								borderRadius: "5px",
-								marginTop: "0.5rem"
-							}}>
-								Solo los administradores pueden cambiar el estado del acta
+					<div className="modal-actas-body">
+						<div className="modal-actas-content">
+							<div className="modal-actas-options">
+								<NavLink
+									to="#"
+									onClick={e => {
+										e.preventDefault();
+										const baseUrl = acta.tipo_acta === 'Solicitud'
+											? 'http://localhost:3001/uploads/solicitudes'
+											: 'http://localhost:3001/uploads/documentos';
+										window.open(`${baseUrl}/${acta.pdf_acta}`, "_blank");
+									}}
+									className="modal-actas-btn"
+								>
+									<FontAwesomeIcon icon={faFileAlt} className="btn-icon" />
+									Ver Acta
+								</NavLink>
+								<NavLink
+									to="#"
+									onClick={e => {
+										e.preventDefault();
+										if (acta.pdf_radicado) {
+											const baseUrl = acta.tipo_acta === 'Solicitud'
+												? 'http://localhost:3001/uploads/solicitudes'
+												: 'http://localhost:3001/uploads/documentos';
+											window.open(`${baseUrl}/${acta.pdf_radicado}`, "_blank");
+										}
+									}}
+									className="modal-actas-btn"
+									style={{
+										opacity: acta.pdf_radicado ? 1 : 0.5,
+										pointerEvents: acta.pdf_radicado ? "auto" : "none",
+									}}
+								>
+									<FontAwesomeIcon icon={faFilePdf} className="btn-icon" />
+									Ver Radicado
+								</NavLink>
+								<label className="modal-actas-upload-label">
+									<FontAwesomeIcon icon={faUpload} className="btn-icon" />
+									Subir PDF Radicado
+									<input
+										type="file"
+										accept="application/pdf"
+										className="modal-actas-upload-input"
+										onChange={e => {
+											const file = e.target.files[0];
+											if (file) {
+												handleUploadRadicado(acta.ID, file);
+											}
+										}}
+									/>
+								</label>
+
+								{esAdministrador() && (
+									<div className="modal-actas-change-state-section">
+										<label className="modal-actas-state-label">
+											Cambiar estado del acta:
+										</label>
+										<select
+											value={newState}
+											onChange={e => { setNewState(e.target.value) }}
+											className="modal-actas-state-select"
+										>
+											<option value="pendiente">Pendiente</option>
+											<option value="aprobada">Aprobada</option>
+											<option value="rechazada">Rechazada</option>
+										</select>
+										{newState !== "pendiente" &&
+											<>
+												<label className="modal-actas-observation-label">
+													Observación
+												</label>
+												<textarea
+													className="modal-actas-observation-textarea"
+													placeholder="Escriba aquí una observación respecto al acta..."
+													value={observation}
+													onChange={(e) => {
+														setObservation(e.target.value)
+													}}
+												/>
+											</>
+										}
+										<button
+											onClick={handleChangeEstado}
+											className="modal-actas-save-state-btn"
+										>
+											Guardar Estado
+										</button>
+									</div>
+								)}
+
+								{!esAdministrador() && (
+									<>
+										<div className="modal-actas-info-message">
+											Solo los administradores pueden cambiar el estado del acta
+										</div>
+										{acta.observacion && (
+											<div className="modal-actas-observation-display">
+												<b>Observación:</b>
+												<p>{acta.observacion}</p>
+											</div>
+										)}
+									</>
+								)}
 							</div>
-							{acta.observacion && (
-								<>
-									<b>Observación</b>
-									<p>{acta.observacion}</p>
-								</>
-							)}
-						</>
-					)}
+						</div>
+					</div>
 				</div>
 			</div>
 		);
@@ -408,28 +344,28 @@ export const GestionsActas = () => {
 			await axiosInstance.post(`/api/actas/${actaId}/upload-radicado`, formData, {
 				headers: { 'Content-Type': 'multipart/form-data' }
 			});
-      await Swal.fire({
-        icon: "success",
-        title: "¡Éxito!",
-        text: "PDF radicado subido correctamente",
-        confirmButtonColor: "#3085d6",
-        timer: 3000,
-        timerProgressBar: true,
-              theme:"bulma",
-      customClass: { confirmButton: 'centered-swal-button' }
-      });
-      
-      setShowModalGeneral(false);
-      window.location.reload();
-    } catch (error) {
-      await Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "Error al subir el PDF radicado",
-        confirmButtonColor: "#d33",
-              theme:"bulma",
-      customClass: { confirmButton: 'centered-swal-button' }
-      });
+			await Swal.fire({
+				icon: "success",
+				title: "¡Éxito!",
+				text: "PDF radicado subido correctamente",
+				confirmButtonColor: "#3085d6",
+				timer: 3000,
+				timerProgressBar: true,
+				theme: "bulma",
+				customClass: { confirmButton: 'centered-swal-button' }
+			});
+
+			setShowModalGeneral(false);
+			window.location.reload();
+		} catch (error) {
+			await Swal.fire({
+				icon: "error",
+				title: "Error",
+				text: "Error al subir el PDF radicado",
+				confirmButtonColor: "#d33",
+				theme: "bulma",
+				customClass: { confirmButton: 'centered-swal-button' }
+			});
 		}
 	};
 
@@ -439,176 +375,262 @@ export const GestionsActas = () => {
 	}, [newState, selectedActa, observation])
 
 	return (
-		<div className="pantallaGestionsCompany">
+		<>
 			<Header />
 			<Main>
-				<section className="sectionPrincipalGestionsCompany">
-					<section className="sectionGestionsCompanyHeader">
-						<p className="tituloGestionsCompany">
-							Gestión de <span className="tituloVerde">Actas</span>
-						</p>
-					</section>
+				<div className="gestions-actas-container">
+					{/* Header Principal */}
+					<div className="actas-header">
+						<div className="header-content">
+							<h1 className="main-title">
+								Gestión de <span className="accent-text">Actas</span>
+							</h1>
+							<p className="subtitle">
+								Administra y consulta las <strong>actas</strong> del sistema
+							</p>
+						</div>
 
-					<section className="sectionGestionsCompanyBody">
-						<section className="filterGestionsCompany">
-							<strong className="tituloFiltrar">Filtrar por:</strong>
-							<article className="filterOptionsGestionsCompany">
-								<div className="filterOptionName">
-									<label className="labelFilterOption1">ID</label>
-									<div className="inputFilterOption1">
-										<input
-											className="inputFilterOptionText"
-											type="text"
-											placeholder="Escriba el ID del acta o solicitud"
-											value={filtro}
-											onChange={(e) => setFiltro(e.target.value)}
-										/>
-									</div>
-								</div>
-                <div className="ContentOptionDate">
-                  <div className="contentInputDate"> 
-                    <label>Fecha: </label>
-                    <input 
-                      className="inputDateFilter"
-                      type="date"
-                      value={Date}
-                      onChange={(e) => setDate(e.target.value)}
-                    />
-                  </div>
-                  <div className="contentInputDate">
-                    <label>Fecha Fin: </label>
-                    <input 
-                      className="inputDateFilter"
-                      type="date"
-                      value={DateFin}
-                      onChange={(e) => setDateFin(e.target.value)}
-                    />
-                  </div>
-                </div>
-								<div className="courseStatusFilte">
-									<label
-										className="labelFilterOption1"
-										style={{ padding: "0 0 .5rem 0" }}
-									>
-										Estado del Acta
-									</label>
-									<section className="sectionStatusFilter">
-										{estadosDisponibles.map((estado) => (
-											<p
-												key={estado}
-												className={`statusOptionActas ${estadosSeleccionados.includes(estado) ? "selected" : ""}`}
-												onClick={() => handleEstadoClick(estado)}
-											>
-												{estado}
-											</p>
-										))}
-									</section>
-								</div>
-								<div className="courseStatusFilte">
-									<label
-										className="labelFilterOption1"
-										style={{ padding: "0 0 .5rem 0" }}
-									>
-										Tipo de Acta
-									</label>
-									<section className="sectionStatusFilter">
-										{categoriasDisponibles.map((categoria) => (
-											<p
-												key={categoria}
-												className={`statusOptionActas ${categoriasSeleccionadas.includes(categoria) ? "selected" : ""}`}
-												onClick={() => handleCategoriaClick(categoria)}
-											>
-												{categoria.replaceAll("_", " ")}
-											</p>
-										))}
-									</section>
-								</div>
-							</article>
-
-							{/* Solo mostrar botón de generar acta a instructores y administradores */}
-							{(esInstructor() || esAdministrador() || esGestor()) && (
-								<div className="container-button-firmar">
-									<button className="button-proceedings-generar" onClick={() => setShowTipoActaModal(true)}>
-										Generar acta
-									</button>
-								</div>
-							)}
-						</section>
-
-						<section className="resultTableGestionsCompany">
-							<label className="labelFilterOption12">
-								{actasFiltradas.length} Resultados
-								{esInstructor() && <span style={{ fontSize: '12px', color: '#666' }}></span>}
-							</label>
-							<section className="scrollElement">
-								{actas.length === 0 ? (
-									<p className="no-results">
-										{esInstructor()
-											? "No has generado actas aún"
-											: "No hay actas registradas"
-										}
-									</p>
-								) : actasFiltradas.length === 0 ? (
-									<p className="no-results">No hay actas que coincidan con los filtros</p>
-								) : (
-									actasFiltradas.map((acta, index) => (
-										<div key={index} className="Acta-Contenedor">
-											<section className="Contenedor-NombreEmpresa">
-												<p className="NombreEmpresaTitulo">
-													Acta #{acta.ID}
-													<span className="NombreEmpresaSubtitulo">
-														{acta.fecha_acta?.slice(0, 10)}
-													</span>
-												</p>
-											</section>
-											<section className="Contenedor-categoria">
-												<span>
-													Tipo: {acta.tipo_acta.replaceAll("_", " ")}
-												</span>
-											</section>
-											<section className="Contenedor-emojis">
-												<span style={{ display: "flex", alignItems: "center", gap: "0.5rem", width: "auto", height: "auto" }}>
-													{acta.estado_acta}
-												</span>
-											</section>
-											<img
-												src={seePasswordIcon}
-												alt="ver"
-												style={{ width: 24, height: 24, cursor: "pointer", marginRight: "2rem" }}
-												onClick={() => {
-													setNewState()
-													setObservation()
-													handleVerOpcionesPDF(acta)
-												}}
-											/>
-										</div>
-									))
-								)}
-							</section>
-						</section>
-					</section>
-				</section>
-			</Main>
-			<Footer />
-			{showTipoActaModal && (
-				<Modal_General closeModal={() => setShowTipoActaModal(false)}>
-					<h3 className="title-modal-acta">Seleccione el tipo de acta</h3>
-					<div className="container-modal-acta">
-						<div className="option-1Acta" onClick={() => { setTipoActaSeleccionada('concertacion'); setShowTipoActaModal(false); navigate('/Actas/Concertacion'); }}>
-							<p>Concertación</p>
-							<div className="container-1Acta">
-								<img src={agregarArchivo} alt="Concertación" />
+						<div className="header-stats">
+							<div className="stat-card">
+								<span className="stat-number">{actasFiltradas.length}</span>
+								<span className="stat-label">Actas Encontradas</span>
 							</div>
 						</div>
-						<div className="option-2Acta" onClick={() => { setTipoActaSeleccionada('lugar-formacion'); setShowTipoActaModal(false); navigate('/Actas/Lugar-formacion'); }}>
-							<p>Lugar de formación</p>
-							<div className="container-2Acta">
-								<img src={agregarArchivo} alt="Validación del lugar" />
+					</div>
+
+					{/* Panel de Búsqueda y Filtros */}
+					<div className="search-panel">
+						<div className="search-section">
+							<div className="search-input-container">
+								<FontAwesomeIcon icon={faSearch} className="search-icon-left" />
+								<input
+									type="text"
+									className="search-input"
+									placeholder="Buscar por ID del acta..."
+									value={filtro}
+									onChange={(e) => setFiltro(e.target.value)}
+								/>
+							</div>
+						</div>
+
+						<div className="filters-section-actas">
+							<div className="filter-dates-group">
+								<div className="filter-group">
+									<label className="filter-label">
+										<FontAwesomeIcon icon={faCalendarAlt} className="filter-icon" />
+										Fecha Inicio
+									</label>
+									<input
+										type="date"
+										className="filter-date-input"
+										value={fechaInicio}
+										onChange={(e) => setFechaInicio(e.target.value)}
+									/>
+								</div>
+								<div className="filter-group">
+									<label className="filter-label">
+										<FontAwesomeIcon icon={faCalendarAlt} className="filter-icon" />
+										Fecha Fin
+									</label>
+									<input
+										type="date"
+										className="filter-date-input"
+										value={fechaFin}
+										onChange={(e) => setFechaFin(e.target.value)}
+									/>
+								</div>
+							</div>
+
+							<div className="filter-group">
+								<label className="filter-label">
+									<FontAwesomeIcon icon={faFilter} className="filter-icon" />
+									Estado del Acta
+								</label>
+								<div className="filter-chips-container">
+									{estadosDisponibles.map((estado) => (
+										<button
+											key={estado}
+											className={`filter-chip ${estadosSeleccionados.includes(estado) ? "selected" : ""}`}
+											onClick={() => handleEstadoClick(estado)}
+										>
+											{estado}
+										</button>
+									))}
+								</div>
+							</div>
+
+							<div className="filter-group">
+								<label className="filter-label">
+									<FontAwesomeIcon icon={faFilter} className="filter-icon" />
+									Tipo de Acta
+								</label>
+								<div className="filter-chips-container">
+									{categoriasDisponibles.map((categoria) => (
+										<button
+											key={categoria}
+											className={`filter-chip ${categoriasSeleccionadas.includes(categoria) ? "selected" : ""}`}
+											onClick={() => handleCategoriaClick(categoria)}
+										>
+											{categoria.replaceAll("_", " ")}
+										</button>
+									))}
+								</div>
+							</div>
+						</div>
+
+						{/* Botón Generar Acta */}
+						{(esInstructor() || esAdministrador() || esGestor()) && (
+							<div className="generate-acta-section">
+								<button
+									className="generate-acta-btn"
+									onClick={() => setShowTipoActaModal(true)}
+								>
+									<FontAwesomeIcon icon={faFileAlt} className="btn-icon" />
+									Generar Nueva Acta
+								</button>
+							</div>
+						)}
+					</div>
+
+					{/* Estados de Carga y Resultados */}
+					{actas.length === 0 ? (
+						<div className="no-results-state">
+							<div className="no-results-icon">📋</div>
+							<h3>No hay actas registradas</h3>
+							<p>No se han encontrado actas en el sistema.</p>
+						</div>
+					) : actasFiltradas.length === 0 ? (
+						<div className="no-results-state">
+							<div className="no-results-icon">🔍</div>
+							<h3>No se encontraron actas</h3>
+							<p>No hay actas que coincidan con los filtros aplicados.</p>
+							<button
+								className="reset-filters-btn"
+								onClick={() => {
+									setFiltro("");
+									setCategoriasSeleccionadas([]);
+									setEstadosSeleccionados([]);
+									setFechaInicio("");
+									setFechaFin("");
+								}}
+							>
+								Mostrar todas las actas
+							</button>
+						</div>
+					) : (
+						<div className="results-section">
+							{/* Header de Resultados */}
+							<div className="results-header">
+								<h2 className="results-title">
+									{actasFiltradas.length === 1 ? "1 acta encontrada" : `${actasFiltradas.length} actas encontradas`}
+								</h2>
+							</div>
+
+							{/* Grid de Actas */}
+							<div className="actas-grid-container">
+								<div className="actas-grid">
+									{actasFiltradas.map((acta, index) => (
+										<div
+											className="acta-card"
+											key={acta.ID || acta.id}
+										>
+											<div className="card-header-acta">
+												<div className={`acta-badge estado-${acta.estado_acta}`}>
+													{acta.estado_acta || "Sin estado"}
+												</div>
+												<span className="acta-date">
+													{acta.fecha_acta?.slice(0, 10)}
+												</span>
+											</div>
+
+											<div className="card-content-acta">
+												<h3 className="acta-title">Acta #{acta.ID}</h3>
+												<p className="acta-type">
+													Tipo: {acta.tipo_acta.replaceAll("_", " ")}
+												</p>
+
+												<div className="acta-actions">
+													<button
+														className="view-acta-btn"
+														onClick={() => {
+															setNewState()
+															setObservation()
+															handleVerOpcionesPDF(acta)
+														}}
+													>
+														<FontAwesomeIcon icon={faEye} className="btn-icon" />
+														Ver Detalles
+													</button>
+												</div>
+											</div>
+										</div>
+									))}
+								</div>
+							</div>
+						</div>
+					)}
+				</div>
+			</Main>
+			<Footer />
+
+			{/* Modal Tipo Acta */}
+			{showTipoActaModal && (
+				<Modal_General closeModal={() => setShowTipoActaModal(false)}>
+					<div className="modal-actas-overlay">
+						<div className="modal-actas-container">
+							<div className="modal-actas-header">
+								<div className="modal-actas-header-content">
+									<h2>
+										<FontAwesomeIcon icon={faFileAlt} className="modal-actas-header-icon" />
+										Seleccione el tipo de acta
+									</h2>
+									<button
+										type="button"
+										onClick={() => setShowTipoActaModal(false)}
+										className="modal-actas-close-btn"
+									>
+										<FontAwesomeIcon icon={faArrowLeft} />
+										<span>Volver</span>
+									</button>
+								</div>
+							</div>
+
+							<div className="modal-actas-body">
+								<div className="modal-acta-type-content">
+									<div className="modal-acta-type-options">
+										<div
+											className="modal-acta-type-option"
+											onClick={() => {
+												setTipoActaSeleccionada('concertacion');
+												setShowTipoActaModal(false);
+												navigate('/Actas/Concertacion');
+											}}
+										>
+											<div className="modal-acta-type-icon-container">
+												<FontAwesomeIcon icon={faFileAlt} className="modal-acta-type-icon" />
+											</div>
+											<p>Concertación</p>
+										</div>
+										<div
+											className="modal-acta-type-option"
+											onClick={() => {
+												setTipoActaSeleccionada('lugar-formacion');
+												setShowTipoActaModal(false);
+												navigate('/Actas/Lugar-formacion');
+											}}
+										>
+											<div className="modal-acta-type-icon-container">
+												<FontAwesomeIcon icon={faFileAlt} className="modal-acta-type-icon" />
+											</div>
+											<p>Lugar de Formación</p>
+										</div>
+									</div>
+								</div>
 							</div>
 						</div>
 					</div>
 				</Modal_General>
 			)}
-		</div>
+		</>
 	);
 };

@@ -80,8 +80,9 @@ class UserServices {
 
     static CreateSecurity = async (Question, Answer, Id) => {
         try{
-
             const SecurityExisting = await UserRepository.GetUserSecurity(Id);
+            
+            console.log(SecurityExisting)
 
             if(SecurityExisting && SecurityExisting.SecurityData){
                 throw new Error('Usuario ya cuenta con una pregunta de seguridad registrada')

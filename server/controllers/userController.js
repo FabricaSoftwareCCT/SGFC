@@ -2779,7 +2779,7 @@ const securityData = async (req, res) => {
 		res.status(200).json({message: 'Pregunta de seguridad creada'})
 
 	}catch (Error) {
-		console.log(Error)
+		console.log("eRROR EN CONTROLLER ", Error)
 		res.status(500).json({
 			message: 'Error en el servidor'
 		})

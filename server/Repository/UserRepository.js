@@ -29,7 +29,7 @@ class UserRepository {
 
     static SecurityAnswer = async (Question, Answer, Id) => {
         try {
-            return UserSecurity.create({
+            return  await UserSecurity.create({
                 userId: Id,
                 SecurityQuestion: Question,
                 AnswerHash: Answer
@@ -41,21 +41,22 @@ class UserRepository {
 
     static GetUserSecurity = async (id) => {
         try{
-        return User.findOne({
+            console.log("ID en repo", id)
+            return User.findOne({
             attributes: [], 
             include: [{
                 model: UserSecurity,
                 as: 'SecurityData',
                 attributes: [
-                    ['SecurityQuestion', 'Pregunta', 'AnswerHash', 'respuesta']
+                    ['SecurityQuestion', 'Pregunta'],
+                    [ 'AnswerHash', 'respuesta']
                 ]
             }],
             where: {
                 ID: id
-            }
+            },
         });
         }catch (Err){
-            console.log(Err)
             throw new Error({status: 500, message: "Error en el servidor"})
         }
     }

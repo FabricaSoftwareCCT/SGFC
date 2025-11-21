@@ -1,16 +1,15 @@
-import "./ManageManager.css"
-import "../ManageCompany/UpdateCompany.css"
-
+import React, { useState } from "react";
+import "./ManageManager.css";
 import fotoPerfilDefect from "../../../../assets/Icons/userDefect.png";
-
-import { useState } from "react"
 import axiosInstance from "../../../../config/axiosInstance";
-import Swal from 'sweetalert2'
-import 'sweetalert2/themes/bulma.css'
+import Swal from 'sweetalert2';
+import 'sweetalert2/themes/bulma.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faArrowLeft, faUser, faIdCard, faPhone, faEnvelope, faCamera, faBuilding } from '@fortawesome/free-solid-svg-icons';
 
 export const ManageManager = ({ data, isAdmin, onClose, update }) => {
-	const [manager, setManager] = useState(data)
-	const [isEditing, setIsEditing] = useState(false)
+	const [manager, setManager] = useState(data);
+	const [isEditing, setIsEditing] = useState(false);
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
@@ -19,8 +18,7 @@ export const ManageManager = ({ data, isAdmin, onClose, update }) => {
 			return;
 		}
 
-		if (manager == data)
-			return
+		if (manager === data) return;
 		
 		try {
 			const resp = await axiosInstance.put(`/api/users/perfil/actualizar/${manager.ID}`, {
@@ -30,30 +28,34 @@ export const ManageManager = ({ data, isAdmin, onClose, update }) => {
 				celular: manager.celular,
 				documento: manager.documento,
 				estado: manager.estado
-			})
+			});
+
 			if (resp?.status >= 200 && resp?.status < 300) {
 				Swal.fire({
 					icon: 'success',
 					title: 'Manager actualizado',
 					text: resp?.data?.message || 'Se ha actualizado el manager',
-					theme:"bulma",
+					theme: "bulma",
 					confirmButtonText: 'Aceptar',
-					confirmButtonColor: '#00843d'
+					confirmButtonColor: '#00843d',
+					customClass: {
+						confirmButton: 'centered-swal-button'
+					}
 				});
 			} else {
 				Swal.fire({
-				icon: 'error',
-				title: 'Error',
-				text: 'No se pudo actualizar el manager',
-				confirmButtonText: 'Aceptar',
-				confirmButtonColor: '#d33',
-				theme:"bulma",
-     				customClass: { confirmButton: 'centered-swal-button' }
+					icon: 'error',
+					title: 'Error',
+					text: 'No se pudo actualizar el manager',
+					confirmButtonText: 'Aceptar',
+					confirmButtonColor: '#d33',
+					theme: "bulma",
+					customClass: { confirmButton: 'centered-swal-button' }
 				});
 				return;
 			}
 
-			if (data.foto_perfil != manager.foto_perfil) {
+			if (data.foto_perfil !== manager.foto_perfil) {
 				const body = new FormData();
 				body.append("foto_perfil", manager.foto_perfil);
 				await axiosInstance.put(`/api/users/perfil/actualizar/${manager.ID}`, body, {
@@ -61,213 +63,325 @@ export const ManageManager = ({ data, isAdmin, onClose, update }) => {
 				});
 			}
 
-			onClose()
-			update()
+			onClose();
+			update();
 		} catch (error) {
-			console.log(error)
+			console.log(error);
 			Swal.fire({
 				icon: 'error',
 				title: 'Error',
 				text: 'Ocurrió un error al actualizar el manager',
 				confirmButtonText: 'Aceptar',
 				confirmButtonColor: '#d33',
-				theme:"bulma",
-      customClass: { confirmButton: 'centered-swal-button' }
+				theme: "bulma",
+				customClass: { confirmButton: 'centered-swal-button' }
 			});
 		}
-	}
+	};
 
-	const getLogoSrc = (logo) => {
-		if (!logo) return fotoPerfilDefect;
-		if (logo instanceof File) return URL.createObjectURL(logo);
-		if (typeof logo === "string") {
-			if (logo.startsWith('data:') || logo.startsWith('http')) {return logo;}
-			if (/(\.png|\.jpg|\.jpeg|\.gif)$/i.test(logo)) {return fotoPerfilDefect;}
-	
-			if (logo.startsWith('iVBOR')) {return `data:image/png;base64,${logo}`;}
-			if (logo.startsWith('/9j/')) {return `data:image/jpeg;base64,${logo}`;}
-	
-			if (logo.length < 100) {return fotoPerfilDefect;}
-	
-			return `data:image/jpeg;base64,${logo}`;
+	const getImageSrc = (data) => {
+		if (!data) return fotoPerfilDefect;
+		if (data instanceof File) return URL.createObjectURL(data);
+		if (typeof data === "string") {
+			if (data.startsWith('data:') || data.startsWith('http')) return data;
+			if (/(\.png|\.jpg|\.jpeg|\.gif)$/i.test(data)) return fotoPerfilDefect;
+			if (data.startsWith('iVBOR')) return `data:image/png;base64,${data}`;
+			if (data.startsWith('/9j/')) return `data:image/jpeg;base64,${data}`;
+			if (data.length < 100) return fotoPerfilDefect;
+			return `data:image/jpeg;base64,${data}`;
 		}
 		return fotoPerfilDefect;
 	};
 
-	//console.log(manager)
+	const handleChange = (e) => {
+		const { name, value } = e.target;
+		setManager(prev => ({ ...prev, [name]: value }));
+	};
+
+	const handleImageChange = (e) => {
+		const file = e.target.files[0];
+		if (file) {
+			setManager(prev => ({
+				...prev,
+				foto_perfil: file,
+			}));
+		}
+	};
+
+	const handleEstadoChange = (estado) => {
+		setManager(prev => ({ ...prev, estado: estado.toLowerCase() }));
+	};
+
+	const closeModalManager = () => {
+		if (onClose) onClose();
+	};
 
 	return (
-		<div id="modal-overlayUpdateInstructor" style={{ display: "flex" }}>
-			<form className="modal-bodyUpdateInstructor" onSubmit={handleSubmit}>
-				<div className="modal-left-update">
-					<p>
-						<strong>Empresa:</strong>
-						<span className="valor-campo">{manager.Empresa.nombre_empresa}</span>
-					</p>
-					<p>
-						<strong>Nombres:</strong>
-						{isEditing ?
-							<input
-								type="text"
-								name="nombres_manager"
-								value={manager.nombres}
-								className="input_updateData"
-								onChange={(e) => setManager({
-									...manager,
-									nombres: e.target.value
-								})}
-							/>
-						:
-							<span className="valor-campo">{manager.nombres}</span>
-						}
-					</p>
-					<p>
-						<strong>Apellidos:</strong>
-						{isEditing ?
-							<input
-								type="text"
-								name="apellidos_manager"
-								value={manager.apellidos}
-								className="input_updateData"
-								onChange={(e) => setManager({
-									...manager,
-									apellidos: e.target.value
-								})}
-							/>
-						:
-							<span className="valor-campo">{manager.apellidos}</span>
-						}
-					</p>
-					<p>
-						<strong>Celular:</strong>
-						{isEditing ?
-							<input
-								type="text"
-								name="celular_manager"
-								value={manager.celular}
-								className="input_updateData"
-								onChange={(e) => setManager({
-									...manager,
-									celular: e.target.value
-								})}
-							/>
-						:
-							<span className="valor-campo">{manager.celular}</span>
-						}
-					</p>
-					<p>
-						<strong>Documento:</strong>
-						{isEditing ?
-							<input
-								type="text"
-								name="documento_manager"
-								value={manager.documento}
-								className="input_updateData"
-								onChange={(e) => setManager({
-									...manager,
-									documento: e.target.value
-								})}
-							/>
-						:
-							<span className="valor-campo">{manager.documento}</span>
-						}
-					</p>
-					<p>
-						<strong>Correo:</strong>
-						{isEditing ?
-							<input
-								type="email"
-								name="documento_manager"
-								value={manager.email}
-								className="input_updateData"
-								onChange={(e) => setManager({
-									...manager,
-									email: e.target.value
-								})}
-							/>
-						:
-							<span className="valor-campo">{manager.email}</span>
-						}
-					</p>
-					<p>
-						<strong>Estado:</strong>
-						{isEditing ?
-							<div id="valor1" className="status-buttons">
-								{["Activo", "Inactivo"].map((estado) => (
-									<button
-										id={estado}
-										key={estado}
-										type="button"
-										className={`status ${manager.estado === estado.toLowerCase() ? "active" : ""}`}
-										onClick={() => setManager({
-											...manager,
-											estado: estado.toLowerCase()
-										})}
-									>
-										{estado}
-									</button>
-								))}
+		<div id="modal-overlayManageManager" className="modal-overlay-manager">
+			<div className="modal-container-manager">
+				<div className="modal-header-manager">
+					<div className="header-content-manager">
+						<h2>
+							<FontAwesomeIcon icon={faUser} className="header-icon-manager" />
+							Perfil del Manager
+						</h2>
+						<button 
+							type="button" 
+							onClick={closeModalManager}
+							className="close-btn-manager"
+						>
+							<FontAwesomeIcon icon={faArrowLeft} />
+							<span>Volver</span>
+						</button>
+					</div>
+				</div>
+
+				<form className="modal-body-manager" onSubmit={handleSubmit}>
+					<div className="modal-content-manager">
+						{/* Columna izquierda - Información */}
+						<div className="info-column-manager">
+							<div className="form-section-manager">
+								<h3 className="section-title-manager">Información Personal</h3>
+								<div className="form-grid-manager">
+									<div className="input-group-manager">
+										<label className="input-label-manager">
+											<FontAwesomeIcon icon={faBuilding} />
+											Empresa
+										</label>
+										<div className="display-field-manager">
+											{manager.Empresa?.nombre_empresa || "No especificado"}
+										</div>
+									</div>
+
+									<div className="input-group-manager">
+										<label className="input-label-manager">
+											<FontAwesomeIcon icon={faUser} />
+											Nombres
+										</label>
+										{isEditing ? (
+											<input
+												type="text"
+												name="nombres"
+												value={manager.nombres || ""}
+												onChange={handleChange}
+												className="input-field-manager"
+												placeholder="Ingrese los nombres"
+											/>
+										) : (
+											<div className="display-field-manager">
+												{manager.nombres || "No especificado"}
+											</div>
+										)}
+									</div>
+
+									<div className="input-group-manager">
+										<label className="input-label-manager">
+											<FontAwesomeIcon icon={faUser} />
+											Apellidos
+										</label>
+										{isEditing ? (
+											<input
+												type="text"
+												name="apellidos"
+												value={manager.apellidos || ""}
+												onChange={handleChange}
+												className="input-field-manager"
+												placeholder="Ingrese los apellidos"
+											/>
+										) : (
+											<div className="display-field-manager">
+												{manager.apellidos || "No especificado"}
+											</div>
+										)}
+									</div>
+
+									<div className="input-group-manager">
+										<label className="input-label-manager">
+											<FontAwesomeIcon icon={faIdCard} />
+											Documento
+										</label>
+										{isEditing ? (
+											<input
+												type="text"
+												name="documento"
+												value={manager.documento || ""}
+												onChange={handleChange}
+												className="input-field-manager"
+												placeholder="Ingrese el documento"
+											/>
+										) : (
+											<div className="display-field-manager">
+												{manager.documento || "No especificado"}
+											</div>
+										)}
+									</div>
+
+									<div className="input-group-manager">
+										<label className="input-label-manager">
+											<FontAwesomeIcon icon={faPhone} />
+											Celular
+										</label>
+										{isEditing ? (
+											<input
+												type="text"
+												name="celular"
+												value={manager.celular || ""}
+												onChange={handleChange}
+												className="input-field-manager"
+												placeholder="Ingrese el celular"
+											/>
+										) : (
+											<div className="display-field-manager">
+												{manager.celular || "No especificado"}
+											</div>
+										)}
+									</div>
+
+									<div className="input-group-manager">
+										<label className="input-label-manager">
+											<FontAwesomeIcon icon={faEnvelope} />
+											Email
+										</label>
+										{isEditing ? (
+											<input
+												type="email"
+												name="email"
+												value={manager.email || ""}
+												onChange={handleChange}
+												className="input-field-manager"
+												placeholder="Ingrese el email"
+											/>
+										) : (
+											<div className="display-field-manager">
+												{manager.email || "No especificado"}
+											</div>
+										)}
+									</div>
+
+									<div className="input-group-manager">
+										<label className="input-label-manager">Estado</label>
+										{isEditing ? (
+											<div className="status-buttons-manager">
+												{["Activo", "Inactivo"].map((estado) => {
+													const isSelected = (manager.estado || "").toLowerCase() === estado.toLowerCase();
+													return (
+														<button
+															key={estado}
+															type="button"
+															className={`status-btn-manager ${isSelected ? "active" : ""}`}
+															onClick={() => handleEstadoChange(estado)}
+														>
+															<span className="status-dot-manager"></span>
+															{estado}
+														</button>
+													);
+												})}
+											</div>
+										) : (
+											<div className={`status-display-manager ${manager.estado?.toLowerCase()}`}>
+												<span className="status-dot-manager"></span>
+												{manager.estado || "No especificado"}
+											</div>
+										)}
+									</div>
+								</div>
 							</div>
-						:
-							<span className="valor-campo">{manager.estado}</span>
-						}
-					</p>
-				</div>
+						</div>
 
-				<div className="modal-right">
-					{isAdmin && (
-						<input
-							type="file"
-							accept="image/*"
-							hidden={!isEditing}
-							disabled={!isEditing}
-							id="imageUpload"
-							onChange={(e) => {
-								setManager({
-									...manager,
-									foto_perfil: e.target.files[0]
-								})
-							}}
-						/>
-					)}
-					<label
-						className={`upload-area-update ${!isEditing ? "read-only-border" : ""}`}
-						htmlFor="imageUpload"
-					>
-						{(() => {
-							const src = getLogoSrc(manager.foto_perfil);
-							return (
-								<img 
-									src={src} 
-									alt="Logo" 
-									className="preview-image-update"
-									onError={(e) => {
-										e.currentTarget.src = fotoPerfilDefect;
-									}}
-								/>
-							);
-						})()}
-					</label>
-					{isAdmin && 
-						(isEditing ?
-							<button type="submit" className="edit-button-updateInstructor">
-								Guardar Cambios
-							</button>
-						:
-							<button
-								onClick={() => setIsEditing(true)}
-								type="button"
-								className="edit-button-updateInstructor"
-							>Editar Manager</button>
-						)
-					}
-				</div>
+						{/* Columna derecha - Imagen */}
+						<div className="image-column-manager">
+							<div className="image-section-manager">
+								<div className="image-container-manager">
+									{isEditing && isAdmin ? (
+										<>
+											<input
+												type="file"
+												accept="image/*"
+												onChange={handleImageChange}
+												id="imageUploadManager"
+												className="file-input-manager"
+											/>
+											<label
+												className="image-upload-manager editable"
+												htmlFor="imageUploadManager"
+											>
+												{manager.foto_perfil instanceof File ? (
+													<img
+														src={URL.createObjectURL(manager.foto_perfil)}
+														alt="Vista previa"
+														className="profile-image-manager"
+														onError={(e) => {
+															e.target.src = fotoPerfilDefect;
+														}}
+													/>
+												) : manager.foto_perfil ? (
+													<img
+														src={getImageSrc(manager.foto_perfil)}
+														alt="Foto de perfil"
+														className="profile-image-manager"
+														onError={(e) => {
+															e.target.src = fotoPerfilDefect;
+														}}
+													/>
+												) : (
+													<div className="image-placeholder-manager">
+														<FontAwesomeIcon icon={faCamera} className="placeholder-icon-manager" />
+														<span>Haz clic para subir imagen</span>
+													</div>
+												)}
+												<div className="upload-overlay-manager">
+													<FontAwesomeIcon icon={faCamera} />
+													<span>Cambiar imagen</span>
+												</div>
+											</label>
+										</>
+									) : (
+										<div className="image-display-manager">
+											{manager.foto_perfil ? (
+												<img
+													src={getImageSrc(manager.foto_perfil)}
+													alt="Foto de perfil"
+													className="profile-image-manager"
+													onError={(e) => {
+														e.target.src = fotoPerfilDefect;
+													}}
+												/>
+											) : (
+												<div className="image-placeholder-manager">
+													<FontAwesomeIcon icon={faUser} className="placeholder-icon-manager" />
+													<span>Sin imagen</span>
+												</div>
+											)}
+										</div>
+									)}
+								</div>
+								
+								{!isEditing && isAdmin && (
+									<div className="image-info-manager">
+										<p>Activa el modo edición para cambiar la imagen</p>
+									</div>
+								)}
+							</div>
 
-				<div className="container_return_UpdateInstructor">
-					<h5>Volver</h5>
-					<button type="button" onClick={onClose} className="closeModal"></button>
-				</div>
-			</form>
+							{isAdmin && (
+								<button type="submit" className="submit-btn-manager">
+									{isEditing ? (
+										<>
+											<FontAwesomeIcon icon={faUser} />
+											<span>Guardar Cambios</span>
+										</>
+									) : (
+										<>
+											<FontAwesomeIcon icon={faUser} />
+											<span>Editar Perfil</span>
+										</>
+									)}
+								</button>
+							)}
+						</div>
+					</div>
+				</form>
+			</div>
 		</div>
-	)
-}
+	);
+};

@@ -5,6 +5,9 @@ import "./Historial.css"
 import { useEffect, useState } from "react"
 import axiosInstance from "../../../config/axiosInstance"
 import { PageMover } from "../../UI/PageMover/PageMover"
+import Swal from 'sweetalert2';
+import 'sweetalert2/themes/bulma.css'
+
 
 export const Historial = () => {
 	const navigate = useNavigate()
@@ -26,7 +29,18 @@ export const Historial = () => {
 			setTotalPages(parseInt(resp.data.total / 10))
 		} catch (error) {
 			console.log(error)
-			alert("Ocurrió un error al consultar el historial")
+
+			Swal.fire({
+          icon:"error",
+          title:"Error al  consultar historial",
+          text:"Ocurrió un error al consultar el historial",
+          confirmButtonText:"Okay",
+          theme:"bulma",
+          customClass:{
+        confirmButton: 'button is-primary',
+        actions: 'swal2-actions-centered'
+                }
+              })
 		}
 	}
 

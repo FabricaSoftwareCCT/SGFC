@@ -132,6 +132,7 @@ export const RequestCourseAp = () => {
 				title: 'Campo obligatorio',
 				text: 'El nombre del curso es obligatorio',
 				confirmButtonText: 'Aceptar',
+				confirmButtonColor:"#00843d",
 				theme: 'bulma',
 				customClass: {
 					actions: 'swal2-center-actions'
@@ -205,6 +206,7 @@ export const RequestCourseAp = () => {
 				title: 'Campo obligatorio',
 				text: 'El nombre del curso es obligatorio',
 				confirmButtonText: 'Aceptar',
+				confirmButtonColor:"#00843d",
 				theme: 'bulma',
 				customClass: {
 					actions: 'swal2-center-actions'

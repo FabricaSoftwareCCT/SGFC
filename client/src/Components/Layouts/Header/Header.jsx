@@ -228,7 +228,7 @@ export const Header = ({
 							options = [
 								{
 									label: "Mis cursos",
-									path: "/Cursos/MisCursos",
+									path: "/Cursos/MisCursosAsignados",
 								},
 								{
 									label: "Buscar cursos",

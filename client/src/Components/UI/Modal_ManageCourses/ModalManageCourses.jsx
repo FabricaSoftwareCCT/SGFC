@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import axiosInstance from "../../../config/axiosInstance";
 import "./ModalManageCourses.css";
-import Swal from "sweetalert2";
+import Swal from 'sweetalert2';
+import 'sweetalert2/themes/bulma.css'
 
 export const ModalManageCourses = ({
   instructorId,
@@ -166,7 +167,7 @@ if (status === 409 || status === 400) {
         buttonsStyling: false
     });
 }
-  };
+  }
   }
  const eliminar = async (cursoId) => {
     try {
@@ -177,13 +178,11 @@ if (status === 409 || status === 400) {
             showCancelButton: true,
             confirmButtonText: 'Sí, eliminar',
             cancelButtonText: 'Cancelar',
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
             theme: "bulma",
             customClass: {
-                confirmButton: 'button is-danger',
-                cancelButton: 'button is-light',
-                actions: 'swal2-actions-centered'
+              confirmButton: 'custom-confirm-btn',
+              cancelButton: 'custom-cancel-btn',
+              actions: 'custom-actions-simple'
             },
             buttonsStyling: false
         });

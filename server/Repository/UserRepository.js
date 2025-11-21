@@ -37,7 +37,7 @@ class UserRepository {
         }catch (Err){
             throw new Error ({ status: 500, message: "Error en el servidor"})
         }
-    }
+}
 
     static GetUserSecurity = async (id) => {
         try{

@@ -1,5 +1,5 @@
 const express = require("express");
-const { createEmpleado, getEmpleadosByEmpresaId, recordLogin, subirDocumentoIdentidad, getEmpresaById, refreshAccessToken, getAprendicesByEmpresa, registerUser, verifyEmail, loginUser,requestPasswordReset,resetPassword, getAllUsers, getUserProfile, getAprendices, getEmpresas, createEmpresa, getInstructores, getGestores, updateUserProfile,createInstructor, createGestor,logoutUser, createMasiveUsers, getEmpresaByNIT, requestNewVerificationEmail, checkProfileComplete, getAllEmpleadosForAdmin, getAllEmpresasForAdmin, createEmpleadoForAdmin, changeRole, securityData, getSecurityData } = require("../controllers/userController");
+const { createEmpleado, getEmpleadosByEmpresaId, recordLogin, subirDocumentoIdentidad, getEmpresaById, refreshAccessToken, getAprendicesByEmpresa, registerUser, verifyEmail, loginUser,requestPasswordReset,resetPassword, getAllUsers, getUserProfile, getAprendices, getEmpresas, createEmpresa, getInstructores, getGestores, updateUserProfile,createInstructor, createGestor,logoutUser, createMasiveUsers, getEmpresaByNIT, requestNewVerificationEmail, checkProfileComplete, getAllEmpleadosForAdmin, getAllEmpresasForAdmin, createEmpleadoForAdmin, changeRole, securityData, getSecurityData, getCursosAprendiz } = require("../controllers/userController");
 const {updateSecurity} = require("../controllers/userController");
 const {registrarHorarios_instructor, getAllHorariosInstructores, updateHorariosInstructores, deleteHorariosInstructor} = require('../controllers/horariosIntructoresController')
 const { googleSignIn, googleSignUp } = require("../controllers/authGoogleController"); // Importar controlador de autenticación de Google
@@ -65,6 +65,7 @@ router.put('/updateSecurity/', authMiddleware, updateSecurity);
 
 //Ruta obtener empleados para empresa
 router.get('/empleadosForempresa/:nameEmpresa', authMiddleware, authorizeRoles(['Administrador']), ObtenerEmpleadosPorEmpresa);
+router.get("/aprendiz/:id/cursos", authMiddleware, authorizeRoles(['Administrador', 'Gestor', "Empresa"]), getCursosAprendiz) // consulta los cursos en los que esté el aprendiz
 
 router.get("/", (req, res) => {
   res.send("🚀 API funcionando correctamente");

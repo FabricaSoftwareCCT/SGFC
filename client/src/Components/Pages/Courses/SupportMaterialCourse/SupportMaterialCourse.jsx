@@ -2,10 +2,24 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Header } from '../../../Layouts/Header/Header';
 import { Main } from '../../../Layouts/Main/Main';
-import './SupportMaterialCourse.css'
+import './SupportMaterialCourse.css';
 import axiosInstance from '../../../../config/axiosInstance';
 import Swal from 'sweetalert2';
-import 'sweetalert2/themes/bulma.css'
+import 'sweetalert2/themes/bulma.css';
+import { useUserSession } from '../../../../hooks/useUserSession';
+
+const swalConfig = {
+	theme: "bulma",
+	customClass: {
+		confirmButton: "button is-primary",
+		cancelButton: "button is-light",
+		actions: "swal2-actions-centered",
+		popup: "swal2-popup-centered",
+	},
+	buttonsStyling: false,
+	confirmButtonText: "Aceptar",
+	cancelButtonText: "Cancelar",
+};
 
 export const SupportMaterialCourse = () => {
     const navigate = useNavigate();
@@ -20,18 +34,72 @@ export const SupportMaterialCourse = () => {
     const [pendingLinks, setPendingLinks] = useState([]);
     const [editingMaterial, setEditingMaterial] = useState(null);
     const fileInputRef = useRef(null);
-    const userSession =
-        JSON.parse(localStorage.getItem('userSession')) ||
-        JSON.parse(sessionStorage.getItem('userSession'));
+    const { session, accountType, userId } = useUserSession();
+    const isLoggedIn = Boolean(session?.accountType);
+    const isAdmin = accountType === "administrador";
+    const isGestor = accountType === "gestor";
+    const isInstructor = accountType === "instructor";
+    const [isInstructorAssigned, setIsInstructorAssigned] = useState(false);
 
-    const accountType = (userSession?.accountType || '').toLowerCase();
-    const isLoggedIn = !!userSession?.accountType;
-    const rolesPermitidos = ['administrador', 'instructor', 'gestor'];
-    const hasPrivilegedRole = rolesPermitidos.includes(accountType);
-    // Solo usuarios autenticados con rol privilegiado pueden crear/editar/eliminar
-    const puedeSubirArchivos = isLoggedIn && hasPrivilegedRole;
-    const puedeEliminarArchivos = isLoggedIn && hasPrivilegedRole;
-    const puedeEditarMaterial = isLoggedIn && hasPrivilegedRole;
+    useEffect(() => {
+        if (!isInstructor || !userId) {
+            setIsInstructorAssigned(false);
+            return;
+        }
+
+        const fetchAssignment = async () => {
+            try {
+                const response = await axiosInstance.get(
+                    `/api/courses/cursos-asignados/${userId}`
+                );
+                const assignments = Array.isArray(response.data)
+                    ? response.data
+                    : [];
+                const assigned = assignments.some((assignment) => {
+                    const estado = (
+                        assignment?.estado ||
+                        assignment?.estado_asignacion ||
+                        assignment?.estadoAsignacion ||
+                        ""
+                    ).toLowerCase();
+                    const cursoAssignment = assignment?.Curso || assignment;
+                    const assignedCourseId = Number(
+                        cursoAssignment?.ID ??
+                            cursoAssignment?.id ??
+                            assignment?.curso_ID ??
+                            assignment?.curso_id
+                    );
+                    return (
+                        estado === "aceptada" &&
+                        !Number.isNaN(assignedCourseId) &&
+                        assignedCourseId === Number(id)
+                    );
+                });
+                setIsInstructorAssigned(assigned);
+            } catch (error) {
+                console.error("Error al obtener cursos asignados:", error);
+                setIsInstructorAssigned(false);
+            }
+        };
+
+        void fetchAssignment();
+    }, [isInstructor, userId, id]);
+
+    const puedeGestionar =
+        isLoggedIn &&
+        (isAdmin || isGestor || (isInstructor && isInstructorAssigned));
+    const puedeSubirArchivos = puedeGestionar;
+    const puedeEliminarArchivos = puedeGestionar;
+    const puedeEditarMaterial = puedeGestionar;
+
+    const notifyPermissionError = () => {
+        void Swal.fire({
+            ...swalConfig,
+            icon: "info",
+            title: "Sin permisos",
+            text: "Solo el instructor asignado o un administrador/gestor puede modificar el material de este curso.",
+        });
+    };
 
     const fetchCurso = async () => {
         try {
@@ -39,10 +107,15 @@ export const SupportMaterialCourse = () => {
             setCursoActual(resp.data);
         } catch (error) {
                 await Swal.fire({
-                ...swalConfig,
                 icon: 'error',
                 title: 'Error',
-                text: 'No se pudo cargar la información del curso'
+                text: 'No se pudo cargar la información del curso',
+                confirmButtonText:"Okay",
+                theme:"bulma",
+                customClass:{
+                confirmButton: 'button is-primary',
+        actions: 'swal2-actions-centered'
+                }
             });
         }
     };
@@ -64,6 +137,10 @@ export const SupportMaterialCourse = () => {
     };
 
     const crearMaterial = async () => {
+        if (!puedeSubirArchivos) {
+            notifyPermissionError();
+            return;
+        }
         setSubiendoArchivo(true);
         try {
             let requests = [];
@@ -72,10 +149,15 @@ export const SupportMaterialCourse = () => {
                 const tipo = materialType.toLowerCase();
                 if (pendingFiles.length === 0) {                    
                     await Swal.fire({
-                        ...swalConfig,
                         icon: 'warning',
                         title: 'Archivos requeridos',
-                        text: `Selecciona uno o más archivos ${materialType}`
+                        text: `Selecciona uno o más archivos ${materialType}`,
+                        confirmButtonText:"Okay",
+                        theme:"bulma",
+                        customClass:{
+                        confirmButton: 'button is-primary',
+                actions: 'swal2-actions-centered'
+                        }
                     }); 
                     setSubiendoArchivo(false); 
                     return; 
@@ -91,10 +173,15 @@ export const SupportMaterialCourse = () => {
                 if (linksToSend.length === 0 && material.length > 0) linksToSend.push(material);
                 if (linksToSend.length === 0) { 
                     await Swal.fire({
-                        ...swalConfig,
                         icon: 'warning',
                         title: 'Enlaces requeridos',
-                        text: 'Agrega uno o más enlaces'
+                        text: 'Agrega uno o más enlaces',
+                        confirmButtonText:"Okay",
+                        theme:"bulma",
+                        customClass:{
+                        confirmButton: 'button is-primary',
+                actions: 'swal2-actions-centered'
+                        }
                     }); setSubiendoArchivo(false); 
                     return; 
                 }
@@ -104,10 +191,15 @@ export const SupportMaterialCourse = () => {
             const firstMsg = responses[0]?.data?.message;
             if (firstMsg) {
                 await Swal.fire({
-                    ...swalConfig,
                     icon: 'success',
                     title: 'Éxito',
-                    text: firstMsg
+                    text: firstMsg,
+                    confirmButtonText:"Okay",
+                    theme:"bulma",
+                    customClass:{
+                    confirmButton: 'button is-primary',
+            actions: 'swal2-actions-centered'
+                    }
                 });
             }
             setShowMaterialCreation(false);
@@ -117,10 +209,15 @@ export const SupportMaterialCourse = () => {
             await fetchMaterial();
         } catch (e) {
             await Swal.fire({
-                ...swalConfig,
                 icon: 'error',
                 title: 'Error',
-                text: 'Ocurrió un error al crear el material de apoyo'
+                text: 'Ocurrió un error al crear el material de apoyo',
+                confirmButtonText:"Okay",
+                theme:"bulma",
+                customClass:{
+                confirmButton: 'button is-primary',
+        actions: 'swal2-actions-centered'
+                }
             });
         } finally {
             setSubiendoArchivo(false);
@@ -137,16 +234,23 @@ export const SupportMaterialCourse = () => {
     };*/
 
     const handleEliminarArchivo = async (archivoId) => {
+        if (!puedeEliminarArchivos) {
+            notifyPermissionError();
+            return;
+        }
         const result = await Swal.fire({
             icon: 'question',
             title: '¿Eliminar archivo?',
             text: '¿Estás seguro de que quieres eliminar este archivo?',
             showCancelButton: true,
             confirmButtonText:"Aceptar",
-            theme:"bulma",
-            customClass:{
-                actions:'swal2-actions-centered'
-            }
+            cancelButtonText:"Cancelar",
+                theme:"bulma",
+                customClass:{
+                confirmButton: 'button is-primary',
+                cancelButton: "swal-cancel-custom",
+        actions: 'swal2-actions-centered'
+                }
 
         });
 
@@ -154,33 +258,79 @@ export const SupportMaterialCourse = () => {
             try {
                 // Aquí iría la llamada real a la API
                 await Swal.fire({
-                    ...swalConfig,
                     icon: 'success',
                     title: 'Eliminado',
-                    text: 'Archivo eliminado correctamente'
+                    text: 'Archivo eliminado correctamente',
+                    confirmButtonText:"Okay",
+                theme:"bulma",
+                customClass:{
+                confirmButton: 'button is-primary',
+        actions: 'swal2-actions-centered'
+                }
                 });
                 await fetchMaterial();
             } catch (error) {
                 await Swal.fire({
-                    ...swalConfig,
                     icon: 'error',
                     title: 'Error',
-                    text: 'No se pudo eliminar el archivo'
+                    text: 'No se pudo eliminar el archivo',
+                    confirmButtonText:"Okay",
+                theme:"bulma",
+                customClass:{
+                confirmButton: 'button is-primary',
+        actions: 'swal2-actions-centered'
+                }
                 });
             }
         }
     };
 
     const editarMaterial = async () => {
+        if (!puedeEditarMaterial) {
+            notifyPermissionError();
+            return;
+        }
         try {
             if (editingMaterial?.tipo_contenido === 'link') {
-                if (!editingMaterial.contenido) { alert('Se debe proporcionar un enlace'); return; }
+                if (!editingMaterial.contenido) {
+Swal.fire({
+          icon:"info",
+          title:"Proporcionar un enlace",
+          text:"Se debe proporcionar un enlace, por favor, ponga uno",
+          confirmButtonText:"Aceptar",
+          theme:"bulma",
+          customClass:{
+        confirmButton: 'button is-primary',
+        actions: 'swal2-actions-centered'
+                }
+              })
+                    return; }
                 const resp = await axiosInstance.put(`/api/material/update/${editingMaterial.ID}`, { link: editingMaterial.contenido });
                 await fetchMaterial();
-                if (resp?.data?.message) alert(resp.data.message);
+                if (resp?.data?.message) 
+                    Swal.fire({
+          icon:"error",
+          title:"Error al actualizar enlace",
+          text:resp.data.message,
+          theme:"bulma",
+          customClass:{
+        confirmButton: 'button is-primary',
+        actions: 'swal2-actions-centered'
+                }
+              })
             }
         } catch {
-            alert('Ocurrió un error al actualizar el material de apoyo');
+            Swal.fire({
+                icon:"error",
+                title:"Error al actualizar",
+                text:"Ocurrió un error al actualizar el material de apoyo",
+                confirmButtonText:"Okay",
+                theme:"bulma",
+                customClass:{
+                confirmButton: 'button is-primary',
+        actions: 'swal2-actions-centered'
+                }
+            })
         } finally {
             setEditingMaterial(null);
         }

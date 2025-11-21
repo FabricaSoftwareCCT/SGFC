@@ -17,6 +17,7 @@ const registerAttendance = async (req, res) => {
         const { usuario_ID, estado, fecha } = req.body;
         const registrador_ID = req.user.id;
 
+        
         // Validar fecha futura
         const fechaAsistencia = new Date(fecha);
         const hoy = new Date();
@@ -53,7 +54,8 @@ const registerAttendance = async (req, res) => {
             estado_asistencia: estado || 'Pendiente',
             registrado_por: registrador_ID,
             fecha: fecha ? new Date(fecha) : new Date(),
-            curso_ID: courseId
+            curso_ID: courseId,
+            aprendiz_ID: usuario_ID
         });
 
         // Si el estado es 'Ausente', enviar notificación
@@ -205,7 +207,6 @@ const getAttendanceRecords = async (req, res) => {
         } = req.query;
         const { courseId } = req.params;
 
-        console.log('Parámetros recibidos:', { courseId, startDate, endDate, status });
 
         const user = req.user;
         let whereClause = {};
@@ -248,26 +249,44 @@ const getAttendanceRecords = async (req, res) => {
         // Aplicar filtros adicionales
         if (courseId) {
             whereClause.curso_ID = courseId;
-            console.log('Filtrando por curso:', courseId);
         }
         if (status) {
             whereClause.estado_asistencia = status;
-            console.log('Filtrando por estado_asistencia:', status);
         }
 
-        // Filtrar por rango de fechas
+       // Filtrar por rango de fechas
         if (startDate && endDate) {
+            // Caso típico: usuario selecciona un día → frontend envía startDate = endDate
             const start = new Date(startDate);
             start.setHours(0, 0, 0, 0);
+
             const end = new Date(endDate);
             end.setHours(23, 59, 59, 999);
+
             whereClause.fecha = {
                 [Op.between]: [start, end]
             };
-            console.log('Filtrando por fecha:', { start, end });
-        }
+        } 
+        else if (startDate && !endDate) {
+            // Solo fecha de inicio → filtrar ese único día
+            const start = new Date(startDate);
+            const startOfDay = new Date(start.getFullYear(), start.getMonth(), start.getDate(), 0, 0, 0, 0);
+            const endOfDay = new Date(start.getFullYear(), start.getMonth(), start.getDate(), 23, 59, 59, 999);
 
-        console.log('Where clause:', whereClause);
+            whereClause.fecha = {
+                [Op.between]: [startOfDay, endOfDay]
+            };
+        } 
+        else if (!startDate && endDate) {
+            // Solo fecha final → filtrar ese día
+            const end = new Date(endDate);
+            const startOfDay = new Date(end.getFullYear(), end.getMonth(), end.getDate(), 0, 0, 0, 0);
+            const endOfDay = new Date(end.getFullYear(), end.getMonth(), end.getDate(), 23, 59, 59, 999);
+
+            whereClause.fecha = {
+                [Op.between]: [startOfDay, endOfDay]
+            };
+        }
 
         // Primero, verificar si hay registros para este curso
         const curso = await dbInstance.Curso.findByPk(courseId);
@@ -291,9 +310,8 @@ const getAttendanceRecords = async (req, res) => {
             offset: (parseInt(page) - 1) * parseInt(limit)
         });
 
-        console.log('Registros encontrados:', records.length);
         if (records.length > 0) {
-            console.log('Estructura del primer registro:', JSON.stringify(records[0], null, 2));
+           
         } else {
             console.log('No se encontraron registros de asistencia');
         }

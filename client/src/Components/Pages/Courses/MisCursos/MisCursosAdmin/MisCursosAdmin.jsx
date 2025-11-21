@@ -63,8 +63,6 @@ export const MisCursosAdmin = () => {
             ? ["Todos", "Activos", "Finalizados", "Pendientes", "Cancelados", "En oferta"]
             : [
                 "Todos",
-                "Activos",
-                "En oferta",
                 "Finalizados",
                 "Oferta abierta",
                 "Oferta cerrada",

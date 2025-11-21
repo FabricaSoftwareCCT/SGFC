@@ -7,7 +7,8 @@ import './SupportMaterial.css';
 import axiosInstance from '../../../../config/axiosInstance';
 import { useEffect } from 'react';
 import Swal from 'sweetalert2';
-import 'sweetalert2/themes/bulma.css'
+import 'sweetalert2/themes/bulma.css';
+import { useUserSession } from '../../../../hooks/useUserSession';
 
 export const SupportMaterial = () => {
 	const { curso } = useParams()
@@ -28,21 +29,13 @@ export const SupportMaterial = () => {
     const [pendingLinks, setPendingLinks] = useState([]); // enlaces agregados aún no enviados
     const fileInputRef = useRef(null);
 
-	const swalConfig = {
-        theme: 'bulma',
-        customClass: {
-            confirmButton: 'button is-primary',
-            cancelButton: 'button is-light',
-            actions: 'swal2-actions-centered',
-            popup: 'swal2-popup-centered'
-        },
-        buttonsStyling: false,
-        confirmButtonText: 'Aceptar',
-        cancelButtonText: 'Cancelar'
-    };
 
-	const userSession = JSON.parse(localStorage.getItem('userSession')) || JSON.parse(sessionStorage.getItem('userSession'))
-	const accountType = userSession?.accountType
+
+	const { session, accountType, userId } = useUserSession();
+	const isAdmin = accountType === "administrador";
+	const isGestor = accountType === "gestor";
+	const isInstructor = accountType === "instructor";
+	const [assignedCourseIds, setAssignedCourseIds] = useState(new Set());
 
 	const fetchCursos = async () => {
 		try {
@@ -54,10 +47,15 @@ export const SupportMaterial = () => {
 		} catch (error) {
 			console.log(error)
 			Swal.fire({
-				...swalConfig,
 				icon: 'error',
 				title: 'Error',
-				text: 'Ocurrió un error al consultar los cursos'
+				text: 'Ocurrió un error al consultar los cursos',
+				confirmButtonText:"Entendido",
+                confirmButtonColor:"#00843d",
+                        theme: 'bulma',
+        				customClass: {
+    				actions: 'swal2-center-actions'
+        }
 			});
 		}
 	}
@@ -69,10 +67,14 @@ export const SupportMaterial = () => {
 		} catch (error) {
 			console.log(error)
 			Swal.fire({
-				...swalConfig,
 				icon: 'error',
 				title: 'Error',
-				text: 'Ocurrió un error al consultar el material de apoyo del curso'
+				text: 'Ocurrió un error al consultar el material de apoyo del curso',
+				confirmButtonColor:"#00843d",
+                        theme: 'bulma',
+        		customClass: {
+    		actions: 'swal2-center-actions'
+        }
 			});
 		}
 	}
@@ -92,13 +94,18 @@ export const SupportMaterial = () => {
 	
 	const handleEliminarArchivo = (archivoId) => {
 		Swal.fire({
-			...swalConfig,
 			title: '¿Estás seguro?',
 			text: "¿Quieres eliminar este archivo? Esta acción no se puede deshacer.",
 			icon: 'warning',
 			showCancelButton: true,
 			confirmButtonText: 'Sí, eliminar',
-			cancelButtonText: 'Cancelar'
+			confirmButtonColor:"#006f33",
+			cancelButtonText: 'Cancelar',
+			cancelButtonColor:"#c63223",
+			theme:"bulma",
+			customClass:{
+        actions: 'swal2-actions-centered'
+			}
 		}).then((result) => {
 			if (result.isConfirmed) {
 				eliminarMaterial(archivoId)
@@ -126,8 +133,12 @@ export const SupportMaterial = () => {
 		return `${nombreParte.slice(0, maxLongitud)}... ${extension}`;
 	};
 
-    const crearMaterial = async () => {
-		setSubiendoArchivo(true)
+	const crearMaterial = async () => {
+		if (!puedeSubirArchivos) {
+			notifyPermissionError();
+			return;
+		}
+		setSubiendoArchivo(true);
 		try {
             let requests = [];
             if (materialType === "PDF" || materialType === "Video") {
@@ -135,10 +146,15 @@ export const SupportMaterial = () => {
                 const tipo = materialType.toLowerCase();
                 if (pendingFiles.length === 0) {
                     Swal.fire({
-                        ...swalConfig,
                         icon: 'warning',
                         title: 'Archivo requerido',
-                        text: `Selecciona uno o más archivos ${materialType}`
+                        text: `Selecciona uno o más archivos ${materialType}`,
+						confirmButtonColor:"#00843d",
+						confirmButtonText:"Entendido",
+                        theme: 'bulma',
+        		customClass: {
+    		actions: 'swal2-center-actions'
+        }
                     });
                     setSubiendoArchivo(false);
                     return;
@@ -158,10 +174,15 @@ export const SupportMaterial = () => {
                 }
                 if (linksToSend.length === 0) {
                     Swal.fire({
-                        ...swalConfig,
                         icon: 'warning',
                         title: 'Enlace requerido',
-                        text: 'Agrega uno o más enlaces'
+                        text: 'Agrega uno o más enlaces',
+						confirmButtonText:"Entendido",
+						confirmButtonColor:"#00843d",
+                        theme: 'bulma',
+        		customClass: {
+    		actions: 'swal2-center-actions'
+        }
                     });
                     setSubiendoArchivo(false);
                     return;
@@ -176,10 +197,15 @@ export const SupportMaterial = () => {
             const firstMsg = responses[0]?.data?.message;
             if (firstMsg) {
 				Swal.fire({
-                    ...swalConfig,
                     icon: 'success',
                     title: 'Éxito',
-                    text: firstMsg
+                    text: firstMsg,
+				confirmButtonText:"Okay",
+				confirmButtonColor:"#00843d",
+                    theme: 'bulma',
+        		customClass: {
+    		actions: 'swal2-center-actions'
+        }
                 });
 			}
             setShowMaterialCreation(false)
@@ -195,16 +221,25 @@ export const SupportMaterial = () => {
 		} catch (error) {
 			console.log(error)
 			Swal.fire({
-				...swalConfig,
 				icon: 'error',
 				title: 'Error',
-				text: 'Ocurrió un error al crear el material de apoyo'
+				text: 'Ocurrió un error al crear el material de apoyo',
+			confirmButtonText:"Entendido",
+			confirmButtonColor:"#00843d",
+                        theme: 'bulma',
+        		customClass: {
+    		actions: 'swal2-center-actions'
+        }
 			});
 			setSubiendoArchivo(false)
 		}
 	}
 
 	const editarMaterial = async () => {
+		if (!puedeGestionarMaterial) {
+			notifyPermissionError();
+			return;
+		}
 		try {
 			switch (editingMaterial.tipo_contenido) {
 				case "pdf":
@@ -214,10 +249,15 @@ export const SupportMaterial = () => {
 				case "link":
 					if (editingMaterial.contenido.length < 1) {
 							Swal.fire({
-							...swalConfig,
 							icon: 'warning',
 							title: 'Enlace requerido',
-							text: 'Se debe proporcionar un enlace'
+							text: 'Se debe proporcionar un enlace',
+						confirmButtonText:"Entendido",
+						confirmButtonColor:"#00843d",
+                        theme: 'bulma',
+        		customClass: {
+    		actions: 'swal2-center-actions'
+        }
 						});
 						return
 					}
@@ -226,10 +266,15 @@ export const SupportMaterial = () => {
 					})
 					fetchMaterial(cursoSeleccionado)
 					Swal.fire({
-						...swalConfig,
 						icon: 'success',
 						title: 'Éxito',
-						text: resp.data.message
+						text: resp.data.message,
+						confirmButtonText:"Entendido",
+						confirmButtonColor:"#00843d",
+                        theme: 'bulma',
+        		customClass: {
+    		actions: 'swal2-center-actions'
+        }
 					});
 					setEditingMaterial(null)
 					break
@@ -237,43 +282,117 @@ export const SupportMaterial = () => {
 		} catch (error) {
 			console.log(error)
 			Swal.fire({
-				...swalConfig,
 				icon: 'error',
 				title: 'Error',
-				text: 'Ocurrió un error al actualizar el material de apoyo'
+				text: 'Ocurrió un error al actualizar el material de apoyo',
+				confirmButtonText:"Entendido",
+				confirmButtonColor:"#00843d",
+                    theme: 'bulma',
+        		customClass: {
+    		actions: 'swal2-center-actions'
+        }
 			});
 			setEditingMaterial(null)
 		}
 	}
 
 	const eliminarMaterial = async (id) => {
+		if (!puedeEliminarArchivos) {
+			notifyPermissionError();
+			return;
+		}
 		try {
 			const resp = await axiosInstance.delete(`/api/material/delete/${id}`)
 			fetchMaterial(cursoSeleccionado)
 			Swal.fire({
-				...swalConfig,
 				icon: 'success',
 				title: 'Eliminado',
-				text: resp.data.message
+				text: resp.data.message,
+				confirmButtonText:"Entendido",
+				confirmButtonColor:"#00843d",
+                        theme: 'bulma',
+        		customClass: {
+    		actions: 'swal2-center-actions'
+        }
 			});
 		} catch (error) {
 			console.log(error)
 			Swal.fire({
-				...swalConfig,
 				icon: 'error',
 				title: 'Error',
-				text: 'Ocurrió un error al eliminar el material de apoyo'
+				text: 'Ocurrió un error al eliminar el material de apoyo',
+				confirmButtonText:"Entendido",
+				confirmButtonColor:"#00843d",
+                    theme: 'bulma',
+        		customClass: {
+    		actions: 'swal2-center-actions'
+        }
 			});
 		}
 	}
 
-	const esAprendiz = accountType === 'Aprendiz';
-	const puedeSubirArchivos = (accountType == "Administrador" || accountType == "Instructor") && (accountType == "Instructor" ? cursoSeleccionado?.instructor_ID === userSession.id : true);
-	const puedeEliminarArchivos = (accountType == "Administrador" || accountType == "Instructor");
+	const ownsSelectedCourse =
+		isInstructor &&
+		cursoSeleccionado &&
+		userId != null &&
+		assignedCourseIds.has(Number(cursoSeleccionado.ID));
+	const puedeGestionarMaterial =
+		isAdmin || isGestor || ownsSelectedCourse;
+	const puedeSubirArchivos = puedeGestionarMaterial;
+	const puedeEliminarArchivos = puedeGestionarMaterial;
+	const notifyPermissionError = () => {
+		void Swal.fire({
+			...swalConfig,
+			icon: 'info',
+			title: 'Sin permisos',
+			text: 'Solo el instructor asignado o un administrador/gestor puede modificar el material de este curso.',
+		});
+	};
 
 	useEffect(() => {
-		fetchCursos()
-	}, [])
+		fetchCursos();
+
+		if (isInstructor && userId) {
+			const fetchAssignments = async () => {
+				try {
+					const response = await axiosInstance.get(
+						`/api/courses/cursos-asignados/${userId}`
+					);
+					const assignments = Array.isArray(response.data)
+						? response.data
+						: [];
+					const acceptedIds = assignments
+						.filter((assignment) => {
+							const estado = (
+								assignment?.estado ||
+								assignment?.estado_asignacion ||
+								assignment?.estadoAsignacion ||
+								""
+							).toLowerCase();
+							return estado === "aceptada";
+						})
+						.map((assignment) => {
+							const cursoAssignment = assignment?.Curso || assignment;
+							return Number(
+								cursoAssignment?.ID ??
+									cursoAssignment?.id ??
+									assignment?.curso_ID ??
+									assignment?.curso_id
+							);
+						})
+						.filter((courseId) => !Number.isNaN(courseId));
+					setAssignedCourseIds(new Set(acceptedIds));
+				} catch (error) {
+					console.error("Error al obtener cursos asignados:", error);
+					setAssignedCourseIds(new Set());
+				}
+			};
+
+			void fetchAssignments();
+		} else {
+			setAssignedCourseIds(new Set());
+		}
+	}, [isInstructor, userId]);
 
 	return (
 		<>

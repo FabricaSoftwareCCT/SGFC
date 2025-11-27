@@ -60,8 +60,6 @@ class Empresa extends Model {
       }
     );
   }
-  
-  
 
   static associate(models) {
     this.belongsTo(models.Ciudad, { foreignKey: 'ciudad_ID', onDelete: 'NO ACTION', onUpdate: 'NO ACTION' });

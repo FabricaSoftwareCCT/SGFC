@@ -11,11 +11,24 @@ class EmpresaRepository {
         }
     }
 
-    static CreateEmpresa = async (data) =>{
+    static CreateEmpresa = async (email ,data) =>{
         try{
+            const user = await User.findOne({ where: { email } });
 
-            
-            const empresa = await Empresa.create({
+            if (!user) {
+                return { error: "Usuario no encontrado" };
+            }
+
+            const empresa = await Empresa.findOne({
+                where: { ID: user.empresa_ID }
+            });
+
+            if (!empresa) {
+                return { error: "Empresa no encontrada para este usuario" };
+            }
+
+    
+            await empresa.update({
                 NIT: data.NIT,
                 img_empresa: data.image,
                 nombre_empresa: data.nombre_empresa.trim(),
@@ -27,10 +40,12 @@ class EmpresaRepository {
                 ciudad_ID: data.ciudad_ID,
                 descripcion: data.descripcion.trim(),
                 sitio_web: data.sitio_web,
-            })
+            });
 
-            return empresa;
+            return empresa
+        
         }catch(Err){
+            console.log("Error al agregar la empresa", Err)
             throw new Error({status: 500, message: "Error en el servidor"});
         }
     }

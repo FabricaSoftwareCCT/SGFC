@@ -6,6 +6,8 @@ import { useNavigate } from "react-router-dom"
 import axiosInstance from "../../../config/axiosInstance"
 import { useEffect } from "react"
 import { PageMover } from "../../UI/PageMover/PageMover"
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faArrowLeft, faUser, faIdCard, faPhone, faEnvelope, faCamera, faBuilding, faShield } from '@fortawesome/free-solid-svg-icons'
 
 import fotoPerfilDefect from "../../../assets/Icons/userDefect.png"
 import Swal from 'sweetalert2';
@@ -23,8 +25,8 @@ export const GestionUsuarios = () => {
 	const [name, setName] = useState("")
 	const [document, setDocument] = useState("")
 	const [selectedUser, setSelectedUser] = useState(null)
-	const [selectedUserBackup, setSelectedUserBackup] = useState(null)
-	const [editing, setEditing] = useState(false)
+	const [isEditing, setIsEditing] = useState(false)
+	const [formData, setFormData] = useState(null)
 	
 	const isLoggedIn = !!userSession
 	const accountType = userSession?.accountType || null
@@ -46,7 +48,6 @@ export const GestionUsuarios = () => {
 				customClass:{
 					confirmButton: 'centered-swal-button'
 				}
-
 			})
 		}
 	} 
@@ -88,25 +89,183 @@ export const GestionUsuarios = () => {
 		return fotoPerfilDefect;
 	}
 
-	const truncarNombreArchivo = (nombre, maxLongitud = 15) => {
-		if (!nombre) return '';
+	const handleOpenModal = (user) => {
+		setSelectedUser(user)
+		setFormData({ ...user })
+		setIsEditing(false)
+	}
 
-		const ultimoPunto = nombre.lastIndexOf('.');
-		if (ultimoPunto === -1) {
-			return nombre.length > maxLongitud 
-				? `${nombre.slice(0, maxLongitud)}...`
-				: nombre;
+	const handleCloseModal = () => {
+		setSelectedUser(null)
+		setFormData(null)
+		setIsEditing(false)
+	}
+
+	const handleChange = (e) => {
+		const { name, value } = e.target;
+		setFormData((prev) => ({ ...prev, [name]: value }));
+	}
+
+	const handleImageChange = (e) => {
+		const file = e.target.files[0];
+		if (file) {
+			setFormData((prev) => ({
+				...prev,
+				foto_perfil: file,
+			}));
+		}
+	}
+
+	const handleEstadoChange = (estado) => {
+		setFormData((prev) => ({ ...prev, estado: estado.toLowerCase() }));
+	}
+
+	const handleRolChange = (rol) => {
+		setFormData((prev) => ({ ...prev, accountType: rol }));
+	}
+
+	const validateFields = () => {
+		const errors = [];
+		
+		if (!formData.nombres || formData.nombres.trim() === '') {
+			errors.push('Los nombres son requeridos');
+		} else if (formData.nombres.trim().length < 2) {
+			errors.push('Los nombres deben tener al menos 2 caracteres');
+		}
+		
+		if (!formData.apellidos || formData.apellidos.trim() === '') {
+			errors.push('Los apellidos son requeridos');
+		} else if (formData.apellidos.trim().length < 2) {
+			errors.push('Los apellidos deben tener al menos 2 caracteres');
+		}
+		
+		if (!formData.documento || formData.documento.trim() === '') {
+			errors.push('El número de documento es requerido');
+		} else if (!/^\d+$/.test(formData.documento.trim())) {
+			errors.push('El número de documento debe contener solo números');
+		} else if (formData.documento.trim().length < 6) {
+			errors.push('El número de documento debe tener al menos 6 dígitos');
+		}
+		
+		if (!formData.celular || formData.celular.trim() === '') {
+			errors.push('El número de celular es requerido');
+		} else if (!/^\d+$/.test(formData.celular.trim())) {
+			errors.push('El número de celular debe contener solo números');
+		} else if (formData.celular.trim().length < 10) {
+			errors.push('El número de celular debe tener al menos 10 dígitos');
+		}
+		
+		if (!formData.email || formData.email.trim() === '') {
+			errors.push('El email es requerido');
+		} else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) {
+			errors.push('Debe ingresar un email válido');
+		}
+		
+		return errors;
+	}
+
+	const handleSubmit = async (e) => {
+		e.preventDefault();
+
+		if (!isEditing) {
+			setIsEditing(true);
+			return;
 		}
 
-		const nombreParte = nombre.slice(0, ultimoPunto);
-		const extension = nombre.slice(ultimoPunto);
-
-		if (nombreParte.length <= maxLongitud) {
-			return nombre;
+		const errors = validateFields();
+		if (errors.length > 0) {
+			await Swal.fire({
+				icon: "warning",
+				title: "Campos requeridos",
+				html: `
+					<div style="text-align: left;">
+						<p>Por favor corrija los siguientes errores:</p>
+						<ul style="margin-top: 10px; padding-left: 20px;">
+							${errors.map(error => `<li>${error}</li>`).join('')}
+						</ul>
+					</div>
+				`,
+				confirmButtonText: "Entendido",
+				theme: "bulma",
+				customClass: { confirmButton: 'centered-swal-button' }
+			});
+			return;
 		}
 
-		return `${nombreParte.slice(0, maxLongitud)}... ${extension}`;
-	};
+		try {
+			const formDataToSend = new FormData();
+			
+			// Agregar campos básicos
+			formDataToSend.append('nombres', formData.nombres);
+			formDataToSend.append('apellidos', formData.apellidos);
+			formDataToSend.append('documento', formData.documento);
+			formDataToSend.append('celular', formData.celular);
+			formDataToSend.append('email', formData.email);
+			formDataToSend.append('estado', formData.estado);
+
+			// Agregar imagen si es un archivo nuevo
+			if (formData.foto_perfil instanceof File) {
+				formDataToSend.append('foto_perfil', formData.foto_perfil);
+			}
+
+			// Actualizar datos básicos
+			const response = await axiosInstance.put(
+				`/api/users/perfil/actualizar/${formData.ID}`,
+				formDataToSend,
+				{
+					headers: {
+						'Content-Type': 'multipart/form-data',
+					}
+				}
+			);
+
+			// Cambiar rol si es necesario
+			if (formData.accountType !== selectedUser.accountType) {
+				await axiosInstance.put(`/api/users/admin/changerole/${formData.ID}`, {
+					role: formData.accountType
+				});
+			}
+
+			await Swal.fire({
+				icon: "success",
+				title: "¡Éxito!",
+				text: "Usuario actualizado correctamente",
+				confirmButtonText: "Aceptar",
+				theme: "bulma",
+				customClass: { confirmButton: 'centered-swal-button' }
+			});
+			
+			setIsEditing(false);
+			handleCloseModal();
+			fetchUsuarios();
+		} catch (error) {
+			console.error("Error al actualizar el usuario:", error.response?.data || error.message);
+			
+			let errorMessage = "Hubo un error al actualizar el usuario. Por favor, inténtelo de nuevo.";
+			
+			if (error.response?.status === 400) {
+				const errorMsg = error.response?.data?.message;
+				if (errorMsg === "El correo electrónico ya está registrado.") {
+					errorMessage = "El correo electrónico ya está registrado en el sistema. Por favor, use un correo diferente.";
+				} else if (errorMsg === "El documento ya está registrado.") {
+					errorMessage = "El número de documento ya está registrado en el sistema. Por favor, verifique el documento.";
+				} else if (errorMsg === "El número de celular ya está registrado.") {
+					errorMessage = "El número de celular ya está registrado en el sistema. Por favor, use un número diferente.";
+				} else {
+					errorMessage = errorMsg || errorMessage;
+				}
+			}
+
+			await Swal.fire({
+				icon: "error",
+				title: "Error",
+				text: errorMessage,
+				confirmButtonText: "Aceptar",
+				theme: "bulma",
+				customClass: { confirmButton: 'centered-swal-button' }
+			});
+		}
+	}
 
 	const renderUser = (user) => {
 		const nombre = user.nombres ? `${user.nombres} ${user.apellidos}` : "Sin definir"
@@ -143,89 +302,13 @@ export const GestionUsuarios = () => {
 					<button
 						className="manage-button"
 						type="button"
-						onClick={() => {
-							//console.log(user)
-							setSelectedUser(user)
-							setSelectedUserBackup(user)
-						}}
+						onClick={() => handleOpenModal(user)}
 						data-adblock-bypass="true"
-						aria-label="Ver manager"
+						aria-label="Ver usuario"
 					>Ver usuario</button>
 				</td>
 			</tr>
 		)
-	}
-
-	const updateUser = async () => {
-		if (!editing) {
-			setEditing(true)
-			return
-		}
-
-		if (selectedUser == selectedUserBackup)
-			return
-
-		try {
-			const resp = await axiosInstance.put(`/api/users/perfil/actualizar/${selectedUser.ID}`, {
-				email: selectedUser.email,
-				nombres: selectedUser.nombres,
-				apellidos: selectedUser.apellidos,
-				celular: selectedUser.celular,
-				documento: selectedUser.documento,
-				estado: selectedUser.estado
-			})
-			if (resp?.status >= 200 && resp?.status < 300) {
-				Swal.fire({
-					icon:"success",
-					title:"¡Éxtixo!",
-					text: resp?.data?.message ||"Se ha actualizado el manage",
-					confirmButtonText:"Aceptar",
-					theme: "bulma",
-        			customClass: {
-            confirmButton: 'button is-primary',
-            actions: 'swal2-actions-centered'
-        },
-        buttonsStyling: false
-				})
-			} else {
-				    await Swal.fire({
-        title: 'Error',
-        text: "No se pudo actualizar el manager.",
-        icon: 'error',
-        confirmButtonText: 'Aceptar',
-        theme: "bulma",
-        customClass: {
-            confirmButton: 'button is-danger',
-            actions: 'swal2-actions-centered'
-        },
-        buttonsStyling: false
-    });
-				return;
-			}
-
-			if (selectedUser.accountType != selectedUserBackup.accountType) {
-				const resp2 = await axiosInstance.put(`/api/users/admin/changerole/${selectedUser.ID}`, {
-					role: selectedUser.accountType
-				})
-			}
-
-			setEditing(false)
-			setSelectedUser(null)
-			fetchUsuarios()
-		} catch (error) {
-			console.log(error)
-			Swal.fire({
-				icon:"error",
-				title:"Error al actualizar el usuario",
-				text:"Ocurrió un error al actualizar el usuario, intentelo después",
-				confirmButtonText:"Aceptar",
-				theme:"bulma",
-				customClass: {
-            confirmButton: 'button is-danger',
-            actions: 'swal2-actions-centered'
-        }
-			})
-		}
 	}
 
 	return (
@@ -283,9 +366,7 @@ export const GestionUsuarios = () => {
 									{total} Resultados · Página {page + 1} de {totalPages}
 								</label>
 							</div>
-							<div 
-								className={`table-container`}
-							>
+							<div className="table-container">
 								{users.length > 0 ?
 									<table className="companies-table">
 										<thead>
@@ -306,205 +387,310 @@ export const GestionUsuarios = () => {
 									<div className="no-results">No se encontraron usuarios.</div>
 								}
 							</div>
-							<PageMover
-								value={page + 1}
-								max={totalPages}
-								next={() => {
-									setPage(page + 1)
-								}}
-								prev={() => {
-									setPage(page - 1)
-								}}
-							/>
+							<div className="pagination-container">
+								<PageMover
+									value={page + 1}
+									max={totalPages}
+									next={() => {
+										setPage(page + 1)
+									}}
+									prev={() => {
+										setPage(page - 1)
+									}}
+								/>
+							</div>
 						</section>
-						{selectedUser && (
-							<div id="modal-overlayUpdateInstructor" style={{ display: "flex" }}>
-								<div className="modal-bodyUpdateInstructor">
-									<div className="modal-left-update">
-										<p>
-											<strong>Nombre:</strong>
-											{editing ?
-												<input
-													type="text"
-													name="nombres"
-													value={selectedUser.nombres}
-													className="input_updateData"
-													onChange={(e) => setSelectedUser({
-														...selectedUser,
-														nombres: e.target.value
-													})}
-												/>
-											:
-												<span className="valor-campo">{selectedUser.nombres}</span>
-											}
-										</p>
-										<p>
-											<strong>Apellidos:</strong>
-											{editing ?
-												<input
-													type="text"
-													name="apellidos"
-													value={selectedUser.apellidos}
-													className="input_updateData"
-													onChange={(e) => setSelectedUser({
-														...selectedUser,
-														apellidos: e.target.value
-													})}
-												/>
-											:
-												<span className="valor-campo">{selectedUser.apellidos}</span>
-											}
-										</p>
-										<p>
-											<strong>Celular:</strong>
-											{editing ?
-												<input
-													type="number"
-													name="celular_manager"
-													value={selectedUser.celular}
-													className="input_updateData"
-													onChange={(e) => setSelectedUser({
-														...selectedUser,
-														celular: e.target.value
-													})}
-												/>
-											:
-												<span className="valor-campo">{selectedUser.celular}</span>
-											}
-										</p>
-										<p>
-											<strong>Documento:</strong>
-											{editing ?
-												<input
-													type="number"
-													name="documento_manager"
-													value={selectedUser.documento}
-													className="input_updateData"
-													onChange={(e) => setSelectedUser({
-														...selectedUser,
-														documento: e.target.value
-													})}
-												/>
-											:
-												<span className="valor-campo">{selectedUser.documento}</span>
-											}
-										</p>
-										<p>
-											<strong>Correo:</strong>
-											{editing ?
-												<input
-													type="email"
-													name="documento_manager"
-													value={selectedUser.email}
-													className="input_updateData"
-													onChange={(e) => setSelectedUser({
-														...selectedUser,
-														email: e.target.value
-													})}
-												/>
-											:
-												<span className="valor-campo">{truncarNombreArchivo(selectedUser.email,13)}</span>
-											}
-										</p>
-										<p>
-											<strong>Estado:</strong>
-											{editing ?
-												<div className="status-buttons">
-													{["Activo", "Inactivo"].map((estado) => (
-														<button
-															key={estado}
-															type="button"
-															className={`status ${selectedUser.estado === estado.toLowerCase() ? "active" : ""}`}
-															onClick={() => {
-																setSelectedUser({
-																	...selectedUser,
-																	estado: estado.toLowerCase()
-																})
-															}}
-														>
-															{estado}
-														</button>
-													))}
-												</div>
-											:
-												<span className="valor-campo">{selectedUser.estado}</span>
-											}
-										</p>
-										<p>
-											<strong>Rol:</strong>
-											{editing ? 
-												<div className="status-buttons">
-													{['Aprendiz', 'Instructor', 'Administrador', 'Gestor'].map((rol) => (
-														<button
-															key={rol}
-															className={`status ${selectedUser.accountType === rol ? "active" : ""}`}
-															onClick={() => setSelectedUser({
-																...selectedUser,
-																accountType: rol
-															})}
-														>
-															{rol}
-														</button>
-													))}
-												</div>
-											:
-												<span className="valor-campo">{selectedUser.accountType}</span>
-											}
-										</p>
+
+						{/* Modal Actualizado */}
+						{selectedUser && formData && (
+							<div className="modal-overlay-usuario">
+								<div className="modal-container-usuario">
+									<div className="modal-header-usuario">
+										<div className="header-content-usuario">
+											<h2>
+												<FontAwesomeIcon icon={faUser} className="header-icon-usuario" />
+												Perfil del Usuario
+											</h2>
+											<button 
+												type="button" 
+												onClick={handleCloseModal}
+												className="close-btn-usuario"
+											>
+												<FontAwesomeIcon icon={faArrowLeft} />
+												<span>Volver</span>
+											</button>
+										</div>
 									</div>
 
-									<div className="modal-right">
-										<label
-											className={`upload-area-update ${!editing ? "read-only-border" : ""}`}
-											htmlFor="imageUpload"
-										>
-											{(() => {
-												const src = getLogoSrc(selectedUser.foto_perfil);
-												return (
-													<img 
-														src={src} 
-														alt="Logo" 
-														className="preview-image-update"
-														onError={(e) => {
-															e.currentTarget.src = fotoPerfilDefect;
-														}}
-													/>
-												);
-											})()}
-										</label>
-										{editing ?
-											<>
-												<button
-													className="edit-button-updateInstructor"
-													onClick={() => {
-														updateUser()
-													}}
-												>
-													Guardar Cambios
-												</button>
-												<button
-													className="edit-button-updateInstructor"
-													onClick={() => setEditing(false)}
-												>
-													Cancelar
-												</button>
-											</>
-										:
-											<button
-												onClick={() => setEditing(true)}
-												type="button"
-												className="edit-button-updateInstructor"
-											>Editar usuario</button>
-										}
-									</div>
+									<form className="modal-body-usuario" onSubmit={handleSubmit}>
+										<div className="modal-content-usuario">
+											{/* Columna izquierda - Información */}
+											<div className="info-column-usuario">
+												<div className="form-section-usuario">
+													<h3 className="section-title-usuario">Información Personal</h3>
+													<div className="form-grid-usuario">
+														<div className="input-group-usuario">
+															<label className="input-label-usuario">
+																<FontAwesomeIcon icon={faUser} />
+																Nombres
+															</label>
+															{isEditing ? (
+																<input
+																	type="text"
+																	name="nombres"
+																	value={formData.nombres || ""}
+																	onChange={handleChange}
+																	className="input-field-usuario"
+																	placeholder="Ingrese los nombres"
+																/>
+															) : (
+																<div className="display-field-usuario">
+																	{formData.nombres || "No especificado"}
+																</div>
+															)}
+														</div>
 
-									<div className="container_return_UpdateInstructor">
-										<h5>Volver</h5>
-										<button type="button" onClick={()=> {
-											setSelectedUser(null)
-											setEditing(false)
-										}} className="closeModal"></button>
-									</div>
+														<div className="input-group-usuario">
+															<label className="input-label-usuario">
+																<FontAwesomeIcon icon={faUser} />
+																Apellidos
+															</label>
+															{isEditing ? (
+																<input
+																	type="text"
+																	name="apellidos"
+																	value={formData.apellidos || ""}
+																	onChange={handleChange}
+																	className="input-field-usuario"
+																	placeholder="Ingrese los apellidos"
+																/>
+															) : (
+																<div className="display-field-usuario">
+																	{formData.apellidos || "No especificado"}
+																</div>
+															)}
+														</div>
+
+														<div className="input-group-usuario">
+															<label className="input-label-usuario">
+																<FontAwesomeIcon icon={faIdCard} />
+																Documento
+															</label>
+															{isEditing ? (
+																<input
+																	type="text"
+																	name="documento"
+																	value={formData.documento || ""}
+																	onChange={handleChange}
+																	className="input-field-usuario"
+																	placeholder="Ingrese el documento"
+																/>
+															) : (
+																<div className="display-field-usuario">
+																	{formData.documento || "No especificado"}
+																</div>
+															)}
+														</div>
+
+														<div className="input-group-usuario">
+															<label className="input-label-usuario">
+																<FontAwesomeIcon icon={faPhone} />
+																Celular
+															</label>
+															{isEditing ? (
+																<input
+																	type="text"
+																	name="celular"
+																	value={formData.celular || ""}
+																	onChange={handleChange}
+																	className="input-field-usuario"
+																	placeholder="Ingrese el celular"
+																/>
+															) : (
+																<div className="display-field-usuario">
+																	{formData.celular || "No especificado"}
+																</div>
+															)}
+														</div>
+
+														<div className="input-group-usuario">
+															<label className="input-label-usuario">
+																<FontAwesomeIcon icon={faEnvelope} />
+																Email
+															</label>
+															{isEditing ? (
+																<input
+																	type="email"
+																	name="email"
+																	value={formData.email || ""}
+																	onChange={handleChange}
+																	className="input-field-usuario"
+																	placeholder="Ingrese el email"
+																/>
+															) : (
+																<div className="display-field-usuario">
+																	{formData.email || "No especificado"}
+																</div>
+															)}
+														</div>
+
+														<div className="input-group-usuario">
+															<label className="input-label-usuario">
+																<FontAwesomeIcon icon={faBuilding} />
+																Empresa
+															</label>
+															<div className="display-field-usuario">
+																{selectedUser.Empresa?.nombre_empresa || "No asignada"}
+															</div>
+														</div>
+
+														<div className="input-group-usuario">
+															<label className="input-label-usuario">Estado</label>
+															{isEditing ? (
+																<div className="status-buttons-usuario">
+																	{["Activo", "Inactivo"].map((estado) => {
+																		const isSelected = (formData.estado || "").toLowerCase() === estado.toLowerCase();
+																		return (
+																			<button
+																				key={estado}
+																				type="button"
+																				className={`status-btn-usuario ${isSelected ? "active" : ""}`}
+																				onClick={() => handleEstadoChange(estado)}
+																			>
+																				<span className="status-dot-usuario"></span>
+																				{estado}
+																			</button>
+																		);
+																	})}
+																</div>
+															) : (
+																<div className={`status-display-usuario ${formData.estado?.toLowerCase()}`}>
+																	<span className="status-dot-usuario"></span>
+																	{formData.estado || "No especificado"}
+																</div>
+															)}
+														</div>
+
+														<div className="input-group-usuario">
+															<label className="input-label-usuario">
+																<FontAwesomeIcon icon={faShield} />
+																Rol
+															</label>
+															{isEditing ? (
+																<div className="status-buttons-usuario">
+																	{['Aprendiz', 'Instructor', 'Administrador', 'Gestor'].map((rol) => (
+																		<button
+																			key={rol}
+																			type="button"
+																			className={`status-btn-usuario ${formData.accountType === rol ? "active" : ""}`}
+																			onClick={() => handleRolChange(rol)}
+																		>
+																			<span className="status-dot-usuario"></span>
+																			{rol}
+																		</button>
+																	))}
+																</div>
+															) : (
+																<div className="display-field-usuario">
+																	{formData.accountType || "No especificado"}
+																</div>
+															)}
+														</div>
+													</div>
+												</div>
+											</div>
+
+											{/* Columna derecha - Imagen */}
+											<div className="image-column-usuario">
+												<div className="image-section-usuario">
+													<div className="image-container-usuario">
+														{isEditing ? (
+															<>
+																<input
+																	type="file"
+																	accept="image/*"
+																	onChange={handleImageChange}
+																	id="imageUploadUsuario"
+																	className="file-input-usuario"
+																/>
+																<label
+																	className="image-upload-usuario editable"
+																	htmlFor="imageUploadUsuario"
+																>
+																	{formData.foto_perfil instanceof File ? (
+																		<img
+																			src={URL.createObjectURL(formData.foto_perfil)}
+																			alt="Vista previa"
+																			className="profile-image-usuario"
+																			onError={(e) => {
+																				e.target.src = fotoPerfilDefect;
+																			}}
+																		/>
+																	) : formData.foto_perfil ? (
+																		<img
+																			src={getLogoSrc(formData.foto_perfil)}
+																			alt="Foto de perfil"
+																			className="profile-image-usuario"
+																			onError={(e) => {
+																				e.target.src = fotoPerfilDefect;
+																			}}
+																		/>
+																	) : (
+																		<div className="image-placeholder-usuario">
+																			<FontAwesomeIcon icon={faCamera} className="placeholder-icon-usuario" />
+																			<span>Haz clic para subir imagen</span>
+																		</div>
+																	)}
+																	<div className="upload-overlay-usuario">
+																		<FontAwesomeIcon icon={faCamera} />
+																		<span>Cambiar imagen</span>
+																	</div>
+																</label>
+															</>
+														) : (
+															<div className="image-display-usuario">
+																{formData.foto_perfil ? (
+																	<img
+																		src={getLogoSrc(formData.foto_perfil)}
+																		alt="Foto de perfil"
+																		className="profile-image-usuario"
+																		onError={(e) => {
+																			e.target.src = fotoPerfilDefect;
+																		}}
+																	/>
+																) : (
+																	<div className="image-placeholder-usuario">
+																		<FontAwesomeIcon icon={faUser} className="placeholder-icon-usuario" />
+																		<span>Sin imagen</span>
+																	</div>
+																)}
+															</div>
+														)}
+													</div>
+													
+													{!isEditing && (
+														<div className="image-info-usuario">
+															<p>Activa el modo edición para cambiar la imagen</p>
+														</div>
+													)}
+												</div>
+
+												<button type="submit" className="submit-btn-usuario">
+													{isEditing ? (
+														<>
+															<FontAwesomeIcon icon={faUser} />
+															<span>Guardar Cambios</span>
+														</>
+													) : (
+														<>
+															<FontAwesomeIcon icon={faUser} />
+															<span>Editar Usuario</span>
+														</>
+													)}
+												</button>
+											</div>
+										</div>
+									</form>
 								</div>
 							</div>
 						)}

@@ -24,7 +24,7 @@ export const GestionsEmployes = () => {
 	const [current, setCurrent] = useState(0)
 	const [selectedState, setSelectedState] = useState("todos")
 	const [selectedEmploye, setSelectedEmploye] = useState(null)
-	const [showUpdateModal, setShowUpdateModal] = useState(false) // ✅ NUEVO ESTADO PARA CONTROLAR EL MODAL
+	const [showUpdateModal, setShowUpdateModal] = useState(false)
 
 	const [empresas, setEmpresas] = useState([])
 	const [selectedEmpresa, setSelectedEmpresa] = useState("")
@@ -132,7 +132,6 @@ export const GestionsEmployes = () => {
 			fetchEmpresas()
 		}
 		
-		// Exponer función para refrescar desde otros componentes
 		window.refreshEmployesList = () => {
 			if (isAdmin) {
 				fetchEmployes(currentPage)
@@ -141,12 +140,10 @@ export const GestionsEmployes = () => {
 			}
 		}
 		
-		// Exponer función para actualizar empleado específico
 		window.updateSelectedEmploye = (updatedEmploye) => {
 			setSelectedEmploye(updatedEmploye)
 		}
 		
-		// Cleanup
 		return () => {
 			delete window.refreshEmployesList
 			delete window.updateSelectedEmploye
@@ -233,13 +230,11 @@ export const GestionsEmployes = () => {
 		}, 100)
 	}
 
-	// ✅ FUNCIÓN CORREGIDA PARA ABRIR EL MODAL
 	const showModalSeeProfile = (employe) => {
 		setSelectedEmploye(employe)
-		setShowUpdateModal(true) // ✅ Usar estado de React en lugar de manipular el DOM
+		setShowUpdateModal(true)
 	}
 
-	// ✅ FUNCIÓN PARA CERRAR EL MODAL
 	const handleCloseUpdateModal = () => {
 		setShowUpdateModal(false)
 		setSelectedEmploye(null)
@@ -250,43 +245,33 @@ export const GestionsEmployes = () => {
 	}
 
 	const getImageSrcFromBase64 = (imageData) => {
-		
-		// Si no hay datos de imagen, usar imagen por defecto
 		if (!imageData) {
 			return "/src/assets/Icons/userDefect.png"
 		}
 		
-		// Si es base64
 		if (typeof imageData === 'string') {
-			// Verificar si ya es una URL de datos completa
 			if (imageData.startsWith("data:")) {
-				return imageData // Ya es una URL de datos
+				return imageData
 			}
 			
-			// Verificar si es PNG base64
 			if (imageData.startsWith("iVBORw0KGgo") || imageData.startsWith("iVBOR")) {
 				return `data:image/png;base64,${imageData}`
 			}
 			
-			// Verificar si es JPEG base64
 			if (imageData.startsWith("/9j/")) {
 				return `data:image/jpeg;base64,${imageData}`
 			}
 			
-			// Verificar si es una cadena muy larga (probablemente base64)
 			if (imageData.length > 1000) {
 				return `data:image/jpeg;base64,${imageData}`
 			}
 			
-			// Verificar si contiene caracteres base64 válidos
 			const base64Regex = /^[A-Za-z0-9+/=]+$/
 			if (imageData.length > 50 && base64Regex.test(imageData)) {
 				return `data:image/jpeg;base64,${imageData}`
 			}
 			
-			// Si es una ruta de archivo (empieza con ../ o /) - solo después de verificar base64
 			if (imageData.startsWith('../') || imageData.startsWith('/')) {
-				// Convertir ruta relativa a ruta absoluta
 				if (imageData.startsWith('../Img/')) {
 					const newPath = imageData.replace('../Img/', '/src/assets/Icons/')
 					return newPath
@@ -336,7 +321,6 @@ export const GestionsEmployes = () => {
 			<Header />
 			<Main>
 				<div className="gestion-employees-container">
-					{/* Header Mejorado */}
 					<div className="employees-header-improved">
 						<div className="header-content-improved">
 							<h1>
@@ -344,20 +328,42 @@ export const GestionsEmployes = () => {
 								<span className="complementary">Empleados</span>
 							</h1>
 							<div className="header-stats-improved">
-								<div className="stat-item-improved">
-									<span className="stat-number">{isAdmin ? totalItems : filteredEmployes.length}</span>
-									<span className="stat-label">
-										{selectedState === 'activo' ? 'Activos' : 
-										 selectedState === 'inactivo' ? 'Inactivos' : 'Total'}
-									</span>
+								<div className="stat-card-header">
+									<div className="stat-icon">
+										<FontAwesomeIcon icon={faUsers} />
+									</div>
+									<div className="stat-content">
+										<span className="stat-value">{isAdmin ? totalItems : employes.length}</span>
+										<span className="stat-label">Total Empleados</span>
+									</div>
+								</div>
+								<div className="stat-card-header">
+									<div className="stat-icon">
+										<FontAwesomeIcon icon={faCheck} />
+									</div>
+									<div className="stat-content">
+										<span className="stat-value">
+											{employes.filter(e => e.estado?.toLowerCase() === 'activo').length}
+										</span>
+										<span className="stat-label">Activos</span>
+									</div>
+								</div>
+								<div className="stat-card-header">
+									<div className="stat-icon">
+										<FontAwesomeIcon icon={faBuilding} />
+									</div>
+									<div className="stat-content">
+										<span className="stat-value">
+											{isAdmin ? new Set(employes.map(e => e.empresa_ID)).size : 1}
+										</span>
+										<span className="stat-label">Empresas</span>
+									</div>
 								</div>
 							</div>
 						</div>
 					</div>
 
-					{/* Layout Principal - EMPLEADOS EN EL CENTRO */}
 					<div className="main-content-improved">
-						{/* Sección Principal - EMPLEADOS EN EL CENTRO */}
 						<div className="main-employees-section">
 							{loading ? (
 								<div className="loading-state-improved">
@@ -465,7 +471,6 @@ export const GestionsEmployes = () => {
 											</div>
 										) : (
 											<div className="carousel-content-improved">
-												{/* Navegación del Carrusel */}
 												{filteredEmployes.length > 1 && (
 													<div className="carousel-navigation">
 														<button className="carousel-arrow-improved left" onClick={prev}>
@@ -477,7 +482,6 @@ export const GestionsEmployes = () => {
 													</div>
 												)}
 
-												{/* Carrusel de Empleados */}
 												<div className="carousel-track-improved">
 													{filteredEmployes.length === 1 ? (
 														<div className="instructor-card-improved card-center-improved">
@@ -542,7 +546,6 @@ export const GestionsEmployes = () => {
 													)}
 												</div>
 
-												{/* Información del Empleado Central */}
 												{filteredEmployes.length > 0 && (
 													<div className="instructor-info-improved">
 														<div className="instructor-details-card">
@@ -583,7 +586,6 @@ export const GestionsEmployes = () => {
 													</div>
 												)}
 
-												{/* Indicador de Posición */}
 												{filteredEmployes.length > 1 && (
 													<div className="carousel-indicator-improved">
 														<span className="current-position">
@@ -598,7 +600,6 @@ export const GestionsEmployes = () => {
 							)}
 						</div>
 
-						{/* Panel de Control Derecho */}
 						<div className="control-panel-improved">
 							<div className="filters-card-improved">
 								<h3>
@@ -680,53 +681,11 @@ export const GestionsEmployes = () => {
 									<span>Inscribir a Cursos</span>
 								</button>
 							</div>
-
-							{/* Estadísticas */}
-							<div className="stats-card-improved">
-								<h3>
-									<FontAwesomeIcon icon={faChartLine} />
-									Estadísticas
-								</h3>
-								<div className="stats-grid-improved">
-									<div className="stat-card-improved">
-										<div className="stat-icon">
-											<FontAwesomeIcon icon={faUsers} />
-										</div>
-										<div className="stat-content">
-											<span className="stat-value">{isAdmin ? totalItems : employes.length}</span>
-											<span className="stat-label">Total Empleados</span>
-										</div>
-									</div>
-									<div className="stat-card-improved">
-										<div className="stat-icon">
-											<FontAwesomeIcon icon={faCheck} />
-										</div>
-										<div className="stat-content">
-											<span className="stat-value">
-												{employes.filter(e => e.estado?.toLowerCase() === 'activo').length}
-											</span>
-											<span className="stat-label">Activos</span>
-										</div>
-									</div>
-									<div className="stat-card-improved">
-										<div className="stat-icon">
-											<FontAwesomeIcon icon={faBuilding} />
-										</div>
-										<div className="stat-content">
-											<span className="stat-value">
-												{isAdmin ? new Set(employes.map(e => e.empresa_ID)).size : 1}
-											</span>
-											<span className="stat-label">Empresas</span>
-										</div>
-									</div>
-								</div>
-							</div>
 						</div>
 					</div>
 				</div>
 			</Main>
 
-			{/* ✅ MODAL CORREGIDO - CONTROLADO POR ESTADO */}
 			{showUpdateModal && selectedEmploye && (
 				<UpdateEmploye 
 					empleado={selectedEmploye} 
@@ -734,7 +693,6 @@ export const GestionsEmployes = () => {
 				/>
 			)}
 			
-			{/* Modal de Reportes */}
 			{showReportOptions && (
 				<div className="modal-overlay">
 					<div

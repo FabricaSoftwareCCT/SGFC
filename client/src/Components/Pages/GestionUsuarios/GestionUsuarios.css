@@ -1,0 +1,549 @@
+/* ===== MODAL DE USUARIO - NUEVO ESTILO ===== */
+
+/* Modal Overlay */
+.modal-overlay-usuario {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(10px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    padding: 15px;
+}
+
+.modal-container-usuario {
+    width: 100%;
+    max-width: 900px;
+    max-height: 80vh;
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header */
+.modal-header-usuario {
+    background: linear-gradient(135deg, rgba(0, 132, 61, 0.2) 0%, rgba(0, 200, 83, 0.15) 100%);
+    border-bottom: 1px solid rgba(0, 200, 83, 0.3);
+    padding: 1.2rem 1.5rem;
+    backdrop-filter: blur(10px);
+    flex-shrink: 0;
+}
+
+.header-content-usuario {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header-content-usuario h2 {
+    color: #fff;
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.header-icon-usuario {
+    color: #00c853;
+}
+
+.close-btn-usuario {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    color: #fff;
+    padding: 0.6rem 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.85rem;
+    backdrop-filter: blur(10px);
+}
+
+.close-btn-usuario:hover {
+    background: rgba(0, 200, 83, 0.2);
+    border-color: #00c853;
+    transform: translateY(-1px);
+}
+
+/* Body */
+.modal-body-usuario {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-content-usuario {
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    height: 100%;
+    min-height: 0;
+    flex: 1;
+    overflow: hidden;
+}
+
+/* Columna Izquierda - Información */
+.info-column-usuario {
+    padding: 1.5rem;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    min-height: 0;
+    flex: 1;
+}
+
+/* Sección del Formulario */
+.form-section-usuario {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 1.2rem;
+    backdrop-filter: blur(10px);
+    flex-shrink: 0;
+}
+
+.section-title-usuario {
+    color: #fff;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.form-grid-usuario {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.input-group-usuario {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.input-label-usuario {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.8rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.input-label-usuario svg {
+    color: #00c853;
+    width: 12px;
+}
+
+.input-field-usuario {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 0.7rem 0.9rem;
+    color: #fff;
+    font-size: 0.85rem;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    height: 40px;
+}
+
+.input-field-usuario:focus {
+    outline: none;
+    border-color: #00c853;
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 0 2px rgba(0, 200, 83, 0.2);
+}
+
+.display-field-usuario {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 0.7rem 0.9rem;
+    color: #fff;
+    font-size: 0.85rem;
+    backdrop-filter: blur(10px);
+    height: 40px;
+    display: flex;
+    align-items: center;
+}
+
+/* Botones de Estado y Rol */
+.status-buttons-usuario {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.status-btn-usuario {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 0.6rem 0.8rem;
+    color: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.8rem;
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    height: 40px;
+}
+
+.status-btn-usuario:hover {
+    background: rgba(0, 200, 83, 0.1);
+    border-color: rgba(0, 200, 83, 0.3);
+    transform: translateY(-1px);
+}
+
+.status-btn-usuario.active {
+    background: rgba(0, 200, 83, 0.2);
+    border-color: #00c853;
+    color: #00c853;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(0, 200, 83, 0.2);
+}
+
+.status-dot-usuario {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+.status-btn-usuario.active .status-dot-usuario {
+    animation: pulse-usuario 2s infinite;
+}
+
+@keyframes pulse-usuario {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+.status-display-usuario {
+    padding: 0.6rem 0.8rem;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    backdrop-filter: blur(10px);
+    border: 1px solid;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    height: 40px;
+}
+
+.status-display-usuario.activo {
+    background: rgba(0, 200, 83, 0.15);
+    color: #00c853;
+    border-color: rgba(0, 200, 83, 0.4);
+    box-shadow: 0 2px 8px rgba(0, 200, 83, 0.1);
+}
+
+.status-display-usuario.inactivo {
+    background: rgba(255, 107, 107, 0.15);
+    color: #ff6b6b;
+    border-color: rgba(255, 107, 107, 0.4);
+    box-shadow: 0 2px 8px rgba(255, 107, 107, 0.1);
+}
+
+/* Columna Derecha - Imagen */
+.image-column-usuario {
+    background: rgba(255, 255, 255, 0.02);
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.image-section-usuario {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    flex: 1;
+    min-height: 0;
+}
+
+.image-container-usuario {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex: 1;
+    min-height: 0;
+}
+
+/* Contenedor para imagen cuando NO está editando */
+.image-display-usuario {
+    width: 200px;
+    height: 240px;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.03);
+    flex-shrink: 0;
+}
+
+/* Contenedor para imagen cuando SÍ está editando */
+.image-upload-usuario {
+    width: 200px;
+    height: 240px;
+    border: 2px dashed rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    overflow: hidden;
+    position: relative;
+    background: rgba(255, 255, 255, 0.03);
+    flex-shrink: 0;
+}
+
+.image-upload-usuario.editable:hover {
+    border-color: #00c853;
+    background: rgba(0, 200, 83, 0.05);
+    transform: translateY(-2px);
+}
+
+.file-input-usuario {
+    display: none;
+}
+
+/* IMAGEN */
+.profile-image-usuario {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.image-placeholder-usuario {
+    text-align: center;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.85rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    padding: 1rem;
+    width: 100%;
+    height: 100%;
+}
+
+.placeholder-icon-usuario {
+    font-size: 2.5rem;
+    color: rgba(255, 255, 255, 0.3);
+}
+
+.upload-overlay-usuario {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #00c853;
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-align: center;
+    padding: 1rem;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    gap: 0.5rem;
+}
+
+.image-upload-usuario.editable:hover .upload-overlay-usuario {
+    opacity: 1;
+}
+
+.image-info-usuario {
+    text-align: center;
+    padding: 0.7rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    max-width: 200px;
+}
+
+.image-info-usuario p {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.75rem;
+    margin: 0;
+    line-height: 1.3;
+}
+
+/* BOTÓN */
+.submit-btn-usuario {
+    width: 100%;
+    background: linear-gradient(135deg, #00c853 0%, #00a844 100%);
+    border: none;
+    border-radius: 10px;
+    color: #000;
+    font-weight: 700;
+    padding: 1rem 1.2rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.95rem;
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    box-shadow: 0 4px 12px rgba(0, 200, 83, 0.3);
+    flex-shrink: 0;
+}
+
+.submit-btn-usuario:hover {
+    background: linear-gradient(135deg, #00e676 0%, #00c853 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 200, 83, 0.4);
+}
+
+/* Scrollbars */
+.info-column-usuario::-webkit-scrollbar {
+    width: 5px;
+}
+
+.info-column-usuario::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 3px;
+}
+
+.info-column-usuario::-webkit-scrollbar-thumb {
+    background: rgba(0, 200, 83, 0.3);
+    border-radius: 3px;
+}
+
+/* Responsive para el Modal */
+@media (max-width: 968px) {
+    .modal-content-usuario {
+        grid-template-columns: 1fr;
+    }
+    
+    .image-column-usuario {
+        border-left: none;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 1.2rem;
+    }
+    
+    .form-grid-usuario {
+        grid-template-columns: 1fr;
+    }
+    
+    .image-display-usuario,
+    .image-upload-usuario {
+        width: 180px;
+        height: 220px;
+    }
+}
+
+@media (max-width: 768px) {
+    .modal-container-usuario {
+        max-height: 85vh;
+    }
+    
+    .modal-header-usuario {
+        padding: 1rem;
+    }
+    
+    .header-content-usuario h2 {
+        font-size: 1.2rem;
+    }
+    
+    .info-column-usuario {
+        padding: 1.2rem;
+    }
+    
+    .image-display-usuario,
+    .image-upload-usuario {
+        width: 160px;
+        height: 200px;
+    }
+}
+
+@media (max-width: 480px) {
+    .modal-overlay-usuario {
+        padding: 10px;
+    }
+    
+    .modal-container-usuario {
+        border-radius: 12px;
+        max-height: 90vh;
+    }
+    
+    .modal-header-usuario {
+        padding: 0.8rem;
+    }
+    
+    .header-content-usuario h2 {
+        font-size: 1.1rem;
+    }
+    
+    .close-btn-usuario span {
+        display: none;
+    }
+    
+    .info-column-usuario {
+        padding: 1rem;
+        gap: 1.2rem;
+    }
+    
+    .form-section-usuario {
+        padding: 1rem;
+    }
+    
+    .image-column-usuario {
+        padding: 1rem;
+    }
+    
+    .image-display-usuario,
+    .image-upload-usuario {
+        width: 140px;
+        height: 180px;
+    }
+    
+    .submit-btn-usuario {
+        padding: 0.8rem 1rem;
+        font-size: 0.9rem;
+    }
+    
+    .status-buttons-usuario {
+        flex-direction: column;
+    }
+}

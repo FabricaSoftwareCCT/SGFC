@@ -96,6 +96,7 @@ export const GestionsEmployes = () => {
 				setEmployes(empleados)
 				setFilteredEmployes(empleados)
 				setSelectedEmploye(empleados[0])
+				
 			}
 		} catch (error) {
 			console.error("Error al obtener los empleados:", error)
@@ -125,8 +126,10 @@ export const GestionsEmployes = () => {
 
 	useEffect(() => {
 		fetchEmployes()
+		console.log(filteredEmployes)
 		if (isAdmin) {
 			fetchEmpresas()
+			console.log(filteredEmployes)
 		}
 		
 		// Exponer función para refrescar desde otros componentes
@@ -153,6 +156,7 @@ export const GestionsEmployes = () => {
 	useEffect(() => {
 		if (isAdmin) {
 			fetchEmployes(1)
+			
 		} else {
 			applyFilters()
 		}
@@ -343,7 +347,6 @@ const fetchEmployebyCompany = async (value) => {
 	const generarPdf = async () => {
 		setGenerating(true)
 	}
-
 	return (
 		<>
 			<Header />

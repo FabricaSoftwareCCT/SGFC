@@ -49,7 +49,7 @@ class UserRepository {
                 as: 'SecurityData',
                 attributes: [
                     ['SecurityQuestion', 'Pregunta'],
-                    ['AnswerHash', 'respuesta']
+                    [ 'AnswerHash', 'respuesta']
                 ]
             }],
             where: {

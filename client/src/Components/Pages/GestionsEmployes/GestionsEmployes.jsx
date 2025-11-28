@@ -783,11 +783,11 @@ export const GestionsEmployes = () => {
 								style={{
 									marginTop: "20px",
 									textDecoration: "none"
-								}}
+								}}v
 							>Descargar</a>
 						)}
 						<button
-							className="filtersButtonEmployee"
+							className="filtersButtonEmployeeReport"
 							onClick={() => setShowFilters(!showFilters)}
 						>Filtros {!showFilters ? <>&#x25BC;</> : <>&#x25B2;</>}</button>
 						{showFilters && (

@@ -1,7 +1,316 @@
-/* ===== MODAL DE USUARIO - NUEVO ESTILO ===== */
+/* GestionUsuarios.css - Clases únicas con prefijo gu- */
+
+/* Header Principal */
+.gu-section-principal {
+    width: 70%;
+}
+
+.gu-section-header {
+    background: linear-gradient(135deg, rgba(0, 132, 61, 0.15) 0%, rgba(0, 200, 83, 0.1) 100%);
+    border: 1px solid rgba(0, 200, 83, 0.3);
+    border-radius: 20px;
+    padding: 1.5rem 2rem;
+    margin-bottom: 2rem;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 8px 32px rgba(0, 132, 61, 0.1);
+}
+
+.gu-header-title-container {
+    margin-bottom: 1rem;
+}
+
+.gu-titulo {
+    color: #fff;
+    font-size: 2.2rem;
+    font-weight: 300;
+    margin: 0;
+}
+
+.gu-titulo-verde {
+    color: #00c853;
+    font-weight: 500;
+}
+
+.gu-paragraph {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 1.1rem;
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* Sección Body */
+.gu-section-body {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+/* Filtros */
+.gu-filter {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    padding: 1.5rem;
+    backdrop-filter: blur(10px);
+}
+
+.gu-titulo-filtrar {
+    color: #fff;
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-bottom: 1.2rem;
+    display: block;
+}
+
+.gu-filter-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 1.5rem;
+    align-items: end;
+}
+
+.gu-filter-option-name {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.gu-label-filter-option {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.gu-input-filter-option {
+    position: relative;
+}
+
+.gu-input-filter-text {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 0.8rem 1rem;
+    color: #fff;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.gu-input-filter-text:focus {
+    outline: none;
+    border-color: #00c853;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.gu-input-filter-text::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.gu-button {
+    background: #00c853;
+    border: none;
+    border-radius: 10px;
+    color: #000;
+    font-weight: 600;
+    padding: 0.8rem 1.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+    height: fit-content;
+}
+
+.gu-button:hover {
+    background: #00e676;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 200, 83, 0.3);
+}
+
+/* Tabla de Resultados */
+.gu-result-table {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    padding: 1.5rem;
+    backdrop-filter: blur(10px);
+}
+
+.gu-results-header {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.gu-label-filter-result {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.9rem;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 0.6rem 1rem;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.gu-table-container {
+    overflow-x: auto;
+    margin-bottom: 1.5rem;
+}
+
+.gu-companies-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.gu-table-header {
+    background: rgba(0, 200, 83, 0.1);
+    border-bottom: 2px solid rgba(0, 200, 83, 0.3);
+}
+
+.gu-table-header th {
+    color: #fff;
+    font-weight: 600;
+    padding: 1rem;
+    text-align: left;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.gu-header-logo {
+    width: 80px;
+    text-align: center;
+}
+
+.gu-header-name {
+    width: 25%;
+}
+
+.gu-header-nit {
+    width: 20%;
+}
+
+.gu-header-category {
+    width: 15%;
+}
+
+.gu-header-actions {
+    width: 15%;
+    text-align: center;
+}
+
+/* Filas de la tabla */
+.gu-company-row {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+.gu-company-row:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.gu-company-row td {
+    padding: 1rem;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.9rem;
+}
+
+.gu-company-logo-cell {
+    text-align: center;
+}
+
+.gu-company-logo {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #00c853;
+}
+
+.gu-company-name-cell {
+    font-weight: 500;
+}
+
+.gu-company-nit-cell {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.gu-company-category-cell {
+    text-transform: capitalize;
+}
+
+.gu-company-status-cell {
+    text-align: center;
+}
+
+/* Pills de estado */
+.gu-status-pill {
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.gu-status-active {
+    background: rgba(0, 200, 83, 0.2);
+    color: #00c853;
+    border: 1px solid rgba(0, 200, 83, 0.4);
+}
+
+.gu-status-inactive {
+    background: rgba(255, 107, 107, 0.2);
+    color: #ff6b6b;
+    border: 1px solid rgba(255, 107, 107, 0.4);
+}
+
+.gu-status-unknown {
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.gu-manage-button {
+    background: rgba(0, 200, 83, 0.1);
+    border: 1px solid rgba(0, 200, 83, 0.3);
+    border-radius: 8px;
+    color: #00c853;
+    font-weight: 600;
+    padding: 0.6rem 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.85rem;
+}
+
+.gu-manage-button:hover {
+    background: rgba(0, 200, 83, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 200, 83, 0.2);
+}
+
+/* Estados vacíos */
+.gu-no-results {
+    text-align: center;
+    padding: 3rem;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 1.1rem;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.gu-pagination-container {
+    display: flex;
+    justify-content: center;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* ===== MODAL DE USUARIO ===== */
 
 /* Modal Overlay */
-.modal-overlay-usuario {
+.gu-modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
@@ -16,7 +325,7 @@
     padding: 15px;
 }
 
-.modal-container-usuario {
+.gu-modal-container {
     width: 100%;
     max-width: 900px;
     max-height: 80vh;
@@ -30,7 +339,7 @@
 }
 
 /* Header */
-.modal-header-usuario {
+.gu-modal-header {
     background: linear-gradient(135deg, rgba(0, 132, 61, 0.2) 0%, rgba(0, 200, 83, 0.15) 100%);
     border-bottom: 1px solid rgba(0, 200, 83, 0.3);
     padding: 1.2rem 1.5rem;
@@ -38,13 +347,13 @@
     flex-shrink: 0;
 }
 
-.header-content-usuario {
+.gu-header-content {
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
-.header-content-usuario h2 {
+.gu-header-content h2 {
     color: #fff;
     font-size: 1.3rem;
     font-weight: 600;
@@ -54,11 +363,11 @@
     gap: 0.6rem;
 }
 
-.header-icon-usuario {
+.gu-header-icon {
     color: #00c853;
 }
 
-.close-btn-usuario {
+.gu-close-btn {
     background: rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 8px;
@@ -73,21 +382,21 @@
     backdrop-filter: blur(10px);
 }
 
-.close-btn-usuario:hover {
+.gu-close-btn:hover {
     background: rgba(0, 200, 83, 0.2);
     border-color: #00c853;
     transform: translateY(-1px);
 }
 
 /* Body */
-.modal-body-usuario {
+.gu-modal-body {
     flex: 1;
     overflow: hidden;
     display: flex;
     flex-direction: column;
 }
 
-.modal-content-usuario {
+.gu-modal-content {
     display: grid;
     grid-template-columns: 1fr 280px;
     height: 100%;
@@ -97,7 +406,7 @@
 }
 
 /* Columna Izquierda - Información */
-.info-column-usuario {
+.gu-info-column {
     padding: 1.5rem;
     overflow-y: auto;
     display: flex;
@@ -108,7 +417,7 @@
 }
 
 /* Sección del Formulario */
-.form-section-usuario {
+.gu-form-section {
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 12px;
@@ -117,7 +426,7 @@
     flex-shrink: 0;
 }
 
-.section-title-usuario {
+.gu-section-title {
     color: #fff;
     font-size: 1.1rem;
     font-weight: 600;
@@ -127,19 +436,19 @@
     gap: 0.4rem;
 }
 
-.form-grid-usuario {
+.gu-form-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 1rem;
 }
 
-.input-group-usuario {
+.gu-input-group {
     display: flex;
     flex-direction: column;
     gap: 0.4rem;
 }
 
-.input-label-usuario {
+.gu-input-label {
     color: rgba(255, 255, 255, 0.8);
     font-size: 0.8rem;
     font-weight: 500;
@@ -148,12 +457,12 @@
     gap: 0.4rem;
 }
 
-.input-label-usuario svg {
+.gu-input-label svg {
     color: #00c853;
     width: 12px;
 }
 
-.input-field-usuario {
+.gu-input-field {
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 8px;
@@ -165,14 +474,14 @@
     height: 40px;
 }
 
-.input-field-usuario:focus {
+.gu-input-field:focus {
     outline: none;
     border-color: #00c853;
     background: rgba(255, 255, 255, 0.08);
     box-shadow: 0 0 0 2px rgba(0, 200, 83, 0.2);
 }
 
-.display-field-usuario {
+.gu-display-field {
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 8px;
@@ -186,13 +495,12 @@
 }
 
 /* Botones de Estado y Rol */
-.status-buttons-usuario {
+.gu-status-buttons {
     display: flex;
-    flex-direction: column;
     gap: 0.6rem;
 }
 
-.status-btn-usuario {
+.gu-status-btn {
     flex: 1;
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.1);
@@ -210,13 +518,13 @@
     height: 40px;
 }
 
-.status-btn-usuario:hover {
+.gu-status-btn:hover {
     background: rgba(0, 200, 83, 0.1);
     border-color: rgba(0, 200, 83, 0.3);
     transform: translateY(-1px);
 }
 
-.status-btn-usuario.active {
+.gu-status-btn.active {
     background: rgba(0, 200, 83, 0.2);
     border-color: #00c853;
     color: #00c853;
@@ -224,24 +532,24 @@
     box-shadow: 0 2px 8px rgba(0, 200, 83, 0.2);
 }
 
-.status-dot-usuario {
+.gu-status-dot {
     width: 6px;
     height: 6px;
     border-radius: 50%;
     background: currentColor;
 }
 
-.status-btn-usuario.active .status-dot-usuario {
-    animation: pulse-usuario 2s infinite;
+.gu-status-btn.active .gu-status-dot {
+    animation: gu-pulse 2s infinite;
 }
 
-@keyframes pulse-usuario {
+@keyframes gu-pulse {
     0% { opacity: 1; }
     50% { opacity: 0.5; }
     100% { opacity: 1; }
 }
 
-.status-display-usuario {
+.gu-status-display {
     padding: 0.6rem 0.8rem;
     border-radius: 8px;
     font-size: 0.8rem;
@@ -255,14 +563,14 @@
     height: 40px;
 }
 
-.status-display-usuario.activo {
+.gu-status-display.activo {
     background: rgba(0, 200, 83, 0.15);
     color: #00c853;
     border-color: rgba(0, 200, 83, 0.4);
     box-shadow: 0 2px 8px rgba(0, 200, 83, 0.1);
 }
 
-.status-display-usuario.inactivo {
+.gu-status-display.inactivo {
     background: rgba(255, 107, 107, 0.15);
     color: #ff6b6b;
     border-color: rgba(255, 107, 107, 0.4);
@@ -270,7 +578,7 @@
 }
 
 /* Columna Derecha - Imagen */
-.image-column-usuario {
+.gu-image-column {
     background: rgba(255, 255, 255, 0.02);
     border-left: 1px solid rgba(255, 255, 255, 0.1);
     padding: 1.5rem;
@@ -281,7 +589,7 @@
     overflow: hidden;
 }
 
-.image-section-usuario {
+.gu-image-section {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -290,7 +598,7 @@
     min-height: 0;
 }
 
-.image-container-usuario {
+.gu-image-container {
     width: 100%;
     display: flex;
     justify-content: center;
@@ -300,7 +608,7 @@
 }
 
 /* Contenedor para imagen cuando NO está editando */
-.image-display-usuario {
+.gu-image-display {
     width: 200px;
     height: 240px;
     border: 2px solid rgba(255, 255, 255, 0.1);
@@ -314,7 +622,7 @@
 }
 
 /* Contenedor para imagen cuando SÍ está editando */
-.image-upload-usuario {
+.gu-image-upload {
     width: 200px;
     height: 240px;
     border: 2px dashed rgba(255, 255, 255, 0.2);
@@ -330,25 +638,25 @@
     flex-shrink: 0;
 }
 
-.image-upload-usuario.editable:hover {
+.gu-image-upload.editable:hover {
     border-color: #00c853;
     background: rgba(0, 200, 83, 0.05);
     transform: translateY(-2px);
 }
 
-.file-input-usuario {
+.gu-file-input {
     display: none;
 }
 
 /* IMAGEN */
-.profile-image-usuario {
+.gu-profile-image {
     width: 100%;
     height: 100%;
     object-fit: cover;
     display: block;
 }
 
-.image-placeholder-usuario {
+.gu-image-placeholder {
     text-align: center;
     color: rgba(255, 255, 255, 0.5);
     font-size: 0.85rem;
@@ -362,12 +670,12 @@
     height: 100%;
 }
 
-.placeholder-icon-usuario {
+.gu-placeholder-icon {
     font-size: 2.5rem;
     color: rgba(255, 255, 255, 0.3);
 }
 
-.upload-overlay-usuario {
+.gu-upload-overlay {
     position: absolute;
     top: 0;
     left: 0;
@@ -388,11 +696,11 @@
     gap: 0.5rem;
 }
 
-.image-upload-usuario.editable:hover .upload-overlay-usuario {
+.gu-image-upload.editable:hover .gu-upload-overlay {
     opacity: 1;
 }
 
-.image-info-usuario {
+.gu-image-info {
     text-align: center;
     padding: 0.7rem;
     background: rgba(255, 255, 255, 0.05);
@@ -401,7 +709,7 @@
     max-width: 200px;
 }
 
-.image-info-usuario p {
+.gu-image-info p {
     color: rgba(255, 255, 255, 0.6);
     font-size: 0.75rem;
     margin: 0;
@@ -409,7 +717,7 @@
 }
 
 /* BOTÓN */
-.submit-btn-usuario {
+.gu-submit-btn {
     width: 100%;
     background: linear-gradient(135deg, #00c853 0%, #00a844 100%);
     border: none;
@@ -429,121 +737,139 @@
     flex-shrink: 0;
 }
 
-.submit-btn-usuario:hover {
+.gu-submit-btn:hover {
     background: linear-gradient(135deg, #00e676 0%, #00c853 100%);
     transform: translateY(-2px);
     box-shadow: 0 6px 16px rgba(0, 200, 83, 0.4);
 }
 
 /* Scrollbars */
-.info-column-usuario::-webkit-scrollbar {
+.gu-info-column::-webkit-scrollbar {
     width: 5px;
 }
 
-.info-column-usuario::-webkit-scrollbar-track {
+.gu-info-column::-webkit-scrollbar-track {
     background: rgba(255, 255, 255, 0.05);
     border-radius: 3px;
 }
 
-.info-column-usuario::-webkit-scrollbar-thumb {
+.gu-info-column::-webkit-scrollbar-thumb {
     background: rgba(0, 200, 83, 0.3);
     border-radius: 3px;
 }
 
 /* Responsive para el Modal */
 @media (max-width: 968px) {
-    .modal-content-usuario {
+    .gu-modal-content {
         grid-template-columns: 1fr;
     }
     
-    .image-column-usuario {
+    .gu-image-column {
         border-left: none;
         border-top: 1px solid rgba(255, 255, 255, 0.1);
         padding: 1.2rem;
     }
     
-    .form-grid-usuario {
+    .gu-form-grid {
         grid-template-columns: 1fr;
     }
     
-    .image-display-usuario,
-    .image-upload-usuario {
+    .gu-image-display,
+    .gu-image-upload {
         width: 180px;
         height: 220px;
     }
 }
 
 @media (max-width: 768px) {
-    .modal-container-usuario {
-        max-height: 85vh;
-    }
-    
-    .modal-header-usuario {
+    .gu-pantalla {
+        width: 95%;
         padding: 1rem;
     }
     
-    .header-content-usuario h2 {
-        font-size: 1.2rem;
-    }
-    
-    .info-column-usuario {
+    .gu-section-header {
         padding: 1.2rem;
     }
     
-    .image-display-usuario,
-    .image-upload-usuario {
+    .gu-titulo {
+        font-size: 1.8rem;
+    }
+    
+    .gu-filter-options {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .gu-modal-container {
+        max-height: 85vh;
+    }
+    
+    .gu-modal-header {
+        padding: 1rem;
+    }
+    
+    .gu-header-content h2 {
+        font-size: 1.2rem;
+    }
+    
+    .gu-info-column {
+        padding: 1.2rem;
+    }
+    
+    .gu-image-display,
+    .gu-image-upload {
         width: 160px;
         height: 200px;
     }
 }
 
 @media (max-width: 480px) {
-    .modal-overlay-usuario {
+    .gu-modal-overlay {
         padding: 10px;
     }
     
-    .modal-container-usuario {
+    .gu-modal-container {
         border-radius: 12px;
         max-height: 90vh;
     }
     
-    .modal-header-usuario {
+    .gu-modal-header {
         padding: 0.8rem;
     }
     
-    .header-content-usuario h2 {
+    .gu-header-content h2 {
         font-size: 1.1rem;
     }
     
-    .close-btn-usuario span {
+    .gu-close-btn span {
         display: none;
     }
     
-    .info-column-usuario {
+    .gu-info-column {
         padding: 1rem;
         gap: 1.2rem;
     }
     
-    .form-section-usuario {
+    .gu-form-section {
         padding: 1rem;
     }
     
-    .image-column-usuario {
+    .gu-image-column {
         padding: 1rem;
     }
     
-    .image-display-usuario,
-    .image-upload-usuario {
+    .gu-image-display,
+    .gu-image-upload {
         width: 140px;
         height: 180px;
     }
     
-    .submit-btn-usuario {
+    .gu-submit-btn {
         padding: 0.8rem 1rem;
         font-size: 0.9rem;
     }
     
-    .status-buttons-usuario {
+    .gu-status-buttons {
         flex-direction: column;
     }
 }

@@ -276,31 +276,31 @@ export const GestionUsuarios = () => {
 		const estado = user.estado
 
 		return (
-			<tr key={user.ID} className="company-row">
-				<td className="company-logo-cell">
+			<tr key={user.ID} className="gu-company-row">
+				<td className="gu-company-logo-cell">
 					<img 
-						className="company-logo" 
+						className="gu-company-logo" 
 						src={pfpSrc} 
 						alt="foto"
 					/>
 				</td>
-				<td className="company-name-cell">
+				<td className="gu-company-name-cell">
 					{nombre}
 				</td>
-				<td className="company-nit-cell">
+				<td className="gu-company-nit-cell">
 					{documento}
 				</td>
-				<td className="company-category-cell">
+				<td className="gu-company-category-cell">
 					{rol}
 				</td>
-				<td className="company-status-cell">
-					<span className={`status-pill ${estado === 'activo' ? 'status-active' : estado === 'inactivo' ? 'status-inactive' : 'status-unknown'}`}>
+				<td className="gu-company-status-cell">
+					<span className={`gu-status-pill ${estado === 'activo' ? 'gu-status-active' : estado === 'inactivo' ? 'gu-status-inactive' : 'gu-status-unknown'}`}>
 						{estado === 'activo' ? 'Activo' : estado === 'inactivo' ? 'Inactivo' : 'Sin estado'}
 					</span>
 				</td>
 				<td>
 					<button
-						className="manage-button"
+						className="gu-manage-button"
 						type="button"
 						onClick={() => handleOpenModal(user)}
 						data-adblock-bypass="true"
@@ -312,29 +312,29 @@ export const GestionUsuarios = () => {
 	}
 
 	return (
-		<div className="pantallaGestionsCompany">
+		<div className="gu-pantalla">
 			<Header/>
 			<Main>
-				<section className="sectionPrincipalGestionsCompany">
-					<section className="sectionGestionsCompanyHeader">
-						<div className="header-title-container">
-							<p className="tituloGestionsCompany">
-								Usuarios <span className="tituloVerde">Registrados</span>
+				<section className="gu-section-principal">
+					<section className="gu-section-header">
+						<div className="gu-header-title-container">
+							<p className="gu-titulo">
+								Usuarios <span className="gu-titulo-verde">Registrados</span>
 							</p>
 						</div>
-						<p className="paragraphGestionsCompany">
+						<p className="gu-paragraph">
 							Consulta y gestiona usuarios registrados en el sistema. 
 						</p>
 					</section>
-					<section className="sectionGestionsCompanyBody">
-						<section className="filterGestionsCompany">
-							<strong className="tituloFiltrar">Filtrar</strong>
-							<article className="filterOptionsGestionsCompany">
-								<div className="filterOptionName">
-									<label className="labelFilterOption1">Nombre</label>
-									<div className="inputFilterOption1">
+					<section className="gu-section-body">
+						<section className="gu-filter">
+							<strong className="gu-titulo-filtrar">Filtrar</strong>
+							<article className="gu-filter-options">
+								<div className="gu-filter-option-name">
+									<label className="gu-label-filter-option">Nombre</label>
+									<div className="gu-input-filter-option">
 										<input
-											className="inputFilterOptionText"
+											className="gu-input-filter-text"
 											type="text"
 											placeholder="Escriba el nombre del usuario"
 											value={name}
@@ -342,11 +342,11 @@ export const GestionUsuarios = () => {
 										/>
 									</div>
 								</div>
-								<div className="filterOptionName">
-									<label className="labelFilterOption1">Documento</label>
-									<div className="inputFilterOption1">
+								<div className="gu-filter-option-name">
+									<label className="gu-label-filter-option">Documento</label>
+									<div className="gu-input-filter-option">
 										<input
-											className="inputFilterOptionText"
+											className="gu-input-filter-text"
 											type="text"
 											placeholder="Escriba el nombre del usuario"
 											value={document}
@@ -355,28 +355,28 @@ export const GestionUsuarios = () => {
 									</div>
 								</div>
 								<button
-									className="button"
+									className="gu-button"
 									onClick={() => fetchUsuarios()}	
 								>Filtrar</button>
 							</article>
 						</section>
-						<section className="resultTableGestionsCompany">
-							<div className="results-header">
-								<label className="labelFilterOption12">
+						<section className="gu-result-table">
+							<div className="gu-results-header">
+								<label className="gu-label-filter-result">
 									{total} Resultados · Página {page + 1} de {totalPages}
 								</label>
 							</div>
-							<div className="table-container">
+							<div className="gu-table-container">
 								{users.length > 0 ?
-									<table className="companies-table">
+									<table className="gu-companies-table">
 										<thead>
-											<tr className="table-heade">
-												<th className="header-logo">Foto</th>
-												<th className="header-name">Nombre</th>
-												<th className="header-nit">Documento</th>
-												<th className="header-name">Rol</th>
-												<th className="header-category">Estado</th>
-												<th className="header-actions">Acciones</th>
+											<tr className="gu-table-header">
+												<th className="gu-header-logo">Foto</th>
+												<th className="gu-header-name">Nombre</th>
+												<th className="gu-header-nit">Documento</th>
+												<th className="gu-header-name">Rol</th>
+												<th className="gu-header-category">Estado</th>
+												<th className="gu-header-actions">Acciones</th>
 											</tr>
 										</thead>
 										<tbody>
@@ -384,10 +384,10 @@ export const GestionUsuarios = () => {
 										</tbody>
 									</table>
 								:
-									<div className="no-results">No se encontraron usuarios.</div>
+									<div className="gu-no-results">No se encontraron usuarios.</div>
 								}
 							</div>
-							<div className="pagination-container">
+							<div className="gu-pagination-container">
 								<PageMover
 									value={page + 1}
 									max={totalPages}
@@ -403,18 +403,18 @@ export const GestionUsuarios = () => {
 
 						{/* Modal Actualizado */}
 						{selectedUser && formData && (
-							<div className="modal-overlay-usuario">
-								<div className="modal-container-usuario">
-									<div className="modal-header-usuario">
-										<div className="header-content-usuario">
+							<div className="gu-modal-overlay">
+								<div className="gu-modal-container">
+									<div className="gu-modal-header">
+										<div className="gu-header-content">
 											<h2>
-												<FontAwesomeIcon icon={faUser} className="header-icon-usuario" />
+												<FontAwesomeIcon icon={faUser} className="gu-header-icon" />
 												Perfil del Usuario
 											</h2>
 											<button 
 												type="button" 
 												onClick={handleCloseModal}
-												className="close-btn-usuario"
+												className="gu-close-btn"
 											>
 												<FontAwesomeIcon icon={faArrowLeft} />
 												<span>Volver</span>
@@ -422,15 +422,15 @@ export const GestionUsuarios = () => {
 										</div>
 									</div>
 
-									<form className="modal-body-usuario" onSubmit={handleSubmit}>
-										<div className="modal-content-usuario">
+									<form className="gu-modal-body" onSubmit={handleSubmit}>
+										<div className="gu-modal-content">
 											{/* Columna izquierda - Información */}
-											<div className="info-column-usuario">
-												<div className="form-section-usuario">
-													<h3 className="section-title-usuario">Información Personal</h3>
-													<div className="form-grid-usuario">
-														<div className="input-group-usuario">
-															<label className="input-label-usuario">
+											<div className="gu-info-column">
+												<div className="gu-form-section">
+													<h3 className="gu-section-title">Información Personal</h3>
+													<div className="gu-form-grid">
+														<div className="gu-input-group">
+															<label className="gu-input-label">
 																<FontAwesomeIcon icon={faUser} />
 																Nombres
 															</label>
@@ -440,18 +440,18 @@ export const GestionUsuarios = () => {
 																	name="nombres"
 																	value={formData.nombres || ""}
 																	onChange={handleChange}
-																	className="input-field-usuario"
+																	className="gu-input-field"
 																	placeholder="Ingrese los nombres"
 																/>
 															) : (
-																<div className="display-field-usuario">
+																<div className="gu-display-field">
 																	{formData.nombres || "No especificado"}
 																</div>
 															)}
 														</div>
 
-														<div className="input-group-usuario">
-															<label className="input-label-usuario">
+														<div className="gu-input-group">
+															<label className="gu-input-label">
 																<FontAwesomeIcon icon={faUser} />
 																Apellidos
 															</label>
@@ -461,18 +461,18 @@ export const GestionUsuarios = () => {
 																	name="apellidos"
 																	value={formData.apellidos || ""}
 																	onChange={handleChange}
-																	className="input-field-usuario"
+																	className="gu-input-field"
 																	placeholder="Ingrese los apellidos"
 																/>
 															) : (
-																<div className="display-field-usuario">
+																<div className="gu-display-field">
 																	{formData.apellidos || "No especificado"}
 																</div>
 															)}
 														</div>
 
-														<div className="input-group-usuario">
-															<label className="input-label-usuario">
+														<div className="gu-input-group">
+															<label className="gu-input-label">
 																<FontAwesomeIcon icon={faIdCard} />
 																Documento
 															</label>
@@ -482,18 +482,18 @@ export const GestionUsuarios = () => {
 																	name="documento"
 																	value={formData.documento || ""}
 																	onChange={handleChange}
-																	className="input-field-usuario"
+																	className="gu-input-field"
 																	placeholder="Ingrese el documento"
 																/>
 															) : (
-																<div className="display-field-usuario">
+																<div className="gu-display-field">
 																	{formData.documento || "No especificado"}
 																</div>
 															)}
 														</div>
 
-														<div className="input-group-usuario">
-															<label className="input-label-usuario">
+														<div className="gu-input-group">
+															<label className="gu-input-label">
 																<FontAwesomeIcon icon={faPhone} />
 																Celular
 															</label>
@@ -503,18 +503,18 @@ export const GestionUsuarios = () => {
 																	name="celular"
 																	value={formData.celular || ""}
 																	onChange={handleChange}
-																	className="input-field-usuario"
+																	className="gu-input-field"
 																	placeholder="Ingrese el celular"
 																/>
 															) : (
-																<div className="display-field-usuario">
+																<div className="gu-display-field">
 																	{formData.celular || "No especificado"}
 																</div>
 															)}
 														</div>
 
-														<div className="input-group-usuario">
-															<label className="input-label-usuario">
+														<div className="gu-input-group">
+															<label className="gu-input-label">
 																<FontAwesomeIcon icon={faEnvelope} />
 																Email
 															</label>
@@ -524,74 +524,74 @@ export const GestionUsuarios = () => {
 																	name="email"
 																	value={formData.email || ""}
 																	onChange={handleChange}
-																	className="input-field-usuario"
+																	className="gu-input-field"
 																	placeholder="Ingrese el email"
 																/>
 															) : (
-																<div className="display-field-usuario">
+																<div className="gu-display-field">
 																	{formData.email || "No especificado"}
 																</div>
 															)}
 														</div>
 
-														<div className="input-group-usuario">
-															<label className="input-label-usuario">
+														<div className="gu-input-group">
+															<label className="gu-input-label">
 																<FontAwesomeIcon icon={faBuilding} />
 																Empresa
 															</label>
-															<div className="display-field-usuario">
+															<div className="gu-display-field">
 																{selectedUser.Empresa?.nombre_empresa || "No asignada"}
 															</div>
 														</div>
 
-														<div className="input-group-usuario">
-															<label className="input-label-usuario">Estado</label>
+														<div className="gu-input-group">
+															<label className="gu-input-label">Estado</label>
 															{isEditing ? (
-																<div className="status-buttons-usuario">
+																<div className="gu-status-buttons">
 																	{["Activo", "Inactivo"].map((estado) => {
 																		const isSelected = (formData.estado || "").toLowerCase() === estado.toLowerCase();
 																		return (
 																			<button
 																				key={estado}
 																				type="button"
-																				className={`status-btn-usuario ${isSelected ? "active" : ""}`}
+																				className={`gu-status-btn ${isSelected ? "active" : ""}`}
 																				onClick={() => handleEstadoChange(estado)}
 																			>
-																				<span className="status-dot-usuario"></span>
+																				<span className="gu-status-dot"></span>
 																				{estado}
 																			</button>
 																		);
 																	})}
 																</div>
 															) : (
-																<div className={`status-display-usuario ${formData.estado?.toLowerCase()}`}>
-																	<span className="status-dot-usuario"></span>
+																<div className={`gu-status-display ${formData.estado?.toLowerCase()}`}>
+																	<span className="gu-status-dot"></span>
 																	{formData.estado || "No especificado"}
 																</div>
 															)}
 														</div>
 
-														<div className="input-group-usuario">
-															<label className="input-label-usuario">
+														<div className="gu-input-group">
+															<label className="gu-input-label">
 																<FontAwesomeIcon icon={faShield} />
 																Rol
 															</label>
 															{isEditing ? (
-																<div className="status-buttons-usuario">
+																<div className="gu-status-buttons">
 																	{['Aprendiz', 'Instructor', 'Administrador', 'Gestor'].map((rol) => (
 																		<button
 																			key={rol}
 																			type="button"
-																			className={`status-btn-usuario ${formData.accountType === rol ? "active" : ""}`}
+																			className={`gu-status-btn ${formData.accountType === rol ? "active" : ""}`}
 																			onClick={() => handleRolChange(rol)}
 																		>
-																			<span className="status-dot-usuario"></span>
+																			<span className="gu-status-dot"></span>
 																			{rol}
 																		</button>
 																	))}
 																</div>
 															) : (
-																<div className="display-field-usuario">
+																<div className="gu-display-field">
 																	{formData.accountType || "No especificado"}
 																</div>
 															)}
@@ -601,27 +601,27 @@ export const GestionUsuarios = () => {
 											</div>
 
 											{/* Columna derecha - Imagen */}
-											<div className="image-column-usuario">
-												<div className="image-section-usuario">
-													<div className="image-container-usuario">
+											<div className="gu-image-column">
+												<div className="gu-image-section">
+													<div className="gu-image-container">
 														{isEditing ? (
 															<>
 																<input
 																	type="file"
 																	accept="image/*"
 																	onChange={handleImageChange}
-																	id="imageUploadUsuario"
-																	className="file-input-usuario"
+																	id="gu-imageUpload"
+																	className="gu-file-input"
 																/>
 																<label
-																	className="image-upload-usuario editable"
-																	htmlFor="imageUploadUsuario"
+																	className="gu-image-upload editable"
+																	htmlFor="gu-imageUpload"
 																>
 																	{formData.foto_perfil instanceof File ? (
 																		<img
 																			src={URL.createObjectURL(formData.foto_perfil)}
 																			alt="Vista previa"
-																			className="profile-image-usuario"
+																			className="gu-profile-image"
 																			onError={(e) => {
 																				e.target.src = fotoPerfilDefect;
 																			}}
@@ -630,37 +630,37 @@ export const GestionUsuarios = () => {
 																		<img
 																			src={getLogoSrc(formData.foto_perfil)}
 																			alt="Foto de perfil"
-																			className="profile-image-usuario"
+																			className="gu-profile-image"
 																			onError={(e) => {
 																				e.target.src = fotoPerfilDefect;
 																			}}
 																		/>
 																	) : (
-																		<div className="image-placeholder-usuario">
-																			<FontAwesomeIcon icon={faCamera} className="placeholder-icon-usuario" />
+																		<div className="gu-image-placeholder">
+																			<FontAwesomeIcon icon={faCamera} className="gu-placeholder-icon" />
 																			<span>Haz clic para subir imagen</span>
 																		</div>
 																	)}
-																	<div className="upload-overlay-usuario">
+																	<div className="gu-upload-overlay">
 																		<FontAwesomeIcon icon={faCamera} />
 																		<span>Cambiar imagen</span>
 																	</div>
 																</label>
 															</>
 														) : (
-															<div className="image-display-usuario">
+															<div className="gu-image-display">
 																{formData.foto_perfil ? (
 																	<img
 																		src={getLogoSrc(formData.foto_perfil)}
 																		alt="Foto de perfil"
-																		className="profile-image-usuario"
+																		className="gu-profile-image"
 																		onError={(e) => {
 																			e.target.src = fotoPerfilDefect;
 																		}}
 																	/>
 																) : (
-																	<div className="image-placeholder-usuario">
-																		<FontAwesomeIcon icon={faUser} className="placeholder-icon-usuario" />
+																	<div className="gu-image-placeholder">
+																		<FontAwesomeIcon icon={faUser} className="gu-placeholder-icon" />
 																		<span>Sin imagen</span>
 																	</div>
 																)}
@@ -669,13 +669,13 @@ export const GestionUsuarios = () => {
 													</div>
 													
 													{!isEditing && (
-														<div className="image-info-usuario">
+														<div className="gu-image-info">
 															<p>Activa el modo edición para cambiar la imagen</p>
 														</div>
 													)}
 												</div>
 
-												<button type="submit" className="submit-btn-usuario">
+												<button type="submit" className="gu-submit-btn">
 													{isEditing ? (
 														<>
 															<FontAwesomeIcon icon={faUser} />

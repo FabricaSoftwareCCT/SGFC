@@ -133,15 +133,15 @@ export const GestionsGestor = () => {
     <>
       <Header />
       <Main>
-        <div className="gestion-gestores-container">
+        <div className="gg-container">
           {/* Header */}
-          <div className="gestores-header-improved">
-            <div className="header-content-improved">
+          <div className="gg-header">
+            <div className="gg-header-content">
               <h1>Gestión de <span>Gestores</span></h1>
-              <div className="header-stats-improved">
-                <div className="stat-item-improved">
-                  <span className="stat-number">{filteredGestors.length}</span>
-                  <span className="stat-label">
+              <div className="gg-header-stats">
+                <div className="gg-stat-item">
+                  <span className="gg-stat-number">{filteredGestors.length}</span>
+                  <span className="gg-stat-label">
                     {selectedState.activo && !selectedState.inactivo ? 'Activos' : 
                      !selectedState.activo && selectedState.inactivo ? 'Inactivos' : 'Filtrados'}
                   </span>
@@ -151,25 +151,25 @@ export const GestionsGestor = () => {
           </div>
 
           {/* Layout Principal */}
-          <div className="main-content-improved">
+          <div className="gg-main-content">
             {/* Columna Izquierda - Carrusel */}
-            <div className="carousel-section-improved">
-              <div className="carousel-panel-improved">
+            <div className="gg-carousel-section">
+              <div className="gg-carousel-panel">
                 {loading ? (
-                  <div className="loading-state-improved">
-                    <div className="loading-spinner-improved"></div>
+                  <div className="gg-loading-state">
+                    <div className="gg-loading-spinner"></div>
                     <p>Cargando gestores...</p>
                   </div>
                 ) : filteredGestors.length > 0 ? (
-                  <div className="carousel-content-improved">
+                  <div className="gg-carousel-content">
                     {/* Navegación del Carrusel */}
-                    <div className="carousel-navigation">
+                    <div className="gg-carousel-navigation">
                       {filteredGestors.length > 1 && (
                         <>
-                          <button className="carousel-arrow-improved left" onClick={prev}>
+                          <button className="gg-carousel-arrow left" onClick={prev}>
                             ❮
                           </button>
-                          <button className="carousel-arrow-improved right" onClick={next}>
+                          <button className="gg-carousel-arrow right" onClick={next}>
                             ❯
                           </button>
                         </>
@@ -177,29 +177,29 @@ export const GestionsGestor = () => {
                     </div>
 
                     {/* Carrusel de Gestores */}
-                    <div className="carousel-track-improved">
+                    <div className="gg-carousel-track">
                       {visibleGestores.map((gestor, index) => {
                         const isCenter = filteredGestors.length === 1 ? true : 
                                        filteredGestors.length === 2 ? index === 0 : index === 1;
-                        const positionClass = isCenter ? 'card-center-improved' : 'card-side-improved';
+                        const positionClass = isCenter ? 'gg-card-center' : 'gg-card-side';
                         
                         return (
-                          <div className={`gestor-card-improved ${positionClass}`} key={gestor.ID || index}>
-                            <div className="gestor-image-container">
+                          <div className={`gg-gestor-card ${positionClass}`} key={gestor.ID || index}>
+                            <div className="gg-gestor-image-container">
                               <img
                                 src={getImageSrcFromBase64(gestor?.foto_perfil)}
                                 alt={`${gestor.nombres} ${gestor.apellidos}`}
-                                className="gestor-image-improved"
+                                className="gg-gestor-image"
                                 onError={(e) => {
                                   e.target.src = '/default-profile.png';
                                 }}
                               />
-                              <div className={`status-badge ${gestor?.estado?.toLowerCase()}`}>
+                              <div className={`gg-status-badge ${gestor?.estado?.toLowerCase()}`}>
                                 {gestor?.estado}
                               </div>
                             </div>
                             {isCenter && (
-                              <div className="gestor-mini-info">
+                              <div className="gg-gestor-mini-info">
                                 <h4>{gestor.nombres} {gestor.apellidos}</h4>
                                 <p>{gestor.titulo_profesional || 'Gestor'}</p>
                               </div>
@@ -211,28 +211,28 @@ export const GestionsGestor = () => {
 
                     {/* Información Detallada del Gestor Central */}
                     {centerGestor && (
-                      <div className="gestor-info-improved">
-                        <div className="gestor-details-card">
+                      <div className="gg-gestor-info">
+                        <div className="gg-gestor-details-card">
                           <h3>{centerGestor.nombres} {centerGestor.apellidos}</h3>
-                          <p className="gestor-title">{centerGestor.titulo_profesional || 'Gestor'}</p>
+                          <p className="gg-gestor-title">{centerGestor.titulo_profesional || 'Gestor'}</p>
                           
-                          <div className="gestor-contact-info">
-                            <div className="contact-item">
+                          <div className="gg-gestor-contact-info">
+                            <div className="gg-contact-item">
                               <FontAwesomeIcon icon={faIdCard} />
                               <span>Cédula: {centerGestor.documento}</span>
                             </div>
-                            <div className="contact-item">
+                            <div className="gg-contact-item">
                               <FontAwesomeIcon icon={faPhone} />
                               <span>Celular: {centerGestor.celular}</span>
                             </div>
-                            <div className="contact-item">
+                            <div className="gg-contact-item">
                               <FontAwesomeIcon icon={faEnvelope} />
                               <span>Email: {centerGestor.email}</span>
                             </div>
                           </div>
 
                           <button
-                            className="view-profile-btn-improved"
+                            className="gg-view-profile-btn"
                             onClick={() => showModalSeeProfile(centerGestor)}
                           >
                             Ver Perfil Completo
@@ -243,22 +243,22 @@ export const GestionsGestor = () => {
 
                     {/* Indicador de Posición */}
                     {filteredGestors.length > 1 && (
-                      <div className="carousel-indicator-improved">
-                        <span className="current-position">
+                      <div className="gg-carousel-indicator">
+                        <span className="gg-current-position">
                           {current + 1} de {filteredGestors.length}
                         </span>
                       </div>
                     )}
                   </div>
                 ) : (
-                  <div className="no-gestores-improved">
-                    <div className="no-gestores-icon">
+                  <div className="gg-no-gestores">
+                    <div className="gg-no-gestores-icon">
                       <FontAwesomeIcon icon={faFolderOpen} />
                     </div>
                     <h3>No se encontraron gestores</h3>
                     <p>No hay gestores disponibles con los filtros seleccionados</p>
                     <button
-                      className="reset-filters-btn-improved"
+                      className="gg-reset-filters-btn"
                       onClick={() => {
                         setFilter("");
                         setSelectedState({ activo: true, inactivo: true });
@@ -272,83 +272,83 @@ export const GestionsGestor = () => {
             </div>
 
             {/* Columna Derecha - Panel de Control */}
-            <div className="control-panel-improved">
+            <div className="gg-control-panel">
               {/* Filtros y Búsqueda */}
-              <div className="filters-card-improved">
+              <div className="gg-filters-card">
                 <h3>Filtros y Búsqueda</h3>
                 
-                <div className="search-container-improved">
-                  <div className="input-search-improved">
-                    <FontAwesomeIcon icon={faSearch} className="search-icon" />
+                <div className="gg-search-container">
+                  <div className="gg-input-search">
+                    <FontAwesomeIcon icon={faSearch} className="gg-search-icon" />
                     <input
                       type="text"
                       placeholder="Buscar gestor..."
                       value={filter}
                       onChange={handleFilterChange}
-                      className="search-input"
+                      className="gg-search-input"
                     />
                   </div>
                 </div>
 
-                <div className="filters-group">
+                <div className="gg-filters-group">
                   <label>Estado del Gestor</label>
-                  <div className="status-filters-improved">
+                  <div className="gg-status-filters">
                     <button
-                      className={`status-filter-btn ${selectedState.activo ? 'active' : ''}`}
+                      className={`gg-status-filter-btn ${selectedState.activo ? 'active' : ''}`}
                       onClick={() => setSelectedState(prev => ({ ...prev, activo: !prev.activo }))}
                     >
-                      <span className="status-indicator active"></span>
+                      <span className="gg-status-indicator active"></span>
                       Activos
                     </button>
                     <button
-                      className={`status-filter-btn ${selectedState.inactivo ? 'active' : ''}`}
+                      className={`gg-status-filter-btn ${selectedState.inactivo ? 'active' : ''}`}
                       onClick={() => setSelectedState(prev => ({ ...prev, inactivo: !prev.inactivo }))}
                     >
-                      <span className="status-indicator inactive"></span>
+                      <span className="gg-status-indicator inactive"></span>
                       Inactivos
                     </button>
                   </div>
                 </div>
 
-                <button className="create-gestor-btn-improved" onClick={showModalCreateGestor}>
+                <button className="gg-create-gestor-btn" onClick={showModalCreateGestor}>
                   <FontAwesomeIcon icon={faUserPlus} />
                   <span>Agregar Gestor</span>
                 </button>
               </div>
 
               {/* Estadísticas */}
-              <div className="stats-card-improved">
+              <div className="gg-stats-card">
                 <h3>Estadísticas</h3>
-                <div className="stats-grid-improved">
-                  <div className="stat-card-improved">
-                    <div className="stat-icon">
+                <div className="gg-stats-grid">
+                  <div className="gg-stat-card">
+                    <div className="gg-stat-icon">
                       <FontAwesomeIcon icon={faUsers} />
                     </div>
-                    <div className="stat-content">
-                      <span className="stat-value">{gestores.length}</span>
-                      <span className="stat-label">Total Gestores</span>
+                    <div className="gg-stat-content">
+                      <span className="gg-stat-value">{gestores.length}</span>
+                      <span className="gg-stat-label">Total Gestores</span>
                     </div>
                   </div>
-                  <div className="stat-card-improved">
-                    <div className="stat-icon">
+                  <div className="gg-stat-card">
+                    <div className="gg-stat-icon">
                       <FontAwesomeIcon icon={faCheck} />
                     </div>
-                    <div className="stat-content">
-                      <span className="stat-value">
+                    <div className="gg-stat-content">
+                      <span className="gg-stat-value">
                         {gestores.filter(g => g.estado?.toLowerCase() === 'activo').length}
                       </span>
-                      <span className="stat-label">Activos</span>
+                      <span className="gg-stat-label">Activos</span>
                     </div>
                   </div>
-                  <div className="stat-card-improved">
-                    <div className="stat-icon">
+                  <div className="gg-stat-card">
+                    <div className="gg-stat-icon">
                       <FontAwesomeIcon icon={faChartLine} />
                     </div>
-                    <div className="stat-content">
-                      <span className="stat-value">
+                    <div className="gg-stat-content">
+                      <span className="gg-stat-value">
                         {gestores.filter(g => g.estado?.toLowerCase() === 'inactivo').length}
                       </span>
-                      <span className="stat-label">Inactivos</span>
+                      <span className="gg-stat-label">Inactivos</span>
                     </div>
                   </div>
                 </div>

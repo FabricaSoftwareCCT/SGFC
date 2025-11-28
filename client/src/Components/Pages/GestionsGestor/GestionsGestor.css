@@ -1,4 +1,6 @@
-.gestion-gestores-container {
+/* GestionsGestor.css - Clases únicas con prefijo gg- */
+
+.gg-container {
     width: 90%;
     max-width: 1400px;
     margin: 0 auto;
@@ -7,7 +9,7 @@
 }
 
 /* Header */
-.gestores-header-improved {
+.gg-header {
     background: linear-gradient(135deg, rgba(0, 132, 61, 0.15) 0%, rgba(0, 200, 83, 0.1) 100%);
     border: 1px solid rgba(0, 200, 83, 0.3);
     border-radius: 20px;
@@ -17,31 +19,31 @@
     box-shadow: 0 8px 32px rgba(0, 132, 61, 0.1);
 }
 
-.header-content-improved {
+.gg-header-content {
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 2rem;
 }
 
-.header-content-improved h1 {
+.gg-header-content h1 {
     color: #fff;
     font-size: 2.2rem;
     font-weight: 300;
     margin: 0;
 }
 
-.header-content-improved h1 span {
+.gg-header-content h1 span {
     color: #00c853;
     font-weight: 500;
 }
 
-.header-stats-improved {
+.gg-header-stats {
     display: flex;
     align-items: center;
 }
 
-.stat-item-improved {
+.gg-stat-item {
     text-align: center;
     padding: 0.8rem 1.2rem;
     background: rgba(255, 255, 255, 0.08);
@@ -50,7 +52,7 @@
     backdrop-filter: blur(10px);
 }
 
-.stat-number {
+.gg-stat-number {
     display: block;
     font-size: 1.5rem;
     font-weight: 700;
@@ -58,7 +60,7 @@
     margin-bottom: 0.2rem;
 }
 
-.stat-label {
+.gg-stat-label {
     font-size: 0.8rem;
     color: rgba(255, 255, 255, 0.8);
     text-transform: uppercase;
@@ -66,7 +68,7 @@
 }
 
 /* Layout Principal */
-.main-content-improved {
+.gg-main-content {
     display: grid;
     grid-template-columns: 1fr 380px;
     gap: 2rem;
@@ -74,12 +76,12 @@
 }
 
 /* Sección del Carrusel */
-.carousel-section-improved {
+.gg-carousel-section {
     display: flex;
     flex-direction: column;
 }
 
-.carousel-panel-improved {
+.gg-carousel-panel {
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 20px;
@@ -91,7 +93,7 @@
     justify-content: center;
 }
 
-.carousel-content-improved {
+.gg-carousel-content {
     width: 100%;
     display: flex;
     flex-direction: column;
@@ -100,7 +102,7 @@
 }
 
 /* Navegación del Carrusel */
-.carousel-navigation {
+.gg-carousel-navigation {
     position: relative;
     display: flex;
     justify-content: space-between;
@@ -109,7 +111,7 @@
     height: 0px;
 }
 
-.carousel-arrow-improved {
+.gg-carousel-arrow {
     background: rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 50%;
@@ -128,7 +130,7 @@
     top: 200px;
 }
 
-.carousel-arrow-improved:hover {
+.gg-carousel-arrow:hover {
     background: rgba(0, 200, 83, 0.2);
     border-color: #00c853;
     color: #00c853;
@@ -136,7 +138,7 @@
 }
 
 /* Carrusel de Gestores */
-.carousel-track-improved {
+.gg-carousel-track {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -146,7 +148,7 @@
     margin: 0;
 }
 
-.gestor-card-improved {
+.gg-gestor-card {
     transition: all 0.4s ease;
     display: flex;
     flex-direction: column;
@@ -154,18 +156,18 @@
     gap: 0.8rem;
 }
 
-.card-center-improved {
+.gg-card-center {
     transform: scale(1.15);
     z-index: 3;
 }
 
-.card-side-improved {
+.gg-card-side {
     transform: scale(0.8);
     opacity: 0.6;
     filter: blur(2px);
 }
 
-.gestor-image-container {
+.gg-gestor-image-container {
     position: relative;
     width: 180px;
     height: 220px;
@@ -176,23 +178,23 @@
     transition: all 0.3s ease;
 }
 
-.card-center-improved .gestor-image-container {
+.gg-card-center .gg-gestor-image-container {
     border-color: #00c853;
     box-shadow: 0 8px 32px rgba(0, 200, 83, 0.3);
 }
 
-.gestor-image-improved {
+.gg-gestor-image {
     width: 100%;
     height: 100%;
     object-fit: cover;
     transition: transform 0.3s ease;
 }
 
-.gestor-card-improved:hover .gestor-image-improved {
+.gg-gestor-card:hover .gg-gestor-image {
     transform: scale(1.05);
 }
 
-.status-badge {
+.gg-status-badge {
     position: absolute;
     top: 10px;
     right: 10px;
@@ -204,24 +206,24 @@
     border: 1px solid;
 }
 
-.status-badge.activo {
+.gg-status-badge.activo {
     background: rgba(0, 200, 83, 0.2);
     color: #00c853;
     border-color: rgba(0, 200, 83, 0.4);
 }
 
-.status-badge.inactivo {
+.gg-status-badge.inactivo {
     background: rgba(255, 107, 107, 0.2);
     color: #ff6b6b;
     border-color: rgba(255, 107, 107, 0.4);
 }
 
-.gestor-mini-info {
+.gg-gestor-mini-info {
     text-align: center;
     max-width: 180px;
 }
 
-.gestor-mini-info h4 {
+.gg-gestor-mini-info h4 {
     color: #fff;
     font-size: 0.95rem;
     margin-bottom: 0.2rem;
@@ -229,18 +231,18 @@
     line-height: 1.2;
 }
 
-.gestor-mini-info p {
+.gg-gestor-mini-info p {
     color: rgba(255, 255, 255, 0.7);
     font-size: 0.8rem;
     line-height: 1.2;
 }
 
 /* Información del Gestor Central */
-.gestor-info-improved {
+.gg-gestor-info {
     margin-top: 0.5rem;
 }
 
-.gestor-details-card {
+.gg-gestor-details-card {
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 15px;
@@ -249,7 +251,7 @@
     text-align: center;
 }
 
-.gestor-details-card h3 {
+.gg-gestor-details-card h3 {
     color: #fff;
     font-size: 1.3rem;
     font-weight: 600;
@@ -257,7 +259,7 @@
     line-height: 1.2;
 }
 
-.gestor-title {
+.gg-gestor-title {
     color: #00c853;
     font-size: 1rem;
     font-weight: 500;
@@ -265,14 +267,14 @@
     line-height: 1.2;
 }
 
-.gestor-contact-info {
+.gg-gestor-contact-info {
     display: flex;
     flex-direction: column;
     gap: 0.6rem;
     margin-bottom: 1.5rem;
 }
 
-.contact-item {
+.gg-contact-item {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -282,12 +284,12 @@
     line-height: 1.2;
 }
 
-.contact-item svg {
+.gg-contact-item svg {
     color: #00c853;
     width: 14px;
 }
 
-.view-profile-btn-improved {
+.gg-view-profile-btn {
     background: #00c853;
     border: none;
     border-radius: 25px;
@@ -299,18 +301,18 @@
     font-size: 0.85rem;
 }
 
-.view-profile-btn-improved:hover {
+.gg-view-profile-btn:hover {
     background: #00e676;
     transform: translateY(-2px);
     box-shadow: 0 4px 15px rgba(0, 200, 83, 0.3);
 }
 
-.carousel-indicator-improved {
+.gg-carousel-indicator {
     text-align: center;
     margin-top: 0.5rem;
 }
 
-.current-position {
+.gg-current-position {
     color: rgba(255, 255, 255, 0.7);
     font-size: 0.85rem;
     font-weight: 500;
@@ -321,7 +323,7 @@
 }
 
 /* Panel de Control Derecho */
-.control-panel-improved {
+.gg-control-panel {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
@@ -329,7 +331,7 @@
     top: 2rem;
 }
 
-.filters-card-improved {
+.gg-filters-card {
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 15px;
@@ -337,7 +339,7 @@
     backdrop-filter: blur(10px);
 }
 
-.stats-card-improved {
+.gg-stats-card {
     display: flex;
     flex-direction: column;
     height: 350px;
@@ -348,8 +350,8 @@
     backdrop-filter: blur(10px);
 }
 
-.filters-card-improved h3,
-.stats-card-improved h3 {
+.gg-filters-card h3,
+.gg-stats-card h3 {
     color: #fff;
     font-size: 1.2rem;
     font-weight: 600;
@@ -358,11 +360,11 @@
 }
 
 /* Búsqueda */
-.search-container-improved {
+.gg-search-container {
     margin-bottom: 1.2rem;
 }
 
-.input-search-improved {
+.gg-input-search {
     position: relative;
     display: flex;
     align-items: center;
@@ -373,18 +375,18 @@
     transition: all 0.3s ease;
 }
 
-.input-search-improved:focus-within {
+.gg-input-search:focus-within {
     border-color: rgba(0, 200, 83, 0.3);
     background: rgba(255, 255, 255, 0.08);
 }
 
-.search-icon {
+.gg-search-icon {
     color: rgba(255, 255, 255, 0.6);
     margin-right: 0.8rem;
     font-size: 1rem;
 }
 
-.search-input {
+.gg-search-input {
     flex: 1;
     background: transparent;
     border: none;
@@ -393,16 +395,16 @@
     outline: none;
 }
 
-.search-input::placeholder {
+.gg-search-input::placeholder {
     color: rgba(255, 255, 255, 0.5);
 }
 
 /* Filtros de Estado */
-.filters-group {
+.gg-filters-group {
     margin-bottom: 1.5rem;
 }
 
-.filters-group label {
+.gg-filters-group label {
     display: block;
     color: rgba(255, 255, 255, 0.8);
     font-size: 0.9rem;
@@ -411,13 +413,13 @@
     text-align: center;
 }
 
-.status-filters-improved {
+.gg-status-filters {
     display: flex;
     gap: 0.8rem;
     justify-content: center;
 }
 
-.status-filter-btn {
+.gg-status-filter-btn {
     padding: 0.7rem 1rem;
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.1);
@@ -434,33 +436,33 @@
     justify-content: center;
 }
 
-.status-filter-btn:hover {
+.gg-status-filter-btn:hover {
     background: rgba(0, 200, 83, 0.1);
     border-color: rgba(0, 200, 83, 0.3);
 }
 
-.status-filter-btn.active {
+.gg-status-filter-btn.active {
     background: rgba(0, 200, 83, 0.2);
     border-color: #00c853;
     color: #00c853;
     font-weight: 600;
 }
 
-.status-indicator {
+.gg-status-indicator {
     width: 8px;
     height: 8px;
     border-radius: 50%;
 }
 
-.status-indicator.active {
+.gg-status-indicator.active {
     background: #00c853;
 }
 
-.status-indicator.inactive {
+.gg-status-indicator.inactive {
     background: #ff6b6b;
 }
 
-.create-gestor-btn-improved {
+.gg-create-gestor-btn {
     margin-top: 11%;
     width: 100%;
     background: #00c853;
@@ -479,21 +481,21 @@
     margin-top: 0.5rem;
 }
 
-.create-gestor-btn-improved:hover {
+.gg-create-gestor-btn:hover {
     background: #00e676;
     transform: translateY(-2px);
     box-shadow: 0 4px 15px rgba(0, 200, 83, 0.3);
 }
 
 /* Estadísticas */
-.stats-grid-improved {
+.gg-stats-grid {
     display: flex !important;
     flex-direction: column;
     gap: 0.8rem;
     align-items: center;
 }
 
-.stat-card-improved {
+.gg-stat-card {
     display: flex;
     align-items: center;
     gap: 0.8rem;
@@ -507,12 +509,12 @@
     box-sizing: border-box;
 }
 
-.stat-card-improved:hover {
+.gg-stat-card:hover {
     background: rgba(255, 255, 255, 0.08);
     transform: translateY(-1px);
 }
 
-.stat-icon {
+.gg-stat-icon {
     font-size: 1.2rem;
     width: 36px;
     height: 36px;
@@ -525,7 +527,7 @@
     flex-shrink: 0;
 }
 
-.stat-content {
+.gg-stat-content {
     display: flex;
     flex-direction: column;
     flex: 1;
@@ -533,7 +535,7 @@
     text-align: center;
 }
 
-.stat-value {
+.gg-stat-value {
     color: #fff;
     font-size: 1.3rem;
     font-weight: 700;
@@ -542,7 +544,7 @@
     word-break: keep-all;
 }
 
-.stat-label {
+.gg-stat-label {
     font-size: 0.7rem;
     color: rgba(255, 255, 255, 0.7);
     text-transform: uppercase;
@@ -555,7 +557,7 @@
 }
 
 /* Estados */
-.loading-state-improved {
+.gg-loading-state {
     text-align: center;
     padding: 2rem;
     background: rgba(255, 255, 255, 0.03);
@@ -564,27 +566,27 @@
     backdrop-filter: blur(10px);
 }
 
-.loading-spinner-improved {
+.gg-loading-spinner {
     width: 40px;
     height: 40px;
     border: 3px solid rgba(255, 255, 255, 0.1);
     border-top: 3px solid #00c853;
     border-radius: 50%;
-    animation: spin 1s linear infinite;
+    animation: gg-spin 1s linear infinite;
     margin: 0 auto 1rem;
 }
 
-@keyframes spin {
+@keyframes gg-spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
 
-.loading-state-improved p {
+.gg-loading-state p {
     color: rgba(255, 255, 255, 0.8);
     font-size: 1rem;
 }
 
-.no-gestores-improved {
+.gg-no-gestores {
     text-align: center;
     padding: 2rem;
     background: rgba(255, 255, 255, 0.03);
@@ -593,26 +595,26 @@
     backdrop-filter: blur(10px);
 }
 
-.no-gestores-icon {
+.gg-no-gestores-icon {
     font-size: 2.5rem;
     margin-bottom: 1rem;
     opacity: 0.7;
     color: #00c853;
 }
 
-.no-gestores-improved h3 {
+.gg-no-gestores h3 {
     color: #fff;
     font-size: 1.2rem;
     margin-bottom: 0.5rem;
 }
 
-.no-gestores-improved p {
+.gg-no-gestores p {
     color: rgba(255, 255, 255, 0.7);
     font-size: 0.9rem;
     margin-bottom: 1.5rem;
 }
 
-.reset-filters-btn-improved {
+.gg-reset-filters-btn {
     background: rgba(0, 200, 83, 0.1);
     border: 1px solid rgba(0, 200, 83, 0.3);
     color: #00c853;
@@ -624,164 +626,164 @@
     font-size: 0.85rem;
 }
 
-.reset-filters-btn-improved:hover {
+.gg-reset-filters-btn:hover {
     background: rgba(0, 200, 83, 0.2);
     transform: translateY(-2px);
 }
 
 /* Responsive */
 @media (max-width: 1200px) {
-    .main-content-improved {
+    .gg-main-content {
         grid-template-columns: 1fr;
         gap: 2rem;
     }
     
-    .control-panel-improved {
+    .gg-control-panel {
         position: static;
         order: -1;
     }
     
-    .carousel-track-improved {
+    .gg-carousel-track {
         height: 220px;
     }
     
-    .gestor-image-container {
+    .gg-gestor-image-container {
         width: 160px;
         height: 200px;
     }
     
-    .stats-grid-improved {
+    .gg-stats-grid {
         align-items: stretch;
     }
     
-    .stat-card-improved {
+    .gg-stat-card {
         max-width: none;
     }
 }
 
 @media (max-width: 768px) {
-    .gestion-gestores-container {
+    .gg-container {
         width: 95%;
         padding: 1rem;
     }
     
-    .gestores-header-improved {
+    .gg-header {
         padding: 1.2rem;
     }
     
-    .header-content-improved {
+    .gg-header-content {
         flex-direction: column;
         gap: 1rem;
         text-align: center;
     }
     
-    .header-content-improved h1 {
+    .gg-header-content h1 {
         font-size: 1.8rem;
     }
     
-    .carousel-panel-improved {
+    .gg-carousel-panel {
         min-height: 480px;
         padding: 1rem;
     }
     
-    .carousel-track-improved {
+    .gg-carousel-track {
         height: 190px;
         gap: 1rem;
     }
     
-    .gestor-image-container {
+    .gg-gestor-image-container {
         width: 130px;
         height: 160px;
     }
     
-    .carousel-arrow-improved {
+    .gg-carousel-arrow {
         width: 40px;
         height: 40px;
         font-size: 1rem;
     }
     
-    .gestor-details-card h3 {
+    .gg-gestor-details-card h3 {
         font-size: 1.2rem;
     }
     
-    .gestor-details-card {
+    .gg-gestor-details-card {
         padding: 1.2rem;
     }
     
-    .filters-card-improved,
-    .stats-card-improved {
+    .gg-filters-card,
+    .gg-stats-card {
         padding: 1.2rem;
     }
     
-    .status-filters-improved {
+    .gg-status-filters {
         flex-direction: column;
         align-items: center;
     }
     
-    .status-filter-btn {
+    .gg-status-filter-btn {
         width: 100%;
         max-width: 200px;
     }
     
-    .stat-card-improved {
+    .gg-stat-card {
         padding: 0.8rem;
         max-width: none;
     }
     
-    .stat-value {
+    .gg-stat-value {
         font-size: 1.2rem;
     }
     
-    .stat-label {
+    .gg-stat-label {
         font-size: 0.65rem;
     }
 }
 
 @media (max-width: 480px) {
-    .gestion-gestores-container {
+    .gg-container {
         padding: 0.8rem;
     }
     
-    .header-content-improved h1 {
+    .gg-header-content h1 {
         font-size: 1.5rem;
     }
     
-    .carousel-panel-improved {
+    .gg-carousel-panel {
         min-height: 450px;
     }
     
-    .carousel-track-improved {
+    .gg-carousel-track {
         height: 170px;
     }
     
-    .gestor-image-container {
+    .gg-gestor-image-container {
         width: 110px;
         height: 140px;
     }
     
-    .gestor-contact-info {
+    .gg-gestor-contact-info {
         font-size: 0.8rem;
     }
     
-    .contact-item {
+    .gg-contact-item {
         flex-direction: column;
         gap: 0.3rem;
     }
     
-    .stat-card-improved {
+    .gg-stat-card {
         padding: 0.7rem;
     }
     
-    .stat-value {
+    .gg-stat-value {
         font-size: 1.1rem;
     }
     
-    .stat-label {
+    .gg-stat-label {
         font-size: 0.6rem;
         letter-spacing: 0.3px;
     }
     
-    .stat-icon {
+    .gg-stat-icon {
         width: 32px;
         height: 32px;
         font-size: 1rem;

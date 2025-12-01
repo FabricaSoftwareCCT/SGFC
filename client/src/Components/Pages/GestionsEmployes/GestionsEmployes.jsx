@@ -1,5 +1,5 @@
 "use client"
-import { useNavigate } from "react-router-dom" // ✅ Agregar esta importación
+import { useNavigate } from "react-router-dom"
 import { useState, useEffect, useRef } from "react"
 import "./GestionsEmployes.css"
 import { Header } from "../../Layouts/Header/Header"
@@ -14,6 +14,8 @@ import { getEmployeebyCompany } from "../../API/ApiEmpresa"
 import { ReportEmployee } from "./ReportEmployee/ReportEmployee"
 import { generarExcelEmpleado } from "../../../utils/Reports/Empleados"
 import html2pdf from "html2pdf.js"
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faUserPlus, faChartLine, faCheck, faUsers, faSearch, faFolderOpen, faIdCard, faPhone, faEnvelope, faBuilding, faFileAlt, faFilter, faDownload } from '@fortawesome/free-solid-svg-icons'
 
 export const GestionsEmployes = () => {
 	const [employes, setEmployes] = useState([])
@@ -22,6 +24,7 @@ export const GestionsEmployes = () => {
 	const [current, setCurrent] = useState(0)
 	const [selectedState, setSelectedState] = useState("todos")
 	const [selectedEmploye, setSelectedEmploye] = useState(null)
+	const [showUpdateModal, setShowUpdateModal] = useState(false)
 
 	const [empresas, setEmpresas] = useState([])
 	const [selectedEmpresa, setSelectedEmpresa] = useState("")
@@ -105,8 +108,8 @@ export const GestionsEmployes = () => {
 				title:"Error en el sistema",
 				text:"Hubo un problema al cargar los empleados. Por favor, inténtalo más tarde.",
 				confirmButtonText:"Okay",
-											theme:"bulma",
-			customClass: { confirmButton: 'centered-swal-button' }
+				theme:"bulma",
+				customClass: { confirmButton: 'centered-swal-button' }
 			})
 		} finally {
 			setLoading(false)
@@ -132,7 +135,6 @@ export const GestionsEmployes = () => {
 			console.log(filteredEmployes)
 		}
 		
-		// Exponer función para refrescar desde otros componentes
 		window.refreshEmployesList = () => {
 			if (isAdmin) {
 				fetchEmployes(currentPage)
@@ -141,12 +143,10 @@ export const GestionsEmployes = () => {
 			}
 		}
 		
-		// Exponer función para actualizar empleado específico
 		window.updateSelectedEmploye = (updatedEmploye) => {
 			setSelectedEmploye(updatedEmploye)
 		}
 		
-		// Cleanup
 		return () => {
 			delete window.refreshEmployesList
 			delete window.updateSelectedEmploye
@@ -254,12 +254,12 @@ const fetchEmployebyCompany = async (value) => {
 
 	const showModalSeeProfile = (employe) => {
 		setSelectedEmploye(employe)
-		setTimeout(() => {
-			const modalSeeProfile = document.getElementById("modal-overlayUpdateEmploye")
-		if (modalSeeProfile) {
-				modalSeeProfile.style.display = "flex"
-			}
-		}, 100)
+		setShowUpdateModal(true)
+	}
+
+	const handleCloseUpdateModal = () => {
+		setShowUpdateModal(false)
+		setSelectedEmploye(null)
 	}
 
 	const handleInscribeEmployes = () => {
@@ -267,43 +267,33 @@ const fetchEmployebyCompany = async (value) => {
 	}
 
 	const getImageSrcFromBase64 = (imageData) => {
-		
-		// Si no hay datos de imagen, usar imagen por defecto
 		if (!imageData) {
 			return "/src/assets/Icons/userDefect.png"
 		}
 		
-		// Si es base64
 		if (typeof imageData === 'string') {
-			// Verificar si ya es una URL de datos completa
 			if (imageData.startsWith("data:")) {
-				return imageData // Ya es una URL de datos
+				return imageData
 			}
 			
-			// Verificar si es PNG base64
 			if (imageData.startsWith("iVBORw0KGgo") || imageData.startsWith("iVBOR")) {
 				return `data:image/png;base64,${imageData}`
 			}
 			
-			// Verificar si es JPEG base64
 			if (imageData.startsWith("/9j/")) {
 				return `data:image/jpeg;base64,${imageData}`
 			}
 			
-			// Verificar si es una cadena muy larga (probablemente base64)
 			if (imageData.length > 1000) {
 				return `data:image/jpeg;base64,${imageData}`
 			}
 			
-			// Verificar si contiene caracteres base64 válidos
 			const base64Regex = /^[A-Za-z0-9+/=]+$/
 			if (imageData.length > 50 && base64Regex.test(imageData)) {
 				return `data:image/jpeg;base64,${imageData}`
 			}
 			
-			// Si es una ruta de archivo (empieza con ../ o /) - solo después de verificar base64
 			if (imageData.startsWith('../') || imageData.startsWith('/')) {
-				// Convertir ruta relativa a ruta absoluta
 				if (imageData.startsWith('../Img/')) {
 					const newPath = imageData.replace('../Img/', '/src/assets/Icons/')
 					return newPath
@@ -351,171 +341,138 @@ const fetchEmployebyCompany = async (value) => {
 		<>
 			<Header />
 			<Main>
-				<div className="container_GestionsEmploye">
-					<h2>
-						{isAdmin ? "Gestión de " : "Mis "}
-						<span className="complementary">Empleados</span>
-					</h2>
-
-					<div className="containerGestionsEmployeOptions">
-						<div className="containerConsultEmploye">
-							<p>Filtrar por:</p>
-							<div className="containerFiltersEmploye">
-								<label htmlFor="inputNameCC">Nombre, Documento o Email</label>
-								<div className="inputSearchContainer">
-									<input
-										type="text"
-										id="inputNameCC"
-										placeholder="Escriba nombre, documento o email"
-										value={filter}
-										onChange={handleFilterChange}
-									/>
+				<div className="gestion-employees-container">
+					<div className="employees-header-improved">
+						<div className="header-content-improved">
+							<h1>
+								{isAdmin ? "Gestión de " : "Mis "}
+								<span className="complementary">Empleados</span>
+							</h1>
+							<div className="header-stats-improved">
+								<div className="stat-card-header">
+									<div className="stat-icon">
+										<FontAwesomeIcon icon={faUsers} />
+									</div>
+									<div className="stat-content">
+										<span className="stat-value">{isAdmin ? totalItems : employes.length}</span>
+										<span className="stat-label">Total Empleados</span>
+									</div>
 								</div>
-								
-								{isAdmin && (
-									<>
-										<label htmlFor="selectEmpresa">Empresa</label>
-										<select
-											id="selectEmpresa"
-											value={selectedEmpresa}
-											onChange={handleEmpresaChange}
-											className="filter-select"
-										>
-											<option value="">Todas las empresas</option>
-											{empresas.map((empresa) => (
-												<option key={empresa.ID} value={empresa.ID}>
-													{empresa.nombre_empresa} - {empresa.NIT}
-												</option>
-											))}
-										</select>
-
-										<label htmlFor="selectTipoDocumento">Tipo de Documento</label>
-										<select
-											id="selectTipoDocumento"
-											value={selectedTipoDocumento}
-											onChange={handleTipoDocumentoChange}
-											className="filter-select"
-										>
-											<option value="">Todos los tipos</option>
-											<option value="CedulaCiudadania">Cédula de Ciudadanía</option>
-											<option value="TarjetaIdentidad">Tarjeta de Identidad</option>
-											<option value="PPT">Pasaporte</option>
-											<option value="CedulaExtranjeria">Cédula de Extranjería</option>
-										</select>
-									</>
-								)}
-
-								<label>Estado</label>
-								<section className="sectionStatusFilter">
-									{["Todos", "Activo", "Inactivo"].map((op) => (
-										<p
-											key={op}
-											className={`statusOption ${selectedState === op.toLowerCase() ? "selected" : ""}`}
-											onClick={() => setSelectedState(op.toLowerCase())}
-										>
-											{op}
-										</p>
-									))}
-								</section>
+								<div className="stat-card-header">
+									<div className="stat-icon">
+										<FontAwesomeIcon icon={faCheck} />
+									</div>
+									<div className="stat-content">
+										<span className="stat-value">
+											{employes.filter(e => e.estado?.toLowerCase() === 'activo').length}
+										</span>
+										<span className="stat-label">Activos</span>
+									</div>
+								</div>
+								<div className="stat-card-header">
+									<div className="stat-icon">
+										<FontAwesomeIcon icon={faBuilding} />
+									</div>
+									<div className="stat-content">
+										<span className="stat-value">
+											{isAdmin ? new Set(employes.map(e => e.empresa_ID)).size : 1}
+										</span>
+										<span className="stat-label">Empresas</span>
+									</div>
+								</div>
 							</div>
-							<button className="btn_createEmploye" onClick={showModalCreateEmploye}>
-								Agregar Empleado
-							</button>
-							<button 
-									className="btn_inscribirEmpleados" 
-									onClick={handleInscribeEmployes}
-								>
-									Inscribir empleados a cursos
-								</button>
 						</div>
+					</div>
 
-						<div className="containerGestionsEmployeResults">
+					<div className="main-content-improved">
+						<div className="main-employees-section">
 							{loading ? (
-								<div className="loading-container">
+								<div className="loading-state-improved">
+									<div className="loading-spinner-improved"></div>
 									<p>Cargando empleados...</p>
 								</div>
 							) : isAdmin ? (
-									<div className="admin-employees-table">
-									<div className="table-header">
-										<h3>Empleados ({totalItems})</h3>
+								<div className="admin-results-improved">
+									<div className="results-header-improved">
+										<h3>Lista de Empleados</h3>
+										<span className="results-count">{totalItems} resultados</span>
 									</div>
 
 									{filteredEmployes.length === 0 ? (
-										<p className="no-results">No hay empleados que coincidan con los filtros</p>
+										<div className="no-results-improved">
+											<div className="no-results-icon">
+												<FontAwesomeIcon icon={faFolderOpen} />
+											</div>
+											<h3>No se encontraron empleados</h3>
+											<p>No hay empleados disponibles con los filtros seleccionados</p>
+										</div>
 									) : (
 										<>
-											<div className="employees-grid">
-												{filteredEmployes.map((employe) => {
-													return (
-														<div key={employe.ID} className="employee-card">
-															{/* Sección 1: Imagen */}
-															<div className="employee-image-section1">
-																<img
-																	src={getImageSrcFromBase64(employe?.foto_perfil)}
-																	alt={`${employe.nombres || 'Sin nombre'} ${employe.apellidos || 'Sin apellido'}`}
-																	className="employee-image"
-																	onError={(e) => {   
-																		e.target.src = "/src/assets/Icons/userDefect.png";
-																	}}
-																/>
-															</div>
-															
-															{/* Sección 2: Datos principales */}
-															<div className="employee-primary-info">
-																<h4>
-																	{employe.nombres || "Sin nombre"} {employe.apellidos || "Sin apellido"}
-																</h4>
-																<p>
-																	<strong>Documento:</strong> {employe.documento || "N/A"}
-																</p>
-															</div>
-															
-															{/* Sección 3: Datos secundarios */}
-															<div className="employee-secondary-info">
-																<p>
-																	<strong>Email:</strong> {employe.email || "N/A"}
-																</p>
-																<p>
-																	<strong>Empresa:</strong> {employe.Empresa?.nombre_empresa || "Sin empresa"}
-																</p>
-															</div>
-															
-															{/* Sección 4: Estado y botón */}
-															<div className="employee-status-section">
-																<div className="estado-wrapper">
-																	<strong>Estado:</strong>
-																	<span className={`status-badge ${employe.estado || "inactivo"}`}>
-																		{employe.estado || "Inactivo"}
-																	</span>
-																</div>
-																<button 
-																	className="profile-btn" 
-																	onClick={() => showModalSeeProfile(employe)}
-																>
-																	Ver / Editar
-																</button>
+											<div className="employees-grid-improved">
+												{filteredEmployes.map((employe) => (
+													<div key={employe.ID} className="employee-card-improved">
+														<div className="employee-image-section-improved">
+															<img
+																src={getImageSrcFromBase64(employe?.foto_perfil)}
+																alt={`${employe.nombres || 'Sin nombre'} ${employe.apellidos || 'Sin apellido'}`}
+																className="employee-image-improved"
+																onError={(e) => {   
+																	e.target.src = "/src/assets/Icons/userDefect.png";
+																}}
+															/>
+															<div className={`status-badge-improved ${employe.estado?.toLowerCase() || 'inactivo'}`}>
+																{employe.estado || 'Inactivo'}
 															</div>
 														</div>
-													);
-												})}
+														
+														<div className="employee-info-improved">
+															<h4>{employe.nombres || "Sin nombre"} {employe.apellidos || "Sin apellido"}</h4>
+															<div className="employee-details-improved">
+																<div className="detail-item">
+																	<FontAwesomeIcon icon={faIdCard} />
+																	<span>{employe.documento || "N/A"}</span>
+																</div>
+																<div className="detail-item">
+																	<FontAwesomeIcon icon={faEnvelope} />
+																	<span>{employe.email || "N/A"}</span>
+																</div>
+																{isAdmin && (
+																	<div className="detail-item">
+																		<FontAwesomeIcon icon={faBuilding} />
+																		<span>{employe.Empresa?.nombre_empresa || "Sin empresa"}</span>
+																	</div>
+																)}
+															</div>
+														</div>
+														
+														<button 
+															className="profile-btn-improved" 
+															onClick={() => showModalSeeProfile(employe)}
+														>
+															Ver / Editar
+														</button>
+													</div>
+												))}
 											</div>
 
 											{totalPages > 1 && (
-												<div className="pagination-container">
+												<div className="pagination-improved">
 													<button 
-														className="btn-inline" 
+														className="pagination-btn" 
 														disabled={currentPage === 1} 
 														onClick={() => handlePageChange(currentPage - 1)}
 													>
-														Anterior
+														❮ Anterior
 													</button>
-													<span className="pagination-info">{currentPage} / {totalPages}</span>
+													<span className="pagination-info">
+														Página {currentPage} de {totalPages}
+													</span>
 													<button 
-														className="btn-inline" 
+														className="pagination-btn" 
 														disabled={currentPage === totalPages} 
 														onClick={() => handlePageChange(currentPage + 1)}
 													>
-														Siguiente
+														Siguiente ❯
 													</button>
 												</div>
 											)}
@@ -523,98 +480,240 @@ const fetchEmployebyCompany = async (value) => {
 									)}
 								</div>
 							) : (
-								<>
-							{filteredEmployes.length > 1 && (
-								<button className="arrow-results left" onClick={prev}>
-									❮
-								</button>
-							)}
-
-							<div className="carousel-container_2-results">
-								<div className="carousel-track-results">
-									{filteredEmployes.length === 0 ? (
-										<p className="no-results">No hay resultados</p>
-									) : filteredEmployes.length === 1 ? (
-										<div className="carousel-card-results card-center">
-											<img
-												src={getImageSrcFromBase64(filteredEmployes[0]?.foto_perfil)}
-												alt="Employe"
-												className="carousel-image-results"
-														onError={(e) => (e.target.src = "/src/assets/Icons/userDefect.png")}
-											/>
-										</div>
-									) : filteredEmployes.length === 2 ? (
-										[0].map((offset) => {
-													const index = (current + offset) % filteredEmployes.length
-													const employe = filteredEmployes[index]
-											return (
-												<div className="carousel-card-results card-center" key={index}>
-													<img
-																src={getImageSrcFromBase64(employe?.foto_perfil)}
-														alt="Employe"
-														className="carousel-image-results"
-																onError={(e) => (e.target.src = "/src/assets/Icons/userDefect.png")}
-													/>
+								<div className="carousel-section-improved">
+									<div className="carousel-panel-improved">
+										{filteredEmployes.length === 0 ? (
+											<div className="no-employees-improved">
+												<div className="no-employees-icon">
+													<FontAwesomeIcon icon={faFolderOpen} />
 												</div>
-													)
-										})
-									) : (
-										[0, 1, 2].map((offset) => {
-													const index = (current + offset) % filteredEmployes.length
-													const employe = filteredEmployes[index]
-													const positionClass = offset === 1 ? "card-center" : "card-side"
-											return (
-												<div className={`carousel-card-results ${positionClass}`} key={index}>
-													<img
-																src={getImageSrcFromBase64(employe?.foto_perfil)}
-														alt="Employe"
-														className="carousel-image-results"
-																onError={(e) => (e.target.src = "/src/assets/Icons/userDefect.png")}
-													/>
-												</div>
-													)
-										})
-									)}
-								</div>
+												<h3>No se encontraron empleados</h3>
+												<p>No hay empleados disponibles con los filtros seleccionados</p>
+											</div>
+										) : (
+											<div className="carousel-content-improved">
+												{filteredEmployes.length > 1 && (
+													<div className="carousel-navigation">
+														<button className="carousel-arrow-improved left" onClick={prev}>
+															❮
+														</button>
+														<button className="carousel-arrow-improved right" onClick={next}>
+															❯
+														</button>
+													</div>
+												)}
 
-								{filteredEmployes.length > 0 && (
-									<div className="instructor-info">
-										<h3>
-											{filteredEmployes[(current + 1) % filteredEmployes.length]?.nombres}{" "}
-											{filteredEmployes[(current + 1) % filteredEmployes.length]?.apellidos}
-													{` (${filteredEmployes.length})`}
-										</h3>
-												{/*<p>{filteredEmployes[(current + 1) % filteredEmployes.length]?.titulo_profesional === null || filteredEmployes[(current + 1) % filteredEmployes.length]?.titulo_profesional === undefined || filteredEmployes[(current + 1) % filteredEmployes.length]?.titulo_profesional === "" ? "N/A" : filteredEmployes[(current + 1) % filteredEmployes.length]?.titulo_profesional}</p>*/} {/*Se quito el titulo profesional por ahora*/}
-										<button
-											className="profile-btn"
-											onClick={() =>
-														showModalSeeProfile(filteredEmployes[(current + 1) % filteredEmployes.length])
-											}
-										>
-											Ver perfil
-										</button>
-										{(accountType === "Administrador" || accountType === "Empresa" || accountType === "Instructor") && (
-											<button
-												className="profile-btn"
-												onClick={() => setShowReportOptions(true)}
-											>Generar reporte</button>
+												<div className="carousel-track-improved">
+													{filteredEmployes.length === 1 ? (
+														<div className="instructor-card-improved card-center-improved">
+															<div className="instructor-image-container">
+																<img
+																	src={getImageSrcFromBase64(filteredEmployes[0]?.foto_perfil)}
+																	alt="Employe"
+																	className="instructor-image-improved"
+																	onError={(e) => (e.target.src = "/src/assets/Icons/userDefect.png")}
+																/>
+																<div className={`status-badge ${filteredEmployes[0]?.estado?.toLowerCase() || 'inactivo'}`}>
+																	{filteredEmployes[0]?.estado || 'Inactivo'}
+																</div>
+															</div>
+														</div>
+													) : filteredEmployes.length === 2 ? (
+														[0].map((offset) => {
+															const index = (current + offset) % filteredEmployes.length
+															const employe = filteredEmployes[index]
+															return (
+																<div className="instructor-card-improved card-center-improved" key={index}>
+																	<div className="instructor-image-container">
+																		<img
+																			src={getImageSrcFromBase64(employe?.foto_perfil)}
+																			alt="Employe"
+																			className="instructor-image-improved"
+																			onError={(e) => (e.target.src = "/src/assets/Icons/userDefect.png")}
+																		/>
+																		<div className={`status-badge ${employe?.estado?.toLowerCase() || 'inactivo'}`}>
+																			{employe?.estado || 'Inactivo'}
+																		</div>
+																	</div>
+																</div>
+															)
+														})
+													) : (
+														[0, 1, 2].map((offset) => {
+															const index = (current + offset) % filteredEmployes.length
+															const employe = filteredEmployes[index]
+															const positionClass = offset === 1 ? "card-center-improved" : "card-side-improved"
+															return (
+																<div className={`instructor-card-improved ${positionClass}`} key={index}>
+																	<div className="instructor-image-container">
+																		<img
+																			src={getImageSrcFromBase64(employe?.foto_perfil)}
+																			alt="Employe"
+																			className="instructor-image-improved"
+																			onError={(e) => (e.target.src = "/src/assets/Icons/userDefect.png")}
+																		/>
+																		<div className={`status-badge ${employe?.estado?.toLowerCase() || 'inactivo'}`}>
+																			{employe?.estado || 'Inactivo'}
+																		</div>
+																	</div>
+																	{offset === 1 && (
+																		<div className="instructor-mini-info">
+																			<h4>{employe.nombres} {employe.apellidos}</h4>
+																		</div>
+																	)}
+																</div>
+															)
+														})
+													)}
+												</div>
+
+												{filteredEmployes.length > 0 && (
+													<div className="instructor-info-improved">
+														<div className="instructor-details-card">
+															<h3>
+																{filteredEmployes[(current + 1) % filteredEmployes.length]?.nombres}{" "}
+																{filteredEmployes[(current + 1) % filteredEmployes.length]?.apellidos}
+															</h3>
+															
+															<div className="instructor-contact-info">
+																<div className="contact-item">
+																	<FontAwesomeIcon icon={faIdCard} />
+																	<span>Documento: {filteredEmployes[(current + 1) % filteredEmployes.length]?.documento}</span>
+																</div>
+																<div className="contact-item">
+																	<FontAwesomeIcon icon={faEnvelope} />
+																	<span>Email: {filteredEmployes[(current + 1) % filteredEmployes.length]?.email}</span>
+																</div>
+															</div>
+
+															<div className="action-buttons">
+																<button
+																	className="view-profile-btn-improved"
+																	onClick={() => showModalSeeProfile(filteredEmployes[(current + 1) % filteredEmployes.length])}
+																>
+																	Ver Perfil Completo
+																</button>
+																{(accountType === "Administrador" || accountType === "Empresa" || accountType === "Instructor") && (
+																	<button
+																		className="report-btn-improved"
+																		onClick={() => setShowReportOptions(true)}
+																	>
+																		<FontAwesomeIcon icon={faFileAlt} />
+																		Generar Reporte
+																	</button>
+																)}
+															</div>
+														</div>
+													</div>
+												)}
+
+												{filteredEmployes.length > 1 && (
+													<div className="carousel-indicator-improved">
+														<span className="current-position">
+															{current + 1} de {filteredEmployes.length}
+														</span>
+													</div>
+												)}
+											</div>
 										)}
 									</div>
-								)}
-							</div>
-
-							{filteredEmployes.length > 1 && (
-								<button className="arrow-results right" onClick={next}>
-									❯
-								</button>
-									)}
-								</>
+								</div>
 							)}
+						</div>
+
+						<div className="control-panel-improved">
+							<div className="filters-card-improved">
+								<h3>
+									<FontAwesomeIcon icon={faFilter} />
+									Filtros y Búsqueda
+								</h3>
+								
+								<div className="search-container-improved">
+									<div className="input-search-improved">
+										<FontAwesomeIcon icon={faSearch} className="search-icon" />
+										<input
+											type="text"
+											placeholder="Buscar empleado..."
+											value={filter}
+											onChange={handleFilterChange}
+											className="search-input"
+										/>
+									</div>
+								</div>
+
+								{isAdmin && (
+									<>
+										<div className="filter-group">
+											<label>Empresa</label>
+											<select
+												value={selectedEmpresa}
+												onChange={handleEmpresaChange}
+												className="filter-select-improved"
+											>
+												<option value="">Todas las empresas</option>
+												{empresas.map((empresa) => (
+													<option key={empresa.ID} value={empresa.ID}>
+														{empresa.nombre_empresa}
+													</option>
+												))}
+											</select>
+										</div>
+
+										<div className="filter-group">
+											<label>Tipo de Documento</label>
+											<select
+												value={selectedTipoDocumento}
+												onChange={handleTipoDocumentoChange}
+												className="filter-select-improved"
+											>
+												<option value="">Todos los tipos</option>
+												<option value="CedulaCiudadania">Cédula de Ciudadanía</option>
+												<option value="TarjetaIdentidad">Tarjeta de Identidad</option>
+												<option value="PPT">Pasaporte</option>
+												<option value="CedulaExtranjeria">Cédula de Extranjería</option>
+											</select>
+										</div>
+									</>
+								)}
+
+								<div className="filter-group">
+									<label>Estado del Empleado</label>
+									<div className="status-filters-improved">
+										{["todos", "activo", "inactivo"].map((op) => (
+											<button
+												key={op}
+												className={`status-filter-btn ${selectedState === op ? 'active' : ''}`}
+												onClick={() => setSelectedState(op)}
+											>
+												<span className={`status-indicator ${op}`}></span>
+												{op === 'todos' ? 'Todos' : op === 'activo' ? 'Activos' : 'Inactivos'}
+											</button>
+										))}
+									</div>
+								</div>
+
+								<button className="create-employee-btn-improved" onClick={showModalCreateEmploye}>
+									<FontAwesomeIcon icon={faUserPlus} />
+									<span>Agregar Empleado</span>
+								</button>
+
+								<button className="inscribe-employees-btn-improved" onClick={handleInscribeEmployes}>
+									<FontAwesomeIcon icon={faUsers} />
+									<span>Inscribir a Cursos</span>
+								</button>
+							</div>
 						</div>
 					</div>
 				</div>
 			</Main>
-			{selectedEmploye && <UpdateEmploye key={selectedEmploye.ID} empleado={selectedEmploye} />}
+
+			{showUpdateModal && selectedEmploye && (
+				<UpdateEmploye 
+					empleado={selectedEmploye} 
+					onClose={handleCloseUpdateModal}
+				/>
+			)}
+			
 			{showReportOptions && (
 				<div className="modal-overlay">
 					<div
@@ -705,11 +804,11 @@ const fetchEmployebyCompany = async (value) => {
 								style={{
 									marginTop: "20px",
 									textDecoration: "none"
-								}}
+								}}v
 							>Descargar</a>
 						)}
 						<button
-							className="filtersButtonEmployee"
+							className="filtersButtonEmployeeReport"
 							onClick={() => setShowFilters(!showFilters)}
 						>Filtros {!showFilters ? <>&#x25BC;</> : <>&#x25B2;</>}</button>
 						{showFilters && (

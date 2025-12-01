@@ -1,3 +1,4 @@
+/* ReporteEstadisticas.css */
 * {
     margin: 0px;
     font-family: 'Poppins', sans-serif;
@@ -7,645 +8,860 @@
 }
 
 .reporte-container-estadisticas {
-  width: 100%;
-  margin: 0;
-  padding: 4rem 2rem;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: #1a1a1a;
-  min-height: 100vh;
-  color: #fff;
-  position: relative;
-}
-
-.container-tabla-estadisticas {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 2rem;
-  margin: 2rem 0 1rem 0;
-  width: 100%;
-  flex-wrap: wrap;
-  position: relative;
+    width: 100%;
+    margin: 0;
+    padding: 2rem;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #0c0c0c 0%, #1a1a1a 100%);
+    min-height: 100vh;
+    color: #fff;
+    position: relative;
+    margin-top: 80px; /* Espacio para el header */
 }
 
 .reporte-titulo-estadisticas {
-  text-align: center;
-  color: #fff;
-  font-size: 2.5rem;
-  margin: 2rem 0 2rem 0;
-  font-weight: 600;
-  width: 100%;
-}
-
-.button-eficiencia-estadisticas {
-    background: none;
-    width: auto;
-    padding: 12px 30px;
     text-align: center;
-    display: inline-block;
-    height: auto;
-    border: none;
-    color: #0a5f0a;
-    font-size: 1.3rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    min-width: 160px;
-    border-radius: 10px;
+    color: #fff;
+    font-size: 2.5rem;
+    margin: 0 0 2rem 0;
+    font-weight: 300;
+    width: 100%;
+    padding-top: 1rem;
 }
 
-.button-eficiencia-estadisticas:hover {
-  background-color: #0a5f0a;
-  color: white;
-  border-color: #0c7a0c;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(10, 95, 10, 0.4);
-  border-radius: 10px;
+.reporte-titulo-estadisticas::after {
+    content: '';
+    display: block;
+    width: 80px;
+    height: 4px;
+    background: #00c853;
+    margin: 1rem auto 0;
+    border-radius: 2px;
 }
 
-.button-eficiencia-estadisticas:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 6px rgba(10, 95, 10, 0.3);
+/* Container Principal */
+.container-tabla-estadisticas {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1.5rem;
+    margin: 2rem 0;
+    width: 100%;
+    flex-wrap: wrap;
+    position: relative;
 }
 
-.button-eficiencia-estadisticas.active {
-    background: #00843d;
-    color: #ffffff;
-    border-radius: 25px;
-    border-color: #00843d;
-}
-
+/* Botones Principales */
 .button-generar-reporte-estadisticas {
-    background: #f7941e;
-    width: auto;
-    padding: 12px 30px;
-    text-align: center;
-    display: inline-block;
-    height: auto;
-    border: 2px solid #f7941e;
-    border-radius: 25px;
-    color: #ffffff;
-    font-size: 1.3rem;
-    font-weight: 600;
+    background: linear-gradient(135deg, #00c853 0%, #00a844 100%);
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 12px;
+    color: #000;
+    font-size: 1.1rem;
+    font-weight: 700;
     cursor: pointer;
     transition: all 0.3s ease;
-    min-width: 180px;
+    min-width: 200px;
+    box-shadow: 0 4px 15px rgba(0, 200, 83, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
 }
 
 .button-generar-reporte-estadisticas:hover {
-  background-color: #e6891b;
-  border-color: #e6891b;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(247, 148, 30, 0.4);
-  color: #ffffff;
+    background: linear-gradient(135deg, #00e676 0%, #00c853 100%);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0, 200, 83, 0.4);
 }
 
 .button-generar-reporte-estadisticas:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 6px rgba(247, 148, 30, 0.3);
+    transform: translateY(-1px);
 }
 
 .button-filtro-reporte-estadisticas {
-  background: none;
-  border: none;
-  padding: 12px 30px;
-  color: #00843d;
-  font-size: 1.3rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  min-width: 120px;
-  position: relative;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    padding: 1rem 2rem;
+    border-radius: 12px;
+    color: #00c853;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 150px;
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    position: relative;
 }
 
 .button-filtro-reporte-estadisticas:hover {
-  color: #0c7a0c;
-}
-
-/* PAGINACIÓN */
-.pagination {
-    margin-top: 2%;
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    flex-wrap: wrap;
-    text-align: center;
-    font-size: 20px;
-    color: rgb(255, 255, 255);
-    text-decoration: none;
-    list-style: none;
-    padding: 0;
-    gap: 8px;
-}
-
-.page-item {
-    display: inline-block;
-    margin: 0 4px;
-}
-
-.page-link {
-    display: inline-block;
-    padding: 8px 16px;
-    text-decoration: none;
-    color: #ffffff;
-    background: #2a2a2a;
-    border: 1px solid #333;
-    border-radius: 6px;
-    transition: all 0.3s ease;
-    cursor: pointer;
-    font-weight: 500;
-}
-
-.page-link:hover {
-    background: #00843d;
-    border-color: #00843d;
+    background: rgba(0, 200, 83, 0.1);
+    border-color: rgba(0, 200, 83, 0.3);
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 132, 61, 0.3);
 }
 
-.page-item.active .page-link {
-    background: #00843d;
-    border-color: #00843d;
-    color: #ffffff;
-    font-weight: 600;
-}
-
-.info-paginacion {
-    font-size: 16px;
-    margin-top: 1%;
+.button-filtro-reporte-estadisticas::after {
+    content: '';
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    width: 20px;
+    height: 20px;
+    background: #00c853;
+    border-radius: 50%;
+    color: #000;
+    font-size: 0.7rem;
+    font-weight: 700;
     display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
-    align-content: center;
-    justify-content: center;
     align-items: center;
-    color: #cccccc;
-}
-
-/* Responsive para paginación */
-@media (max-width: 768px) {
-    .pagination {
-        font-size: 16px;
-        gap: 4px;
-    }
-    
-    .page-link {
-        padding: 6px 12px;
-    }
-    
-    .info-paginacion {
-        font-size: 14px;
-    }
-}
-
-@media (max-width: 480px) {
-    .pagination {
-        font-size: 14px;
-        gap: 2px;
-    }
-    
-    .page-link {
-        padding: 4px 8px;
-        min-width: 32px;
-    }
-}
-
-.info-paginacion{
-    font-size: 20px;
-    margin-top: 2%;
-    display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
-    align-content: center;
     justify-content: center;
-    align-items: center;
+    opacity: 0;
+    transform: scale(0);
+    transition: all 0.3s ease;
 }
 
-/* Menú desplegable de filtros */
+.button-filtro-reporte-estadisticas:has(+ .filtro-menu-estadisticas)::after {
+    opacity: 1;
+    transform: scale(1);
+    content: attr(data-count);
+}
+
+/* Menú de Filtros */
 .filtro-menu-estadisticas {
     position: absolute;
-    top: 61%;
-    right: 409px;
-    background: #2a2a2a;
-    border: 1px solid #333;
-    border-radius: 8px;
-    padding: 1rem;
-    min-width: 240px;
-    max-width: 260px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+    top: 100%;
+    right: 0;
+    background: rgba(42, 42, 42, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 1.5rem;
+    min-width: 280px;
+    max-width: 320px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
     z-index: 1000;
-    margin-top: 0.5rem;
-    max-height: 320px;
+    margin-top: 0.8rem;
+    max-height: 400px;
     overflow-y: auto;
-    overflow-x: hidden;
+    backdrop-filter: blur(20px);
+    animation: slideDown 0.3s ease;
 }
 
-/* Información de filtros */
-.filtro-info-estadisticas {
-  margin-top: 0.5rem;
-  padding: 0.5rem;
-  background: #1a1a1a;
-  border-radius: 4px;
-  border: 1px solid #333;
-}
-
-.filtro-resultados-estadisticas {
-  font-size: 0.8rem;
-  color: #4caf50;
-  text-align: center;
-  font-weight: 500;
-}
-
-/* Mensaje cuando no hay resultados */
-.no-resultados-estadisticas {
-  text-align: center;
-  padding: 2rem;
-  color: #ff6b6b;
-  font-weight: 500;
-  font-size: 1.1rem;
-  background: #2a2a2a;
-  border-radius: 8px;
-  margin: 1rem;
-}
-
-/* Mejorar los botones del filtro */
-.filtro-botones-estadisticas {
-    display: flex;
-    gap: 0.8rem;
-    margin-top: 1.2rem;
-    justify-content: center;
-    padding-top: 0.8rem;
-    border-top: 1px solid #333;
-}
-
-.filtro-boton-estadisticas {
-  padding: 0.6rem 1.2rem;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: all 0.3s ease;
-  font-size: 0.9rem;
-  min-width: 80px;
-}
-
-.filtro-aplicar-estadisticas {
-  background: #00843d;
-  color: white;
-  border: 2px solid #00843d;
-}
-
-.filtro-aplicar-estadisticas:hover {
-  background: #0a5f0a;
-  border-color: #0a5f0a;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(10, 95, 10, 0.3);
-}
-
-.filtro-limpiar-estadisticas {
-  background: #666;
-  color: white;
-  border: 2px solid #666;
-}
-
-.filtro-limpiar-estadisticas:hover {
-  background: #888;
-  border-color: #888;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(136, 136, 136, 0.3);
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .filtro-grupo-estadisticas {
-  margin-bottom: 1.2rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .filtro-grupo-estadisticas:last-child {
-  margin-bottom: 0;
+    margin-bottom: 0;
+    border-bottom: none;
+    padding-bottom: 0;
 }
 
 .filtro-titulo-estadisticas {
-  color: #00843d;
-  font-weight: 600;
-  margin-bottom: 0.6rem;
-  font-size: 1rem;
+    color: #00c853;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 .filtro-opciones-estadisticas {
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
 }
 
 .filtro-opcion-estadisticas {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  padding: 0.4rem 0;
-  cursor: pointer;
-  transition: color 0.3s ease;
-  font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 0.6rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.03);
 }
 
 .filtro-opcion-estadisticas:hover {
-  color: #4caf50;
+    background: rgba(0, 200, 83, 0.1);
+    transform: translateX(5px);
 }
 
 .filtro-checkbox-estadisticas {
-  width: 16px;
-  height: 16px;
-  border: 2px solid #00843d;
-  border-radius: 3px;
-  background: transparent;
-  cursor: pointer;
-  position: relative;
-  flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    border: 2px solid #00c853;
+    border-radius: 4px;
+    background: transparent;
+    cursor: pointer;
+    position: relative;
+    flex-shrink: 0;
+    transition: all 0.3s ease;
 }
 
 .filtro-checkbox-estadisticas.checked {
-  background: #00843d;
+    background: #00c853;
+    box-shadow: 0 0 10px rgba(0, 200, 83, 0.5);
 }
 
 .filtro-checkbox-estadisticas.checked::after {
-  content: '✓';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  color: white;
-  font-size: 10px;
-  font-weight: bold;
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #000;
+    font-size: 12px;
+    font-weight: bold;
 }
 
 .filtro-input-estadisticas {
-  background: #1a1a1a;
-  border: 1px solid #333;
-  border-radius: 4px;
-  padding: 0.4rem;
-  color: white;
-  width: 100%;
-  font-size: 0.9rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 0.8rem;
+    color: white;
+    width: 100%;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.filtro-input-estadisticas:focus {
+    outline: none;
+    border-color: #00c853;
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 0 2px rgba(0, 200, 83, 0.2);
 }
 
 .filtro-input-estadisticas::placeholder {
-  color: #666;
+    color: rgba(255, 255, 255, 0.5);
 }
 
-/* Botones del filtro */
+/* Información de Filtros */
+.filtro-info-estadisticas {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: rgba(0, 200, 83, 0.1);
+    border-radius: 8px;
+    border: 1px solid rgba(0, 200, 83, 0.3);
+}
+
+.filtro-resultados-estadisticas {
+    font-size: 0.9rem;
+    color: #00c853;
+    text-align: center;
+    font-weight: 600;
+}
+
+/* Botones del Filtro */
 .filtro-botones-estadisticas {
     display: flex;
-    gap: 0.8rem;
-    margin-top: 1.2rem;
+    gap: 1rem;
+    margin-top: 1.5rem;
     justify-content: center;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .filtro-boton-estadisticas {
-  padding: 0.4rem 1.2rem;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: all 0.3s ease;
-  font-size: 0.9rem;
-}
-
-.filtro-aplicar-estadisticas {
-  background: #00843d;
-  color: white;
-}
-
-.filtro-aplicar-estadisticas:hover {
-  background: #0a5f0a;
+    padding: 0.8rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+    min-width: 100px;
 }
 
 .filtro-limpiar-estadisticas {
-  background: #666;
-  color: white;
+    background: rgba(255, 107, 107, 0.1);
+    color: #ff6b6b;
+    border: 1px solid rgba(255, 107, 107, 0.3);
 }
 
 .filtro-limpiar-estadisticas:hover {
-  background: #888;
+    background: rgba(255, 107, 107, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
 }
 
-/* Tabla de datos */
+/* Tabla de Datos - ANCHO AJUSTADO */
 .tabla-datos-estadisticas {
-  width: 100%;
-  background: #0000001f;
-  border-radius: 8px;
-  border: 1px solid #333;
-  overflow: hidden;
-  margin-top: 2rem;
-  color: aliceblue;
-  display: block;
+    width: 95%;
+    max-width: 1400px;
+    margin: 2rem auto 0;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
 .tabla-cabecera-estadisticas {
     display: grid;
-    grid-template-columns: 1.5fr 1.5fr 1fr 1fr 0.8fr;
-    background: #00843d;
-    padding: 1rem 1.5rem;
+    grid-template-columns: 2fr 1.2fr 1.5fr 1fr 1fr; /* Columnas más compactas */
+    background: linear-gradient(135deg, rgba(0, 200, 83, 0.2) 0%, rgba(0, 132, 61, 0.15) 100%);
+    padding: 1.2rem 1.5rem;
     font-weight: 600;
-    color: #000000;
-    border-bottom: 1px solid #333;
+    color: #00c853;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     align-items: center;
-    gap: 0rem;
+    gap: 1rem;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .tabla-fila-estadisticas {
     display: grid;
-    grid-template-columns: 1.5fr 1.5fr 1fr 1fr 0.8fr;
-    padding: 1rem 1.5rem;
-    border-bottom: 1px solid #333;
+    grid-template-columns: 2fr 1.2fr 1.5fr 1fr 1fr; /* Mismas proporciones que el header */
+    padding: 1.2rem 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     align-items: center;
-    transition: background-color 0.3s ease;
+    transition: all 0.3s ease;
     cursor: pointer;
-    gap: 0rem;
+    gap: 1rem;
+    background: transparent;
 }
 
 .tabla-fila-estadisticas:hover {
-  background: #2a2a2a;
-}
-
-.curso-sin-empleados {
-  opacity: 0.5;
-  cursor: not-allowed !important;
-  background: #1a1a1a;
-}
-
-.curso-sin-empleados:hover {
-  background: #1a1a1a !important;
-  opacity: 0.6;
+    background: rgba(255, 255, 255, 0.05);
+    transform: translateX(5px);
 }
 
 .tabla-fila-estadisticas:last-child {
-  border-bottom: none;
+    border-bottom: none;
+}
+
+.curso-sin-empleados {
+    opacity: 0.6;
+    cursor: not-allowed !important;
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.curso-sin-empleados:hover {
+    background: rgba(255, 255, 255, 0.02) !important;
+    transform: none !important;
+    opacity: 0.7;
 }
 
 /* Estados */
 .estado-activo-estadisticas {
-  color: #4caf50;
-  font-weight: 600;
+    color: #00c853;
+    font-weight: 600;
+    padding: 0.4rem 0.8rem;
+    background: rgba(0, 200, 83, 0.1);
+    border: 1px solid rgba(0, 200, 83, 0.3);
+    border-radius: 20px;
+    font-size: 0.8rem;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    min-width: 80px;
 }
 
 .estado-inactivo-estadisticas {
-  color: #ff6b6b;
-  font-weight: 600;
+    color: #ff6b6b;
+    font-weight: 600;
+    padding: 0.4rem 0.8rem;
+    background: rgba(255, 107, 107, 0.1);
+    border: 1px solid rgba(255, 107, 107, 0.3);
+    border-radius: 20px;
+    font-size: 0.8rem;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    min-width: 80px;
 }
 
-/* Clases específicas para cada columna */
+/* Columnas Específicas */
 .columna-curso-estadisticas {
-  font-weight: 500;
+    font-weight: 500;
+    color: #fff;
+    line-height: 1.3;
 }
 
 .columna-ficha-estadisticas {
-  font-size: 17px;
-  font-family: monospace;
+    font-family: 'Courier New', monospace;
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.columna-instructor-estadisticas {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.9rem;
+    line-height: 1.3;
 }
 
 .columna-empleados-estadisticas {
-  text-align: center;
-  font-weight: 600;
+    text-align: center;
+    font-weight: 700;
+    color: #00c853;
+    font-size: 1rem;
+    min-width: 60px;
 }
 
-/* Responsive - Diseño con Cards */
-@media (max-width: 768px) {
-  .reporte-container-estadisticas {
-    padding: 1rem;
-  }
-  
-  .reporte-titulo-estadisticas {
-    font-size: 2rem;
-    margin: 0.5rem 0 2rem 0;
-  }
-  
-  .container-tabla-estadisticas {
-    flex-direction: column;
-    gap: 1.5rem;
-    margin: 1.5rem 0;
-  }
-  
-  .button-eficiencia-estadisticas,
-  .button-generar-reporte-estadisticas,
-  .button-filtro-reporte-estadisticas {
-    width: 80%;
-    max-width: 250px;
-    margin-right: 0;
-    border-radius: 10px;
-  }
-  
-  
-  .filtro-menu-estadisticas {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    right: auto;
-    width: 90%;
-    max-width: 350px;
-  }
-  
-  /* Ocultar tabla normal en móviles */
-  .tabla-cabecera-estadisticas {
-    display: none;
-  }
-  
-  /* Cambiar a diseño de cards */
-  .tabla-fila-estadisticas {
+/* No Resultados */
+.no-resultados-estadisticas {
+    text-align: center;
+    padding: 3rem 2rem;
+    color: rgba(255, 255, 255, 0.7);
+    font-weight: 500;
+    font-size: 1.1rem;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 12px;
+    margin: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Paginación */
+.pagination {
+    margin-top: 2rem;
     display: flex;
-    flex-direction: column;
-    padding: 1.2rem;
-    border: 1px solid #333;
-    border-radius: 8px;
-    margin-bottom: 0.8rem;
-    background: #2a2a2a;
-    cursor: pointer;
-    transition: all 0.3s ease;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
     gap: 0.5rem;
-  }
-  
-  .tabla-fila-estadisticas:hover {
-    background: #333;
+    padding: 0;
+    list-style: none;
+}
+
+.page-item {
+    display: inline-block;
+}
+
+.page-link {
+    display: inline-block;
+    padding: 0.8rem 1.2rem;
+    text-decoration: none;
+    color: #fff;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    font-weight: 500;
+    min-width: 45px;
+    text-align: center;
+    backdrop-filter: blur(10px);
+}
+
+.page-link:hover {
+    background: rgba(0, 200, 83, 0.1);
+    border-color: rgba(0, 200, 83, 0.3);
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-  }
-  
-  /* Estilo para cada campo en móvil */
-  .tabla-fila-estadisticas > div {
+    box-shadow: 0 4px 12px rgba(0, 200, 83, 0.2);
+}
+
+.page-item.active .page-link {
+    background: #00c853;
+    border-color: #00c853;
+    color: #000;
+    font-weight: 700;
+    box-shadow: 0 4px 15px rgba(0, 200, 83, 0.3);
+}
+
+.info-paginacion {
+    font-size: 0.9rem;
+    margin-top: 1rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: rgba(255, 255, 255, 0.7);
+    background: rgba(255, 255, 255, 0.03);
+    padding: 0.8rem 1.5rem;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+}
+
+/* Modal de Descarga */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(10px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    padding: 1rem;
+}
+
+.modal-background {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 2rem;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(20px);
+}
+
+.container_return_EditCalendar {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    width: 100%;
-    padding: 0.5rem 0;
-    border-bottom: 1px solid #444;
-  }
-  
-  /* Quitar el borde del último elemento */
-  .tabla-fila-estadisticas > div:last-child {
-    border-bottom: none;
-  }
-  
-  /* Añadir labels usando pseudo-elementos */
-  .columna-curso-estadisticas::before {
-    content: "Curso:";
-    font-weight: 600;
-    color: #4caf50;
-    margin-right: 1rem;
-  }
-  
-  .columna-ficha-estadisticas::before {
-    content: "Ficha:";
-    font-weight: 600;
-    color: #4caf50;
-    margin-right: 1rem;
-  }
-  
-  .columna-instructor-estadisticas::before {
-    content: "Instructor:";
-    font-weight: 600;
-    color: #4caf50;
-    margin-right: 1rem;
-  }
-  
-  .estado-activo-estadisticas::before,
-  .estado-inactivo-estadisticas::before {
-    content: "Estado:";
-    font-weight: 600;
-    color: #4caf50;
-    margin-right: 1rem;
-  }
-  
-  .columna-empleados-estadisticas::before {
-    content: "Empleados:";
-    font-weight: 600;
-    color: #4caf50;
-    margin-right: 1rem;
-  }
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    /* border-bottom: 1px solid rgba(255, 255, 255, 0.1); */
 }
 
-/* Responsive para tablets más pequeñas */
+.container_return_EditCalendar h5 {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 1rem;
+    cursor: pointer;
+    transition: color 0.3s ease;
+    margin: 0;
+}
+
+.container_return_EditCalendar h5:hover {
+    color: #00c853;
+}
+
+.closeModal {
+    width: 24px;
+    height: 24px;
+    background: rgba(255, 107, 107, 0.2);
+    border: 1px solid rgba(255, 107, 107, 0.4);
+    border-radius: 50%;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.closeModal:hover {
+    background: rgba(255, 107, 107, 0.3);
+    transform: scale(1.1);
+}
+
+.closeModal::before,
+.closeModal::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 12px;
+    height: 2px;
+    background: #ff6b6b;
+    transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.closeModal::after {
+    transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+.modal-title-edit-calendar {
+    color: #fff;
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.statusButtons {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.status-btn {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 0.8rem 1rem;
+    color: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    backdrop-filter: blur(10px);
+}
+
+.status-btn.selected {
+    background: rgba(0, 200, 83, 0.2);
+    border-color: #00c853;
+    color: #00c853;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(0, 200, 83, 0.2);
+}
+
+.status-btn:hover:not(.selected) {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.button {
+    width: 100%;
+    background: #00c853;
+    border: none;
+    border-radius: 10px;
+    color: #000;
+    font-weight: 600;
+    padding: 1rem 1.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.95rem;
+    margin-top: 1rem;
+}
+
+.button:hover {
+    background: #00e676;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 200, 83, 0.3);
+}
+
+.button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .reporte-container-estadisticas {
+        padding: 1.5rem;
+    }
+    
+    .container-tabla-estadisticas {
+        justify-content: center;
+        gap: 1rem;
+    }
+    
+    .tabla-datos-estadisticas {
+        width: 98%;
+    }
+    
+    .tabla-cabecera-estadisticas,
+    .tabla-fila-estadisticas {
+        grid-template-columns: 1.8fr 1fr 1.2fr 0.8fr 0.8fr;
+        gap: 0.8rem;
+        padding: 1rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .reporte-container-estadisticas {
+        padding: 1rem;
+        margin-top: 70px;
+    }
+    
+    .reporte-titulo-estadisticas {
+        font-size: 2rem;
+        margin: 0 0 1.5rem 0;
+        padding-top: 0.5rem;
+    }
+    
+    .container-tabla-estadisticas {
+        flex-direction: column;
+        gap: 1rem;
+        margin: 1.5rem 0;
+    }
+    
+    .button-generar-reporte-estadisticas,
+    .button-filtro-reporte-estadisticas {
+        width: 100%;
+        max-width: 300px;
+        margin: 0;
+    }
+    
+    .filtro-menu-estadisticas {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        right: auto;
+        width: 90%;
+        max-width: 350px;
+        max-height: 80vh;
+    }
+    
+    /* Mobile Table Styles */
+    .tabla-cabecera-estadisticas {
+        display: none;
+    }
+    
+    .tabla-fila-estadisticas {
+        display: flex;
+        flex-direction: column;
+        padding: 1.5rem;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        margin-bottom: 1rem;
+        background: rgba(255, 255, 255, 0.03);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        gap: 1rem;
+    }
+    
+    .tabla-fila-estadisticas:hover {
+        background: rgba(255, 255, 255, 0.05);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+    
+    .tabla-fila-estadisticas > div {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .tabla-fila-estadisticas > div:last-child {
+        border-bottom: none;
+    }
+    
+    /* Mobile Labels */
+    .columna-curso-estadisticas::before {
+        content: "Curso:";
+        font-weight: 600;
+        color: #00c853;
+        margin-right: 1rem;
+    }
+    
+    .columna-ficha-estadisticas::before {
+        content: "Ficha:";
+        font-weight: 600;
+        color: #00c853;
+        margin-right: 1rem;
+    }
+    
+    .columna-instructor-estadisticas::before {
+        content: "Instructor:";
+        font-weight: 600;
+        color: #00c853;
+        margin-right: 1rem;
+    }
+    
+    .estado-activo-estadisticas::before,
+    .estado-inactivo-estadisticas::before {
+        content: "Estado:";
+        font-weight: 600;
+        color: #00c853;
+        margin-right: 1rem;
+    }
+    
+    .columna-empleados-estadisticas::before {
+        content: "Empleados:";
+        font-weight: 600;
+        color: #00c853;
+        margin-right: 1rem;
+    }
+    
+    .pagination {
+        gap: 0.3rem;
+    }
+    
+    .page-link {
+        padding: 0.6rem 0.8rem;
+        min-width: 40px;
+        font-size: 0.9rem;
+    }
+    
+    .info-paginacion {
+        font-size: 0.8rem;
+        padding: 0.6rem 1rem;
+    }
+}
+
 @media (max-width: 480px) {
-  .reporte-container-estadisticas {
-    padding: 0.5rem;
-  }
-  
-  .reporte-titulo-estadisticas {
-    font-size: 1.8rem;
-  }
-  
-  .button-eficiencia-estadisticas,
-  .button-generar-reporte-estadisticas,
-  .button-filtro-reporte-estadisticas {
-    font-size: 1.1rem;
-    padding: 10px 25px;
-    width: 90%;
-  }
-  
-  .tabla-fila-estadisticas {
-    padding: 1rem;
-    margin-bottom: 0.6rem;
-  }
-  
-  .tabla-fila-estadisticas > div {
-    font-size: 0.9rem;
-  }
+    .reporte-container-estadisticas {
+        padding: 0.8rem;
+        margin-top: 60px;
+    }
+    
+    .reporte-titulo-estadisticas {
+        font-size: 1.8rem;
+    }
+    
+    .button-generar-reporte-estadisticas,
+    .button-filtro-reporte-estadisticas {
+        font-size: 1rem;
+        padding: 0.8rem 1.5rem;
+    }
+    
+    .tabla-fila-estadisticas {
+        padding: 1.2rem;
+        margin-bottom: 0.8rem;
+    }
+    
+    .tabla-fila-estadisticas > div {
+        font-size: 0.9rem;
+    }
+    
+    .modal-background {
+        padding: 1.5rem;
+    }
+    
+    .statusButtons {
+        flex-direction: column;
+    }
+}
+
+/* Scrollbar Personalizado */
+.filtro-menu-estadisticas::-webkit-scrollbar {
+    width: 6px;
+}
+
+.filtro-menu-estadisticas::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 3px;
+}
+
+.filtro-menu-estadisticas::-webkit-scrollbar-thumb {
+    background: #00c853;
+    border-radius: 3px;
+}
+
+.filtro-menu-estadisticas::-webkit-scrollbar-thumb:hover {
+    background: #00e676;
+}
+
+.tabla-datos-estadisticas::-webkit-scrollbar {
+    height: 8px;
+}
+
+.tabla-datos-estadisticas::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+}
+
+.tabla-datos-estadisticas::-webkit-scrollbar-thumb {
+    background: #00c853;
+    border-radius: 4px;
+}
+
+.tabla-datos-estadisticas::-webkit-scrollbar-thumb:hover {
+    background: #00e676;
 }

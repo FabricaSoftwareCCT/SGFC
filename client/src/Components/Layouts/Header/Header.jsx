@@ -187,10 +187,6 @@ export const Header = ({
 						case "Gestor":
 							options = [
 								{
-									label: "Mis cursos",
-									path: "/Cursos/MisCursos",
-								},
-								{
 									label: "Buscar cursos",
 									path: "/Cursos/BuscarCursos",
 								},
@@ -233,10 +229,6 @@ export const Header = ({
 								{
 									label: "Buscar cursos",
 									path: "/Cursos/BuscarCursos",
-								},
-								{
-									label: "Solicitar curso",
-									path: "/SolicitarCursoAp"
 								},
 							];
 							break;

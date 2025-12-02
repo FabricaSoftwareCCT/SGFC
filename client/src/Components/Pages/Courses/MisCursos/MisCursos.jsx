@@ -1,12 +1,21 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import './MisCursos.css';
-import '../Consult/ConsultCourses.css';
 import { Footer } from '../../../Layouts/Footer/Footer';
 import { Main } from '../../../Layouts/Main/Main';
 import { useNavigate } from 'react-router-dom';
 import axiosInstance from '../../../../config/axiosInstance';
-import arrowLeft from '../../../../assets/Icons/arrowLeft.png';
-import arrowRight from '../../../../assets/Icons/arrowRight.png';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { 
+  faSearch, 
+  faArrowLeft, 
+  faArrowRight,
+  faGraduationCap,
+  faChalkboardTeacher,
+  faBookOpen,
+  faCalendarAlt,
+  faUserTie,
+  faSpinner
+} from '@fortawesome/free-solid-svg-icons';
 
 // 🔧 Función para normalizar texto (sin tildes, en minúsculas)
 const normalizeText = (text) =>
@@ -17,21 +26,26 @@ export const MisCursos = () => {
   const [filteredCursos, setFilteredCursos] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  const [startIndex, setStartIndex] = useState(0);
-  const scrollRef = useRef(null);
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
   const userSession =
     JSON.parse(localStorage.getItem('userSession')) ||
     JSON.parse(sessionStorage.getItem('userSession'));
 
+  const itemsPerSlide = 3;
+
   useEffect(() => {
     const fetchCursos = async () => {
+      setIsLoading(true);
       try {
         let response;
+        let fetchedCursos = [];
 
         if (!userSession?.ID && !userSession?.id) {
           setErrorMessage("No se pudo obtener el ID del usuario");
+          setIsLoading(false);
           return;
         }
 
@@ -39,43 +53,44 @@ export const MisCursos = () => {
           case 'Instructor':
             const instructorId = userSession.ID || userSession.id;
             response = await axiosInstance.get(`/api/courses/cursos-asignados/${instructorId}`);
-            const cursosAsignados = response.data.map(asignacion => ({
+            fetchedCursos = response.data.map(asignacion => ({
               ...asignacion.Curso,
               ID: asignacion.Curso.ID || asignacion.Curso.id || asignacion.curso_ID,
             }));
-            setCursos(cursosAsignados);
-            setFilteredCursos(cursosAsignados);
             break;
 
           case 'Aprendiz':
             const aprendizId = userSession.ID || userSession.id;
             response = await axiosInstance.get(`/api/courses/cursos-aprendiz/${aprendizId}`);
-            const cursosAprendiz = response.data.map(curso => ({
+            fetchedCursos = response.data.map(curso => ({
               ...curso,
               ID: curso.ID || curso.id,
             }));
-            setCursos(cursosAprendiz);
-            setFilteredCursos(cursosAprendiz);
             break;
 
           case 'Administrador':
           case 'Gestor':
             response = await axiosInstance.get("/api/courses/cursos");
-            const todosLosCursos = response.data.map(curso => ({
+            fetchedCursos = response.data.map(curso => ({
               ...curso,
               ID: curso.ID || curso.id,
             }));
-            setCursos(todosLosCursos);
-            setFilteredCursos(todosLosCursos);
             break;
 
           default:
             setErrorMessage("No tienes permisos para ver esta página");
+            setIsLoading(false);
             return;
         }
+
+        setCursos(fetchedCursos);
+        setFilteredCursos(fetchedCursos);
+        setErrorMessage("");
       } catch (error) {
         console.error("Error al obtener los cursos:", error);
-        setErrorMessage("Error al cargar los cursos");
+        setErrorMessage("Error al cargar los cursos. Por favor, intenta de nuevo.");
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -83,6 +98,7 @@ export const MisCursos = () => {
       fetchCursos();
     } else {
       setErrorMessage("Debes iniciar sesión para ver tus cursos");
+      setIsLoading(false);
     }
   }, []);
 
@@ -92,6 +108,7 @@ export const MisCursos = () => {
 
     if (!term) {
       setFilteredCursos(cursos);
+      setCurrentSlide(0);
       return;
     }
 
@@ -102,25 +119,26 @@ export const MisCursos = () => {
     });
 
     setFilteredCursos(filtered);
-    setStartIndex(0); // Reiniciar carrusel solo al aplicar filtro
+    setCurrentSlide(0);
   }, [searchTerm, cursos]);
 
-  // 👉 Manejar input de búsqueda
-  const handleSearch = (e) => {
-    setSearchTerm(e.target.value);
+  // 👉 Cursos visibles en el carrusel
+  const visibleCursos = filteredCursos.slice(
+    currentSlide * itemsPerSlide,
+    currentSlide * itemsPerSlide + itemsPerSlide
+  );
+
+  // 👉 Navegación del carrusel
+  const nextSlide = () => {
+    const totalSlides = Math.ceil(filteredCursos.length / itemsPerSlide);
+    if (currentSlide < totalSlides - 1) {
+      setCurrentSlide(prev => prev + 1);
+    }
   };
 
-  // 👉 Cursos visibles en el carrusel
-  const visibleCursos = filteredCursos.slice(startIndex, startIndex + 3);
-
-  // 👉 Scroll del carrusel
-  const scroll = (direction) => {
-    if (direction === 'left') {
-      setStartIndex((prev) => Math.max(prev - 1, 0));
-    } else {
-      setStartIndex((prev) =>
-        Math.min(prev + 1, filteredCursos.length - 3)
-      );
+  const prevSlide = () => {
+    if (currentSlide > 0) {
+      setCurrentSlide(prev => prev - 1);
     }
   };
 
@@ -133,14 +151,46 @@ export const MisCursos = () => {
     navigate(`/Cursos/${ID}`);
   };
 
+  // 👉 Icono según tipo de usuario
+  const getUserIcon = () => {
+    switch (userSession?.accountType) {
+      case 'Aprendiz': return faGraduationCap;
+      case 'Instructor': return faChalkboardTeacher;
+      case 'Administrador': return faUserTie;
+      case 'Gestor': return faUserTie;
+      default: return faBookOpen;
+    }
+  };
+
+  // 👉 Título según tipo de usuario
+  const getPageTitle = () => {
+    switch (userSession?.accountType) {
+      case 'Aprendiz': return "Mis Cursos";
+      case 'Instructor': return "Cursos Asignados";
+      case 'Administrador': 
+      case 'Gestor': return "Todos los Cursos";
+      default: return "Cursos";
+    }
+  };
+
   // 👉 Mostrar mensaje si hay error
-  if (errorMessage) {
+  if (errorMessage && !isLoading) {
     return (
       <>
         <Main>
-          <div className="container_misCursos">
-            <h2>Cursos Asignados</h2>
-            <p className="error-message">{errorMessage}</p>
+          <div className="mis-cursos-container">
+            <div className="mis-cursos-header">
+              <div className="header-content-mis-cursos">
+                <h1 className="main-title-mis-cursos">
+                  <FontAwesomeIcon icon={getUserIcon()} className="header-icon-mis-cursos" />
+                  {getPageTitle()}
+                </h1>
+                <p className="error-state-mis-cursos">
+                  <FontAwesomeIcon icon="exclamation-triangle" />
+                  {errorMessage}
+                </p>
+              </div>
+            </div>
           </div>
         </Main>
         <Footer />
@@ -148,94 +198,184 @@ export const MisCursos = () => {
     );
   }
 
-  // 👉 Render principal
   return (
     <>
       <Main>
-        <div className="container_misCursos">
-          <h2>
-            {userSession?.accountType === 'Aprendiz' 
-              ? <>Mis <span className="complementary">Cursos</span></>
-              : <>Cursos <span className="complementary">Asignados</span></>
-            }
-          </h2>
-          <p>Busca un curso por su ficha o nombre.</p>
-
-          <div className="options_Search">
-            <input
-              type="text"
-              placeholder="Buscar por ficha o nombre del curso"
-              value={searchTerm}
-              onChange={handleSearch}
-            />
+        <div className="mis-cursos-container">
+          {/* Header Principal */}
+          <div className="mis-cursos-header">
+            <div className="header-content-mis-cursos">
+              <h1 className="main-title-mis-cursos">
+                <FontAwesomeIcon icon={getUserIcon()} className="header-icon-mis-cursos" />
+                {getPageTitle()}
+              </h1>
+              <p className="subtitle-mis-cursos">
+                {userSession?.accountType === 'Aprendiz' 
+                  ? "Visualiza y accede a todos tus cursos asignados"
+                  : "Gestiona y navega por los cursos bajo tu responsabilidad"
+                }
+              </p>
+            </div>
+            
+            <div className="header-stats-mis-cursos">
+              <div className="stat-card-mis-cursos">
+                <span className="stat-number-mis-cursos">{filteredCursos.length}</span>
+                <span className="stat-label-mis-cursos">
+                  {filteredCursos.length === 1 ? 'Curso' : 'Cursos'}
+                </span>
+              </div>
+            </div>
           </div>
 
-          <div className="container-carousel-illustration">
-            <div className="illustration-container-misCursos">
-              <img
-                src="/src/assets/Ilustrations/Professor-amico.svg"
-                alt="Ilustración de gestión de asistencia"
-              />
+          {/* Panel de Búsqueda */}
+          <div className="search-panel-mis-cursos">
+            <div className="search-section-mis-cursos">
+              <div className="search-input-container-mis-cursos">
+                <input
+                  type="text"
+                  className="search-input-mis-cursos"
+                  placeholder="Buscar por ficha o nombre del curso..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+                <FontAwesomeIcon icon={faSearch} className='search-icon-mis-cursos' />
+              </div>
             </div>
+          </div>
 
-            {filteredCursos.length > 0 ? (
-              <div className="carousel-container">
-                <div className="carousel-wrapper">
-                  {filteredCursos.length > 3 && (
+          {/* Estados de Carga y Resultados */}
+          {isLoading ? (
+            <div className="loading-state-mis-cursos">
+              <div className="loading-spinner-mis-cursos">
+                <FontAwesomeIcon icon={faSpinner} spin />
+              </div>
+              <p>Cargando tus cursos...</p>
+            </div>
+          ) : filteredCursos.length === 0 ? (
+            <div className="no-results-state-mis-cursos">
+              <div className="no-results-icon-mis-cursos">
+                <FontAwesomeIcon icon={faBookOpen} />
+              </div>
+              <h3>No se encontraron cursos</h3>
+              <p>No hay cursos disponibles con los criterios de búsqueda actuales.</p>
+              {searchTerm && (
+                <button 
+                  className="reset-search-btn-mis-cursos"
+                  onClick={() => setSearchTerm("")}
+                >
+                  Limpiar búsqueda
+                </button>
+              )}
+            </div>
+          ) : (
+            <div className="results-section-mis-cursos">
+              {/* Header de Resultados */}
+              <div className="results-header-mis-cursos">
+                <h2 className="results-title-mis-cursos">
+                  {filteredCursos.length === 1 ? "1 curso encontrado" : `${filteredCursos.length} cursos encontrados`}
+                </h2>
+                {filteredCursos.length > itemsPerSlide && (
+                  <div className="carousel-controls-mis-cursos">
+                    <span className="carousel-counter">
+                      {currentSlide + 1} / {Math.ceil(filteredCursos.length / itemsPerSlide)}
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              {/* Carrusel de Cursos */}
+              <div className="courses-carousel-container">
+                <div className="carousel-wrapper-mis-cursos">
+                  {filteredCursos.length > itemsPerSlide && (
                     <button
-                      className="carousel-arrow left"
-                      onClick={() => scroll('left')}
-                      disabled={startIndex === 0}
-                      style={{
-                        opacity: startIndex === 0 ? 0.5 : 1,
-                        cursor: startIndex === 0 ? "not-allowed" : "pointer",
-                      }}
+                      className={`carousel-arrow-mis-cursos left ${currentSlide === 0 ? 'disabled' : ''}`}
+                      onClick={prevSlide}
+                      disabled={currentSlide === 0}
                     >
-                      <img src={arrowLeft} alt="Flecha izquierda" />
+                      <FontAwesomeIcon icon={faArrowLeft} />
                     </button>
                   )}
 
-                  <div className="carousel-track-search-course" ref={scrollRef}>
+                  <div className="carousel-track-mis-cursos">
                     {visibleCursos.map((curso) => (
                       <div
-                        className="carousel-card-search-course"
+                        className="course-card-carousel"
                         key={curso.ID}
                         onClick={() => handleCardClick(curso.ID)}
                       >
-                        <img
-                          className="img_course"
-                          src={`data:image/png;base64,${curso.imagen}`}
-                          alt={curso.nombre_curso}
-                        />
-                        <div className="card-text-search-course">
-                          <h4>{curso.nombre_curso}</h4>
-                          <p>{curso.ficha}</p>
+                        <div className="card-image-container-carousel">
+                          <img
+                            className="course-image-carousel"
+                            src={`data:image/png;base64,${curso.imagen}`}
+                            alt={curso.nombre_curso}
+                            onError={(e) => {
+                              e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjEyMCIgdmlld0JveD0iMCAwIDIwMCAxMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMTIwIiBmaWxsPSIjMDA4NDNkIiBmaWxsLW9wYWNpdHk9IjAuMSIvPgo8dGV4dCB4PSI1MCUiIHk9IjUwJSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzAwODQzZCIgZm9udC1zaXplPSIxNCIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIj5JbWFnZW4gTm8gRGlzcG9uaWJsZTwvdGV4dD4KPC9zdmc+';
+                            }}
+                          />
+                          <div className="card-overlay-carousel">
+                            <span className="view-course-text-carousel">
+                              <FontAwesomeIcon icon={faBookOpen} />
+                              Ver Curso
+                            </span>
+                          </div>
+                        </div>
+                        
+                        <div className="card-content-carousel">
+                          <div className="course-badge-carousel">
+                            <FontAwesomeIcon icon={faCalendarAlt} />
+                            <span>{curso.estado || "Sin estado"}</span>
+                          </div>
+                          <h3 className="course-title-carousel" title={curso.nombre_curso}>
+                            {curso.nombre_curso}
+                          </h3>
+                          <p className="course-code-carousel">
+                            <strong>Ficha:</strong> {curso.ficha}
+                          </p>
+                          <div className="course-meta-carousel">
+                            <span className="offer-type-carousel">
+                              {curso.tipo_oferta || "No especificado"}
+                            </span>
+                          </div>
                         </div>
                       </div>
                     ))}
                   </div>
 
-                  {filteredCursos.length > 3 && (
+                  {filteredCursos.length > itemsPerSlide && (
                     <button
-                      className="carousel-arrow right"
-                      onClick={() => scroll('right')}
-                      disabled={startIndex >= filteredCursos.length - 3}
-                      style={{
-                        opacity: startIndex >= filteredCursos.length - 3 ? 0.5 : 1,
-                        cursor: startIndex >= filteredCursos.length - 3 ? "not-allowed" : "pointer",
-                      }}
+                      className={`carousel-arrow-mis-cursos right ${currentSlide >= Math.ceil(filteredCursos.length / itemsPerSlide) - 1 ? 'disabled' : ''}`}
+                      onClick={nextSlide}
+                      disabled={currentSlide >= Math.ceil(filteredCursos.length / itemsPerSlide) - 1}
                     >
-                      <img src={arrowRight} alt="Flecha derecha" />
+                      <FontAwesomeIcon icon={faArrowRight} />
                     </button>
                   )}
                 </div>
+
+                {/* Indicadores de carrusel */}
+                {filteredCursos.length > itemsPerSlide && (
+                  <div className="carousel-indicators-mis-cursos">
+                    {Array.from({ length: Math.ceil(filteredCursos.length / itemsPerSlide) }).map((_, index) => (
+                      <button
+                        key={index}
+                        className={`carousel-indicator ${index === currentSlide ? 'active' : ''}`}
+                        onClick={() => setCurrentSlide(index)}
+                        aria-label={`Ir a slide ${index + 1}`}
+                      />
+                    ))}
+                  </div>
+                )}
               </div>
-            ) : (
-              <p >
-                No se encontraron resultados.
-              </p>
-            )}
-          </div>
+
+              {/* Mensaje informativo */}
+              <div className="info-message-mis-cursos">
+                <p>
+                  <FontAwesomeIcon icon="info-circle" />
+                  Haz clic en cualquier curso para ver su información detallada
+                </p>
+              </div>
+            </div>
+          )}
         </div>
       </Main>
       <Footer />

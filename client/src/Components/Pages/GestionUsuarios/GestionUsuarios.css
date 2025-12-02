@@ -1,8 +1,19 @@
 /* GestionUsuarios.css - Clases únicas con prefijo gu- */
 
 /* Header Principal */
+.gu-pantalla {
+    width: 100%;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+    color: #fff;
+}
+
 .gu-section-principal {
-    width: 70%;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1.5rem;
+    box-sizing: border-box;
 }
 
 .gu-section-header {
@@ -94,12 +105,14 @@
     color: #fff;
     font-size: 0.9rem;
     transition: all 0.3s ease;
+    box-sizing: border-box;
 }
 
 .gu-input-filter-text:focus {
     outline: none;
     border-color: #00c853;
     background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 0 2px rgba(0, 200, 83, 0.2);
 }
 
 .gu-input-filter-text::placeholder {
@@ -117,6 +130,7 @@
     transition: all 0.3s ease;
     font-size: 0.9rem;
     height: fit-content;
+    white-space: nowrap;
 }
 
 .gu-button:hover {
@@ -132,6 +146,8 @@
     border-radius: 15px;
     padding: 1.5rem;
     backdrop-filter: blur(10px);
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .gu-results-header {
@@ -147,24 +163,61 @@
     padding: 0.6rem 1rem;
     border-radius: 8px;
     border: 1px solid rgba(255, 255, 255, 0.1);
+    display: inline-block;
+}
+
+/* NUEVO: Contenedor para el scroll */
+.gu-table-wrapper {
+    width: 100%;
+    margin-bottom: 1.5rem;
+    border-radius: 10px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .gu-table-container {
     overflow-x: auto;
-    margin-bottom: 1.5rem;
+    max-height: 500px;
+    min-height: 200px;
+    position: relative;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 200, 83, 0.3) rgba(255, 255, 255, 0.05);
+}
+
+/* Scrollbar personalizado */
+.gu-table-container::-webkit-scrollbar {
+    height: 8px;
+    width: 8px;
+}
+
+.gu-table-container::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+}
+
+.gu-table-container::-webkit-scrollbar-thumb {
+    background: rgba(0, 200, 83, 0.3);
+    border-radius: 4px;
+}
+
+.gu-table-container::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 200, 83, 0.5);
 }
 
 .gu-companies-table {
     width: 100%;
     border-collapse: collapse;
     background: rgba(255, 255, 255, 0.02);
-    border-radius: 10px;
-    overflow: hidden;
+    min-width: 900px;
 }
 
 .gu-table-header {
     background: rgba(0, 200, 83, 0.1);
     border-bottom: 2px solid rgba(0, 200, 83, 0.3);
+    position: sticky;
+    top: 0;
+    z-index: 10;
 }
 
 .gu-table-header th {
@@ -175,27 +228,40 @@
     font-size: 0.9rem;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    white-space: nowrap;
+    background: rgba(0, 200, 83, 0.1);
+    backdrop-filter: blur(10px);
 }
 
 .gu-header-logo {
     width: 80px;
+    min-width: 80px;
     text-align: center;
 }
 
 .gu-header-name {
     width: 25%;
+    min-width: 200px;
 }
 
 .gu-header-nit {
     width: 20%;
+    min-width: 150px;
+}
+
+.gu-header-rol {
+    width: 15%;
+    min-width: 120px;
 }
 
 .gu-header-category {
     width: 15%;
+    min-width: 120px;
 }
 
 .gu-header-actions {
     width: 15%;
+    min-width: 120px;
     text-align: center;
 }
 
@@ -213,22 +279,32 @@
     padding: 1rem;
     color: rgba(255, 255, 255, 0.9);
     font-size: 0.9rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .gu-company-logo-cell {
     text-align: center;
+    padding: 0.5rem;
 }
 
 .gu-company-logo {
     width: 50px;
     height: 50px;
+    min-width: 50px;
+    min-height: 50px;
     border-radius: 50%;
     object-fit: cover;
     border: 2px solid #00c853;
+    background: rgba(255, 255, 255, 0.05);
 }
 
 .gu-company-name-cell {
     font-weight: 500;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .gu-company-nit-cell {
@@ -251,6 +327,8 @@
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    display: inline-block;
+    min-width: 80px;
 }
 
 .gu-status-active {
@@ -281,6 +359,8 @@
     cursor: pointer;
     transition: all 0.3s ease;
     font-size: 0.85rem;
+    white-space: nowrap;
+    min-width: 120px;
 }
 
 .gu-manage-button:hover {
@@ -298,6 +378,10 @@
     background: rgba(255, 255, 255, 0.03);
     border-radius: 10px;
     border: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
 }
 
 .gu-pagination-container {
@@ -323,6 +407,7 @@
     align-items: center;
     z-index: 1000;
     padding: 15px;
+    box-sizing: border-box;
 }
 
 .gu-modal-container {
@@ -351,6 +436,8 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
 }
 
 .gu-header-content h2 {
@@ -361,6 +448,7 @@
     display: flex;
     align-items: center;
     gap: 0.6rem;
+    flex-wrap: wrap;
 }
 
 .gu-header-icon {
@@ -380,6 +468,7 @@
     gap: 0.4rem;
     font-size: 0.85rem;
     backdrop-filter: blur(10px);
+    white-space: nowrap;
 }
 
 .gu-close-btn:hover {
@@ -446,6 +535,7 @@
     display: flex;
     flex-direction: column;
     gap: 0.4rem;
+    min-width: 0;
 }
 
 .gu-input-label {
@@ -455,11 +545,13 @@
     display: flex;
     align-items: center;
     gap: 0.4rem;
+    white-space: nowrap;
 }
 
 .gu-input-label svg {
     color: #00c853;
     width: 12px;
+    flex-shrink: 0;
 }
 
 .gu-input-field {
@@ -472,6 +564,8 @@
     transition: all 0.3s ease;
     backdrop-filter: blur(10px);
     height: 40px;
+    box-sizing: border-box;
+    width: 100%;
 }
 
 .gu-input-field:focus {
@@ -492,12 +586,18 @@
     height: 40px;
     display: flex;
     align-items: center;
+    box-sizing: border-box;
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 /* Botones de Estado y Rol */
 .gu-status-buttons {
     display: flex;
     gap: 0.6rem;
+    flex-wrap: wrap;
 }
 
 .gu-status-btn {
@@ -516,6 +616,8 @@
     justify-content: center;
     gap: 0.4rem;
     height: 40px;
+    min-width: 100px;
+    box-sizing: border-box;
 }
 
 .gu-status-btn:hover {
@@ -537,6 +639,7 @@
     height: 6px;
     border-radius: 50%;
     background: currentColor;
+    flex-shrink: 0;
 }
 
 .gu-status-btn.active .gu-status-dot {
@@ -561,6 +664,7 @@
     justify-content: center;
     gap: 0.4rem;
     height: 40px;
+    box-sizing: border-box;
 }
 
 .gu-status-display.activo {
@@ -735,6 +839,7 @@
     gap: 0.6rem;
     box-shadow: 0 4px 12px rgba(0, 200, 83, 0.3);
     flex-shrink: 0;
+    white-space: nowrap;
 }
 
 .gu-submit-btn:hover {
@@ -758,8 +863,96 @@
     border-radius: 3px;
 }
 
-/* Responsive para el Modal */
-@media (max-width: 968px) {
+/* ===== RESPONSIVIDAD COMPLETA ===== */
+
+/* Tablets grandes y laptops pequeños */
+@media (max-width: 1024px) {
+    .gu-section-principal {
+        padding: 1.2rem;
+        max-width: 100%;
+    }
+    
+    .gu-titulo {
+        font-size: 2rem;
+    }
+    
+    .gu-paragraph {
+        font-size: 1rem;
+    }
+    
+    .gu-filter-options {
+        grid-template-columns: 1fr 1fr;
+    }
+    
+    .gu-button {
+        grid-column: span 2;
+        justify-self: start;
+    }
+}
+
+/* Tablets */
+@media (max-width: 768px) {
+    .gu-pantalla {
+        width: 100%;
+        padding: 0.5rem;
+    }
+    
+    .gu-section-principal {
+        padding: 1rem;
+    }
+    
+    .gu-section-header {
+        padding: 1.2rem;
+    }
+    
+    .gu-titulo {
+        font-size: 1.8rem;
+        text-align: center;
+    }
+    
+    .gu-paragraph {
+        text-align: center;
+        font-size: 0.95rem;
+    }
+    
+    .gu-filter-options {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .gu-button {
+        grid-column: 1;
+        width: 100%;
+        justify-self: center;
+    }
+    
+    .gu-table-container {
+        max-height: 400px;
+    }
+    
+    .gu-table-wrapper {
+        border-radius: 8px;
+    }
+    
+    .gu-table-header th {
+        padding: 0.8rem;
+        font-size: 0.8rem;
+    }
+    
+    .gu-company-row td {
+        padding: 0.8rem;
+        font-size: 0.85rem;
+    }
+    
+    .gu-modal-overlay {
+        padding: 10px;
+    }
+    
+    .gu-modal-container {
+        max-height: 85vh;
+        max-width: 95%;
+    }
+    
     .gu-modal-content {
         grid-template-columns: 1fr;
     }
@@ -779,66 +972,110 @@
         width: 180px;
         height: 220px;
     }
-}
-
-@media (max-width: 768px) {
-    .gu-pantalla {
-        width: 95%;
-        padding: 1rem;
-    }
     
-    .gu-section-header {
-        padding: 1.2rem;
-    }
-    
-    .gu-titulo {
-        font-size: 1.8rem;
-    }
-    
-    .gu-filter-options {
-        grid-template-columns: 1fr;
-        gap: 1rem;
-    }
-    
-    .gu-modal-container {
-        max-height: 85vh;
-    }
-    
-    .gu-modal-header {
-        padding: 1rem;
+    .gu-header-content {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.8rem;
     }
     
     .gu-header-content h2 {
-        font-size: 1.2rem;
+        justify-content: center;
     }
     
-    .gu-info-column {
-        padding: 1.2rem;
-    }
-    
-    .gu-image-display,
-    .gu-image-upload {
-        width: 160px;
-        height: 200px;
+    .gu-close-btn {
+        width: 100%;
+        justify-content: center;
     }
 }
 
+/* Teléfonos grandes */
 @media (max-width: 480px) {
+    .gu-section-principal {
+        padding: 0.8rem;
+    }
+    
+    .gu-section-header {
+        padding: 1rem;
+        border-radius: 15px;
+    }
+    
+    .gu-titulo {
+        font-size: 1.6rem;
+        line-height: 1.3;
+    }
+    
+    .gu-titulo-verde {
+        display: block;
+    }
+    
+    .gu-paragraph {
+        font-size: 0.9rem;
+    }
+    
+    .gu-filter {
+        padding: 1.2rem;
+    }
+    
+    .gu-result-table {
+        padding: 1.2rem;
+    }
+    
+    .gu-table-container {
+        max-height: 350px;
+        min-height: 150px;
+    }
+    
+    .gu-table-header th {
+        padding: 0.6rem 0.5rem;
+        font-size: 0.75rem;
+    }
+    
+    .gu-company-row td {
+        padding: 0.6rem 0.5rem;
+        font-size: 0.8rem;
+    }
+    
+    .gu-company-logo {
+        width: 40px;
+        height: 40px;
+        min-width: 40px;
+        min-height: 40px;
+    }
+    
+    .gu-status-pill {
+        padding: 0.3rem 0.6rem;
+        font-size: 0.7rem;
+        min-width: 70px;
+    }
+    
+    .gu-manage-button {
+        padding: 0.5rem 0.8rem;
+        font-size: 0.8rem;
+        min-width: 100px;
+    }
+    
     .gu-modal-overlay {
-        padding: 10px;
+        padding: 8px;
     }
     
     .gu-modal-container {
-        border-radius: 12px;
         max-height: 90vh;
+        border-radius: 12px;
     }
     
     .gu-modal-header {
-        padding: 0.8rem;
+        padding: 1rem;
     }
     
     .gu-header-content h2 {
         font-size: 1.1rem;
+        justify-content: center;
+    }
+    
+    .gu-close-btn {
+        padding: 0.5rem 0.8rem;
+        font-size: 0.8rem;
     }
     
     .gu-close-btn span {
@@ -854,14 +1091,19 @@
         padding: 1rem;
     }
     
+    .gu-section-title {
+        font-size: 1rem;
+        justify-content: center;
+    }
+    
     .gu-image-column {
         padding: 1rem;
     }
     
     .gu-image-display,
     .gu-image-upload {
-        width: 140px;
-        height: 180px;
+        width: 160px;
+        height: 200px;
     }
     
     .gu-submit-btn {
@@ -871,5 +1113,60 @@
     
     .gu-status-buttons {
         flex-direction: column;
+    }
+    
+    .gu-status-btn {
+        min-width: 100%;
+    }
+}
+
+/* Teléfonos muy pequeños */
+@media (max-width: 360px) {
+    .gu-titulo {
+        font-size: 1.4rem;
+    }
+    
+    .gu-titulo-filtrar {
+        font-size: 1.1rem;
+        text-align: center;
+    }
+    
+    .gu-label-filter-result {
+        font-size: 0.8rem;
+        padding: 0.5rem 0.8rem;
+        display: block;
+        text-align: center;
+    }
+    
+    .gu-table-container {
+        max-height: 300px;
+    }
+    
+    .gu-table-header th {
+        font-size: 0.7rem;
+        padding: 0.5rem 0.4rem;
+    }
+    
+    .gu-company-row td {
+        font-size: 0.75rem;
+        padding: 0.5rem 0.4rem;
+    }
+    
+    .gu-company-logo {
+        width: 35px;
+        height: 35px;
+        min-width: 35px;
+        min-height: 35px;
+    }
+    
+    .gu-image-display,
+    .gu-image-upload {
+        width: 140px;
+        height: 180px;
+    }
+    
+    .gu-modal-container {
+        max-width: 100%;
+        max-height: 95vh;
     }
 }

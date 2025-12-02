@@ -1,5 +1,4 @@
 import "./SeeCriteria.css";
-
 import { Header } from "../../../Layouts/Header/Header";
 import { Main } from "../../../Layouts/Main/Main";
 import { useEffect, useState } from "react";
@@ -9,21 +8,39 @@ import { PageMover } from "../../../UI/PageMover/PageMover";
 import { generarExcelHistorial } from "../../../../utils/Reports/Criterios";
 import { ReportCertification } from "../ReportCertification.jsx/ReportCertification";
 import { useRef } from "react";
-import html2pdf from "html2pdf.js"
+import html2pdf from "html2pdf.js";
 import Swal from "sweetalert2";
-import 'sweetalert2/themes/bulma.css'
+import 'sweetalert2/themes/bulma.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+	faFilter,
+	faTimes,
+	faArrowLeft,
+	faDownload,
+	faFilePdf,
+	faFileExcel,
+	faUserGraduate,
+	faIdCard,
+	faClipboardCheck,
+	faChartLine,
+	faCheckCircle,
+	faClock,
+	faTimesCircle,
+	faSpinner,
+	faUser,
+	faFileAlt
+} from '@fortawesome/free-solid-svg-icons';
 
 export const SeeCourseCriteria = () => {
 	const navigate = useNavigate();
-
 	const { id } = useParams();
 
 	const [showFilters, setShowFilters] = useState(false);
 	const [showingDownloadOptions, setShowingDownloadingOptions] = useState(false);
 	const [showAprenticeCriteria, setShowAprenticeCriteria] = useState(false);
-	const [doneGenerating, setDoneGenerating] = useState(false)
-	const [generating, setGenerating] = useState(false)
-	const [reportContent, setReportContent] = useState(false)
+	const [doneGenerating, setDoneGenerating] = useState(false);
+	const [generating, setGenerating] = useState(false);
+	const [reportContent, setReportContent] = useState(false);
 
 	const [curso, setCurso] = useState();
 	const [aprentices, setAprentices] = useState([]);
@@ -37,14 +54,13 @@ export const SeeCourseCriteria = () => {
 	const [aprenticeCriteria, setAprenticeCriteria] = useState([]);
 	const [certificationStatus, setCertificationStatus] = useState("pendiente");
 	const [certificationDenialReason, setCertificationDenialStatus] = useState("");
-	
-	const pdfContent = useRef()
+	const [loading, setLoading] = useState(false);
+
+	const pdfContent = useRef();
 
 	async function fetchCourse() {
 		try {
-			const response = await axiosInstance.get(
-				`api/courses/cursos/${id}`
-			);
+			const response = await axiosInstance.get(`api/courses/cursos/${id}`);
 			setCurso(response.data);
 		} catch (error) {
 			console.error("Error al obtener el curso:", error);
@@ -53,42 +69,44 @@ export const SeeCourseCriteria = () => {
 
 	async function fetchAprentices() {
 		try {
+			setLoading(true);
 			const response = await axiosInstance.get(
-				`/api/courses/cursos/${id}/participants?page=${page}${
-					aprenticeName?.length > 0 ? `&name=${aprenticeName}` : ""
-				}${personId?.length > 0 ? `&doc=${personId}` : ""}${
-					aprenticeStatus != 0
-						? aprenticeStatus == 1
-							? `&state=activo`
-							: `&state=inactivo`
-						: ""
+				`/api/courses/cursos/${id}/participants?page=${page}${aprenticeName?.length > 0 ? `&name=${aprenticeName}` : ""
+				}${personId?.length > 0 ? `&doc=${personId}` : ""}${aprenticeStatus != 0
+					? aprenticeStatus == 1
+						? `&state=activo`
+						: `&state=inactivo`
+					: ""
 				}`
 			);
 			if (!response.data.success) throw response.data;
-			setAprentices(
-				response.data.participants.map((aprentice) => {
-					return {
-						name: `${aprentice.aprendiz.nombres} ${aprentice.aprendiz.apellidos}`,
-						personId: aprentice.aprendiz.documento,
-						state: aprentice.aprendiz.estado,
-						certState: aprentice.estado_certificacion,
-						id: aprentice.aprendiz.ID,
-					};
-				})
-			);
+
+			const participants = response.data.participants.map((aprentice) => {
+				return {
+					name: `${aprentice.aprendiz.nombres} ${aprentice.aprendiz.apellidos}`,
+					personId: aprentice.aprendiz.documento,
+					state: aprentice.aprendiz.estado,
+					certState: aprentice.estado_certificacion,
+					id: aprentice.aprendiz.ID,
+				};
+			});
+
+			setAprentices(participants);
 			setPages(response.data.pages);
 		} catch (error) {
 			console.error(error);
 			Swal.fire({
-				icon:"error",
-				title:"Error al consultar",
-				text:"Ocurrió un error al consultar los aprendices del curso.",
-				confirmButtonText:"Okay",
-				theme: "bulma", // Añadido tema Bulma
+				icon: "error",
+				title: "Error al consultar",
+				text: "Ocurrió un error al consultar los aprendices del curso.",
+				confirmButtonText: "Okay",
+				theme: "bulma",
 				customClass: {
 					confirmButton: 'centered-swal-button'
 				}
-			})
+			});
+		} finally {
+			setLoading(false);
 		}
 	}
 
@@ -108,15 +126,15 @@ export const SeeCourseCriteria = () => {
 		} catch (error) {
 			console.error(error);
 			Swal.fire({
-				icon:"error",
-				title:"Error al consultar",
-				text:"Ocurrió un error al consultar los resultados de los criterios",
-				confirmButtonText:"Okay",
-				theme: "bulma", // Añadido tema Bulma
+				icon: "error",
+				title: "Error al consultar",
+				text: "Ocurrió un error al consultar los resultados de los criterios",
+				confirmButtonText: "Okay",
+				theme: "bulma",
 				customClass: {
 					confirmButton: 'centered-swal-button'
 				}
-			})
+			});
 			setShowAprenticeCriteria(false);
 		}
 	}
@@ -129,20 +147,17 @@ export const SeeCourseCriteria = () => {
 	}
 
 	async function saveChanges() {
-		if (
-			certificationStatus == "rechazado" &&
-			certificationDenialReason.length < 10
-		) {
+		if (certificationStatus == "rechazado" && certificationDenialReason.length < 10) {
 			Swal.fire({
-				icon:"info",
-				title:"Escriba motivo de rechazo",
-				text:"Se debe escribir el motivo por el cual no se aprovó la certificación",
-				confirmButtonText:"Okay",
-				theme: "bulma", // Añadido tema Bulma
+				icon: "info",
+				title: "Escriba motivo de rechazo",
+				text: "Se debe escribir el motivo por el cual no se aprobó la certificación (mínimo 10 caracteres)",
+				confirmButtonText: "Okay",
+				theme: "bulma",
 				customClass: {
 					confirmButton: 'centered-swal-button'
 				}
-			})
+			});
 			return;
 		}
 
@@ -154,49 +169,53 @@ export const SeeCourseCriteria = () => {
 					justification: certificationDenialReason,
 				}
 			);
+
 			Swal.fire({
-				icon:"success",
-				title:"¡Éxito!",
-				text:"Se ha actualizado el estado de la certificación del aprendiz",
-				confirmButtonColor:"rgba(5, 172, 28, 1)",
-				timer:3000,
-				timerProgressBar:true,
-				theme: "bulma", // Añadido tema Bulma
+				icon: "success",
+				title: "¡Éxito!",
+				text: "Se ha actualizado el estado de la certificación del aprendiz",
+				confirmButtonColor: "rgba(5, 172, 28, 1)",
+				timer: 3000,
+				timerProgressBar: true,
+				theme: "bulma",
 				customClass: {
 					confirmButton: 'centered-swal-button'
 				}
-			})
+			});
+
+			// Actualizar la lista de aprendices
+			fetchAprentices();
+			setShowAprenticeCriteria(false);
 		} catch (error) {
 			console.error(error);
 			Swal.fire({
-				icon:"error",
-				title:"Error al actualizar",
-				text:"Ocurrió un error al actualizar el estado de la certificación",
-				confirmButtonText:"Okay",
-				theme: "bulma", // Añadido tema Bulma
+				icon: "error",
+				title: "Error al actualizar",
+				text: "Ocurrió un error al actualizar el estado de la certificación",
+				confirmButtonText: "Okay",
+				theme: "bulma",
 				customClass: {
 					confirmButton: 'centered-swal-button'
 				}
-			})
-			//setShowAprenticeCriteria(false)
+			});
 		}
 	}
 
 	async function filter() {
-		fetchAprentices();
+		await fetchAprentices();
 		setShowFilters(false);
 	}
 
 	async function generateCert() {
 		Swal.fire({
-			icon:"info",
-			title:"Sin implementar",
-			text:"Aún no implementado",
-			theme: "bulma", // Añadido tema Bulma
+			icon: "info",
+			title: "Sin implementar",
+			text: "Aún no implementado",
+			theme: "bulma",
 			customClass: {
 				confirmButton: 'centered-swal-button'
 			}
-		})
+		});
 	}
 
 	const userSession =
@@ -206,12 +225,7 @@ export const SeeCourseCriteria = () => {
 	const accountType = userSession?.accountType || null;
 
 	useEffect(() => {
-		if (
-			isLoggedIn &&
-			(accountType === "Instructor" ||
-				accountType == "Administrador" ||
-				accountType === "Gestor")
-		) {
+		if (isLoggedIn && (accountType === "Instructor" || accountType == "Administrador" || accountType === "Gestor")) {
 			fetchCourse();
 			fetchAprentices();
 		} else {
@@ -220,49 +234,83 @@ export const SeeCourseCriteria = () => {
 	}, [id]);
 
 	useEffect(() => {
-		if (
-			isLoggedIn &&
-			(accountType === "Instructor" ||
-				accountType == "Administrador" ||
-				accountType === "Gestor")
-		) {
-			fetchCourse();
+		if (isLoggedIn && (accountType === "Instructor" || accountType == "Administrador" || accountType === "Gestor")) {
 			fetchAprentices();
-		} else {
-			navigate("/no-autorizado");
 		}
 	}, [page]);
 
 	const generarPdf = async () => {
-		setGenerating(true)
-	}
+		setGenerating(true);
+	};
 
 	const generarReporte = async () => {
 		try {
 			if (reportType === "pdf") {
-				if (!pdfContent.current)
-					return
+				if (!pdfContent.current) return;
+
 				const worker = html2pdf().set({
 					margin: 10,
-					filename: "reporte_cursos.pdf",
+					filename: "reporte_certificaciones.pdf",
 					html2canvas: { scale: 2 },
 					jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-				}).from(pdfContent.current)
-				setGenerating(false)
-				setDoneGenerating(true)
-				setReportContent(await worker.output("bloburl"))
+				}).from(pdfContent.current);
+
+				const blob = await worker.output("blob");
+				const blobUrl = URL.createObjectURL(blob);
+
+				setGenerating(false);
+				setDoneGenerating(true);
+				setReportContent(blobUrl);
+
+				// Auto-descarga
+				const a = document.createElement('a');
+				a.href = blobUrl;
+				a.download = "reporte_certificaciones.pdf";
+				document.body.appendChild(a);
+				a.click();
+				document.body.removeChild(a);
+
+				Swal.fire({
+					icon: "success",
+					title: "¡Reporte generado!",
+					text: "El reporte se ha descargado exitosamente",
+					confirmButtonText: "Excelente",
+					theme: "bulma"
+				});
+
+				setShowingDownloadingOptions(false);
 			}
 		} catch (error) {
-			console.log(error)
+			console.log(error);
 			Swal.fire({
-				icon:"error",
-				title:"Error al generar el reporte",
-				text:"Ocurrió un error al generar el reporte, intentelo otra vez",
-			})
-			setDoneGenerating(false)
-			setGenerating(false)
+				icon: "error",
+				title: "Error al generar el reporte",
+				text: "Ocurrió un error al generar el reporte, inténtelo otra vez",
+				theme: "bulma"
+			});
+			setDoneGenerating(false);
+			setGenerating(false);
 		}
-	}
+	};
+
+	const clearFilters = () => {
+		setAprenticeName("");
+		setPersonId("");
+		setAprenticeStatus(0);
+	};
+
+	const getStatusClass = (status) => {
+		return status.toLowerCase();
+	};
+
+	const getCertIcon = (certState) => {
+		switch (certState?.toLowerCase()) {
+			case 'aprovado': return <FontAwesomeIcon icon={faCheckCircle} className="approved-icon" />;
+			case 'pendiente': return <FontAwesomeIcon icon={faClock} className="pending-icon" />;
+			case 'rechazado': return <FontAwesomeIcon icon={faTimesCircle} className="rejected-icon" />;
+			default: return null;
+		}
+	};
 
 	return (
 		<>
@@ -273,359 +321,422 @@ export const SeeCourseCriteria = () => {
 						Criterios de{" "}
 						<span className="complementary">Certificación</span>
 					</h2>
-					<div className="buttons">
+
+					<div className="buttons-container">
 						<button
 							className="button see-criteria-button"
-							onClick={() =>
-								navigate(`/Gestiones/Criterios/Curso/${id}`)
-							}
+							onClick={() => navigate(`/Gestiones/Criterios/Curso/${id}`)}
 						>
-							Ver criterios
+							<FontAwesomeIcon icon={faClipboardCheck} />
+							<span>Ver criterios del curso</span>
 						</button>
 						<button
 							className="button criteria-aprentice-filter-dropdown"
 							onClick={() => setShowFilters(!showFilters)}
 						>
-							Filtro {showFilters ? <>&#9662;</> : <>&#9652;</>}
+							<FontAwesomeIcon icon={faFilter} />
+							<span>Filtro {showFilters ? "▲" : "▼"}</span>
 						</button>
 					</div>
+
 					{showFilters && (
 						<div className="options_Search search-aprentice">
-							<label>Aprendiz:</label>
-							<input
-								type="text"
-								className="search-input"
-								placeholder="Nombre..."
-								value={aprenticeName}
-								onChange={(e) =>
-									setAprenticeName(e.target.value)
-								}
-							/>
-							<label>Documento:</label>
-							<input
-								type="text"
-								className="search-input"
-								placeholder="N. del documento..."
-								value={personId}
-								onChange={(e) => setPersonId(e.target.value)}
-							/>
-							<label htmlFor="estado">Estado:</label>
-							<div className="statusButtons">
+							<div className="filter-group">
+								<label>
+									<FontAwesomeIcon icon={faUserGraduate} />
+									<span>Aprendiz:</span>
+								</label>
+								<input
+									type="text"
+									className="search-input"
+									placeholder="Nombre del aprendiz..."
+									value={aprenticeName}
+									onChange={(e) => setAprenticeName(e.target.value)}
+								/>
+							</div>
+
+							<div className="filter-group">
+								<label>
+									<FontAwesomeIcon icon={faIdCard} />
+									<span>Documento:</span>
+								</label>
+								<input
+									type="text"
+									className="search-input"
+									placeholder="Número de documento..."
+									value={personId}
+									onChange={(e) => setPersonId(e.target.value)}
+								/>
+							</div>
+
+							<div className="filter-group">
+								<label>
+									<FontAwesomeIcon icon={faChartLine} />
+									<span>Estado:</span>
+								</label>
+								<div className="statusButtons">
+									<button
+										className={`status-btn ${aprenticeStatus == 1 ? "selected" : ""}`}
+										onClick={() => selectStatus(1)}
+									>
+										Activo
+									</button>
+									<button
+										className={`status-btn ${aprenticeStatus == -1 ? "selected" : ""}`}
+										onClick={() => selectStatus(-1)}
+									>
+										Inactivo
+									</button>
+								</div>
+							</div>
+
+							<div className="filter-group">
 								<button
-									className={`status-btn ${
-										aprenticeStatus == 1 ? "selected" : ""
-									}`}
-									onClick={() => selectStatus(1)}
+									className="button"
+									onClick={filter}
+									disabled={loading}
 								>
-									Activo
-								</button>
-								<button
-									className={`status-btn ${
-										aprenticeStatus == -1 ? "selected" : ""
-									}`}
-									onClick={() => selectStatus(-1)}
-								>
-									Inactivo
+									{loading ? (
+										<>
+											<FontAwesomeIcon icon={faSpinner} className="spinner" />
+											<span>Filtrando...</span>
+										</>
+									) : (
+										<>
+											<FontAwesomeIcon icon={faFilter} />
+											<span>Aplicar filtros</span>
+										</>
+									)}
 								</button>
 							</div>
-							<button
-								style={{
-									alignSelf: "center",
-									marginTop: "2%",
-								}}
-								onClick={() => filter()}
-								className="button"
-							>
-								Filtrar
-							</button>
 						</div>
 					)}
+
 					<div className="aprentice-list-container">
 						<div className="aprentice-list-header">
 							<span>Aprendiz</span>
-							<span>Documentos</span>
+							<span>Documento</span>
 							<span>Estado</span>
-							<span>Estado de certificación</span>
-							<span>Detalles</span>
+							<span>Certificación</span>
+							<span>Acciones</span>
 						</div>
+
 						{aprentices.length > 0 ? (
 							aprentices.map((a, i) => (
 								<div
 									key={i}
 									className="aprentice-list"
-									style={{
-										backgroundColor:
-											i % 2 == 0
-												? "#474747ff"
-												: "#5b5b5bff",
-									}}
 								>
-									<span>{a.name}</span>
-									<span>{a.personId}</span>
-									<span>{a.state}</span>
-									<span>{a.certState}</span>
+									<span data-label="Aprendiz">
+										<FontAwesomeIcon icon={faUserGraduate} />
+										{a.name}
+									</span>
+									<span data-label="Documento">{a.personId}</span>
+									<span data-label="Estado" className={`status-${getStatusClass(a.state)}`}>
+										{a.state}
+									</span>
+									<span data-label="Certificación" className={`cert-${getStatusClass(a.certState)}`}>
+										{getCertIcon(a.certState)}
+										{a.certState}
+									</span>
 									<button onClick={() => selectAprentice(a)}>
-										Ver criterios
+										<FontAwesomeIcon icon={faClipboardCheck} />
+										<span>Ver criterios</span>
 									</button>
 								</div>
 							))
 						) : (
 							<div className="no-aprentices-list">
-								El curso aún no tiene aprendices asignados
+								{loading ? (
+									<>
+										<FontAwesomeIcon icon={faSpinner} className="spinner" />
+										<span>Cargando aprendices...</span>
+									</>
+								) : (
+									"El curso aún no tiene aprendices asignados"
+								)}
 							</div>
 						)}
 					</div>
-					<PageMover
-						value={page + 1}
-						max={pages}
-						next={() => {
-							setPage(page + 1);
-						}}
-						prev={() => {
-							setPage(page - 1);
-						}}
-					/>
+
+					{aprentices.length > 0 && (
+						<PageMover
+							value={page + 1}
+							max={pages}
+							next={() => setPage(page + 1)}
+							prev={() => setPage(page - 1)}
+						/>
+					)}
+
 					<button
 						className="button end-button"
 						onClick={() => setShowingDownloadingOptions(true)}
+						disabled={aprentices.length === 0}
 					>
-						Generar reporte
+						<FontAwesomeIcon icon={faDownload} />
+						<span>Generar reporte</span>
 					</button>
 				</div>
+
+				{/* Modal de selección de reporte - Estilo igual al ejemplo */}
 				{showingDownloadOptions && (
-					<div className="modal-overlay">
-						<div
-							className="modal-background"
-							style={{
-								height: "fit-content",
-								paddingBottom: "20px",
-								width: "35%",
-								minHeight: "fit-content",
-							}}
-						>
-							<div className="container_return_EditCalendar">
-								<h5
-									onClick={() =>
-										setShowingDownloadingOptions(false)
-									}
-									style={{ cursor: "pointer" }}
-								>
-									Volver
-								</h5>
-								<button
-									onClick={() =>
-										setShowingDownloadingOptions(false)
-									}
-									className="closeModal"
-								></button>
-							</div>
-							<h2 className="modal-title-edit-calendar">
-								Tipo de reporte
-							</h2>
-							<div
-								className="statusButtons"
-								style={{
-									width: "90%",
-								}}
-							>
-								<button
-									className={`status-btn ${
-										reportType == "pdf" && "selected"
-									}`}
-									onClick={() => setReportType("pdf")}
-								>
-									PDF
-								</button>
-								<button
-									className={`status-btn ${
-										reportType == "excel" && "selected"
-									}`}
-									onClick={() => setReportType("excel")}
-								>
-									Excel
-								</button>
-							</div>
-							{reportType === "excel" ?
-								<button
-									className="button"
-									style={{
-										marginTop: "20px",
-									}}
-									onClick={() => generarExcelHistorial(aprentices, curso, id, () => setShowingDownloadingOptions(false))}
-								>
-									Descargar reporte
-								</button>	
-							:
-								<>
-									<button
-										className="button"
-										style={{
-											marginTop: "20px",
-										}}
-										onClick={() => generarPdf()}
+					<div className="modal-overlay-reports">
+						<div className="modal-container-reports">
+							<div className="modal-header-reports">
+								<div className="header-content-reports">
+									<h2>
+										<FontAwesomeIcon icon={faFileAlt} className="header-icon-reports" />
+										Tipo de Reporte
+									</h2>
+									<button 
+										type="button" 
+										onClick={() => setShowingDownloadingOptions(false)}
+										className="close-btn-reports"
 									>
-										Generar reporte
+										<FontAwesomeIcon icon={faArrowLeft} />
+										<span>Volver</span>
 									</button>
-									{generating &&
-										<ReportCertification
-											contentKey={pdfContent}
-											curso={curso}
-											aprendices={aprentices}
-											done={() => {
-												generarReporte()
-											}}
-										/>
-									}
-									{doneGenerating && (
-										<a
-											className="button"
-											href={reportContent}
-											target="_blank"
-											rel="noopener noreferrer"
-											style={{
-												marginTop: "20px",
-												textDecoration: "none"
-											}}
-										>
-											Descargar
-										</a>
-									)}
-								</>
-							}
+								</div>
+							</div>
+
+							<div className="modal-body-reports">
+								<div className="modal-content-reports">
+									<div className="form-section-reports">
+										<div className="report-type-selector">
+											<div className="status-buttons-reports">
+												<button
+													className={`status-btn-reports ${reportType === "pdf" ? "active" : ""}`}
+													onClick={() => setReportType("pdf")}
+												>
+													<FontAwesomeIcon icon={faFilePdf} />
+													<span>PDF</span>
+												</button>
+												<button
+													className={`status-btn-reports ${reportType === "excel" ? "active" : ""}`}
+													onClick={() => setReportType("excel")}
+												>
+													<FontAwesomeIcon icon={faFileExcel} />
+													<span>Excel</span>
+												</button>
+											</div>
+
+											<div className="report-actions">
+												{reportType === "excel" ? (
+													<button
+														type="button"
+														className="submit-btn-reports"
+														onClick={() => generarExcelHistorial(aprentices, curso, id, () => setShowingDownloadingOptions(false))}
+													>
+														<FontAwesomeIcon icon={faDownload} />
+														<span>Descargar Reporte Excel</span>
+													</button>
+												) : (
+													<>
+														<button
+															type="button"
+															className="submit-btn-reports"
+															onClick={generarPdf}
+															disabled={generating}
+														>
+															{generating ? (
+																<>
+																	<FontAwesomeIcon icon={faSpinner} className="spinner" spin />
+																	<span>Generando PDF...</span>
+																</>
+															) : (
+																<>
+																	<FontAwesomeIcon icon={faFilePdf} />
+																	<span>Generar Reporte PDF</span>
+																</>
+															)}
+														</button>
+
+														{generating && (
+															<ReportCertification
+																contentKey={pdfContent}
+																curso={curso}
+																aprendices={aprentices}
+																done={generarReporte}
+															/>
+														)}
+
+														{doneGenerating && (
+															<a
+																className="submit-btn-reports secondary"
+																href={reportContent}
+																target="_blank"
+																rel="noopener noreferrer"
+																download="reporte_certificaciones.pdf"
+															>
+																<FontAwesomeIcon icon={faDownload} />
+																<span>Descargar PDF Generado</span>
+															</a>
+														)}
+													</>
+												)}
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
 						</div>
 					</div>
 				)}
-				{showAprenticeCriteria && (
-					<div className="modal-overlay">
-						<div
-							className="modal-background"
-							style={{
-								paddingBottom: "20px",
-								width: "35%",
-								minWidth: "450px",
-								maxHeight: "fit-content",
-							}}
-						>
-							<div className="container_return_EditCalendar">
-								<h5
-									onClick={() =>
-										setShowAprenticeCriteria(false)
-									}
-									style={{ cursor: "pointer" }}
-								>
-									Volver
-								</h5>
-								<button
-									onClick={() =>
-										setShowAprenticeCriteria(false)
-									}
-									className="closeModal"
-								></button>
-							</div>
-							<h2 className="modal-title-edit-calendar">
-								Criterios
-							</h2>
-							<div className="person-criteria-container">
-								<label>Nombre: </label>
-								<span>{selectedAprentice.name}</span>
-								<label>Documentos:</label>
-								<span>{selectedAprentice.personId}</span>
-								{aprenticeCriteria.map((criteria) => {
-									//console.log(criteria)
-									return (
-										<>
-											<label>{criteria.title}</label>
-											<div className="person-criteria-item">
-												{criteria.has_value && (
-													<div className="person-criteria-value">
-														<span>
-															{criteria.value}
-														</span>
-														<span>/</span>
-														<span>
-															{criteria.min}
-														</span>
-													</div>
-												)}
-											</div>
-										</>
-									);
-								})}
-								<div className="certification-status">
-									<button
-										className={`status-btn ${
-											certificationStatus == "aprovado"
-												? "selected"
-												: ""
-										}`}
-										onClick={() =>
-											setCertificationStatus("aprovado")
-										}
+
+				{/* Modal de criterios del aprendiz - Estilo igual al ejemplo */}
+				{showAprenticeCriteria && selectedAprentice && (
+					<div className="modal-overlay-criteria">
+						<div className="modal-container-criteria">
+							<div className="modal-header-criteria">
+								<div className="header-content-criteria">
+									<h2>
+										<FontAwesomeIcon icon={faClipboardCheck} className="header-icon-criteria" />
+										Criterios del Aprendiz
+									</h2>
+									<button 
+										type="button" 
+										onClick={() => setShowAprenticeCriteria(false)}
+										className="close-btn-criteria"
 									>
-										Aprovado
-									</button>
-									<button
-										className={`status-btn ${
-											certificationStatus == "pendiente"
-												? "selected"
-												: ""
-										}`}
-										onClick={() =>
-											setCertificationStatus("pendiente")
-										}
-									>
-										Pendiente
-									</button>
-									<button
-										className={`status-btn ${
-											certificationStatus == "rechazado"
-												? "selected"
-												: ""
-										}`}
-										onClick={() =>
-											setCertificationStatus("rechazado")
-										}
-										style={
-											certificationStatus == "rechazado"
-												? {
-														backgroundColor: "red",
-												  }
-												: {}
-										}
-									>
-										Rechazado
+										<FontAwesomeIcon icon={faArrowLeft} />
+										<span>Volver</span>
 									</button>
 								</div>
-								{certificationStatus == "rechazado" && (
-									<textarea
-										type="text"
-										className="search-input reason-textarea"
-										placeholder="Escriba la razón por la que se rechazó la certificación..."
-										value={certificationDenialReason}
-										onChange={(e) =>
-											setCertificationDenialStatus(
-												e.target.value
-											)
-										}
-									></textarea>
-								)}
-								<button
-									className="button"
-									onClick={() => saveChanges()}
-								>
-									{certificationStatus == "aprovado"
-										? "Certificar"
-										: "Guardar cambios"}
-								</button>
-								{certificationStatus == "aprovado" && (
-									<button
-										className="button"
-										onClick={() => generateCert()}
-									>
-										Generar certificado
-									</button>
-								)}
 							</div>
+
+							<form className="modal-body-criteria" onSubmit={(e) => { e.preventDefault(); saveChanges(); }}>
+								<div className="modal-content-criteria">
+									<div className="info-column-criteria">
+										<div className="form-section-criteria">
+											<h3 className="section-title-criteria">
+												<FontAwesomeIcon icon={faUserGraduate} />
+												Información del Aprendiz
+											</h3>
+											<div className="form-grid-criteria">
+												<div className="input-group-criteria">
+													<label className="input-label-criteria">
+														<FontAwesomeIcon icon={faUser} />
+														Nombre Completo
+													</label>
+													<div className="display-field-criteria">
+														{selectedAprentice.name}
+													</div>
+												</div>
+
+												<div className="input-group-criteria">
+													<label className="input-label-criteria">
+														<FontAwesomeIcon icon={faIdCard} />
+														Documento
+													</label>
+													<div className="display-field-criteria">
+														{selectedAprentice.personId}
+													</div>
+												</div>
+											</div>
+										</div>
+
+										<div className="form-section-criteria">
+											<h3 className="section-title-criteria">
+												<FontAwesomeIcon icon={faClipboardCheck} />
+												Criterios de Evaluación
+											</h3>
+											<div className="criteria-list">
+												{aprenticeCriteria.map((criteria, index) => (
+													<div key={index} className="criteria-item-criteria">
+														<div className="criteria-info">
+															<span className="criteria-title">{criteria.title}</span>
+															{criteria.has_value && (
+																<div className="criteria-value-criteria">
+																	<span className="current-value">{criteria.value || 0}</span>
+																	<span className="separator">/</span>
+																	<span className="required-value">{criteria.min}</span>
+																</div>
+															)}
+														</div>
+														{!criteria.has_value && (
+															<div className="criteria-status">
+																<span className={`status-indicator ${criteria.approved ? 'approved' : 'pending'}`}>
+																	{criteria.approved ? '✓ Cumple' : '✗ No cumple'}
+																</span>
+															</div>
+														)}
+													</div>
+												))}
+											</div>
+										</div>
+									</div>
+
+									<div className="action-column-criteria">
+										<div className="form-section-criteria">
+											<h3 className="section-title-criteria">
+												<FontAwesomeIcon icon={faCheckCircle} />
+												Estado de Certificación
+											</h3>
+											
+											<div className="certification-status-criteria">
+												<div className="status-buttons-criteria">
+													{["aprovado", "pendiente", "rechazado"].map((estado) => {
+														const isSelected = certificationStatus?.toLowerCase() === estado.toLowerCase();
+														const icon = estado === "aprovado" ? faCheckCircle : 
+															estado === "pendiente" ? faClock : 
+															faTimesCircle;
+														return (
+															<button
+																key={estado}
+																type="button"
+																className={`status-btn-criteria ${isSelected ? "active" : ""} ${estado}`}
+																onClick={() => setCertificationStatus(estado)}
+															>
+																<FontAwesomeIcon icon={icon} />
+																<span className="status-text">
+																	{estado.charAt(0).toUpperCase() + estado.slice(1)}
+																</span>
+															</button>
+														);
+													})}
+												</div>
+											</div>
+
+											{certificationStatus === "rechazado" && (
+												<div className="rejection-reason-criteria">
+													<label className="input-label-criteria">
+														Motivo del Rechazo:
+													</label>
+													<textarea
+														className="reason-textarea-criteria"
+														placeholder="Escriba la razón por la que se rechazó la certificación (mínimo 10 caracteres)..."
+														value={certificationDenialReason}
+														onChange={(e) => setCertificationDenialStatus(e.target.value)}
+														rows="4"
+													/>
+												</div>
+											)}
+
+											<div className="action-buttons-criteria">
+												<button type="submit" className="submit-btn-criteria primary">
+													<FontAwesomeIcon icon={faCheckCircle} />
+													<span>
+														{certificationStatus === "aprovado"
+															? "Certificar Aprendiz"
+															: "Guardar Cambios"}
+													</span>
+												</button>
+
+												{certificationStatus === "aprovado" && (
+													<button
+														type="button"
+														className="submit-btn-criteria secondary"
+														onClick={generateCert}
+													>
+														<FontAwesomeIcon icon={faDownload} />
+														<span>Generar Certificado</span>
+													</button>
+												)}
+											</div>
+										</div>
+									</div>
+								</div>
+							</form>
 						</div>
 					</div>
 				)}

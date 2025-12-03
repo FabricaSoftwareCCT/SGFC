@@ -348,7 +348,7 @@ export const GestionUsuarios = () => {
 										<input
 											className="gu-input-filter-text"
 											type="text"
-											placeholder="Escriba el nombre del usuario"
+											placeholder="Escriba el número de documento"
 											value={document}
 											onChange={(e) => setDocument(e.target.value)}
 										/>
@@ -366,26 +366,28 @@ export const GestionUsuarios = () => {
 									{total} Resultados · Página {page + 1} de {totalPages}
 								</label>
 							</div>
-							<div className="gu-table-container">
-								{users.length > 0 ?
-									<table className="gu-companies-table">
-										<thead>
-											<tr className="gu-table-header">
-												<th className="gu-header-logo">Foto</th>
-												<th className="gu-header-name">Nombre</th>
-												<th className="gu-header-nit">Documento</th>
-												<th className="gu-header-name">Rol</th>
-												<th className="gu-header-category">Estado</th>
-												<th className="gu-header-actions">Acciones</th>
-											</tr>
-										</thead>
-										<tbody>
-											{users.map(renderUser)}
-										</tbody>
-									</table>
-								:
-									<div className="gu-no-results">No se encontraron usuarios.</div>
-								}
+							<div className="gu-table-wrapper">
+								<div className="gu-table-container">
+									{users.length > 0 ?
+										<table className="gu-companies-table">
+											<thead>
+												<tr className="gu-table-header">
+													<th className="gu-header-logo">Foto</th>
+													<th className="gu-header-name">Nombre</th>
+													<th className="gu-header-nit">Documento</th>
+													<th className="gu-header-rol">Rol</th>
+													<th className="gu-header-category">Estado</th>
+													<th className="gu-header-actions">Acciones</th>
+												</tr>
+											</thead>
+											<tbody>
+												{users.map(renderUser)}
+											</tbody>
+										</table>
+									:
+										<div className="gu-no-results">No se encontraron usuarios.</div>
+									}
+								</div>
 							</div>
 							<div className="gu-pagination-container">
 								<PageMover

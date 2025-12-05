@@ -1,4 +1,4 @@
-/* SeeCriteria.css - Versión Actualizada con Estilos de Modal Unificados */
+/* SeeCourseCriteria.css - Versión Corregida */
 
 /* Variables de colores */
 :root {
@@ -312,7 +312,7 @@
 }
 
 /* =========================================== */
-/* MODALES - ESTILOS UNIFICADOS (Igual al ejemplo) */
+/* MODALES */
 /* =========================================== */
 
 /* Overlay general para modales */
@@ -323,7 +323,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.8);
+  background: rgba(0, 0, 0, 0.85);
   backdrop-filter: blur(10px);
   display: flex;
   justify-content: center;
@@ -336,7 +336,7 @@
 .modal-container-reports,
 .modal-container-criteria {
   width: 100%;
-  max-width: 800px;
+  max-width: 1000px !important; /* Más ancho para dos columnas */
   max-height: 80vh;
   background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -413,7 +413,7 @@
 }
 
 .modal-content-reports,
-.modal-content-criteria {
+.see-modal-content-criteria {
   height: 100%;
   min-height: 0;
   flex: 1;
@@ -527,41 +527,40 @@
   box-shadow: 0 6px 16px rgba(255, 170, 0, 0.4);
 }
 
-/* Para modal de criterios */
-.modal-content-criteria {
+/* Para modal de criterios - CORREGIDO */
+.see-modal-content-criteria {
   display: grid;
-  grid-template-columns: 1fr 300px;
+  grid-template-columns: 2fr 1fr;
   height: 100%;
   min-height: 0;
   flex: 1;
   overflow: hidden;
 }
 
-/* Columna Izquierda - Información */
-.info-column-criteria {
+/* Columna izquierda - Información del aprendiz */
+.learner-info-column {
   padding: 1.5rem;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
   min-height: 0;
-  flex: 1;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* Columna Derecha - Acciones */
-.action-column-criteria {
-  background: rgba(255, 255, 255, 0.02);
-  border-left: 1px solid rgba(255, 255, 255, 0.1);
+/* Columna derecha - Estado de certificación */
+.certification-column {
   padding: 1.5rem;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
   min-height: 0;
-  overflow: hidden;
+  background: rgba(255, 255, 255, 0.02);
 }
 
-/* Sección del Formulario */
-.form-section-criteria {
+/* Secciones del formulario */
+.learner-info-section,
+.certification-section {
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
@@ -628,6 +627,9 @@
   display: flex;
   flex-direction: column;
   gap: 0.8rem;
+  max-height: 300px;
+  overflow-y: auto;
+  padding-right: 5px;
 }
 
 .criteria-item-criteria {
@@ -712,6 +714,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.6rem;
+  margin-bottom: 1rem;
 }
 
 .status-btn-criteria {
@@ -772,6 +775,7 @@
 /* Razón de rechazo */
 .rejection-reason-criteria {
   margin-top: 1rem;
+  margin-bottom: 1rem;
 }
 
 .reason-textarea-criteria {
@@ -805,7 +809,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.8rem;
-  margin-top: 1.5rem;
+  margin-top: 1rem;
 }
 
 .submit-btn-criteria {
@@ -848,18 +852,24 @@
 }
 
 /* Scrollbars */
-.info-column-criteria::-webkit-scrollbar,
+.learner-info-column::-webkit-scrollbar,
+.certification-column::-webkit-scrollbar,
+.criteria-list::-webkit-scrollbar,
 .modal-body-reports::-webkit-scrollbar {
   width: 5px;
 }
 
-.info-column-criteria::-webkit-scrollbar-track,
+.learner-info-column::-webkit-scrollbar-track,
+.certification-column::-webkit-scrollbar-track,
+.criteria-list::-webkit-scrollbar-track,
 .modal-body-reports::-webkit-scrollbar-track {
   background: rgba(255, 255, 255, 0.05);
   border-radius: 3px;
 }
 
-.info-column-criteria::-webkit-scrollbar-thumb,
+.learner-info-column::-webkit-scrollbar-thumb,
+.certification-column::-webkit-scrollbar-thumb,
+.criteria-list::-webkit-scrollbar-thumb,
 .modal-body-reports::-webkit-scrollbar-thumb {
   background: rgba(0, 200, 83, 0.3);
   border-radius: 3px;
@@ -875,20 +885,19 @@
   to { transform: rotate(360deg); }
 }
 
-/* Responsive Design */
+/* Responsive Design para modales */
 @media (max-width: 968px) {
   .modal-content-criteria {
     grid-template-columns: 1fr;
   }
   
-  .action-column-criteria {
-    border-left: none;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    padding: 1.2rem;
+  .learner-info-column {
+    border-right: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   }
   
-  .form-section-criteria {
-    padding: 1rem;
+  .certification-column {
+    padding: 1.2rem;
   }
 }
 
@@ -896,6 +905,7 @@
   .modal-container-reports,
   .modal-container-criteria {
     max-height: 85vh;
+    max-width: 95%;
   }
   
   .modal-header-reports,
@@ -913,7 +923,8 @@
     padding: 1.2rem;
   }
   
-  .info-column-criteria {
+  .learner-info-column,
+  .certification-column {
     padding: 1.2rem;
   }
   
@@ -953,17 +964,10 @@
     display: none;
   }
   
-  .info-column-criteria {
+  .learner-info-column,
+  .certification-column {
     padding: 1rem;
     gap: 1.2rem;
-  }
-  
-  .form-section-criteria {
-    padding: 1rem;
-  }
-  
-  .action-column-criteria {
-    padding: 1rem;
   }
   
   .submit-btn-reports,

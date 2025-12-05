@@ -1,4 +1,4 @@
-import "./SeeCriteria.css";
+import "./SeeCourseCriteria.css";
 import { Header } from "../../../Layouts/Header/Header";
 import { Main } from "../../../Layouts/Main/Main";
 import { useEffect, useState } from "react";
@@ -583,7 +583,7 @@ export const SeeCourseCriteria = () => {
 					</div>
 				)}
 
-				{/* Modal de criterios del aprendiz - Estilo igual al ejemplo */}
+				{/* Modal de criterios del aprendiz - CORREGIDO CON 2 COLUMNAS */}
 				{showAprenticeCriteria && selectedAprentice && (
 					<div className="modal-overlay-criteria">
 						<div className="modal-container-criteria">
@@ -605,9 +605,10 @@ export const SeeCourseCriteria = () => {
 							</div>
 
 							<form className="modal-body-criteria" onSubmit={(e) => { e.preventDefault(); saveChanges(); }}>
-								<div className="modal-content-criteria">
-									<div className="info-column-criteria">
-										<div className="form-section-criteria">
+								<div className="see-modal-content-criteria">
+									{/* Columna izquierda - Información del aprendiz y criterios */}
+									<div className="learner-info-column">
+										<div className="learner-info-section">
 											<h3 className="section-title-criteria">
 												<FontAwesomeIcon icon={faUserGraduate} />
 												Información del Aprendiz
@@ -635,7 +636,7 @@ export const SeeCourseCriteria = () => {
 											</div>
 										</div>
 
-										<div className="form-section-criteria">
+										<div className="learner-info-section">
 											<h3 className="section-title-criteria">
 												<FontAwesomeIcon icon={faClipboardCheck} />
 												Criterios de Evaluación
@@ -666,8 +667,9 @@ export const SeeCourseCriteria = () => {
 										</div>
 									</div>
 
-									<div className="action-column-criteria">
-										<div className="form-section-criteria">
+									{/* Columna derecha - Estado de certificación */}
+									<div className="certification-column">
+										<div className="certification-section">
 											<h3 className="section-title-criteria">
 												<FontAwesomeIcon icon={faCheckCircle} />
 												Estado de Certificación

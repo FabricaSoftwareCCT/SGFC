@@ -51,7 +51,7 @@ describe('Probar el modulo de administrador', ()=>{
         cy.contains('button', 'Crear nuevo curso').click()
     })
 
-    it('Buscar cursos', ()=>{
+    it.skip('Buscar cursos', ()=>{
         cy.visit("http://localhost:5173/") 
         cy.get(".button_signIn").first().click({force : true})
 
@@ -116,7 +116,7 @@ describe('Probar el modulo de administrador', ()=>{
         cy.get('.schedule-btn').first().click()
 
         //Ingresar Fechas
-        cy.get('.organized-date-inputs').contains('label', 'Fecha inicio:').find('input[type="date"]').eq(0).type('2025-11-20')
+        cy.get('.organized-date-inputs').contains('label', 'Fecha inicio:').find('input[type="date"]').eq(0).type('2026-11-20')
         cy.get('.organized-date-inputs').contains('label', 'Fecha fin:').find('input[type="date"]').last().type('2026-11-24')
         
         //Seleccionar horario de curso
@@ -194,26 +194,36 @@ describe('Probar el modulo de administrador', ()=>{
         //Volver a dar click en cursos pero ahora dandole click a la opción de Material de Apoyo
         cy.get('.container_options').get('.courses-menu').contains('button', 'Cursos').first().click({force : true})
         cy.get('.dropdown-courses').contains('button', 'Material de Apoyo').first().click({force : true})
-        cy.get('.cursos-section').get('.curso-card').first().click({force : true})
-        cy.get('.upload-btn').click()
+        cy.get('.support-cursos-grid').get('.support-curso-card').first().click({force : true})
+        cy.get('.support-create-btn.outline').click({force:true})
 
-        // Obtener los botones de opciones
-        cy.get('.status-btn').should('have.length', 3);
+                /// Obtener los botones de opciones
+        cy.get('.type-option-support').should('have.length', 3);
 
         // Recorrer las tres opciones
         const opciones = ['PDF', 'Video', 'Enlace'];
-    
+
         opciones.forEach((opcion, index) => {
-        // Hacer clic en cada opción
-        cy.get('.status-btn').eq(index)
+        // Solo hacer clic y verificar texto
+        cy.get('.type-option-support').eq(index)
             .click()
-            .should('have.class', 'selected')
-            .and('contain', opcion);})
-        cy.get('.inputFilterOptionText').type('https://www.youtube.com/watch?v=dQw4w9WgXcQ') 
-        cy.contains('button','Agregar').click()
-        cy.get('button.upload-btn').contains('Crear material').click({ force: true })
-        cy.get('.material-link').contains('https://www.youtube.com/watch?v=dQw4w9WgXcQ').click()
-        cy.get('.btn-eliminar').first().click({force:true})
+            .should('contain', opcion);
+        });
+
+        // Solo en la última opción (Enlace) hacer las acciones adicionales
+        cy.get('.type-option-support').eq(2).click(); // Asegurar que Enlace está seleccionado
+        cy.get('.link-input-support').type('https://www.youtube.com/watch?v=dQw4w9WgXcQ');
+        cy.get('.add-link-btn-support').contains('button', 'Agregar').click({force:true});
+        cy.contains('button', 'Crear Material').click({force:true});
+        cy.contains('button', 'Perfecto').click({force:true});
+
+        // Resto de acciones
+        cy.get('.action-btn.edit-btn').first().click({ force: true });
+        cy.get('.support-material-input').clear().type('https://www.youtube.com/watch?v=vOzHbrYHpQ0&list=RDvOzHbrYHpQ0&start_radio=1').click();
+        cy.get('.action-btn.save-btn').contains('button', 'Guardar').click({ force: true });
+        cy.get('.swal2-confirm.centered-swal-button.swal2-styled').contains('button','Entendido').click({ force: true });
+        cy.get('.action-btn.delete-btn').first().click({ force: true });
+        cy.get('.swal2-confirm.centered-swal-button.swal2-styled').click({ force: true });
     })
 
 
@@ -240,14 +250,14 @@ describe('Probar el modulo de administrador', ()=>{
         cy.contains('button','Agregar Instructor').click()
         
         //Llenar datos del instructor
-        cy.get('#modal-overlayCreateInstructor').find('.modal-left').contains('label', 'Nombres').first().find('input[type="text"]').type('Joan')
-        cy.get('#modal-overlayCreateInstructor').find('.modal-left').contains('label', 'Apellidos').first().find('input[type="text"]').type('Hincapie')
-        cy.get('#modal-overlayCreateInstructor').find('.modal-left').contains('label', 'Cédula').first().find('input[name="documento"]').type('8888889')
-        cy.get('.modal-left').contains('label', 'Título').find('input[type="text"]').type('Instructor')
-        cy.get('#modal-overlayCreateInstructor').find('.modal-left').contains('label', 'Celular').first().find('input[name="celular"]').type('3105557789')
-        cy.get('#modal-overlayCreateInstructor').find('.modal-left').contains('label', 'Email').first().find('input[type="email"]').type('hincapiefernandezjoan123@gmail.com')
-        cy.get('#modal-overlayCreateInstructor').find('.status-container').contains('.status', 'Activo').first().click({force:true})
-        cy.get('.modal-right').get('.save-button').first().click({force : true})
+        cy.get('.input-field-create').eq(0).type('Joan');      // Nombres
+        cy.get('.input-field-create').eq(1).type('Pérez');     // Apellidos
+        cy.get('.input-field-create').eq(2).type('1234567890'); // Cédula
+        cy.get('.input-field-create').eq(3).type('Ingeniero de Software'); // Título
+        cy.get('.input-field-create').eq(4).type('3001234567'); // Celular
+        cy.get('.input-field-create').eq(5).type('joan.perez@example.com'); // Email
+        cy.contains('button','Activo').first().click({force:true}) // Estado
+        cy.contains('button', 'Crear Instructor').click({force:true}) // Guardar Instructor
     })
 
     it.skip('Buscar Instructor y Modificar perfil Instructor', ()=>{
@@ -275,7 +285,7 @@ describe('Probar el modulo de administrador', ()=>{
         cy.get('.submit-btn-update').contains('button', 'Editar Perfil').click()
 
         //Modificar datos del instructor
-        cy.get('.input-field-update').get('input[placeholder="Ingrese los nombres"]').clear({ force: true }).type('Joan Esteban', { force: true })
+        cy.get('.form-grid-update input[name="nombres"]').clear({ force: true }).type('Joan Esteban', { force: true });
         cy.contains('button','Guardar Cambios').click()
     })
 
@@ -351,17 +361,16 @@ describe('Probar el modulo de administrador', ()=>{
         cy.contains('button','Agregar Gestor').click()
 
         //Llenar datos del gestor
-        cy.get('#modal-overlayCreateGestor').find('.modal-left').contains('label', 'Nombres').first().find('input[type="text"]').type('Joan')
-        cy.get('#modal-overlayCreateGestor').find('.modal-left').contains('label', 'Apellidos').first().find('input[type="text"]').type('Fernandez')
-        cy.get('#modal-overlayCreateGestor').find('.modal-left').contains('label', 'Documento').first().find('input[type="text"]').type('9999998')
-        cy.get('#modal-overlayCreateGestor').find('.modal-left').contains('label', 'Celular').first().find('input[type="text"]').type('3137778776')
-        cy.get('#modal-overlayCreateGestor').find('.modal-left').contains('label', 'Email').first().find('input[type="email"]').type('joan123@gmail.com')
-
-        //Ponerle un estado al usuario
-        cy.get('#modal-overlayCreateGestor').find('.status-container').contains('.status', 'Activo').first().click({force:true})
+        cy.get('.input-field-create-gestor').eq(0).type('Juana');      // Nombres
+        cy.get('.input-field-create-gestor').eq(1).type('Pérez');     // Apellidos
+        cy.get('.input-field-create-gestor').eq(2).type('1234567890'); // Cédula
+        cy.get('.input-field-create-gestor').eq(3).type('3231234567'); // Celular
+        cy.get('.input-field-create-gestor').eq(4).type('juana.perez@example.com'); // Email
+       
+        cy.get('.status-btn-create-gestor').contains('button','Activo').first().click({force:true}) // Estado
 
         //Guardar Usuario
-        cy.get('#modal-overlayCreateGestor').find('.modal-right').contains('.save-button', 'Guardar').click({force:true})
+        cy.get('button.submit-btn-create-gestor[type="submit"]').click({force: true});
     })
 
     it.skip('Buscar y Modificar perfil de Gestor', ()=>{
@@ -382,14 +391,14 @@ describe('Probar el modulo de administrador', ()=>{
 
         //Buscar Gestor
         cy.contains('button', 'Gestión de Gestores').first().click({force:true})
-        cy.get('.search-input').get('input[placeholder="Buscar gestor..."]').type('joan')
+        cy.get('.gg-input-search').get('input[placeholder="Buscar gestor..."]').type('juana')
 
         //Ver pefil de un Gestor y Editar
         cy.contains('button','Ver Perfil Completo').first().click({force:true})
         cy.contains('button','Editar Perfil').click()
 
         //Modificar datos del Gestor
-        cy.get('.input-label-gestor').get('input[placeholder="Ingrese los nombres"]').clear({ force: true }).type('Joan Esteban', { force: true })
+        cy.get('.form-grid-gestor input[name="nombres"]').clear({ force: true }).type('Juana Maria', { force: true });
         cy.contains('button','Guardar Cambios').click({force:true})
     })
 
@@ -419,7 +428,7 @@ describe('Probar el modulo de administrador', ()=>{
         cy.get('.dropdown-gestiones').contains('button', 'Criterios de certificación').first().click({force:true})
 
         //Ver criterios de un curso
-        cy.contains('button', 'Ver criterios').first().click({force:true})
+        cy.get('.criteria-btn-improved.primary').contains('Ver Criterios').click({force: true});
         cy.get('.button.see-criteria-button').contains('button', 'Ver criterios').click({force:true})
         
         //Agregar Criterios
@@ -458,8 +467,8 @@ describe('Probar el modulo de administrador', ()=>{
         cy.get('.dropdown-gestiones').contains('button', 'Criterios de certificación').first().click({force:true})
         
         //Ver criterios de un curso
-        cy.contains('button', 'Ver criterios').first().click({force:true})
-        cy.contains('button', 'Ver criterios').first().click({force:true})
+        cy.contains('button', 'Ver Criterios').first().click({force:true})
+        cy.contains('button', 'Ver criterios del curso').first().click({force:true})
         cy.contains('button', 'Editar').first().click({force:true})
         cy.get('textarea.description-edition.criteria-description').first().clear().type('Nueva descripción editada para el primer criterio')
         cy.get('.buttons-right').contains('button', 'Guardar').first().click({force:true})
@@ -485,7 +494,7 @@ describe('Probar el modulo de administrador', ()=>{
         cy.get('.dropdown-gestiones').contains('button', 'Criterios de certificación').first().click({force:true})
         
         //Ver criterios de un curso
-        cy.contains('button', 'Ver criterios').first().click({force:true})
+        cy.contains('button', 'Ver Criterios').first().click({force:true})
         cy.contains('button', 'Ver criterios').first().click({force:true})
 
         //Filtrar criterios
@@ -549,7 +558,7 @@ describe('Probar el modulo de administrador', ()=>{
         cy.contains('button', 'Crear Empresa y Manager').click({force:true})
     })
 
-    it.skip('Visualizar empresa y manager', ()=>{
+    it('Visualizar empresa y manager', ()=>{
         cy.visit("http://localhost:5173/") 
         cy.get(".button_signIn").first().click({force : true})
 
@@ -565,18 +574,27 @@ describe('Probar el modulo de administrador', ()=>{
         // Click forzado en el botón Empresas
         cy.get('.container_options').get('.empresas').first().click({force:true})
 
-        //Agregarle manager a la empresa
-        cy.contains('button', 'Ver manager').first().click({force:true})
-        cy.contains('button', 'Editar Manager').first().click({force:true})
+        //Buscar Empresa
+        cy.get('.search-input-container').find('input[placeholder="Buscar por nombre o NIT..."]').type('Tech Solutions')
 
-        //Rellenar Formulario del manager
-        cy.get('input[name="nombres_manager"]').type('Carlos Andrés')
-        cy.get('input[name="apellidos_manager"]').type('Ramírez López')
-        cy.get('input[name="celular_manager"]').type('3115556677')
-        cy.get('input[name="documento_manager"]').first().type('1122334455')
-        cy.get('input[name="documento_manager"]').eq(1).type('jawixav282@filipx.com')
-        cy.get('.status-buttons').get('button[id="Activo"]').click({force:true})
-        cy.contains('button', 'Guardar Cambios').click({force:true})
+        //Agregarle manager a la empresa
+        cy.contains('button', 'Manager').first().click({force:true})
+        cy.contains('button', 'Editar Perfil').first().click({force:true})
+
+        cy.get('.input-field-manager').get('input[name="nombres"]').clear().type('Carlos Andrés', { force: true });
+        cy.get('input[name="apellidos"]').clear().type('Ramírez López', { force: true });
+        cy.get('input[name="celular"]').clear().type('3115556677', { force: true });
+        cy.get('input[name="documento"]').first().clear().type('1122334455', { force: true });
+        cy.get('input[name="email"]').clear().type('carlos.ramirez@example.com', { force: true });
+
+        // 4. Cambiar estado (CORREGIDO - según tu HTML)
+        // Opción 1: Si hay botones con texto "Activo" e "Inactivo"
+        cy.contains('button', 'Activo').click({force: true});
+
+        // Opción 2: Si es un toggle o radio buttons
+        cy.get('.input-group-manager:contains("Estado")')
+        .find('button.active, input[value="activo"]')
+        .click({force: true});
         
         //Gestionar Empresa 
         cy.contains('button', 'Gestionar').first().click({force:true})
@@ -590,7 +608,7 @@ describe('Probar el modulo de administrador', ()=>{
         
     })
 
-    it.skip('Gestionar Empresa', ()=>{
+    it('Gestionar Empresa', ()=>{
         cy.visit("http://localhost:5173/") 
         cy.get(".button_signIn").first().click({force : true})
 

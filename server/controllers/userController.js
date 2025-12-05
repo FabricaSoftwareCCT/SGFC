@@ -2391,14 +2391,13 @@ const getAllEmpresasForAdmin = async (req, res) => {
 			order: [["nombre_empresa", "ASC"]],
 		});
 
-		const result = empresas.data.map(emp => {
-			if(emp.Empresa.ID && emp.Empresa.NIT){
-				return empresas
+		const result = empresas.map(emp => {
+			if(emp.ID && emp.NIT) {
+				return emp
 			}
 
 		})
-		console.log(empresas);
-		res.status(200).json({ success: true, empresas });
+		res.status(200).json({ success: true, empresas: result });
 	} catch (error) {
 		console.error("Error al obtener empresas:", error);
 		res.status(500).json({ message: "Error al obtener las empresas." });

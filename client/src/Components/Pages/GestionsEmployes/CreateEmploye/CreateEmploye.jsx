@@ -38,6 +38,7 @@ export const CreateEmploye = ({ onClose }) => {
     const accountType = userSession.accountType;
     const adminStatus = accountType === 'Administrador' || accountType === 'Gestor';
     setIsAdmin(adminStatus);
+    console.log(accountType)
 
     if (adminStatus) {
       fetchEmpresas();
@@ -45,11 +46,13 @@ export const CreateEmploye = ({ onClose }) => {
   }, []);
 
   const fetchEmpresas = async () => {
+    console.log("A")
     try {
       setLoadingEmpresas(true);
       const response = await axiosInstance.get('/api/users/admin/empresas');
-      const empresasData = response.data.empresas || response.data.data || response.data || [];
-      setEmpresas(Array.isArray(empresasData) ? empresasData : []);
+      const empresasData = response.data.empresas//  || response.data.data || response.data || [];
+      console.log(response.data)
+      setEmpresas(empresasData);
     } catch (error) {
       console.error("Error al obtener las empresas:", error);
       Swal.fire({

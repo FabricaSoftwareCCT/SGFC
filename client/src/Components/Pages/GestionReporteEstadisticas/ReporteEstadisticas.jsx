@@ -129,7 +129,6 @@ export default function ReporteEstadisticas() {
 				}
 				setdatosCurso(data);
 			} catch (err) {
-				console.log(err)
 				Swal.fire({
 					icon: 'error',
 					title: 'Error del servidor',

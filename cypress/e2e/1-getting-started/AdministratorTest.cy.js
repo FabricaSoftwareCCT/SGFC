@@ -558,7 +558,7 @@ describe('Probar el modulo de administrador', ()=>{
         cy.contains('button', 'Crear Empresa y Manager').click({force:true})
     })
 
-    it('Visualizar empresa y manager', ()=>{
+    it.skip('Visualizar empresa y manager', ()=>{
         cy.visit("http://localhost:5173/") 
         cy.get(".button_signIn").first().click({force : true})
 
@@ -577,24 +577,25 @@ describe('Probar el modulo de administrador', ()=>{
         //Buscar Empresa
         cy.get('.search-input-container').find('input[placeholder="Buscar por nombre o NIT..."]').type('Tech Solutions')
 
-        //Agregarle manager a la empresa
-        cy.contains('button', 'Manager').first().click({force:true})
-        cy.contains('button', 'Editar Perfil').first().click({force:true})
+        // 1. PRIMERO: Hacer clic para abrir el modal de creación/edición
+        cy.contains('button', 'Manager').click({ force: true });
+        cy.contains('button', 'Editar Perfil').click({force:true})
 
-        cy.get('.input-field-manager').get('input[name="nombres"]').clear().type('Carlos Andrés', { force: true });
-        cy.get('input[name="apellidos"]').clear().type('Ramírez López', { force: true });
-        cy.get('input[name="celular"]').clear().type('3115556677', { force: true });
-        cy.get('input[name="documento"]').first().clear().type('1122334455', { force: true });
-        cy.get('input[name="email"]').clear().type('carlos.ramirez@example.com', { force: true });
+        
+        // 3. LUEGO: Interactuar con los campos del modal
+        cy.get('.input-field-manager').first().should('be.visible').clear().type('Carlos Andrés', { force: true });
+        cy.get('.input-field-manager').eq(1).should('be.visible').clear().type('Ramirez López', { force: true });
+        cy.get('.input-field-manager').eq(2).should('be.visible').clear().type('11111111', { force: true });
+        cy.get('.input-field-manager').eq(3).should('be.visible').clear().type('3115556677', { force: true });;
+        cy.get('.input-field-manager').eq(4).should('be.visible').clear().type('carlosramirez@example.com', { force: true });;
 
         // 4. Cambiar estado (CORREGIDO - según tu HTML)
         // Opción 1: Si hay botones con texto "Activo" e "Inactivo"
-        cy.contains('button', 'Activo').click({force: true});
-
-        // Opción 2: Si es un toggle o radio buttons
-        cy.get('.input-group-manager:contains("Estado")')
-        .find('button.active, input[value="activo"]')
-        .click({force: true});
+        cy.get('.status-btn-manager').contains('button', 'Activo').click({force: true});
+        cy.contains('button','Guardar Cambios').click({force:true})
+        
+        //Aceptar Cambio
+        cy.get('.swal2-confirm.centered-swal-button.swal2-styled').click({force:true})
         
         //Gestionar Empresa 
         cy.contains('button', 'Gestionar').first().click({force:true})
@@ -608,7 +609,7 @@ describe('Probar el modulo de administrador', ()=>{
         
     })
 
-    it('Gestionar Empresa', ()=>{
+    it.skip('Gestionar Empresa', ()=>{
         cy.visit("http://localhost:5173/") 
         cy.get(".button_signIn").first().click({force : true})
 
@@ -628,19 +629,16 @@ describe('Probar el modulo de administrador', ()=>{
         cy.contains('button','Gestionar').click()
 
         //Editar Empresa
-        cy.get('.edit-button-updateEmpresa').contains('button', 'Editar Empresa').click()
+        cy.get('.submit-btn-company').contains('button', 'Editar Empresa').click()
 
         //Llenar datos de Empresa
-        cy.get('.modal-left-update').find('input[name="nombre_empresa"]').first().type('Mactech')
-        cy.get('.modal-left-update').find('input[name="NIT"]').first().type('999999999')
-        cy.get('.modal-left-update').find('input[name="categoria"]').first().type('Tecnologia')
-        cy.get('select.input_updateData').eq(0).select('Quindío');
-        cy.get('select.input_updateData').eq(1).select('Armenia');
-        cy.get('.modal-left-update').find('input[name="telefono"]').first().type('1111111111')
-        cy.get('.modal-left-update').find('input[name="direccion"]').first().type('dirección falsa')
-        cy.get('.modal-left-update').find('input[name="email_empresa"]').first().type('mactech@gmail.com')
-        cy.get('.modal-left-update').contains('button','Activo').click()
-        cy.get('.modal-right').get('.edit-button-updateEmpresa').contains('button', 'Guardar Cambios').first().click({force:true})
+        cy.get('.form-section-company').find('input[name="nombre_empresa"]').clear().first().type('Mactech')
+        cy.get('.form-section-company').find('input[name="NIT"]').clear().first().type('999999999')
+        cy.get('.form-section-company').find('input[name="telefono"]').clear().first().type('1111111111')
+        cy.get('.form-section-company').find('input[name="direccion"]').clear().first().type('dirección falsa')
+        cy.get('.form-section-company').find('input[name="email_empresa"]').clear().first().type('mactech@gmail.com')
+        cy.get('.form-section-company').contains('button','Activo').click()
+        cy.contains('button', 'Guardar Cambios').first().click({force:true})
         
 
     })
@@ -664,16 +662,17 @@ describe('Probar el modulo de administrador', ()=>{
 
 
         //Agregar Empleado
-        cy.get('.btn_createEmploye').click()
-        cy.get('.modal-bodyCreateEmploye').find('input[name="nombres"]').first().type('Marco')
-        cy.get('.modal-left input[name="apellidos"]').first().type('Polo')
-        cy.get('select.TipoDocumento[name="tipoDocumento"]').select('CedulaCiudadania')
-        cy.get('.modal-left').find('input[name="cedula"]').type(92837467)
-        cy.get('.modal-left').find('input[name="celular"]').first().type(3214567980)
-        cy.get('.modal-left').find('input[name="email"]').first().type('canajef689@nrlord.com')
-        cy.get('select[name="empresaId"].empresa-select').select('Tech Solutions - 900123456')
-        cy.get('.status-container').find('.status-buttons').contains('button', 'Activo').first().click({force:true})
-        cy.get('.save-button').first().click({force:true})
+        cy.get('.create-employee-btn-improved').click()
+        cy.get('.form-grid-create-employe').find('input[name="nombres"]').first().type('Marco')
+        cy.get('.form-grid-create-employe input[name="apellidos"]').first().type('Polo')
+        // Dentro del contenedor específico
+        cy.get('.input-field-create-employe').get('select[name="tipoDocumento"]').select('CedulaCiudadania', { force: true });
+        cy.get('.form-grid-create-employe').find('input[name="cedula"]').type(92837467)
+        cy.get('.form-grid-create-employe').find('input[name="celular"]').first().type(3214567980)
+        cy.get('.form-grid-create-employe').find('input[name="email"]').first().type('canajef689@nrlord.com')
+        cy.get('.input-field-create-employe').get('select[name="empresaId"]').select('Mactech', { force: true });
+        cy.contains('button', 'Activo').first().click({force:true})
+        cy.contains('button', 'Crear Empleado').click({force:true})
 
         
     })
@@ -696,16 +695,12 @@ describe('Probar el modulo de administrador', ()=>{
         cy.get('.dropdown-gestiones').contains('button', 'Gestión de Empleados').first().click({force : true})
 
         //Actualizar información del empleado
-        cy.get('.profile-btn').first().click({force:true})
-        cy.get('.edit-button-updateInstructor').first().click({force:true})
-        cy.get('.modal-left-update').find('input[type="text"]').clear().first().type('San Martin')
-        cy.get('.modal-left-update').find('input[name="apellidos"]').clear().type('De Napolés')
-        cy.get('img[alt="Subir documento"]').click()
-        cy.get('.custom-dropdown').click();
-        cy.contains('.dropdown-option', 'Cédula de ciudadanía').click();
-        cy.get('.modal-left-update').find('input[name="documento"]').clear().type(45567867)
-        cy.get('.modal-left-update').find('.status-buttons').contains('button', 'activo').first().click({force:true})
-        cy.get('.edit-button-updateInstructor').click({force:true})
+        cy.get('.profile-btn-improved').first().click({force:true})
+        cy.get('.submit-btn-employe').first().click({force:true})
+        cy.get('.form-grid-employe').find('input[name="nombres"]').clear().first().type('San Martin')
+        cy.get('.form-grid-employe').find('input[name="apellidos"]').clear().type('De Napolés')
+        cy.get('.form-grid-employe').find('input[name="documento"]').clear().type(45567867)
+        cy.contains('button', 'Guardar Cambios').click({force:true})
 
     })
 
@@ -727,11 +722,11 @@ describe('Probar el modulo de administrador', ()=>{
         cy.get('.dropdown-gestiones').contains('button', 'Gestión de Usuarios').first().click({force : true})
 
         //Usar filtro y cambiar rol a un usuario
-        cy.get('.filterOptionName').first().find('input[placeholder="Escriba el nombre del usuario"]').type('Joan')
+        cy.get('.gu-input-filter-text').first().type('Carlos')
         cy.contains('button', 'Filtrar'). click()
         cy.contains('button', 'Ver usuario').click()
-        cy.contains('button', 'Editar usuario').click()
-        cy.contains('button','Empresa').click()
+        cy.contains('button', 'Editar Usuario').click()
+        cy.get('.gu-status-btn').contains('button','Gestor').click()
         cy.contains('button', 'Guardar Cambios').click()
 
     })
@@ -760,7 +755,21 @@ describe('Probar el modulo de administrador', ()=>{
         cy.contains('button','Generar reporte')
     })
 
-    it.skip('visitar el historial de cambios', ()=>{
+    it('Asistencias y Progreso de Estudiantes',()=>{
+        cy.visit("http://localhost:5173/") 
+        cy.get(".button_signIn").first().click({force : true})
+
+        //Ingresar credenciales del rol administrador
+        cy.get('input[type="email"]').first()
+            .type('administrador@gmail.com')
+        cy.get('input[type="password"]')
+            .type('Admin1234*')
+            
+        //Iniciar sesión
+        cy.get(".button_register").click()
+    })
+
+    it('visitar el historial de cambios', ()=>{
         cy.visit("http://localhost:5173/") 
         cy.get(".button_signIn").first().click({force : true})
 

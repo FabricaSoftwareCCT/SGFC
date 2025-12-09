@@ -535,6 +535,79 @@
   transform: none;
 }
 
+/* Estilos para centrar y separar los botones del SweetAlert2 */
+.centered-swal-button {
+    /* Esto ya estará aplicado al botón de confirmar por tu customClass */
+}
+
+/* Para afectar a ambos botones (confirmar y cancelar) */
+.swal2-popup.swal2-modal.swal2-show[class*="swal2"] {
+    padding: 1.5em !important;
+}
+
+/* Contenedor de acciones (donde están los botones) */
+.swal2-actions {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 6.5rem !important;
+    width: 100% !important;
+    margin-top: 1.5rem !important;
+}
+
+/* Estilos específicos para cada botón */
+.swal2-confirm, .swal2-cancel {
+    min-width: 140px !important; /* Ancho mínimo para ambos botones */
+    margin: 0 !important; /* Eliminar márgenes por defecto */
+    padding: 0.75em 1.5em !important;
+    border-radius: 4px !important;
+    font-weight: 600 !important;
+    font-size: 1rem !important;
+    transition: all 0.2s ease !important;
+}
+
+/* Estilo específico para el botón de confirmar */
+.swal2-confirm {
+    background-color: #006f33 !important;
+    border: 1px solid #006f33 !important;
+}
+
+.swal2-confirm:hover {
+    background-color: #005a29 !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 8px rgba(0, 111, 51, 0.2) !important;
+}
+
+/* Estilo específico para el botón de cancelar */
+.swal2-cancel {
+    background-color: #c63223 !important;
+    border: 1px solid #c63223 !important;
+}
+
+.swal2-cancel:hover {
+    background-color: #a82a1d !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 8px rgba(198, 50, 35, 0.2) !important;
+}
+
+/* Para el tema Bulma específicamente */
+.swal2-popup.bulma .swal2-actions {
+    gap: 1.5rem !important;
+}
+
+/* Responsive: en pantallas pequeñas los botones se apilan */
+@media (max-width: 576px) {
+    .swal2-actions {
+        flex-direction: column !important;
+        gap: 0.75rem !important;
+    }
+    
+    .swal2-confirm, .swal2-cancel {
+        width: 100% !important;
+        max-width: 250px !important;
+    }
+}
+
 /* Spinner para carga */
 @keyframes spin {
   from { transform: rotate(0deg); }

@@ -1,6 +1,4 @@
-import "../SeeCriteria/SeeCriteria.css";
 import "./SeeCertificationHistorial.css";
-
 import { Header } from "../../../Layouts/Header/Header";
 import { Main } from "../../../Layouts/Main/Main";
 import { GoBackArrow } from "../../../UI/GoBackArrow/GoBackArrow";
@@ -13,16 +11,31 @@ import html2pdf from "html2pdf.js"
 import { useRef } from "react";
 import { ReportCertification } from "../ReportCertification.jsx/ReportCertification";
 import Swal from "sweetalert2";
-import 'sweetalert2/themes/bulma.css'
+import 'sweetalert2/themes/bulma.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+	faFilter,
+	faArrowLeft,
+	faDownload,
+	faFilePdf,
+	faFileExcel,
+	faUserGraduate,
+	faIdCard,
+	faClipboardCheck,
+	faFileAlt,
+	faCheckCircle,
+	faClock,
+	faTimesCircle,
+	faSpinner,
+	faEye
+} from '@fortawesome/free-solid-svg-icons';
 
 export const SeeCertificationHistorial = () => {
 	const navigate = useNavigate();
-
 	const { id } = useParams();
 
 	const [showFilters, setShowFilters] = useState(false);
 	const [filterName, setFilterName] = useState("");
-	//const [filterDate, setFilterDate] = useState();
 	const [filterId, setFilterId] = useState("");
 	const [showingDownloadOptions, setShowingDownloadingOptions] = useState(false);
 	const [curso, setCurso] = useState();
@@ -30,16 +43,15 @@ export const SeeCertificationHistorial = () => {
 	const [reportType, setReportType] = useState("pdf");
 	const [page, setPage] = useState(0);
 	const [pages, setPages] = useState(1);
-
-	//const [selectedAprentice, setSelectedAprentice] = useState();
 	const [showAprenticeCriteria, setShowAprenticeCriteria] = useState(false);
 	const [certificationState, setCertificationState] = useState("");
 	const [certificationDenial, setCertificationDenial] = useState("");
-	const [doneGenerating, setDoneGenerating] = useState(false)
-	const [generating, setGenerating] = useState(false)
-	const [reportContent, setReportContent] = useState(false)
+	const [doneGenerating, setDoneGenerating] = useState(false);
+	const [generating, setGenerating] = useState(false);
+	const [reportContent, setReportContent] = useState(false);
+	const [selectedAprentice, setSelectedAprentice] = useState(null);
 
-	const pdfContent = useRef()
+	const pdfContent = useRef();
 
 	const userSession =
 		JSON.parse(localStorage.getItem("userSession")) ||
@@ -62,7 +74,7 @@ export const SeeCertificationHistorial = () => {
 				text: 'Ocurrió un error al consultar los resultados de los criterios',
 				confirmButtonText: 'Aceptar',
 				confirmButtonColor: '#d33',
-				theme: "bulma", // Añadido tema Bulma
+				theme: "bulma",
 				customClass: {
 					confirmButton: 'centered-swal-button'
 				}
@@ -99,7 +111,7 @@ export const SeeCertificationHistorial = () => {
 				text: 'Ocurrió un error al consultar los aprendices del curso',
 				confirmButtonText: 'Aceptar',
 				confirmButtonColor: '#d33',
-				theme: "bulma", // Añadido tema Bulma
+				theme: "bulma",
 				customClass: {
 					confirmButton: 'centered-swal-button'
 				}
@@ -131,7 +143,7 @@ export const SeeCertificationHistorial = () => {
 				accountType === "Gestor")
 		) {
 			fetchAprentices();
-			fetchCourse()
+			fetchCourse();
 		} else {
 			navigate("/no-autorizado");
 		}
@@ -150,10 +162,10 @@ export const SeeCertificationHistorial = () => {
 		}
 	}, [page]);
 
-	function selectAprentice(aprenticeId) {
-		//setSelectedAprentice(aprenticeId);
+	function selectAprentice(aprentice) {
+		setSelectedAprentice(aprentice);
 		setShowAprenticeCriteria(true);
-		fetchAprenticeCriteria(aprenticeId);
+		fetchAprenticeCriteria(aprentice);
 	}
 
 	function showCert() {
@@ -163,7 +175,7 @@ export const SeeCertificationHistorial = () => {
 			text: 'La visualización de certificados estará disponible próximamente',
 			confirmButtonText: 'Aceptar',
 			confirmButtonColor: '#3085d6',
-			theme: "bulma", // Añadido tema Bulma
+			theme: "bulma",
 			customClass: {
 				confirmButton: 'centered-swal-button'
 			}
@@ -173,295 +185,371 @@ export const SeeCertificationHistorial = () => {
 	const generarReporte = async () => {
 		try {
 			if (reportType === "pdf") {
-				if (!pdfContent.current)
-					return
+				if (!pdfContent.current) return;
+				
 				const worker = html2pdf().set({
 					margin: 10,
 					filename: "reporte_cursos.pdf",
 					html2canvas: { scale: 2 },
 					jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-				}).from(pdfContent.current)
-				setGenerating(false)
-				setDoneGenerating(true)
-				setReportContent(await worker.output("bloburl"))
+				}).from(pdfContent.current);
+				
+				setGenerating(false);
+				setDoneGenerating(true);
+				setReportContent(await worker.output("bloburl"));
 			}
 		} catch (error) {
-			console.log(error)
+			console.log(error);
 			Swal.fire({
-          icon:"error",
-          title:"Error en reporte",
-          text:"Ocurrió un error al generar el reporte",
-          theme:"bulma",
-          customClass:{
-        confirmButton: 'button is-primary',
-        actions: 'swal2-actions-centered'
-                }
-              })
-			setDoneGenerating(false)
-			setGenerating(false)
+				icon: "error",
+				title: "Error en reporte",
+				text: "Ocurrió un error al generar el reporte",
+				theme: "bulma",
+				customClass: {
+					confirmButton: 'centered-swal-button'
+				}
+			});
+			setDoneGenerating(false);
+			setGenerating(false);
 		}
-	}
+	};
+
+	const getCertIcon = (certState) => {
+		switch (certState?.toLowerCase()) {
+			case 'aprovado': return <FontAwesomeIcon icon={faCheckCircle} className="approved-icon" />;
+			case 'pendiente': return <FontAwesomeIcon icon={faClock} className="pending-icon" />;
+			case 'rechazado': return <FontAwesomeIcon icon={faTimesCircle} className="rejected-icon" />;
+			default: return null;
+		}
+	};
+
+	const getStatusClass = (status) => {
+		return status.toLowerCase();
+	};
 
 	return (
 		<>
 			<Header />
 			<GoBackArrow />
 			<Main>
-				<div className="container-see-criteria">
+				<div className="container-certification-historial">
 					<h2>
 						Historial de{" "}
-						<span className="complementary">certificación</span>
+						<span className="complementary">Certificación</span>
 					</h2>
-					<div
-						className="buttons"
-						style={{
-							flexDirection: "row-reverse",
-						}}
-					>
+
+					<div className="buttons-container-historial">
 						<button
-							className="button criteria-aprentice-filter-dropdown"
+							className="button filter-button-historial"
 							onClick={() => setShowFilters(!showFilters)}
 						>
-							Filtro {showFilters ? <>&#9662;</> : <>&#9652;</>}
+							<FontAwesomeIcon icon={faFilter} />
+							<span>Filtro {showFilters ? "▲" : "▼"}</span>
 						</button>
 					</div>
-					<div className="aprentice-list-container">
-						<div className="aprentice-list-header aprentice-cert-list-header">
-							<span>Aprendiz</span>
-							<span>Documentos</span>
-							<span>Estado de certificación</span>
-							<span>Detalles</span>
+
+					{showFilters && (
+						<div className="options_Search search-historial">
+							<div className="filter-group-historial">
+								<label>
+									<FontAwesomeIcon icon={faUserGraduate} />
+									<span>Aprendiz:</span>
+								</label>
+								<input
+									type="text"
+									className="search-input"
+									placeholder="Nombre del aprendiz..."
+									value={filterName}
+									onChange={(e) => setFilterName(e.target.value)}
+								/>
+							</div>
+
+							<div className="filter-group-historial">
+								<label>
+									<FontAwesomeIcon icon={faIdCard} />
+									<span>Documento:</span>
+								</label>
+								<input
+									type="text"
+									className="search-input"
+									placeholder="Número de documento..."
+									value={filterId}
+									onChange={(e) => setFilterId(e.target.value)}
+								/>
+							</div>
+
+							<div className="filter-group-historial">
+								<button
+									className="button"
+									onClick={filter}
+								>
+									<FontAwesomeIcon icon={faFilter} />
+									<span>Aplicar filtros</span>
+								</button>
+							</div>
 						</div>
+					)}
+
+					<div className="historial-list-container">
+						<div className="historial-list-header">
+							<span>Aprendiz</span>
+							<span>Documento</span>
+							<span>Estado de Certificación</span>
+							<span>Acciones</span>
+						</div>
+
 						{aprentices.length > 0 ? (
 							aprentices.map((a, i) => (
 								<div
 									key={i}
-									className="aprentice-cert-list"
-									style={{
-										backgroundColor:
-											i % 2 == 0
-												? "#474747ff"
-												: "#5b5b5bff",
-									}}
+									className="historial-list-item"
 								>
-									<span>{a.name}</span>
-									<span>{a.personId}</span>
-									<span>{a.certState}</span>
-									<button onClick={() => selectAprentice(a)}>
-										Ver criterios
+									<span data-label="Aprendiz">
+										<FontAwesomeIcon icon={faUserGraduate} />
+										{a.name}
+									</span>
+									<span data-label="Documento">{a.personId}</span>
+									<span 
+										data-label="Certificación" 
+										className={`cert-status-${getStatusClass(a.certState)}`}
+									>
+										{getCertIcon(a.certState)}
+										{a.certState}
+									</span>
+									<button 
+										className="view-criteria-btn"
+										onClick={() => selectAprentice(a)}
+									>
+										<FontAwesomeIcon icon={faClipboardCheck} />
+										<span>Ver Detalles</span>
 									</button>
 								</div>
 							))
 						) : (
-							<div className="no-aprentices-list">
-								Aún no hay aprendices certificados
+							<div className="no-historial-list">
+								<FontAwesomeIcon icon={faUserGraduate} />
+								<span>Aún no hay aprendices certificados</span>
 							</div>
 						)}
 					</div>
-					<PageMover
-						value={page + 1}
-						max={pages}
-						next={() => {
-							setPage(page + 1);
-						}}
-						prev={() => {
-							setPage(page - 1);
-						}}
-					/>
+
+					{aprentices.length > 0 && (
+						<PageMover
+							value={page + 1}
+							max={pages}
+							next={() => setPage(page + 1)}
+							prev={() => setPage(page - 1)}
+						/>
+					)}
+
 					<button
-						className="button end-button"
+						className="button generate-report-btn-historial"
 						onClick={() => setShowingDownloadingOptions(true)}
+						disabled={aprentices.length === 0}
 					>
-						Generar reporte
+						<FontAwesomeIcon icon={faDownload} />
+						<span>Generar Reporte</span>
 					</button>
 				</div>
-				{showFilters && (
-					<div className="options_Search search-aprentice">
-						<label>Aprendiz:</label>
-						<input
-							type="text"
-							className="search-input"
-							placeholder="Nombre..."
-							value={filterName}
-							onChange={(e) => setFilterName(e.target.value)}
-						/>
-						<label>Documento:</label>
-						<input
-							type="text"
-							className="search-input"
-							placeholder="N. del documento..."
-							value={filterId}
-							onChange={(e) => setFilterId(e.target.value)}
-						/>
-						{/*<label>Fecha:</label>
-						<input
-							type="date"
-							className="search-input"
-							value={filterDate}
-							onChange={(e) => setFilterDate(e.target.value)}
-						/>*/}
-						<button
-							style={{
-								alignSelf: "center",
-								marginTop: "2%",
-							}}
-							className="button"
-							onClick={() => filter()}
-						>
-							Filtrar
-						</button>
-					</div>
-				)}
+
+				{/* Modal de selección de reporte */}
 				{showingDownloadOptions && (
-					<div className="modal-overlay">
-						<div
-							className="modal-background"
-							style={{
-								height: "fit-content",
-								paddingBottom: "20px",
-								width: "35%",
-							}}
-						>
-							<div className="container_return_EditCalendar">
-								<h5
-									onClick={() =>
-										setShowingDownloadingOptions(false)
-									}
-									style={{ cursor: "pointer" }}
-								>
-									Volver
-								</h5>
-								<button
-									onClick={() =>
-										setShowingDownloadingOptions(false)
-									}
-									className="closeModal"
-								></button>
-							</div>
-							<h2 className="modal-title-edit-calendar">
-								Tipo de reporte
-							</h2>
-							<div
-								className="statusButtons"
-								style={{
-									width: "90%",
-								}}
-							>
-								<button
-									className={`status-btn ${
-										reportType == "pdf" && "selected"
-									}`}
-									onClick={() => setReportType("pdf")}
-								>
-									PDF
-								</button>
-								<button
-									className={`status-btn ${
-										reportType == "excel" && "selected"
-									}`}
-									onClick={() => setReportType("excel")}
-								>
-									Excel
-								</button>
-							</div>
-							{reportType === "excel" ?
-								<button
-									className="button"
-									style={{
-										marginTop: "20px",
-									}}
-									onClick={() => generarExcelHistorial(aprentices, curso, id, () => setShowingDownloadingOptions(false))}
-								>
-									Descargar reporte
-								</button>	
-							:
-								<>
-									<button
-										className="button"
-										style={{
-											marginTop: "20px",
-										}}
-										onClick={() => setGenerating(true)}
-										disabled={generating}
+					<div className="modal-overlay-historial-reports">
+						<div className="modal-container-historial-reports">
+							<div className="modal-header-historial-reports">
+								<div className="header-content-historial-reports">
+									<h2>
+										<FontAwesomeIcon icon={faFileAlt} className="header-icon-historial-reports" />
+										Tipo de Reporte
+									</h2>
+									<button 
+										type="button" 
+										onClick={() => setShowingDownloadingOptions(false)}
+										className="close-btn-historial-reports"
 									>
-										Generar reporte
+										<FontAwesomeIcon icon={faArrowLeft} />
+										<span>Volver</span>
 									</button>
-									{generating &&
-										<ReportCertification
-											contentKey={pdfContent}
-											curso={curso}
-											aprendices={aprentices}
-											done={() => {
-												generarReporte()
-											}}
-										/>
-									}
-									{doneGenerating && (
-										<a
-											className="button"
-											href={reportContent}
-											target="_blank"
-											rel="noopener noreferrer"
-											style={{
-												marginTop: "20px",
-												textDecoration: "none"
-											}}
-										>
-											Descargar
-										</a>
-									)}
-								</>
-							}
+								</div>
+							</div>
+
+							<div className="modal-body-historial-reports">
+								<div className="modal-content-historial-reports">
+									<div className="form-section-historial-reports">
+										<div className="report-type-selector-historial">
+											<div className="status-buttons-historial-reports">
+												<button
+													className={`status-btn-historial-reports ${reportType === "pdf" ? "active" : ""}`}
+													onClick={() => setReportType("pdf")}
+												>
+													<FontAwesomeIcon icon={faFilePdf} />
+													<span>PDF</span>
+												</button>
+												<button
+													className={`status-btn-historial-reports ${reportType === "excel" ? "active" : ""}`}
+													onClick={() => setReportType("excel")}
+												>
+													<FontAwesomeIcon icon={faFileExcel} />
+													<span>Excel</span>
+												</button>
+											</div>
+
+											<div className="report-actions-historial">
+												{reportType === "excel" ? (
+													<button
+														type="button"
+														className="submit-btn-historial-reports"
+														onClick={() => generarExcelHistorial(aprentices, curso, id, () => setShowingDownloadingOptions(false))}
+													>
+														<FontAwesomeIcon icon={faDownload} />
+														<span>Descargar Reporte Excel</span>
+													</button>
+												) : (
+													<>
+														<button
+															type="button"
+															className="submit-btn-historial-reports"
+															onClick={() => setGenerating(true)}
+															disabled={generating}
+														>
+															{generating ? (
+																<>
+																	<FontAwesomeIcon icon={faSpinner} className="spinner" spin />
+																	<span>Generando PDF...</span>
+																</>
+															) : (
+																<>
+																	<FontAwesomeIcon icon={faFilePdf} />
+																	<span>Generar Reporte PDF</span>
+																</>
+															)}
+														</button>
+
+														{generating && (
+															<ReportCertification
+																contentKey={pdfContent}
+																curso={curso}
+																aprendices={aprentices}
+																done={generarReporte}
+															/>
+														)}
+
+														{doneGenerating && (
+															<a
+																className="submit-btn-historial-reports secondary"
+																href={reportContent}
+																target="_blank"
+																rel="noopener noreferrer"
+																download="historial_certificaciones.pdf"
+															>
+																<FontAwesomeIcon icon={faDownload} />
+																<span>Descargar PDF Generado</span>
+															</a>
+														)}
+													</>
+												)}
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
 						</div>
 					</div>
 				)}
-				{showAprenticeCriteria && (
-					<div className="modal-overlay">
-						<div
-							className="modal-background"
-							style={{
-								paddingBottom: "20px",
-								width: "35%",
-								minWidth: "450px",
-								maxHeight: "fit-content",
-							}}
-						>
-							<div className="container_return_EditCalendar">
-								<h5
-									onClick={() =>
-										setShowAprenticeCriteria(false)
-									}
-									style={{ cursor: "pointer" }}
-								>
-									Volver
-								</h5>
-								<button
-									onClick={() =>
-										setShowAprenticeCriteria(false)
-									}
-									className="closeModal"
-								></button>
-							</div>
-							<h2 className="modal-title-edit-calendar">
-								Certificación
-							</h2>
-							<div className="person-criteria-container">
-								<label>Estado: </label>
-								<span>{certificationState}</span>
-								{certificationState == "aprovado" && (
-									<button
-										className="button"
-										onClick={() => showCert()}
+
+				{/* Modal de detalles de certificación */}
+				{showAprenticeCriteria && selectedAprentice && (
+					<div className="modal-overlay-historial-details">
+						<div className="modal-container-historial-details">
+							<div className="modal-header-historial-details">
+								<div className="header-content-historial-details">
+									<h2>
+										<FontAwesomeIcon icon={faClipboardCheck} className="header-icon-historial-details" />
+										Detalles de Certificación
+									</h2>
+									<button 
+										type="button" 
+										onClick={() => setShowAprenticeCriteria(false)}
+										className="close-btn-historial-details"
 									>
-										Ver certificado
+										<FontAwesomeIcon icon={faArrowLeft} />
+										<span>Volver</span>
 									</button>
-								)}
-								{certificationState == "rechazado" && (
-									<>
-										<label>Motivo: </label>
-										<span>{certificationDenial}</span>
-									</>
-								)}
+								</div>
+							</div>
+
+							<div className="modal-body-historial-details">
+								<div className="modal-content-historial-details">
+									<div className="info-column-historial-details">
+										<div className="form-section-historial-details">
+											<h3 className="section-title-historial-details">
+												<FontAwesomeIcon icon={faUserGraduate} />
+												Información del Aprendiz
+											</h3>
+											<div className="form-grid-historial-details">
+												<div className="input-group-historial-details">
+													<label className="input-label-historial-details">
+														<FontAwesomeIcon icon={faUserGraduate} />
+														Nombre Completo
+													</label>
+													<div className="display-field-historial-details">
+														{selectedAprentice.name}
+													</div>
+												</div>
+
+												<div className="input-group-historial-details">
+													<label className="input-label-historial-details">
+														<FontAwesomeIcon icon={faIdCard} />
+														Documento
+													</label>
+													<div className="display-field-historial-details">
+														{selectedAprentice.personId}
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+
+									<div className="action-column-historial-details">
+										<div className="form-section-historial-details">
+											<h3 className="section-title-historial-details">
+												<FontAwesomeIcon icon={faCheckCircle} />
+												Estado de Certificación
+											</h3>
+											
+											<div className="certification-info-historial">
+												<div className={`status-display-historial ${getStatusClass(certificationState)}`}>
+													{getCertIcon(certificationState)}
+													<span className="status-text-historial">
+														{certificationState?.charAt(0).toUpperCase() + certificationState?.slice(1)}
+													</span>
+												</div>
+
+												{certificationState === "aprovado" && (
+													<button
+														type="button"
+														className="submit-btn-historial-details primary"
+														onClick={showCert}
+													>
+														<FontAwesomeIcon icon={faEye} />
+														<span>Ver Certificado</span>
+													</button>
+												)}
+
+												{certificationState === "rechazado" && certificationDenial && (
+													<div className="rejection-reason-historial">
+														<label className="input-label-historial-details">
+															Motivo del Rechazo:
+														</label>
+														<div className="denial-text-historial">
+															{certificationDenial}
+														</div>
+													</div>
+												)}
+											</div>
+										</div>
+									</div>
+								</div>
 							</div>
 						</div>
 					</div>

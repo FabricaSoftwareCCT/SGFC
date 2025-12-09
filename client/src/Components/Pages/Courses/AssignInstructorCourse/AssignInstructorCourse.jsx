@@ -4,31 +4,26 @@ import "./AssignInstructorCourse.css";
 import axiosInstance from "../../../../config/axiosInstance";
 import Swal from "sweetalert2";
 import 'sweetalert2/themes/bulma.css';
-// import { useNavigate } from "react-router-dom";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faUser, faIdCard, faSearch, faArrowLeft, faGraduationCap, faEnvelope } from '@fortawesome/free-solid-svg-icons';
 
 export const AssignInstructorCourse = ({ curso_ID, onClose }) => {
-  // const navigate = useNavigate();
-
-  // Validación de sesión de usuario y rol de administrador
   const userSessionString = sessionStorage.getItem("userSession");
   const userSession = userSessionString ? JSON.parse(userSessionString) : null;
 
   const [filteredInstructors, setFilteredInstructors] = useState([]);
   const [instructors, setInstructors] = useState([]);
-  const [availability, setAvailability] = useState({}); // { [instructorId]: {disponible, estado} }
+  const [availability, setAvailability] = useState({});
   const [filter, setFilter] = useState("");
-  const [current, setCurrent] = useState(0);
-  const [selectedState] = useState({ activo: true, inactivo: true });
-  const [inviting, setInviting] = useState(false)
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [inviting, setInviting] = useState(false);
 
-  // Obtener instructores del backend
   const fetchInstructors = async () => {
     try {
       const response = await axiosInstance.get('/api/users/instructores');
       setInstructors(response.data);
       setFilteredInstructors(response.data);
 
-      // Cargar disponibilidad para los primeros N (opcional simple)
       const checks = await Promise.all(
         (response.data || []).map(async (inst) => {
           try {
@@ -39,12 +34,15 @@ export const AssignInstructorCourse = ({ curso_ID, onClose }) => {
           }
         })
       );
-      const map = {};
-      checks.forEach(({ id, data }) => { map[id] = data; });
-      setAvailability(map);
+      
+      const availabilityMap = {};
+      checks.forEach(({ id, data }) => { 
+        availabilityMap[id] = data; 
+      });
+      setAvailability(availabilityMap);
     } catch (error) {
       console.error('Error al obtener los instructores:', error);
-      Swal.fire({
+      await Swal.fire({
         icon: "error",
         title: "Error en el sistema",
         text: "Hubo un problema al cargar los instructores. Por favor, inténtalo más tarde.",
@@ -52,9 +50,7 @@ export const AssignInstructorCourse = ({ curso_ID, onClose }) => {
         timer: 4000,
         timerProgressBar: true,
         theme: 'bulma',
-        customClass: {
-          actions: 'swal2-center-actions'
-        }
+        customClass: { confirmButton: 'centered-swal-button' }
       });
     }
   };
@@ -64,15 +60,6 @@ export const AssignInstructorCourse = ({ curso_ID, onClose }) => {
   }, []);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    applyFilters();
-  }, [selectedState, filter, instructors]);
-
-  const handleFilterChange = (e) => {
-    setFilter(e.target.value);
-  };
-
-  const applyFilters = () => {
     const value = filter.toLowerCase();
     const filtered = instructors.filter(
       (instructor) =>
@@ -81,78 +68,72 @@ export const AssignInstructorCourse = ({ curso_ID, onClose }) => {
         (instructor.documento || "").toLowerCase().includes(value)
     );
     setFilteredInstructors(filtered);
-    setCurrent(0);
+    setCurrentIndex(0);
+  }, [filter, instructors]);
+
+  const handleNextInstructor = () => {
+    setCurrentIndex((prev) => (prev + 1) % filteredInstructors.length);
   };
 
-  const next = () =>
-    setCurrent((prev) => (prev + 1) % filteredInstructors.length);
-  const prev = () =>
-    setCurrent(
-      (prev) =>
-        (prev - 1 + filteredInstructors.length) % filteredInstructors.length
+  const handlePrevInstructor = () => {
+    setCurrentIndex((prev) => 
+      (prev - 1 + filteredInstructors.length) % filteredInstructors.length
     );
-
-
+  };
 
   const getImageSrcFromBase64 = (base64) => {
-    if (!base64) return 'default-profile.png'; // Ruta a imagen por defecto
+    if (!base64) return '/default-profile.png';
 
-    // Detectar tipo MIME por encabezado base64
     if (base64.startsWith('iVBOR')) {
       return `data:image/png;base64,${base64}`;
     } else if (base64.startsWith('/9j/')) {
       return `data:image/jpeg;base64,${base64}`;
     } else {
-      // Si no puedes detectar, asume jpeg por defecto
       return `data:image/jpeg;base64,${base64}`;
     }
   };
 
-  const invitarInstructor = async (instructor_ID) => {
+  const handleInviteInstructor = async (instructor_ID) => {
     try {
-      // Verificar disponibilidad antes de invitar
-      setInviting(true)
+      setInviting(true);
+      
+      // Verificar disponibilidad
       try {
         const res = await axiosInstance.get(`/api/courses/instructores/${instructor_ID}/disponibilidad`);
         if (!res.data?.disponible) {
-                    await Swal.fire({
+          await Swal.fire({
             icon: "info",
-            title: "No se puede enviar invitación.",
+            title: "No se puede enviar invitación",
             text: "Este instructor está inactivo.",
             confirmButtonText: "Okay",
             timer: 4000,
             timerProgressBar: true,
             theme: 'bulma',
-            customClass: {
-              actions: 'swal2-center-actions'
-            }
+            customClass: { confirmButton: 'centered-swal-button' }
           });
           return;
         }
       } catch (e) {
-                await Swal.fire({
+        await Swal.fire({
           icon: "error",
           title: "Error en el sistema",
           text: "No se pudo verificar la disponibilidad del instructor. Intenta más tarde.",
           confirmButtonText: "Okay",
           theme: 'bulma',
-          customClass: {
-            actions: 'swal2-center-actions'
-          }
+          customClass: { confirmButton: 'centered-swal-button' }
         });
         return;
       }
 
-      // 1. Enviar la invitación
+      // Enviar invitación
       const response = await axiosInstance.post('/api/courses/enviarInvitacionCursoInstructor', {
         instructor_ID,
         curso_ID
       });
 
-      // Obtén el ID de la invitación creada
       const invitacion_ID = response.data.invitacion?.id || response.data.invitacion?.ID;
 
-      // 2. Enviar la notificación, incluyendo invitacion_ID
+      // Enviar notificación
       await axiosInstance.post('/api/notifications/invitacionCursoInstructor', {
         remitente_ID: userSession?.id,
         destinatario_ID: instructor_ID,
@@ -162,164 +143,191 @@ export const AssignInstructorCourse = ({ curso_ID, onClose }) => {
 
       await Swal.fire({
         icon: 'success',
-        title: 'Éxito',
+        title: '¡Éxito!',
         text: response.data.message || "Invitación y notificación enviadas correctamente",
         confirmButtonText: 'Aceptar',
         theme: 'bulma',
-        customClass: {
-          actions: 'swal2-center-actions'
-        }
+        customClass: { confirmButton: 'centered-swal-button' }
       });
       
       if (onClose) onClose();
       
     } catch (error) {
-      setInviting(false)
-      // Error - mostrar alerta de error
+      setInviting(false);
       await Swal.fire({
         icon: 'error',
         title: 'Error',
         text: error.response?.data?.message || "Error al enviar la invitación o la notificación. Intenta de nuevo.",
         confirmButtonText: 'Aceptar',
         theme: 'bulma',
-        customClass: {
-          actions: 'swal2-center-actions'
-        }
+        customClass: { confirmButton: 'centered-swal-button' }
       });
     }
   };
-  return (
-    <div id="modal-assingInstructorCourse">
-      <div className="modal-bodyAssignInstructorCourse">
-        
-        <h2 className="titleAssignInstructorCourse">
-          Invitar <span className="complementary">Instructor</span>
-        </h2>
 
-        <div className="containerConsultInstructor">
-          <div className="containerFiltersInstructor">
-            <div className="inputSearchContainer">
+  const closeModalAssignInstructor = () => {
+    if (onClose) onClose();
+    const overlay = document.getElementById("modal-overlayAssignInstructor");
+    if (overlay) overlay.style.display = "none";
+  };
+
+  const currentInstructor = filteredInstructors[currentIndex];
+  const currentInstructorId = currentInstructor?.ID || currentInstructor?.id;
+  const isAvailable = availability[currentInstructorId]?.disponible !== false && 
+                     currentInstructor?.estado !== 'inactivo';
+  const estadoTexto = availability[currentInstructorId]?.estado || currentInstructor?.estado;
+
+  return (
+    <div id="modal-overlayAssignInstructor" className="modal-overlay-assign">
+      <div className="modal-container-assign">
+        {/* Header */}
+        <div className="modal-header-assign">
+          <div className="header-content-assign">
+            <h2>
+              <FontAwesomeIcon icon={faUser} className="header-icon" />
+              Asignar Instructor al Curso
+            </h2>
+            <button 
+              type="button" 
+              onClick={closeModalAssignInstructor}
+              className="close-btn-assign"
+            >
+              <FontAwesomeIcon icon={faArrowLeft} />
+              <span>Volver</span>
+            </button>
+          </div>
+        </div>
+
+        <div className="modal-body-assign">
+          {/* Barra de búsqueda */}
+          <div className="search-section-assign">
+            <div className="search-container-assign">
+              <FontAwesomeIcon icon={faSearch} className="search-icon" />
               <input
                 type="text"
-                id="inputNameCC"
-                placeholder="Buscar por nombre o cédula"
+                placeholder="Buscar instructor por nombre, apellido o cédula..."
                 value={filter}
-                onChange={handleFilterChange} // Manejar el cambio en el input
+                onChange={(e) => setFilter(e.target.value)}
+                className="search-input-assign"
               />
             </div>
-
           </div>
 
-        </div>
-        <div className="containerGestionsInstructorResults">
+          {/* Contenido principal */}
+          <div className="content-section-assign">
+            {/* Carrusel de instructores */}
+            <div className="carousel-section-assign">
+              {filteredInstructors.length > 1 && (
+                <button 
+                  className="carousel-arrow-assign carousel-arrow-prev"
+                  onClick={handlePrevInstructor}
+                >
+                  ❮
+                </button>
+              )}
 
-          {/* Mostrar flecha izquierda solo si hay más de un resultado */}
-          {filteredInstructors.length > 1 && (
-            <button className="arrow-results left" onClick={prev}>❮</button>
-          )}
-
-          <div className="carousel-container_2-results">
-            <div className="carousel-track-results">
-              {filteredInstructors.length === 0 ? (
-                // Mostrar mensaje si no hay resultados
-                <p className="no-results">No hay resultados</p>
-              ) : (
-                // Mostrar una carta si hay un solo resultado
-                filteredInstructors.length === 1 ? (
-                  <div className="carousel-card-results card-center">
-                    <img
-                      src={getImageSrcFromBase64(filteredInstructors[0]?.foto_perfil)}
-                      alt="Instructor"
-                      className="carousel-image-results"
-                    />
-                  </div>
-                ) : (
-                  // Mostrar una carta centrada con flechas si hay dos resultados
-                  filteredInstructors.length === 2 ? (
-                    [0].map((offset) => {
-                      const index = (current + offset) % filteredInstructors.length;
-                      const instructor = filteredInstructors[index];
-
-                      return (
-                        <div className="carousel-card-results card-center" key={index}>
-                          <img
-                            src={getImageSrcFromBase64(instructor?.foto_perfil)}
-                            alt="Instructor"
-                            className="carousel-image-results"
-                          />
-                        </div>
-                      );
-                    })
+              <div className="carousel-container-assign">
+                <div className="carousel-track-assign">
+                  {filteredInstructors.length === 0 ? (
+                    <div className="no-results-assign">
+                      <FontAwesomeIcon icon={faUser} className="no-results-icon" />
+                      <p>No se encontraron instructores</p>
+                    </div>
                   ) : (
-                    // Mostrar tres cartas si hay tres o más resultados
-                    [0, 1, 2].map((offset) => {
-                      const index = (current + offset) % filteredInstructors.length;
+                    // Mostrar hasta 3 instructores en el carrusel
+                    [-1, 0, 1].map((offset) => {
+                      const index = (currentIndex + offset + filteredInstructors.length) % filteredInstructors.length;
                       const instructor = filteredInstructors[index];
+                      
+                      if (!instructor) return null;
 
                       let positionClass = '';
-                      if (offset === 1) {
-                        positionClass = 'card-center';
-                      } else {
-                        positionClass = 'card-side';
-                      }
+                      if (offset === 0) positionClass = 'card-center-assign';
+                      else if (offset === -1) positionClass = 'card-left-assign';
+                      else positionClass = 'card-right-assign';
 
                       return (
-                        <div className={`carousel-card-results ${positionClass}`} key={index}>
-                          <img
-                            src={getImageSrcFromBase64(instructor?.foto_perfil)}
-                            alt="Instructor"
-                            className="carousel-image-results"
-                          />
+                        <div 
+                          className={`carousel-card-assign ${positionClass}`} 
+                          key={instructor.ID || instructor.id}
+                        >
+                          <div className="card-image-container-assign">
+                            <img
+                              src={getImageSrcFromBase64(instructor.foto_perfil)}
+                              alt={`${instructor.nombres} ${instructor.apellidos}`}
+                              className="card-image-assign"
+                              onError={(e) => {
+                                e.target.src = '/default-profile.png';
+                              }}
+                            />
+                          </div>
+                          {offset === 0 && (
+                            <div className="card-active-indicator-assign">
+                              <span className="active-dot-assign"></span>
+                              Seleccionado
+                            </div>
+                          )}
                         </div>
                       );
                     })
-                  )
-                )
+                  )}
+                </div>
+              </div>
+
+              {filteredInstructors.length > 1 && (
+                <button 
+                  className="carousel-arrow-assign carousel-arrow-next"
+                  onClick={handleNextInstructor}
+                >
+                  ❯
+                </button>
               )}
             </div>
 
-            {/* Mostrar información del instructor actual */}
-            {filteredInstructors.length > 0 && (() => {
-              const currentId = filteredInstructors[current]?.ID || filteredInstructors[current]?.id;
-              const disponible = availability[currentId]?.disponible !== false && filteredInstructors[current]?.estado !== 'inactivo';
-              const estadoTexto = availability[currentId]?.estado || filteredInstructors[current]?.estado;
-              return (
-                <div className="instructor-info">
-                  <h3>{filteredInstructors[current]?.nombres} {filteredInstructors[current]?.apellidos}</h3>
-                  <p>{filteredInstructors[current]?.titulo_profesional}</p>
-                  <p>
-                    Estado: {estadoTexto}{availability[currentId]?.disponible === false && ' (No disponible)'}
+            {/* Información del instructor seleccionado */}
+            {currentInstructor && (
+              <div className="instructor-info-assign">
+                <div className="instructor-details-assign">
+                  <h3 className="instructor-name-assign">
+                    {currentInstructor.nombres} {currentInstructor.apellidos}
+                  </h3>
+                  <p className="instructor-title-assign">
+                    <FontAwesomeIcon icon={faGraduationCap} />
+                    {currentInstructor.titulo_profesional || "Sin título especificado"}
                   </p>
-                  <button
-                  className="profile-btn"
-                  disabled={!disponible || inviting}
-                  onClick={() => invitarInstructor(currentId)}
-                >
-                  {inviting ? "Invitando..." : "Invitar Instructor"}
-                </button>
+                  <p className="instructor-document-assign">
+                    <FontAwesomeIcon icon={faIdCard} />
+                    Cédula: {currentInstructor.documento || "No especificado"}
+                  </p>
+                  <div className={`instructor-status-assign ${estadoTexto?.toLowerCase()}`}>
+                    <span className="status-dot-assign"></span>
+                    Estado: {estadoTexto || "No especificado"}
+                    {availability[currentInstructorId]?.disponible === false && ' (No disponible)'}
+                  </div>
                 </div>
-              );
-            })()}
+
+                <button
+                  className={`invite-btn-assign ${!isAvailable ? 'disabled' : ''}`}
+                  disabled={!isAvailable || inviting}
+                  onClick={() => handleInviteInstructor(currentInstructorId)}
+                >
+                  <FontAwesomeIcon icon={faEnvelope} />
+                  {inviting ? "Enviando invitación..." : "Invitar al Curso"}
+                </button>
+              </div>
+            )}
           </div>
 
-          {/* Mostrar flecha derecha solo si hay más de un resultado */}
-          {filteredInstructors.length > 1 && (
-            <button className="arrow-results right" onClick={next}>❯</button>
+          {/* Contador de resultados */}
+          {filteredInstructors.length > 0 && (
+            <div className="results-counter-assign">
+              {currentIndex + 1} de {filteredInstructors.length} instructores
+            </div>
           )}
-        </div>
-
-        <div className="container_return_AssignInstructor">
-          <h5 onClick={onClose} style={{ cursor: "pointer" }}>Volver</h5>
-          <button
-            type="button"
-            onClick={onClose}
-            className="closeModal"
-          ></button>
         </div>
       </div>
     </div>
   );
-
 };
 
 AssignInstructorCourse.propTypes = {

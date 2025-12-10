@@ -58,9 +58,9 @@ import ReporteEstadisticas from './Components/Pages/GestionReporteEstadisticas/R
 import "./App.css";
 import { Header } from './Components/Layouts/Header/Header';
 import { CriteriaManagement } from './Components/Pages/CriteriaManagment/Criteria';
-import { SeeCourseCriteria } from './Components/Pages/CriteriaManagment/SeeCriteria/SeeCriteria';
+import { SeeCourseCriteria } from './Components/Pages/CriteriaManagment/SeeCriteria/SeeCourseCriteria';
 import { CreateCriteria } from './Components/Pages/CriteriaManagment/CreateCriteria/CreateCriteria';
-import { SeeAllCourseCriteria } from './Components/Pages/CriteriaManagment/SeeCourseCriteria/SeeCourseCriteria';
+import { SeeAllCourseCriteria } from './Components/Pages/CriteriaManagment/SeeCourseCriteria/SeeAllCourseCriteria';
 import { SeeCertificationHistorial } from './Components/Pages/CriteriaManagment/SeeCertificationHistorial/SeeCertificationHistorial';
 import { GestionUsuarios } from './Components/Pages/GestionUsuarios/GestionUsuarios';
 import { Historial } from './Components/Pages/Historial/Historial';

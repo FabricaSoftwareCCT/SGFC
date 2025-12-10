@@ -289,9 +289,6 @@ class ReportRepository {
                     {
                         model: db.Curso,
                         attributes: ['ID', 'nombre_curso', 'ficha', 'estado'],
-                        where: {
-                            estado: 'activo'
-                        },
                         required: true
                     }
                 ]

@@ -1,14 +1,37 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
 import './ReporteEstadisticas.css';
 import ReporteEstudiantes from './ReporteEstudiantes';
-import {getCursos} from '../../API/ApiRpeort';
+import { getCursos } from '../../API/ApiRpeort';
 import html2pdf from "html2pdf.js"
 import { FormatCourse } from './FormatCourse/FormatCourse';
 import axiosInstance from '../../../config/axiosInstance';
 import * as xlsx from "xlsx"
 import Swal from 'sweetalert2';
 import 'sweetalert2/themes/bulma.css'
-
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+	faChartLine,
+	faFilter,
+	faFilePdf,
+	faFileExcel,
+	faDownload,
+	faSearch,
+	faUsers,
+	faChalkboardTeacher,
+	faCheckCircle,
+	faTimesCircle,
+	faArrowLeft,
+	faCogs,
+	faSortAmountDown,
+	faCalendarAlt,
+	faBuilding,
+	faGraduationCap,
+	faFileExport,
+	faSpinner,
+	faChevronLeft,
+	faChevronRight,
+	faExclamationTriangle
+} from '@fortawesome/free-solid-svg-icons';
 
 export default function ReporteEstadisticas() {
 	const [pantallaActual, setPantallaActual] = useState('cursos');
@@ -21,12 +44,13 @@ export default function ReporteEstadisticas() {
 	const [doneGenerating, setDoneGenerating] = useState(false)
 	const [reportContent, setReportContent] = useState(false)
 	const [reportFilename, setReportFilename] = useState("reporte_cursos.pdf")
+	const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
+	const [searchTerm, setSearchTerm] = useState('');
 
 	const pdfContent = useRef()
 
 	// Helper para formatear errores con contexto detallado
 	const formatDetailedError = (error) => {
-		// Axios error con response
 		const statusCode = error?.response?.status
 		const statusText = error?.response?.statusText
 		const responseData = error?.response?.data
@@ -50,7 +74,7 @@ export default function ReporteEstadisticas() {
 			].filter(Boolean).join("\n")
 		}
 	}
-	
+
 	// Estados de paginación
 	const [currentPage, setCurrentPage] = useState(1);
 	const [postsPerPage] = useState(10);
@@ -75,7 +99,7 @@ export default function ReporteEstadisticas() {
 	useEffect(() => {
 		function handleClickOutside(event) {
 			if (mostrarFiltro && filtroRef.current && !filtroRef.current.contains(event.target)) {
-				const botonFiltro = document.querySelector('.button-filtro-reporte-estadisticas');
+				const botonFiltro = document.querySelector('.re-button-filtro');
 				if (botonFiltro && !botonFiltro.contains(event.target)) {
 					setMostrarFiltro(false);
 				}
@@ -83,8 +107,6 @@ export default function ReporteEstadisticas() {
 		}
 
 		document.addEventListener('mousedown', handleClickOutside);
-
-		// Limpiar event listener cuando el componente se desmonta
 		return () => {
 			document.removeEventListener('mousedown', handleClickOutside);
 		};
@@ -93,43 +115,38 @@ export default function ReporteEstadisticas() {
 	useEffect(() => {
 		async function fetchData() {
 			try {
-				//Cargar datos
 				const data = await getCursos(currentPage);
-
-				if(!data){
+				if (!data) {
 					Swal.fire({
 						icon: 'error',
-						title: 'Error',
-						text: 'Error al cargar datos',
+						title: 'Error al cargar datos',
+						text: 'No se pudieron cargar los datos de los cursos',
 						confirmButtonText: 'Aceptar',
 						confirmButtonColor: '#d33',
-						theme:"bulma",
-							customClass: { confirmButton: 'centered-swal-button' }
+						theme: "bulma",
+						customClass: { confirmButton: 'centered-swal-button' }
 					});
 				}
-				//Acutalizar estado
 				setdatosCurso(data);
-			}catch(err){
-				console.log(err)
+			} catch (err) {
 				Swal.fire({
 					icon: 'error',
 					title: 'Error del servidor',
-					text: 'Error en servidor',
+					text: 'Error en servidor al cargar los datos',
 					confirmButtonText: 'Aceptar',
 					confirmButtonColor: '#d33',
-					theme:"bulma",
+					theme: "bulma",
 					customClass: { confirmButton: 'centered-swal-button' }
 				});
 			}
 		}
 		fetchData()
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	// Resetear página cuando cambien filtros
 	useEffect(() => {
 		setCurrentPage(1);
-	}, [filtros]);
+	}, [filtros, searchTerm]);
 
 	// Función para determinar el rango de empleados
 	const getRangoEmpleados = (cantidad) => {
@@ -139,19 +156,19 @@ export default function ReporteEstadisticas() {
 		return '31-40+';
 	};
 
-	// Función para aplicar todos los filtros - CORREGIDA
+	// Función para aplicar filtros y ordenamiento
 	const cursosFiltrados = useMemo(() => {
-		return datosCurso?.filter(curso => {
+		let filtered = datosCurso?.filter(curso => {
 			// Filtro por estado
 			const estadosSeleccionados = [];
 			if (filtros.estado.activo) estadosSeleccionados.push('activo', 'Activo');
 			if (filtros.estado.inactivo) estadosSeleccionados.push('inactivo', 'Inactivo');
-			
+
 			if (estadosSeleccionados.length > 0) {
 				const estadoCurso = curso.estado?.toLowerCase() || '';
 				const coincideActivo = filtros.estado.activo && (estadoCurso === 'activo');
 				const coincideInactivo = filtros.estado.inactivo && (estadoCurso === 'inactivo');
-				
+
 				if (!coincideActivo && !coincideInactivo) {
 					return false;
 				}
@@ -180,10 +197,54 @@ export default function ReporteEstadisticas() {
 				}
 			}
 
-			// Si pasa todos los filtros, incluir el curso
+			// Filtro de búsqueda global
+			if (searchTerm) {
+				const searchLower = searchTerm.toLowerCase();
+				const cursoMatch = curso.curso?.toLowerCase().includes(searchLower) || false;
+				const fichaMatch = curso.ficha?.toLowerCase().includes(searchLower) || false;
+				const instructorMatch = curso.instructor?.toLowerCase().includes(searchLower) || false;
+				const estadoMatch = curso.estado?.toLowerCase().includes(searchLower) || false;
+
+				if (!(cursoMatch || fichaMatch || instructorMatch || estadoMatch)) {
+					return false;
+				}
+			}
+
 			return true;
 		});
-	}, [filtros, datosCurso]);
+
+		// Ordenamiento
+		if (sortConfig.key) {
+			filtered.sort((a, b) => {
+				let aValue = a[sortConfig.key];
+				let bValue = b[sortConfig.key];
+
+				// Manejar valores nulos
+				if (aValue === null || aValue === undefined) aValue = '';
+				if (bValue === null || bValue === undefined) bValue = '';
+
+				// Ordenar números
+				if (sortConfig.key === 'empleados') {
+					aValue = parseInt(aValue) || 0;
+					bValue = parseInt(bValue) || 0;
+				}
+
+				// Ordenar texto
+				if (typeof aValue === 'string') aValue = aValue.toLowerCase();
+				if (typeof bValue === 'string') bValue = bValue.toLowerCase();
+
+				if (aValue < bValue) {
+					return sortConfig.direction === 'asc' ? -1 : 1;
+				}
+				if (aValue > bValue) {
+					return sortConfig.direction === 'asc' ? 1 : -1;
+				}
+				return 0;
+			});
+		}
+
+		return filtered;
+	}, [filtros, datosCurso, sortConfig, searchTerm]);
 
 	// Cálculo para paginación
 	const indexOfLastPost = currentPage * postsPerPage;
@@ -194,16 +255,16 @@ export default function ReporteEstadisticas() {
 	const handleFilaClick = (curso) => {
 		if (!curso.empleados || curso.empleados === 0) {
 			Swal.fire({
-          icon:"error",
-          title:"Error del sistema",
-          text:"Este curso no tiene empleados registrados. No se puede generar un reporte.",
-          confirmButtonText:"Okay",
-          theme:"bulma",
-          customClass:{
-        confirmButton: 'button is-primary',
-        actions: 'swal2-actions-centered'
-                }
-              })
+				icon: "error",
+				title: "Error del sistema",
+				text: "Este curso no tiene empleados registrados. No se puede generar un reporte.",
+				confirmButtonText: "Okay",
+				theme: "bulma",
+				customClass: {
+					confirmButton: 'button is-primary',
+					actions: 'swal2-actions-centered'
+				}
+			})
 			return;
 		}
 		setCursoSeleccionado(curso);
@@ -252,124 +313,146 @@ export default function ReporteEstadisticas() {
 			curso: '',
 			instructor: ''
 		});
+		setSearchTerm('');
+		setSortConfig({ key: null, direction: 'asc' });
 	};
 
-const generarExcelHistorial = async () => {
-	try {
-		const empleados = (await axiosInstance.get(`/api/users/admin/empleados?limit=99999`)).data.empleados
-		let cursosIds = (cursosFiltrados.length > 0 ? cursosFiltrados : datosCurso).map((c) => c.id)
-		let cursosData = []
-		let empleadosData = []
-
-		console.log("Consultando cursos...")
-		for (let cursoId of cursosIds) {
-			const curso = (await axiosInstance.get(`/api/courses/cursos/${cursoId}`)).data
-			for (let empleado of empleados) {
-				console.log(empleado.ID)
-			}
-			cursosData.push({
-				"Curso": curso.nombre_curso,
-				"Tipo": curso.tipo_oferta,
-				"Estado": curso.estado,
-				"Ficha": curso.ficha,
-				"Inicio": new Date(curso.fecha_inicio).toLocaleDateString("es-CO"),
-				"Fin": new Date(curso.fecha_fin).toLocaleDateString("es-CO"),
-				"Duración en días": curso.duracion_dias ?? "Sin determinar",
-				"Lugar de formación": curso.lugar_formacion ?? "Sin especificar",
-				"Instructor": curso.Instructor ? `${curso.Instructor.nombres} ${curso.Instructor.apellidos}` : "Pendiente",
-				"Cantidad de aprendices": curso.cupos_usados,
-			})
+	const handleSort = (key) => {
+		let direction = 'asc';
+		if (sortConfig.key === key && sortConfig.direction === 'asc') {
+			direction = 'desc';
 		}
+		setSortConfig({ key, direction });
+	};
 
-		console.log("Consultando empleados...")
-		empleadosData = empleados.map((e) => ({
-			"Nombre": `${e.nombres} ${e.apellidos}`,
-			"Documento": e.documento,
-			"Numero teléfonico": e.celular,
-			"Email": e.email,
-			"Estado": e.estado,
-			"Cursos": Array.isArray(e.cursos) ? e.cursos.join("\n") : "",
-			"Empresa": e?.Empresa?.nombre_empresa || "Sin empresa"
-		}))
+	const generarExcelHistorial = async () => {
+		try {
+			const empleados = (await axiosInstance.get(`/api/users/admin/empleados?limit=99999`)).data.empleados
+			let cursosIds = (cursosFiltrados.length > 0 ? cursosFiltrados : datosCurso).map((c) => c.id)
+			let cursosData = []
+			let empleadosData = []
 
-        const workBook = xlsx.utils.book_new()
-        xlsx.utils.book_append_sheet(workBook, xlsx.utils.json_to_sheet(cursosData), "Cursos")
-        xlsx.utils.book_append_sheet(workBook, xlsx.utils.json_to_sheet(empleadosData), "Empleados")
-        xlsx.writeFile(workBook, "reporte.xlsx", { compression: true })
-    } catch (error) {
-        console.error("Error generando Excel:", error)
-		Swal.fire({
-          icon:"error",
-          title:"Error al generar Excel",
-          text:`Error al generar Excel\n\n${formatDetailedError(error)}`,
-          confirmButtonText:"Okay",
-          theme:"bulma",
-          customClass:{
-        confirmButton: 'button is-primary',
-        actions: 'swal2-actions-centered'
-                }
-              })
-    } finally {
-        setGenerating(false)
-    }
-}
+			for (let cursoId of cursosIds) {
+				const curso = (await axiosInstance.get(`/api/courses/cursos/${cursoId}`)).data
+				cursosData.push({
+					"Curso": curso.nombre_curso,
+					"Tipo": curso.tipo_oferta,
+					"Estado": curso.estado,
+					"Ficha": curso.ficha,
+					"Inicio": new Date(curso.fecha_inicio).toLocaleDateString("es-CO"),
+					"Fin": new Date(curso.fecha_fin).toLocaleDateString("es-CO"),
+					"Duración en días": curso.duracion_dias ?? "Sin determinar",
+					"Lugar de formación": curso.lugar_formacion ?? "Sin especificar",
+					"Instructor": curso.Instructor ? `${curso.Instructor.nombres} ${curso.Instructor.apellidos}` : "Pendiente",
+					"Cantidad de aprendices": curso.cupos_usados,
+				})
+			}
 
-const generarReporteDesdeElemento = async (targetElement) => {
-	try {
-		if (reportType === "pdf") {
-			if (!targetElement) throw new Error("No hay contenido para generar el PDF")
+			empleadosData = empleados.map((e) => ({
+				"Nombre": `${e.nombres} ${e.apellidos}`,
+				"Documento": e.documento,
+				"Numero teléfonico": e.celular,
+				"Email": e.email,
+				"Estado": e.estado,
+				"Cursos": Array.isArray(e.cursos) ? e.cursos.join("\n") : "",
+				"Empresa": e?.Empresa?.nombre_empresa || "Sin empresa"
+			}))
 
-			// Forzar reflow y pequeña espera para layout estable
-			// eslint-disable-next-line no-unused-expressions
-			targetElement.offsetHeight
-			await new Promise(r => setTimeout(r, 150))
+			const workBook = xlsx.utils.book_new()
+			xlsx.utils.book_append_sheet(workBook, xlsx.utils.json_to_sheet(cursosData), "Cursos")
+			xlsx.utils.book_append_sheet(workBook, xlsx.utils.json_to_sheet(empleadosData), "Empleados")
+			xlsx.writeFile(workBook, "reporte.xlsx", { compression: true })
 
-			const worker = html2pdf().set({
-				margin: 10,
-				filename: "reporte_cursos.pdf",
-				html2canvas: {
-					scale: 2,
-					useCORS: true,
-					allowTaint: true,
-					backgroundColor: '#FFFFFF',
-				},
-				jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-				pagebreak: { mode: [ 'css', 'avoid-all', 'legacy' ] }
-			}).from(targetElement)
+			Swal.fire({
+				icon: 'success',
+				title: '¡Reporte Excel generado!',
+				text: 'El archivo se ha descargado exitosamente',
+				confirmButtonText: 'Excelente',
+				confirmButtonColor: '#00843d',
+				theme: 'bulma'
+			});
+		} catch (error) {
+			console.error("Error generando Excel:", error)
+			Swal.fire({
+				icon: "error",
+				title: "Error al generar Excel",
+				text: `Error al generar Excel\n\n${formatDetailedError(error)}`,
+				confirmButtonText: "Okay",
+				theme: "bulma",
+				customClass: {
+					confirmButton: 'button is-primary',
+					actions: 'swal2-actions-centered'
+				}
+			})
+		} finally {
+			setGenerating(false)
+			setShowDownloadOptions(false);
+		}
+	}
 
-            // Generar blob y descargar automáticamente
-            const blob = await worker.output("blob")
-            const blobUrl = URL.createObjectURL(blob)
-            const filename = "reporte_cursos.pdf"
-            setReportFilename(filename)
-            setReportContent(blobUrl)
-            // Auto-descarga
-            const a = document.createElement('a')
-            a.href = blobUrl
-            a.download = filename
-            document.body.appendChild(a)
-            a.click()
-            document.body.removeChild(a)
-            setDoneGenerating(true)
-        }
-    } catch (err) {
-        console.error("Error generando PDF:", err)
-		Swal.fire({
-          icon:"error",
-          title:"Error al generar PDF",
-          text:`Error al generar PDF\n\n${formatDetailedError(err)}`,
-          confirmButtonText:"Okay",
-          theme:"bulma",
-          customClass:{
-        confirmButton: 'button is-primary',
-        actions: 'swal2-actions-centered'
-                }
-              })
-        setDoneGenerating(false)
-    } finally {
-        setGenerating(false)
-    }
-};
+	const generarReporteDesdeElemento = async (targetElement) => {
+		try {
+			if (reportType === "pdf") {
+				if (!targetElement) throw new Error("No hay contenido para generar el PDF")
+
+				await new Promise(r => setTimeout(r, 150))
+
+				const worker = html2pdf().set({
+					margin: 10,
+					filename: "reporte_cursos.pdf",
+					html2canvas: {
+						scale: 2,
+						useCORS: true,
+						allowTaint: true,
+						backgroundColor: '#FFFFFF',
+					},
+					jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+					pagebreak: { mode: ['css', 'avoid-all', 'legacy'] }
+				}).from(targetElement)
+
+				const blob = await worker.output("blob")
+				const blobUrl = URL.createObjectURL(blob)
+				const filename = "reporte_cursos.pdf"
+				setReportFilename(filename)
+				setReportContent(blobUrl)
+
+				const a = document.createElement('a')
+				a.href = blobUrl
+				a.download = filename
+				document.body.appendChild(a)
+				a.click()
+				document.body.removeChild(a)
+
+				setDoneGenerating(true)
+
+				Swal.fire({
+					icon: 'success',
+					title: '¡Reporte PDF generado!',
+					text: 'El archivo se ha descargado exitosamente',
+					confirmButtonText: 'Excelente',
+					confirmButtonColor: '#00843d',
+					theme: 'bulma'
+				});
+			}
+		} catch (err) {
+			console.error("Error generando PDF:", err)
+			Swal.fire({
+				icon: "error",
+				title: "Error al generar PDF",
+				text: `Error al generar PDF\n\n${formatDetailedError(err)}`,
+				confirmButtonText: "Okay",
+				theme: "bulma",
+				customClass: {
+					confirmButton: 'button is-primary',
+					actions: 'swal2-actions-centered'
+				}
+			})
+			setDoneGenerating(false)
+		} finally {
+			setGenerating(false)
+			setShowDownloadOptions(false);
+		}
+	};
 
 	// Contador de filtros activos
 	const filtrosActivos = () => {
@@ -378,13 +461,15 @@ const generarReporteDesdeElemento = async (targetElement) => {
 		if (filtros.empleados['0-10'] || filtros.empleados['11-20'] || filtros.empleados['21-30'] || filtros.empleados['31-40+']) count++;
 		if (filtros.curso) count++;
 		if (filtros.instructor) count++;
+		if (searchTerm) count++;
+		if (sortConfig.key) count++;
 		return count;
 	};
 
 	// Si estamos en la pantalla de estudiantes, mostrar ese componente
 	if (pantallaActual === 'estudiantes') {
 		return (
-			<ReporteEstudiantes 
+			<ReporteEstudiantes
 				cursoSeleccionado={cursoSeleccionado}
 				onVolver={handleVolverACursos}
 			/>
@@ -393,302 +478,492 @@ const generarReporteDesdeElemento = async (targetElement) => {
 
 	// Pantalla de cursos
 	return (
-		<div className="reporte-container-estadisticas">
-			<h1 className="reporte-titulo-estadisticas">Reporte y Estadísticas</h1>
-			<div className='container-tabla-estadisticas'>
-				<button className="button-generar-reporte-estadisticas" onClick={() => setShowDownloadOptions(true)}>
-					Generar reporte
-				</button>
-				<button 
-					className='button-filtro-reporte-estadisticas' 
-					onClick={toggleFiltro}
-				>
-					Filtro {filtrosActivos() > 0 && `(${filtrosActivos()})`}
-				</button>
-				
-				{mostrarFiltro && (
-					<div className="filtro-menu-estadisticas" ref={filtroRef}>
+		<div className="reporte-estadisticas-container">
+			<div className="re-header">
+				<div className="re-header-content">
+					<div className="re-title-section">
+						<FontAwesomeIcon icon={faChartLine} className="re-title-icon" />
+						<div>
+							<h1 className="re-title">Reportes y Estadísticas</h1>
+							<p className="re-subtitle">Análisis detallado de cursos y estudiantes</p>
+						</div>
+					</div>
+					<div className="re-header-stats">
+						<div className="stat-card">
+							<FontAwesomeIcon icon={faGraduationCap} className="stat-icon" />
+							<div className="stat-content">
+								<span className="stat-value">{datosCurso?.length || 0}</span>
+								<span className="stat-label">Cursos Totales</span>
+							</div>
+						</div>
+						<div className="stat-card">
+							<FontAwesomeIcon icon={faUsers} className="stat-icon" />
+							<div className="stat-content">
+								<span className="stat-value">
+									{datosCurso?.reduce((sum, curso) => sum + (parseInt(curso.empleados) || 0), 0)}
+								</span>
+								<span className="stat-label">Empleados</span>
+							</div>
+						</div>
+						<div className="stat-card">
+							<FontAwesomeIcon icon={faChalkboardTeacher} className="stat-icon" />
+							<div className="stat-content">
+								<span className="stat-value">
+									{[...new Set(datosCurso?.map(c => c.instructor).filter(Boolean))].length}
+								</span>
+								<span className="stat-label">Instructores</span>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div className="re-controls">
+				<div className="re-search-container">
+					<FontAwesomeIcon icon={faSearch} className="search-icon" />
+					<input
+						type="text"
+						className="re-search-input"
+						placeholder="Buscar cursos, fichas, instructores..."
+						value={searchTerm}
+						onChange={(e) => setSearchTerm(e.target.value)}
+					/>
+					{searchTerm && (
+						<button
+							className="re-clear-search"
+							onClick={() => setSearchTerm('')}
+						>
+							<FontAwesomeIcon icon={faTimesCircle} />
+						</button>
+					)}
+				</div>
+
+				<div className="re-action-buttons">
+					<button
+						className="re-button re-button-filtro"
+						onClick={toggleFiltro}
+						data-count={filtrosActivos() > 0 ? filtrosActivos() : ''}
+					>
+						<FontAwesomeIcon icon={faFilter} />
+						<span>Filtros</span>
+						{filtrosActivos() > 0 && (
+							<span className="filter-count">{filtrosActivos()}</span>
+						)}
+					</button>
+
+					<button
+						className="re-button re-button-generar"
+						onClick={() => setShowDownloadOptions(true)}
+					>
+						<FontAwesomeIcon icon={faFileExport} />
+						<span>Generar Reporte</span>
+					</button>
+				</div>
+			</div>
+
+			{mostrarFiltro && (
+				<div className="re-filtro-menu" ref={filtroRef}>
+					<div className="filtro-header">
+						<h3><FontAwesomeIcon icon={faFilter} /> Filtros Avanzados</h3>
+						<button className="filtro-clear-all" onClick={limpiarFiltros}>
+							Limpiar todo
+						</button>
+					</div>
+
+					<div className="filtro-grid">
 						{/* Filtro por Estado */}
-						<div className="filtro-grupo-estadisticas">
-							<div className="filtro-titulo-estadisticas">Estado</div>
-							<div className="filtro-opciones-estadisticas">
-								<div 
-									className="filtro-opcion-estadisticas"
+						<div className="filtro-group">
+							<label className="filtro-label">
+								<FontAwesomeIcon icon={faCheckCircle} /> Estado del Curso
+							</label>
+							<div className="filtro-options">
+								<div
+									className={`filtro-option ${filtros.estado.activo ? 'selected' : ''}`}
 									onClick={() => handleCheckboxChange('estado', 'activo')}
 								>
-									<div className={`filtro-checkbox-estadisticas ${filtros.estado.activo ? 'checked' : ''}`}></div>
+									<div className="filtro-checkbox">
+										{filtros.estado.activo && <FontAwesomeIcon icon={faCheckCircle} />}
+									</div>
 									<span>Activo</span>
 								</div>
-								<div 
-									className="filtro-opcion-estadisticas"
+								<div
+									className={`filtro-option ${filtros.estado.inactivo ? 'selected' : ''}`}
 									onClick={() => handleCheckboxChange('estado', 'inactivo')}
 								>
-									<div className={`filtro-checkbox-estadisticas ${filtros.estado.inactivo ? 'checked' : ''}`}></div>
+									<div className="filtro-checkbox">
+										{filtros.estado.inactivo && <FontAwesomeIcon icon={faCheckCircle} />}
+									</div>
 									<span>Inactivo</span>
 								</div>
 							</div>
 						</div>
 
 						{/* Filtro por Empleados */}
-						<div className="filtro-grupo-estadisticas">
-							<div className="filtro-titulo-estadisticas">Empleados</div>
-							<div className="filtro-opciones-estadisticas">
-								<div 
-									className="filtro-opcion-estadisticas"
-									onClick={() => handleCheckboxChange('empleados', '0-10')}
-								>
-									<div className={`filtro-checkbox-estadisticas ${filtros.empleados['0-10'] ? 'checked' : ''}`}></div>
-									<span>0-10</span>
-								</div>
-								<div 
-									className="filtro-opcion-estadisticas"
-									onClick={() => handleCheckboxChange('empleados', '11-20')}
-								>
-									<div className={`filtro-checkbox-estadisticas ${filtros.empleados['11-20'] ? 'checked' : ''}`}></div>
-									<span>11-20</span>
-								</div>
-								<div 
-									className="filtro-opcion-estadisticas"
-									onClick={() => handleCheckboxChange('empleados', '21-30')}
-								>
-									<div className={`filtro-checkbox-estadisticas ${filtros.empleados['21-30'] ? 'checked' : ''}`}></div>
-									<span>21-30</span>
-								</div>
-								<div 
-									className="filtro-opcion-estadisticas"
-									onClick={() => handleCheckboxChange('empleados', '31-40+')}
-								>
-									<div className={`filtro-checkbox-estadisticas ${filtros.empleados['31-40+'] ? 'checked' : ''}`}></div>
-									<span>31-40+</span>
-								</div>
+						<div className="filtro-group">
+							<label className="filtro-label">
+								<FontAwesomeIcon icon={faUsers} /> Cantidad de Empleados
+							</label>
+							<div className="filtro-options">
+								{['0-10', '11-20', '21-30', '31-40+'].map((rango) => (
+									<div
+										key={rango}
+										className={`filtro-option ${filtros.empleados[rango] ? 'selected' : ''}`}
+										onClick={() => handleCheckboxChange('empleados', rango)}
+									>
+										<div className="filtro-checkbox">
+											{filtros.empleados[rango] && <FontAwesomeIcon icon={faCheckCircle} />}
+										</div>
+										<span>{rango}</span>
+									</div>
+								))}
 							</div>
 						</div>
 
 						{/* Filtro por Nombre del Curso */}
-						<div className="filtro-grupo-estadisticas">
-							<div className="filtro-titulo-estadisticas">Nombre del Curso</div>
-							<input 
-								type="text" 
-								className="filtro-input-estadisticas"
-								placeholder="Buscar por curso..."
+						<div className="filtro-group">
+							<label className="filtro-label">
+								<FontAwesomeIcon icon={faGraduationCap} /> Nombre del Curso
+							</label>
+							<input
+								type="text"
+								className="filtro-input"
+								placeholder="Buscar curso..."
 								value={filtros.curso}
 								onChange={(e) => handleInputChange('curso', e.target.value)}
 							/>
 						</div>
 
 						{/* Filtro por Nombre del Instructor */}
-						<div className="filtro-grupo-estadisticas">
-							<div className="filtro-titulo-estadisticas">Nombre del Instructor</div>
-							<input 
-								type="text" 
-								className="filtro-input-estadisticas"
-								placeholder="Buscar por instructor..."
+						<div className="filtro-group">
+							<label className="filtro-label">
+								<FontAwesomeIcon icon={faChalkboardTeacher} /> Instructor
+							</label>
+							<input
+								type="text"
+								className="filtro-input"
+								placeholder="Buscar instructor..."
 								value={filtros.instructor}
 								onChange={(e) => handleInputChange('instructor', e.target.value)}
 							/>
 						</div>
+					</div>
 
-						{/* Información de resultados */}
-						<div className="filtro-info-estadisticas">
-							<div className="filtro-resultados-estadisticas">
-								Resultados: {cursosFiltrados?.length ?? 0} de {datosCurso?.length ?? 0} cursos
-							</div>
+					<div className="filtro-footer">
+						<div className="filtro-results">
+							<span className="results-count">{cursosFiltrados?.length || 0}</span>
+							<span> de {datosCurso?.length || 0} cursos encontrados</span>
 						</div>
+						{filtrosActivos() > 0 && (
+							<div className="filtro-active-badge">
+								{filtrosActivos()} filtro(s) activo(s)
+							</div>
+						)}
+					</div>
+				</div>
+			)}
 
-						{/* Botones del filtro */}
-						<div className="filtro-botones-estadisticas">
-							<button className="filtro-boton-estadisticas filtro-limpiar-estadisticas" onClick={limpiarFiltros}>
-								Limpiar
-							</button>
+			<div className="re-content">
+				<div className="re-table-container">
+					<div className="re-table-header">
+						<div
+							className={`re-table-column sortable ${sortConfig.key === 'curso' ? 'sorting' : ''}`}
+							onClick={() => handleSort('curso')}
+						>
+							<span>Curso</span>
+							{sortConfig.key === 'curso' && (
+								<FontAwesomeIcon
+									icon={sortConfig.direction === 'asc' ? faSortAmountDown : faSortAmountDown}
+									className={`sort-icon ${sortConfig.direction === 'desc' ? 'desc' : ''}`}
+								/>
+							)}
+						</div>
+						<div className="re-table-column">
+							<span>Ficha</span>
+						</div>
+						<div
+							className={`re-table-column sortable ${sortConfig.key === 'instructor' ? 'sorting' : ''}`}
+							onClick={() => handleSort('instructor')}
+						>
+							<span>Instructor</span>
+							{sortConfig.key === 'instructor' && (
+								<FontAwesomeIcon
+									icon={sortConfig.direction === 'asc' ? faSortAmountDown : faSortAmountDown}
+									className={`sort-icon ${sortConfig.direction === 'desc' ? 'desc' : ''}`}
+								/>
+							)}
+						</div>
+						<div
+							className={`re-table-column sortable ${sortConfig.key === 'estado' ? 'sorting' : ''}`}
+							onClick={() => handleSort('estado')}
+						>
+							<span>Estado</span>
+							{sortConfig.key === 'estado' && (
+								<FontAwesomeIcon
+									icon={sortConfig.direction === 'asc' ? faSortAmountDown : faSortAmountDown}
+									className={`sort-icon ${sortConfig.direction === 'desc' ? 'desc' : ''}`}
+								/>
+							)}
+						</div>
+						<div
+							className={`re-table-column sortable ${sortConfig.key === 'empleados' ? 'sorting' : ''}`}
+							onClick={() => handleSort('empleados')}
+						>
+							<span>Empleados</span>
+							{sortConfig.key === 'empleados' && (
+								<FontAwesomeIcon
+									icon={sortConfig.direction === 'asc' ? faSortAmountDown : faSortAmountDown}
+									className={`sort-icon ${sortConfig.direction === 'desc' ? 'desc' : ''}`}
+								/>
+							)}
+						</div>
+						<div className="re-table-column">
+							<span>Acciones</span>
 						</div>
 					</div>
-				)}
-			</div>
 
-			<div className="tabla-datos-estadisticas">
-				{/* Cabecera de la tabla */}
-				<div className="tabla-cabecera-estadisticas">
-					<div>Cursos</div>
-					<div>Fichas</div>
-					<div>Instructores</div>
-					<div>Estado</div>
-					<div>Empleados registrados</div>
+					<div className="re-table-body">
+						{currentPosts?.length > 0 ? (
+							currentPosts.map((curso) => {
+								const tieneEmpleados = curso.empleados && curso.empleados > 0;
+								return (
+									<div
+										key={curso.id}
+										className={`re-table-row ${!tieneEmpleados ? 'disabled' : ''}`}
+										onClick={() => tieneEmpleados && handleFilaClick(curso)}
+										title={!tieneEmpleados ? 'Este curso no tiene empleados registrados' : ''}
+									>
+										<div className="re-table-cell">
+											<div className="curso-info">
+												<FontAwesomeIcon icon={faGraduationCap} className="curso-icon" />
+												<div className="curso-details">
+													<span className="curso-nombre">{curso.curso}</span>
+												</div>
+											</div>
+										</div>
+										<div className="re-table-cell">
+											<span className="curso-ficha">{curso.ficha}</span>
+										</div>
+										<div className="re-table-cell">
+											<div className="instructor-info">
+												<FontAwesomeIcon icon={faChalkboardTeacher} className="instructor-icon" />
+												<span className="instructor-nombre">{curso.instructor || 'No asignado'}</span>
+											</div>
+										</div>
+										<div className="re-table-cell">
+											<span className={`curso-estado ${curso.estado === 'Activo' ? 'activo' : 'inactivo'}`}>
+												{curso.estado === 'Activo' ? (
+													<>
+														<FontAwesomeIcon icon={faCheckCircle} />
+														<span>Activo</span>
+													</>
+												) : (
+													<>
+														<FontAwesomeIcon icon={faTimesCircle} />
+														<span>Inactivo</span>
+													</>
+												)}
+											</span>
+										</div>
+										<div className="re-table-cell">
+											<div className="empleados-count">
+												<FontAwesomeIcon icon={faUsers} />
+												<span>{curso.empleados || 0}</span>
+											</div>
+										</div>
+										<div className="re-table-cell">
+											<button
+												className={`re-action-button ${!tieneEmpleados ? 'disabled' : ''}`}
+												onClick={(e) => {
+													e.stopPropagation();
+													if (tieneEmpleados) handleFilaClick(curso);
+												}}
+												disabled={!tieneEmpleados}
+											>
+												<FontAwesomeIcon icon={faChartLine} />
+												<span>Ver Reporte</span>
+											</button>
+										</div>
+									</div>
+								);
+							})
+						) : (
+							<div className="re-empty-state">
+								<FontAwesomeIcon icon={faExclamationTriangle} className="empty-icon" />
+								<h3>No se encontraron cursos</h3>
+								<p>No hay cursos que coincidan con los filtros aplicados</p>
+								<button className="re-button re-button-secondary" onClick={limpiarFiltros}>
+									Limpiar filtros
+								</button>
+							</div>
+						)}
+					</div>
 				</div>
 
-				{/* Filas de datos filtrados y paginados */}
-				{currentPosts?.length > 0 ? (
-					currentPosts.map((curso) => {
-						const tieneEmpleados = curso.empleados && curso.empleados > 0;
-						return (
-							<div 
-								key={curso.id} 
-								className={`tabla-fila-estadisticas ${!tieneEmpleados ? 'curso-sin-empleados' : ''}`}
-								onClick={() => handleFilaClick(curso)}
-								title={!tieneEmpleados ? 'Este curso no tiene empleados registrados' : ''}
+				{/* PAGINACIÓN */}
+				{cursosFiltrados?.length > postsPerPage && (
+					<div className="re-pagination">
+						<div className="pagination-info">
+							Mostrando {Math.min(indexOfFirstPost + 1, cursosFiltrados.length)}-
+							{Math.min(indexOfLastPost, cursosFiltrados.length)} de {cursosFiltrados.length} cursos
+						</div>
+						<div className="pagination-controls">
+							<button
+								className="pagination-button"
+								onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+								disabled={currentPage === 1}
 							>
-								<div className="columna-curso-estadisticas">{curso.curso}</div>
-								<div className="columna-ficha-estadisticas">{curso.ficha}</div>
-								<div className="columna-instructor-estadisticas">{curso.instructor}</div>
-								<div className={curso.estado === "Activo" ? "estado-activo-estadisticas" : "estado-inactivo-estadisticas"}>
-									{curso.estado}
-								</div>
-								<div className="columna-empleados-estadisticas">{curso.empleados}</div>
+								<FontAwesomeIcon icon={faChevronLeft} />
+								<span>Anterior</span>
+							</button>
+
+							<div className="pagination-numbers">
+								{Array.from({ length: Math.ceil(cursosFiltrados.length / postsPerPage) }, (_, i) => i + 1)
+									.filter(number => {
+										if (number === 1 || number === Math.ceil(cursosFiltrados.length / postsPerPage)) return true;
+										if (number >= currentPage - 1 && number <= currentPage + 1) return true;
+										return false;
+									})
+									.map((number, index, array) => {
+										if (index > 0 && number - array[index - 1] > 1) {
+											return (
+												<React.Fragment key={`ellipsis-${number}`}>
+													<span className="pagination-ellipsis">...</span>
+													<button
+														key={number}
+														className={`pagination-number ${currentPage === number ? 'active' : ''}`}
+														onClick={() => setCurrentPage(number)}
+													>
+														{number}
+													</button>
+												</React.Fragment>
+											);
+										}
+										return (
+											<button
+												key={number}
+												className={`pagination-number ${currentPage === number ? 'active' : ''}`}
+												onClick={() => setCurrentPage(number)}
+											>
+												{number}
+											</button>
+										);
+									})}
 							</div>
-						);
-					})
-				) : (
-					<div className="no-resultados-estadisticas">
-						No se encontraron cursos que coincidan con los filtros aplicados
+
+							<button
+								className="pagination-button"
+								onClick={() => setCurrentPage(prev => Math.min(prev + 1, Math.ceil(cursosFiltrados.length / postsPerPage)))}
+								disabled={currentPage === Math.ceil(cursosFiltrados.length / postsPerPage)}
+							>
+								<span>Siguiente</span>
+								<FontAwesomeIcon icon={faChevronRight} />
+							</button>
+						</div>
 					</div>
 				)}
 			</div>
 
-			{/* PAGINACIÓN */}
-			{cursosFiltrados?.length > postsPerPage && (
-				<>
-					<Pagination
-						postsPerPage={postsPerPage}
-						totalPosts={cursosFiltrados.length}
-						currentPage={currentPage}
-						setCurrentPage={setCurrentPage}
-					/>
-					<div className="info-paginacion">
-						Mostrando {Math.min(indexOfFirstPost + 1, cursosFiltrados.length)}-
-						{Math.min(indexOfLastPost, cursosFiltrados.length)} de {cursosFiltrados.length} cursos
-					</div>
-				</>
-			)}
+			{/* Modal de Generación de Reporte */}
 			{showDownloadOptions && (
-				<div className="modal-overlay">
-					<div
-						className="modal-background"
-						style={{
-							height: "fit-content",
-							paddingBottom: "20px",
-							width: "35%",
-							minHeight: "fit-content",
-						}}
-					>
-						<div className="container_return_EditCalendar">
-							<h5
-								onClick={() =>
-									setShowDownloadOptions(false)
-								}
-								style={{ cursor: "pointer" }}
-							>
-								Volver
-							</h5>
-							<button
-								onClick={() =>
-									setShowDownloadOptions(false)
-								}
-								className="closeModal"
-							></button>
-						</div>
-						<h2 className="modal-title-edit-calendar">
-							Tipo de reporte
-						</h2>
-						<div
-							className="statusButtons"
-							style={{
-								width: "90%",
-							}}
-						>
-							<button
-								className={`status-btn ${
-									reportType == "pdf" && "selected"
-								}`}
-								onClick={() => setReportType("pdf")}
-							>
-								PDF
-							</button>
-							<button
-								className={`status-btn ${
-									reportType == "excel" && "selected"
-								}`}
-								onClick={() => setReportType("excel")}
-							>
-								Excel
-							</button>
-						</div>
-						<button
-							className="button"
-							style={{
-								marginTop: "20px",
-							}}
-							onClick={() => {
-								setGenerating(true)
-								if (reportType === "excel")
-									generarExcelHistorial()
-							}}
-							disabled={generating}
-						>
-							{generating ? "Generando..." : "Generar reporte"}
-						</button>
-						{(generating  && reportType === "pdf") && (
-							<div style={{ position: "absolute", left: "-10000px", top: 0 }}>
-								<FormatCourse
-									contentKey={pdfContent}
-									cursos={(cursosFiltrados.length > 0 ? cursosFiltrados : datosCurso).map((c) => c.id)}
-									onReady={(el) => generarReporteDesdeElemento(el)}
-								/>
+				<div className="re-modal-overlay">
+					<div className="re-modal">
+						<div className="re-modal-header">
+							<div className="modal-header-content">
+								<FontAwesomeIcon icon={faFileExport} className="modal-header-icon" />
+								<div>
+									<h2 className="modal-title">Generar Reporte</h2>
+									<p className="modal-subtitle">Selecciona el formato del reporte</p>
+								</div>
 							</div>
-						)}
-						{doneGenerating && reportContent && (
-							<a
-								className="button"
-								href={reportContent}
-								download={reportFilename}
-								style={{
-									marginTop: "20px",
-									textDecoration: "none"
-								}}
+							<button
+								className="re-modal-close"
+								onClick={() => setShowDownloadOptions(false)}
+								disabled={generating}
 							>
-								Descargar
-							</a>
-						)}
+								<FontAwesomeIcon icon={faTimesCircle} />
+							</button>
+						</div>
+
+						<div className="re-modal-content">
+							<div className="format-selector">
+								<div className="format-options">
+									<button
+										className={`format-option ${reportType === "pdf" ? 'selected' : ''}`}
+										onClick={() => setReportType("pdf")}
+										disabled={generating}
+									>
+										<div className="format-icon">
+											<FontAwesomeIcon icon={faFilePdf} />
+										</div>
+										<div className="format-info">
+											<h4>PDF</h4>
+											<p>Formato óptimo para impresión</p>
+										</div>
+									</button>
+
+									<button
+										className={`format-option ${reportType === "excel" ? 'selected' : ''}`}
+										onClick={() => setReportType("excel")}
+										disabled={generating}
+									>
+										<div className="format-icon">
+											<FontAwesomeIcon icon={faFileExcel} />
+										</div>
+										<div className="format-info">
+											<h4>Excel</h4>
+											<p>Formato para análisis de datos</p>
+										</div>
+									</button>
+								</div>
+							</div>
+
+							<div className="modal-actions">
+								<button
+									className="re-button re-button-secondary"
+									onClick={() => setShowDownloadOptions(false)}
+									disabled={generating}
+								>
+									<FontAwesomeIcon icon={faArrowLeft} />
+									<span>Cancelar</span>
+								</button>
+
+								<button
+									className="re-button re-button-primary"
+									onClick={() => {
+										setGenerating(true);
+										if (reportType === "excel") {
+											generarExcelHistorial();
+										}
+									}}
+									disabled={generating}
+								>
+									{generating ? (
+										<>
+											<FontAwesomeIcon icon={faSpinner} className="spinner" />
+											<span>Generando...</span>
+										</>
+									) : (
+										<>
+											<FontAwesomeIcon icon={faDownload} />
+											<span>Generar Reporte</span>
+										</>
+									)}
+								</button>
+							</div>
+
+							{(generating && reportType === "pdf") && (
+								<div style={{ position: "absolute", left: "-10000px", top: 0 }}>
+									<FormatCourse
+										contentKey={pdfContent}
+										cursos={(cursosFiltrados.length > 0 ? cursosFiltrados : datosCurso).map((c) => c.id)}
+										onReady={(el) => generarReporteDesdeElemento(el)}
+									/>
+								</div>
+							)}
+						</div>
 					</div>
 				</div>
 			)}
 		</div>
 	);
 }
-
-// Componente Pagination
-const Pagination = ({
-	postsPerPage,
-	totalPosts,
-	setCurrentPage,
-	currentPage,
-}) => {
-	const pageNumbers = [];
-
-	for (let i = 1; i <= Math.ceil(totalPosts / postsPerPage); i++) {
-		pageNumbers.push(i);
-	}
-
-	const paginate = (pageNumber, e) => {
-		e.preventDefault();
-		setCurrentPage(pageNumber);
-	};
-
-	return (
-		<nav>
-			<ul className="pagination">
-				{pageNumbers.map((number) => (
-					<li
-						key={number}
-						className={`page-item ${currentPage === number ? "active" : ""}`}
-					>
-						<button
-							onClick={(e) => paginate(number, e)}
-							className="page-link"
-						>
-							{number}
-						</button>
-					</li>
-				))}
-			</ul>
-		</nav>
-	);
-};

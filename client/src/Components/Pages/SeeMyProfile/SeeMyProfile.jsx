@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect, useState } from "react"
+import React, { useCallback, useEffect, useState } from "react"
 import "./SeeMyProfile.css"
 import { useLocation } from "react-router-dom"
 import { useNavigate } from "react-router-dom"
@@ -21,26 +21,98 @@ import Swal from 'sweetalert2';
 import 'sweetalert2/themes/bulma.css'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faInstagram, faFacebook, faLinkedin, faTwitter } from "@fortawesome/free-brands-svg-icons";
-import { faEye, faEyeSlash, faFolder, faPlus, faGlobe, faPenToSquare } from '@fortawesome/free-solid-svg-icons';
+import { faGlobe, faPenToSquare } from '@fortawesome/free-solid-svg-icons';
 
 export const SeeMyProfile = () => {
-	const location = useLocation()
-	const navigate = useNavigate()
-	const userId = location.state?.userId
-	const requiresCompletion = location.state?.requiresCompletion
-	const fotoPerfilInputRef = React.useRef(null)
-	const logoEmpresaInputRef = React.useRef(null)
-	const [perfil, setPerfil] = useState(null)
-	const [perfilOriginal, setPerfilOriginal] = useState(null)
-	const [tipoCuenta, setTipoCuenta] = useState("")
-	const [editMode, setEditMode] = useState(false)
-	const [departamentos, setDepartamentos] = useState([])
-	const [ciudades, setCiudades] = useState([])
-	const [departamentoSeleccionado, setDepartamentoSeleccionado] = useState("")
-	const [ciudadSeleccionada, setCiudadSeleccionada] = useState("")
-	const [cursos, setCursos] = useState([])
-	const [instructores, setInstructores] = useState([])
-	const { setShowModalGeneral, setModalGeneralContent } = useModal()
+  const location = useLocation()
+  const navigate = useNavigate()
+  const userId = location.state?.userId
+  const requiresCompletion = location.state?.requiresCompletion
+  const fotoPerfilInputRef = React.useRef(null)
+  const logoEmpresaInputRef = React.useRef(null)
+  const [perfil, setPerfil] = useState(null)
+  const [perfilOriginal, setPerfilOriginal] = useState(null)
+  const [tipoCuenta, setTipoCuenta] = useState("")
+  const [editMode, setEditMode] = useState(false)
+  const [departamentos, setDepartamentos] = useState([])
+  const [ciudades, setCiudades] = useState([])
+  const [departamentoSeleccionado, setDepartamentoSeleccionado] = useState("")
+  const [ciudadSeleccionada, setCiudadSeleccionada] = useState("")
+  const [cursos, setCursos] = useState([])
+  const [instructores, setInstructores] = useState([])
+  const { setShowModalGeneral, setModalGeneralContent } = useModal()
+
+  const fetchCursos = useCallback(async () => {
+    if (!userId) {
+      return
+    }
+
+    try {
+      const profileResponse = await axiosInstance.get(`/api/users/profile/${userId}`)
+      const empresaId = profileResponse.data?.Empresa?.ID
+
+      if (!empresaId) {
+        setCursos([])
+        setInstructores([])
+        return
+      }
+
+      const cursosResponse = await axiosInstance.get(`/api/courses/empresa/${empresaId}`)
+
+      if (!cursosResponse.data.success) {
+        throw new Error("No se pudo realizar")
+      }
+
+      setCursos(cursosResponse.data.cursos)
+      setInstructores(
+        cursosResponse.data.cursos
+          .filter((cursoItem) => cursoItem.Instructor)
+          .map((cursoItem) => ({
+            ID: cursoItem.Instructor.ID,
+            nombre_instructor: `${cursoItem.Instructor.nombres} ${cursoItem.Instructor.apellidos}`,
+            nombre_curso: cursoItem.nombre_curso,
+            id_curso: cursoItem.ID,
+            numero: cursoItem.Instructor.celular,
+            email: cursoItem.Instructor.email,
+          })),
+      )
+    } catch (error) {
+      Swal.fire({
+        icon:"error",
+        title:"Error al consultar",
+        text:"Ocurrió un error al consultar los cursos",
+        confirmButtonText:"Okay",
+        theme:"bulma",
+        customClass: { confirmButton: 'centered-swal-button' }
+      })
+      console.log(error)
+    }
+  }, [userId])
+
+  const fetchCursosInstructor = useCallback(async () => {
+    if (!userId) {
+      setCursos([])
+      return
+    }
+
+    try {
+      const response = await axiosInstance.get(`/api/courses/cursos-asignados/${userId}`)
+      console.log("Respuesta de cursos asignados:", response.data)
+
+      if (response.data && Array.isArray(response.data)) {
+        const cursosAsignados = response.data
+          .filter((asignacion) => asignacion.Curso)
+          .map((asignacion) => asignacion.Curso)
+
+        setCursos(cursosAsignados)
+      } else {
+        setCursos([])
+      }
+    } catch (error) {
+      console.error("Error al consultar los cursos del instructor:", error)
+      setCursos([])
+    }
+  }, [userId])
 
 	const getImageSrcFromBase64 = (value) => {
 		if (!value) return fotoPerfilDefect
@@ -122,63 +194,10 @@ export const SeeMyProfile = () => {
 			}
 		}
 
-		if (userId) {
-			fetchProfile()
-		}
-	}, [userId, requiresCompletion])
-
-	const fetchCursos = async () => {
-		const response = await axiosInstance.get(`/api/users/profile/${userId}`)
-		try {
-			const cursos = await axiosInstance.get(`/api/courses/empresa/${response.data.Empresa.ID}`)
-			if (!cursos.data.success) throw "No se pudo realizar"
-			setCursos(cursos.data.cursos)
-			setInstructores(
-				cursos.data.cursos
-					.filter((c) => c.Instructor)
-					.map((c) => {
-						return {
-							ID: c.Instructor.ID,
-							nombre_instructor: `${c.Instructor.nombres} ${c.Instructor.apellidos}`,
-							nombre_curso: c.nombre_curso,
-							id_curso: c.ID,
-							numero: c.Instructor.celular,
-							email: c.Instructor.email,
-						}
-					}),
-			)
-		} catch (error) {
-			Swal.fire({
-				icon:"error",
-				title:"Error al consultar",
-				text:"Ocurrió un error al consultar los cursos",
-				confirmButtonText:"Okay",
-				theme:"bulma",
-				customClass: { confirmButton: 'centered-swal-button' }
-			})
-			console.log(error)
-		}
-	}
-
-	const fetchCursosInstructor = async () => {
-		try {
-			const response = await axiosInstance.get(`/api/courses/cursos-asignados/${userId}`)
-			console.log("Respuesta de cursos asignados:", response.data)
-			
-			if (response.data && Array.isArray(response.data)) {
-				const cursosAsignados = response.data
-					.filter(asignacion => asignacion.Curso)
-					.map(asignacion => asignacion.Curso)
-				
-				setCursos(cursosAsignados)
-			} else {
-				setCursos([])
-			}
-		} catch (error) {
-			console.error("Error al consultar los cursos del instructor:", error)
-			setCursos([])
-		}
-	}
+    if (userId) {
+      fetchProfile()
+    }
+  }, [userId, requiresCompletion, fetchCursos, fetchCursosInstructor])
 
 	const cargarUbicaciones = async (empresaData) => {
 		try {
@@ -1171,30 +1190,32 @@ export const SeeMyProfile = () => {
 								</div>
 							</div>
 
-							{/* Datos Empleado */}
-							<div className="aprendiz_datos_section">
-								<h3 className="section_title">Datos Empleado</h3>
-								<div className="aprendiz_empresa_info">
-									<p>
-										<strong>Nombre empresa:</strong> IBG
-									</p>
-									<p>
-										<strong>ID:</strong> {perfil.empresa_ID || "1"}
-									</p>
-								</div>
-								<div className="aprendiz_datos_grid">
-									<div className="aprendiz_field">
-										<label>Nombre:</label>
-										<input
-											type="text"
-											name="nombres"
-											className="aprendiz_input"
-											placeholder="Ingrese un nombre..."
-											value={perfil?.nombres || ""}
-											onChange={handleInputChange}
-											disabled={!editMode}
-										/>
-									</div>
+              {/* Datos Empleado */}
+              <div className="aprendiz_datos_section">
+                <h3 className="section_title">Datos Empleado</h3>
+                <div className="aprendiz_empresa_info">
+                  <p>
+                    <strong>Nombre empresa:</strong>{" "}
+                    {perfil?.Empresa?.nombre_empresa || "Sin información"}
+                  </p>
+                  <p>
+                    <strong>NIT:</strong>{" "}
+                    {perfil?.Empresa?.NIT || "No registrado"}
+                  </p>
+                </div>
+                <div className="aprendiz_datos_grid">
+                  <div className="aprendiz_field">
+                    <label>Nombre:</label>
+                    <input
+                      type="text"
+                      name="nombres"
+                      className="aprendiz_input"
+                      placeholder="Ingrese un nombre..."
+                      value={perfil?.nombres || ""}
+                      onChange={handleInputChange}
+                      disabled={!editMode}
+                    />
+                  </div>
 
 									<div className="aprendiz_field">
 										<label>Apellido:</label>

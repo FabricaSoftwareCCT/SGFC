@@ -3,12 +3,13 @@ import PropTypes from 'prop-types';
 import "./UpdateEmploye.css";
 import axiosInstance from "../../../../config/axiosInstance";
 import { useModal } from "../../../../Context/ModalContext";
-import buttonEdit from '../../../../assets/Icons/buttonEdit.png';
-import { validateEmail, validateNumber, validateText, validateNIT } from "../../../../utils/Validators/formValidator";
 import Swal from 'sweetalert2';
-import 'sweetalert2/themes/bulma.css'
+import 'sweetalert2/themes/bulma.css';
+import { useNavigate } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faArrowLeft, faUser, faIdCard, faPhone, faEnvelope, faCamera, faBook } from '@fortawesome/free-solid-svg-icons';
 
-export const UpdateEmploye = ({ empleado }) => {
+export const UpdateEmploye = ({ empleado, onClose, isOpen = true }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({ ...empleado });
   const pdfInputRef = useRef(null);
@@ -35,6 +36,26 @@ export const UpdateEmploye = ({ empleado }) => {
     pendiente: "Pendiente",
   };
 
+  const truncarNombreArchivo = (nombre, maxLongitud = 15) => {
+    if (!nombre) return '';
+
+    const ultimoPunto = nombre.lastIndexOf('.');
+    if (ultimoPunto === -1) {
+      return nombre.length > maxLongitud 
+        ? `${nombre.slice(0, maxLongitud)}...`
+        : nombre;
+    }
+
+    const nombreParte = nombre.slice(0, ultimoPunto);
+    const extension = nombre.slice(ultimoPunto);
+
+    if (nombreParte.length <= maxLongitud) {
+      return nombre;
+    }
+
+    return `${nombreParte.slice(0, maxLongitud)}... ${extension}`;
+  };
+
   const handlePDFChange = (e) => {
     const selectedPDF = e.target.files[0];
     if (!selectedPDF) return;
@@ -44,9 +65,15 @@ export const UpdateEmploye = ({ empleado }) => {
   };
 
   const closeModalUpdateEmploye = () => {
-    const modal = document.getElementById("modal-overlayUpdateEmploye");
-    if (modal) {
-      modal.style.display = "none";
+    // Resetear todos los estados
+    setShowDropdown(false);
+    setIsEditing(false);
+    setDocumentoPDF(null);
+    setPdfFileName('');
+    
+    // Llamar al callback onClose
+    if (onClose && typeof onClose === 'function') {
+      onClose();
     }
   };
 
@@ -72,21 +99,18 @@ export const UpdateEmploye = ({ empleado }) => {
   const validateFields = () => {
     const errors = [];
     
-    // Validar nombres
     if (!formData.nombres || formData.nombres.trim() === '') {
       errors.push('Los nombres son requeridos');
     } else if (formData.nombres.trim().length < 2) {
       errors.push('Los nombres deben tener al menos 2 caracteres');
     }
     
-    // Validar apellidos
     if (!formData.apellidos || formData.apellidos.trim() === '') {
       errors.push('Los apellidos son requeridos');
     } else if (formData.apellidos.trim().length < 2) {
       errors.push('Los apellidos deben tener al menos 2 caracteres');
     }
     
-    // Validar documento (solo números)
     if (!formData.documento || formData.documento.trim() === '') {
       errors.push('El número de documento es requerido');
     } else if (!/^\d+$/.test(formData.documento.trim())) {
@@ -95,7 +119,6 @@ export const UpdateEmploye = ({ empleado }) => {
       errors.push('El número de documento debe tener al menos 6 dígitos');
     }
     
-    // Validar celular (solo números)
     if (!formData.celular || formData.celular.trim() === '') {
       errors.push('El número de celular es requerido');
     } else if (!/^\d+$/.test(formData.celular.trim())) {
@@ -104,7 +127,6 @@ export const UpdateEmploye = ({ empleado }) => {
       errors.push('El número de celular debe tener al menos 10 dígitos');
     }
     
-    // Validar email
     if (!formData.email || formData.email.trim() === '') {
       errors.push('El email es requerido');
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) {
@@ -114,6 +136,21 @@ export const UpdateEmploye = ({ empleado }) => {
     return errors;
   };
 
+  const navigate = useNavigate();
+
+  const handleCourse = () => {
+    console.log('ID del empleado:', formData.ID);
+    console.log('Navegando a mis cursos...');
+    
+    closeModalUpdateEmploye();
+    navigate('/mis-Cursos', { 
+      state: { 
+        empleadoId: formData.ID,
+        empleadoNombre: formData.nombres 
+      } 
+    });
+  }
+
   const handleButtonClick = async (e) => {
     e.preventDefault();
 
@@ -122,12 +159,11 @@ export const UpdateEmploye = ({ empleado }) => {
       return;
     }
 
-    // Validar todos los campos antes de enviar
     const errors = validateFields();
     if (errors.length > 0) {
       await Swal.fire({
-        icon: 'error',
-        title: 'Errores de validación',
+        icon: 'warning',
+        title: 'Campos requeridos',
         html: `
           <div style="text-align: left;">
             <p>Por favor corrija los siguientes errores:</p>
@@ -137,8 +173,8 @@ export const UpdateEmploye = ({ empleado }) => {
           </div>
         `,
         confirmButtonColor: '#3085d6',
-                      theme:"bulma",
-      customClass: { confirmButton: 'centered-swal-button' }
+        theme: "bulma",
+        customClass: { confirmButton: 'centered-swal-button' }
       });
       return;
     }
@@ -182,7 +218,7 @@ export const UpdateEmploye = ({ empleado }) => {
               'Content-Type': 'multipart/form-data',
             },
           });
-            await Swal.fire({
+          await Swal.fire({
             icon: 'info',
             title: 'Documento procesado',
             html: `
@@ -190,8 +226,8 @@ export const UpdateEmploye = ({ empleado }) => {
               <p><strong>Número:</strong> ${ocrResponse.data.documento}</p>
             `,
             confirmButtonColor: '#3085d6',
-                          theme:"bulma",
-      customClass: { confirmButton: 'centered-swal-button' }
+            theme: "bulma",
+            customClass: { confirmButton: 'centered-swal-button' }
           });
         } catch (ocrError) {
           console.error("Error al procesar documento:", ocrError);
@@ -200,8 +236,8 @@ export const UpdateEmploye = ({ empleado }) => {
             title: 'Procesamiento de documento',
             text: 'Empleado actualizado, pero hubo un problema al procesar el documento PDF.',
             confirmButtonColor: '#3085d6',
-                          theme:"bulma",
-      customClass: { confirmButton: 'centered-swal-button' }
+            theme: "bulma",
+            customClass: { confirmButton: 'centered-swal-button' }
           });
         }
       }
@@ -213,8 +249,8 @@ export const UpdateEmploye = ({ empleado }) => {
         confirmButtonColor: '#3085d6',
         timer: 3000,
         timerProgressBar: true,
-                      theme:"bulma",
-      customClass: { confirmButton: 'centered-swal-button' }
+        theme: "bulma",
+        customClass: { confirmButton: 'centered-swal-button' }
       });
       setIsEditing(false);
       
@@ -237,258 +273,367 @@ export const UpdateEmploye = ({ empleado }) => {
         title: 'Error',
         text: "Hubo un error al actualizar el perfil. " + (error.response?.data?.message || error.message),
         confirmButtonColor: '#3085d6',
-                      theme:"bulma",
-      customClass: { confirmButton: 'centered-swal-button' }
+        theme: "bulma",
+        customClass: { confirmButton: 'centered-swal-button' }
       });
     }
   };
 
   const getImageSrc = (data) => {
-    if (!data) {  
-      return "/src/assets/Icons/userDefect.png";
+    if (!data) return '/default-profile.png';
+    if (data.startsWith('/9j/')) {
+      return `data:image/jpeg;base64,${data}`;
+    } else if (data.startsWith('iVBORw0KGgo')) {
+      return `data:image/png;base64,${data}`;
+    } else {
+      return `data:image/jpeg;base64,${data}`;
     }
-    
-    if (typeof data === 'string') {
-      if (data.startsWith("data:")) {
-        return data;
-      }
-      
-      if (data.startsWith("iVBORw0KGgo") || data.startsWith("iVBOR")) {
-        return `data:image/png;base64,${data}`;
-      }
-      
-      if (data.startsWith("/9j/")) {
-        return `data:image/jpeg;base64,${data}`;
-      }
-      
-      if (data.length > 1000) {
-        return `data:image/jpeg;base64,${data}`;
-      }
-      
-      const base64Regex = /^[A-Za-z0-9+/=]+$/;
-      if (data.length > 50 && base64Regex.test(data)) {
-        return `data:image/jpeg;base64,${data}`;
-      }
-      
-      if (data.startsWith('../') || data.startsWith('/')) {
-        if (data.startsWith('../Img/')) {
-          const newPath = data.replace('../Img/', '/src/assets/Icons/');
-          return newPath;
-        }
-        return data;
-      }
-      
-      return "/src/assets/Icons/userDefect.png";
-    }
-
-    return "/src/assets/Icons/userDefect.png";
   };
 
+  if (!empleado || !isOpen) return null;
+
   return (
-    <div id="modal-overlayUpdateEmploye" className={isEditing ? 'editing-mode' : ''} style={{ display: "none" }}>
-      <form className={`modal-bodyUpdateGestor ${isEditing ? 'editing-mode' : ''}`} onSubmit={handleButtonClick}>
-        <div className="modal-left-update">
-          <p>
-            <strong>Nombres:</strong>{" "}
-            {isEditing ? (
-              <input
-                type="text"
-                name="nombres"
-                className="input_updateData"
-                value={formData.nombres || ""}
-                onChange={handleChange}
-              />
-            ) : (
-              <span className="valor-campo">{formData.nombres || ""}</span>
-            )}
-          </p>
-          <p>
-            <strong>Apellidos:</strong>{" "}
-            {isEditing ? (
-              <input
-                type="text"
-                name="apellidos"
-                className="input_updateData"
-                value={formData.apellidos || ""}
-                onChange={handleChange}
-              />
-            ) : (
-              <span className="valor-campo">{formData.apellidos || ""}</span>
-            )}
-          </p>
+    <div id="modal-overlayUpdateEmploye" className="modal-overlay-employe">
+      <div className="modal-container-employe">
+        <div className="modal-header-employe">
+          <div className="header-content-employe">
+            <h2>
+              <FontAwesomeIcon icon={faUser} className="header-icon-employe" />
+              Perfil del Empleado
+            </h2>
+            <button 
+              type="button" 
+              onClick={closeModalUpdateEmploye}
+              className="close-btn-employe"
+            >
+              <FontAwesomeIcon icon={faArrowLeft} />
+              <span>Volver</span>
+            </button>
+          </div>
+        </div>
 
-          <p id='p_addInstructor'>
-            <strong style={{ fontSize: 16 }}>Documento de identidad:</strong>{" "}
-            {isEditing ? (
-              <>
-                {pdfFileName && <span id="pdf-file-name">{pdfFileName}</span>}
-                <button
-                  className='addInstructor'
-                  type="button"
-                  onClick={() => pdfInputRef.current.click()}
-                >
-                  <img src={buttonEdit} alt="Subir documento" />
-                </button>
-                <input
-                  type="file"
-                  accept="application/pdf"
-                  ref={pdfInputRef}
-                  onChange={handlePDFChange}
-                  hidden
-                />
-              </>
-            ) : (
-              <span className="valor-campo">{formData.pdf_documento || ""}</span>
-            )}
-          </p>
+        <form className="modal-body-employe" onSubmit={handleButtonClick}>
+          <div className="modal-content-employe">
+            {/* Columna izquierda - Información */}
+            <div className="info-column-employe">
+              <div className="form-section-employe">
+                <h3 className="section-title-employe">Información Personal</h3>
+                <div className="form-grid-employe">
+                  <div className="input-group-employe">
+                    <label className="input-label-employe">
+                      <FontAwesomeIcon icon={faUser} />
+                      Nombres
+                    </label>
+                    {isEditing ? (
+                      <input
+                        type="text"
+                        name="nombres"
+                        value={formData.nombres || ""}
+                        onChange={handleChange}
+                        className="input-field-employe"
+                        placeholder="Ingrese los nombres"
+                      />
+                    ) : (
+                      <div className="display-field-employe">
+                        {formData.nombres || "No especificado"}
+                      </div>
+                    )}
+                  </div>
 
-          <div className="campo-tipo-documento">
-            <strong>Tipo documento:</strong>
-            {isEditing ? (
-              <div className="custom-dropdown">
-                <div
-                  className="selected-option"
-                  onClick={() => setShowDropdown(!showDropdown)}
-                >
-                  {documentoLabels[formData.tipoDocumento] || "Seleccionar tipo"}
+                  <div className="input-group-employe">
+                    <label className="input-label-employe">
+                      <FontAwesomeIcon icon={faUser} />
+                      Apellidos
+                    </label>
+                    {isEditing ? (
+                      <input
+                        type="text"
+                        name="apellidos"
+                        value={formData.apellidos || ""}
+                        onChange={handleChange}
+                        className="input-field-employe"
+                        placeholder="Ingrese los apellidos"
+                      />
+                    ) : (
+                      <div className="display-field-employe">
+                        {formData.apellidos || "No especificado"}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="input-group-employe">
+                    <label className="input-label-employe">
+                      <FontAwesomeIcon icon={faIdCard} />
+                      Tipo Documento
+                    </label>
+                    {isEditing ? (
+                      <div className="custom-dropdown-employe">
+                        <div
+                          className="selected-option-employe"
+                          onClick={() => setShowDropdown(!showDropdown)}
+                        >
+                          {documentoLabels[formData.tipoDocumento] || "Seleccionar tipo"}
+                        </div>
+                        {showDropdown && (
+                          <ul className="dropdown-options-employe">
+                            {Object.entries(documentoLabels).map(([value, label]) => (
+                              <li
+                                key={value}
+                                className={`dropdown-option-employe ${formData.tipoDocumento === value ? "selected" : ""}`}
+                                onClick={() => {
+                                  setFormData({ ...formData, tipoDocumento: value });
+                                  setShowDropdown(false);
+                                }}
+                              >
+                                {label}
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="display-field-employe">
+                        {documentoLabels[formData.tipoDocumento] || "No especificado"}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="input-group-employe">
+                    <label className="input-label-employe">
+                      <FontAwesomeIcon icon={faIdCard} />
+                      Documento
+                    </label>
+                    {isEditing ? (
+                      <input
+                        type="text"
+                        name="documento"
+                        value={formData.documento || ""}
+                        onChange={handleChange}
+                        className="input-field-employe"
+                        placeholder="Ingrese el documento"
+                      />
+                    ) : (
+                      <div className="display-field-employe">
+                        {formData.documento || "No especificado"}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="input-group-employe">
+                    <label className="input-label-employe">
+                      <FontAwesomeIcon icon={faPhone} />
+                      Celular
+                    </label>
+                    {isEditing ? (
+                      <input
+                        type="text"
+                        name="celular"
+                        value={formData.celular || ""}
+                        onChange={handleChange}
+                        className="input-field-employe"
+                        placeholder="Ingrese el celular"
+                      />
+                    ) : (
+                      <div className="display-field-employe">
+                        {formData.celular || "No especificado"}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="input-group-employe">
+                    <label className="input-label-employe">
+                      <FontAwesomeIcon icon={faEnvelope} />
+                      Email
+                    </label>
+                    {isEditing ? (
+                      <input
+                        type="email"
+                        name="email"
+                        value={formData.email || ""}
+                        onChange={handleChange}
+                        className="input-field-employe"
+                        placeholder="Ingrese el email"
+                      />
+                    ) : (
+                      <div className="display-field-employe">
+                        {formData.email || "No especificado"}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="input-group-employe">
+                    <label className="input-label-employe">Documento PDF</label>
+                    {isEditing ? (
+                      <div className="pdf-upload-section-employe">
+                        <input
+                          type="file"
+                          accept="application/pdf"
+                          ref={pdfInputRef}
+                          onChange={handlePDFChange}
+                          className="file-input-employe"
+                          id="pdfUploadEmploye"
+                        />
+                        <label
+                          className="pdf-upload-label-employe"
+                          htmlFor="pdfUploadEmploye"
+                        >
+                          {pdfFileName ? (
+                            <span className="pdf-file-name-employe">
+                              {truncarNombreArchivo(pdfFileName)}
+                            </span>
+                          ) : (
+                            <span className="pdf-placeholder-employe">
+                              Subir documento PDF
+                            </span>
+                          )}
+                        </label>
+                      </div>
+                    ) : (
+                      <div className="display-field-employe">
+                        {formData.pdf_documento || "No hay documento subido"}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="input-group-employe">
+                    <label className="input-label-employe">Estado</label>
+                    {isEditing ? (
+                      <div className="status-buttons-employe">
+                        {["Activo", "Inactivo"].map((estado) => {
+                          const isSelected = (formData.estado || "").toLowerCase() === estado.toLowerCase();
+                          return (
+                            <button
+                              key={estado}
+                              type="button"
+                              className={`status-btn-employe ${isSelected ? "active" : ""}`}
+                              onClick={() => handleEstadoChange(estado)}
+                            >
+                              <span className="status-dot-employe"></span>
+                              {estado}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <div className={`status-display-employe ${formData.estado?.toLowerCase()}`}>
+                        <span className="status-dot-employe"></span>
+                        {formData.estado || "No especificado"}
+                      </div>
+                    )}
+                  </div>
                 </div>
-                {showDropdown && (
-                  <ul className="dropdown-options">
-                    {Object.entries(documentoLabels).map(([value, label]) => (
-                      <li
-                        key={value}
-                        className={`dropdown-option ${formData.tipoDocumento === value ? "selected" : ""}`}
-                        onClick={() => {
-                          setFormData({ ...formData, tipoDocumento: value });
-                          setShowDropdown(false);
-                        }}
+              </div>
+            </div>
+
+            {/* Columna derecha - Imagen y botones */}
+            <div className="image-column-employe">
+              <div className="image-section-employe">
+                <div className="image-container-employe">
+                  {isEditing ? (
+                    <>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageChange}
+                        id="imageUploadEmploye"
+                        className="file-input-employe"
+                      />
+                      <label
+                        className="image-upload-employe editable"
+                        htmlFor="imageUploadEmploye"
                       >
-                        {label}
-                      </li>
-                    ))}
-                  </ul>
+                        {formData.foto_perfil instanceof File ? (
+                          <img
+                            src={URL.createObjectURL(formData.foto_perfil)}
+                            alt="Vista previa"
+                            className="profile-image-employe"
+                            onError={(e) => {
+                              e.target.src = '/default-profile.png';
+                            }}
+                          />
+                        ) : formData.foto_perfil ? (
+                          <img
+                            src={getImageSrc(formData.foto_perfil)}
+                            alt="Foto de perfil"
+                            className="profile-image-employe"
+                            onError={(e) => {
+                              e.target.src = '/default-profile.png';
+                            }}
+                          />
+                        ) : (
+                          <div className="image-placeholder-employe">
+                            <FontAwesomeIcon icon={faCamera} className="placeholder-icon-employe" />
+                            <span>Haz clic para subir imagen</span>
+                          </div>
+                        )}
+                        <div className="upload-overlay-employe">
+                          <FontAwesomeIcon icon={faCamera} />
+                          <span>Cambiar imagen</span>
+                        </div>
+                      </label>
+                    </>
+                  ) : (
+                    <div className="image-display-employe">
+                      {formData.foto_perfil ? (
+                        <img
+                          src={getImageSrc(formData.foto_perfil)}
+                          alt="Foto de perfil"
+                          className="profile-image-employe"
+                          onError={(e) => {
+                            e.target.src = '/default-profile.png';
+                          }}
+                        />
+                      ) : (
+                        <div className="image-placeholder-employe">
+                          <FontAwesomeIcon icon={faUser} className="placeholder-icon-employe" />
+                          <span>Sin imagen</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+                
+                {!isEditing && (
+                  <div className="image-info-employe">
+                    <p>Activa el modo edición para cambiar la imagen</p>
+                  </div>
                 )}
               </div>
-            ) : (
-              <span className="valor-campo">
-                {documentoLabels[formData.tipoDocumento] || "Sin especificar"}
-              </span>
-            )}
-          </div>
 
-          <p>
-            <strong>Documento:</strong>{" "}
-            {isEditing ? (
-              <input
-                type="text"
-                name="documento"
-                className="input_updateData"
-                value={formData.documento || ""}
-                onChange={handleChange}
-              />
-            ) : (
-              <span className="valor-campo">{formData.documento || ""}</span>
-            )}
-          </p>
-          <p>
-            <strong>Celular:</strong>{" "}
-            {isEditing ? (
-              <input
-                type="text"
-                name="celular"
-                className="input_updateData"
-                value={formData.celular || ""}
-                onChange={handleChange}
-              />
-            ) : (
-              <span className="valor-campo">{formData.celular || ""}</span>
-            )}
-          </p>
-          <p>
-            <strong>Email:</strong>{" "}
-            {isEditing ? (
-              <input
-                type="email"
-                name="email"
-                className="input_updateData"
-                value={formData.email || ""}
-                onChange={handleChange}
-              />
-            ) : (
-              <span className="valor-campo">{formData.email || ""}</span>
-            )}
-          </p>
-          <p>
-            <strong>Estado:</strong>{" "}
-            {isEditing ? (
-              <div className="status-buttons">
-                {["activo", "inactivo"].map((estado) => (
-                  <button
-                    key={estado}
-                    type="button"
-                    className={`status ${formData.estado === estado ? "active" : ""}`}
-                    onClick={() => handleEstadoChange(estado)}
-                  >
-                    {estado}
-                  </button>
-                ))}
+              <div className="buttons-section-employe">
+                <button type="submit" className="submit-btn-employe">
+                  {isEditing ? (
+                    <>
+                      <FontAwesomeIcon icon={faUser} />
+                      <span>Guardar Cambios</span>
+                    </>
+                  ) : (
+                    <>
+                      <FontAwesomeIcon icon={faUser} />
+                      <span>Editar Perfil</span>
+                    </>
+                  )}
+                </button>
+
+                <button 
+                  type="button" 
+                  className="course-btn-employe"
+                  onClick={handleCourse}
+                >
+                  <FontAwesomeIcon icon={faBook} />
+                  <span>Ver Cursos</span>
+                </button>
               </div>
-            ) : (
-              <span className="valor-campo">{formData.estado}</span>
-            )}
-          </p>
-        </div>
-
-        <div className="modal-right">
-          <input
-            type="file"
-            accept="image/*"
-            hidden={!isEditing}
-            disabled={!isEditing}
-            onChange={handleImageChange}
-            id="imageUploadEmploye"
-          />
-
-          <label
-            className={`upload-area-update ${!isEditing ? "read-only-border" : ""}`}
-            htmlFor="imageUploadEmploye"
-          >
-            {formData.foto_perfil instanceof File ? (
-              <img
-                src={URL.createObjectURL(formData.foto_perfil)}
-                alt="Vista previa"
-                className="preview-image"
-              />
-            ) : (
-              <img
-                src={getImageSrc(formData.foto_perfil)}
-                alt="Foto de perfil"
-                className="preview-image-update"
-                onError={(e) => {
-                  e.target.src = "/src/assets/Icons/userDefect.png";
-                }}
-              />
-            )}
-          </label>
-
-          <button type="submit" className="edit-button-updateInstructor">
-            {isEditing ? "Guardar Cambios" : "Actualizar Perfil"}
-          </button>
-        </div>
-
-        <div className="container_return_UpdateGestor">
-          <h5>Volver</h5>
-          <button
-            type="button"
-            onClick={closeModalUpdateEmploye}
-            className="closeModal"
-          ></button>
-        </div>
-      </form>
+            </div>
+          </div>
+        </form>
+      </div>
     </div>
   );
 };
 
 UpdateEmploye.propTypes = {
-  empleado: PropTypes.object.isRequired
+  empleado: PropTypes.object.isRequired,
+  onClose: PropTypes.func.isRequired, // ✅ Ahora es requerido
+  isOpen: PropTypes.bool
 };

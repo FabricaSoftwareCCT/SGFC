@@ -1,6 +1,7 @@
 const { EmpresaRepository } = require("../Repository/EmpresaRepository");
 const {UserRepository} = require("../Repository/UserRepository");
 const { sendVerificationEmail } = require("./emailService");
+const bcrypt = require("bcrypt");
 
 class UserServices {
     static GetUser = async (token) => {
@@ -59,8 +60,7 @@ class UserServices {
             if(!existingManager){
                 throw new Error("El manager no existe ó no se creo correctamente ")
             }
-            
-            const NuevaEmpresa = await EmpresaRepository.CreateEmpresa(data);
+            const NuevaEmpresa = await EmpresaRepository.CreateEmpresa(email, data);
             existingManager.empresa_ID = NuevaEmpresa.ID;
             await existingManager.save();
 
@@ -74,6 +74,72 @@ class UserServices {
             
             throw { status: 500, message: "Error en el servidor. Intente de nuevo más tarde." };
         }
+    }
+
+
+    static CreateSecurity = async (Question, Answer, Id) => {
+        try{
+
+            const SecurityExisting = await UserRepository.GetUserSecurity(Id);
+
+            if(SecurityExisting && SecurityExisting.SecurityData){
+                throw new Error('Usuario ya cuenta con una pregunta de seguridad registrada')
+            }
+
+            Answer = await bcrypt.hash(Answer, 10);
+            const user = await UserRepository.SecurityAnswer(Question, Answer, Id)
+
+            if(!user){
+                return false;
+            }
+
+            return true;
+
+        }catch (Error) {
+            if (Error.message && Error.message !== 'Error en el servidor') { 
+                console.log(Error) 
+                throw Error; 
+            }
+            
+            throw { status: 500, message: "Error en el servidor. Intente de nuevo más tarde." };
+        }
+    }
+
+    static getSecutiry = async (Id) => {
+        const data = await UserRepository.GetUserSecurity(Id);
+        
+        if(data === null){
+            throw new Error("Usuario no encontrado")
+        }
+
+        if(!data.SecurityData || !data.SecurityData.dataValues.Pregunta){ 
+            throw new Error("El usuario no tiene preguntas de seguridad asociadas")
+        }
+
+        return data;
+    }
+
+    static updateSecurityQuestion = async (Id, Question, Answer) => {
+        const User = await UserRepository.GetUserSecurity(Id);
+
+        if(!User || User === null){
+            throw new Error("Usuario no encontrado")
+        }
+
+        const isPasswordValid = await bcrypt.compare(Answer, User.SecurityData?.dataValues?.respuesta);
+
+        if(!isPasswordValid){
+            throw new Error("La respuesta proporcionada no es correcta")
+        }
+
+        const user =  await UserRepository.updateUser(Id, Question, Answer);
+
+        if(!user){
+            throw new Error("No se pudo actualizar la pregunta de seguridad")
+        }
+
+        return user;
+        
     }
 }
 

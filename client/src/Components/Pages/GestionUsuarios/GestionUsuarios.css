@@ -213,7 +213,7 @@
 }
 
 .gu-table-header {
-    background: rgba(0, 200, 83, 0.1);
+    background: rgb(6 87 40);
     border-bottom: 2px solid rgba(0, 200, 83, 0.3);
     position: sticky;
     top: 0;

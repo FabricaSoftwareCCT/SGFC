@@ -1,4 +1,4 @@
-/* ReporteEstadisticas.css - Rediseño Completo */
+/* ReporteEstadisticas.css - Corrección Completa */
 
 :root {
   --re-primary-green: #00c853;
@@ -21,49 +21,49 @@
   --re-hover-shadow: 0 12px 40px rgba(0, 200, 83, 0.2);
 }
 
-/* Reset y Estructura Base */
+/* Reset base */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--re-background-dark) !important;
+  overflow-x: hidden;
+}
+
+/* Contenedor principal - SIN PSEUDO-ELEMENTOS PROBLEMÁTICOS */
 .reporte-estadisticas-container {
   width: 100%;
   min-height: 100vh;
-  background: linear-gradient(135deg, #0a0a0a 0%, #141414 100%);
-  position: relative;
+  background: var(--re-background-dark);
   padding: 2rem;
   margin-top: 80px;
   color: var(--re-text-primary);
   font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-}
-
-.reporte-estadisticas-container::before {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 300px;
-  background: linear-gradient(180deg, rgba(0, 200, 83, 0.1) 0%, transparent 100%);
-  z-index: 0;
-  pointer-events: none;
-}
-
-/* Header Principal */
-.re-header {
-  margin-bottom: 3rem;
-  padding: 2rem;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid var(--re-border-color);
-  border-radius: var(--re-border-radius);
-  backdrop-filter: blur(20px);
-  box-shadow: var(--re-card-shadow);
   position: relative;
   z-index: 1;
 }
 
+/* Header Principal */
+.re-header {
+  margin-bottom: 2rem;
+  position: relative;
+  z-index: 2;
+}
+
 .re-header-content {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 2rem;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--re-border-color);
+  border-radius: var(--re-border-radius);
+  backdrop-filter: blur(10px);
+  box-shadow: var(--re-card-shadow);
 }
 
 .re-title-section {
@@ -73,42 +73,32 @@
 }
 
 .re-title-icon {
-  font-size: 3rem;
+  font-size: 2.5rem;
   color: var(--re-primary-green);
   background: var(--re-success-bg);
   padding: 1rem;
   border-radius: 50%;
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
 }
 
 .re-title {
   color: var(--re-text-primary);
-  font-size: 2.5rem;
-  font-weight: 300;
+  font-size: 2rem;
+  font-weight: 600;
   margin: 0;
-  background: linear-gradient(135deg, var(--re-text-primary) 0%, var(--re-primary-green) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
 }
 
 .re-subtitle {
   color: var(--re-text-secondary);
-  font-size: 1.1rem;
-  margin: 0.5rem 0 0 0;
-  font-weight: 400;
+  font-size: 1rem;
+  margin: 0.25rem 0 0 0;
 }
 
-/* Estadísticas del Header */
-.re-header-stats {
-  display: flex;
-  gap: 1.5rem;
-  flex-wrap: wrap;
+/* FIX 1: Sección de estadísticas NO clickeables */
+.re-stats-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 2rem;
 }
 
 .stat-card {
@@ -116,43 +106,50 @@
   border: 1px solid var(--re-border-color);
   border-radius: var(--re-border-radius);
   padding: 1.5rem;
-  min-width: 180px;
   display: flex;
   align-items: center;
   gap: 1rem;
   transition: all 0.3s ease;
+  cursor: default !important; /* FIX: No es clickeable */
+  user-select: none; /* FIX: No se puede seleccionar */
+  pointer-events: none; /* FIX: Deshabilitar completamente */
 }
 
+/* REMOVER TODOS LOS EFECTOS HOVER */
 .stat-card:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--re-hover-shadow);
-  border-color: var(--re-primary-green);
+  transform: none !important;
+  box-shadow: none !important;
+  border-color: var(--re-border-color) !important;
+  background: var(--re-surface-light) !important;
 }
 
 .stat-icon {
-  font-size: 2rem;
+  font-size: 1.8rem;
   color: var(--re-primary-green);
   background: var(--re-success-bg);
-  padding: 1rem;
+  padding: 0.875rem;
   border-radius: 50%;
+  pointer-events: none;
 }
 
 .stat-content {
   display: flex;
   flex-direction: column;
+  pointer-events: none;
 }
 
 .stat-value {
-  font-size: 2rem;
+  font-size: 1.8rem;
   font-weight: 700;
   color: var(--re-text-primary);
   line-height: 1;
 }
 
 .stat-label {
-  font-size: 0.9rem;
+  font-size: 0.875rem;
   color: var(--re-text-secondary);
   margin-top: 0.25rem;
+  font-weight: 500;
 }
 
 /* Controles Principales */
@@ -164,13 +161,19 @@
   margin-bottom: 2rem;
   flex-wrap: wrap;
   position: relative;
-  z-index: 1;
+  z-index: 10;
+  background: rgba(255, 255, 255, 0.02);
+  padding: 1.5rem;
+  border-radius: var(--re-border-radius);
+  border: 1px solid var(--re-border-color);
 }
 
+/* FIX 2: Buscador - SIN problemas de fondo */
 .re-search-container {
   flex: 1;
   max-width: 500px;
   position: relative;
+  min-width: 300px;
 }
 
 .search-icon {
@@ -180,25 +183,29 @@
   transform: translateY(-50%);
   color: var(--re-text-secondary);
   font-size: 1rem;
+  z-index: 2;
 }
 
 .re-search-input {
   width: 100%;
-  background: var(--re-surface-light);
+  background: rgba(255, 255, 255, 0.05);
   border: 1px solid var(--re-border-color);
   border-radius: var(--re-border-radius);
   padding: 1rem 1rem 1rem 3rem;
   color: var(--re-text-primary);
   font-size: 1rem;
   transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
+  position: relative;
+  z-index: 2;
 }
 
+/* FIX: Eliminar cualquier transformación problemática */
 .re-search-input:focus {
   outline: none;
   border-color: var(--re-primary-green);
-  box-shadow: 0 0 0 3px rgba(0, 200, 83, 0.2);
-  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 0 2px rgba(0, 200, 83, 0.2);
+  background: rgba(255, 255, 255, 0.08);
+  transform: none !important; /* FIX: Evitar transformaciones */
 }
 
 .re-search-input::placeholder {
@@ -216,6 +223,7 @@
   cursor: pointer;
   padding: 0.25rem;
   transition: all 0.3s ease;
+  z-index: 3;
 }
 
 .re-clear-search:hover {
@@ -241,14 +249,15 @@
   cursor: pointer;
   transition: all 0.3s ease;
   text-decoration: none;
+  white-space: nowrap;
+  position: relative;
+  z-index: 10;
 }
 
 .re-button-filtro {
   background: var(--re-surface-light);
   border: 1px solid var(--re-border-color);
   color: var(--re-primary-green);
-  position: relative;
-  backdrop-filter: blur(10px);
 }
 
 .re-button-filtro:hover {
@@ -306,22 +315,23 @@
   background: linear-gradient(135deg, var(--re-primary-light) 0%, var(--re-primary-green) 100%);
 }
 
-/* Menú de Filtros */
+/* FIX 3: Menú de Filtros - POSICIÓN CORREGIDA */
 .re-filtro-menu {
   position: absolute;
   top: 100%;
   right: 0;
-  background: rgba(42, 42, 42, 0.95);
+  background: rgba(26, 26, 26, 0.98);
   border: 1px solid var(--re-border-color);
   border-radius: var(--re-border-radius);
   padding: 1.5rem;
-  min-width: 320px;
+  min-width: 350px;
   max-width: 400px;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
   z-index: 1000;
   margin-top: 0.5rem;
   backdrop-filter: blur(20px);
   animation: slideDown 0.3s ease;
+  transform-origin: top right;
 }
 
 @keyframes slideDown {
@@ -333,6 +343,11 @@
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* Posicionamiento relativo para el contenedor de controles */
+.re-controls {
+  position: relative;
 }
 
 .filtro-header {
@@ -488,14 +503,38 @@
 .re-content {
   position: relative;
   z-index: 1;
+  margin-top: 1rem;
 }
 
+/* Loading State */
+.re-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: var(--re-border-radius);
+  border: 1px solid var(--re-border-color);
+}
+
+.loading-spinner {
+  font-size: 3rem;
+  color: var(--re-primary-green);
+  margin-bottom: 1rem;
+}
+
+.re-loading p {
+  color: var(--re-text-secondary);
+  font-size: 1.1rem;
+}
+
+/* Tabla */
 .re-table-container {
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid var(--re-border-color);
   border-radius: var(--re-border-radius);
   overflow: hidden;
-  backdrop-filter: blur(10px);
   box-shadow: var(--re-card-shadow);
   margin-bottom: 2rem;
 }
@@ -549,6 +588,7 @@
 .re-table-body {
   max-height: 600px;
   overflow-y: auto;
+  background: rgba(10, 10, 10, 0.9);
 }
 
 .re-table-body::-webkit-scrollbar {
@@ -578,7 +618,6 @@
 
 .re-table-row:hover:not(.disabled) {
   background: rgba(255, 255, 255, 0.05);
-  transform: translateX(5px);
 }
 
 .re-table-row.disabled {
@@ -589,7 +628,6 @@
 
 .re-table-row.disabled:hover {
   background: rgba(255, 255, 255, 0.02);
-  transform: none;
 }
 
 .re-table-cell {
@@ -711,7 +749,6 @@
 
 .re-action-button:hover:not(.disabled) {
   background: rgba(0, 200, 83, 0.2);
-  transform: translateY(-1px);
   box-shadow: 0 2px 8px rgba(0, 200, 83, 0.2);
 }
 
@@ -731,6 +768,9 @@
   flex-direction: column;
   align-items: center;
   gap: 1.5rem;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: var(--re-border-radius);
+  margin: 1rem;
 }
 
 .empty-icon {
@@ -760,7 +800,6 @@
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid var(--re-border-color);
   border-radius: var(--re-border-radius);
-  backdrop-filter: blur(10px);
   flex-wrap: wrap;
   gap: 1rem;
 }
@@ -852,8 +891,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.9);
-  backdrop-filter: blur(10px);
+  background: rgba(0, 0, 0, 0.95);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -877,6 +915,8 @@
   overflow-y: auto;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
   animation: slideUp 0.3s ease;
+  position: relative;
+  z-index: 2001;
 }
 
 @keyframes slideUp {
@@ -981,7 +1021,6 @@
 .format-option:hover:not(.selected):not(:disabled) {
   background: rgba(255, 255, 255, 0.08);
   border-color: var(--re-primary-green);
-  transform: translateY(-2px);
 }
 
 .format-option.selected {
@@ -1058,13 +1097,8 @@
     padding: 1.5rem;
   }
   
-  .re-header-content {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  
-  .re-header-stats {
-    justify-content: center;
+  .re-title {
+    font-size: 1.8rem;
   }
 }
 
@@ -1075,30 +1109,39 @@
   }
   
   .re-title {
-    font-size: 2rem;
+    font-size: 1.6rem;
   }
   
   .re-controls {
     flex-direction: column;
     align-items: stretch;
+    padding: 1rem;
   }
   
   .re-search-container {
+    min-width: 100%;
     max-width: 100%;
   }
   
   .re-action-buttons {
+    justify-content: stretch;
+  }
+  
+  .re-button {
+    flex: 1;
     justify-content: center;
   }
   
+  /* FIX: Menú de filtros en móvil - POSICIÓN FIJA */
   .re-filtro-menu {
     position: fixed;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%) !important;
     right: auto;
     width: 90%;
     max-width: 400px;
+    margin: 0;
   }
   
   .re-table-header {
@@ -1114,6 +1157,7 @@
     border: 1px solid var(--re-border-color);
     border-radius: var(--re-border-radius);
     background: rgba(255, 255, 255, 0.03);
+    gap: 0.75rem;
   }
   
   .re-table-cell {
@@ -1122,6 +1166,7 @@
     align-items: center;
     padding: 0.5rem 0;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    width: 100%;
   }
   
   .re-table-cell:last-child {
@@ -1136,13 +1181,8 @@
     color: var(--re-primary-green);
     font-size: 0.85rem;
     min-width: 120px;
+    margin-right: 1rem;
   }
-  
-  .re-table-cell[data-label="Curso"]::before { content: "Curso:"; }
-  .re-table-cell[data-label="Ficha"]::before { content: "Ficha:"; }
-  .re-table-cell[data-label="Instructor"]::before { content: "Instructor:"; }
-  .re-table-cell[data-label="Estado"]::before { content: "Estado:"; }
-  .re-table-cell[data-label="Empleados"]::before { content: "Empleados:"; }
   
   .re-pagination {
     flex-direction: column;
@@ -1157,6 +1197,10 @@
   .modal-actions {
     flex-direction: column;
   }
+  
+  .re-stats-section {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 480px) {
@@ -1165,11 +1209,16 @@
   }
   
   .re-title {
-    font-size: 1.8rem;
+    font-size: 1.4rem;
+  }
+  
+  .re-title-section {
+    padding: 1rem;
+    gap: 1rem;
   }
   
   .stat-card {
-    min-width: 100%;
+    padding: 1.25rem;
   }
   
   .filtro-options {
@@ -1180,4 +1229,41 @@
     flex-direction: column;
     text-align: center;
   }
+  
+  .pagination-numbers {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .pagination-number {
+    min-width: 35px;
+    height: 35px;
+    font-size: 0.85rem;
+  }
+}
+
+/* FIX: Asegurar que el body tenga el fondo correcto */
+body {
+  background: var(--re-background-dark) !important;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+/* FIX: Prevenir scroll horizontal */
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* FIX: Garantizar que el contenedor principal no tenga overflow problemático */
+.reporte-estadisticas-container {
+  overflow: visible !important;
+  position: relative;
+}
+
+/* FIX: Asegurar que los elementos no se salgan del viewport */
+.re-filtro-menu {
+  max-height: 80vh;
+  overflow-y: auto;
 }

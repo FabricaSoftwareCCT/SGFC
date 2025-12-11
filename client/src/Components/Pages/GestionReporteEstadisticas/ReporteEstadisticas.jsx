@@ -35,8 +35,22 @@ import {
     faTag,
     faQuestionCircle,
     faFlagCheckered,
-    faCalendarCheck
+    faCalendarCheck,
+    faEye
 } from '@fortawesome/free-solid-svg-icons';
+
+const swalConfig = {
+    theme: "bulma",
+    customClass: {
+        confirmButton: "button is-primary",
+        cancelButton: "button is-light",
+        actions: "swal2-actions-centered",
+        popup: "swal2-popup-centered",
+    },
+    buttonsStyling: false,
+    confirmButtonText: "Aceptar",
+    cancelButtonText: "Cancelar",
+};
 
 export default function ReporteEstadisticas() {
     const [pantallaActual, setPantallaActual] = useState('cursos');
@@ -51,8 +65,13 @@ export default function ReporteEstadisticas() {
     const [reportFilename, setReportFilename] = useState("reporte_cursos.pdf")
     const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
     const [searchTerm, setSearchTerm] = useState('');
+    const [isSearching, setIsSearching] = useState(false);
+    const [loading, setLoading] = useState(true);
 
     const pdfContent = useRef()
+    const filtroRef = useRef(null);
+    const searchInputRef = useRef(null);
+    const containerRef = useRef(null);
 
     // Helper para formatear errores con contexto detallado
     const formatDetailedError = (error) => {
@@ -102,8 +121,7 @@ export default function ReporteEstadisticas() {
         instructor: ''
     });
 
-    const filtroRef = useRef(null);
-
+    // Cerrar filtros al hacer clic fuera
     useEffect(() => {
         function handleClickOutside(event) {
             if (mostrarFiltro && filtroRef.current && !filtroRef.current.contains(event.target)) {
@@ -120,9 +138,11 @@ export default function ReporteEstadisticas() {
         };
     }, [mostrarFiltro]);
 
+    // Cargar datos iniciales
     useEffect(() => {
         async function fetchData() {
             try {
+                setLoading(true);
                 const data = await getCursos(currentPage);
                 if (!data) {
                     Swal.fire({
@@ -147,6 +167,8 @@ export default function ReporteEstadisticas() {
                     theme: "bulma",
                     customClass: { confirmButton: 'centered-swal-button' }
                 });
+            } finally {
+                setLoading(false);
             }
         }
         fetchData()
@@ -216,7 +238,9 @@ export default function ReporteEstadisticas() {
 
     // Función para aplicar filtros y ordenamiento
     const cursosFiltrados = useMemo(() => {
-        let filtered = datosCurso?.filter(curso => {
+        if (!datosCurso || datosCurso.length === 0) return [];
+
+        let filtered = datosCurso.filter(curso => {
             // Filtro por estado
             const estadosSeleccionados = Object.keys(filtros.estado)
                 .filter(estadoKey => filtros.estado[estadoKey])
@@ -239,7 +263,7 @@ export default function ReporteEstadisticas() {
             }
 
             // Filtro por nombre del curso
-            if (filtros.curso && !curso.curso.toLowerCase().includes(filtros.curso.toLowerCase())) {
+            if (filtros.curso && !curso.curso?.toLowerCase().includes(filtros.curso.toLowerCase())) {
                 return false;
             }
 
@@ -536,7 +560,7 @@ export default function ReporteEstadisticas() {
 
     // Pantalla de cursos
     return (
-        <div className="reporte-estadisticas-container">
+        <div className="reporte-estadisticas-container" ref={containerRef}>
             <div className="re-header">
                 <div className="re-header-content">
                     <div className="re-title-section">
@@ -546,31 +570,32 @@ export default function ReporteEstadisticas() {
                             <p className="re-subtitle">Análisis detallado de cursos y estudiantes</p>
                         </div>
                     </div>
-                    <div className="re-header-stats">
-                        <div className="stat-card">
-                            <FontAwesomeIcon icon={faGraduationCap} className="stat-icon" />
-                            <div className="stat-content">
-                                <span className="stat-value">{datosCurso?.length || 0}</span>
-                                <span className="stat-label">Cursos Totales</span>
-                            </div>
+                </div>
+                
+                <div className="re-stats-section">
+                    <div className="stat-card">
+                        <FontAwesomeIcon icon={faGraduationCap} className="stat-icon" />
+                        <div className="stat-content">
+                            <span className="stat-value">{datosCurso?.length || 0}</span>
+                            <span className="stat-label">Cursos Totales</span>
                         </div>
-                        <div className="stat-card">
-                            <FontAwesomeIcon icon={faUsers} className="stat-icon" />
-                            <div className="stat-content">
-                                <span className="stat-value">
-                                    {datosCurso?.reduce((sum, curso) => sum + (parseInt(curso.empleados) || 0), 0)}
-                                </span>
-                                <span className="stat-label">Empleados</span>
-                            </div>
+                    </div>
+                    <div className="stat-card">
+                        <FontAwesomeIcon icon={faUsers} className="stat-icon" />
+                        <div className="stat-content">
+                            <span className="stat-value">
+                                {datosCurso?.reduce((sum, curso) => sum + (parseInt(curso.empleados) || 0), 0)}
+                            </span>
+                            <span className="stat-label">Empleados</span>
                         </div>
-                        <div className="stat-card">
-                            <FontAwesomeIcon icon={faChalkboardTeacher} className="stat-icon" />
-                            <div className="stat-content">
-                                <span className="stat-value">
-                                    {[...new Set(datosCurso?.map(c => c.instructor).filter(Boolean))].length}
-                                </span>
-                                <span className="stat-label">Instructores</span>
-                            </div>
+                    </div>
+                    <div className="stat-card">
+                        <FontAwesomeIcon icon={faChalkboardTeacher} className="stat-icon" />
+                        <div className="stat-content">
+                            <span className="stat-value">
+                                {[...new Set(datosCurso?.map(c => c.instructor).filter(Boolean))].length}
+                            </span>
+                            <span className="stat-label">Instructores</span>
                         </div>
                     </div>
                 </div>
@@ -580,11 +605,14 @@ export default function ReporteEstadisticas() {
                 <div className="re-search-container">
                     <FontAwesomeIcon icon={faSearch} className="search-icon" />
                     <input
+                        ref={searchInputRef}
                         type="text"
                         className="re-search-input"
                         placeholder="Buscar cursos, fichas, instructores..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
+                        onFocus={() => setIsSearching(true)}
+                        onBlur={() => setIsSearching(false)}
                     />
                     {searchTerm && (
                         <button
@@ -629,7 +657,6 @@ export default function ReporteEstadisticas() {
                     </div>
 
                     <div className="filtro-grid">
-                        {/* Filtro por Estado - TODOS LOS ESTADOS */}
                         <div className="filtro-group">
                             <label className="filtro-label">
                                 <FontAwesomeIcon icon={faCheckCircle} /> Estado del Curso
@@ -658,7 +685,6 @@ export default function ReporteEstadisticas() {
                             </div>
                         </div>
 
-                        {/* Filtro por Empleados */}
                         <div className="filtro-group">
                             <label className="filtro-label">
                                 <FontAwesomeIcon icon={faUsers} /> Cantidad de Empleados
@@ -679,7 +705,6 @@ export default function ReporteEstadisticas() {
                             </div>
                         </div>
 
-                        {/* Filtro por Nombre del Curso */}
                         <div className="filtro-group">
                             <label className="filtro-label">
                                 <FontAwesomeIcon icon={faGraduationCap} /> Nombre del Curso
@@ -693,7 +718,6 @@ export default function ReporteEstadisticas() {
                             />
                         </div>
 
-                        {/* Filtro por Nombre del Instructor */}
                         <div className="filtro-group">
                             <label className="filtro-label">
                                 <FontAwesomeIcon icon={faChalkboardTeacher} /> Instructor
@@ -723,166 +747,185 @@ export default function ReporteEstadisticas() {
             )}
 
             <div className="re-content">
-                <div className="re-table-container">
-                    <div className="re-table-header">
-                        <div
-                            className={`re-table-column sortable ${sortConfig.key === 'curso' ? 'sorting' : ''}`}
-                            onClick={() => handleSort('curso')}
-                        >
-                            <span>Curso</span>
-                            {sortConfig.key === 'curso' && (
-                                <FontAwesomeIcon
-                                    icon={faSortAmountDown}
-                                    className={`sort-icon ${sortConfig.direction === 'desc' ? 'desc' : ''}`}
-                                />
-                            )}
+                {loading ? (
+                    <div className="re-loading">
+                        <div className="loading-spinner">
+                            <FontAwesomeIcon icon={faSpinner} spin />
                         </div>
-                        <div className="re-table-column">
-                            <span>Ficha</span>
-                        </div>
-                        <div
-                            className={`re-table-column sortable ${sortConfig.key === 'instructor' ? 'sorting' : ''}`}
-                            onClick={() => handleSort('instructor')}
-                        >
-                            <span>Instructor</span>
-                            {sortConfig.key === 'instructor' && (
-                                <FontAwesomeIcon
-                                    icon={faSortAmountDown}
-                                    className={`sort-icon ${sortConfig.direction === 'desc' ? 'desc' : ''}`}
-                                />
-                            )}
-                        </div>
-                        <div
-                            className={`re-table-column sortable ${sortConfig.key === 'estado' ? 'sorting' : ''}`}
-                            onClick={() => handleSort('estado')}
-                        >
-                            <span>Estado</span>
-                            {sortConfig.key === 'estado' && (
-                                <FontAwesomeIcon
-                                    icon={faSortAmountDown}
-                                    className={`sort-icon ${sortConfig.direction === 'desc' ? 'desc' : ''}`}
-                                />
-                            )}
-                        </div>
-                        <div
-                            className={`re-table-column sortable ${sortConfig.key === 'empleados' ? 'sorting' : ''}`}
-                            onClick={() => handleSort('empleados')}
-                        >
-                            <span>Empleados</span>
-                            {sortConfig.key === 'empleados' && (
-                                <FontAwesomeIcon
-                                    icon={faSortAmountDown}
-                                    className={`sort-icon ${sortConfig.direction === 'desc' ? 'desc' : ''}`}
-                                />
-                            )}
-                        </div>
-                        <div className="re-table-column">
-                            <span>Acciones</span>
-                        </div>
+                        <p>Cargando datos...</p>
                     </div>
+                ) : (
+                    <>
+                        <div className="re-table-container">
+                            <div className="re-table-header">
+                                <div
+                                    className={`re-table-column sortable ${sortConfig.key === 'curso' ? 'sorting' : ''}`}
+                                    onClick={() => handleSort('curso')}
+                                >
+                                    <span>Curso</span>
+                                    {sortConfig.key === 'curso' && (
+                                        <FontAwesomeIcon
+                                            icon={faSortAmountDown}
+                                            className={`sort-icon ${sortConfig.direction === 'desc' ? 'desc' : ''}`}
+                                        />
+                                    )}
+                                </div>
+                                <div className="re-table-column">
+                                    <span>Ficha</span>
+                                </div>
+                                <div
+                                    className={`re-table-column sortable ${sortConfig.key === 'instructor' ? 'sorting' : ''}`}
+                                    onClick={() => handleSort('instructor')}
+                                >
+                                    <span>Instructor</span>
+                                    {sortConfig.key === 'instructor' && (
+                                        <FontAwesomeIcon
+                                            icon={faSortAmountDown}
+                                            className={`sort-icon ${sortConfig.direction === 'desc' ? 'desc' : ''}`}
+                                        />
+                                    )}
+                                </div>
+                                <div
+                                    className={`re-table-column sortable ${sortConfig.key === 'estado' ? 'sorting' : ''}`}
+                                    onClick={() => handleSort('estado')}
+                                >
+                                    <span>Estado</span>
+                                    {sortConfig.key === 'estado' && (
+                                        <FontAwesomeIcon
+                                            icon={faSortAmountDown}
+                                            className={`sort-icon ${sortConfig.direction === 'desc' ? 'desc' : ''}`}
+                                        />
+                                    )}
+                                </div>
+                                <div
+                                    className={`re-table-column sortable ${sortConfig.key === 'empleados' ? 'sorting' : ''}`}
+                                    onClick={() => handleSort('empleados')}
+                                >
+                                    <span>Empleados</span>
+                                    {sortConfig.key === 'empleados' && (
+                                        <FontAwesomeIcon
+                                            icon={faSortAmountDown}
+                                            className={`sort-icon ${sortConfig.direction === 'desc' ? 'desc' : ''}`}
+                                        />
+                                    )}
+                                </div>
+                                <div className="re-table-column">
+                                    <span>Acciones</span>
+                                </div>
+                            </div>
 
-                    <div className="re-table-body">
-                        {currentPosts?.length > 0 ? (
-                            currentPosts.map((curso) => {
-                                const tieneEmpleados = curso.empleados && curso.empleados > 0;
-                                const estadoConfig = getEstadoConfig(curso.estado);
-                                return (
-                                    <div
-                                        key={curso.id}
-                                        className={`re-table-row ${!tieneEmpleados ? 'disabled' : ''}`}
-                                        onClick={() => tieneEmpleados && handleFilaClick(curso)}
-                                        title={!tieneEmpleados ? 'Este curso no tiene empleados registrados' : ''}
-                                    >
-                                        <div className="re-table-cell">
-                                            <div className="curso-info">
-                                                <FontAwesomeIcon icon={faGraduationCap} className="curso-icon" />
-                                                <div className="curso-details">
-                                                    <span className="curso-nombre">{curso.curso}</span>
+                            <div className="re-table-body">
+                                {currentPosts?.length > 0 ? (
+                                    currentPosts.map((curso) => {
+                                        const tieneEmpleados = curso.empleados && curso.empleados > 0;
+                                        const estadoConfig = getEstadoConfig(curso.estado);
+                                        return (
+                                            <div
+                                                key={curso.id}
+                                                className={`re-table-row ${!tieneEmpleados ? 'disabled' : ''}`}
+                                                onClick={() => tieneEmpleados && handleFilaClick(curso)}
+                                                title={!tieneEmpleados ? 'Este curso no tiene empleados registrados' : ''}
+                                            >
+                                                <div className="re-table-cell" data-label="Curso">
+                                                    <div className="curso-info">
+                                                        <FontAwesomeIcon icon={faGraduationCap} className="curso-icon" />
+                                                        <div className="curso-details">
+                                                            <span className="curso-nombre">{curso.curso}</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div className="re-table-cell" data-label="Ficha">
+                                                    <span className="curso-ficha">{curso.ficha}</span>
+                                                </div>
+                                                <div className="re-table-cell" data-label="Instructor">
+                                                    <div className="instructor-info">
+                                                        <FontAwesomeIcon icon={faChalkboardTeacher} className="instructor-icon" />
+                                                        <span className="instructor-nombre">{curso.instructor || 'No asignado'}</span>
+                                                    </div>
+                                                </div>
+                                                <div className="re-table-cell" data-label="Estado">
+                                                    <span 
+                                                        className={`curso-estado ${estadoConfig.className}`}
+                                                        style={{ color: estadoConfig.color }}
+                                                    >
+                                                        <FontAwesomeIcon icon={estadoConfig.icon} />
+                                                        <span>{estadoConfig.label}</span>
+                                                    </span>
+                                                </div>
+                                                <div className="re-table-cell" data-label="Empleados">
+                                                    <div className="empleados-count">
+                                                        <FontAwesomeIcon icon={faUsers} />
+                                                        <span>{curso.empleados || 0}</span>
+                                                    </div>
+                                                </div>
+                                                <div className="re-table-cell" data-label="Acciones">
+                                                    <button
+                                                        className={`re-action-button ${!tieneEmpleados ? 'disabled' : ''}`}
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            if (tieneEmpleados) handleFilaClick(curso);
+                                                        }}
+                                                        disabled={!tieneEmpleados}
+                                                    >
+                                                        <FontAwesomeIcon icon={faEye} />
+                                                        <span>Ver Reporte</span>
+                                                    </button>
                                                 </div>
                                             </div>
-                                        </div>
-                                        <div className="re-table-cell">
-                                            <span className="curso-ficha">{curso.ficha}</span>
-                                        </div>
-                                        <div className="re-table-cell">
-                                            <div className="instructor-info">
-                                                <FontAwesomeIcon icon={faChalkboardTeacher} className="instructor-icon" />
-                                                <span className="instructor-nombre">{curso.instructor || 'No asignado'}</span>
-                                            </div>
-                                        </div>
-                                        <div className="re-table-cell">
-                                            <span 
-                                                className={`curso-estado ${estadoConfig.className}`}
-                                                style={{ color: estadoConfig.color }}
-                                            >
-                                                <FontAwesomeIcon icon={estadoConfig.icon} />
-                                                <span>{estadoConfig.label}</span>
-                                            </span>
-                                        </div>
-                                        <div className="re-table-cell">
-                                            <div className="empleados-count">
-                                                <FontAwesomeIcon icon={faUsers} />
-                                                <span>{curso.empleados || 0}</span>
-                                            </div>
-                                        </div>
-                                        <div className="re-table-cell">
-                                            <button
-                                                className={`re-action-button ${!tieneEmpleados ? 'disabled' : ''}`}
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    if (tieneEmpleados) handleFilaClick(curso);
-                                                }}
-                                                disabled={!tieneEmpleados}
-                                            >
-                                                <FontAwesomeIcon icon={faChartLine} />
-                                                <span>Ver Reporte</span>
-                                            </button>
-                                        </div>
-                                    </div>
-                                );
-                            })
-                        ) : (
-                            <div className="re-empty-state">
-                                <FontAwesomeIcon icon={faExclamationTriangle} className="empty-icon" />
-                                <h3>No se encontraron cursos</h3>
-                                <p>No hay cursos que coincidan con los filtros aplicados</p>
-                                <button className="re-button re-button-secondary" onClick={limpiarFiltros}>
-                                    Limpiar filtros
-                                </button>
-                            </div>
-                        )}
-                    </div>
-                </div>
-
-                {/* PAGINACIÓN */}
-                {cursosFiltrados?.length > postsPerPage && (
-                    <div className="re-pagination">
-                        <div className="pagination-info">
-                            Mostrando {Math.min(indexOfFirstPost + 1, cursosFiltrados.length)}-
-                            {Math.min(indexOfLastPost, cursosFiltrados.length)} de {cursosFiltrados.length} cursos
-                        </div>
-                        <div className="pagination-controls">
-                            <button
-                                className="pagination-button"
-                                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                                disabled={currentPage === 1}
-                            >
-                                <FontAwesomeIcon icon={faChevronLeft} />
-                                <span>Anterior</span>
-                            </button>
-
-                            <div className="pagination-numbers">
-                                {Array.from({ length: Math.ceil(cursosFiltrados.length / postsPerPage) }, (_, i) => i + 1)
-                                    .filter(number => {
-                                        if (number === 1 || number === Math.ceil(cursosFiltrados.length / postsPerPage)) return true;
-                                        if (number >= currentPage - 1 && number <= currentPage + 1) return true;
-                                        return false;
+                                        );
                                     })
-                                    .map((number, index, array) => {
-                                        if (index > 0 && number - array[index - 1] > 1) {
-                                            return (
-                                                <React.Fragment key={`ellipsis-${number}`}>
-                                                    <span className="pagination-ellipsis">...</span>
+                                ) : (
+                                    <div className="re-empty-state">
+                                        <FontAwesomeIcon icon={faExclamationTriangle} className="empty-icon" />
+                                        <h3>No se encontraron cursos</h3>
+                                        <p>No hay cursos que coincidan con los filtros aplicados</p>
+                                        <button className="re-button re-button-secondary" onClick={limpiarFiltros}>
+                                            Limpiar filtros
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        {cursosFiltrados?.length > postsPerPage && (
+                            <div className="re-pagination">
+                                <div className="pagination-info">
+                                    Mostrando {Math.min(indexOfFirstPost + 1, cursosFiltrados.length)}-
+                                    {Math.min(indexOfLastPost, cursosFiltrados.length)} de {cursosFiltrados.length} cursos
+                                </div>
+                                <div className="pagination-controls">
+                                    <button
+                                        className="pagination-button"
+                                        onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                        disabled={currentPage === 1}
+                                    >
+                                        <FontAwesomeIcon icon={faChevronLeft} />
+                                        <span>Anterior</span>
+                                    </button>
+
+                                    <div className="pagination-numbers">
+                                        {Array.from({ length: Math.ceil(cursosFiltrados.length / postsPerPage) }, (_, i) => i + 1)
+                                            .filter(number => {
+                                                if (number === 1 || number === Math.ceil(cursosFiltrados.length / postsPerPage)) return true;
+                                                if (number >= currentPage - 1 && number <= currentPage + 1) return true;
+                                                return false;
+                                            })
+                                            .map((number, index, array) => {
+                                                if (index > 0 && number - array[index - 1] > 1) {
+                                                    return (
+                                                        <React.Fragment key={`ellipsis-${number}`}>
+                                                            <span className="pagination-ellipsis">...</span>
+                                                            <button
+                                                                key={number}
+                                                                className={`pagination-number ${currentPage === number ? 'active' : ''}`}
+                                                                onClick={() => setCurrentPage(number)}
+                                                            >
+                                                                {number}
+                                                            </button>
+                                                        </React.Fragment>
+                                                    );
+                                                }
+                                                return (
                                                     <button
                                                         key={number}
                                                         className={`pagination-number ${currentPage === number ? 'active' : ''}`}
@@ -890,35 +933,25 @@ export default function ReporteEstadisticas() {
                                                     >
                                                         {number}
                                                     </button>
-                                                </React.Fragment>
-                                            );
-                                        }
-                                        return (
-                                            <button
-                                                key={number}
-                                                className={`pagination-number ${currentPage === number ? 'active' : ''}`}
-                                                onClick={() => setCurrentPage(number)}
-                                            >
-                                                {number}
-                                            </button>
-                                        );
-                                    })}
-                            </div>
+                                                );
+                                            })}
+                                    </div>
 
-                            <button
-                                className="pagination-button"
-                                onClick={() => setCurrentPage(prev => Math.min(prev + 1, Math.ceil(cursosFiltrados.length / postsPerPage)))}
-                                disabled={currentPage === Math.ceil(cursosFiltrados.length / postsPerPage)}
-                            >
-                                <span>Siguiente</span>
-                                <FontAwesomeIcon icon={faChevronRight} />
-                            </button>
-                        </div>
-                    </div>
+                                    <button
+                                        className="pagination-button"
+                                        onClick={() => setCurrentPage(prev => Math.min(prev + 1, Math.ceil(cursosFiltrados.length / postsPerPage)))}
+                                        disabled={currentPage === Math.ceil(cursosFiltrados.length / postsPerPage)}
+                                    >
+                                        <span>Siguiente</span>
+                                        <FontAwesomeIcon icon={faChevronRight} />
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                    </>
                 )}
             </div>
 
-            {/* Modal de Generación de Reporte */}
             {showDownloadOptions && (
                 <div className="re-modal-overlay">
                     <div className="re-modal">

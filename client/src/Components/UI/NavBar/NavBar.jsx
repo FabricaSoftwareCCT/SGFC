@@ -361,7 +361,8 @@ export const NavBar = ({ children, setShowSignIn }) => {
 	}
 
 	useEffect(() => {
-		setLoadingNotifications(true);
+		if (!loadingNotifications)
+			setLoadingNotifications(true);
 		try {
 			setFilter(notificationsList)
 			const SearchName = notificationsList.filter((notif) => {
@@ -383,7 +384,7 @@ export const NavBar = ({ children, setShowSignIn }) => {
 			})
 			setLoadingNotifications(false);
 		}
-	}, [inputElement, notificationsList, Date, DateEnd, Filter])
+	}, [inputElement, notificationsList, Date, DateEnd])
 
 	useEffect(() => {
 		if (activeNotification)

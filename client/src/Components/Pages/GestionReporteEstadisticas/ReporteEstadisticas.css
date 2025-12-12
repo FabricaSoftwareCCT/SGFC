@@ -174,6 +174,8 @@ body {
   max-width: 500px;
   position: relative;
   min-width: 300px;
+  /* AGREGADO: Optimización de renderizado */
+  contain: layout style;
 }
 
 .search-icon {
@@ -197,15 +199,17 @@ body {
   transition: all 0.3s ease;
   position: relative;
   z-index: 2;
+  /* REMOVIDO: backdrop-filter que causaba problemas */
 }
 
-/* FIX: Eliminar cualquier transformación problemática */
 .re-search-input:focus {
   outline: none;
   border-color: var(--re-primary-green);
   box-shadow: 0 0 0 2px rgba(0, 200, 83, 0.2);
   background: rgba(255, 255, 255, 0.08);
-  transform: none !important; /* FIX: Evitar transformaciones */
+  transform: none !important;
+  /* Asegurar que no haya efectos visuales extraños */
+  will-change: auto;
 }
 
 .re-search-input::placeholder {
@@ -234,6 +238,7 @@ body {
   display: flex;
   gap: 1rem;
   flex-wrap: wrap;
+  position: relative; /* AGREGADO: Para que el filtro se posicione correctamente */
 }
 
 /* Botones Principales */
@@ -318,7 +323,7 @@ body {
 /* FIX 3: Menú de Filtros - POSICIÓN CORREGIDA */
 .re-filtro-menu {
   position: absolute;
-  top: 100%;
+  top: calc(100% + 0.5rem);
   right: 0;
   background: rgba(26, 26, 26, 0.98);
   border: 1px solid var(--re-border-color);
@@ -328,8 +333,9 @@ body {
   max-width: 400px;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
   z-index: 1000;
-  margin-top: 0.5rem;
-  backdrop-filter: blur(20px);
+  /* MODIFICADO: backdrop-filter más suave */
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   animation: slideDown 0.3s ease;
   transform-origin: top right;
 }
@@ -1085,6 +1091,11 @@ body {
 }
 
 /* Responsive Design */
+/* ============================================
+   RESPONSIVE DESIGN - CORRECCIONES COMPLETAS
+   ============================================ */
+
+/* Tablet Grande */
 @media (max-width: 1200px) {
   .re-table-header,
   .re-table-row {
@@ -1092,6 +1103,7 @@ body {
   }
 }
 
+/* Tablet */
 @media (max-width: 992px) {
   .reporte-estadisticas-container {
     padding: 1.5rem;
@@ -1100,8 +1112,13 @@ body {
   .re-title {
     font-size: 1.8rem;
   }
+  
+  .re-stats-section {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
+/* Mobile Grande - CORRECCIONES PRINCIPALES */
 @media (max-width: 768px) {
   .reporte-estadisticas-container {
     padding: 1rem;
@@ -1112,38 +1129,162 @@ body {
     font-size: 1.6rem;
   }
   
+  .re-subtitle {
+    font-size: 0.9rem;
+  }
+  
+  /* Header responsive */
+  .re-header-content {
+    flex-direction: column;
+    padding: 1rem;
+  }
+  
+  .re-title-section {
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
+  }
+  
+  .re-title-icon {
+    font-size: 2rem;
+    padding: 0.75rem;
+  }
+  
+  /* Stats en columna única */
+  .re-stats-section {
+    grid-template-columns: 1fr;
+  }
+  
+  .stat-card {
+    padding: 1.25rem;
+  }
+  
+  /* Controles en columna */
   .re-controls {
     flex-direction: column;
     align-items: stretch;
     padding: 1rem;
+    gap: 1rem;
   }
   
+  /* Buscador full width */
   .re-search-container {
     min-width: 100%;
     max-width: 100%;
   }
   
+  .re-search-input {
+    font-size: 0.95rem;
+    padding: 0.875rem 0.875rem 0.875rem 2.75rem;
+  }
+  
+  .search-icon {
+    font-size: 0.9rem;
+    left: 0.875rem;
+  }
+  
+  /* Botones de acción full width */
   .re-action-buttons {
-    justify-content: stretch;
+    width: 100%;
+    flex-direction: column;
+    position: relative;
+    gap: 0.75rem;
   }
   
   .re-button {
-    flex: 1;
+    width: 100%;
     justify-content: center;
+    padding: 0.875rem 1.25rem;
+    font-size: 0.95rem;
   }
   
-  /* FIX: Menú de filtros en móvil - POSICIÓN FIJA */
+  /* ⭐ FIX CRÍTICO: Menú de filtros como MODAL en móvil */
   .re-filtro-menu {
-    position: fixed;
-    top: 50%;
-    left: 50%;
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    right: auto !important;
     transform: translate(-50%, -50%) !important;
-    right: auto;
-    width: 90%;
-    max-width: 400px;
-    margin: 0;
+    width: 90% !important;
+    max-width: 400px !important;
+    max-height: 85vh !important;
+    margin: 0 !important;
+    overflow-y: auto;
+    z-index: 2000 !important;
+    animation: modalSlideUp 0.3s ease;
   }
   
+  /* Overlay oscuro detrás del filtro en móvil */
+  .re-filtro-menu::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: -1;
+    backdrop-filter: blur(4px);
+  }
+  
+  /* Animación suave del modal */
+  @keyframes modalSlideUp {
+    from {
+      opacity: 0;
+      transform: translate(-50%, -40%);
+    }
+    to {
+      opacity: 1;
+      transform: translate(-50%, -50%);
+    }
+  }
+  
+  /* Ajustes del contenido del filtro */
+  .filtro-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+  
+  .filtro-header h3 {
+    font-size: 1.1rem;
+  }
+  
+  .filtro-clear-all {
+    width: 100%;
+    padding: 0.625rem 1rem;
+  }
+  
+  .filtro-options {
+    grid-template-columns: 1fr;
+  }
+  
+  .filtro-option {
+    padding: 0.875rem;
+    font-size: 0.9rem;
+  }
+  
+  .filtro-input {
+    padding: 0.75rem 0.875rem;
+    font-size: 0.9rem;
+  }
+  
+  .filtro-footer {
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: stretch;
+  }
+  
+  .filtro-results {
+    text-align: center;
+    font-size: 0.85rem;
+  }
+  
+  .filtro-active-badge {
+    text-align: center;
+  }
+  
+  /* Tabla responsive - Modo tarjetas */
   .re-table-header {
     display: none;
   }
@@ -1152,21 +1293,27 @@ body {
     display: flex;
     flex-direction: column;
     align-items: stretch;
-    padding: 1.5rem;
+    padding: 1.25rem;
     margin-bottom: 1rem;
     border: 1px solid var(--re-border-color);
     border-radius: var(--re-border-radius);
     background: rgba(255, 255, 255, 0.03);
     gap: 0.75rem;
+    cursor: pointer;
+  }
+  
+  .re-table-row:hover:not(.disabled) {
+    background: rgba(255, 255, 255, 0.06);
   }
   
   .re-table-cell {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0.5rem 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 0.625rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     width: 100%;
+    min-height: auto;
   }
   
   .re-table-cell:last-child {
@@ -1175,95 +1322,453 @@ body {
     justify-content: center;
   }
   
+  /* Labels para cada celda */
   .re-table-cell::before {
     content: attr(data-label);
     font-weight: 600;
     color: var(--re-primary-green);
-    font-size: 0.85rem;
-    min-width: 120px;
-    margin-right: 1rem;
+    font-size: 0.8rem;
+    min-width: 100px;
+    margin-right: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
   }
   
+  .re-table-cell:last-child::before {
+    display: none;
+  }
+  
+  /* Ajustes de elementos internos de las celdas */
+  .curso-info {
+    flex-direction: row;
+    gap: 0.75rem;
+    flex: 1;
+    justify-content: flex-end;
+  }
+  
+  .curso-icon {
+    font-size: 1.2rem;
+    padding: 0.6rem;
+  }
+  
+  .curso-nombre {
+    font-size: 0.9rem;
+  }
+  
+  .curso-ficha {
+    font-size: 0.85rem;
+    padding: 0.3rem 0.6rem;
+  }
+  
+  .instructor-info {
+    justify-content: flex-end;
+    flex: 1;
+  }
+  
+  .instructor-nombre {
+    font-size: 0.9rem;
+  }
+  
+  .curso-estado {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.75rem;
+    min-width: auto;
+  }
+  
+  .empleados-count {
+    justify-content: flex-end;
+    font-size: 1rem;
+  }
+  
+  .re-action-button {
+    padding: 0.75rem 1rem;
+    font-size: 0.85rem;
+    width: 100%;
+  }
+  
+  /* Paginación responsive */
   .re-pagination {
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 1.25rem;
+    padding: 1rem;
+  }
+  
+  .pagination-info {
+    text-align: center;
+    font-size: 0.85rem;
   }
   
   .pagination-controls {
     flex-wrap: wrap;
     justify-content: center;
+    gap: 0.5rem;
+  }
+  
+  .pagination-button {
+    padding: 0.625rem 0.875rem;
+    font-size: 0.85rem;
+  }
+  
+  .pagination-number {
+    min-width: 36px;
+    height: 36px;
+    font-size: 0.85rem;
+  }
+  
+  /* Modal de reporte responsive */
+  .re-modal {
+    width: 95%;
+    max-width: none;
+  }
+  
+  .re-modal-header {
+    padding: 1.5rem;
+  }
+  
+  .modal-title {
+    font-size: 1.3rem;
+  }
+  
+  .modal-subtitle {
+    font-size: 0.85rem;
+  }
+  
+  .re-modal-content {
+    padding: 1.5rem;
+  }
+  
+  .format-option {
+    padding: 1.25rem;
+  }
+  
+  .format-icon {
+    font-size: 1.75rem;
+    padding: 0.875rem;
+  }
+  
+  .format-info h4 {
+    font-size: 1rem;
+  }
+  
+  .format-info p {
+    font-size: 0.85rem;
   }
   
   .modal-actions {
     flex-direction: column;
+    gap: 0.75rem;
   }
   
-  .re-stats-section {
-    grid-template-columns: 1fr;
+  .modal-actions .re-button {
+    width: 100%;
+  }
+  
+  /* Empty state responsive */
+  .re-empty-state {
+    padding: 3rem 1.5rem;
+  }
+  
+  .empty-icon {
+    font-size: 3rem;
+  }
+  
+  .re-empty-state h3 {
+    font-size: 1.3rem;
+  }
+  
+  .re-empty-state p {
+    font-size: 1rem;
   }
 }
 
+/* Mobile Pequeño */
 @media (max-width: 480px) {
   .reporte-estadisticas-container {
-    padding: 0.8rem;
+    padding: 0.75rem;
+    margin-top: 65px;
   }
   
   .re-title {
     font-size: 1.4rem;
   }
   
-  .re-title-section {
-    padding: 1rem;
-    gap: 1rem;
+  .re-subtitle {
+    font-size: 0.85rem;
+  }
+  
+  .re-header-content {
+    padding: 0.875rem;
+  }
+  
+  .re-title-icon {
+    font-size: 1.75rem;
+    padding: 0.625rem;
   }
   
   .stat-card {
+    padding: 1rem;
+  }
+  
+  .stat-icon {
+    font-size: 1.5rem;
+    padding: 0.75rem;
+  }
+  
+  .stat-value {
+    font-size: 1.5rem;
+  }
+  
+  .stat-label {
+    font-size: 0.8rem;
+  }
+  
+  .re-controls {
+    padding: 0.875rem;
+  }
+  
+  .re-search-input {
+    font-size: 0.9rem;
+    padding: 0.75rem 0.75rem 0.75rem 2.5rem;
+  }
+  
+  .search-icon {
+    font-size: 0.85rem;
+    left: 0.75rem;
+  }
+  
+  .re-button {
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+  }
+  
+  /* Filtro más compacto en pantallas muy pequeñas */
+  .re-filtro-menu {
+    width: 95% !important;
     padding: 1.25rem;
   }
   
-  .filtro-options {
-    grid-template-columns: 1fr;
+  .filtro-header h3 {
+    font-size: 1rem;
   }
   
-  .format-option {
-    flex-direction: column;
-    text-align: center;
+  .filtro-option {
+    padding: 0.75rem;
+    font-size: 0.85rem;
   }
   
-  .pagination-numbers {
-    flex-wrap: wrap;
-    justify-content: center;
+  .filtro-input {
+    padding: 0.625rem 0.75rem;
+    font-size: 0.85rem;
+  }
+  
+  /* Tabla más compacta */
+  .re-table-row {
+    padding: 1rem;
+  }
+  
+  .re-table-cell {
+    padding: 0.5rem 0;
+  }
+  
+  .re-table-cell::before {
+    font-size: 0.75rem;
+    min-width: 90px;
+  }
+  
+  .curso-icon {
+    font-size: 1rem;
+    padding: 0.5rem;
+  }
+  
+  .curso-nombre {
+    font-size: 0.85rem;
+  }
+  
+  .curso-ficha {
+    font-size: 0.8rem;
+  }
+  
+  .instructor-nombre {
+    font-size: 0.85rem;
+  }
+  
+  .curso-estado {
+    padding: 0.35rem 0.7rem;
+    font-size: 0.7rem;
+  }
+  
+  .empleados-count {
+    font-size: 0.95rem;
+  }
+  
+  .re-action-button {
+    padding: 0.625rem 0.875rem;
+    font-size: 0.8rem;
+  }
+  
+  /* Paginación más pequeña */
+  .pagination-button {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8rem;
+  }
+  
+  .pagination-button span {
+    display: none;
   }
   
   .pagination-number {
-    min-width: 35px;
-    height: 35px;
-    font-size: 0.85rem;
+    min-width: 32px;
+    height: 32px;
+    font-size: 0.8rem;
+  }
+  
+  .pagination-ellipsis {
+    font-size: 0.8rem;
+    padding: 0 0.25rem;
+  }
+  
+  /* Modal más compacto */
+  .re-modal-header {
+    padding: 1.25rem;
+  }
+  
+  .modal-header-icon {
+    font-size: 1.5rem;
+  }
+  
+  .modal-title {
+    font-size: 1.2rem;
+  }
+  
+  .modal-subtitle {
+    font-size: 0.8rem;
+  }
+  
+  .re-modal-content {
+    padding: 1.25rem;
+  }
+  
+  .format-option {
+    padding: 1rem;
+  }
+  
+  .format-icon {
+    font-size: 1.5rem;
+    padding: 0.75rem;
+  }
+  
+  .format-info h4 {
+    font-size: 0.95rem;
+  }
+  
+  .format-info p {
+    font-size: 0.8rem;
+  }
+  
+  /* Empty state más compacto */
+  .re-empty-state {
+    padding: 2.5rem 1rem;
+  }
+  
+  .empty-icon {
+    font-size: 2.5rem;
+  }
+  
+  .re-empty-state h3 {
+    font-size: 1.2rem;
+  }
+  
+  .re-empty-state p {
+    font-size: 0.9rem;
   }
 }
 
-/* FIX: Asegurar que el body tenga el fondo correcto */
-body {
-  background: var(--re-background-dark) !important;
-  margin: 0;
-  padding: 0;
-  overflow-x: hidden;
+/* Pantallas muy pequeñas (iPhone SE, etc.) */
+@media (max-width: 360px) {
+  .reporte-estadisticas-container {
+    padding: 0.5rem;
+  }
+  
+  .re-title {
+    font-size: 1.2rem;
+  }
+  
+  .re-subtitle {
+    font-size: 0.8rem;
+  }
+  
+  .stat-value {
+    font-size: 1.3rem;
+  }
+  
+  .re-search-input {
+    font-size: 0.85rem;
+  }
+  
+  .re-button {
+    font-size: 0.85rem;
+    padding: 0.625rem 0.875rem;
+  }
+  
+  .re-filtro-menu {
+    padding: 1rem;
+  }
+  
+  .re-table-row {
+    padding: 0.875rem;
+  }
+  
+  .re-table-cell::before {
+    min-width: 80px;
+    font-size: 0.7rem;
+  }
 }
 
-/* FIX: Prevenir scroll horizontal */
-html, body {
-  max-width: 100%;
-  overflow-x: hidden;
+/* Landscape en móviles */
+@media (max-width: 768px) and (orientation: landscape) {
+  .reporte-estadisticas-container {
+    margin-top: 60px;
+  }
+  
+  .re-header-content {
+    flex-direction: row;
+  }
+  
+  .re-stats-section {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .re-filtro-menu {
+    max-height: 75vh !important;
+  }
 }
 
-/* FIX: Garantizar que el contenedor principal no tenga overflow problemático */
-.reporte-estadisticas-container {
-  overflow: visible !important;
-  position: relative;
+/* Prevenir zoom en inputs en iOS */
+@media (max-width: 768px) {
+  .re-search-input,
+  .filtro-input {
+    font-size: 16px !important;
+  }
 }
 
-/* FIX: Asegurar que los elementos no se salgan del viewport */
-.re-filtro-menu {
-  max-height: 80vh;
-  overflow-y: auto;
+/* Smooth scrolling para móviles */
+@media (max-width: 768px) {
+  .re-table-body,
+  .re-filtro-menu {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+}
+
+/* Fix para Safari iOS */
+@supports (-webkit-touch-callout: none) {
+  @media (max-width: 768px) {
+    .re-filtro-menu {
+      position: fixed !important;
+      top: 50% !important;
+      left: 50% !important;
+      transform: translate(-50%, -50%) !important;
+      -webkit-transform: translate(-50%, -50%) !important;
+    }
+  }
 }

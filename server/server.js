@@ -21,6 +21,7 @@ const certificationCriteriaRoutes = require("./routes/certificationCriteriaRoute
 const materialRoutes = require("./routes/materialRoutes")
 const historialRoutes = require("./routes/historialRoutes")
 const actividadRoutes = require("./routes/actividadRoutes")
+const empresaRoutes = require("./routes/empresaRoutes")
 
 // libreria para programar tareas
 const cron = require('node-cron');
@@ -91,6 +92,7 @@ app.use("/api/certification", certificationCriteriaRoutes)
 app.use("/api/material", materialRoutes)
 app.use("/api/historial", historialRoutes)
 app.use("/api/activities", actividadRoutes)
+app.use("/api/empresa", empresaRoutes)
 
 // Importar utilidades para gestión de índices
 const { ensureIndexesSmart, dropDuplicateIndexes } = require('./utils/indexManagement');

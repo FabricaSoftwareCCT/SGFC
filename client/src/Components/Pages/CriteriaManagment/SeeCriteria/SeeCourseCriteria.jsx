@@ -441,7 +441,7 @@ export const SeeCourseCriteria = () => {
 									</span>
 									<button onClick={() => selectAprentice(a)}>
 										<FontAwesomeIcon icon={faClipboardCheck} />
-										<span>Ver criterios</span>
+										<span>Ver Estado de Certificación</span>
 									</button>
 								</div>
 							))
@@ -591,7 +591,7 @@ export const SeeCourseCriteria = () => {
 								<div className="header-content-criteria">
 									<h2>
 										<FontAwesomeIcon icon={faClipboardCheck} className="header-icon-criteria" />
-										Criterios del Aprendiz
+										Estado de Certificación del Aprendiz 
 									</h2>
 									<button 
 										type="button" 

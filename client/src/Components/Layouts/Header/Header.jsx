@@ -4,7 +4,6 @@ import { useState, useRef, useEffect } from "react";
 import { NavBar } from "../../UI/NavBar/NavBar";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import "./Header.css";
-import path from "path";
 
 export const Header = ({
 	setShowSignIn,
@@ -14,9 +13,12 @@ export const Header = ({
 	const [showCoursesMenu, setShowCoursesMenu] = useState(false);
 	const [showGestionesMenu, setShowGestionesMenu] = useState(false);
 	const [showEmpleadosMenu, setShowEmpleadosMenu] = useState(false);
+	const [hoverTimeout, setHoverTimeout] = useState(null);
+
 	const coursesMenuRef = useRef(null);
 	const gestionesMenuRef = useRef(null);
 	const empleadosMenuRef = useRef(null);
+
 	const navigate = useNavigate();
 	const location = useLocation();
 
@@ -52,6 +54,7 @@ export const Header = ({
 		setShowEmpleadosMenu(false);
 	};
 
+	// Cerrar menús al hacer clic fuera
 	useEffect(() => {
 		const handleClickOutside = (event) => {
 			if (
@@ -69,7 +72,79 @@ export const Header = ({
 			document.removeEventListener("mousedown", handleClickOutside);
 	}, []);
 
-	// Detectar rutas activas para menús con subopciones
+	// Limpiar timeout al desmontar
+	useEffect(() => {
+		return () => {
+			if (hoverTimeout) {
+				clearTimeout(hoverTimeout);
+			}
+		};
+	}, [hoverTimeout]);
+
+	// Funciones para manejar hover
+	const handleMouseEnterCourses = () => {
+		if (window.innerWidth >= 769) {
+			if (hoverTimeout) {
+				clearTimeout(hoverTimeout);
+				setHoverTimeout(null);
+			}
+			setShowGestionesMenu(false);
+			setShowEmpleadosMenu(false);
+			setShowCoursesMenu(true);
+		}
+	};
+
+	const handleMouseLeaveCourses = () => {
+		if (window.innerWidth >= 769) {
+			const timeout = setTimeout(() => {
+				setShowCoursesMenu(false);
+			}, 300); // 300ms de retraso
+			setHoverTimeout(timeout);
+		}
+	};
+
+	const handleMouseEnterGestiones = () => {
+		if (window.innerWidth >= 769) {
+			if (hoverTimeout) {
+				clearTimeout(hoverTimeout);
+				setHoverTimeout(null);
+			}
+			setShowCoursesMenu(false);
+			setShowEmpleadosMenu(false);
+			setShowGestionesMenu(true);
+		}
+	};
+
+	const handleMouseLeaveGestiones = () => {
+		if (window.innerWidth >= 769) {
+			const timeout = setTimeout(() => {
+				setShowGestionesMenu(false);
+			}, 300);
+			setHoverTimeout(timeout);
+		}
+	};
+
+	// Función para mantener abierto el dropdown cuando el mouse está sobre él
+	const handleDropdownMouseEnter = () => {
+		if (window.innerWidth >= 769) {
+			if (hoverTimeout) {
+				clearTimeout(hoverTimeout);
+				setHoverTimeout(null);
+			}
+		}
+	};
+
+	const handleDropdownMouseLeave = () => {
+		if (window.innerWidth >= 769) {
+			const timeout = setTimeout(() => {
+				setShowCoursesMenu(false);
+				setShowGestionesMenu(false);
+			}, 300);
+			setHoverTimeout(timeout);
+		}
+	};
+
+	// Detectar rutas activas
 	const isCoursesActive = [
 		"/Cursos/MisCursos",
 		"/Cursos/MisCursosAsignados",
@@ -89,20 +164,10 @@ export const Header = ({
 		"/reportes/asistencia-progreso",
 	].some((path) => location.pathname.startsWith(path));
 
-	const isEmpresasActive = location.pathname.startsWith(
-		"/Gestiones/Empresas",
-	);
-
-	const isEmpleadosActive = [
-		"/Empleados/MisEmpleados",
-		"/Empleados/CrearEmpleado",
-		"/Empleados/CrearVariosEmpleados",
-	].some((path) => location.pathname.startsWith(path));
-
 	const showDropdown = (optionsCount) => optionsCount > 1;
 
 	return (
-		<div className="header">
+		<div className="header-container">
 			<NavBar
 				setShowSignIn={setShowSignIn}
 				setShowSignUp={setShowSignUp}
@@ -111,8 +176,9 @@ export const Header = ({
 				<NavLink
 					to="/"
 					className={({ isActive }) =>
-						isActive ? "startOption active" : "startOption"
+						isActive ? "header-link active" : "header-link"
 					}
+					end
 				>
 					Inicio
 				</NavLink>
@@ -120,7 +186,7 @@ export const Header = ({
 				<NavLink
 					to="/QuienesSomos"
 					className={({ isActive }) =>
-						isActive ? "whoWeAre active" : "whoWeAre"
+						isActive ? "header-link active" : "header-link"
 					}
 				>
 					Quienes somos
@@ -135,7 +201,7 @@ export const Header = ({
 							<NavLink
 								to="/Cursos/BuscarCursos"
 								className={({ isActive }) =>
-									isActive ? "courses active" : "courses"
+									isActive ? "header-link active" : "header-link"
 								}
 							>
 								Cursos
@@ -146,94 +212,41 @@ export const Header = ({
 					switch (accountType) {
 						case "Administrador":
 							options = [
-								{
-									label: "Mis cursos",
-									path: "/Cursos/MisCursos",
-								},
-								{
-									label: "Buscar cursos",
-									path: "/Cursos/BuscarCursos",
-								},
-								{
-									label: "Crear curso",
-									path: "/Cursos/CrearCurso",
-								},
-								{
-									label: "Material de Apoyo",
-									path: "/SupportMaterial",
-								},
+								{ label: "Mis cursos", path: "/Cursos/MisCursos" },
+								{ label: "Buscar cursos", path: "/Cursos/BuscarCursos" },
+								{ label: "Crear curso", path: "/Cursos/CrearCurso" },
+								{ label: "Material de Apoyo", path: "/SupportMaterial" },
 							];
 							break;
 						case "Instructor":
 							options = [
-								{
-									label: "Mis cursos",
-									path: "/Cursos/MisCursosAsignados",
-								},
-								{
-									label: "Buscar cursos",
-									path: "/Cursos/BuscarCursos",
-								},
-								{
-									label: "Material de Apoyo",
-									path: "/SupportMaterial",
-								},
-								{
-									label: "Criterios de certificación",
-									path: "/Gestiones/Criterios",
-								},
+								{ label: "Mis cursos", path: "/Cursos/MisCursosAsignados" },
+								{ label: "Buscar cursos", path: "/Cursos/BuscarCursos" },
+								{ label: "Material de Apoyo", path: "/SupportMaterial" },
+								{ label: "Criterios de certificación", path: "/Gestiones/Criterios" },
 							];
 							break;
 						case "Gestor":
 							options = [
-								{
-									label: "Mis cursos",
-									path: "/Cursos/MisCursos",
-								},
-								{
-									label: "Buscar cursos",
-									path: "/Cursos/BuscarCursos",
-								},
-								{
-									label: "Crear curso",
-									path: "/Cursos/CrearCurso",
-								},
-								{
-									label: "Material de Apoyo",
-									path: "/SupportMaterial",
-								},
+								{ label: "Mis cursos", path: "/Cursos/MisCursos" },
+								{ label: "Buscar cursos", path: "/Cursos/BuscarCursos" },
+								{ label: "Crear curso", path: "/Cursos/CrearCurso" },
+								{ label: "Material de Apoyo", path: "/SupportMaterial" },
 							];
 							break;
 						case "Empresa":
 							options = [
-								{
-									label: "Mis cursos",
-									path: "/Cursos/MisCursos",
-								},
-								{
-									label: "Buscar cursos",
-									path: "/Cursos/BuscarCursos",
-								},
-								{
-									label: "Solicitar curso",
-									path: "/SolicitarCurso"
-								},
-								{
-									label: "Material de Apoyo",
-									path: "/SupportMaterial",
-								},
+								{ label: "Mis cursos", path: "/Cursos/MisCursos" },
+								{ label: "Buscar cursos", path: "/Cursos/BuscarCursos" },
+								{ label: "Solicitar curso", path: "/SolicitarCurso" },
+								{ label: "Material de Apoyo", path: "/SupportMaterial" },
 							];
 							break;
 						case "Aprendiz":
 							options = [
-								{
-									label: "Mis cursos",
-									path: "/Cursos/MisCursosAsignados",
-								},
-								{
-									label: "Buscar cursos",
-									path: "/Cursos/BuscarCursos",
-								},
+								{ label: "Mis cursos", path: "/Cursos/MisCursosAsignados" },
+								{ label: "Buscar cursos", path: "/Cursos/BuscarCursos" },
+								{ label: "Solicitar curso", path: "/SolicitarCursoAp" },
 							];
 							break;
 						default:
@@ -241,33 +254,33 @@ export const Header = ({
 					}
 
 					return showDropdown(options.length) ? (
-						<div className="courses-menu" ref={coursesMenuRef}>
+						<div
+							className="header-dropdown-container"
+							ref={coursesMenuRef}
+							onMouseEnter={handleMouseEnterCourses}
+							onMouseLeave={handleMouseLeaveCourses}
+						>
 							<button
-								className={`courses${
-									showCoursesMenu || isCoursesActive
-										? " active"
-										: ""
-								}`}
+								className={`header-dropdown-button${showCoursesMenu || isCoursesActive ? " active" : ""
+									}`}
 								onClick={toggleCoursesMenu}
 							>
 								Cursos
+								<span className="dropdown-arrow">▼</span>
 							</button>
-							{showCoursesMenu && (
-								<div className="dropdown-courses">
-									<div className="arrow-up" />
+							{(showCoursesMenu || (window.innerWidth >= 769 && showCoursesMenu)) && (
+								<div
+									className="header-dropdown-content"
+									onMouseEnter={handleDropdownMouseEnter}
+									onMouseLeave={handleDropdownMouseLeave}
+								>
 									{options.map((opt, index) => (
 										<button
 											key={index}
 											className={
-												location.pathname.startsWith(
-													opt.path
-												)
-													? "active"
-													: ""
+												location.pathname.startsWith(opt.path) ? "active" : ""
 											}
-											onClick={() =>
-												handleMenuClick(opt.path)
-											}
+											onClick={() => handleMenuClick(opt.path)}
 										>
 											{opt.label}
 										</button>
@@ -279,7 +292,7 @@ export const Header = ({
 						<NavLink
 							to={options[0].path}
 							className={({ isActive }) =>
-								isActive ? "courses active" : "courses"
+								isActive ? "header-link active" : "header-link"
 							}
 						>
 							Cursos
@@ -287,139 +300,89 @@ export const Header = ({
 					);
 				})()}
 
-				{/* Gestiones - Menú completo para Administrador */}
+				{/* Gestiones - Administrador */}
 				{isLoggedIn && accountType === "Administrador" && (
-					<div className="gestiones-menu" ref={gestionesMenuRef}>
+					<div
+						className="header-dropdown-container"
+						ref={gestionesMenuRef}
+						onMouseEnter={handleMouseEnterGestiones}
+						onMouseLeave={handleMouseLeaveGestiones}
+					>
 						<button
-							className={`gestiones${
-								showGestionesMenu || isGestionesActive
-									? " active"
-									: ""
-							}`}
+							className={`header-dropdown-button${showGestionesMenu || isGestionesActive ? " active" : ""
+								}`}
 							onClick={toggleGestionesMenu}
 						>
 							Gestiones
+							<span className="dropdown-arrow">▼</span>
 						</button>
-						{showGestionesMenu && (
-							<div className="dropdown-gestiones">
-								<div className="arrow-up" />
+						{(showGestionesMenu || (window.innerWidth >= 769 && showGestionesMenu)) && (
+							<div
+								className="header-dropdown-content"
+								onMouseEnter={handleDropdownMouseEnter}
+								onMouseLeave={handleDropdownMouseLeave}
+							>
 								<button
 									className={
-										location.pathname.startsWith(
-											"/Gestiones/Instructor"
-										)
-											? "active"
-											: ""
+										location.pathname.startsWith("/Gestiones/Instructor") ? "active" : ""
 									}
-									onClick={() =>
-										handleMenuClick("/Gestiones/Instructor")
-									}
+									onClick={() => handleMenuClick("/Gestiones/Instructor")}
 								>
 									Gestión de Instructores
 								</button>
 								<button
 									className={
-										location.pathname.startsWith(
-											"/Gestiones/Gestor"
-										)
-											? "active"
-											: ""
+										location.pathname.startsWith("/Gestiones/Gestor") ? "active" : ""
 									}
-									onClick={() =>
-										handleMenuClick("/Gestiones/Gestor")
-									}
+									onClick={() => handleMenuClick("/Gestiones/Gestor")}
 								>
 									Gestión de Gestores
 								</button>
 								<button
 									className={
-										location.pathname.startsWith(
-											"/Gestiones/Actas"
-										)
-											? "active"
-											: ""
+										location.pathname.startsWith("/Gestiones/Actas") ? "active" : ""
 									}
-									onClick={() =>
-										handleMenuClick("/Gestiones/Actas")
-									}
+									onClick={() => handleMenuClick("/Gestiones/Actas")}
 								>
 									Gestión de Actas
 								</button>
 								<button
 									className={
-										location.pathname.startsWith(
-											"/Gestiones/Criterios"
-										)
-											? "active"
-											: ""
+										location.pathname.startsWith("/Gestiones/Criterios") ? "active" : ""
 									}
-									onClick={() =>
-										handleMenuClick("/Gestiones/Criterios")
-									}
+									onClick={() => handleMenuClick("/Gestiones/Criterios")}
 								>
 									Criterios de certificación
 								</button>
 								<button
 									className={
-										location.pathname.startsWith(
-											"/Empleados/MisEmpleados"
-										)
-											? "active"
-											: ""
+										location.pathname.startsWith("/Empleados/MisEmpleados") ? "active" : ""
 									}
-									onClick={() =>
-										handleMenuClick(
-											"/Empleados/MisEmpleados"
-										)
-									}
+									onClick={() => handleMenuClick("/Empleados/MisEmpleados")}
 								>
 									Gestión de Empleados
 								</button>
 								<button
 									className={
-										location.pathname.startsWith(
-											"/Gestiones/Usuarios"
-										)
-											? "active"
-											: ""
+										location.pathname.startsWith("/Gestiones/Usuarios") ? "active" : ""
 									}
-									onClick={() =>
-										handleMenuClick(
-											"/Gestiones/Usuarios"
-										)
-									}
+									onClick={() => handleMenuClick("/Gestiones/Usuarios")}
 								>
 									Gestión de Usuarios
 								</button>
 								<button
 									className={
-										location.pathname.startsWith(
-											"/GestionReporteEstadisticas/ReporteEstadisticas"
-										)
-											? "active"
-											: ""
+										location.pathname.startsWith("/GestionReporteEstadisticas/ReporteEstadisticas") ? "active" : ""
 									}
-									onClick={() =>
-										handleMenuClick(
-											"/GestionReporteEstadisticas/ReporteEstadisticas"
-										)
-									}
+									onClick={() => handleMenuClick("/GestionReporteEstadisticas/ReporteEstadisticas")}
 								>
 									Reporte y Estadísticas
 								</button>
 								<button
 									className={
-										location.pathname.startsWith(
-											"/reportes/asistencia-progreso"
-										)
-											? "active"
-											: ""
+										location.pathname.startsWith("/reportes/asistencia-progreso") ? "active" : ""
 									}
-									onClick={() =>
-										handleMenuClick(
-											"/reportes/asistencia-progreso"
-										)
-									}
+									onClick={() => handleMenuClick("/reportes/asistencia-progreso")}
 								>
 									Asistencia y Progreso
 								</button>
@@ -428,111 +391,73 @@ export const Header = ({
 					</div>
 				)}
 
-				{/* Gestiones - Menú para Gestor: incluir Gestión de Empleados */}
+				{/* Gestiones - Gestor */}
 				{isLoggedIn && accountType === "Gestor" && (
-					<div className="gestiones-menu" ref={gestionesMenuRef}>
+					<div
+						className="header-dropdown-container"
+						ref={gestionesMenuRef}
+						onMouseEnter={handleMouseEnterGestiones}
+						onMouseLeave={handleMouseLeaveGestiones}
+					>
 						<button
-							className={`gestiones${
-								showGestionesMenu || isGestionesActive
-									? " active"
-									: ""
-							}`}
+							className={`header-dropdown-button${showGestionesMenu || isGestionesActive ? " active" : ""
+								}`}
 							onClick={toggleGestionesMenu}
 						>
 							Gestiones
+							<span className="dropdown-arrow">▼</span>
 						</button>
-						{showGestionesMenu && (
-							<div className="dropdown-gestiones">
-								<div className="arrow-up" />
+						{(showGestionesMenu || (window.innerWidth >= 769 && showGestionesMenu)) && (
+							<div
+								className="header-dropdown-content"
+								onMouseEnter={handleDropdownMouseEnter}
+								onMouseLeave={handleDropdownMouseLeave}
+							>
 								<button
 									className={
-										location.pathname.startsWith(
-											"/Gestiones/Instructor"
-										)
-											? "active"
-											: ""
+										location.pathname.startsWith("/Gestiones/Instructor") ? "active" : ""
 									}
-									onClick={() =>
-										handleMenuClick("/Gestiones/Instructor")
-									}
+									onClick={() => handleMenuClick("/Gestiones/Instructor")}
 								>
 									Gestión de Instructores
 								</button>
 								<button
 									className={
-										location.pathname.startsWith(
-											"/Empleados/MisEmpleados"
-										)
-											? "active"
-											: ""
+										location.pathname.startsWith("/Empleados/MisEmpleados") ? "active" : ""
 									}
-									onClick={() =>
-										handleMenuClick(
-											"/Empleados/MisEmpleados"
-										)
-									}
+									onClick={() => handleMenuClick("/Empleados/MisEmpleados")}
 								>
 									Gestión de Empleados
 								</button>
 								<button
 									className={
-										location.pathname.startsWith(
-											"/GestionReporteEstadisticas/ReporteEstadisticas"
-										)
-											? "active"
-											: ""
+										location.pathname.startsWith("/GestionReporteEstadisticas/ReporteEstadisticas") ? "active" : ""
 									}
-									onClick={() =>
-										handleMenuClick(
-											"/GestionReporteEstadisticas/ReporteEstadisticas"
-										)
-									}
+									onClick={() => handleMenuClick("/GestionReporteEstadisticas/ReporteEstadisticas")}
 								>
 									Reporte y Estadísticas
 								</button>
 								<button
 									className={
-										location.pathname.startsWith(
-											"/reportes/asistencia-progreso"
-										)
-											? "active"
-											: ""
+										location.pathname.startsWith("/reportes/asistencia-progreso") ? "active" : ""
 									}
-									onClick={() =>
-										handleMenuClick(
-											"/reportes/asistencia-progreso"
-										)
-									}
+									onClick={() => handleMenuClick("/reportes/asistencia-progreso")}
 								>
 									Asistencia y Progreso
 								</button>
 								<button
 									className={
-										location.pathname.startsWith(
-											"/Gestiones/Actas"
-										)
-											? "active"
-											: ""
+										location.pathname.startsWith("/Gestiones/Actas") ? "active" : ""
 									}
-									onClick={() =>
-										handleMenuClick("/Gestiones/Actas")
-									}
+									onClick={() => handleMenuClick("/Gestiones/Actas")}
 								>
 									Gestión de Actas
 								</button>
 								<button
 									className={
-										location.pathname.startsWith(
-											"/Gestiones/Criterios"
-										)
-											? "active"
-											: ""
+										location.pathname.startsWith("/Gestiones/Criterios") ? "active" : ""
 									}
-									onClick={() =>
-										handleMenuClick(
-											"/Gestiones/Criterios"
-										)
-									}
+									onClick={() => handleMenuClick("/Gestiones/Criterios")}
 								>
 									Criterios de Certificación
 								</button>
@@ -541,33 +466,33 @@ export const Header = ({
 					</div>
 				)}
 
-				{/* Gestión de Actas - Solo para Instructor (enlace directo) */}
+				{/* Mis Actas - Instructor */}
 				{isLoggedIn && accountType === "Instructor" && (
 					<NavLink
 						to="/Gestiones/Actas"
 						className={({ isActive }) =>
-							isActive ? "gestiones active" : "gestiones"
+							isActive ? "header-link active" : "header-link"
 						}
 					>
 						Mis Actas
 					</NavLink>
 				)}
 
-				{/* (solo Administrador) */}
+				{/* Empresas e Historial - Administrador */}
 				{isLoggedIn && accountType === "Administrador" && (
 					<>
 						<NavLink
 							to="/Gestiones/Empresas"
 							className={({ isActive }) =>
-								isActive ? "empresas active" : "empresas"
+								isActive ? "header-link active" : "header-link"
 							}
 						>
 							Empresas
-						</NavLink>					
+						</NavLink>
 						<NavLink
 							to="/Gestiones/Historial"
 							className={({ isActive }) =>
-								isActive ? "empresas active" : "empresas"
+								isActive ? "header-link active" : "header-link"
 							}
 						>
 							Historial
@@ -575,12 +500,12 @@ export const Header = ({
 					</>
 				)}
 
-				{/* Empleados (solo Empresa) */}
+				{/* Empleados - Empresa */}
 				{isLoggedIn && accountType === "Empresa" && (
 					<NavLink
 						to="/Empleados/MisEmpleados"
 						className={({ isActive }) =>
-							isActive ? "historial active" : "historial"
+							isActive ? "header-link active" : "header-link"
 						}
 					>
 						Empleados

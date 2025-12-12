@@ -559,8 +559,21 @@
 }
 
 /* Secciones del formulario */
-.learner-info-section,
-.certification-section {
+.learner-info-section{
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 1.2rem;
+  backdrop-filter: blur(10px);
+}
+
+.certification-section{
+  display: flex;
+  flex-direction: column;
+  row-gap: 8px;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;

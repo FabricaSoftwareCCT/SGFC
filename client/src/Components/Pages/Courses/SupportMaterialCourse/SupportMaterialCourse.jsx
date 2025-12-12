@@ -7,18 +7,38 @@ import axiosInstance from '../../../../config/axiosInstance';
 import Swal from 'sweetalert2';
 import 'sweetalert2/themes/bulma.css';
 import { useUserSession } from '../../../../hooks/useUserSession';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { 
+    faArrowLeft, 
+    faUpload, 
+    faDownload, 
+    faEdit, 
+    faTrash, 
+    faLink, 
+    faFilePdf, 
+    faVideo,
+    faTimes,
+    faPlus,
+    faBookOpen,
+    faCloudUploadAlt,
+    faCheck,
+    faCalendarAlt,
+    faFileAlt,
+    faExternalLinkAlt,
+    faFolderOpen
+} from '@fortawesome/free-solid-svg-icons';
 
 const swalConfig = {
-	theme: "bulma",
-	customClass: {
-		confirmButton: "button is-primary",
-		cancelButton: "button is-light",
-		actions: "swal2-actions-centered",
-		popup: "swal2-popup-centered",
-	},
-	buttonsStyling: false,
-	confirmButtonText: "Aceptar",
-	cancelButtonText: "Cancelar",
+    theme: "bulma",
+    customClass: {
+        confirmButton: "button is-primary",
+        cancelButton: "button is-light",
+        actions: "swal2-actions-centered",
+        popup: "swal2-popup-centered",
+    },
+    buttonsStyling: false,
+    confirmButtonText: "Aceptar",
+    cancelButtonText: "Cancelar",
 };
 
 export const SupportMaterialCourse = () => {
@@ -106,15 +126,15 @@ export const SupportMaterialCourse = () => {
             const resp = await axiosInstance.get(`api/courses/cursos/${id}`);
             setCursoActual(resp.data);
         } catch (error) {
-                await Swal.fire({
+            await Swal.fire({
                 icon: 'error',
                 title: 'Error',
                 text: 'No se pudo cargar la información del curso',
-                confirmButtonText:"Okay",
-                theme:"bulma",
-                customClass:{
-                confirmButton: 'button is-primary',
-        actions: 'swal2-actions-centered'
+                confirmButtonText: "Okay",
+                theme: "bulma",
+                customClass: {
+                    confirmButton: 'button is-primary',
+                    actions: 'swal2-actions-centered'
                 }
             });
         }
@@ -132,7 +152,7 @@ export const SupportMaterialCourse = () => {
 
     const onLocalFilePicked = (e) => {
         const files = Array.from(e.target.files || []);
-        if (files.length > 0) setPendingFiles((prev)=> [...prev, ...files]);
+        if (files.length > 0) setPendingFiles((prev) => [...prev, ...files]);
         if (fileInputRef.current) fileInputRef.current.value = '';
     };
 
@@ -147,20 +167,20 @@ export const SupportMaterialCourse = () => {
             if (materialType === 'PDF' || materialType === 'Video') {
                 const fieldName = materialType === 'PDF' ? 'document_pdf' : 'video';
                 const tipo = materialType.toLowerCase();
-                if (pendingFiles.length === 0) {                    
+                if (pendingFiles.length === 0) {
                     await Swal.fire({
                         icon: 'warning',
                         title: 'Archivos requeridos',
                         text: `Selecciona uno o más archivos ${materialType}`,
-                        confirmButtonText:"Okay",
-                        theme:"bulma",
-                        customClass:{
-                        confirmButton: 'button is-primary',
-                actions: 'swal2-actions-centered'
+                        confirmButtonText: "Okay",
+                        theme: "bulma",
+                        customClass: {
+                            confirmButton: 'button is-primary',
+                            actions: 'swal2-actions-centered'
                         }
-                    }); 
-                    setSubiendoArchivo(false); 
-                    return; 
+                    });
+                    setSubiendoArchivo(false);
+                    return;
                 }
                 requests = pendingFiles.map((file) => {
                     const body = new FormData();
@@ -169,23 +189,23 @@ export const SupportMaterialCourse = () => {
                     return axiosInstance.post(`/api/material/create/${id}`, body, { headers: { 'Content-Type': 'multipart/form-data' } });
                 });
             } else if (materialType === 'Enlace') {
-                const linksToSend = pendingLinks.filter((l)=> (l||'').trim().length > 0);
+                const linksToSend = pendingLinks.filter((l) => (l || '').trim().length > 0);
                 if (linksToSend.length === 0 && material.length > 0) linksToSend.push(material);
-                if (linksToSend.length === 0) { 
+                if (linksToSend.length === 0) {
                     await Swal.fire({
                         icon: 'warning',
                         title: 'Enlaces requeridos',
                         text: 'Agrega uno o más enlaces',
-                        confirmButtonText:"Okay",
-                        theme:"bulma",
-                        customClass:{
-                        confirmButton: 'button is-primary',
-                actions: 'swal2-actions-centered'
+                        confirmButtonText: "Okay",
+                        theme: "bulma",
+                        customClass: {
+                            confirmButton: 'button is-primary',
+                            actions: 'swal2-actions-centered'
                         }
-                    }); setSubiendoArchivo(false); 
-                    return; 
+                    }); setSubiendoArchivo(false);
+                    return;
                 }
-                requests = linksToSend.map((link)=> axiosInstance.post(`/api/material/create/${id}`, { tipo: 'enlace', link }));
+                requests = linksToSend.map((link) => axiosInstance.post(`/api/material/create/${id}`, { tipo: 'enlace', link }));
             }
             const responses = await Promise.all(requests);
             const firstMsg = responses[0]?.data?.message;
@@ -194,11 +214,11 @@ export const SupportMaterialCourse = () => {
                     icon: 'success',
                     title: 'Éxito',
                     text: firstMsg,
-                    confirmButtonText:"Okay",
-                    theme:"bulma",
-                    customClass:{
-                    confirmButton: 'button is-primary',
-            actions: 'swal2-actions-centered'
+                    confirmButtonText: "Okay",
+                    theme: "bulma",
+                    customClass: {
+                        confirmButton: 'button is-primary',
+                        actions: 'swal2-actions-centered'
                     }
                 });
             }
@@ -212,26 +232,17 @@ export const SupportMaterialCourse = () => {
                 icon: 'error',
                 title: 'Error',
                 text: 'Ocurrió un error al crear el material de apoyo',
-                confirmButtonText:"Okay",
-                theme:"bulma",
-                customClass:{
-                confirmButton: 'button is-primary',
-        actions: 'swal2-actions-centered'
+                confirmButtonText: "Okay",
+                theme: "bulma",
+                customClass: {
+                    confirmButton: 'button is-primary',
+                    actions: 'swal2-actions-centered'
                 }
             });
         } finally {
             setSubiendoArchivo(false);
         }
     };
-
-    /* const handleDescargarArchivo = async (archivo) => {
-        await Swal.fire({
-            ...swalConfig,
-            icon: 'info',
-            title: 'Descargando',
-            text: `Descargando: ${archivo.nombre_original}`
-        });
-    };*/
 
     const handleEliminarArchivo = async (archivoId) => {
         if (!puedeEliminarArchivos) {
@@ -243,30 +254,29 @@ export const SupportMaterialCourse = () => {
             title: '¿Eliminar archivo?',
             text: '¿Estás seguro de que quieres eliminar este archivo?',
             showCancelButton: true,
-            confirmButtonText:"Aceptar",
-            cancelButtonText:"Cancelar",
-                theme:"bulma",
-                customClass:{
+            confirmButtonText: "Aceptar",
+            cancelButtonText: "Cancelar",
+            theme: "bulma",
+            customClass: {
                 confirmButton: 'button is-primary',
                 cancelButton: "swal-cancel-custom",
-        actions: 'swal2-actions-centered'
-                }
+                actions: 'swal2-actions-centered'
+            }
 
         });
 
         if (result.isConfirmed) {
             try {
-                // Aquí iría la llamada real a la API
                 await Swal.fire({
                     icon: 'success',
                     title: 'Eliminado',
                     text: 'Archivo eliminado correctamente',
-                    confirmButtonText:"Okay",
-                theme:"bulma",
-                customClass:{
-                confirmButton: 'button is-primary',
-        actions: 'swal2-actions-centered'
-                }
+                    confirmButtonText: "Okay",
+                    theme: "bulma",
+                    customClass: {
+                        confirmButton: 'button is-primary',
+                        actions: 'swal2-actions-centered'
+                    }
                 });
                 await fetchMaterial();
             } catch (error) {
@@ -274,12 +284,12 @@ export const SupportMaterialCourse = () => {
                     icon: 'error',
                     title: 'Error',
                     text: 'No se pudo eliminar el archivo',
-                    confirmButtonText:"Okay",
-                theme:"bulma",
-                customClass:{
-                confirmButton: 'button is-primary',
-        actions: 'swal2-actions-centered'
-                }
+                    confirmButtonText: "Okay",
+                    theme: "bulma",
+                    customClass: {
+                        confirmButton: 'button is-primary',
+                        actions: 'swal2-actions-centered'
+                    }
                 });
             }
         }
@@ -293,42 +303,43 @@ export const SupportMaterialCourse = () => {
         try {
             if (editingMaterial?.tipo_contenido === 'link') {
                 if (!editingMaterial.contenido) {
-Swal.fire({
-          icon:"info",
-          title:"Proporcionar un enlace",
-          text:"Se debe proporcionar un enlace, por favor, ponga uno",
-          confirmButtonText:"Aceptar",
-          theme:"bulma",
-          customClass:{
-        confirmButton: 'button is-primary',
-        actions: 'swal2-actions-centered'
+                    Swal.fire({
+                        icon: "info",
+                        title: "Proporcionar un enlace",
+                        text: "Se debe proporcionar un enlace, por favor, ponga uno",
+                        confirmButtonText: "Aceptar",
+                        theme: "bulma",
+                        customClass: {
+                            confirmButton: 'button is-primary',
+                            actions: 'swal2-actions-centered'
+                        }
+                    })
+                    return;
                 }
-              })
-                    return; }
                 const resp = await axiosInstance.put(`/api/material/update/${editingMaterial.ID}`, { link: editingMaterial.contenido });
                 await fetchMaterial();
-                if (resp?.data?.message) 
+                if (resp?.data?.message)
                     Swal.fire({
-          icon:"error",
-          title:"Error al actualizar enlace",
-          text:resp.data.message,
-          theme:"bulma",
-          customClass:{
-        confirmButton: 'button is-primary',
-        actions: 'swal2-actions-centered'
-                }
-              })
+                        icon: "error",
+                        title: "Error al actualizar enlace",
+                        text: resp.data.message,
+                        theme: "bulma",
+                        customClass: {
+                            confirmButton: 'button is-primary',
+                            actions: 'swal2-actions-centered'
+                        }
+                    })
             }
         } catch {
             Swal.fire({
-                icon:"error",
-                title:"Error al actualizar",
-                text:"Ocurrió un error al actualizar el material de apoyo",
-                confirmButtonText:"Okay",
-                theme:"bulma",
-                customClass:{
-                confirmButton: 'button is-primary',
-        actions: 'swal2-actions-centered'
+                icon: "error",
+                title: "Error al actualizar",
+                text: "Ocurrió un error al actualizar el material de apoyo",
+                confirmButtonText: "Okay",
+                theme: "bulma",
+                customClass: {
+                    confirmButton: 'button is-primary',
+                    actions: 'swal2-actions-centered'
                 }
             })
         } finally {
@@ -336,196 +347,495 @@ Swal.fire({
         }
     };
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {
         fetchCurso();
         fetchMaterial();
     }, [id]);
 
+    const getFileTypeIcon = (tipo) => {
+        switch (tipo) {
+            case 'pdf': return <FontAwesomeIcon icon={faFilePdf} className="sm-icon-pdf" />;
+            case 'video': return <FontAwesomeIcon icon={faVideo} className="sm-icon-video" />;
+            case 'enlace': return <FontAwesomeIcon icon={faLink} className="sm-icon-link" />;
+            case 'link': return <FontAwesomeIcon icon={faLink} className="sm-icon-link" />;
+            default: return <FontAwesomeIcon icon={faFileAlt} />;
+        }
+    };
+
+    const formatFileSize = (bytes) => {
+        if (!bytes || bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    };
+
+    const truncarNombreArchivo = (nombre, maxLongitud = 25) => {
+        if (!nombre) return '';
+        const ultimoPunto = nombre.lastIndexOf('.');
+        if (ultimoPunto === -1) {
+            return nombre.length > maxLongitud
+                ? `${nombre.slice(0, maxLongitud)}...`
+                : nombre;
+        }
+        const nombreParte = nombre.slice(0, ultimoPunto);
+        const extension = nombre.slice(ultimoPunto);
+        if (nombreParte.length <= maxLongitud) {
+            return nombre;
+        }
+        return `${nombreParte.slice(0, maxLongitud)}...${extension}`;
+    };
+
     return (
         <>
             <Header />
             <Main className="material-main">
-                <div className="material-container-c">
+                <div className="material-container">
                     <div className="material-header">
-                        <h1 className='title-material'>Material de Apoyo</h1>
-                    </div>
-                     <div>
-                        <button className='btn-back-c' onClick={() => navigate(-1)}>Volver al Curso</button>
-                        </div>
-                    <div className='material-content-c'>
-                        {/* Solo mostramos la sección de archivos */}
-                        <div className='archivos-section-c'>
-                            <div className='archivos-header-c'>
-                                <h2>Material de Apoyo - {cursoActual?.nombre_curso || 'Curso'}</h2>
-
-                                {puedeSubirArchivos &&(
-                                    <div className='upload-section-c'>
-                                    <button className='upload-btn-c' onClick={() => setShowMaterialCreation(true)} disabled={subiendoArchivo}>
-                                        {subiendoArchivo ? 'Subiendo...' : 'Crear material'}
-                                    </button>
+                        <div className="header-content">
+                            <div className="title-section">
+                                <div className="title-left">
+                                    <FontAwesomeIcon icon={faBookOpen} className="title-icon" />
+                                    <div className="title-text">
+                                        <h1 className="main-title">Material de Apoyo</h1>
+                                        <p className="subtitle">Gestiona y consulta el material educativo del curso</p>
+                                    </div>
                                 </div>
-                                )} 
+                                <button className='btn-back' onClick={() => navigate(-1)}>
+                                    <FontAwesomeIcon icon={faArrowLeft} />
+                                    <span>Volver al Curso</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="material-content">
+                        <div className="course-info-card">
+                            <div className="course-header">
+                                <div className="course-title-wrapper">
+                                    <h2>
+                                        <FontAwesomeIcon icon={faBookOpen} />
+                                        {cursoActual?.nombre_curso || 'Curso'}
+                                    </h2>
+                                    <div className="course-status">
+                                        <span className={`status-badge ${cursoActual?.estado?.toLowerCase()}`}>
+                                            {cursoActual?.estado || 'No disponible'}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div className="course-meta">
+                                    <div className="meta-item">
+                                        <span className="meta-label">Ficha:</span>
+                                        <span className="meta-value">{cursoActual?.ficha || 'N/A'}</span>
+                                    </div>
+                                    <div className="meta-item">
+                                        <span className="meta-label">Materiales:</span>
+                                        <span className="meta-value">{archivos.length} archivos</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="materials-section">
+                            <div className="section-header">
+                                <div className="section-title-wrapper">
+                                    <FontAwesomeIcon icon={faFolderOpen} className="section-icon" />
+                                    <h2>Material de Apoyo</h2>
+                                </div>
+                                
+                                {puedeSubirArchivos && archivos.length > 0 && (
+                                    <button
+                                        className="create-btn"
+                                        onClick={() => setShowMaterialCreation(true)}
+                                        disabled={subiendoArchivo}
+                                    >
+                                        <FontAwesomeIcon icon={faPlus} />
+                                        <span>Agregar Material</span>
+                                    </button>
+                                )}
                             </div>
 
-                            <div className='archivos-list-c'>
+                            <div className="materials-list">
                                 {archivos.length === 0 ? (
-                                    <p className='no-archivos'>No hay archivos subidos a este curso</p>
+                                    <div className="no-materials">
+                                        <FontAwesomeIcon icon={faFileAlt} className="no-materials-icon" />
+                                        <h3>No hay materiales disponibles</h3>
+                                        <p>Este curso aún no tiene materiales de apoyo. {puedeSubirArchivos && '¡Puedes agregar el primero!'}</p>
+                                        {puedeSubirArchivos && (
+                                            <button
+                                                className="create-btn"
+                                                onClick={() => setShowMaterialCreation(true)}
+                                            >
+                                                <FontAwesomeIcon icon={faPlus} />
+                                                <span>Agregar primer material</span>
+                                            </button>
+                                        )}
+                                    </div>
                                 ) : (
                                     archivos.map((archivo) => (
-                                        <div key={archivo.ID} className='archivo-item-c'>
-                                            <div className='archivo-info-c'>
-                                                {archivo.tipo_contenido !== 'link' ? (
-                                                    <>
-                                                        <span className='archivo-nombre-c'>{archivo.nombre_original}</span>
-                                                        <span className='archivo-detalles-c'>
-                                                            {(archivo.tamanio / 1024 / 1024).toFixed(2)}MB - Subido el {new Date(archivo.fecha_subida).toLocaleDateString('es-CO')}
+                                        <div key={archivo.ID} className="material-card">
+                                            <div className="material-header-card">
+                                                <div className="file-type-icon">
+                                                    {getFileTypeIcon(archivo.tipo_contenido)}
+                                                </div>
+                                                <div className="material-main-info">
+                                                    <div className="material-title-section">
+                                                        {editingMaterial && archivo.ID == editingMaterial.ID ? (
+                                                            <input
+                                                                className="material-link-input"
+                                                                type="text"
+                                                                value={editingMaterial.contenido}
+                                                                onChange={(e) => setEditingMaterial({
+                                                                    ...editingMaterial,
+                                                                    contenido: e.target.value
+                                                                })}
+                                                                placeholder="Ingrese el enlace..."
+                                                            />
+                                                        ) : archivo.tipo_contenido !== "link" && archivo.tipo_contenido !== "enlace" ? (
+                                                            <h4 className="material-title">
+                                                                {truncarNombreArchivo(archivo.nombre_original, 25)}
+                                                            </h4>
+                                                        ) : (
+                                                            <a
+                                                                className="material-link"
+                                                                href={archivo.contenido}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                            >
+                                                                {archivo.contenido}
+                                                                <FontAwesomeIcon icon={faExternalLinkAlt} className="external-link-icon" />
+                                                            </a>
+                                                        )}
+                                                        <span className="file-type-label">
+                                                            {archivo.tipo_contenido === 'pdf' ? 'PDF' : 
+                                                             archivo.tipo_contenido === 'video' ? 'Video' : 
+                                                             archivo.tipo_contenido === 'link' || archivo.tipo_contenido === 'enlace' ? 'Enlace' : 'Archivo'}
                                                         </span>
-                                                    </>
-                                                ) : (
-                                                    editingMaterial && editingMaterial.ID === archivo.ID ? (
-                                                        <input
-                                                            className='material-link'
-                                                            type='text'
-                                                            value={editingMaterial.contenido}
-                                                            onChange={(e)=> setEditingMaterial({...editingMaterial, contenido: e.target.value})}
-                                                        />
-                                                    ) : (
-                                                        <a
-                                                            className='material-link'
-                                                            href={archivo.contenido}
-                                                            target='_blank'
-                                                            rel='noopener noreferrer'
-                                                        >
-                                                            {archivo.contenido}
-                                                        </a>
-                                                    )
-                                                )}
+                                                    </div>
+                                                    <div className="material-meta">
+                                                        {archivo.tipo_contenido !== "link" && archivo.tipo_contenido !== "enlace" && (
+                                                            <span className="file-size">
+                                                                {formatFileSize(archivo.tamanio)}
+                                                            </span>
+                                                        )}
+                                                        <span className="file-date">
+                                                            <FontAwesomeIcon icon={faCalendarAlt} />
+                                                            {new Date(archivo.fecha_subida).toLocaleDateString("es-CO")}
+                                                        </span>
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <div className='archivo-actions-c'>
-                                                {archivo.tipo_contenido !== 'link' && (
-                                                    <a
-                                                        className='btn-descargar'
-                                                        href={`http://localhost:3001${archivo.contenido}`}
-                                                        target='_blank'
-                                                        rel='noopener noreferrer'
-                                                        download
-                                                    >
-                                                        Descargar
-                                                    </a>
-                                                )}
-                                                {puedeEliminarArchivos && puedeEditarMaterial && (
-                                                    editingMaterial && editingMaterial.ID === archivo.ID ? (
-                                                        <>
-                                                            <button className='btn-editar' onClick={editarMaterial}>Guardar</button>
-                                                          
-                                                            <button className='btn-eliminar' onClick={()=> setEditingMaterial(null)}>Cancelar</button>
-                                                        </>
-                                                    ) : (
-                                                        <>
-                                                            {archivo.tipo_contenido === 'link' && (
-                                                                <button className='btn-editar' onClick={()=> setEditingMaterial(archivo)}>Editar</button>
-                                                            )}
-                                                            <button className='btn-eliminar' onClick={() => handleEliminarArchivo(archivo.ID)}>Eliminar</button>
-                                                        </>
-                                                    )
+
+                                            <div className="material-actions">
+                                                {editingMaterial && archivo.ID == editingMaterial.ID ? (
+                                                    <div className="edit-actions">
+                                                        <button
+                                                            className="action-btn save-btn"
+                                                            onClick={() => editarMaterial()}
+                                                        >
+                                                            <FontAwesomeIcon icon={faCheck} />
+                                                            <span>Guardar</span>
+                                                        </button>
+                                                        <button
+                                                            className="action-btn cancel-btn"
+                                                            onClick={() => setEditingMaterial(null)}
+                                                        >
+                                                            <FontAwesomeIcon icon={faTimes} />
+                                                            <span>Cancelar</span>
+                                                        </button>
+                                                    </div>
+                                                ) : (
+                                                    <>
+                                                        {(archivo.tipo_contenido !== "link" && archivo.tipo_contenido !== "enlace") && (
+                                                            <a
+                                                                className="action-btn download-btn"
+                                                                href={`http://localhost:3001${archivo.contenido}`}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                download
+                                                            >
+                                                                <FontAwesomeIcon icon={faDownload} />
+                                                                <span>Descargar</span>
+                                                            </a>
+                                                        )}
+
+                                                        {puedeEliminarArchivos && puedeEditarMaterial && (
+                                                            <div className="manage-actions">
+                                                                {(archivo.tipo_contenido === "link" || archivo.tipo_contenido === "enlace") && (
+                                                                    <button
+                                                                        className="action-btn edit-btn"
+                                                                        onClick={() => setEditingMaterial(archivo)}
+                                                                    >
+                                                                        <FontAwesomeIcon icon={faEdit} />
+                                                                        <span>Editar</span>
+                                                                    </button>
+                                                                )}
+
+                                                                <button
+                                                                    className="action-btn delete-btn"
+                                                                    onClick={() => handleEliminarArchivo(archivo.ID)}
+                                                                >
+                                                                    <FontAwesomeIcon icon={faTrash} />
+                                                                    <span>Eliminar</span>
+                                                                </button>
+                                                            </div>
+                                                        )}
+                                                    </>
                                                 )}
                                             </div>
                                         </div>
                                     ))
                                 )}
-                            </div> 
-                        </div>           
+                            </div>
+                        </div>
                     </div>
                 </div>
             </Main>
+
+            {/* MODAL DE CREAR MATERIAL */}
             {showMaterialCreation && (
-                <div id="modal-overlayUpdateInstructor" style={{ display: 'flex' }}>
-                    <div className="modal-bodyUpdateInstructor" style={{ flexDirection: 'column' }}>
-                        <div className="container_return_UpdateInstructor">
-                            <h5>Volver</h5>
-                            <button type="button" onClick={() => setShowMaterialCreation(false)} className="closeModal"></button>
+                <div className="modal-overlay-material">
+                    <div className="modal-container-material">
+                        <div className="modal-header-material">
+                            <div className="header-content-material">
+                                <h2>
+                                    <FontAwesomeIcon icon={faCloudUploadAlt} className="header-icon-material" />
+                                    Nuevo Material de Apoyo
+                                </h2>
+                                <button 
+                                    type="button" 
+                                    onClick={() => {
+                                        setShowMaterialCreation(false);
+                                        setPendingFiles([]);
+                                        setPendingLinks([]);
+                                        setMaterial('');
+                                    }}
+                                    className="close-btn-material"
+                                >
+                                    <FontAwesomeIcon icon={faTimes} />
+                                    <span>Cancelar</span>
+                                </button>
+                            </div>
                         </div>
-                        <h2 className="modal-title-edit-calendar">Crear material de apoyo</h2>
-                        <br/>
-                        <span>Tipo de material</span>
-                        <div className="statusButtons" style={{ width: '90%' }}>
-                            {['PDF','Video','Enlace'].map((t)=> (
-                                <button key={t} className={`status-btn ${materialType === t ? 'selected' : ''}`} onClick={()=> setMaterialType(t)}>{t}</button>
-                            ))}
-                        </div>
-                        <br/>
-                        <span>Material</span>
-                        {(materialType === 'PDF' || materialType === 'Video') && (
-                            <>
-                <label htmlFor='file-upload' className='upload-btn' style={{ flex: 'none' }}>Subir archivo(s)</label>
-                <input id='file-upload' ref={fileInputRef} type='file' multiple onChange={onLocalFilePicked} disabled={subiendoArchivo} style={{ display: 'none' }} />
-                            </>
-                        )}
-                        {materialType === 'Enlace' && (
-                            <div className='statusButtons' style={{ width: '90%', gap: 8, flexDirection: 'column' }}>
-                                <div style={{ display: 'flex', gap: 8, minHeight: 44 }}>
-                                    <input className='inputFilterOptionText' type='text' placeholder='Ponga aquí el enlace al material...' onChange={(e)=> setMaterial(e.target.value)} value={material} />
-                                    <button type='button' className='upload-btn' style={{ flex: 'none', height: 44 }} onClick={(e)=> { e.preventDefault(); e.stopPropagation(); if ((material||'').trim().length>0) { setPendingLinks((prev)=>[...prev, material.trim()]); setMaterial(''); } }}>Agregar</button>
+
+                        <div className="modal-body-material">
+                            <div className="modal-content-material">
+                                <div className="form-section-material">
+                                    <h3 className="section-title-material">
+                                        <FontAwesomeIcon icon={faBookOpen} />
+                                        Curso Seleccionado
+                                    </h3>
+                                    <div className="course-info-material">
+                                        <span className="course-name-material">{cursoActual?.nombre_curso}</span>
+                                    </div>
                                 </div>
-                                {pendingLinks.length > 0 && (
-                                    <ul style={{
-                                        listStyle: 'none',
-                                        padding: 8,
-                                        margin: 0,
-                                        display: 'flex',
-                                        flexDirection: 'column',
-                                        gap: 6,
-                                        maxHeight: 84,
-                                        overflowY: 'auto',
-                                        background: 'rgba(255,255,255,0.06)',
-                                        border: '1px solid rgba(255,255,255,0.12)',
-                                        borderRadius: 8
-                                    }}>
-                                        {pendingLinks.map((l, idx)=> (
-                                            <li key={`${idx}-${l}`} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                                <input className='inputFilterOptionText' type='text' value={l} onChange={(e)=> {
-                                                    const copy = [...pendingLinks];
-                                                    copy[idx] = e.target.value;
-                                                    setPendingLinks(copy);
-                                                }} />
-                                            <button type='button' className='btn-eliminar' onClick={()=> setPendingLinks((prev)=> prev.filter((_,i)=> i!==idx))}>X</button>
-                                            </li>
+
+                                <div className="form-section-material">
+                                    <h3 className="section-title-material">
+                                        <FontAwesomeIcon icon={faFileAlt} />
+                                        Tipo de Material
+                                    </h3>
+                                    <div className="material-type-selector-material">
+                                        {["PDF", "Video", "Enlace"].map((t) => (
+                                            <button
+                                                key={t}
+                                                className={`type-option-material ${materialType === t ? 'active' : ''}`}
+                                                onClick={() => {
+                                                    setMaterialType(t);
+                                                    setPendingFiles([]);
+                                                    setPendingLinks([]);
+                                                    setMaterial("");
+                                                }}
+                                            >
+                                                <div className="type-icon-material">
+                                                    {t === "PDF" && <FontAwesomeIcon icon={faFilePdf} />}
+                                                    {t === "Video" && <FontAwesomeIcon icon={faVideo} />}
+                                                    {t === "Enlace" && <FontAwesomeIcon icon={faLink} />}
+                                                </div>
+                                                <span className="type-label-material">{t}</span>
+                                            </button>
                                         ))}
-                                    </ul>
+                                    </div>
+                                </div>
+
+                                <div className="form-section-material">
+                                    <h3 className="section-title-material">
+                                        <FontAwesomeIcon icon={faCloudUploadAlt} />
+                                        {(materialType === "PDF" || materialType === "Video")
+                                            ? `Subir ${materialType === "PDF" ? "Archivos PDF" : "Videos"}`
+                                            : "Agregar Enlaces"}
+                                    </h3>
+
+                                    {(materialType === "PDF" || materialType === "Video") ? (
+                                        <>
+                                            <div className="upload-area-material">
+                                                <input
+                                                    id="file-upload-material"
+                                                    type="file"
+                                                    multiple
+                                                    onChange={onLocalFilePicked}
+                                                    disabled={subiendoArchivo}
+                                                    ref={fileInputRef}
+                                                    className="file-input-material"
+                                                    accept={materialType === "PDF" ? ".pdf" : "video/*"}
+                                                />
+                                                <label htmlFor="file-upload-material" className="upload-dropzone-material">
+                                                    <FontAwesomeIcon icon={faCloudUploadAlt} className="upload-icon-material" />
+                                                    <div className="upload-text-material">
+                                                        <p className="upload-title-material">Haz clic para subir archivos</p>
+                                                        <p className="upload-subtitle-material">
+                                                            Arrastra o selecciona archivos {materialType === "PDF" ? "PDF" : "de video"}
+                                                        </p>
+                                                        <p className="upload-hint-material">
+                                                            Formatos: {materialType === "PDF" ? ".pdf" : ".mp4, .avi, .mov"}
+                                                        </p>
+                                                    </div>
+                                                </label>
+                                            </div>
+
+                                            {pendingFiles.length > 0 && (
+                                                <div className="pending-files-material">
+                                                    <h4 className="pending-title-material">
+                                                        Archivos seleccionados ({pendingFiles.length})
+                                                    </h4>
+                                                    <div className="pending-list-material">
+                                                        {pendingFiles.map((f, idx) => (
+                                                            <div key={`${idx}-${f.name}`} className="pending-item-material">
+                                                                <div className="pending-item-info-material">
+                                                                    <FontAwesomeIcon
+                                                                        icon={materialType === "PDF" ? faFilePdf : faVideo}
+                                                                        className={`pending-icon-material ${materialType.toLowerCase()}`}
+                                                                    />
+                                                                    <div className="pending-details-material">
+                                                                        <span className="pending-name-material">{truncarNombreArchivo(f.name, 30)}</span>
+                                                                        <span className="pending-size-material">{(f.size / 1024 / 1024).toFixed(2)} MB</span>
+                                                                    </div>
+                                                                </div>
+                                                                <button
+                                                                    type='button'
+                                                                    className='remove-btn-material'
+                                                                    onClick={() => setPendingFiles((prev) => prev.filter((_, i) => i !== idx))}
+                                                                    disabled={subiendoArchivo}
+                                                                >
+                                                                    <FontAwesomeIcon icon={faTimes} />
+                                                                </button>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </>
+                                    ) : (
+                                        <div className="links-input-material">
+                                            <div className="link-input-group-material">
+                                                <input
+                                                    className="link-input-material"
+                                                    type="text"
+                                                    placeholder='https://ejemplo.com/material'
+                                                    value={material}
+                                                    onChange={(e) => setMaterial(e.target.value)}
+                                                    disabled={subiendoArchivo}
+                                                />
+                                                <button
+                                                    type='button'
+                                                    className='add-link-btn-material'
+                                                    onClick={() => {
+                                                        if ((material || '').trim().length > 0) {
+                                                            setPendingLinks((prev) => [...prev, material.trim()]);
+                                                            setMaterial('');
+                                                        }
+                                                    }}
+                                                    disabled={subiendoArchivo}
+                                                >
+                                                    <FontAwesomeIcon icon={faPlus} />
+                                                    <span>Agregar</span>
+                                                </button>
+                                            </div>
+
+                                            {pendingLinks.length > 0 && (
+                                                <div className="pending-links-material">
+                                                    <h4 className="pending-title-material">
+                                                        Enlaces agregados ({pendingLinks.length})
+                                                    </h4>
+                                                    <div className="pending-list-material">
+                                                        {pendingLinks.map((l, idx) => (
+                                                            <div key={`${idx}-${l}`} className="pending-item-material">
+                                                                <div className="pending-item-info-material">
+                                                                    <FontAwesomeIcon 
+                                                                        icon={faLink} 
+                                                                        className="pending-icon-material link" 
+                                                                    />
+                                                                    <input
+                                                                        className='link-edit-input-material'
+                                                                        type='text'
+                                                                        value={l}
+                                                                        onChange={(e) => {
+                                                                            const copy = [...pendingLinks];
+                                                                            copy[idx] = e.target.value;
+                                                                            setPendingLinks(copy);
+                                                                        }}
+                                                                        placeholder="URL del enlace"
+                                                                        disabled={subiendoArchivo}
+                                                                    />
+                                                                </div>
+                                                                <button
+                                                                    type='button'
+                                                                    className='remove-btn-material'
+                                                                    onClick={() => setPendingLinks((prev) => prev.filter((_, i) => i !== idx))}
+                                                                    disabled={subiendoArchivo}
+                                                                >
+                                                                    <FontAwesomeIcon icon={faTimes} />
+                                                                </button>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+
+                                {puedeSubirArchivos && (
+                                    <div className="modal-actions-material">
+                                        <button
+                                            className="submit-btn-material secondary"
+                                            onClick={() => {
+                                                setShowMaterialCreation(false);
+                                                setPendingFiles([]);
+                                                setPendingLinks([]);
+                                                setMaterial("");
+                                            }}
+                                            disabled={subiendoArchivo}
+                                        >
+                                            <FontAwesomeIcon icon={faTimes} />
+                                            <span>Cancelar</span>
+                                        </button>
+                                        <button
+                                            className="submit-btn-material primary"
+                                            onClick={crearMaterial}
+                                            disabled={subiendoArchivo || 
+                                                ((materialType === "PDF" || materialType === "Video") && pendingFiles.length === 0) ||
+                                                (materialType === "Enlace" && pendingLinks.length === 0 && material.trim().length === 0)}
+                                        >
+                                            {subiendoArchivo ? (
+                                                <>
+                                                    <div className="spinner"></div>
+                                                    <span>Subiendo...</span>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <FontAwesomeIcon icon={faCheck} />
+                                                    <span>Crear Material</span>
+                                                </>
+                                            )}
+                                        </button>
+                                    </div>
                                 )}
                             </div>
-                        )}
-                        {(materialType === 'PDF' || materialType === 'Video') && pendingFiles.length > 0 && (
-                            <div style={{ width: '90%', marginTop: 12, maxHeight: 20 }}>
-                                <span style={{ color: '#cfe9da' }}>Archivos seleccionados ({pendingFiles.length}):</span>
-                                <ul style={{
-                                    listStyle: 'none',
-                                    padding: 8,
-                                    marginTop: 6,
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    gap: 6,
-                                    maxHeight: 84,
-                                    overflowY: 'auto',
-                                    background: 'rgba(255,255,255,0.06)',
-                                    border: '1px solid rgba(255,255,255,0.12)',
-                                    borderRadius: 8
-                                }}>
-                                    {pendingFiles.map((f, idx)=> (
-                                        <li key={`${idx}-${f.name}`} style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#fff' }}>
-                                            <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{f.name}</span>
-                                            <button type='button' className='btn-eliminar' onClick={(e)=> { e.preventDefault(); e.stopPropagation(); setPendingFiles((prev)=> prev.filter((_,i)=> i!==idx)); }}>X</button>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-                        )}
-                        <br/>
-                        <button className='upload-btn' style={{ flex: 'none' }} disabled={subiendoArchivo} onClick={crearMaterial}>Crear material</button>
+                        </div>
                     </div>
                 </div>
             )}
         </>
     );
-}
+};

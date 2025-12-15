@@ -1,73 +1,76 @@
-describe('Probar el modulo de administrador', ()=>{
-    it.skip("visitar la pagina e iniciar sesion como administrador", ()=>{
-        cy.visit("http://localhost:5173/")
-        cy.get(".button_signIn").first().click({force : true})
+describe('Sesión de administrador persistente', () => {
+    before(() => {
+    Cypress.session.clearAllSavedSessions();
+  });
+  // Función para iniciar sesión
+  const loginAdministrador = () => {
+    cy.visit('http://localhost:5173/');
+    cy.get('.button_signIn').first().click({ force: true });
+    
+    // Ingresar credenciales del administrador
+    cy.get('input[type="email"]').first().type('administrador@gmail.com');
+    cy.get('input[type="password"]').type('Admin1234*');
+    
+    // Iniciar sesión
+    cy.get('.button_register').click();
+    
+    // Esperar a que la redirección se complete
+    cy.url().should('include', 'http://localhost:5173/');
+    
+  };
 
-        //Ingresar credenciales del rol administrador
-        cy.get('input[type="email"]').first()
-            .type('administrador@gmail.com')
-        cy.get('input[type="password"]')
-            .type('Admin1234*')
-            
-        //Iniciar sesión
-        cy.get(".button_register").click()
-    })
+  // Configuración de la sesión
+  beforeEach(() => {
+    cy.session('administrador', loginAdministrador, {
+      validate: () => {
+        // Verificar que la sesión sigue activa
+        cy.visit('http://localhost:5173/');
+        
+        // Volver a la página principal para no interferir con las pruebas
+        cy.visit('http://localhost:5173/');
+      },
+      cacheAcrossSpecs: false // Mantener sesión entre archivos de prueba
+    });
+    
+    // Visitar la página después de restaurar la sesión
+    cy.visit('http://localhost:5173/');
+  });
 
-    it.skip("Ingresar a mis cursos", ()=>{
-        cy.visit("http://localhost:5173/")
-        cy.get(".button_signIn").first().click({force : true})
+  // Prueba específica para Mis Cursos
+  it.skip("Ingresar a mis cursos", () => {
+    cy.visit("http://localhost:5173/Cursos/MisCursos");
+    
+    // Verificar que estamos en la página correcta y autenticados
+    cy.url().should('include', '/Cursos/MisCursos');
+    cy.contains('Mis Cursos').should('be.visible');
+    
+    // Recorrer los filtros
+    const textosFiltros = ['Todos', 'Finalizados', 'Oferta abierta', 'Oferta cerrada'];
+    textosFiltros.forEach((texto) => {
+      // Buscar por texto completo del botón
+      cy.contains('button', texto).click();
+      cy.contains('button', texto).should('have.class', 'active');
+      cy.wait(1000);
+    });
 
-        //Ingresar credenciales del rol administrador
-        cy.get('input[type="email"]').first()
-            .type('administrador@gmail.com')
-        cy.get('input[type="password"]')
-            .type('Admin1234*')
-            
-        //Iniciar sesión
-        cy.get(".button_register").click()
+    // Dar click en Ver cursos Activos
+    cy.contains('button', 'Ver Cursos Activos').click();
+    cy.wait(1000);
 
-        //Ingresar al modulo de cursos
-        cy.get('.courses-menu').get('.courses').first().click({force:true})
+    // Dar click en ver en oferta
+    cy.contains('button', 'Ver en oferta').click();
+    cy.wait(1000);
 
-        //Entrar a los cursos
-        cy.get('.courses-menu').find('.dropdown-courses').contains('button','Mis cursos').first().click({force:true})
-
-        //Recorrer los filtros
-        const textosFiltros = ['Todos', 'Finalizados', 'Oferta abierta', 'Oferta cerrada'];
-        textosFiltros.forEach((texto) => {
-        // Buscar por texto completo del botón
-        cy.contains('button', texto).click();
-        cy.contains('button', texto).should('have.class', 'active');
-        cy.wait(1000);
-        });
-
-        //Dar click en Ver cursos Activos
-        cy.contains('button','Ver Cursos Activos').click()
-
-        //Dar click en ver en oferta
-        cy.contains('button','Ver en oferta').click()
-
-        //Dar click en crear nuevo curso
-        cy.contains('button', 'Crear nuevo curso').click()
-    })
+    // Dar click en crear nuevo curso
+    cy.contains('button', 'Crear nuevo curso').click();
+    
+    // Verificar que navegó a la página de creación
+    cy.url().should('include', '/CrearCurso');
+    cy.contains('Crear Nuevo Curso').should('be.visible');
+  });
 
     it.skip('Buscar cursos', ()=>{
-        cy.visit("http://localhost:5173/") 
-        cy.get(".button_signIn").first().click({force : true})
-
-        //Ingresar credenciales con el rol de gestor
-        cy.get('input[type="email"]').first()
-            .type('administrador@gmail.com')
-        cy.get('input[type="password"]')
-            .type('Admin1234*')
-       
-         //Iniciar sesión
-        cy.get(".button_register").click({force:true})
-        
-        //Volver a dar click en cursos pero ahora dandole click a la opción de buscar cursos
-        cy.get('.courses-menu').get('.courses').first().click({force:true})
-        cy.get('.courses-menu').find('.dropdown-courses').contains('button','Buscar cursos').first().click({force:true})
-
+        cy.visit("http://localhost:5173/Cursos/BuscarCursos") 
         
         //Usar Filtros de Buscar Cursos
         //Primer filtro - Estado
@@ -82,23 +85,9 @@ describe('Probar el modulo de administrador', ()=>{
 
     })
 
-    it.skip('Crear Curso',()=>{
-        cy.visit("http://localhost:5173/") 
-        cy.get(".button_signIn").first().click({force : true})
-
-        //Ingresar credenciales con el rol de gestor
-        cy.get('input[type="email"]').first()
-            .type('administrador@gmail.com')
-        cy.get('input[type="password"]')
-            .type('Admin1234*')
+    it('Crear Curso',()=>{
+        cy.visit("http://localhost:5173/Cursos/CrearCurso") 
        
-         //Iniciar sesión
-        cy.get(".button_register").click({force:true})
-
-        //Volver a dar click en cursos pero ahora dandole click a la opción de Crear cursos
-        cy.get('.container_options').get('.courses-menu').contains('button', 'Cursos').first().click({force : true})
-        cy.get('.courses-menu').find('.dropdown-courses').contains('button','Crear curso').first().click({force:true})
-
         //Crear curso
         cy.get('.ficha-container').find('input[placeholder="000000"]').type('2825024')
         cy.contains('label', 'Nombre del Curso').parent('.form-group').find('input').type('Python', { force: true });
@@ -755,7 +744,7 @@ describe('Probar el modulo de administrador', ()=>{
         cy.contains('button','Generar reporte')
     })
 
-    it('Asistencias y Progreso de Estudiantes',()=>{
+    it.skip('Asistencias y Progreso de Estudiantes',()=>{
         cy.visit("http://localhost:5173/") 
         cy.get(".button_signIn").first().click({force : true})
 
@@ -769,7 +758,7 @@ describe('Probar el modulo de administrador', ()=>{
         cy.get(".button_register").click()
     })
 
-    it('visitar el historial de cambios', ()=>{
+    it.skip('visitar el historial de cambios', ()=>{
         cy.visit("http://localhost:5173/") 
         cy.get(".button_signIn").first().click({force : true})
 

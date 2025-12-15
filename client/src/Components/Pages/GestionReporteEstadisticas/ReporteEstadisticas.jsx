@@ -277,12 +277,20 @@ export default function ReporteEstadisticas() {
             }
 
             // Filtro de búsqueda global
+            // Filtro de búsqueda global
             if (searchTerm) {
                 const searchLower = searchTerm.toLowerCase();
-                const cursoMatch = curso.curso?.toLowerCase().includes(searchLower) || false;
-                const fichaMatch = curso.ficha?.toLowerCase().includes(searchLower) || false;
-                const instructorMatch = curso.instructor?.toLowerCase().includes(searchLower) || false;
-                const estadoMatch = curso.estado?.toLowerCase().includes(searchLower) || false;
+
+                // Función helper para búsqueda segura
+                const matchesSearch = (value) => {
+                    if (value == null) return false;
+                    return String(value).toLowerCase().includes(searchLower);
+                };
+
+                const cursoMatch = matchesSearch(curso.curso);
+                const fichaMatch = matchesSearch(curso.ficha);
+                const instructorMatch = matchesSearch(curso.instructor);
+                const estadoMatch = matchesSearch(curso.estado);
 
                 if (!(cursoMatch || fichaMatch || instructorMatch || estadoMatch)) {
                     return false;

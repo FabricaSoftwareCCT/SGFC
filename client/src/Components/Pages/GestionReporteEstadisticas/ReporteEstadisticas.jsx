@@ -192,44 +192,44 @@ export default function ReporteEstadisticas() {
         const estadoLower = estado?.toLowerCase();
         switch (estadoLower) {
             case 'activo':
-                return { 
-                    className: 'activo', 
-                    icon: faCheckCircle, 
+                return {
+                    className: 'activo',
+                    icon: faCheckCircle,
                     label: 'Activo',
                     color: '#4CAF50'
                 };
             case 'cancelado':
-                return { 
-                    className: 'cancelado', 
-                    icon: faTimesCircle, 
+                return {
+                    className: 'cancelado',
+                    icon: faTimesCircle,
                     label: 'Cancelado',
                     color: '#F44336'
                 };
             case 'finalizado':
-                return { 
-                    className: 'finalizado', 
-                    icon: faFlagCheckered, 
+                return {
+                    className: 'finalizado',
+                    icon: faFlagCheckered,
                     label: 'Finalizado',
                     color: '#2196F3'
                 };
             case 'pendiente':
-                return { 
-                    className: 'pendiente', 
-                    icon: faClock, 
+                return {
+                    className: 'pendiente',
+                    icon: faClock,
                     label: 'Pendiente',
                     color: '#FF9800'
                 };
             case 'en oferta':
-                return { 
-                    className: 'en-oferta', 
-                    icon: faTag, 
+                return {
+                    className: 'en-oferta',
+                    icon: faTag,
                     label: 'En Oferta',
                     color: '#9C27B0'
                 };
             default:
-                return { 
-                    className: 'desconocido', 
-                    icon: faQuestionCircle, 
+                return {
+                    className: 'desconocido',
+                    icon: faQuestionCircle,
                     label: estado || 'Desconocido',
                     color: '#757575'
                 };
@@ -277,12 +277,20 @@ export default function ReporteEstadisticas() {
             }
 
             // Filtro de búsqueda global
+            // Filtro de búsqueda global
             if (searchTerm) {
                 const searchLower = searchTerm.toLowerCase();
-                const cursoMatch = curso.curso?.toLowerCase().includes(searchLower) || false;
-                const fichaMatch = curso.ficha?.toLowerCase().includes(searchLower) || false;
-                const instructorMatch = curso.instructor?.toLowerCase().includes(searchLower) || false;
-                const estadoMatch = curso.estado?.toLowerCase().includes(searchLower) || false;
+
+                // Función helper para búsqueda segura
+                const matchesSearch = (value) => {
+                    if (value == null) return false;
+                    return String(value).toLowerCase().includes(searchLower);
+                };
+
+                const cursoMatch = matchesSearch(curso.curso);
+                const fichaMatch = matchesSearch(curso.ficha);
+                const instructorMatch = matchesSearch(curso.instructor);
+                const estadoMatch = matchesSearch(curso.estado);
 
                 if (!(cursoMatch || fichaMatch || instructorMatch || estadoMatch)) {
                     return false;
@@ -571,7 +579,7 @@ export default function ReporteEstadisticas() {
                         </div>
                     </div>
                 </div>
-                
+
                 <div className="re-stats-section">
                     <div className="stat-card">
                         <FontAwesomeIcon icon={faGraduationCap} className="stat-icon" />
@@ -611,8 +619,6 @@ export default function ReporteEstadisticas() {
                         placeholder="Buscar cursos, fichas, instructores..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        onFocus={() => setIsSearching(true)}
-                        onBlur={() => setIsSearching(false)}
                     />
                     {searchTerm && (
                         <button
@@ -648,102 +654,108 @@ export default function ReporteEstadisticas() {
             </div>
 
             {mostrarFiltro && (
-                <div className="re-filtro-menu" ref={filtroRef}>
-                    <div className="filtro-header">
-                        <h3><FontAwesomeIcon icon={faFilter} /> Filtros Avanzados</h3>
-                        <button className="filtro-clear-all" onClick={limpiarFiltros}>
-                            Limpiar todo
-                        </button>
-                    </div>
+                <>
+                    <div
+                        className="filtro-overlay active"
+                        onClick={() => setMostrarFiltro(false)}
+                    />
+                    <div className="re-filtro-menu" ref={filtroRef}>
+                        <div className="filtro-header">
+                            <h3><FontAwesomeIcon icon={faFilter} /> Filtros Avanzados</h3>
+                            <button className="filtro-clear-all" onClick={limpiarFiltros}>
+                                Limpiar todo
+                            </button>
+                        </div>
 
-                    <div className="filtro-grid">
-                        <div className="filtro-group">
-                            <label className="filtro-label">
-                                <FontAwesomeIcon icon={faCheckCircle} /> Estado del Curso
-                            </label>
-                            <div className="filtro-options">
-                                {['activo', 'cancelado', 'finalizado', 'pendiente', 'en oferta'].map((estado) => {
-                                    const estadoConfig = getEstadoConfig(estado);
-                                    return (
+                        <div className="filtro-grid">
+                            <div className="filtro-group">
+                                <label className="filtro-label">
+                                    <FontAwesomeIcon icon={faCheckCircle} /> Estado del Curso
+                                </label>
+                                <div className="filtro-options">
+                                    {['activo', 'cancelado', 'finalizado', 'pendiente', 'en oferta'].map((estado) => {
+                                        const estadoConfig = getEstadoConfig(estado);
+                                        return (
+                                            <div
+                                                key={estado}
+                                                className={`filtro-option ${filtros.estado[estado] ? 'selected' : ''}`}
+                                                onClick={() => handleCheckboxChange('estado', estado)}
+                                            >
+                                                <div className="filtro-checkbox">
+                                                    {filtros.estado[estado] && <FontAwesomeIcon icon={faCheckCircle} />}
+                                                </div>
+                                                <FontAwesomeIcon
+                                                    icon={estadoConfig.icon}
+                                                    className="filtro-estado-icon"
+                                                    style={{ color: estadoConfig.color }}
+                                                />
+                                                <span>{estadoConfig.label}</span>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+
+                            <div className="filtro-group">
+                                <label className="filtro-label">
+                                    <FontAwesomeIcon icon={faUsers} /> Cantidad de Empleados
+                                </label>
+                                <div className="filtro-options">
+                                    {['0-10', '11-20', '21-30', '31-40+'].map((rango) => (
                                         <div
-                                            key={estado}
-                                            className={`filtro-option ${filtros.estado[estado] ? 'selected' : ''}`}
-                                            onClick={() => handleCheckboxChange('estado', estado)}
+                                            key={rango}
+                                            className={`filtro-option ${filtros.empleados[rango] ? 'selected' : ''}`}
+                                            onClick={() => handleCheckboxChange('empleados', rango)}
                                         >
                                             <div className="filtro-checkbox">
-                                                {filtros.estado[estado] && <FontAwesomeIcon icon={faCheckCircle} />}
+                                                {filtros.empleados[rango] && <FontAwesomeIcon icon={faCheckCircle} />}
                                             </div>
-                                            <FontAwesomeIcon 
-                                                icon={estadoConfig.icon} 
-                                                className="filtro-estado-icon"
-                                                style={{ color: estadoConfig.color }}
-                                            />
-                                            <span>{estadoConfig.label}</span>
+                                            <span>{rango}</span>
                                         </div>
-                                    );
-                                })}
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div className="filtro-group">
+                                <label className="filtro-label">
+                                    <FontAwesomeIcon icon={faGraduationCap} /> Nombre del Curso
+                                </label>
+                                <input
+                                    type="text"
+                                    className="filtro-input"
+                                    placeholder="Buscar curso..."
+                                    value={filtros.curso}
+                                    onChange={(e) => handleInputChange('curso', e.target.value)}
+                                />
+                            </div>
+
+                            <div className="filtro-group">
+                                <label className="filtro-label">
+                                    <FontAwesomeIcon icon={faChalkboardTeacher} /> Instructor
+                                </label>
+                                <input
+                                    type="text"
+                                    className="filtro-input"
+                                    placeholder="Buscar instructor..."
+                                    value={filtros.instructor}
+                                    onChange={(e) => handleInputChange('instructor', e.target.value)}
+                                />
                             </div>
                         </div>
 
-                        <div className="filtro-group">
-                            <label className="filtro-label">
-                                <FontAwesomeIcon icon={faUsers} /> Cantidad de Empleados
-                            </label>
-                            <div className="filtro-options">
-                                {['0-10', '11-20', '21-30', '31-40+'].map((rango) => (
-                                    <div
-                                        key={rango}
-                                        className={`filtro-option ${filtros.empleados[rango] ? 'selected' : ''}`}
-                                        onClick={() => handleCheckboxChange('empleados', rango)}
-                                    >
-                                        <div className="filtro-checkbox">
-                                            {filtros.empleados[rango] && <FontAwesomeIcon icon={faCheckCircle} />}
-                                        </div>
-                                        <span>{rango}</span>
-                                    </div>
-                                ))}
+                        <div className="filtro-footer">
+                            <div className="filtro-results">
+                                <span className="results-count">{cursosFiltrados?.length || 0}</span>
+                                <span> de {datosCurso?.length || 0} cursos encontrados</span>
                             </div>
-                        </div>
-
-                        <div className="filtro-group">
-                            <label className="filtro-label">
-                                <FontAwesomeIcon icon={faGraduationCap} /> Nombre del Curso
-                            </label>
-                            <input
-                                type="text"
-                                className="filtro-input"
-                                placeholder="Buscar curso..."
-                                value={filtros.curso}
-                                onChange={(e) => handleInputChange('curso', e.target.value)}
-                            />
-                        </div>
-
-                        <div className="filtro-group">
-                            <label className="filtro-label">
-                                <FontAwesomeIcon icon={faChalkboardTeacher} /> Instructor
-                            </label>
-                            <input
-                                type="text"
-                                className="filtro-input"
-                                placeholder="Buscar instructor..."
-                                value={filtros.instructor}
-                                onChange={(e) => handleInputChange('instructor', e.target.value)}
-                            />
+                            {filtrosActivos() > 0 && (
+                                <div className="filtro-active-badge">
+                                    {filtrosActivos()} filtro(s) activo(s)
+                                </div>
+                            )}
                         </div>
                     </div>
-
-                    <div className="filtro-footer">
-                        <div className="filtro-results">
-                            <span className="results-count">{cursosFiltrados?.length || 0}</span>
-                            <span> de {datosCurso?.length || 0} cursos encontrados</span>
-                        </div>
-                        {filtrosActivos() > 0 && (
-                            <div className="filtro-active-badge">
-                                {filtrosActivos()} filtro(s) activo(s)
-                            </div>
-                        )}
-                    </div>
-                </div>
+                </>
             )}
 
             <div className="re-content">
@@ -844,7 +856,7 @@ export default function ReporteEstadisticas() {
                                                     </div>
                                                 </div>
                                                 <div className="re-table-cell" data-label="Estado">
-                                                    <span 
+                                                    <span
                                                         className={`curso-estado ${estadoConfig.className}`}
                                                         style={{ color: estadoConfig.color }}
                                                     >

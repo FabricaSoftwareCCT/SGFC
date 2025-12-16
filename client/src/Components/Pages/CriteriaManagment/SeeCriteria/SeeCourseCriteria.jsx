@@ -677,7 +677,7 @@ export const SeeCourseCriteria = () => {
 											
 											<div className="certification-status-criteria">
 												<div className="status-buttons-criteria">
-													{["aprovado", "pendiente", "rechazado"].map((estado) => {
+													{["aprobado", "pendiente", "rechazado"].map((estado) => {
 														const isSelected = certificationStatus?.toLowerCase() === estado.toLowerCase();
 														const icon = estado === "aprovado" ? faCheckCircle : 
 															estado === "pendiente" ? faClock : 

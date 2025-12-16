@@ -14,6 +14,7 @@ export const Header = ({
 	const [showGestionesMenu, setShowGestionesMenu] = useState(false);
 	const [showEmpleadosMenu, setShowEmpleadosMenu] = useState(false);
 	const [hoverTimeout, setHoverTimeout] = useState(null);
+	const [isMobileView, setIsMobileView] = useState(false);
 
 	const coursesMenuRef = useRef(null);
 	const gestionesMenuRef = useRef(null);
@@ -21,6 +22,20 @@ export const Header = ({
 
 	const navigate = useNavigate();
 	const location = useLocation();
+
+	// Detectar tamaño de pantalla
+	useEffect(() => {
+		const checkMobile = () => {
+			setIsMobileView(window.innerWidth <= 768);
+		};
+
+		checkMobile();
+		window.addEventListener('resize', checkMobile);
+
+		return () => {
+			window.removeEventListener('resize', checkMobile);
+		};
+	}, []);
 
 	const userSession =
 		JSON.parse(localStorage.getItem("userSession")) ||
@@ -55,7 +70,14 @@ export const Header = ({
 	};
 
 	// Cerrar menús al hacer clic fuera
+	// Cerrar menús al hacer clic fuera
+	// Cerrar menús al hacer clic fuera (solo en escritorio)
 	useEffect(() => {
+		// Si es móvil, no usar este listener
+		if (isMobileView) {
+			return;
+		}
+
 		const handleClickOutside = (event) => {
 			if (
 				!coursesMenuRef.current?.contains(event.target) &&
@@ -67,10 +89,11 @@ export const Header = ({
 				setShowEmpleadosMenu(false);
 			}
 		};
+
 		document.addEventListener("mousedown", handleClickOutside);
 		return () =>
 			document.removeEventListener("mousedown", handleClickOutside);
-	}, []);
+	}, [isMobileView]);
 
 	// Limpiar timeout al desmontar
 	useEffect(() => {
@@ -81,7 +104,7 @@ export const Header = ({
 		};
 	}, [hoverTimeout]);
 
-	// Funciones para manejar hover
+	// Funciones para manejar hover (solo escritorio)
 	const handleMouseEnterCourses = () => {
 		if (window.innerWidth >= 769) {
 			if (hoverTimeout) {
@@ -98,7 +121,7 @@ export const Header = ({
 		if (window.innerWidth >= 769) {
 			const timeout = setTimeout(() => {
 				setShowCoursesMenu(false);
-			}, 300); // 300ms de retraso
+			}, 300);
 			setHoverTimeout(timeout);
 		}
 	};
@@ -118,26 +141,6 @@ export const Header = ({
 	const handleMouseLeaveGestiones = () => {
 		if (window.innerWidth >= 769) {
 			const timeout = setTimeout(() => {
-				setShowGestionesMenu(false);
-			}, 300);
-			setHoverTimeout(timeout);
-		}
-	};
-
-	// Función para mantener abierto el dropdown cuando el mouse está sobre él
-	const handleDropdownMouseEnter = () => {
-		if (window.innerWidth >= 769) {
-			if (hoverTimeout) {
-				clearTimeout(hoverTimeout);
-				setHoverTimeout(null);
-			}
-		}
-	};
-
-	const handleDropdownMouseLeave = () => {
-		if (window.innerWidth >= 769) {
-			const timeout = setTimeout(() => {
-				setShowCoursesMenu(false);
 				setShowGestionesMenu(false);
 			}, 300);
 			setHoverTimeout(timeout);
@@ -166,6 +169,80 @@ export const Header = ({
 
 	const showDropdown = (optionsCount) => optionsCount > 1;
 
+	// Función para renderizar opciones del dropdown
+	const renderDropdownOptions = (options) => {
+		if (isMobileView) {
+			// En móvil, usar NavLink que funcionará con react-router
+			return options.map((opt, index) => (
+				<NavLink
+					key={index}
+					to={opt.path}
+					className={({ isActive }) =>
+						isActive
+							? "header-dropdown-link mobile-dropdown-link active"
+							: "header-dropdown-link mobile-dropdown-link"
+					}
+					onClick={() => {
+						setShowCoursesMenu(false);
+						setShowGestionesMenu(false);
+						setShowEmpleadosMenu(false);
+					}}
+					end
+				>
+					{opt.label}
+				</NavLink>
+			));
+		} else {
+			// En escritorio, usar button con onClick
+			return options.map((opt, index) => (
+				<button
+					key={index}
+					className={
+						location.pathname.startsWith(opt.path) ? "active" : ""
+					}
+					onClick={() => handleMenuClick(opt.path)}
+				>
+					{opt.label}
+				</button>
+			));
+		}
+	};
+
+	// Función para renderizar opciones de gestión
+	const renderGestionesOptions = (options) => {
+		if (isMobileView) {
+			return options.map((opt, index) => (
+				<NavLink
+					key={index}
+					to={opt.path}
+					className={({ isActive }) =>
+						isActive
+							? "header-dropdown-link mobile-dropdown-link active"
+							: "header-dropdown-link mobile-dropdown-link"
+					}
+					onClick={() => {
+						setShowGestionesMenu(false);
+					}}
+					end
+				>
+					{opt.label}
+				</NavLink>
+			));
+		} else {
+			return options.map((opt, index) => (
+				<button
+					key={index}
+					className={
+						location.pathname.startsWith(opt.path) ? "active" : ""
+					}
+					onClick={() => handleMenuClick(opt.path)}
+				>
+					{opt.label}
+				</button>
+			));
+		}
+	};
+
 	return (
 		<div className="header-container">
 			<NavBar
@@ -179,6 +256,12 @@ export const Header = ({
 						isActive ? "header-link active" : "header-link"
 					}
 					end
+					onClick={() => {
+						if (isMobileView) {
+							setShowCoursesMenu(false);
+							setShowGestionesMenu(false);
+						}
+					}}
 				>
 					Inicio
 				</NavLink>
@@ -188,6 +271,12 @@ export const Header = ({
 					className={({ isActive }) =>
 						isActive ? "header-link active" : "header-link"
 					}
+					onClick={() => {
+						if (isMobileView) {
+							setShowCoursesMenu(false);
+							setShowGestionesMenu(false);
+						}
+					}}
 				>
 					Quienes somos
 				</NavLink>
@@ -203,6 +292,12 @@ export const Header = ({
 								className={({ isActive }) =>
 									isActive ? "header-link active" : "header-link"
 								}
+								onClick={() => {
+									if (isMobileView) {
+										setShowCoursesMenu(false);
+										setShowGestionesMenu(false);
+									}
+								}}
 							>
 								Cursos
 							</NavLink>
@@ -266,25 +361,13 @@ export const Header = ({
 								onClick={toggleCoursesMenu}
 							>
 								Cursos
-								<span className="dropdown-arrow">▼</span>
+								<span className={`dropdown-arrow ${showCoursesMenu ? "open" : ""}`}>
+									▼
+								</span>
 							</button>
 							{(showCoursesMenu || (window.innerWidth >= 769 && showCoursesMenu)) && (
-								<div
-									className="header-dropdown-content"
-									onMouseEnter={handleDropdownMouseEnter}
-									onMouseLeave={handleDropdownMouseLeave}
-								>
-									{options.map((opt, index) => (
-										<button
-											key={index}
-											className={
-												location.pathname.startsWith(opt.path) ? "active" : ""
-											}
-											onClick={() => handleMenuClick(opt.path)}
-										>
-											{opt.label}
-										</button>
-									))}
+								<div className="header-dropdown-content">
+									{renderDropdownOptions(options)}
 								</div>
 							)}
 						</div>
@@ -294,6 +377,12 @@ export const Header = ({
 							className={({ isActive }) =>
 								isActive ? "header-link active" : "header-link"
 							}
+							onClick={() => {
+								if (isMobileView) {
+									setShowCoursesMenu(false);
+									setShowGestionesMenu(false);
+								}
+							}}
 						>
 							Cursos
 						</NavLink>
@@ -314,78 +403,22 @@ export const Header = ({
 							onClick={toggleGestionesMenu}
 						>
 							Gestiones
-							<span className="dropdown-arrow">▼</span>
+							<span className={`dropdown-arrow ${showGestionesMenu ? "open" : ""}`}>
+								▼
+							</span>
 						</button>
 						{(showGestionesMenu || (window.innerWidth >= 769 && showGestionesMenu)) && (
-							<div
-								className="header-dropdown-content"
-								onMouseEnter={handleDropdownMouseEnter}
-								onMouseLeave={handleDropdownMouseLeave}
-							>
-								<button
-									className={
-										location.pathname.startsWith("/Gestiones/Instructor") ? "active" : ""
-									}
-									onClick={() => handleMenuClick("/Gestiones/Instructor")}
-								>
-									Gestión de Instructores
-								</button>
-								<button
-									className={
-										location.pathname.startsWith("/Gestiones/Gestor") ? "active" : ""
-									}
-									onClick={() => handleMenuClick("/Gestiones/Gestor")}
-								>
-									Gestión de Gestores
-								</button>
-								<button
-									className={
-										location.pathname.startsWith("/Gestiones/Actas") ? "active" : ""
-									}
-									onClick={() => handleMenuClick("/Gestiones/Actas")}
-								>
-									Gestión de Actas
-								</button>
-								<button
-									className={
-										location.pathname.startsWith("/Gestiones/Criterios") ? "active" : ""
-									}
-									onClick={() => handleMenuClick("/Gestiones/Criterios")}
-								>
-									Criterios de certificación
-								</button>
-								<button
-									className={
-										location.pathname.startsWith("/Empleados/MisEmpleados") ? "active" : ""
-									}
-									onClick={() => handleMenuClick("/Empleados/MisEmpleados")}
-								>
-									Gestión de Empleados
-								</button>
-								<button
-									className={
-										location.pathname.startsWith("/Gestiones/Usuarios") ? "active" : ""
-									}
-									onClick={() => handleMenuClick("/Gestiones/Usuarios")}
-								>
-									Gestión de Usuarios
-								</button>
-								<button
-									className={
-										location.pathname.startsWith("/GestionReporteEstadisticas/ReporteEstadisticas") ? "active" : ""
-									}
-									onClick={() => handleMenuClick("/GestionReporteEstadisticas/ReporteEstadisticas")}
-								>
-									Reporte y Estadísticas
-								</button>
-								<button
-									className={
-										location.pathname.startsWith("/reportes/asistencia-progreso") ? "active" : ""
-									}
-									onClick={() => handleMenuClick("/reportes/asistencia-progreso")}
-								>
-									Asistencia y Progreso
-								</button>
+							<div className="header-dropdown-content">
+								{renderGestionesOptions([
+									{ label: "Gestión de Instructores", path: "/Gestiones/Instructor" },
+									{ label: "Gestión de Gestores", path: "/Gestiones/Gestor" },
+									{ label: "Gestión de Actas", path: "/Gestiones/Actas" },
+									{ label: "Criterios de certificación", path: "/Gestiones/Criterios" },
+									{ label: "Gestión de Empleados", path: "/Empleados/MisEmpleados" },
+									{ label: "Gestión de Usuarios", path: "/Gestiones/Usuarios" },
+									{ label: "Reporte y Estadísticas", path: "/GestionReporteEstadisticas/ReporteEstadisticas" },
+									{ label: "Asistencia y Progreso", path: "/reportes/asistencia-progreso" },
+								])}
 							</div>
 						)}
 					</div>
@@ -405,62 +438,20 @@ export const Header = ({
 							onClick={toggleGestionesMenu}
 						>
 							Gestiones
-							<span className="dropdown-arrow">▼</span>
+							<span className={`dropdown-arrow ${showGestionesMenu ? "open" : ""}`}>
+								▼
+							</span>
 						</button>
 						{(showGestionesMenu || (window.innerWidth >= 769 && showGestionesMenu)) && (
-							<div
-								className="header-dropdown-content"
-								onMouseEnter={handleDropdownMouseEnter}
-								onMouseLeave={handleDropdownMouseLeave}
-							>
-								<button
-									className={
-										location.pathname.startsWith("/Gestiones/Instructor") ? "active" : ""
-									}
-									onClick={() => handleMenuClick("/Gestiones/Instructor")}
-								>
-									Gestión de Instructores
-								</button>
-								<button
-									className={
-										location.pathname.startsWith("/Empleados/MisEmpleados") ? "active" : ""
-									}
-									onClick={() => handleMenuClick("/Empleados/MisEmpleados")}
-								>
-									Gestión de Empleados
-								</button>
-								<button
-									className={
-										location.pathname.startsWith("/GestionReporteEstadisticas/ReporteEstadisticas") ? "active" : ""
-									}
-									onClick={() => handleMenuClick("/GestionReporteEstadisticas/ReporteEstadisticas")}
-								>
-									Reporte y Estadísticas
-								</button>
-								<button
-									className={
-										location.pathname.startsWith("/reportes/asistencia-progreso") ? "active" : ""
-									}
-									onClick={() => handleMenuClick("/reportes/asistencia-progreso")}
-								>
-									Asistencia y Progreso
-								</button>
-								<button
-									className={
-										location.pathname.startsWith("/Gestiones/Actas") ? "active" : ""
-									}
-									onClick={() => handleMenuClick("/Gestiones/Actas")}
-								>
-									Gestión de Actas
-								</button>
-								<button
-									className={
-										location.pathname.startsWith("/Gestiones/Criterios") ? "active" : ""
-									}
-									onClick={() => handleMenuClick("/Gestiones/Criterios")}
-								>
-									Criterios de Certificación
-								</button>
+							<div className="header-dropdown-content">
+								{renderGestionesOptions([
+									{ label: "Gestión de Instructores", path: "/Gestiones/Instructor" },
+									{ label: "Gestión de Empleados", path: "/Empleados/MisEmpleados" },
+									{ label: "Reporte y Estadísticas", path: "/GestionReporteEstadisticas/ReporteEstadisticas" },
+									{ label: "Asistencia y Progreso", path: "/reportes/asistencia-progreso" },
+									{ label: "Gestión de Actas", path: "/Gestiones/Actas" },
+									{ label: "Criterios de Certificación", path: "/Gestiones/Criterios" },
+								])}
 							</div>
 						)}
 					</div>
@@ -473,6 +464,12 @@ export const Header = ({
 						className={({ isActive }) =>
 							isActive ? "header-link active" : "header-link"
 						}
+						onClick={() => {
+							if (isMobileView) {
+								setShowCoursesMenu(false);
+								setShowGestionesMenu(false);
+							}
+						}}
 					>
 						Mis Actas
 					</NavLink>
@@ -486,6 +483,12 @@ export const Header = ({
 							className={({ isActive }) =>
 								isActive ? "header-link active" : "header-link"
 							}
+							onClick={() => {
+								if (isMobileView) {
+									setShowCoursesMenu(false);
+									setShowGestionesMenu(false);
+								}
+							}}
 						>
 							Empresas
 						</NavLink>
@@ -494,6 +497,12 @@ export const Header = ({
 							className={({ isActive }) =>
 								isActive ? "header-link active" : "header-link"
 							}
+							onClick={() => {
+								if (isMobileView) {
+									setShowCoursesMenu(false);
+									setShowGestionesMenu(false);
+								}
+							}}
 						>
 							Historial
 						</NavLink>
@@ -507,6 +516,12 @@ export const Header = ({
 						className={({ isActive }) =>
 							isActive ? "header-link active" : "header-link"
 						}
+						onClick={() => {
+							if (isMobileView) {
+								setShowCoursesMenu(false);
+								setShowGestionesMenu(false);
+							}
+						}}
 					>
 						Empleados
 					</NavLink>

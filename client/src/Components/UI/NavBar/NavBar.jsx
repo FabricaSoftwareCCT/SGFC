@@ -20,6 +20,7 @@ import {
 	faSearch,
 	faFilter,
 	faCalendarAlt,
+	faCommentAlt,
 	faFileAlt,
 	faChevronDown,
 	faChevronUp,
@@ -71,8 +72,9 @@ export const NavBar = ({ children, setShowSignIn }) => {
 	const handleProfileClick = () => {
 		if (userSession?.id) {
 			navigate("/MiPerfil", { state: { userId: userSession.id } });
-			setIsMobileMenuOpen(false); // Este sí debe cerrar
+			setIsMobileMenuOpen(false);
 			setShowNotificationsMenu(false);
+			setShowSettingsMenu(false);
 		}
 	};
 
@@ -103,6 +105,8 @@ export const NavBar = ({ children, setShowSignIn }) => {
 			setIsMobileMenuOpen(false)
 		}
 		setIsMobileMenuOpen(false);
+		setShowNotificationsMenu(false);
+		setShowSettingsMenu(false);
 	}
 
 	const handleSignIn = () => {
@@ -112,39 +116,47 @@ export const NavBar = ({ children, setShowSignIn }) => {
 
 	useEffect(() => {
 		const handleClickOutside = (event) => {
-			// En móvil con menú abierto, no cerrar las notificaciones automáticamente
-			if (isMobileView && isMobileMenuOpen && showNotificationsMenu) {
-				// Solo cerrar si se hace clic fuera del contenedor de notificaciones
-				if (notificationsMenuRef.current && !notificationsMenuRef.current.contains(event.target)) {
-					const notificationButton = event.target.closest('.mobile-profile-btn');
-					if (!notificationButton || !notificationButton.querySelector('.fa-bell')) {
-						setShowNotificationsMenu(false);
-					}
-				}
+			// Verificar si el clic fue en el botón hamburguesa
+			const hamburgerBtn = event.target.closest('.hamburger-btn');
+			if (hamburgerBtn) {
+				// El botón ya maneja su propio toggle, no hacer nada aquí
 				return;
 			}
 
-			// Cerrar menú de notificaciones si se hace clic fuera (escritorio)
-			if (!isMobileView && notificationsMenuRef.current && !notificationsMenuRef.current.contains(event.target)) {
-				setShowNotificationsMenu(false);
-			}
-
-			// Cerrar menú de configuración si se hace clic fuera
-			if (settingsMenuRef.current && !settingsMenuRef.current.contains(event.target) &&
-				settingsButtonRef.current && !settingsButtonRef.current.contains(event.target)) {
-				setShowSettingsMenu(false);
-			}
-
-			// Cerrar menú móvil si se hace clic fuera (solo en móvil)
-			if (isMobileView && mobileMenuRef.current && !mobileMenuRef.current.contains(event.target) &&
-				!event.target.classList.contains('hamburger-btn') &&
-				!event.target.closest('.hamburger-btn')) {
+			// En móvil, cerrar menús si se hace clic fuera
+			if (isMobileView && isMobileMenuOpen) {
+				// Verificar si el clic fue dentro del menú móvil
+				if (mobileMenuRef.current && mobileMenuRef.current.contains(event.target)) {
+					return; // No hacer nada si el clic fue dentro del menú móvil
+				}
+				// Si el clic fue fuera del menú móvil, cerrarlo todo
 				setIsMobileMenuOpen(false);
+				setShowNotificationsMenu(false);
+				setShowSettingsMenu(false);
+				return;
+			}
+
+			// Comportamiento para escritorio
+			if (!isMobileView) {
+				// Cerrar menú de notificaciones si se hace clic fuera
+				if (notificationsMenuRef.current && !notificationsMenuRef.current.contains(event.target)) {
+					const notificationButton = event.target.closest('.btn-notifications');
+					if (!notificationButton) {
+						setShowNotificationsMenu(false);
+					}
+				}
+
+				// Cerrar menú de configuración si se hace clic fuera
+				if (settingsMenuRef.current && !settingsMenuRef.current.contains(event.target) &&
+					settingsButtonRef.current && !settingsButtonRef.current.contains(event.target)) {
+					setShowSettingsMenu(false);
+				}
 			}
 		};
+
 		document.addEventListener("mousedown", handleClickOutside);
 		return () => document.removeEventListener("mousedown", handleClickOutside);
-	}, [isMobileView, isMobileMenuOpen, showNotificationsMenu]);
+	}, [isMobileView, isMobileMenuOpen]);
 
 	const fetchNotifications = async () => {
 		if (!isLoggedIn) return
@@ -202,7 +214,7 @@ export const NavBar = ({ children, setShowSignIn }) => {
 				setJustificationDenial("")
 				setActiveNotification(null)
 				setJustifying(false)
-				fetchNotifications() // Refrescar notificaciones
+				fetchNotifications()
 				return
 			} else
 				throw resp.data
@@ -229,7 +241,7 @@ export const NavBar = ({ children, setShowSignIn }) => {
 				navigate("/Cursos/CrearCurso")
 				setShowModalGeneral(false)
 				setProcessingSolicitud(false)
-				fetchNotifications() // Refrescar notificaciones
+				fetchNotifications()
 				return
 			} else
 				throw resp.data
@@ -252,18 +264,31 @@ export const NavBar = ({ children, setShowSignIn }) => {
 		setJustifying(false);
 		setJustificationDenial("");
 		setActiveNotification(null);
-		// NO cerrar menús aquí para móvil
-		// Solo cerrar el modal
 	};
 
 	const handleNotificationClick = (notif) => {
-		setActiveNotification(notif)
+		setActiveNotification(notif);
+		
+		// Cerrar todos los menús antes de abrir el modal
+		if (isMobileView) {
+			// En móvil, mantener el menú hamburguesa abierto pero cerrar submenús
+			setShowNotificationsMenu(false); // Cerrar panel de notificaciones
+			setShowSettingsMenu(false);
+		} else {
+			// En escritorio, cerrar el panel de notificaciones
+			setShowNotificationsMenu(false);
+			setShowSettingsMenu(false);
+		}
+		
 		setModalGeneralContent(
 			<div className="notification-modal-overlay">
 				<div className="notification-modal-container">
 					<div className="notification-modal-header">
 						<div className="notification-header-content">
-							<h2 className="notification-modal-title">{notif.titulo}</h2>
+							<h2 className="notification-modal-title">
+								<FontAwesomeIcon icon={faBell} style={{ color: '#00c853' }} />
+								{notif.titulo}
+							</h2>
 							<button
 								className="notification-close-btn"
 								onClick={handleCloseNotificationModal}
@@ -274,108 +299,168 @@ export const NavBar = ({ children, setShowSignIn }) => {
 					</div>
 
 					<div className="notification-modal-body">
-						<div className="notification-modal-info">
-							<p className="notification-modal-sender">
-								<strong>De:</strong> {notif.remitente?.nombres ? `${notif.remitente.nombres} ${notif.remitente.apellidos}` : "SGFC"}
-							</p>
+						<div className="notification-modal-content">
+							<div className="notification-modal-info">
+								<p className="notification-modal-sender">
+									<FontAwesomeIcon icon={faUser} style={{ marginRight: '0.5rem', color: '#00c853' }} />
+									<strong>De:</strong> {notif.remitente?.nombres ? `${notif.remitente.nombres} ${notif.remitente.apellidos}` : "SGFC"}
+								</p>
 
-							<div className="notification-modal-message-section">
-								<p className="notification-modal-message-label"><strong>Mensaje:</strong></p>
-								<div
-									className="notification-modal-message-content"
-									dangerouslySetInnerHTML={{ __html: notif.mensaje }}
-								/>
-							</div>
-
-							{notif.estadoInvitacion && notif.estadoInvitacion !== 'pendiente' && (
-								<div className="notification-modal-status">
-									<p><strong>Estado:</strong>
-										<span className={`notification-status-${notif.estadoInvitacion}`}>
-											{notif.estadoInvitacion === 'aceptada' ? ' Aceptada' : ' Rechazada'}
-										</span>
+								<div className="notification-modal-message-section">
+									<p className="notification-modal-message-label">
+										<FontAwesomeIcon icon={faCommentAlt} />
+										<strong>Mensaje:</strong>
 									</p>
+									<div
+										className="notification-modal-message-content"
+										dangerouslySetInnerHTML={{ __html: notif.mensaje }}
+									/>
 								</div>
-							)}
 
-							{notif.archivo && (
-								<div className="notification-modal-attachment">
-									<a
-										href={`http://localhost:3001/uploads/solicitudes/${notif.archivo}`}
-										target="_blank"
-										rel="noopener noreferrer"
-										className="notification-attachment-link"
-									>
-										📎 Ver PDF adjunto
-									</a>
-								</div>
-							)}
-						</div>
-
-						{notif.tipo === "invitacion_cursoInstructor" && notif.invitacion_ID && (
-							<div className="notification-modal-actions">
-								<button
-									className={`notification-btn-accept ${notif.estadoInvitacion ? 'disabled' : ''}`}
-									onClick={() => cambiarEstadoInvitacion(notif.invitacion_ID, "aceptada")}
-									disabled={notif.estadoInvitacion || processingInvitation === notif.invitacion_ID}
-								>
-									{processingInvitation === notif.invitacion_ID ? 'Procesando...' :
-										notif.estadoInvitacion === 'aceptada' ? '✓ Aceptada' : 'Aceptar'}
-								</button>
-								<button
-									className={`notification-btn-reject ${notif.estadoInvitacion ? 'disabled' : ''}`}
-									onClick={() => cambiarEstadoInvitacion(notif.invitacion_ID, "rechazada")}
-									disabled={notif.estadoInvitacion || processingInvitation === notif.invitacion_ID}
-								>
-									{processingInvitation === notif.invitacion_ID ? 'Procesando...' :
-										notif.estadoInvitacion === 'rechazada' ? '✗ Rechazada' : 'Rechazar'}
-								</button>
-							</div>
-						)}
-
-						{notif.tipo === "solicitud_curso" && notif.estado !== "leida" && (
-							<div className="notification-modal-actions">
-								{justifying && (
-									<div className="notification-justification-section">
-										<textarea
-											className="notification-justification-textarea"
-											placeholder="Escriba el motivo por el que se rechazó la solicitud"
-											value={justificationDenial}
-											onChange={(e) => setJustificationDenial(e.target.value)}
-											rows="4"
-										/>
+								{notif.estadoInvitacion && notif.estadoInvitacion !== 'pendiente' && (
+									<div className="notification-modal-status">
+										<p>
+											<FontAwesomeIcon icon={faFileAlt} style={{ marginRight: '0.5rem' }} />
+											<strong>Estado:</strong>
+											<span className={`notification-status-${notif.estadoInvitacion}`}>
+												{notif.estadoInvitacion === 'aceptada' ? ' Aceptada' : ' Rechazada'}
+											</span>
+										</p>
 									</div>
 								)}
 
-								<div className="notification-action-buttons">
-									<button
-										className={`notification-btn-accept ${processingSolicitud ? "disabled" : ""}`}
-										onClick={() => aceptarSolicitudCurso(notif)}
-										disabled={processingSolicitud}
-									>
-										{processingSolicitud ? "Procesando..." : "Aceptar"}
-									</button>
-									<button
-										className={`notification-btn-reject ${processingSolicitud ? "disabled" : ""}`}
-										onClick={() => {
-											if (justifying)
-												rechazarSolicitudCurso(notif)
-											else {
-												setJustifying(true)
-											}
-										}}
-										disabled={processingSolicitud}
-									>
-										{processingSolicitud ? "Procesando..." : "Rechazar"}
-									</button>
-								</div>
+								{notif.archivo && (
+									<div className="notification-modal-attachment">
+										<a
+											href={`http://localhost:3001/uploads/solicitudes/${notif.archivo}`}
+											target="_blank"
+											rel="noopener noreferrer"
+											className="notification-attachment-link"
+										>
+											<FontAwesomeIcon icon={faFileAlt} />
+											📎 Ver PDF adjunto
+										</a>
+									</div>
+								)}
 							</div>
-						)}
 
-						{notif.tipo === "solicitud_curso" && notif.estado === "leida" && (
-							<div className="notification-processed-message">
-								<strong>Se ha procesado esta solicitud.</strong>
-							</div>
-						)}
+							{notif.tipo === "invitacion_cursoInstructor" && notif.invitacion_ID && (
+								<div className="notification-modal-actions">
+									<div className="notification-action-buttons">
+										<button
+											className={`notification-btn-accept ${notif.estadoInvitacion ? 'disabled' : ''}`}
+											onClick={() => cambiarEstadoInvitacion(notif.invitacion_ID, "aceptada")}
+											disabled={notif.estadoInvitacion || processingInvitation === notif.invitacion_ID}
+										>
+											{processingInvitation === notif.invitacion_ID ? (
+												<>
+													<FontAwesomeIcon icon={faBell} spin style={{ marginRight: '0.5rem' }} />
+													Procesando...
+												</>
+											) : notif.estadoInvitacion === 'aceptada' ? (
+												<>
+													<FontAwesomeIcon icon={faBell} style={{ marginRight: '0.5rem' }} />
+													✓ Aceptada
+												</>
+											) : (
+												<>
+													<FontAwesomeIcon icon={faBell} style={{ marginRight: '0.5rem' }} />
+													Aceptar
+												</>
+											)}
+										</button>
+										<button
+											className={`notification-btn-reject ${notif.estadoInvitacion ? 'disabled' : ''}`}
+											onClick={() => cambiarEstadoInvitacion(notif.invitacion_ID, "rechazada")}
+											disabled={notif.estadoInvitacion || processingInvitation === notif.invitacion_ID}
+										>
+											{processingInvitation === notif.invitacion_ID ? (
+												<>
+													<FontAwesomeIcon icon={faBell} spin style={{ marginRight: '0.5rem' }} />
+													Procesando...
+												</>
+											) : notif.estadoInvitacion === 'rechazada' ? (
+												<>
+													<FontAwesomeIcon icon={faTimes} style={{ marginRight: '0.5rem' }} />
+													✗ Rechazada
+												</>
+											) : (
+												<>
+													<FontAwesomeIcon icon={faTimes} style={{ marginRight: '0.5rem' }} />
+													Rechazar
+												</>
+											)}
+										</button>
+									</div>
+								</div>
+							)}
+
+							{notif.tipo === "solicitud_curso" && notif.estado !== "leida" && (
+								<div className="notification-modal-actions">
+									{justifying && (
+										<div className="notification-justification-section">
+											<textarea
+												className="notification-justification-textarea"
+												placeholder="Escriba el motivo por el que se rechazó la solicitud"
+												value={justificationDenial}
+												onChange={(e) => setJustificationDenial(e.target.value)}
+												rows="4"
+											/>
+										</div>
+									)}
+
+									<div className="notification-action-buttons">
+										<button
+											className={`notification-btn-accept ${processingSolicitud ? "disabled" : ""}`}
+											onClick={() => aceptarSolicitudCurso(notif)}
+											disabled={processingSolicitud}
+										>
+											{processingSolicitud ? (
+												<>
+													<FontAwesomeIcon icon={faBell} spin style={{ marginRight: '0.5rem' }} />
+													Procesando...
+												</>
+											) : (
+												<>
+													<FontAwesomeIcon icon={faBell} style={{ marginRight: '0.5rem' }} />
+													Aceptar
+												</>
+											)}
+										</button>
+										<button
+											className={`notification-btn-reject ${processingSolicitud ? "disabled" : ""}`}
+											onClick={() => {
+												if (justifying)
+													rechazarSolicitudCurso(notif)
+												else {
+													setJustifying(true)
+												}
+											}}
+											disabled={processingSolicitud}
+										>
+											{processingSolicitud ? (
+												<>
+													<FontAwesomeIcon icon={faBell} spin style={{ marginRight: '0.5rem' }} />
+													Procesando...
+												</>
+											) : (
+												<>
+													<FontAwesomeIcon icon={faTimes} style={{ marginRight: '0.5rem' }} />
+													{justifying ? 'Confirmar Rechazo' : 'Rechazar'}
+												</>
+											)}
+										</button>
+									</div>
+								</div>
+							)}
+
+							{notif.tipo === "solicitud_curso" && notif.estado === "leida" && (
+								<div className="notification-processed-message">
+									<FontAwesomeIcon icon={faFileAlt} style={{ marginRight: '0.5rem' }} />
+									<strong>Se ha procesado esta solicitud.</strong>
+								</div>
+							)}
+						</div>
 					</div>
 
 					<div className="notification-modal-footer">
@@ -391,14 +476,10 @@ export const NavBar = ({ children, setShowSignIn }) => {
 			</div>
 		)
 		setShowModalGeneral(true)
-		if (!isMobileView) {
-			setShowNotificationsMenu(false);
-		}
-		// setShowNotificationsMenu(false)
-		// setIsMobileMenuOpen(false)
 	}
 
 	const handleSearchState = (e) => {
+		e.stopPropagation(); // Prevenir propagación del evento
 		setLoadingNotifications(true);
 		try {
 			const value = e.target.value;
@@ -515,7 +596,7 @@ export const NavBar = ({ children, setShowSignIn }) => {
 			}
 
 			setShowModalGeneral(false)
-			fetchNotifications() // Refrescar notificaciones
+			fetchNotifications()
 		} catch (error) {
 			console.error("Error al cambiar estado de invitación:", error)
 			await Swal.fire({
@@ -531,59 +612,52 @@ export const NavBar = ({ children, setShowSignIn }) => {
 		}
 	}
 
-	const handlePoliticasSeguridad = () => {
+	const handlePoliticasSeguridad = (e) => {
+		if (e) e.stopPropagation(); // Prevenir propagación
 		navigate("/politicas-seguridad");
 		setShowSettingsMenu(false);
-		// NO cerrar el menú móvil inmediatamente en móvil
-		if (!isMobileView) {
-			setIsMobileMenuOpen(false);
-		}
-		// En móvil, esperar un poco para que la navegación se complete
-		if (isMobileView) {
-			setTimeout(() => {
-				setIsMobileMenuOpen(false);
-			}, 100);
-		}
+		setIsMobileMenuOpen(false);
 	};
 
-	const handlePreguntaSeguridad = () => {
+	const handlePreguntaSeguridad = (e) => {
+		if (e) e.stopPropagation(); // Prevenir propagación
 		navigate("/pregunta-seguridad");
 		setShowSettingsMenu(false);
-		// NO cerrar el menú móvil inmediatamente en móvil
-		if (!isMobileView) {
-			setIsMobileMenuOpen(false);
-		}
-		// En móvil, esperar un poco para que la navegación se complete
-		if (isMobileView) {
-			setTimeout(() => {
-				setIsMobileMenuOpen(false);
-			}, 100);
-		}
+		setIsMobileMenuOpen(false);
 	};
 
 	const toggleMobileMenu = () => {
-		setIsMobileMenuOpen(!isMobileMenuOpen)
+		setIsMobileMenuOpen(!isMobileMenuOpen);
+		// Cuando se abre el menú móvil, cerrar otros menús
 		if (!isMobileMenuOpen) {
-			setShowNotificationsMenu(false)
-			setShowSettingsMenu(false)
+			setShowNotificationsMenu(false);
+			setShowSettingsMenu(false);
 		}
-	}
+	};
 
-	const toggleNotificationsMenu = () => {
-		if (isMobileView) {
-			// En móvil, abrir notificaciones dentro del menú
-			setShowNotificationsMenu(!showNotificationsMenu)
-			if (!showNotificationsMenu) {
-				fetchNotifications()
-			}
-		} else {
-			// En escritorio, comportamiento normal
-			setShowNotificationsMenu(!showNotificationsMenu)
-			if (!showNotificationsMenu) {
-				fetchNotifications()
-			}
+	const toggleNotificationsMenu = (e) => {
+		e.stopPropagation(); // Prevenir que el clic cierre el menú móvil
+		const newState = !showNotificationsMenu;
+		setShowNotificationsMenu(newState);
+		
+		if (newState) {
+			fetchNotifications();
 		}
-	}
+		
+		// Cerrar configuración si está abierta
+		if (showSettingsMenu) {
+			setShowSettingsMenu(false);
+		}
+	};
+
+	const toggleSettingsMenu = (e) => {
+		e.stopPropagation(); // Prevenir que el clic cierre el menú móvil
+		setShowSettingsMenu(!showSettingsMenu);
+		// Cerrar notificaciones si están abiertas
+		if (showNotificationsMenu) {
+			setShowNotificationsMenu(false);
+		}
+	};
 
 	return (
 		<div className="navBar">
@@ -617,7 +691,7 @@ export const NavBar = ({ children, setShowSignIn }) => {
 						<div className="settings-menu-mobile">
 							<button
 								className="mobile-profile-btn"
-								onClick={() => setShowSettingsMenu(!showSettingsMenu)}
+								onClick={toggleSettingsMenu}
 							>
 								<FontAwesomeIcon icon={faCog} className="mobile-icon" />
 								<span className="mobile-label">Configuración</span>
@@ -629,28 +703,20 @@ export const NavBar = ({ children, setShowSignIn }) => {
 
 							{showSettingsMenu && (
 								<div className="dropdown-settings-mobile">
-									<NavLink
-										to="/politicas-seguridad"
+									<button
 										className="settings-dropdown-item"
-										onClick={() => {
-											setShowSettingsMenu(false);
-											setIsMobileMenuOpen(false);
-										}}
+										onClick={handlePoliticasSeguridad}
 									>
 										<FontAwesomeIcon icon={faFileAlt} className="settings-icon" />
 										Políticas y seguridad
-									</NavLink>
-									<NavLink
-										to="/pregunta-seguridad"
+									</button>
+									<button
 										className="settings-dropdown-item"
-										onClick={() => {
-											setShowSettingsMenu(false);
-											setIsMobileMenuOpen(false);
-										}}
+										onClick={handlePreguntaSeguridad}
 									>
 										<FontAwesomeIcon icon={faFileAlt} className="settings-icon" />
 										Pregunta de seguridad
-									</NavLink>
+									</button>
 								</div>
 							)}
 						</div>
@@ -670,7 +736,7 @@ export const NavBar = ({ children, setShowSignIn }) => {
 							</button>
 
 							{showNotificationsMenu && (
-								<div className="dropdown-notifications-mobile" ref={notificationsMenuRef}>
+								<div className="dropdown-notifications-mobile" ref={notificationsMenuRef} onClick={(e) => e.stopPropagation()}>
 									<div className="content-SearchNotification">
 										<h2 className="titleNotification">
 											<FontAwesomeIcon icon={faBell} /> Notificaciones
@@ -684,23 +750,24 @@ export const NavBar = ({ children, setShowSignIn }) => {
 													placeholder="Buscar notificaciones por nombre"
 													value={inputElement}
 													onChange={(e) => setInputElement(e.target.value)}
+													onClick={(e) => e.stopPropagation()}
 												/>
 											</div>
 										</div>
 										<div className="content-state">
-											<button className="btnNotificationState" value="All" onClick={(e) => handleSearchState(e)}>
+											<button className="btnNotificationState" value="All" onClick={handleSearchState}>
 												<FontAwesomeIcon icon={faFilter} /> Todos
 											</button>
-											<button className="btnNotificationState" value="enviada" onClick={(e) => handleSearchState(e)}>
+											<button className="btnNotificationState" value="enviada" onClick={handleSearchState}>
 												Enviada
 											</button>
-											<button className="btnNotificationState" value="leida" onClick={(e) => handleSearchState(e)}>
+											<button className="btnNotificationState" value="leida" onClick={handleSearchState}>
 												Leída
 											</button>
-											<button className="btnNotificationState" value="sin_leer" onClick={(e) => handleSearchState(e)}>
+											<button className="btnNotificationState" value="sin_leer" onClick={handleSearchState}>
 												Sin leer
 											</button>
-											<button className="btnNotificationState" value="pendiente" onClick={(e) => handleSearchState(e)}>
+											<button className="btnNotificationState" value="pendiente" onClick={handleSearchState}>
 												Pendiente
 											</button>
 										</div>
@@ -713,14 +780,24 @@ export const NavBar = ({ children, setShowSignIn }) => {
 													<label>Fecha inicio:</label>
 													<div className="date-input-container">
 														<FontAwesomeIcon icon={faCalendarAlt} className="date-icon" />
-														<input type="date" className="notificationsDate" onChange={(e) => setDate(e.target.value)} />
+														<input 
+															type="date" 
+															className="notificationsDate" 
+															onChange={(e) => setDate(e.target.value)}
+															onClick={(e) => e.stopPropagation()}
+														/>
 													</div>
 												</div>
 												<div className="date-input-group">
 													<label>Fecha Fin:</label>
 													<div className="date-input-container">
 														<FontAwesomeIcon icon={faCalendarAlt} className="date-icon" />
-														<input type="date" className="notificationsDate" onChange={(e) => setDateEnd(e.target.value)} />
+														<input 
+															type="date" 
+															className="notificationsDate" 
+															onChange={(e) => setDateEnd(e.target.value)}
+															onClick={(e) => e.stopPropagation()}
+														/>
 													</div>
 												</div>
 											</div>
@@ -737,7 +814,10 @@ export const NavBar = ({ children, setShowSignIn }) => {
 													<div
 														className="SubContentNotif"
 														style={{ cursor: "pointer" }}
-														onClick={() => handleNotificationClick(notif)}
+														onClick={(e) => {
+															e.stopPropagation();
+															handleNotificationClick(notif);
+														}}
 													>
 														<div className="container-img-notifications">
 															<img src={notif.estado === "sin_leer" ? noRead : ifRead} alt="" />
@@ -828,19 +908,19 @@ export const NavBar = ({ children, setShowSignIn }) => {
 											</div>
 										</div>
 										<div className="content-state">
-											<button className="btnNotificationState" value="All" onClick={(e) => handleSearchState(e)}>
+											<button className="btnNotificationState" value="All" onClick={handleSearchState}>
 												<FontAwesomeIcon icon={faFilter} /> Todos
 											</button>
-											<button className="btnNotificationState" value="enviada" onClick={(e) => handleSearchState(e)}>
+											<button className="btnNotificationState" value="enviada" onClick={handleSearchState}>
 												Enviada
 											</button>
-											<button className="btnNotificationState" value="leida" onClick={(e) => handleSearchState(e)}>
+											<button className="btnNotificationState" value="leida" onClick={handleSearchState}>
 												Leída
 											</button>
-											<button className="btnNotificationState" value="sin_leer" onClick={(e) => handleSearchState(e)}>
+											<button className="btnNotificationState" value="sin_leer" onClick={handleSearchState}>
 												Sin leer
 											</button>
-											<button className="btnNotificationState" value="pendiente" onClick={(e) => handleSearchState(e)}>
+											<button className="btnNotificationState" value="pendiente" onClick={handleSearchState}>
 												Pendiente
 											</button>
 										</div>

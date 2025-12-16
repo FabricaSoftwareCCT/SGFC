@@ -44,19 +44,22 @@ export const Header = ({
 	const isLoggedIn = !!userSession;
 	const accountType = userSession?.accountType || null;
 
-	const toggleCoursesMenu = () => {
+	const toggleCoursesMenu = (e) => {
+		if (e) e.stopPropagation();
 		setShowGestionesMenu(false);
 		setShowEmpleadosMenu(false);
 		setShowCoursesMenu((prev) => !prev);
 	};
 
-	const toggleGestionesMenu = () => {
+	const toggleGestionesMenu = (e) => {
+		if (e) e.stopPropagation();
 		setShowCoursesMenu(false);
 		setShowEmpleadosMenu(false);
 		setShowGestionesMenu((prev) => !prev);
 	};
 
-	const toggleEmpleadosMenu = () => {
+	const toggleEmpleadosMenu = (e) => {
+		if (e) e.stopPropagation();
 		setShowCoursesMenu(false);
 		setShowGestionesMenu(false);
 		setShowEmpleadosMenu((prev) => !prev);
@@ -69,8 +72,6 @@ export const Header = ({
 		setShowEmpleadosMenu(false);
 	};
 
-	// Cerrar menús al hacer clic fuera
-	// Cerrar menús al hacer clic fuera
 	// Cerrar menús al hacer clic fuera (solo en escritorio)
 	useEffect(() => {
 		// Si es móvil, no usar este listener
@@ -182,7 +183,8 @@ export const Header = ({
 							? "header-dropdown-link mobile-dropdown-link active"
 							: "header-dropdown-link mobile-dropdown-link"
 					}
-					onClick={() => {
+					onClick={(e) => {
+						e.stopPropagation();
 						setShowCoursesMenu(false);
 						setShowGestionesMenu(false);
 						setShowEmpleadosMenu(false);
@@ -220,7 +222,8 @@ export const Header = ({
 							? "header-dropdown-link mobile-dropdown-link active"
 							: "header-dropdown-link mobile-dropdown-link"
 					}
-					onClick={() => {
+					onClick={(e) => {
+						e.stopPropagation();
 						setShowGestionesMenu(false);
 					}}
 					end
@@ -306,8 +309,7 @@ export const Header = ({
 
 					switch (accountType) {
 						case "Administrador":
-							options = [
-								{ label: "Mis cursos", path: "/Cursos/MisCursos" },
+							options = [								
 								{ label: "Buscar cursos", path: "/Cursos/BuscarCursos" },
 								{ label: "Crear curso", path: "/Cursos/CrearCurso" },
 								{ label: "Material de Apoyo", path: "/SupportMaterial" },
@@ -322,8 +324,7 @@ export const Header = ({
 							];
 							break;
 						case "Gestor":
-							options = [
-								{ label: "Mis cursos", path: "/Cursos/MisCursos" },
+							options = [								
 								{ label: "Buscar cursos", path: "/Cursos/BuscarCursos" },
 								{ label: "Crear curso", path: "/Cursos/CrearCurso" },
 								{ label: "Material de Apoyo", path: "/SupportMaterial" },
@@ -354,6 +355,7 @@ export const Header = ({
 							ref={coursesMenuRef}
 							onMouseEnter={handleMouseEnterCourses}
 							onMouseLeave={handleMouseLeaveCourses}
+							onClick={(e) => e.stopPropagation()}
 						>
 							<button
 								className={`header-dropdown-button${showCoursesMenu || isCoursesActive ? " active" : ""
@@ -366,7 +368,7 @@ export const Header = ({
 								</span>
 							</button>
 							{(showCoursesMenu || (window.innerWidth >= 769 && showCoursesMenu)) && (
-								<div className="header-dropdown-content">
+								<div className="header-dropdown-content" onClick={(e) => e.stopPropagation()}>
 									{renderDropdownOptions(options)}
 								</div>
 							)}
@@ -396,6 +398,7 @@ export const Header = ({
 						ref={gestionesMenuRef}
 						onMouseEnter={handleMouseEnterGestiones}
 						onMouseLeave={handleMouseLeaveGestiones}
+						onClick={(e) => e.stopPropagation()}
 					>
 						<button
 							className={`header-dropdown-button${showGestionesMenu || isGestionesActive ? " active" : ""
@@ -408,7 +411,7 @@ export const Header = ({
 							</span>
 						</button>
 						{(showGestionesMenu || (window.innerWidth >= 769 && showGestionesMenu)) && (
-							<div className="header-dropdown-content">
+							<div className="header-dropdown-content" onClick={(e) => e.stopPropagation()}>
 								{renderGestionesOptions([
 									{ label: "Gestión de Instructores", path: "/Gestiones/Instructor" },
 									{ label: "Gestión de Gestores", path: "/Gestiones/Gestor" },
@@ -431,6 +434,7 @@ export const Header = ({
 						ref={gestionesMenuRef}
 						onMouseEnter={handleMouseEnterGestiones}
 						onMouseLeave={handleMouseLeaveGestiones}
+						onClick={(e) => e.stopPropagation()}
 					>
 						<button
 							className={`header-dropdown-button${showGestionesMenu || isGestionesActive ? " active" : ""
@@ -443,7 +447,7 @@ export const Header = ({
 							</span>
 						</button>
 						{(showGestionesMenu || (window.innerWidth >= 769 && showGestionesMenu)) && (
-							<div className="header-dropdown-content">
+							<div className="header-dropdown-content" onClick={(e) => e.stopPropagation()}>
 								{renderGestionesOptions([
 									{ label: "Gestión de Instructores", path: "/Gestiones/Instructor" },
 									{ label: "Gestión de Empleados", path: "/Empleados/MisEmpleados" },

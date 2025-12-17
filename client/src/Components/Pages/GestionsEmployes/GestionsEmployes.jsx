@@ -8,22 +8,20 @@ import { Main } from "../../../Components/Layouts/Main/Main"
 import { UpdateEmploye } from "./UpdateEmploye/UpdateEmploye"
 import axiosInstance from "../../../config/axiosInstance"
 import { useModal } from "../../../Context/ModalContext"
+import { InscribeEmployes } from "../GestionsEmployes/InscribeEmployes/InscribeEmployes"
 import Swal from 'sweetalert2'
 import 'sweetalert2/themes/bulma.css'
-import { getEmployeebyCompany } from "../../API/ApiEmpresa"
 import { ReportEmployee } from "./ReportEmployee/ReportEmployee"
 import { generarExcelEmpleado } from "../../../utils/Reports/Empleados"
 import html2pdf from "html2pdf.js"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { 
     faUserPlus, 
-    faChartLine, 
     faCheck, 
     faUsers, 
     faSearch, 
     faFolderOpen, 
     faIdCard, 
-    faPhone, 
     faEnvelope, 
     faBuilding, 
     faFileAlt, 
@@ -59,7 +57,6 @@ export const GestionsEmployes = () => {
     const [reportType, setReportType] = useState("pdf")
     const [generating, setGenerating] = useState(false)
     const [doneGenerating, setDoneGenerating] = useState(false)
-    const [reportContent, setReportContent] = useState(false)
     const [showFilters, setShowFilters] = useState(false)
     const [filters, setFilters] = useState({
         personalData: true,
@@ -207,35 +204,17 @@ export const GestionsEmployes = () => {
             return estado === selectedState
         })
 
-    setFilteredEmployes(filteredByState)
-    setCurrent(0)
-  }
-
-  //Solicitar empleados por empresa //Se requiere un promise para retrasear la respuesta
-  // del usuario y lograr que se mande la peticion correctamente
-const fetchEmployebyCompany = async (value) => {
-    try {
-        if (value.trim() === "") {
-        const response = await getEmployeebyCompany(value)
-        console.log("Respuesta de la API para empleados por empresa:", response);
-        const employee = response.data.User || []
-        setFilteredEmployes(employee);
-        }else {
-        setFilteredEmployes(employes);
-        }
-    }catch(err){
-      console.log(err)
+        setFilteredEmployes(filteredByState)
+        setTotalItems(filteredByState.length)
     }
-}
 
     const handleFilterChange = (e) => {
         setFilter(e.target.value)
     }
 
-	const handleEmpresaChange = (e) => {
-		setSelectedEmpresa(e.target.value)
-    fetchEmployebyCompany(selectedEmpresa)
-	}
+    const handleEmpresaChange = (e) => {
+        setSelectedEmpresa(e.target.value)
+    }
 
     const handleTipoDocumentoChange = (e) => {
         setSelectedTipoDocumento(e.target.value)

@@ -15,28 +15,7 @@ import { ReportEmployee } from "./ReportEmployee/ReportEmployee"
 import { generarExcelEmpleado } from "../../../utils/Reports/Empleados"
 import html2pdf from "html2pdf.js"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { 
-    faUserPlus, 
-    faCheck, 
-    faUsers, 
-    faSearch, 
-    faFolderOpen, 
-    faIdCard, 
-    faEnvelope, 
-    faBuilding, 
-    faFileAlt, 
-    faFilter, 
-    faDownload,
-    faTimes,
-    faFilePdf,
-    faFileExcel,
-    faArrowLeft,
-    faSpinner,
-    faChevronLeft,
-    faChevronRight,
-    faEye,
-    faFileExport
-} from '@fortawesome/free-solid-svg-icons'
+import { faUserPlus, faCheck, faUsers, faSearch, faFolderOpen, faIdCard, faEnvelope, faBuilding, faFileAlt, faFilter, faDownload,faTimes,faFilePdf,faFileExcel,faArrowLeft,faSpinner,faChevronLeft,faChevronRight,faEye,faFileExport} from '@fortawesome/free-solid-svg-icons'
 
 export const GestionsEmployes = () => {
     const [employes, setEmployes] = useState([])

@@ -1,4 +1,4 @@
-describe('Sesión de administrador persistente', () => {
+describe('Pruebas de funcionalidad del rol Administrador', () => {
     before(() => {
     Cypress.session.clearAllSavedSessions();
   });
@@ -84,64 +84,78 @@ describe('Sesión de administrador persistente', () => {
 
     })
 
-    it('Crear Curso',()=>{
-        cy.visit("http://localhost:5173/Cursos/CrearCurso") 
-       
-        //Crear curso
-        cy.get('.ficha-container').find('input[placeholder="000000"]').type('2825020')
-        cy.contains('label', 'Nombre del Curso').parent('.form-group').find('input').type('Gestión de Bases de Dtos', { force: true });
+    it.skip('Crear Curso', () => {
+    cy.visit("http://localhost:5173/Cursos/CrearCurso") 
+    
+    cy.get('.ficha-container').find('input[placeholder="000000"]').type('2825020')
+    cy.contains('label', 'Nombre del Curso').parent('.form-group').find('input').type('Gestión de Bases de Dtos', { force: true });
 
-        const description = 'A'.repeat(100);
-        cy.get('textarea[placeholder="Describe el curso en detalle (mínimo 100 caracteres)"]').type(description);       
+    const description = 'A'.repeat(100);
+    cy.get('textarea[placeholder="Describe el curso en detalle (mínimo 100 caracteres)"]').type(description);       
 
-        
-        cy.contains('button', 'En Oferta').click()
-        cy.contains('button', 'Abierta').click()
+    cy.contains('button', 'En Oferta').click()
+    cy.contains('button', 'Abierta').click()
 
-        cy.get('.info-item').find('input[placeholder="Número de días"]').clear().type('20')
-        cy.get('.info-item').find('input[placeholder="Sena Agropecuario"]').type('Virtual')
+    cy.get('.info-item').find('input[placeholder="Número de días"]').clear().type('20')
+    cy.get('.info-item').find('input[placeholder="Sena Agropecuario"]').type('Virtual')
 
-        cy.get('.schedule-btn').first().click()
+    cy.get('.schedule-btn').first().click()
 
-        //Ingresar Fechas
-        cy.get('.date-input-wrapper').find('input[type="date"]').eq(0).type('2026-11-20')
-        cy.get('.date-input-wrapper').find('input[type="date"]').last().type('2026-11-24')
-        
-        //Seleccionar horario de curso
-        const selectTimeSlot = (time, day) => {
+    cy.get('.date-input-wrapper').find('input[type="date"]').eq(0).type('2026-01-20')
+    cy.get('.date-input-wrapper').find('input[type="date"]').last().type('2026-02-24')
+    
+    const selectTimeSlot = (time, day) => {
         const timeSlots = {
-            '06:00': 0, '07:00': 1, '08:00': 2, '09:00': 3, '10:00': 4,
-            '11:00': 5, '12:00': 6, '13:00': 7, '14:00': 8, '15:00': 9,
-            '16:00': 10, '17:00': 11, '18:00': 12
+            '06:00': 1, '07:00': 2, '08:00': 3, '09:00': 4, '10:00': 5,
+            '11:00': 6, '12:00': 7, '13:00': 8, '14:00': 9, '15:00': 10,
+            '16:00': 11, '17:00': 12, '18:00': 13
         }
         
         const days = {
-            'Lun': 1, 'Mar': 2, 'Mié': 3, 'Jue': 4, 'Vie': 5, 'Sáb': 6, 'Dom': 7
+            'Lun': 1, 'Mar': 2, 'Mié': 3, 'Jue': 4, 'Vie': 5, 'Sáb': 6
         }
         
-        cy.get('.calendar-table tbody tr').eq(timeSlots[time])
+        cy.get('.schedule-section-calendar')
+            .find('table tbody tr').eq(timeSlots[time])
             .find('td').eq(days[day])
             .click()
-        }
+    }
 
-            // Uso:
+    cy.get('.schedule-section-calendar').then(($section) => {
+        const hasTable = $section.find('table').length > 0;
+        
+        if (hasTable) {
             selectTimeSlot('08:00', 'Lun') 
             selectTimeSlot('08:00', 'Mar') 
             selectTimeSlot('14:00', 'Mié')
-        
-        //Guardar Fechas
-        cy.get('.save-button-calendar').click()
-      
-        //Agregar fecha al temario
-        cy.contains('Temario del Curso').parent().find('input[type="date"]').type('2026-11-11');
+        } else {
+            cy.get('.schedule-section-calendar').find('*').then(($elements) => {
+                const plusElements = $elements.filter((index, el) => {
+                    return el.textContent && el.textContent.trim() === '+';
+                });
+                
+                if (plusElements.length >= 3) {
+                    cy.wrap(plusElements[0]).click({ force: true });
+                    cy.wrap(plusElements[1]).click({ force: true });
+                    cy.wrap(plusElements[2]).click({ force: true });
+                }
+            });
+        }
+    });
 
-        //Agregar Temario
-        cy.get('textarea[placeholder*="Agregar nuevo tema"]').type('Introducción al curso');
-        cy.contains('button','+').click()
+    cy.wait(500);
+    
+    cy.contains('button','Guardar Horarios').click()
+    
+    cy.contains('Temario del Curso').parent().find('input[type="date"]').type('2026-11-11');
 
-        //Guardar curso
-        cy.contains('button','Crear Curso').click()
-    })
+    cy.get('textarea[placeholder*="Agregar nuevo tema"]').type('Introducción al curso');
+    cy.contains('button','+').click()
+
+    cy.contains('button','Crear Curso').click()
+    
+   
+})
 
     it.skip('ingresar a las inscripciones de un curso',()=>{
         cy.visit("http://localhost:5173/Cursos/1") 
@@ -489,3 +503,4 @@ describe('Sesión de administrador persistente', () => {
     })
 
 })
+

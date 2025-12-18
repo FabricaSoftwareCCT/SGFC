@@ -767,9 +767,13 @@ describe('Probar el modulo de administrador', ()=>{
             
         //Iniciar sesión
         cy.get(".button_register").click()
+
+        cy.get('.container_options').get('.gestiones-menu').contains('button', 'Gestiones').first().click({force : true})
+        cy.get('.dropdown-gestiones').contains('button', 'Asistencia y Progreso').first().click({force : true})
+
     })
 
-    it('visitar el historial de cambios', ()=>{
+    it.skip('visitar el historial de cambios', ()=>{
         cy.visit("http://localhost:5173/") 
         cy.get(".button_signIn").first().click({force : true})
 

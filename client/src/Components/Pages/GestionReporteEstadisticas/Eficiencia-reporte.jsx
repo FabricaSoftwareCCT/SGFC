@@ -6,6 +6,16 @@ import axiosInstance from '../../../config/axiosInstance';
 import { generarExcelEficiencia } from '../../../utils/Reports/Eficiencia';
 import { FormatEfficiency } from './FormatEfficiency/FormatEfficiency';
 import html2pdf from "html2pdf.js";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+    faFileExport,
+    faTimesCircle,
+    faFilePdf,
+    faFileExcel,
+    faArrowLeft,
+    faDownload,
+    faSpinner
+} from '@fortawesome/free-solid-svg-icons';
 
 export default function EficienciaReporte({ cursoSeleccionado, onVolver }) {
 	const [mostrarFiltro, setMostrarFiltro] = useState(false);
@@ -40,10 +50,10 @@ export default function EficienciaReporte({ cursoSeleccionado, onVolver }) {
 				const estadoCurso = (await axiosInstance.get(`/api/certification/course/${cursoSeleccionado.id}/aprendiz/${a.ID}`))?.data
 				aprendicesData.push(
 					{
-						nombre: a.nombres, 
-						apellido: a.apellidos, 
-						documento: a.documento, 
-						estado: a.estado, 
+						nombre: a.nombres,
+						apellido: a.apellidos,
+						documento: a.documento,
+						estado: a.estado,
 						faltantes: estadoCurso.total_activities - estadoCurso.submitted_activities,
 						realizadas: estadoCurso.submitted_activities,
 						eficiencia: `${parseInt((estadoCurso.submitted_activities * 100) / estadoCurso.total_activities)}%`
@@ -113,7 +123,7 @@ export default function EficienciaReporte({ cursoSeleccionado, onVolver }) {
 				const estadosSeleccionados = [];
 				if (filtros.estado.activo) estadosSeleccionados.push('activo');
 				if (filtros.estado.inactivo) estadosSeleccionados.push('inactivo');
-				
+
 				if (estadosSeleccionados.length > 0 && !estadosSeleccionados.includes(estudiante.estado.toLowerCase())) {
 					return false;
 				}
@@ -204,16 +214,16 @@ export default function EficienciaReporte({ cursoSeleccionado, onVolver }) {
 					html: `Reporte de eficiencia generado exitosamente<br><strong>Total de estudiantes: ${datosReporte.length}</strong>`,
 					confirmButtonText: 'Aceptar',
 					confirmButtonColor: '#049019',
-					theme:"bulma",
+					theme: "bulma",
 					customClass: { confirmButton: 'centered-swal-button' }
 				});
 			}
 		} catch (error) {
 			console.log(error)
 			Swal.fire({
-				icon:"error",
-				title:"Error al generar el reporte",
-				text:"Ocurrió un error al generar el reporte, intentelo otra vez",
+				icon: "error",
+				title: "Error al generar el reporte",
+				text: "Ocurrió un error al generar el reporte, intentelo otra vez",
 			})
 			setDoneGenerating(false)
 			setGenerating(false)
@@ -243,7 +253,7 @@ export default function EficienciaReporte({ cursoSeleccionado, onVolver }) {
 		<div className="reporte-container-eficiencia">
 			{/* Contenedor para título y botones de volver */}
 			<div className="titulo-container-eficiencia">
-				<button 
+				<button
 					className="button-volver-eficiencia"
 					onClick={onVolver}
 				>
@@ -253,27 +263,27 @@ export default function EficienciaReporte({ cursoSeleccionado, onVolver }) {
 					Eficiencia - {cursoSeleccionado?.curso || "Curso Seleccionado"}
 				</h1>
 			</div>
-			
+
 			<div className='container-tabla-eficiencia'>
 				<button className="button-generar-reporte-eficiencia" onClick={() => setShowReportOptions(true)}>
 					Generar reporte
 				</button>
-				
-				<button 
-					className='button-filtro-reporte-eficiencia' 
+
+				<button
+					className='button-filtro-reporte-eficiencia'
 					onClick={toggleFiltro}
 				>
 					Filtro {filtrosActivos() > 0 && `(${filtrosActivos()})`}
 				</button>
-				
+
 				{mostrarFiltro && (
 					// AGREGAR LA REFERENCIA AL MENÚ DE FILTRO
 					<div className="filtro-menu-eficiencia" ref={filtroRef}>
 						{/* Filtro por Nombre */}
 						<div className="filtro-grupo-eficiencia">
 							<div className="filtro-titulo-eficiencia">Nombres</div>
-							<input 
-								type="text" 
+							<input
+								type="text"
 								className="filtro-input-eficiencia"
 								placeholder="Buscar por nombre..."
 								value={filtros.nombre}
@@ -284,8 +294,8 @@ export default function EficienciaReporte({ cursoSeleccionado, onVolver }) {
 						{/* Filtro por Apellido */}
 						<div className="filtro-grupo-eficiencia">
 							<div className="filtro-titulo-eficiencia">Apellidos</div>
-							<input 
-								type="text" 
+							<input
+								type="text"
 								className="filtro-input-eficiencia"
 								placeholder="Buscar por apellido..."
 								value={filtros.apellido}
@@ -296,8 +306,8 @@ export default function EficienciaReporte({ cursoSeleccionado, onVolver }) {
 						{/* Filtro por Documento */}
 						<div className="filtro-grupo-eficiencia">
 							<div className="filtro-titulo-eficiencia">Documentos</div>
-							<input 
-								type="text" 
+							<input
+								type="text"
 								className="filtro-input-eficiencia"
 								placeholder="Buscar por documento..."
 								value={filtros.documento}
@@ -309,14 +319,14 @@ export default function EficienciaReporte({ cursoSeleccionado, onVolver }) {
 						<div className="filtro-grupo-eficiencia">
 							<div className="filtro-titulo-eficiencia">Estados</div>
 							<div className="filtro-opciones-eficiencia">
-								<div 
+								<div
 									className="filtro-opcion-eficiencia"
 									onClick={() => handleCheckboxChange('estado', 'activo')}
 								>
 									<div className={`filtro-checkbox-eficiencia ${filtros.estado.activo ? 'checked' : ''}`}></div>
 									<span>Activo</span>
 								</div>
-								<div 
+								<div
 									className="filtro-opcion-eficiencia"
 									onClick={() => handleCheckboxChange('estado', 'inactivo')}
 								>
@@ -330,13 +340,13 @@ export default function EficienciaReporte({ cursoSeleccionado, onVolver }) {
 						<div className="filtro-grupo-eficiencia">
 							<div className="filtro-titulo-eficiencia">Filtrar por:</div>
 							<div className="filtro-botones-pequenos-eficiencia">
-								<button 
+								<button
 									className={`filtro-boton-pequeno-eficiencia ${filtros.tipoFiltro === 'faltantes' ? 'activo' : ''}`}
 									onClick={() => seleccionarTipoFiltro('faltantes')}
 								>
 									Actividades Faltantes
 								</button>
-								<button 
+								<button
 									className={`filtro-boton-pequeno-eficiencia ${filtros.tipoFiltro === 'realizadas' ? 'activo' : ''}`}
 									onClick={() => seleccionarTipoFiltro('realizadas')}
 								>
@@ -351,8 +361,8 @@ export default function EficienciaReporte({ cursoSeleccionado, onVolver }) {
 								<div className="filtro-titulo-eficiencia">
 									{filtros.tipoFiltro === 'faltantes' ? 'Actividades Faltantes' : 'Actividades Realizadas'}
 								</div>
-								<input 
-									type="number" 
+								<input
+									type="number"
 									className="filtro-input-eficiencia"
 									placeholder={`Ingrese número de ${filtros.tipoFiltro === 'faltantes' ? 'actividades faltantes' : 'actividades realizadas'}`}
 									value={filtros.valor}
@@ -412,96 +422,114 @@ export default function EficienciaReporte({ cursoSeleccionado, onVolver }) {
 			</div>
 			{showReportOptions && (
 				<div className="modal-overlay">
-					<div
-						className="modal-background"
-						style={{
-							height: "fit-content",
-							paddingBottom: "20px",
-							width: "35%",
-						}}
-					>
-						<div className="container_return_EditCalendar">
-							<h5
-								onClick={() =>
-									setShowReportOptions(false)
-								}
-								style={{ cursor: "pointer" }}
-							>
-								Volver
-							</h5>
+					<div className="modal-background-a">
+						<div className="modal-header-container">
+							<div className="modal-header-content">
+								<FontAwesomeIcon icon={faFileExport} className="modal-header-icon" />
+								<div>
+									<h2 className="modal-title">Tipo de reporte</h2>
+									<p className="modal-subtitle">Selecciona el formato del reporte</p>
+								</div>
+							</div>
 							<button
-								onClick={() =>
-									setShowReportOptions(false)
-								}
-								className="closeModal"
-							></button>
-						</div>
-						<h2 className="modal-title-edit-calendar">
-							Tipo de reporte
-						</h2>
-						<div
-							className="statusButtons"
-							style={{
-								width: "90%",
-							}}
-						>
-							<button
-								className={`status-btn ${
-									reportType == "pdf" && "selected"
-								}`}
-								onClick={() => setReportType("pdf")}
+								onClick={() => setShowReportOptions(false)}
+								className="modal-close-btn"
+								aria-label="Cerrar modal"
+								disabled={generating}
 							>
-								PDF
-							</button>
-							<button
-								className={`status-btn ${
-									reportType == "excel" && "selected"
-								}`}
-								onClick={() => setReportType("excel")}
-							>
-								Excel
+								<FontAwesomeIcon icon={faTimesCircle} />
 							</button>
 						</div>
-						{reportType === "excel" ?
-							<button
-								className="button"
-								style={{
-									marginTop: "20px",
-								}}
-								onClick={() => generarExcelEficiencia(estudiantesFiltrados, () => setShowReportOptions(false))}
-							>Descargar reporte</button>
-						:
-							<>
+
+						<div className="modal-body">
+							<div className="report-type-selector">
 								<button
-									className="button"
-									style={{
-										marginTop: "20px",
+									className={`report-type-btn ${reportType === "pdf" ? "selected" : ""}`}
+									onClick={() => setReportType("pdf")}
+									disabled={generating}
+								>
+									<div className="report-type-icon-wrapper">
+										<FontAwesomeIcon icon={faFilePdf} className="report-type-icon" />
+									</div>
+									<div className="report-type-info">
+										<h4 className="report-type-title">PDF</h4>
+										<p className="report-type-desc">Formato óptimo para impresión</p>
+									</div>
+								</button>
+
+								<button
+									className={`report-type-btn ${reportType === "excel" ? "selected" : ""}`}
+									onClick={() => setReportType("excel")}
+									disabled={generating}
+								>
+									<div className="report-type-icon-wrapper">
+										<FontAwesomeIcon icon={faFileExcel} className="report-type-icon" />
+									</div>
+									<div className="report-type-info">
+										<h4 className="report-type-title">Excel</h4>
+										<p className="report-type-desc">Formato para análisis de datos</p>
+									</div>
+								</button>
+							</div>
+
+							<div className="modal-actions">
+								<button
+									className="modal-btn modal-btn-secondary"
+									onClick={() => setShowReportOptions(false)}
+									disabled={generating}
+								>
+									<FontAwesomeIcon icon={faArrowLeft} />
+									<span>Cancelar</span>
+								</button>
+
+								<button
+									className="modal-btn modal-btn-primary"
+									onClick={() => {
+										if (reportType === "excel") {
+											generarExcelEficiencia(estudiantesFiltrados, () => setShowReportOptions(false));
+										} else {
+											setGenerating(true);
+										}
 									}}
-									onClick={() => setGenerating(true)}
-								>Generar reporte</button>
-								{generating &&
+									disabled={generating || (reportType === "pdf" && doneGenerating)}
+								>
+									{generating && reportType === "pdf" ? (
+										<>
+											<FontAwesomeIcon icon={faSpinner} className="spinner" />
+											<span>Generando...</span>
+										</>
+									) : reportType === "pdf" && doneGenerating ? (
+										<a
+											href={reportContent}
+											target="_blank"
+											rel="noopener noreferrer"
+											className="download-link"
+											onClick={(e) => e.stopPropagation()}
+										>
+											<FontAwesomeIcon icon={faDownload} />
+											<span>Descargar PDF</span>
+										</a>
+									) : (
+										<>
+											<FontAwesomeIcon icon={faDownload} />
+											<span>Generar Reporte</span>
+										</>
+									)}
+								</button>
+							</div>
+
+							{generating && reportType === "pdf" && (
+								<div className="pdf-generating-container">
 									<FormatEfficiency
 										contentKey={pdfContent}
 										aprendices={estudiantesFiltrados}
 										done={() => {
-											generarReporte()
+											generarReporte();
 										}}
 									/>
-								}
-							</>
-						}
-						{doneGenerating && reportType === "pdf" && (
-							<a
-								className="button"
-								href={reportContent}
-								target="_blank"
-								rel="noopener noreferrer"
-								style={{
-									marginTop: "20px",
-									textDecoration: "none"
-								}}
-							>Descargar</a>
-						)}
+								</div>
+							)}
+						</div>
 					</div>
 				</div>
 			)}

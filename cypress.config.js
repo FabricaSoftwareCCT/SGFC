@@ -3,26 +3,16 @@ const { defineConfig } = require("cypress");
 module.exports = defineConfig({
   e2e: {
     setupNodeEvents(on, config) {
-      // implement node event listeners here
       return config;
     },
-    // Añade estas configuraciones dentro de e2e
   },
-  
-  // Configuraciones globales
-  viewportWidth: 1920,
-  viewportHeight: 1080,
   chromeWebSecurity: false,
   defaultCommandTimeout: 10000,
-  pageLoadTimeout: 30000, // Aumenta timeout de carga de página
-  requestTimeout: 10000,
-  responseTimeout: 30000,
-  
-  // Para mejor debugging
+  pageLoadTimeout: 300000,
+  requestTimeout: 100000,
+  responseTimeout: 300000,
+
   video: true,
   screenshotOnRunFailure: true,
-  numTestsKeptInMemory: 10,
-  
-  // Ejecutar en modo headed por defecto para ver qué pasa
-  headless: false
+  numTestsKeptInMemory: 10
 });

@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useRef, useState } from "react"
 import { Header } from "../../Layouts/Header/Header"
 import { Main } from "../../Layouts/Main/Main"
 import "./GestionUsuarios.css"
@@ -12,6 +12,7 @@ import { faArrowLeft, faUser, faIdCard, faPhone, faEnvelope, faCamera, faBuildin
 import fotoPerfilDefect from "../../../assets/Icons/userDefect.png"
 import Swal from 'sweetalert2';
 import 'sweetalert2/themes/bulma.css'
+import debounce from "lodash.debounce"
 
 export const GestionUsuarios = () => {
 	const navigate = useNavigate()
@@ -27,9 +28,35 @@ export const GestionUsuarios = () => {
 	const [selectedUser, setSelectedUser] = useState(null)
 	const [isEditing, setIsEditing] = useState(false)
 	const [formData, setFormData] = useState(null)
+	const [empresaNIT, setEmpresaNIT] = useState("")
+	const [showEmpresas, setShowEmpresas] = useState(false)
+	const [resultadosEmpresa, setResultadosEmpresa] = useState([])
+	const [empresaSeleccionada, setEmpresaSeleccionada] = useState(null)
 	
 	const isLoggedIn = !!userSession
 	const accountType = userSession?.accountType || null
+
+	const buscarEmpresaPorNIT = async (nit) => {
+		if (!nit.trim()) {
+			setResultadosEmpresa([])
+			return
+		}
+		try {
+			const response = await axiosInstance.get(`/api/users/empresa/${nit}`)
+			setResultadosEmpresa([response.data])
+			setShowEmpresas(true)
+		} catch {
+			setResultadosEmpresa([])
+			setShowEmpresas(false)
+		}
+	};
+
+	const debouncedBuscarEmpresa = useRef(debounce(buscarEmpresaPorNIT, 500)).current;
+
+	useEffect(() => {
+		debouncedBuscarEmpresa(empresaNIT);
+		return () => debouncedBuscarEmpresa.cancel();
+	}, [empresaNIT, debouncedBuscarEmpresa]);
 
 	const fetchUsuarios = async () => {
 		try {
@@ -90,6 +117,7 @@ export const GestionUsuarios = () => {
 	}
 
 	const handleOpenModal = (user) => {
+		setEmpresaSeleccionada(null)
 		setSelectedUser(user)
 		setFormData({ ...user })
 		setIsEditing(false)
@@ -202,6 +230,8 @@ export const GestionUsuarios = () => {
 			formDataToSend.append('celular', formData.celular);
 			formDataToSend.append('email', formData.email);
 			formDataToSend.append('estado', formData.estado);
+			if (empresaSeleccionada)
+				formDataToSend.append('empresa_asignada', empresaSeleccionada.ID)
 
 			// Agregar imagen si es un archivo nuevo
 			if (formData.foto_perfil instanceof File) {
@@ -236,6 +266,8 @@ export const GestionUsuarios = () => {
 			});
 			
 			setIsEditing(false);
+			setEmpresaNIT("")
+			setEmpresaSeleccionada(null)
 			handleCloseModal();
 			fetchUsuarios();
 		} catch (error) {
@@ -541,11 +573,47 @@ export const GestionUsuarios = () => {
 																<FontAwesomeIcon icon={faBuilding} />
 																Empresa
 															</label>
-															<div className="gu-display-field">
-																{selectedUser.Empresa?.nombre_empresa || "No asignada"}
-															</div>
+															{isEditing ?
+																<>
+																	<input
+																		className="gu-input-field"
+																		type="text"
+																		placeholder="Buscar por NIT de empresa"
+																		value={empresaNIT}
+																		onChange={(e) => {
+																			setEmpresaNIT(e.target.value)
+																			setShowEmpresas(true)
+																		}}
+																		autoComplete="off"
+																	/>
+																	{empresaNIT.trim() !== "" && showEmpresas && (
+																		<ul className="company-results-normal">
+																			{resultadosEmpresa.length > 0 ? (
+																				resultadosEmpresa.map((empresa) => (
+																					<li
+																						key={empresa.ID}
+																						onClick={() => {
+																							setEmpresaSeleccionada(empresa)
+																							setShowEmpresas(false)
+																							setEmpresaNIT(empresa.nombre_empresa)
+																						}}
+																					>
+																						{empresa.nombre_empresa}
+																					</li>
+																				))
+																			) : (
+																				<li style={{ color: "#ff6b6b" }}>No se encontraron empresas</li>
+																			)}
+																		</ul>
+																	)}
+																</>
+																
+															:
+																<div className="gu-display-field">
+																	{selectedUser.Empresa?.nombre_empresa || "No asignada"}
+																</div>
+															}		
 														</div>
-
 														<div className="gu-input-group">
 															<label className="gu-input-label">Estado</label>
 															{isEditing ? (

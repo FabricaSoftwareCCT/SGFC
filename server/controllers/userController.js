@@ -591,6 +591,7 @@ const getAllUsers = async (req, res) => {
 					"resetPasswordExpires",
 				],
 			},
+			include: [{ model: Empresa, as: "Empresa" }],
 		}
 
 		if (page) {
@@ -629,7 +630,7 @@ const getAllUsers = async (req, res) => {
 			usuarios: users.rows
 		});
 	} catch (error) {
-		console.error("Error al obtener los usuarios:", error);
+		console.log("Error al obtener los usuarios:", error);
 		res.status(500).json({ message: "Error al obtener los usuarios" });
 	}
 };
@@ -896,6 +897,7 @@ const updateUserProfile = async (req, res) => {
 			estado,
 			titulo_profesional,
 			tipoDocumento,
+			empresa_asignada
 		} = req.body;
 
 		// Procesar imagen de perfil si se sube (como base64)
@@ -1016,6 +1018,7 @@ const updateUserProfile = async (req, res) => {
                 titulo_profesional: user.titulo_profesional,
                 tipoDocumento: user.tipoDocumento,
                 foto_perfil: user.foto_perfil,
+				empresa_ID: user.empresa_ID
             };
 
             const nombresClean = cleanValue(nombres);
@@ -1119,6 +1122,7 @@ const updateUserProfile = async (req, res) => {
                 if (foto_perfil) user.foto_perfil = foto_perfil;
                 if (documento) user.documento = documento;
                 if (tipoDocumento) user.tipoDocumento = tipoDocumento;
+				if (empresa_asignada) user.empresa_ID = empresa_asignada;
 
 			// Si se envía información de empresa, permitir que el administrador la actualice también
 			if (req.body.empresa && user.Empresa) {
@@ -1413,8 +1417,7 @@ const updateUserProfile = async (req, res) => {
 					}
 					user.Empresa.email_empresa = email_empresa;
 				}
-				if (nombre_empresa)
-					user.Empresa.nombre_empresa = nombre_empresa;
+				if (nombre_empresa) user.Empresa.nombre_empresa = nombre_empresa;
 				if (direccion) user.Empresa.direccion = direccion;
 				if (categoria) user.Empresa.categoria = categoria;
 				if (telefono) user.Empresa.telefono = telefono;

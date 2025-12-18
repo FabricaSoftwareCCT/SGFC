@@ -12,7 +12,7 @@ import agregarArchivo from '../../../assets/Icons/agregar-archivo.png';
 import Swal from 'sweetalert2';
 import 'sweetalert2/themes/bulma.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSearch, faFileAlt, faFilePdf, faUpload, faCalendarAlt, faFilter, faArrowLeft, faEye } from '@fortawesome/free-solid-svg-icons';
+import { faSearch, faFileAlt, faFilePdf, faUpload, faCalendarAlt, faFilter, faArrowLeft, faEye, faTimes, faSlidersH } from '@fortawesome/free-solid-svg-icons';
 
 const categoriasDisponibles = [
 	'Solicitud', 'Concertacion', 'Lugar_formacion', 'Matricula'
@@ -119,6 +119,23 @@ export const GestionsActas = () => {
 				? prev.filter((e) => e !== estado)
 				: [...prev, estado]
 		);
+	};
+
+	const handleClearFilters = () => {
+		setFiltro("");
+		setCategoriasSeleccionadas([]);
+		setEstadosSeleccionados([]);
+		setFechaInicio("");
+		setFechaFin("");
+	};
+
+	const getActiveFiltersCount = () => {
+		let count = 0;
+		if (filtro) count++;
+		if (categoriasSeleccionadas.length > 0) count++;
+		if (estadosSeleccionados.length > 0) count++;
+		if (fechaInicio || fechaFin) count++;
+		return count;
 	};
 
 	// Filtrar actas basado en todos los criterios
@@ -398,98 +415,133 @@ export const GestionsActas = () => {
 						</div>
 					</div>
 
-					{/* Panel de Búsqueda y Filtros */}
+					{/* Panel de Búsqueda y Filtros Compacto */}
 					<div className="search-panel">
-						<div className="search-section">
-							<div className="search-input-container">
-								<FontAwesomeIcon icon={faSearch} className="search-icon-left" />
-								<input
-									type="text"
-									className="search-input"
-									placeholder="Buscar por ID del acta..."
-									value={filtro}
-									onChange={(e) => setFiltro(e.target.value)}
-								/>
-							</div>
-						</div>
-
-						<div className="filters-section-actas">
-							<div className="filter-dates-group">
-								<div className="filter-group">
-									<label className="filter-label">
-										<FontAwesomeIcon icon={faCalendarAlt} className="filter-icon" />
-										Fecha Inicio
-									</label>
+						{/* Búsqueda y Botón en misma línea */}
+						<div className="search-header">
+							<div className="search-section">
+								<div className="search-input-container">
+									<FontAwesomeIcon icon={faSearch} className="search-icon-left" />
 									<input
-										type="date"
-										className="filter-date-input"
-										value={fechaInicio}
-										onChange={(e) => setFechaInicio(e.target.value)}
-									/>
-								</div>
-								<div className="filter-group">
-									<label className="filter-label">
-										<FontAwesomeIcon icon={faCalendarAlt} className="filter-icon" />
-										Fecha Fin
-									</label>
-									<input
-										type="date"
-										className="filter-date-input"
-										value={fechaFin}
-										onChange={(e) => setFechaFin(e.target.value)}
+										type="text"
+										className="search-input"
+										placeholder="Buscar por ID del acta..."
+										value={filtro}
+										onChange={(e) => setFiltro(e.target.value)}
 									/>
 								</div>
 							</div>
 
-							<div className="filter-group">
-								<label className="filter-label">
-									<FontAwesomeIcon icon={faFilter} className="filter-icon" />
-									Estado del Acta
-								</label>
-								<div className="filter-chips-container">
-									{estadosDisponibles.map((estado) => (
-										<button
-											key={estado}
-											className={`filter-chip ${estadosSeleccionados.includes(estado) ? "selected" : ""}`}
-											onClick={() => handleEstadoClick(estado)}
-										>
-											{estado}
-										</button>
-									))}
+							{/* Botón Generar Acta */}
+							{(esInstructor() || esAdministrador() || esGestor()) && (
+								<div className="generate-acta-section">
+									<button
+										className="generate-acta-btn"
+										onClick={() => setShowTipoActaModal(true)}
+									>
+										<FontAwesomeIcon icon={faFileAlt} className="btn-icon" />
+										Generar Nueva Acta
+									</button>
 								</div>
+							)}
+						</div>
+
+						{/* Panel de Filtros Compacto */}
+						<div className="filters-panel">
+							<div className="filters-header">
+								<h3 className="filters-title">
+									<FontAwesomeIcon icon={faSlidersH} className="filters-title-icon" />
+									Filtros
+									{getActiveFiltersCount() > 0 && (
+										<span className="active-filters-badge">
+											{getActiveFiltersCount()}
+										</span>
+									)}
+								</h3>
+								{getActiveFiltersCount() > 0 && (
+									<button
+										className="clear-filters-btn"
+										onClick={handleClearFilters}
+									>
+										<FontAwesomeIcon icon={faTimes} /> Limpiar
+									</button>
+								)}
 							</div>
 
-							<div className="filter-group">
-								<label className="filter-label">
-									<FontAwesomeIcon icon={faFilter} className="filter-icon" />
-									Tipo de Acta
-								</label>
-								<div className="filter-chips-container">
-									{categoriasDisponibles.map((categoria) => (
-										<button
-											key={categoria}
-											className={`filter-chip ${categoriasSeleccionadas.includes(categoria) ? "selected" : ""}`}
-											onClick={() => handleCategoriaClick(categoria)}
-										>
-											{categoria.replaceAll("_", " ")}
-										</button>
-									))}
+							<div className="filters-grid">
+								{/* Fechas */}
+								<div className="filter-group-compact">
+									<div className="filter-group-header">
+										<span className="filter-label-compact">
+											<FontAwesomeIcon icon={faCalendarAlt} className="filter-icon-compact" />
+											Rango de Fechas
+										</span>
+									</div>
+									<div className="date-filters-row">
+										<div className="date-filter-group">
+											<span className="date-label">Desde</span>
+											<input
+												type="date"
+												className="filter-date-input-compact"
+												value={fechaInicio}
+												onChange={(e) => setFechaInicio(e.target.value)}
+											/>
+										</div>
+										<div className="date-filter-group">
+											<span className="date-label">Hasta</span>
+											<input
+												type="date"
+												className="filter-date-input-compact"
+												value={fechaFin}
+												onChange={(e) => setFechaFin(e.target.value)}
+											/>
+										</div>
+									</div>
+								</div>
+
+								{/* Estados */}
+								<div className="filter-group-compact">
+									<div className="filter-group-header">
+										<span className="filter-label-compact">
+											<FontAwesomeIcon icon={faFilter} className="filter-icon-compact" />
+											Estado del Acta
+										</span>
+									</div>
+									<div className="filter-chips-container-compact">
+										{estadosDisponibles.map((estado) => (
+											<button
+												key={estado}
+												className={`filter-chip-compact ${estadosSeleccionados.includes(estado) ? "selected" : ""}`}
+												onClick={() => handleEstadoClick(estado)}
+											>
+												{estado.charAt(0).toUpperCase() + estado.slice(1)}
+											</button>
+										))}
+									</div>
+								</div>
+
+								{/* Categorías */}
+								<div className="filter-group-compact">
+									<div className="filter-group-header">
+										<span className="filter-label-compact">
+											<FontAwesomeIcon icon={faFilter} className="filter-icon-compact" />
+											Tipo de Acta
+										</span>
+									</div>
+									<div className="filter-chips-container-compact">
+										{categoriasDisponibles.map((categoria) => (
+											<button
+												key={categoria}
+												className={`filter-chip-compact ${categoriasSeleccionadas.includes(categoria) ? "selected" : ""}`}
+												onClick={() => handleCategoriaClick(categoria)}
+											>
+												{categoria.replaceAll("_", " ")}
+											</button>
+										))}
+									</div>
 								</div>
 							</div>
 						</div>
-
-						{/* Botón Generar Acta */}
-						{(esInstructor() || esAdministrador() || esGestor()) && (
-							<div className="generate-acta-section">
-								<button
-									className="generate-acta-btn"
-									onClick={() => setShowTipoActaModal(true)}
-								>
-									<FontAwesomeIcon icon={faFileAlt} className="btn-icon" />
-									Generar Nueva Acta
-								</button>
-							</div>
-						)}
 					</div>
 
 					{/* Estados de Carga y Resultados */}
@@ -506,13 +558,7 @@ export const GestionsActas = () => {
 							<p>No hay actas que coincidan con los filtros aplicados.</p>
 							<button
 								className="reset-filters-btn"
-								onClick={() => {
-									setFiltro("");
-									setCategoriasSeleccionadas([]);
-									setEstadosSeleccionados([]);
-									setFechaInicio("");
-									setFechaFin("");
-								}}
+								onClick={handleClearFilters}
 							>
 								Mostrar todas las actas
 							</button>
@@ -522,8 +568,11 @@ export const GestionsActas = () => {
 							{/* Header de Resultados */}
 							<div className="results-header">
 								<h2 className="results-title">
-									{actasFiltradas.length === 1 ? "1 acta encontrada" : `${actasFiltradas.length} actas encontradas`}
+									Resultados de búsqueda
 								</h2>
+								<span className="results-count">
+									{actasFiltradas.length} {actasFiltradas.length === 1 ? 'acta' : 'actas'}
+								</span>
 							</div>
 
 							{/* Grid de Actas */}

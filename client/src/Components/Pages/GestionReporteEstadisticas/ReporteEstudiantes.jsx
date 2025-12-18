@@ -5,6 +5,16 @@ import axiosInstance from '../../../config/axiosInstance';
 import { generarPDFEstudiantes, generarExcelEstudiantes } from '../../../utils/Reports/Estudiantes';
 import Swal from 'sweetalert2';
 import 'sweetalert2/themes/bulma.css'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+    faFileExport,
+    faTimesCircle,
+    faFilePdf,
+    faFileExcel,
+    faArrowLeft,
+    faDownload,
+    faSpinner
+} from '@fortawesome/free-solid-svg-icons';
 
 export default function ReporteEstudiantes({ cursoSeleccionado, onVolver }) {
   const [mostrarFiltro, setMostrarFiltro] = useState(false);
@@ -14,7 +24,7 @@ export default function ReporteEstudiantes({ cursoSeleccionado, onVolver }) {
   const [showDownloadOptions, setShowDownloadOptions] = useState(false);
   const [reportType, setReportType] = useState("pdf");
   const [generating, setGenerating] = useState(false);
-  
+
   const filtroRef = useRef(null);
 
   const [filtros, setFiltros] = useState({
@@ -53,7 +63,7 @@ export default function ReporteEstudiantes({ cursoSeleccionado, onVolver }) {
         }
 
         let participantes = participantsResponse.data.participants || [];
-        
+
         // Si participantes es un objeto con propiedades, puede que sea un solo participante o estructura diferente
         if (!Array.isArray(participantes)) {
           if (participantes && typeof participantes === 'object') {
@@ -65,7 +75,7 @@ export default function ReporteEstudiantes({ cursoSeleccionado, onVolver }) {
             return;
           }
         }
-        
+
         if (participantes.length === 0) {
           setDatosEstudiantes([]);
           setIsLoading(false);
@@ -80,8 +90,8 @@ export default function ReporteEstudiantes({ cursoSeleccionado, onVolver }) {
             { params: { limit: 9999 } }
           );
 
-          registrosAsistencia = attendanceResponse.data?.success 
-            ? (attendanceResponse.data.records || []) 
+          registrosAsistencia = attendanceResponse.data?.success
+            ? (attendanceResponse.data.records || [])
             : [];
         } catch (attendanceError) {
           registrosAsistencia = [];
@@ -94,11 +104,11 @@ export default function ReporteEstudiantes({ cursoSeleccionado, onVolver }) {
               // Los objetos Sequelize ya están serializados como JSON cuando llegan aquí
               // Acceder directamente a las propiedades
               const participanteData = participante;
-              
+
               // Acceder al aprendiz - puede estar en diferentes ubicaciones
               let aprendizData = null;
               let aprendizId = null;
-              
+
               // Intentar múltiples formas de acceder al aprendiz
               if (participanteData.aprendiz) {
                 aprendizData = participanteData.aprendiz;
@@ -107,7 +117,7 @@ export default function ReporteEstudiantes({ cursoSeleccionado, onVolver }) {
               } else if (participanteData.dataValues?.aprendiz) {
                 aprendizData = participanteData.dataValues.aprendiz;
               }
-              
+
               // Si no encontramos el aprendiz, intentar acceder de forma más directa
               if (!aprendizData) {
                 // Último intento: buscar cualquier propiedad que contenga datos de usuario
@@ -119,24 +129,24 @@ export default function ReporteEstudiantes({ cursoSeleccionado, onVolver }) {
                     break;
                   }
                 }
-                
+
                 if (!aprendizData) {
                   return null;
                 }
               }
 
               // Extraer ID del aprendiz
-              aprendizId = aprendizData.ID || 
-                          aprendizData.id || 
-                          participanteData.aprendiz_ID || 
-                          participanteData.aprendizId ||
-                          null;
+              aprendizId = aprendizData.ID ||
+                aprendizData.id ||
+                participanteData.aprendiz_ID ||
+                participanteData.aprendizId ||
+                null;
 
               // Si todavía no hay ID, intentar del participante directamente
               if (!aprendizId) {
-                aprendizId = participanteData.aprendiz_ID || 
-                            participanteData.aprendizId ||
-                            null;
+                aprendizId = participanteData.aprendiz_ID ||
+                  participanteData.aprendizId ||
+                  null;
               }
 
               if (!aprendizId) {
@@ -145,7 +155,7 @@ export default function ReporteEstudiantes({ cursoSeleccionado, onVolver }) {
                   // Intentar obtener el ID del campo aprendiz_ID del participante
                   aprendizId = participanteData.aprendiz_ID || participanteData.aprendizId || null;
                 }
-                
+
                 if (!aprendizId) {
                   return null;
                 }
@@ -157,15 +167,15 @@ export default function ReporteEstudiantes({ cursoSeleccionado, onVolver }) {
                 if (typeof registro.toJSON === 'function') {
                   registroData = registro.toJSON();
                 }
-                
-                const registroAprendizId = registroData.aprendiz?.ID || 
-                                          registroData.aprendiz?.id ||
-                                          registroData.usuarios_ID ||
-                                          registroData.usuariosId ||
-                                          registroData.usuario_ID ||
-                                          registroData.usuarioId ||
-                                          registroData.dataValues?.usuarios_ID;
-              
+
+                const registroAprendizId = registroData.aprendiz?.ID ||
+                  registroData.aprendiz?.id ||
+                  registroData.usuarios_ID ||
+                  registroData.usuariosId ||
+                  registroData.usuario_ID ||
+                  registroData.usuarioId ||
+                  registroData.dataValues?.usuarios_ID;
+
                 return registroAprendizId && String(registroAprendizId) === String(aprendizId);
               });
 
@@ -177,7 +187,7 @@ export default function ReporteEstudiantes({ cursoSeleccionado, onVolver }) {
                 }
                 return (rData.estado_asistencia || '').toLowerCase() === 'presente';
               }).length;
-              
+
               const faltas = registrosAprendiz.filter(r => {
                 let rData = r;
                 if (typeof r.toJSON === 'function') {
@@ -260,7 +270,7 @@ export default function ReporteEstudiantes({ cursoSeleccionado, onVolver }) {
       const estadosSeleccionados = [];
       if (filtros.estado.activo) estadosSeleccionados.push('Activo');
       if (filtros.estado.inactivo) estadosSeleccionados.push('Inactivo');
-      
+
       if (estadosSeleccionados.length > 0 && !estadosSeleccionados.includes(estudiante.estado)) {
         return false;
       }
@@ -364,7 +374,7 @@ export default function ReporteEstudiantes({ cursoSeleccionado, onVolver }) {
   // Si estamos mostrando el reporte de eficiencia, renderizar ese componente
   if (mostrarEficiencia) {
     return (
-      <EficienciaReporte 
+      <EficienciaReporte
         cursoSeleccionado={cursoSeleccionado}
         onVolver={handleVolverDesdeEficiencia}
         datosEstudiantes={datosEstudiantes}
@@ -375,7 +385,7 @@ export default function ReporteEstudiantes({ cursoSeleccionado, onVolver }) {
   return (
     <div className="reporte-container-estudiantes">
       <div className="titulo-container-estudiantes">
-        <button 
+        <button
           className="button-volver-estudiantes"
           onClick={onVolver}
         >
@@ -385,35 +395,35 @@ export default function ReporteEstudiantes({ cursoSeleccionado, onVolver }) {
           Estudiantes - {cursoSeleccionado?.curso || "Curso Seleccionado"}
         </h1>
       </div>
-      
+
       <div className='container-tabla-estudiantes'>
-        <button 
-          className="button-generar-reporte-estudiantes" 
+        <button
+          className="button-generar-reporte-estudiantes"
           onClick={() => setShowDownloadOptions(true)}
         >
           Generar reporte
         </button>
-        
-        <button 
+
+        <button
           className="button-eficiencia-estudiantes"
           onClick={handleEficienciaClick}
         >
           Eficiencia
         </button>
-        
-        <button 
-          className='button-filtro-reporte-estudiantes' 
+
+        <button
+          className='button-filtro-reporte-estudiantes'
           onClick={toggleFiltro}
         >
           Filtro {filtrosActivos() > 0 && `(${filtrosActivos()})`}
         </button>
-        
+
         {mostrarFiltro && (
           <div className="filtro-menu-estudiantes" ref={filtroRef}>
             <div className="filtro-grupo-estudiantes">
               <div className="filtro-titulo-estudiantes">Nombre</div>
-              <input 
-                type="text" 
+              <input
+                type="text"
                 className="filtro-input-estudiantes"
                 placeholder="Buscar por nombre..."
                 value={filtros.nombre}
@@ -423,8 +433,8 @@ export default function ReporteEstudiantes({ cursoSeleccionado, onVolver }) {
 
             <div className="filtro-grupo-estudiantes">
               <div className="filtro-titulo-estudiantes">Apellido</div>
-              <input 
-                type="text" 
+              <input
+                type="text"
                 className="filtro-input-estudiantes"
                 placeholder="Buscar por apellido..."
                 value={filtros.apellido}
@@ -434,8 +444,8 @@ export default function ReporteEstudiantes({ cursoSeleccionado, onVolver }) {
 
             <div className="filtro-grupo-estudiantes">
               <div className="filtro-titulo-estudiantes">Documento</div>
-              <input 
-                type="text" 
+              <input
+                type="text"
                 className="filtro-input-estudiantes"
                 placeholder="Buscar por documento..."
                 value={filtros.documento}
@@ -446,14 +456,14 @@ export default function ReporteEstudiantes({ cursoSeleccionado, onVolver }) {
             <div className="filtro-grupo-estudiantes">
               <div className="filtro-titulo-estudiantes">Estado</div>
               <div className="filtro-opciones-estudiantes">
-                <div 
+                <div
                   className="filtro-opcion-estudiantes"
                   onClick={() => handleCheckboxChange('estado', 'activo')}
                 >
                   <div className={`filtro-checkbox-estudiantes ${filtros.estado.activo ? 'checked' : ''}`}></div>
                   <span>Activo</span>
                 </div>
-                <div 
+                <div
                   className="filtro-opcion-estudiantes"
                   onClick={() => handleCheckboxChange('estado', 'inactivo')}
                 >
@@ -465,8 +475,8 @@ export default function ReporteEstudiantes({ cursoSeleccionado, onVolver }) {
 
             <div className="filtro-grupo-estudiantes">
               <div className="filtro-titulo-estudiantes">Faltas</div>
-              <input 
-                type="number" 
+              <input
+                type="number"
                 className="filtro-input-estudiantes"
                 placeholder="Filtrar por faltas..."
                 value={filtros.faltas}
@@ -477,8 +487,8 @@ export default function ReporteEstudiantes({ cursoSeleccionado, onVolver }) {
 
             <div className="filtro-grupo-estudiantes">
               <div className="filtro-titulo-estudiantes">N° Asistencias</div>
-              <input 
-                type="number" 
+              <input
+                type="number"
                 className="filtro-input-estudiantes"
                 placeholder="Filtrar por asistencias..."
                 value={filtros.asistencias}
@@ -542,106 +552,127 @@ export default function ReporteEstudiantes({ cursoSeleccionado, onVolver }) {
 
       {showDownloadOptions && (
         <div className="modal-overlay">
-          <div
-            className="modal-background"
-            style={{
-              height: "fit-content",
-              paddingBottom: "20px",
-              width: "35%",
-              minHeight: "fit-content",
-            }}
-          >
-            <div className="container_return_EditCalendar">
-              <h5
-                onClick={() => setShowDownloadOptions(false)}
-                style={{ cursor: "pointer" }}
-              >
-                Volver
-              </h5>
+          <div className="modal-background-a">
+            <div className="modal-header-container">
+              <div className="modal-header-content">
+                <FontAwesomeIcon icon={faFileExport} className="modal-header-icon" />
+                <div>
+                  <h2 className="modal-title">Generar Reporte</h2>
+                  <p className="modal-subtitle">Selecciona el formato del reporte</p>
+                </div>
+              </div>
               <button
                 onClick={() => setShowDownloadOptions(false)}
-                className="closeModal"
-              ></button>
-            </div>
-            <h2 className="modal-title-edit-calendar">
-              Tipo de reporte
-            </h2>
-            <div
-              className="statusButtons"
-              style={{
-                width: "90%",
-              }}
-            >
-              <button
-                className={`status-btn ${
-                  reportType === "pdf" && "selected"
-                }`}
-                onClick={() => setReportType("pdf")}
+                className="modal-close-btn"
+                aria-label="Cerrar modal"
+                disabled={generating}
               >
-                PDF
-              </button>
-              <button
-                className={`status-btn ${
-                  reportType === "excel" && "selected"
-                }`}
-                onClick={() => setReportType("excel")}
-              >
-                Excel
+                <FontAwesomeIcon icon={faTimesCircle} />
               </button>
             </div>
-            <button
-              className="button"
-              style={{
-                marginTop: "20px",
-              }}
-              onClick={async () => {
-                setGenerating(true);
-                const datosReporte = estudiantesFiltrados.length > 0 ? estudiantesFiltrados : datosEstudiantes;
-                
-                if (datosReporte.length === 0) {
-              Swal.fire({
-          icon:"info",
-          title:"Sin datos",
-          text:'No hay datos para generar el reporte',
-          confirmButtonText:"Okay",
-          theme:"bulma",
-          customClass:{
-        confirmButton: 'button is-primary',
-        actions: 'swal2-actions-centered'
-                }
-              })
-                  setGenerating(false);
-                  return;
-                }
 
-                try {
-                  if (reportType === "excel") {
-                    generarExcelEstudiantes(datosReporte, cursoSeleccionado?.curso || 'Curso');
-                  } else {
-                    await generarPDFEstudiantes(datosReporte, cursoSeleccionado?.curso || 'Curso');
-                  }
-                } catch (err) {
-                  console.error(`Error generando ${reportType.toUpperCase()}:`, err);
+            <div className="modal-body">
+              <div className="report-type-selector">
+                <button
+                  className={`report-type-btn ${reportType === "pdf" ? "selected" : ""}`}
+                  onClick={() => setReportType("pdf")}
+                  disabled={generating}
+                >
+                  <div className="report-type-icon-wrapper">
+                    <FontAwesomeIcon icon={faFilePdf} className="report-type-icon" />
+                  </div>
+                  <div className="report-type-info">
+                    <h4 className="report-type-title">PDF</h4>
+                    <p className="report-type-desc">Formato óptimo para impresión</p>
+                  </div>
+                </button>
 
-                                          Swal.fire({
-          icon:"error",
-          title:"Error del sistema",
-          text:`Error al generar ${reportType.toUpperCase()}\n\n${formatDetailedError(err)}`,
-          confirmButtonText:"Okay",
-          theme:"bulma",
-          customClass:{
-        confirmButton: 'button is-primary',
-        actions: 'swal2-actions-centered'
-                }
-              })
-                } finally {
-                  setGenerating(false);
-                }
-              }}
-              disabled={generating || datosEstudiantes.length === 0}
-            >
-              {generating ? "Generando..." : "Generar reporte"}
-            </button>
+                <button
+                  className={`report-type-btn ${reportType === "excel" ? "selected" : ""}`}
+                  onClick={() => setReportType("excel")}
+                  disabled={generating}
+                >
+                  <div className="report-type-icon-wrapper">
+                    <FontAwesomeIcon icon={faFileExcel} className="report-type-icon" />
+                  </div>
+                  <div className="report-type-info">
+                    <h4 className="report-type-title">Excel</h4>
+                    <p className="report-type-desc">Formato para análisis de datos</p>
+                  </div>
+                </button>
+              </div>
+
+              <div className="modal-actions">
+                <button
+                  className="modal-btn modal-btn-secondary"
+                  onClick={() => setShowDownloadOptions(false)}
+                  disabled={generating}
+                >
+                  <FontAwesomeIcon icon={faArrowLeft} />
+                  <span>Cancelar</span>
+                </button>
+
+                <button
+                  className="modal-btn modal-btn-primary"
+                  onClick={async () => {
+                    setGenerating(true);
+                    const datosReporte = estudiantesFiltrados.length > 0 ? estudiantesFiltrados : datosEstudiantes;
+
+                    if (datosReporte.length === 0) {
+                      Swal.fire({
+                        icon: "info",
+                        title: "Sin datos",
+                        text: 'No hay datos para generar el reporte',
+                        confirmButtonText: "Okay",
+                        theme: "bulma",
+                        customClass: {
+                          confirmButton: 'button is-primary',
+                          actions: 'swal2-actions-centered'
+                        }
+                      });
+                      setGenerating(false);
+                      return;
+                    }
+
+                    try {
+                      if (reportType === "excel") {
+                        generarExcelEstudiantes(datosReporte, cursoSeleccionado?.curso || 'Curso');
+                      } else {
+                        await generarPDFEstudiantes(datosReporte, cursoSeleccionado?.curso || 'Curso');
+                      }
+                    } catch (err) {
+                      console.error(`Error generando ${reportType.toUpperCase()}:`, err);
+                      Swal.fire({
+                        icon: "error",
+                        title: "Error del sistema",
+                        text: `Error al generar ${reportType.toUpperCase()}\n\n${formatDetailedError(err)}`,
+                        confirmButtonText: "Okay",
+                        theme: "bulma",
+                        customClass: {
+                          confirmButton: 'button is-primary',
+                          actions: 'swal2-actions-centered'
+                        }
+                      });
+                    } finally {
+                      setGenerating(false);
+                    }
+                  }}
+                  disabled={generating || datosEstudiantes.length === 0}
+                >
+                  {generating ? (
+                    <>
+                      <FontAwesomeIcon icon={faSpinner} className="spinner" />
+                      <span>Generando...</span>
+                    </>
+                  ) : (
+                    <>
+                      <FontAwesomeIcon icon={faDownload} />
+                      <span>Generar Reporte</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

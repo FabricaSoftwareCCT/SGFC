@@ -7,7 +7,7 @@ const { authMiddleware, authorizeRoles } = require("../middlewares/authMiddlewar
 const router = express.Router();
 const upload = require("../config/multer"); // Importar configuración de multer
 const { cursosEmpresa } = require("../controllers/cursoController");
-const { ObtenerEmpleadosPorEmpresa } = require("../controllers/EmpresaController");
+const { ObtenerEmpleadosPorEmpresa } = require("../controllers/empresaController");
 
 router.post("/createUser", registerUser); // Ruta para registrar usuario
 router.get("/verificarCorreo", verifyEmail); // Ruta para verificar correo

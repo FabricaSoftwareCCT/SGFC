@@ -81,7 +81,7 @@
   letter-spacing: 0.5px;
 }
 
-/* Panel de Búsqueda - Más compacto */
+/* Panel de Búsqueda y Filtros - Diseño Compacto */
 .search-panel {
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -89,16 +89,21 @@
   padding: 1.5rem;
   margin-bottom: 2rem;
   backdrop-filter: blur(10px);
+}
+
+/* Encabezado de búsqueda y botón */
+.search-header {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 1.2rem;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-bottom: 1.2rem;
+  flex-wrap: wrap;
 }
 
 .search-section {
-  width: 100%;
-  display: flex;
-  justify-content: center;
+  flex: 1;
+  min-width: 300px;
 }
 
 .search-input-container {
@@ -139,107 +144,9 @@
   color: #00c853;
 }
 
-/* Iconos generales */
-.btn-icon {
-  margin-right: 0.5rem;
-  font-size: 0.9rem;
-}
-
-.filter-icon {
-  margin-right: 0.3rem;
-  font-size: 0.8rem;
-}
-
-/* Filtros Específicos para Actas - Más compactos */
-.filters-section-actas {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  align-items: center;
-}
-
-.filter-dates-group {
-  display: flex;
-  gap: 1rem;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
-.filter-group {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.4rem;
-  min-width: 180px;
-}
-
-.filter-label {
-  color: #fff;
-  font-size: 0.85rem;
-  font-weight: 500;
-  margin-bottom: 0.2rem;
-  text-align: center;
-  display: flex;
-  align-items: center;
-}
-
-.filter-date-input {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 8px;
-  padding: 0.6rem 0.8rem;
-  color: #fff;
-  font-size: 0.85rem;
-  transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
-  text-align: center;
-  width: 100%;
-}
-
-.filter-date-input:focus {
-  outline: none;
-  border-color: #00c853;
-  box-shadow: 0 0 0 2px rgba(0, 200, 83, 0.1);
-}
-
-.filter-chips-container {
-  display: flex;
-  gap: 0.4rem;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-.filter-chip {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 15px;
-  padding: 0.4rem 0.8rem;
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 0.75rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
-}
-
-.filter-chip:hover {
-  border-color: #00c853;
-  color: #00c853;
-}
-
-.filter-chip.selected {
-  background: rgba(0, 200, 83, 0.1);
-  border-color: #00c853;
-  color: #00c853;
-  font-weight: 600;
-}
-
-/* Botón Generar Acta */
+/* Botón Generar Acta - en línea con búsqueda */
 .generate-acta-section {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  margin-top: 0.5rem;
+  flex-shrink: 0;
 }
 
 .generate-acta-btn {
@@ -255,6 +162,8 @@
   backdrop-filter: blur(10px);
   display: flex;
   align-items: center;
+  gap: 0.5rem;
+  white-space: nowrap;
 }
 
 .generate-acta-btn:hover {
@@ -263,7 +172,179 @@
   box-shadow: 0 4px 12px rgba(0, 200, 83, 0.2);
 }
 
-/* Estados de la Aplicación - Más compactos */
+/* Panel de Filtros Compacto */
+.filters-panel {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 1.2rem;
+  margin-top: 1rem;
+}
+
+.filters-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  padding-bottom: 0.8rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.filters-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.filters-title-icon {
+  color: #00c853;
+  font-size: 0.9rem;
+}
+
+.clear-filters-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.7);
+  padding: 0.4rem 0.8rem;
+  border-radius: 15px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.clear-filters-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  border-color: rgba(0, 200, 83, 0.3);
+}
+
+/* Filtros en grid compacto */
+.filters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.2rem;
+}
+
+.filter-group-compact {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.filter-group-header {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.3rem;
+}
+
+.filter-label-compact {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.8rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.filter-icon-compact {
+  color: #00c853;
+  font-size: 0.75rem;
+}
+
+/* Fechas en línea */
+.date-filters-row {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-end;
+}
+
+.date-filter-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.date-label {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.8rem;
+  font-weight: 500;
+  margin-bottom: 0.2rem;
+}
+
+.filter-date-input-compact {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  padding: 0.5rem 0.8rem;
+  color: #fff;
+  font-size: 0.8rem;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  width: 100%;
+}
+
+.filter-date-input-compact:focus {
+  outline: none;
+  border-color: #00c853;
+  box-shadow: 0 0 0 2px rgba(0, 200, 83, 0.1);
+}
+
+/* Chips de filtro mejorados */
+.filter-chips-container-compact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+}
+
+.filter-chip-compact {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 15px;
+  padding: 0.35rem 0.7rem;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.7rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
+  white-space: nowrap;
+}
+
+.filter-chip-compact:hover {
+  border-color: #00c853;
+  color: #00c853;
+  transform: translateY(-1px);
+}
+
+.filter-chip-compact.selected {
+  background: rgba(0, 200, 83, 0.1);
+  border-color: #00c853;
+  color: #00c853;
+  font-weight: 600;
+}
+
+/* Contador de filtros activos */
+.active-filters-badge {
+  background: rgba(0, 200, 83, 0.2);
+  color: #00c853;
+  border-radius: 10px;
+  padding: 0.1rem 0.5rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  margin-left: 0.3rem;
+}
+
+/* Estados de la Aplicación */
 .no-results-state {
   text-align: center;
   padding: 2rem 1.5rem;
@@ -316,18 +397,30 @@
 }
 
 .results-header {
-  text-align: center;
-  margin-bottom: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.8rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .results-title {
   color: #fff;
-  font-size: 1.5rem;
+  font-size: 1.3rem;
   font-weight: 600;
   margin: 0;
 }
 
-/* Grid de Actas - Tarjetas más compactas */
+.results-count {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9rem;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 0.3rem 0.8rem;
+  border-radius: 12px;
+}
+
+/* Grid de Actas */
 .actas-grid-container {
   width: 100%;
   display: flex;
@@ -336,14 +429,13 @@
 
 .actas-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.2rem;
   width: 100%;
   max-width: 1200px;
-  justify-items: center;
 }
 
-/* Tarjetas de Actas - Más compactas */
+/* Tarjetas de Actas */
 .acta-card {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -353,13 +445,9 @@
   transition: all 0.3s ease;
   backdrop-filter: blur(10px);
   position: relative;
-  width: 100%;
-  max-width: 300px;
-  margin: 0 auto;
   min-height: 140px;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
 }
 
 .acta-card:hover {
@@ -453,6 +541,12 @@
 .view-acta-btn:hover {
   background: rgba(0, 200, 83, 0.2);
   transform: translateY(-1px);
+}
+
+/* Iconos generales */
+.btn-icon {
+  margin-right: 0.5rem;
+  font-size: 0.9rem;
 }
 
 /* ========== ESTILOS DE MODALES UNIFICADOS ========== */
@@ -596,6 +690,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 0.5rem;
 }
 
 .modal-actas-upload-label:hover {
@@ -824,8 +919,8 @@
     gap: 1.2rem;
   }
   
-  .filters-section-actas {
-    gap: 0.8rem;
+  .filters-grid {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -841,22 +936,29 @@
   
   .search-panel {
     padding: 1.2rem;
+  }
+  
+  .search-header {
+    flex-direction: column;
+    align-items: stretch;
     gap: 1rem;
   }
   
-  .filters-section-actas {
-    gap: 0.8rem;
+  .search-section {
+    min-width: 100%;
   }
   
-  .filter-dates-group {
+  .search-input-container {
+    max-width: 100%;
+  }
+  
+  .generate-acta-section {
+    align-self: flex-start;
+  }
+  
+  .date-filters-row {
     flex-direction: column;
-    align-items: center;
-  }
-  
-  .filter-group {
-    min-width: 200px;
-    width: 100%;
-    max-width: 250px;
+    gap: 0.8rem;
   }
   
   .actas-grid {
@@ -992,11 +1094,15 @@
     padding: 0.6rem;
   }
   
-  .filter-group {
+  .filter-group-compact {
     min-width: 180px;
   }
   
   .acta-card {
     margin: 0 0.3rem;
+  }
+  
+  .modal-actas-header-content h2 {
+    font-size: 1rem;
   }
 }

@@ -143,7 +143,7 @@ export const UpdateEmploye = ({ empleado, onClose, isOpen = true }) => {
     console.log('Navegando a mis cursos...');
     
     closeModalUpdateEmploye();
-    navigate('/mis-Cursos', { 
+    navigate('/Cursos/MisCursos', { 
       state: { 
         empleadoId: formData.ID,
         empleadoNombre: formData.nombres 

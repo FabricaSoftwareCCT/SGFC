@@ -567,7 +567,7 @@ export const SeeMyProfile = () => {
 										{editMode ? (
 											<select
 												name="tipoDocumento"
-												className="input_updateData"
+												className="input_updateData custom-select"
 												value={perfil?.tipoDocumento || ""}
 												onChange={handleInputChange}
 												disabled={!editMode}

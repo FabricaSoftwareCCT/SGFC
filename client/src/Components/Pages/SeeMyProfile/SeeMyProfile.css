@@ -122,6 +122,27 @@
   transition: all 0.2s ease;
 }
 
+
+/* Estado hover y focus */
+.input_updateData.custom-select:hover {
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Para opciones - intenta esto */
+.input_updateData.custom-select option {
+  background-color: #2d2f31 !important; /* Gris muy oscuro */
+  color: white !important;
+  padding: 12px 16px;
+  font-size: 14px;
+}
+
+.input_updateData.custom-select option:hover,
+.input_updateData.custom-select option:focus,
+.input_updateData.custom-select option:checked {
+  background-color: #374151 !important; /* Gris un poco más claro para hover */
+  color: white !important;
+}
+
 .input_updateData:focus {
   border-color: #00843e3f;
   background-color: rgba(255, 255, 255, 0.08);

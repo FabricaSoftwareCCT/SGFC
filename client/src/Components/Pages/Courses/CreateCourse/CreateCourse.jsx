@@ -62,7 +62,22 @@ export const CreateCourse = () => {
 	};
 
 	const handleCalendarSave = (data) => {
+		// Calcular la duración en días usando la misma lógica del modal
+		const calculateDuration = (startDate, endDate) => {
+			if (!startDate || !endDate) return 0;
+			const start = new Date(startDate);
+			const end = new Date(endDate);
+			const diffTime = Math.abs(end - start);
+			return Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+		};
+
+		// Obtener la duración calculada
+		const duracionCalculada = calculateDuration(data.startDate, data.endDate);
+
+		// Actualizar el estado del calendario
 		setCalendarData(data);
+		// Actualizar automáticamente la duración del curso
+		setDuracionCurso(duracionCalculada);
 		setIsEditCalendarOpen(false);
 	};
 
@@ -148,7 +163,7 @@ export const CreateCourse = () => {
 				confirmButtonColor: '#f39c12',
 				theme: 'bulma',
 				customClass: {
-				actions: 'swal2-center-actions'
+					actions: 'swal2-center-actions'
 				}
 			});
 			return;
@@ -163,7 +178,7 @@ export const CreateCourse = () => {
 				confirmButtonColor: '#d33',
 				theme: 'bulma',
 				customClass: {
-				actions: 'swal2-center-actions'
+					actions: 'swal2-center-actions'
 				}
 			});
 			return;
@@ -298,7 +313,7 @@ export const CreateCourse = () => {
 		} catch (error) {
 			console.error("Error al crear el curso:", error);
 			if (error.response?.data?.message) {
-					Swal.fire({
+				Swal.fire({
 					icon: 'error',
 					title: 'Error',
 					text: `Error: ${error.response.data.message}`,
@@ -390,14 +405,26 @@ export const CreateCourse = () => {
 
 							<div className="quick-info">
 								<div className="info-item">
-									<label>Duración del Curso</label>
+									<label>Duración del Curso en Dias</label>
 									<input
 										type="number"
 										placeholder="Número de días"
 										min="1"
 										value={duracionCurso}
-										onChange={(e) => setDuracionCurso(e.target.value)}
+										onChange={(e) => {
+											// Solo permitir cambio si NO hay fechas seleccionadas
+											if (!calendarData.startDate || !calendarData.endDate) {
+												setDuracionCurso(e.target.value);
+											}
+										}}
+										readOnly={!!calendarData.startDate && !!calendarData.endDate}
+										className={calendarData.startDate && calendarData.endDate ? "readonly-input" : ""}
 									/>
+									{calendarData.startDate && calendarData.endDate && (
+										<small style={{ fontSize: "0.75rem", color: "#666", marginTop: "4px", display: "block" }}>
+											Duración calculada automáticamente desde las fechas seleccionadas
+										</small>
+									)}
 								</div>
 								<div className="info-item">
 									<label>Lugar de Formación</label>

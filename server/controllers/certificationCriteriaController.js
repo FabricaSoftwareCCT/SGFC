@@ -451,7 +451,7 @@ const updateAprenticeCertificationStatus = async (req, res) => {
 				message: "El estado de la certificación es obligatorio.",
 			});
 
-		if (state != "pendiente" && state != "aprovado" && state != "rechazado")
+		if (state != "pendiente" && state != "aprobado" && state != "rechazado")
 			return res.status(400).json({ mensaje: "Tipo de estado inválido" });
 
 		let updatedData = {

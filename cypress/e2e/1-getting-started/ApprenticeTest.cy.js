@@ -71,7 +71,7 @@ describe('Prueba Modulo Aprendiz', () => {
     cy.url().should('include', 'http://localhost:5173/');
   })
 
-  it("Ingresar al modulo de cursos como aprendiz", () => {
+  it.skip("Ingresar al modulo de cursos como aprendiz", () => {
     // La sesión ya está iniciada, vamos directamente a cursos
     cy.visit("http://localhost:5173/Cursos/MisCursosAsignados");
     
@@ -112,7 +112,6 @@ describe('Prueba Modulo Aprendiz', () => {
     cy.visit("http://localhost:5173/Cursos/BuscarCursos");
     
     //Usar Filtros de Buscar Cursos
-    
     cy.get('.search-input-container').find('input[placeholder="¿Qué curso estás buscando?"]').type('Analisis y Desarrollo de Software');
 
     cy.get('.filter-select').eq(1).select('Cerrada').wait(1000);

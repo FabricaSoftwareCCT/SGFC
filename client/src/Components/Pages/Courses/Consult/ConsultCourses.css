@@ -191,6 +191,37 @@
   border-color: #00c853;
 }
 
+.filter-select-wrapper::after {
+  content: "▼";
+  position: absolute;
+  top: 50%;
+  right: 16px;
+  transform: translateY(-50%);
+  color: #6b7280;
+  font-size: 12px;
+  pointer-events: none;
+  transition: transform 0.3s ease;
+}
+
+.filter-select-wrapper:hover::after {
+  color: #3b82f6;
+}
+
+/* Estilo para las opciones */
+.filter-select option {
+  padding: 12px;
+  background: rgb(58, 57, 57);
+}
+
+.filter-select option:checked {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: rgb(34, 31, 31);
+}
+
+.filter-select option:hover {
+  background-color: #242933;
+}
+
 /* Estados de la Aplicación */
 .loading-state,
 .error-state,

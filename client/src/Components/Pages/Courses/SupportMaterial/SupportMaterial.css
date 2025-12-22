@@ -1129,7 +1129,16 @@
 .delete-btn:hover {
   background: rgba(244, 67, 54, 0.25);
 }
-
+.support-material-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--surface-light);
+  color: var(--text-primary);
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
 /* Estado sin materiales */
 .no-materials {
   text-align: center;

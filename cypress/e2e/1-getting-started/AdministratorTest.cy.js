@@ -1,4 +1,3 @@
-import { recurse } from 'cypress-recurse'
 
 describe('Pruebas de funcionalidad del rol Administrador', () => {
     before(() => {

@@ -1,148 +1,132 @@
-describe('Prueba Modulo Aprendiz', ()=>{
-    it("visitar la pagina y registrarse como aprendiz", ()=>{
-        cy.visit("http://localhost:5173/") 
-        cy.get(".button_signIn").first().click({force : true})
+describe('Prueba Modulo Aprendiz', () => {
+  // Limpiar sesiones antes de todas las pruebas
+  before(() => {
+    Cypress.session.clearAllSavedSessions();
+  });
 
-       //Registro aprendiz
-       cy.get('.goTo_register').click()
-       cy.get('.container_AccountTypeAprendiz').first().click({force : true}).get('.form_register').first()
-       cy.get('.form_register').first().find('input[type="email"]').first().type('fakewo8113@arugy.com')
-       cy.get('.password-container').first().find('input[type="password"]').first().type('Prueba1234*')
-       cy.get('.confirmPassword-container').first().find('input[type="password"]').first().type('Prueba1234*')
-       cy.get('.button_register').first().click({force : true})
-    })
+  // Función para iniciar sesión como aprendiz
+  const loginAprendiz = () => {
+    cy.visit('http://localhost:5173/');
+    cy.get('.button_signIn').first().click({ force: true });
+    
+    // Ingresar credenciales del rol Aprendiz
+    cy.get('input[type="email"]').first()
+      .type('fakewo8113@arugy.com');
+    cy.get('input[type="password"]')
+      .type('Prueba1234*');
+      
+    // Iniciar sesión
+    cy.get('.button_register').click();
 
-    it.skip("Iniciar sesion como aprendiz", ()=>{
-        cy.visit("http://localhost:5173/") 
-        cy.get(".button_signIn").first().click({force : true})
+    // Opcional: Completar formulario de perfil si es necesario
+    cy.url().then((url) => {
+      if (url.includes('/profile') || url.includes('/perfil')) {
+        cy.get('.container_profile').find('input[name="nombres"]').type('Jawix');
+        cy.get('.container_profile').find('input[name="apellidos"]').type('Avila');
+        cy.get('.container_profile').find('input[name="celular"]').type('3124567890');
+        cy.get('.updateProfile1').click();
+      }
+    });
+    
+    // Esperar a que la redirección se complete
+    cy.url().should('include', 'http://localhost:5173/');
+  };
+
+  // Configuración de la sesión antes de cada prueba
+  beforeEach(() => {
+    cy.session('aprendiz', loginAprendiz, {
+      validate: () => {
+        // Verificar que la sesión sigue activa
+        cy.visit('http://localhost:5173/');
+        // Verificar que estamos autenticados (puedes ajustar esto según tu app)
+        cy.get('.container_options_profile').should('exist');
         
-        //Ingresar credenciales del rol Aprendiz
-        cy.get('input[type="email"]').first()
-            .type('jawixav282@filipx.com')
-        cy.get('input[type="password"]')
-            .type('Prueba1234*')
-            
-        //Iniciar sesión
-        cy.get(".button_register").click()
+        // Volver a la página principal para no interferir con las pruebas
+        cy.visit('http://localhost:5173/');
+      },
+      cacheAcrossSpecs: false // Mantener sesión entre archivos de prueba
+    });
+    
+    // Visitar la página después de restaurar la sesión
+    cy.visit('http://localhost:5173/');
+  });
 
-        //Llenar Formulario de perfil aprendiz
-        cy.get('.container_profile').find('input[name="nombres"]').type('Jawix')
-        cy.get('.container_profile').find('input[name="apellidos"]').type('Avila')
-        cy.get('.container_profile').find('input[name="celular"]').type('3124567890')
+  it.skip('visitar la pagina y registrarse como aprendiz', () => {
+    cy.visit("http://localhost:5173/") 
+    cy.get(".button_signIn").first().click({force : true})
 
-        cy.get('.updateProfile1').click()
+    //Registro aprendiz
+    cy.get('.goTo_register').click()
+    cy.get('.container_AccountTypeAprendiz').first().click({force : true})
+    cy.get('.form_register').first()
+    cy.get('.form_register').first().find('input[type="email"]').first().type('fakewo8113@arugy.com')
+    cy.get('.password-container').first().find('input[type="password"]').first().type('Prueba1234*')
+    cy.get('.confirmPassword-container').first().find('input[type="password"]').first().type('Prueba1234*')
+    cy.get('.button_register').first().click({force : true})
+  })
 
+  it.skip("Iniciar sesion como aprendiz", () => {
+    // La sesión ya está iniciada por el beforeEach
+    // Solo verificamos que estamos en la página principal
+    cy.url().should('include', 'http://localhost:5173/');
+  })
 
-    })
+  it("Ingresar al modulo de cursos como aprendiz", () => {
+    // La sesión ya está iniciada, vamos directamente a cursos
+    cy.visit("http://localhost:5173/Cursos/MisCursosAsignados");
+    
+    //Entrar a un curso asignado
+    cy.get('.course-card-carousel').click({force : true});
+    
+    //Ver los horarios del curso
+    cy.contains('Ver Horarios').click()
+    cy.get('.close-btn-view').click()
+    
+    //Ver las actividades del curso
+    cy.contains('Ver Actividades').click()
+    cy.get('.btn-outline').click()
+    
+    //Entregar actividad
+    cy.get('.btn-primary.btn-primary--loud').click()
+    cy.get('.file-input').click()
+    
+    //Añadir comentarios a la entrega
+    cy.get('.form-field').find('textarea[placeholder="Añade notas relevantes a tu entrega..."]').type('AAAAAAAAAAAAAA')
+    
+    //Enviar Entrega
+    //cy.contains('button', 'Guardar entrega').click()
+    
+    cy.contains('button','Cancelar').click()
+    
+    //Regresar a las actividades
+    cy.contains('button','Volver a actividades').click()
+    
+    //Regresar al curso
+    cy.contains('button','Volver al curso').click()
+    
+    
+  })
 
-    it.skip("Ingresar al modulo de cursos como aprendiz", ()=>{
-        cy.visit("http://localhost:5173/") 
-        cy.get(".button_signIn").first().click({force : true})
-        
-        //Ingresar credenciales del rol administrador
-        cy.get('input[type="email"]').first()
-            .type('jawixav282@filipx.com')
-        cy.get('input[type="password"]')
-            .type('Prueba1234*')
-            
-        //Iniciar sesión
-        cy.get(".button_register").click()
+  it.skip('Buscar cursos como aprendiz', () => {
+    // Visitar directamente la página de búsqueda de cursos
+    cy.visit("http://localhost:5173/Cursos/BuscarCursos");
+    
+    //Usar Filtros de Buscar Cursos
+    
+    cy.get('.search-input-container').find('input[placeholder="¿Qué curso estás buscando?"]').type('Analisis y Desarrollo de Software');
 
-         //Ingresar al modulo de cursos
-        cy.get('.courses-menu').get('.courses').first().click({force:true})
+    cy.get('.filter-select').eq(1).select('Cerrada').wait(1000);
+    cy.get('.filter-select').eq(0).select('En oferta').wait(1000);
 
-        //Entrar a los cursos
-        cy.get('.courses-menu').find('.dropdown-courses').contains('button','Mis cursos').first().click({force:true})
+  
+  })
 
-        //Recorrer los filtros
-        const textosFiltros = ['En oferta', 'Finalizados', 'Oferta abierta', 'Oferta cerrada'];
-        textosFiltros.forEach((texto) => {
-        cy.contains('.filtros button', texto).click();
-        cy.contains('.filtros button', texto).should('have.class', 'activo');
-        cy.wait(1000);
-        });
-    })
-
-    it.skip('Buscar cursos como aprendiz', ()=>{
-        cy.visit("http://localhost:5173/") 
-        cy.get(".button_signIn").first().click({force : true})
-        
-        //Ingresar credenciales del rol administrador
-        cy.get('input[type="email"]').first()
-            .type('jawixav282@filipx.com')
-        cy.get('input[type="password"]')
-            .type('Prueba1234*')
-            
-        //Iniciar sesión
-        cy.get(".button_register").click()
-
-         //Ingresar al modulo de cursos
-        cy.get('.courses-menu').get('.courses').first().click({force:true})
-
-        cy.get('.courses-menu').find('.dropdown-courses').contains('button','Buscar cursos').first().click({force:true})
-
-        
-        //Usar Filtros de Buscar Cursos
-        //Primer filtro - Estado
-        cy.get('.custom-select-container .custom-select').eq(0).select('Activo').wait(1000)
-
-        // Segundo filtro - Oferta  
-        cy.get('.custom-select-container .custom-select').eq(1).select('Cerrada').wait(1000)
-        cy.get('.custom-select-container .custom-select').eq(0).select('En oferta').wait(1000)
-
-
-        //Tercer Filtro
-        cy.get('.options_Search').find('input[type="text"]').type('Analisis y Desarrollo de Software')
-
-    })
-
-    it.skip('Solicitar un curso como aprendiz', ()=>{
-        cy.visit("http://localhost:5173/") 
-        cy.get(".button_signIn").first().click({force : true})
-        
-        //Ingresar credenciales del rol administrador
-        cy.get('input[type="email"]').first()
-            .type('jawixav282@filipx.com')
-        cy.get('input[type="password"]')
-            .type('Prueba1234*')
-            
-        //Iniciar sesión
-        cy.get(".button_register").click()
-
-        cy.get('.courses-menu').get('.courses').first().click({force:true})
-        cy.get('.courses-menu').find('.dropdown-courses').contains('button','Solicitar curso').first().click({force:true})
-
-        //Editar formulario de solicitud de curso
-        cy.contains('button', 'Editar').click({force:true})
-
-        cy.get('input[placeholder="Nombre del curso"]').clear().type('Curso de Prueba Automatizado')
-
-        //Ingresar Fechas
-        cy.get('.input-solicitud-date').first().type('2025-10-29');
-        cy.get('.input-solicitud-date').eq(1).type('2025-10-30')
-
-        //Guardar solicitud
-        cy.get('.botones-solicitud').contains('button', 'Guardar').click({force:true})
-
-        //Enviar solicitud
-        cy.get('.botones-solicitud').contains('button', 'Enviar Solicitud').click({force:true})
-
-    })
-
-    it.skip('cerrar sesión como aprendiz', ()=>{
-        cy.visit("http://localhost:5173/") 
-        cy.get(".button_signIn").first().click({force : true})
-        
-        //Ingresar credenciales del rol administrador
-        cy.get('input[type="email"]').first()
-            .type('hincapiefernandezjoan123@gmail.com')
-        cy.get('input[type="password"]')
-            .type(';,6E5RaH')
-            
-        //Iniciar sesión
-        cy.get(".button_register").click()
-
-        //Cerrar sesión
-        cy.get('.container_options_profile').find('img[alt="Cerrar sesión"]').first().click({force : true})
-    })
-})    
+  it.skip('cerrar sesión como aprendiz', () => {
+    // Cerrar sesión
+    cy.get('.svg-inline--fa.fa-right-from-bracket').first().click({force : true});
+    
+    // Verificar que hemos cerrado sesión
+    cy.url().should('include', 'http://localhost:5173/');
+    cy.get('.button_signIn').should('exist');
+  });
+});

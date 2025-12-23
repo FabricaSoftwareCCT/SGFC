@@ -1,4 +1,3 @@
-import { recurse } from 'cypress-recurse'
 
 describe('Pruebas de funcionalidad del rol Administrador', () => {
     before(() => {
@@ -200,14 +199,6 @@ it.skip('Crear Curso sin número de ficha', () => {
     
    
 })
-
-
-    it.skip('ingresar a las inscripciones de un curso',()=>{
-        cy.visit("http://localhost:5173/Cursos/1") 
-       
-        //ver inscripciones
-        cy.contains('button','Ver Inscripciones').click()
-    })
 
     it.skip('Ingresar a Material de Apoyo',()=>{
         cy.visit("http://localhost:5173/SupportMaterial") 

@@ -12,7 +12,4 @@ module.exports = defineConfig({
   requestTimeout: 100000,
   responseTimeout: 300000,
 
-  video: true,
-  screenshotOnRunFailure: true,
-  numTestsKeptInMemory: 10
 });

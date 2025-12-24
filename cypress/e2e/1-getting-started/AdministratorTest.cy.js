@@ -200,6 +200,10 @@ it.skip('Crear Curso sin número de ficha', () => {
    
 })
 
+it.skip('Cambiar estado de inscripcion de empleados',()=>{
+    
+})
+
     it.skip('Ingresar a Material de Apoyo',()=>{
         cy.visit("http://localhost:5173/SupportMaterial") 
        
@@ -519,12 +523,16 @@ it.skip('Crear Curso sin número de ficha', () => {
 
     it.skip('Reportes y estadisticas',()=>{
         cy.visit("http://localhost:5173/GestionReporteEstadisticas/ReporteEstadisticas") 
-
+        
         //Ingresar a un curso
         cy.get('.re-action-button').first().click({force:true})
-
+        
         //Generar reporte de estudiantes
         cy.contains('button','Generar reporte')
+        
+        //Eficiencia
+        cy.get('.button-eficiencia-estudiantes').click()
+        cy.contains('button','Generar reporte').clock()
     })
 
     it.skip('Asistencias y Progreso de Estudiantes',()=>{

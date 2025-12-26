@@ -77,6 +77,10 @@ describe('Prueba Modulo Aprendiz', () => {
     
     //Entrar a un curso asignado
     cy.get('.course-card-carousel').click({force : true});
+
+    //Ver Material del curso
+    cy.contains('Ver Material').click()
+    cy.get('.btn-back').click()
     
     //Ver los horarios del curso
     cy.contains('Ver Horarios').click()

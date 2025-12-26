@@ -201,7 +201,24 @@ it.skip('Crear Curso sin número de ficha', () => {
 })
 
 it.skip('Cambiar estado de inscripcion de empleados',()=>{
+    cy.visit('http://localhost:5173/Cursos/Inscripciones/1')
+
+    //Usar filtro
+    cy.get('.rg-filter-select').select('Más antiguos primero')
     
+    //buscar empleado
+    cy.get('.rg-search-container').find('input[placeholder="Buscar por nombre, apellido, email, empresa o teléfono..."]').type('Marco')
+
+    //Sleccionar aprendices    
+    cy.get('input[type="checkbox"]').first().click();
+
+    //Aceptar Aprendices
+    cy.get('.rg-bulk-btn.rg-bulk-accept').click()
+
+    //Rechazar Aprendices
+    //cy.get('.rg-bulk-btn.rg-bulk-reject').click()
+
+
 })
 
     it.skip('Ingresar a Material de Apoyo',()=>{
@@ -211,7 +228,7 @@ it.skip('Cambiar estado de inscripcion de empleados',()=>{
         cy.get('.support-cursos-grid').get('.support-curso-card').first().click({force : true})
         cy.get('.support-create-btn.outline').click({force:true})
 
-                /// Obtener los botones de opciones
+        /// Obtener los botones de opciones
         cy.get('.type-option-support').should('have.length', 3);
 
         // Recorrer las tres opciones

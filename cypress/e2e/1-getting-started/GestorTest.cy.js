@@ -169,6 +169,27 @@ describe('Prueba Modulo Aprendiz', () => {
         cy.get('.swal2-confirm.centered-swal-button.swal2-styled').click({ force: true });
     })
 
+        it.skip('Cambiar estado de inscripcion de empleados',()=>{
+        cy.visit('http://localhost:5173/Cursos/Inscripciones/1')
+
+        //Usar filtro
+        cy.get('.rg-filter-select').select('Más antiguos primero')
+        
+        //buscar empleado
+        cy.get('.rg-search-container').find('input[placeholder="Buscar por nombre, apellido, email, empresa o teléfono..."]').type('Marco')
+
+        //Sleccionar aprendices    
+        cy.get('input[type="checkbox"]').first().click();
+
+        //Aceptar Aprendices
+        cy.get('.rg-bulk-btn.rg-bulk-accept').click()
+
+        //Rechazar Aprendices
+        //cy.get('.rg-bulk-btn.rg-bulk-reject').click()
+
+
+    })
+
     
 
     it.skip('Filtrar criterios de certificación y descargar criterios',()=>{

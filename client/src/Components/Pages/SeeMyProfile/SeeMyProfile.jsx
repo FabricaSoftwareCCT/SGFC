@@ -609,6 +609,22 @@ export const SeeMyProfile = () => {
 							)}
 
 							<div className="profile_field">
+								<label>Número de Documento:</label>
+								{editMode ? (
+									<input
+										type="text"
+										name="documento"
+										className="input_updateData"
+										placeholder="Ingrese número de documento..."
+										value={perfil?.documento || ""}
+										onChange={handleInputChange}
+										disabled={!editMode}
+									/>
+								) : (
+									<span className="profile_value">{perfil?.documento || "No especificado"}</span>
+								)}
+							</div>
+							<div className="profile_field">
 								<label>Email:</label>
 								{editMode ? (
 									<input

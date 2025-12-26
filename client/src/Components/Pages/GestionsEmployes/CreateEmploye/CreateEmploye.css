@@ -212,6 +212,20 @@
   display: none;
 }
 
+.input-field-create-employe option {
+  padding: 12px;
+  background: rgb(58, 57, 57);
+}
+
+.input-field-create-employe option:checked {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: rgb(34, 31, 31);
+}
+
+.input-field-create-employe option:hover {
+  background-color: #242933;
+}
+
 /* Loading empresas */
 .loading-empresas {
   background: rgba(255, 255, 255, 0.05);

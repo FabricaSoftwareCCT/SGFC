@@ -60,7 +60,7 @@ export const MisCursosAdmin = () => {
     // Filtros según tipo de cuenta
     const filtros =
         accountType === "Empresa"
-            ? ["Todos", "Activos", "Finalizados", "Pendientes", "Cancelados", "En oferta"]
+            ? ["Todos", "Finalizados", "Pendientes", "Cancelados"]
             : [
                 "Todos",
                 "Finalizados",

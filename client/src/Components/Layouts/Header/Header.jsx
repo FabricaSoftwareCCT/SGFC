@@ -341,8 +341,7 @@ export const Header = ({
 						case "Aprendiz":
 							options = [
 								{ label: "Mis cursos", path: "/Cursos/MisCursosAsignados" },
-								{ label: "Buscar cursos", path: "/Cursos/BuscarCursos" },
-								{ label: "Solicitar curso", path: "/SolicitarCursoAp" },
+								{ label: "Buscar cursos", path: "/Cursos/BuscarCursos" },								
 							];
 							break;
 						default:

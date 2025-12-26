@@ -299,11 +299,11 @@ export const SeeCourse = () => {
 									</button>
 								)}
 								
-								{userSession && userSession.accountType === 'Gestor' && (
+								{/* {userSession && userSession.accountType === 'Gestor' && (
 									<button className='enroll-btn' onClick={() => navigate(`/Cursos/${id}/inscribir-aprendices`)}>
 										Inscribir Aprendices
 									</button>
-								)}	
+								)}	 */}
 							</div>
 						</div>
 					</div>

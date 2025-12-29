@@ -84,7 +84,8 @@ export const FormatCourse = ({ contentKey, cursos, done, onReady }) => {
 									color: "#000",
 									border: "1px solid",
 									fontSize: "10px",
-									backgroundColor: "#FFF"
+									backgroundColor: "#FFF",
+									padding: "2px"
 								}}
 							>{h}</th>
 						)}
@@ -138,7 +139,8 @@ export const FormatCourse = ({ contentKey, cursos, done, onReady }) => {
 				borderCollapse: "collapse",
 				border: "1px solid",
 				padding: "0px",
-				width: "100%"
+				width: "100%",
+				minWidth: "90%"
 			}}>
 				<thead>
 					<tr>
@@ -147,7 +149,8 @@ export const FormatCourse = ({ contentKey, cursos, done, onReady }) => {
 								style={{
 									color: "#000",
 									border: "1px solid",
-									fontSize: "10px"
+									fontSize: "10px",
+									backgroundColor: "#FFF"
 								}}
 							>{h}</th>)
 						})}

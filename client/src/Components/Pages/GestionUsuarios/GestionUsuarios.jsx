@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useRef, useState } from "react"
 import { Header } from "../../Layouts/Header/Header"
 import { Main } from "../../Layouts/Main/Main"
 import "./GestionUsuarios.css"
@@ -6,10 +6,13 @@ import { useNavigate } from "react-router-dom"
 import axiosInstance from "../../../config/axiosInstance"
 import { useEffect } from "react"
 import { PageMover } from "../../UI/PageMover/PageMover"
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faArrowLeft, faUser, faIdCard, faPhone, faEnvelope, faCamera, faBuilding, faShield } from '@fortawesome/free-solid-svg-icons'
 
 import fotoPerfilDefect from "../../../assets/Icons/userDefect.png"
 import Swal from 'sweetalert2';
 import 'sweetalert2/themes/bulma.css'
+import debounce from "lodash.debounce"
 
 export const GestionUsuarios = () => {
 	const navigate = useNavigate()
@@ -23,11 +26,37 @@ export const GestionUsuarios = () => {
 	const [name, setName] = useState("")
 	const [document, setDocument] = useState("")
 	const [selectedUser, setSelectedUser] = useState(null)
-	const [selectedUserBackup, setSelectedUserBackup] = useState(null)
-	const [editing, setEditing] = useState(false)
+	const [isEditing, setIsEditing] = useState(false)
+	const [formData, setFormData] = useState(null)
+	const [empresaNIT, setEmpresaNIT] = useState("")
+	const [showEmpresas, setShowEmpresas] = useState(false)
+	const [resultadosEmpresa, setResultadosEmpresa] = useState([])
+	const [empresaSeleccionada, setEmpresaSeleccionada] = useState(null)
 	
 	const isLoggedIn = !!userSession
 	const accountType = userSession?.accountType || null
+
+	const buscarEmpresaPorNIT = async (nit) => {
+		if (!nit.trim()) {
+			setResultadosEmpresa([])
+			return
+		}
+		try {
+			const response = await axiosInstance.get(`/api/users/empresa/${nit}`)
+			setResultadosEmpresa([response.data])
+			setShowEmpresas(true)
+		} catch {
+			setResultadosEmpresa([])
+			setShowEmpresas(false)
+		}
+	};
+
+	const debouncedBuscarEmpresa = useRef(debounce(buscarEmpresaPorNIT, 500)).current;
+
+	useEffect(() => {
+		debouncedBuscarEmpresa(empresaNIT);
+		return () => debouncedBuscarEmpresa.cancel();
+	}, [empresaNIT, debouncedBuscarEmpresa]);
 
 	const fetchUsuarios = async () => {
 		try {
@@ -46,7 +75,6 @@ export const GestionUsuarios = () => {
 				customClass:{
 					confirmButton: 'centered-swal-button'
 				}
-
 			})
 		}
 	} 
@@ -88,25 +116,188 @@ export const GestionUsuarios = () => {
 		return fotoPerfilDefect;
 	}
 
-	const truncarNombreArchivo = (nombre, maxLongitud = 15) => {
-		if (!nombre) return '';
+	const handleOpenModal = (user) => {
+		setEmpresaSeleccionada(null)
+		setSelectedUser(user)
+		setFormData({ ...user })
+		setIsEditing(false)
+	}
 
-		const ultimoPunto = nombre.lastIndexOf('.');
-		if (ultimoPunto === -1) {
-			return nombre.length > maxLongitud 
-				? `${nombre.slice(0, maxLongitud)}...`
-				: nombre;
+	const handleCloseModal = () => {
+		setSelectedUser(null)
+		setFormData(null)
+		setIsEditing(false)
+	}
+
+	const handleChange = (e) => {
+		const { name, value } = e.target;
+		setFormData((prev) => ({ ...prev, [name]: value }));
+	}
+
+	const handleImageChange = (e) => {
+		const file = e.target.files[0];
+		if (file) {
+			setFormData((prev) => ({
+				...prev,
+				foto_perfil: file,
+			}));
+		}
+	}
+
+	const handleEstadoChange = (estado) => {
+		setFormData((prev) => ({ ...prev, estado: estado.toLowerCase() }));
+	}
+
+	const handleRolChange = (rol) => {
+		setFormData((prev) => ({ ...prev, accountType: rol }));
+	}
+
+	const validateFields = () => {
+		const errors = [];
+		
+		if (!formData.nombres || formData.nombres.trim() === '') {
+			errors.push('Los nombres son requeridos');
+		} else if (formData.nombres.trim().length < 2) {
+			errors.push('Los nombres deben tener al menos 2 caracteres');
+		}
+		
+		if (!formData.apellidos || formData.apellidos.trim() === '') {
+			errors.push('Los apellidos son requeridos');
+		} else if (formData.apellidos.trim().length < 2) {
+			errors.push('Los apellidos deben tener al menos 2 caracteres');
+		}
+		
+		if (!formData.documento || formData.documento.trim() === '') {
+			errors.push('El número de documento es requerido');
+		} else if (!/^\d+$/.test(formData.documento.trim())) {
+			errors.push('El número de documento debe contener solo números');
+		} else if (formData.documento.trim().length < 6) {
+			errors.push('El número de documento debe tener al menos 6 dígitos');
+		}
+		
+		if (!formData.celular || formData.celular.trim() === '') {
+			errors.push('El número de celular es requerido');
+		} else if (!/^\d+$/.test(formData.celular.trim())) {
+			errors.push('El número de celular debe contener solo números');
+		} else if (formData.celular.trim().length < 10) {
+			errors.push('El número de celular debe tener al menos 10 dígitos');
+		}
+		
+		if (!formData.email || formData.email.trim() === '') {
+			errors.push('El email es requerido');
+		} else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) {
+			errors.push('Debe ingresar un email válido');
+		}
+		
+		return errors;
+	}
+
+	const handleSubmit = async (e) => {
+		e.preventDefault();
+
+		if (!isEditing) {
+			setIsEditing(true);
+			return;
 		}
 
-		const nombreParte = nombre.slice(0, ultimoPunto);
-		const extension = nombre.slice(ultimoPunto);
-
-		if (nombreParte.length <= maxLongitud) {
-			return nombre;
+		const errors = validateFields();
+		if (errors.length > 0) {
+			await Swal.fire({
+				icon: "warning",
+				title: "Campos requeridos",
+				html: `
+					<div style="text-align: left;">
+						<p>Por favor corrija los siguientes errores:</p>
+						<ul style="margin-top: 10px; padding-left: 20px;">
+							${errors.map(error => `<li>${error}</li>`).join('')}
+						</ul>
+					</div>
+				`,
+				confirmButtonText: "Entendido",
+				theme: "bulma",
+				customClass: { confirmButton: 'centered-swal-button' }
+			});
+			return;
 		}
 
-		return `${nombreParte.slice(0, maxLongitud)}... ${extension}`;
-	};
+		try {
+			const formDataToSend = new FormData();
+			
+			// Agregar campos básicos
+			formDataToSend.append('nombres', formData.nombres);
+			formDataToSend.append('apellidos', formData.apellidos);
+			formDataToSend.append('documento', formData.documento);
+			formDataToSend.append('celular', formData.celular);
+			formDataToSend.append('email', formData.email);
+			formDataToSend.append('estado', formData.estado);
+			if (empresaSeleccionada)
+				formDataToSend.append('empresa_asignada', empresaSeleccionada.ID)
+
+			// Agregar imagen si es un archivo nuevo
+			if (formData.foto_perfil instanceof File) {
+				formDataToSend.append('foto_perfil', formData.foto_perfil);
+			}
+
+			// Actualizar datos básicos
+			const response = await axiosInstance.put(
+				`/api/users/perfil/actualizar/${formData.ID}`,
+				formDataToSend,
+				{
+					headers: {
+						'Content-Type': 'multipart/form-data',
+					}
+				}
+			);
+
+			// Cambiar rol si es necesario
+			if (formData.accountType !== selectedUser.accountType) {
+				await axiosInstance.put(`/api/users/admin/changerole/${formData.ID}`, {
+					role: formData.accountType
+				});
+			}
+
+			await Swal.fire({
+				icon: "success",
+				title: "¡Éxito!",
+				text: "Usuario actualizado correctamente",
+				confirmButtonText: "Aceptar",
+				theme: "bulma",
+				customClass: { confirmButton: 'centered-swal-button' }
+			});
+			
+			setIsEditing(false);
+			setEmpresaNIT("")
+			setEmpresaSeleccionada(null)
+			handleCloseModal();
+			fetchUsuarios();
+		} catch (error) {
+			console.error("Error al actualizar el usuario:", error.response?.data || error.message);
+			
+			let errorMessage = "Hubo un error al actualizar el usuario. Por favor, inténtelo de nuevo.";
+			
+			if (error.response?.status === 400) {
+				const errorMsg = error.response?.data?.message;
+				if (errorMsg === "El correo electrónico ya está registrado.") {
+					errorMessage = "El correo electrónico ya está registrado en el sistema. Por favor, use un correo diferente.";
+				} else if (errorMsg === "El documento ya está registrado.") {
+					errorMessage = "El número de documento ya está registrado en el sistema. Por favor, verifique el documento.";
+				} else if (errorMsg === "El número de celular ya está registrado.") {
+					errorMessage = "El número de celular ya está registrado en el sistema. Por favor, use un número diferente.";
+				} else {
+					errorMessage = errorMsg || errorMessage;
+				}
+			}
+
+			await Swal.fire({
+				icon: "error",
+				title: "Error",
+				text: errorMessage,
+				confirmButtonText: "Aceptar",
+				theme: "bulma",
+				customClass: { confirmButton: 'centered-swal-button' }
+			});
+		}
+	}
 
 	const renderUser = (user) => {
 		const nombre = user.nombres ? `${user.nombres} ${user.apellidos}` : "Sin definir"
@@ -117,141 +308,65 @@ export const GestionUsuarios = () => {
 		const estado = user.estado
 
 		return (
-			<tr key={user.ID} className="company-row">
-				<td className="company-logo-cell">
+			<tr key={user.ID} className="gu-company-row">
+				<td className="gu-company-logo-cell">
 					<img 
-						className="company-logo" 
+						className="gu-company-logo" 
 						src={pfpSrc} 
 						alt="foto"
 					/>
 				</td>
-				<td className="company-name-cell">
+				<td className="gu-company-name-cell">
 					{nombre}
 				</td>
-				<td className="company-nit-cell">
+				<td className="gu-company-nit-cell">
 					{documento}
 				</td>
-				<td className="company-category-cell">
+				<td className="gu-company-category-cell">
 					{rol}
 				</td>
-				<td className="company-status-cell">
-					<span className={`status-pill ${estado === 'activo' ? 'status-active' : estado === 'inactivo' ? 'status-inactive' : 'status-unknown'}`}>
+				<td className="gu-company-status-cell">
+					<span className={`gu-status-pill ${estado === 'activo' ? 'gu-status-active' : estado === 'inactivo' ? 'gu-status-inactive' : 'gu-status-unknown'}`}>
 						{estado === 'activo' ? 'Activo' : estado === 'inactivo' ? 'Inactivo' : 'Sin estado'}
 					</span>
 				</td>
 				<td>
 					<button
-						className="manage-button"
+						className="gu-manage-button"
 						type="button"
-						onClick={() => {
-							//console.log(user)
-							setSelectedUser(user)
-							setSelectedUserBackup(user)
-						}}
+						onClick={() => handleOpenModal(user)}
 						data-adblock-bypass="true"
-						aria-label="Ver manager"
+						aria-label="Ver usuario"
 					>Ver usuario</button>
 				</td>
 			</tr>
 		)
 	}
 
-	const updateUser = async () => {
-		if (!editing) {
-			setEditing(true)
-			return
-		}
-
-		if (selectedUser == selectedUserBackup)
-			return
-
-		try {
-			const resp = await axiosInstance.put(`/api/users/perfil/actualizar/${selectedUser.ID}`, {
-				email: selectedUser.email,
-				nombres: selectedUser.nombres,
-				apellidos: selectedUser.apellidos,
-				celular: selectedUser.celular,
-				documento: selectedUser.documento,
-				estado: selectedUser.estado
-			})
-			if (resp?.status >= 200 && resp?.status < 300) {
-				Swal.fire({
-					icon:"success",
-					title:"¡Éxtixo!",
-					text: resp?.data?.message ||"Se ha actualizado el manage",
-					confirmButtonText:"Aceptar",
-					theme: "bulma",
-        			customClass: {
-            confirmButton: 'button is-primary',
-            actions: 'swal2-actions-centered'
-        },
-        buttonsStyling: false
-				})
-			} else {
-				    await Swal.fire({
-        title: 'Error',
-        text: "No se pudo actualizar el manager.",
-        icon: 'error',
-        confirmButtonText: 'Aceptar',
-        theme: "bulma",
-        customClass: {
-            confirmButton: 'button is-danger',
-            actions: 'swal2-actions-centered'
-        },
-        buttonsStyling: false
-    });
-				return;
-			}
-
-			if (selectedUser.accountType != selectedUserBackup.accountType) {
-				const resp2 = await axiosInstance.put(`/api/users/admin/changerole/${selectedUser.ID}`, {
-					role: selectedUser.accountType
-				})
-			}
-
-			setEditing(false)
-			setSelectedUser(null)
-			fetchUsuarios()
-		} catch (error) {
-			console.log(error)
-			Swal.fire({
-				icon:"error",
-				title:"Error al actualizar el usuario",
-				text:"Ocurrió un error al actualizar el usuario, intentelo después",
-				confirmButtonText:"Aceptar",
-				theme:"bulma",
-				customClass: {
-            confirmButton: 'button is-danger',
-            actions: 'swal2-actions-centered'
-        }
-			})
-		}
-	}
-
 	return (
-		<div className="pantallaGestionsCompany">
+		<div className="gu-pantalla">
 			<Header/>
 			<Main>
-				<section className="sectionPrincipalGestionsCompany">
-					<section className="sectionGestionsCompanyHeader">
-						<div className="header-title-container">
-							<p className="tituloGestionsCompany">
-								Usuarios <span className="tituloVerde">Registrados</span>
+				<section className="gu-section-principal">
+					<section className="gu-section-header">
+						<div className="gu-header-title-container">
+							<p className="gu-titulo">
+								Usuarios <span className="gu-titulo-verde">Registrados</span>
 							</p>
 						</div>
-						<p className="paragraphGestionsCompany">
+						<p className="gu-paragraph">
 							Consulta y gestiona usuarios registrados en el sistema. 
 						</p>
 					</section>
-					<section className="sectionGestionsCompanyBody">
-						<section className="filterGestionsCompany">
-							<strong className="tituloFiltrar">Filtrar</strong>
-							<article className="filterOptionsGestionsCompany">
-								<div className="filterOptionName">
-									<label className="labelFilterOption1">Nombre</label>
-									<div className="inputFilterOption1">
+					<section className="gu-section-body">
+						<section className="gu-filter">
+							<strong className="gu-titulo-filtrar">Filtrar</strong>
+							<article className="gu-filter-options">
+								<div className="gu-filter-option-name">
+									<label className="gu-label-filter-option">Nombre</label>
+									<div className="gu-input-filter-option">
 										<input
-											className="inputFilterOptionText"
+											className="gu-input-filter-text"
 											type="text"
 											placeholder="Escriba el nombre del usuario"
 											value={name}
@@ -259,252 +374,393 @@ export const GestionUsuarios = () => {
 										/>
 									</div>
 								</div>
-								<div className="filterOptionName">
-									<label className="labelFilterOption1">Documento</label>
-									<div className="inputFilterOption1">
+								<div className="gu-filter-option-name">
+									<label className="gu-label-filter-option">Documento</label>
+									<div className="gu-input-filter-option">
 										<input
-											className="inputFilterOptionText"
+											className="gu-input-filter-text"
 											type="text"
-											placeholder="Escriba el nombre del usuario"
+											placeholder="Escriba el número de documento"
 											value={document}
 											onChange={(e) => setDocument(e.target.value)}
 										/>
 									</div>
 								</div>
 								<button
-									className="button"
+									className="gu-button"
 									onClick={() => fetchUsuarios()}	
 								>Filtrar</button>
 							</article>
 						</section>
-						<section className="resultTableGestionsCompany">
-							<div className="results-header">
-								<label className="labelFilterOption12">
+						<section className="gu-result-table">
+							<div className="gu-results-header">
+								<label className="gu-label-filter-result">
 									{total} Resultados · Página {page + 1} de {totalPages}
 								</label>
 							</div>
-							<div 
-								className={`table-container`}
-							>
-								{users.length > 0 ?
-									<table className="companies-table">
-										<thead>
-											<tr className="table-heade">
-												<th className="header-logo">Foto</th>
-												<th className="header-name">Nombre</th>
-												<th className="header-nit">Documento</th>
-												<th className="header-name">Rol</th>
-												<th className="header-category">Estado</th>
-												<th className="header-actions">Acciones</th>
-											</tr>
-										</thead>
-										<tbody>
-											{users.map(renderUser)}
-										</tbody>
-									</table>
-								:
-									<div className="no-results">No se encontraron usuarios.</div>
-								}
+							<div className="gu-table-wrapper">
+								<div className="gu-table-container">
+									{users.length > 0 ?
+										<table className="gu-companies-table">
+											<thead>
+												<tr className="gu-table-header">
+													<th className="gu-header-logo">Foto</th>
+													<th className="gu-header-name">Nombre</th>
+													<th className="gu-header-nit">Documento</th>
+													<th className="gu-header-rol">Rol</th>
+													<th className="gu-header-category">Estado</th>
+													<th className="gu-header-actions">Acciones</th>
+												</tr>
+											</thead>
+											<tbody>
+												{users.map(renderUser)}
+											</tbody>
+										</table>
+									:
+										<div className="gu-no-results">No se encontraron usuarios.</div>
+									}
+								</div>
 							</div>
-							<PageMover
-								value={page + 1}
-								max={totalPages}
-								next={() => {
-									setPage(page + 1)
-								}}
-								prev={() => {
-									setPage(page - 1)
-								}}
-							/>
+							<div className="gu-pagination-container">
+								<PageMover
+									value={page + 1}
+									max={totalPages}
+									next={() => {
+										setPage(page + 1)
+									}}
+									prev={() => {
+										setPage(page - 1)
+									}}
+								/>
+							</div>
 						</section>
-						{selectedUser && (
-							<div id="modal-overlayUpdateInstructor" style={{ display: "flex" }}>
-								<div className="modal-bodyUpdateInstructor">
-									<div className="modal-left-update">
-										<p>
-											<strong>Nombre:</strong>
-											{editing ?
-												<input
-													type="text"
-													name="nombres"
-													value={selectedUser.nombres}
-													className="input_updateData"
-													onChange={(e) => setSelectedUser({
-														...selectedUser,
-														nombres: e.target.value
-													})}
-												/>
-											:
-												<span className="valor-campo">{selectedUser.nombres}</span>
-											}
-										</p>
-										<p>
-											<strong>Apellidos:</strong>
-											{editing ?
-												<input
-													type="text"
-													name="apellidos"
-													value={selectedUser.apellidos}
-													className="input_updateData"
-													onChange={(e) => setSelectedUser({
-														...selectedUser,
-														apellidos: e.target.value
-													})}
-												/>
-											:
-												<span className="valor-campo">{selectedUser.apellidos}</span>
-											}
-										</p>
-										<p>
-											<strong>Celular:</strong>
-											{editing ?
-												<input
-													type="number"
-													name="celular_manager"
-													value={selectedUser.celular}
-													className="input_updateData"
-													onChange={(e) => setSelectedUser({
-														...selectedUser,
-														celular: e.target.value
-													})}
-												/>
-											:
-												<span className="valor-campo">{selectedUser.celular}</span>
-											}
-										</p>
-										<p>
-											<strong>Documento:</strong>
-											{editing ?
-												<input
-													type="number"
-													name="documento_manager"
-													value={selectedUser.documento}
-													className="input_updateData"
-													onChange={(e) => setSelectedUser({
-														...selectedUser,
-														documento: e.target.value
-													})}
-												/>
-											:
-												<span className="valor-campo">{selectedUser.documento}</span>
-											}
-										</p>
-										<p>
-											<strong>Correo:</strong>
-											{editing ?
-												<input
-													type="email"
-													name="documento_manager"
-													value={selectedUser.email}
-													className="input_updateData"
-													onChange={(e) => setSelectedUser({
-														...selectedUser,
-														email: e.target.value
-													})}
-												/>
-											:
-												<span className="valor-campo">{truncarNombreArchivo(selectedUser.email,13)}</span>
-											}
-										</p>
-										<p>
-											<strong>Estado:</strong>
-											{editing ?
-												<div className="status-buttons">
-													{["Activo", "Inactivo"].map((estado) => (
-														<button
-															key={estado}
-															type="button"
-															className={`status ${selectedUser.estado === estado.toLowerCase() ? "active" : ""}`}
-															onClick={() => {
-																setSelectedUser({
-																	...selectedUser,
-																	estado: estado.toLowerCase()
-																})
-															}}
-														>
-															{estado}
-														</button>
-													))}
-												</div>
-											:
-												<span className="valor-campo">{selectedUser.estado}</span>
-											}
-										</p>
-										<p>
-											<strong>Rol:</strong>
-											{editing ? 
-												<div className="status-buttons">
-													{['Aprendiz', 'Instructor', 'Administrador', 'Gestor'].map((rol) => (
-														<button
-															key={rol}
-															className={`status ${selectedUser.accountType === rol ? "active" : ""}`}
-															onClick={() => setSelectedUser({
-																...selectedUser,
-																accountType: rol
-															})}
-														>
-															{rol}
-														</button>
-													))}
-												</div>
-											:
-												<span className="valor-campo">{selectedUser.accountType}</span>
-											}
-										</p>
+
+						{/* Modal Actualizado */}
+						{selectedUser && formData && (
+							<div className="gu-modal-overlay">
+								<div className="gu-modal-container">
+									<div className="gu-modal-header">
+										<div className="gu-header-content">
+											<h2>
+												<FontAwesomeIcon icon={faUser} className="gu-header-icon" />
+												Perfil del Usuario
+											</h2>
+											<button 
+												type="button" 
+												onClick={handleCloseModal}
+												className="gu-close-btn"
+											>
+												<FontAwesomeIcon icon={faArrowLeft} />
+												<span>Volver</span>
+											</button>
+										</div>
 									</div>
 
-									<div className="modal-right">
-										<label
-											className={`upload-area-update ${!editing ? "read-only-border" : ""}`}
-											htmlFor="imageUpload"
-										>
-											{(() => {
-												const src = getLogoSrc(selectedUser.foto_perfil);
-												return (
-													<img 
-														src={src} 
-														alt="Logo" 
-														className="preview-image-update"
-														onError={(e) => {
-															e.currentTarget.src = fotoPerfilDefect;
-														}}
-													/>
-												);
-											})()}
-										</label>
-										{editing ?
-											<>
-												<button
-													className="edit-button-updateInstructor"
-													onClick={() => {
-														updateUser()
-													}}
-												>
-													Guardar Cambios
-												</button>
-												<button
-													className="edit-button-updateInstructor"
-													onClick={() => setEditing(false)}
-												>
-													Cancelar
-												</button>
-											</>
-										:
-											<button
-												onClick={() => setEditing(true)}
-												type="button"
-												className="edit-button-updateInstructor"
-											>Editar usuario</button>
-										}
-									</div>
+									<form className="gu-modal-body" onSubmit={handleSubmit}>
+										<div className="gu-modal-content">
+											{/* Columna izquierda - Información */}
+											<div className="gu-info-column">
+												<div className="gu-form-section">
+													<h3 className="gu-section-title">Información Personal</h3>
+													<div className="gu-form-grid">
+														<div className="gu-input-group">
+															<label className="gu-input-label">
+																<FontAwesomeIcon icon={faUser} />
+																Nombres
+															</label>
+															{isEditing ? (
+																<input
+																	type="text"
+																	name="nombres"
+																	value={formData.nombres || ""}
+																	onChange={handleChange}
+																	className="gu-input-field"
+																	placeholder="Ingrese los nombres"
+																/>
+															) : (
+																<div className="gu-display-field">
+																	{formData.nombres || "No especificado"}
+																</div>
+															)}
+														</div>
 
-									<div className="container_return_UpdateInstructor">
-										<h5>Volver</h5>
-										<button type="button" onClick={()=> {
-											setSelectedUser(null)
-											setEditing(false)
-										}} className="closeModal"></button>
-									</div>
+														<div className="gu-input-group">
+															<label className="gu-input-label">
+																<FontAwesomeIcon icon={faUser} />
+																Apellidos
+															</label>
+															{isEditing ? (
+																<input
+																	type="text"
+																	name="apellidos"
+																	value={formData.apellidos || ""}
+																	onChange={handleChange}
+																	className="gu-input-field"
+																	placeholder="Ingrese los apellidos"
+																/>
+															) : (
+																<div className="gu-display-field">
+																	{formData.apellidos || "No especificado"}
+																</div>
+															)}
+														</div>
+
+														<div className="gu-input-group">
+															<label className="gu-input-label">
+																<FontAwesomeIcon icon={faIdCard} />
+																Documento
+															</label>
+															{isEditing ? (
+																<input
+																	type="text"
+																	name="documento"
+																	value={formData.documento || ""}
+																	onChange={handleChange}
+																	className="gu-input-field"
+																	placeholder="Ingrese el documento"
+																/>
+															) : (
+																<div className="gu-display-field">
+																	{formData.documento || "No especificado"}
+																</div>
+															)}
+														</div>
+
+														<div className="gu-input-group">
+															<label className="gu-input-label">
+																<FontAwesomeIcon icon={faPhone} />
+																Celular
+															</label>
+															{isEditing ? (
+																<input
+																	type="text"
+																	name="celular"
+																	value={formData.celular || ""}
+																	onChange={handleChange}
+																	className="gu-input-field"
+																	placeholder="Ingrese el celular"
+																/>
+															) : (
+																<div className="gu-display-field">
+																	{formData.celular || "No especificado"}
+																</div>
+															)}
+														</div>
+
+														<div className="gu-input-group">
+															<label className="gu-input-label">
+																<FontAwesomeIcon icon={faEnvelope} />
+																Email
+															</label>
+															{isEditing ? (
+																<input
+																	type="email"
+																	name="email"
+																	value={formData.email || ""}
+																	onChange={handleChange}
+																	className="gu-input-field"
+																	placeholder="Ingrese el email"
+																/>
+															) : (
+																<div className="gu-display-field">
+																	{formData.email || "No especificado"}
+																</div>
+															)}
+														</div>
+
+														<div className="gu-input-group">
+															<label className="gu-input-label">
+																<FontAwesomeIcon icon={faBuilding} />
+																Empresa
+															</label>
+															{isEditing ?
+																<>
+																	<input
+																		className="gu-input-field"
+																		type="text"
+																		placeholder="Buscar por NIT de empresa"
+																		value={empresaNIT}
+																		onChange={(e) => {
+																			setEmpresaNIT(e.target.value)
+																			setShowEmpresas(true)
+																		}}
+																		autoComplete="off"
+																	/>
+																	{empresaNIT.trim() !== "" && showEmpresas && (
+																		<ul className="company-results-normal">
+																			{resultadosEmpresa.length > 0 ? (
+																				resultadosEmpresa.map((empresa) => (
+																					<li
+																						key={empresa.ID}
+																						onClick={() => {
+																							setEmpresaSeleccionada(empresa)
+																							setShowEmpresas(false)
+																							setEmpresaNIT(empresa.nombre_empresa)
+																						}}
+																					>
+																						{empresa.nombre_empresa}
+																					</li>
+																				))
+																			) : (
+																				<li style={{ color: "#ff6b6b" }}>No se encontraron empresas</li>
+																			)}
+																		</ul>
+																	)}
+																</>
+																
+															:
+																<div className="gu-display-field">
+																	{selectedUser.Empresa?.nombre_empresa || "No asignada"}
+																</div>
+															}		
+														</div>
+														<div className="gu-input-group">
+															<label className="gu-input-label">Estado</label>
+															{isEditing ? (
+																<div className="gu-status-buttons">
+																	{["Activo", "Inactivo"].map((estado) => {
+																		const isSelected = (formData.estado || "").toLowerCase() === estado.toLowerCase();
+																		return (
+																			<button
+																				key={estado}
+																				type="button"
+																				className={`gu-status-btn ${isSelected ? "active" : ""}`}
+																				onClick={() => handleEstadoChange(estado)}
+																			>
+																				<span className="gu-status-dot"></span>
+																				{estado}
+																			</button>
+																		);
+																	})}
+																</div>
+															) : (
+																<div className={`gu-status-display ${formData.estado?.toLowerCase()}`}>
+																	<span className="gu-status-dot"></span>
+																	{formData.estado || "No especificado"}
+																</div>
+															)}
+														</div>
+
+														<div className="gu-input-group">
+															<label className="gu-input-label">
+																<FontAwesomeIcon icon={faShield} />
+																Rol
+															</label>
+															{isEditing ? (
+																<div className="gu-status-buttons">
+																	{['Aprendiz', 'Instructor', 'Administrador', 'Gestor'].map((rol) => (
+																		<button
+																			key={rol}
+																			type="button"
+																			className={`gu-status-btn ${formData.accountType === rol ? "active" : ""}`}
+																			onClick={() => handleRolChange(rol)}
+																		>
+																			<span className="gu-status-dot"></span>
+																			{rol}
+																		</button>
+																	))}
+																</div>
+															) : (
+																<div className="gu-display-field">
+																	{formData.accountType || "No especificado"}
+																</div>
+															)}
+														</div>
+													</div>
+												</div>
+											</div>
+
+											{/* Columna derecha - Imagen */}
+											<div className="gu-image-column">
+												<div className="gu-image-section">
+													<div className="gu-image-container">
+														{isEditing ? (
+															<>
+																<input
+																	type="file"
+																	accept="image/*"
+																	onChange={handleImageChange}
+																	id="gu-imageUpload"
+																	className="gu-file-input"
+																/>
+																<label
+																	className="gu-image-upload editable"
+																	htmlFor="gu-imageUpload"
+																>
+																	{formData.foto_perfil instanceof File ? (
+																		<img
+																			src={URL.createObjectURL(formData.foto_perfil)}
+																			alt="Vista previa"
+																			className="gu-profile-image"
+																			onError={(e) => {
+																				e.target.src = fotoPerfilDefect;
+																			}}
+																		/>
+																	) : formData.foto_perfil ? (
+																		<img
+																			src={getLogoSrc(formData.foto_perfil)}
+																			alt="Foto de perfil"
+																			className="gu-profile-image"
+																			onError={(e) => {
+																				e.target.src = fotoPerfilDefect;
+																			}}
+																		/>
+																	) : (
+																		<div className="gu-image-placeholder">
+																			<FontAwesomeIcon icon={faCamera} className="gu-placeholder-icon" />
+																			<span>Haz clic para subir imagen</span>
+																		</div>
+																	)}
+																	<div className="gu-upload-overlay">
+																		<FontAwesomeIcon icon={faCamera} />
+																		<span>Cambiar imagen</span>
+																	</div>
+																</label>
+															</>
+														) : (
+															<div className="gu-image-display">
+																{formData.foto_perfil ? (
+																	<img
+																		src={getLogoSrc(formData.foto_perfil)}
+																		alt="Foto de perfil"
+																		className="gu-profile-image"
+																		onError={(e) => {
+																			e.target.src = fotoPerfilDefect;
+																		}}
+																	/>
+																) : (
+																	<div className="gu-image-placeholder">
+																		<FontAwesomeIcon icon={faUser} className="gu-placeholder-icon" />
+																		<span>Sin imagen</span>
+																	</div>
+																)}
+															</div>
+														)}
+													</div>
+													
+													{!isEditing && (
+														<div className="gu-image-info">
+															<p>Activa el modo edición para cambiar la imagen</p>
+														</div>
+													)}
+												</div>
+
+												<button type="submit" className="gu-submit-btn">
+													{isEditing ? (
+														<>
+															<FontAwesomeIcon icon={faUser} />
+															<span>Guardar Cambios</span>
+														</>
+													) : (
+														<>
+															<FontAwesomeIcon icon={faUser} />
+															<span>Editar Usuario</span>
+														</>
+													)}
+												</button>
+											</div>
+										</div>
+									</form>
 								</div>
 							</div>
 						)}

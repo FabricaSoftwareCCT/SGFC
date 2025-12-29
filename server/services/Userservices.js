@@ -60,8 +60,7 @@ class UserServices {
             if(!existingManager){
                 throw new Error("El manager no existe ó no se creo correctamente ")
             }
-            
-            const NuevaEmpresa = await EmpresaRepository.CreateEmpresa(data);
+            const NuevaEmpresa = await EmpresaRepository.CreateEmpresa(email, data);
             existingManager.empresa_ID = NuevaEmpresa.ID;
             await existingManager.save();
 

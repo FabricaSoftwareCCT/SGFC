@@ -2,26 +2,39 @@
 
 import { useState, useRef, useEffect } from "react"
 import "./NavBar.css"
-import { useNavigate } from "react-router-dom"
-import settings from "../../../assets/Icons/settings.png"
-import notifications from "../../../assets/Icons/notifications.png"
-import profile from "../../../assets/Icons/userGrey.png"
-import logout from "../../../assets/Icons/cerrar-sesion.png"
+import { useNavigate, NavLink } from "react-router-dom"
 import axiosInstance from "../../../config/axiosInstance"
 import noRead from "../../../assets/Icons/mensaje-no-leido.png"
 import ifRead from "../../../assets/Icons/mensaje-leido.png"
 import { useModal } from "../../../Context/ModalContext"
 import Swal from 'sweetalert2';
 import 'sweetalert2/themes/bulma.css'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import {
+	faArrowLeft,
+	faTimes,
+	faCog,
+	faBell,
+	faUser,
+	faSignOutAlt,
+	faSearch,
+	faFilter,
+	faCalendarAlt,
+	faCommentAlt,
+	faFileAlt,
+	faChevronDown,
+	faChevronUp,
+	faBars,
+	faTimesCircle
+} from '@fortawesome/free-solid-svg-icons'
 
-export const NavBar = ({ children }) => {
+export const NavBar = ({ children, setShowSignIn }) => {
 	const navigate = useNavigate()
 	const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-	const { setShowSignIn } = useModal()
 	const [notificationsList, setNotificationsList] = useState([])
 	const [loadingNotifications, setLoadingNotifications] = useState(false)
 	const [justifying, setJustifying] = useState(false)
-	const [processingInvitation, setProcessingInvitation] = useState(null) // Nuevo estado para controlar procesamiento
+	const [processingInvitation, setProcessingInvitation] = useState(null)
 	const [processingSolicitud, setProcessingSolicitud] = useState(null)
 	const [justificationDenial, setJustificationDenial] = useState("")
 	const [activeNotification, setActiveNotification] = useState(null)
@@ -31,20 +44,40 @@ export const NavBar = ({ children }) => {
 	const [Date, setDate] = useState("")
 	const [DateEnd, setDateEnd] = useState("")
 	const [showSettingsMenu, setShowSettingsMenu] = useState(false)
+	const [showNotificationsMenu, setShowNotificationsMenu] = useState(false)
+	const [isMobileView, setIsMobileView] = useState(false)
 	const settingsMenuRef = useRef(null)
 	const settingsButtonRef = useRef(null)
-	
+	const notificationsMenuRef = useRef(null)
+	const mobileMenuRef = useRef(null)
 
 	const userSession =
 		JSON.parse(localStorage.getItem("userSession")) || JSON.parse(sessionStorage.getItem("userSession"))
 
 	const isLoggedIn = !!userSession
 
+	// Detectar tamaño de pantalla
+	useEffect(() => {
+		const checkMobile = () => {
+			setIsMobileView(window.innerWidth <= 768)
+		}
+
+		checkMobile()
+		window.addEventListener('resize', checkMobile)
+
+		return () => {
+			window.removeEventListener('resize', checkMobile)
+		}
+	}, [])
+
 	const handleProfileClick = () => {
 		if (userSession?.id) {
-			navigate("/MiPerfil", { state: { userId: userSession.id } })
+			navigate("/MiPerfil", { state: { userId: userSession.id } });
+			setIsMobileMenuOpen(false);
+			setShowNotificationsMenu(false);
+			setShowSettingsMenu(false);
 		}
-	}
+	};
 
 	const handleLogout = async () => {
 		try {
@@ -63,41 +96,75 @@ export const NavBar = ({ children }) => {
 				localStorage.removeItem("userSession")
 				sessionStorage.removeItem("userSession")
 				navigate("/")
+				setIsMobileMenuOpen(false)
 			}
 		} catch (error) {
 			console.error("Error al cerrar sesión:", error)
 			localStorage.removeItem("userSession")
 			sessionStorage.removeItem("userSession")
 			navigate("/")
+			setIsMobileMenuOpen(false)
 		}
+		setIsMobileMenuOpen(false);
+		setShowNotificationsMenu(false);
+		setShowSettingsMenu(false);
 	}
 
 	const handleSignIn = () => {
 		setShowSignIn(true)
+		setIsMobileMenuOpen(false)
 	}
 
-	const [showNotificationsMenu, setShowNotificationsMenu] = useState(false)
-	const notificationsMenuRef = useRef(null)
-
-		useEffect(() => {
+	useEffect(() => {
 		const handleClickOutside = (event) => {
-			if (notificationsMenuRef.current && !notificationsMenuRef.current.contains(event.target)) {
-			//setShowNotificationsMenu(false)
+			// Verificar si el clic fue en el botón hamburguesa
+			const hamburgerBtn = event.target.closest('.hamburger-btn');
+			if (hamburgerBtn) {
+				// El botón ya maneja su propio toggle, no hacer nada aquí
+				return;
 			}
-			if (settingsMenuRef.current && !settingsMenuRef.current.contains(event.target) && settingsButtonRef.current && 
-				!settingsButtonRef.current.contains(event.target))  {
-			setShowSettingsMenu(false)
+
+			// En móvil, cerrar menús si se hace clic fuera
+			if (isMobileView && isMobileMenuOpen) {
+				// Verificar si el clic fue dentro del menú móvil
+				if (mobileMenuRef.current && mobileMenuRef.current.contains(event.target)) {
+					return; // No hacer nada si el clic fue dentro del menú móvil
+				}
+				// Si el clic fue fuera del menú móvil, cerrarlo todo
+				setIsMobileMenuOpen(false);
+				setShowNotificationsMenu(false);
+				setShowSettingsMenu(false);
+				return;
 			}
-		}
-		document.addEventListener("mousedown", handleClickOutside)
-		return () => document.removeEventListener("mousedown", handleClickOutside)
-		}, [])
+
+			// Comportamiento para escritorio
+			if (!isMobileView) {
+				// Cerrar menú de notificaciones si se hace clic fuera
+				if (notificationsMenuRef.current && !notificationsMenuRef.current.contains(event.target)) {
+					const notificationButton = event.target.closest('.btn-notifications');
+					if (!notificationButton) {
+						setShowNotificationsMenu(false);
+					}
+				}
+
+				// Cerrar menú de configuración si se hace clic fuera
+				if (settingsMenuRef.current && !settingsMenuRef.current.contains(event.target) &&
+					settingsButtonRef.current && !settingsButtonRef.current.contains(event.target)) {
+					setShowSettingsMenu(false);
+				}
+			}
+		};
+
+		document.addEventListener("mousedown", handleClickOutside);
+		return () => document.removeEventListener("mousedown", handleClickOutside);
+	}, [isMobileView, isMobileMenuOpen]);
 
 	const fetchNotifications = async () => {
+		if (!isLoggedIn) return
+
 		setLoadingNotifications(true)
 		try {
 			const res = await axiosInstance.get('/api/notifications?limit=5');
-			// no mostrar notificaciones aceptadas o rechazadas
 			res.data.notifications = res.data.notifications.filter(notif => notif.estado !== 'aceptada' && notif.estado !== 'rechazada');
 			setNotificationsList(res.data.notifications || []);
 			setFilteredNotifications(res.data.notifications || []);
@@ -124,11 +191,11 @@ export const NavBar = ({ children }) => {
 				title: 'Justificación requerida',
 				text: 'Se debe justificar el rechazo',
 				confirmButtonText: 'Entendido',
-				theme:"bulma",
-      customClass: { confirmButton: 'centered-swal-button' }
+				theme: "bulma",
+				customClass: { confirmButton: 'centered-swal-button' }
 			})
 			return
-		} 
+		}
 		setProcessingSolicitud(true)
 		try {
 			const resp = await axiosInstance.post(`/api/actas/rechazar-solicitud-curso/${notif.ID}`, {
@@ -137,17 +204,18 @@ export const NavBar = ({ children }) => {
 			if (resp.status == 200) {
 				await Swal.fire({
 					icon: 'success',
-					title: 'Solicitud aceptada',
-					text: 'Se acepto la solicitud correctamente',
+					title: 'Solicitud rechazada',
+					text: 'Se rechazó la solicitud correctamente',
 					confirmButtonText: 'Aceptar',
-					theme:"bulma",
-      customClass: { confirmButton: 'centered-swal-button' }
+					theme: "bulma",
+					customClass: { confirmButton: 'centered-swal-button' }
 				})
 				setShowModalGeneral(false)
 				setProcessingSolicitud(false)
 				setJustificationDenial("")
 				setActiveNotification(null)
 				setJustifying(false)
+				fetchNotifications()
 				return
 			} else
 				throw resp.data
@@ -157,8 +225,8 @@ export const NavBar = ({ children }) => {
 				title: 'Error',
 				text: 'Ocurrió un error al rechazar la solicitud',
 				confirmButtonText: 'Aceptar',
-				theme:"bulma",
-      customClass: { confirmButton: 'centered-swal-button' }
+				theme: "bulma",
+				customClass: { confirmButton: 'centered-swal-button' }
 			})
 			console.error(error)
 			setProcessingSolicitud(false)
@@ -174,6 +242,7 @@ export const NavBar = ({ children }) => {
 				navigate("/Cursos/CrearCurso")
 				setShowModalGeneral(false)
 				setProcessingSolicitud(false)
+				fetchNotifications()
 				return
 			} else
 				throw resp.data
@@ -183,177 +252,284 @@ export const NavBar = ({ children }) => {
 				title: 'Error',
 				text: 'Ocurrió un error al aceptar la solicitud',
 				confirmButtonText: 'Aceptar',
-				theme:"bulma",
-      customClass: { confirmButton: 'centered-swal-button' }
+				theme: "bulma",
+				customClass: { confirmButton: 'centered-swal-button' }
 			})
 			console.error(error)
 			setProcessingSolicitud(false)
 		}
 	}
 
+	const handleCloseNotificationModal = () => {
+		setShowModalGeneral(false);
+		setJustifying(false);
+		setJustificationDenial("");
+		setActiveNotification(null);
+	};
+
 	const handleNotificationClick = (notif) => {
-		setActiveNotification(notif)
+		setActiveNotification(notif);
+		
+		// Cerrar todos los menús antes de abrir el modal
+		if (isMobileView) {
+			// En móvil, mantener el menú hamburguesa abierto pero cerrar submenús
+			setShowNotificationsMenu(false); // Cerrar panel de notificaciones
+			setShowSettingsMenu(false);
+		} else {
+			// En escritorio, cerrar el panel de notificaciones
+			setShowNotificationsMenu(false);
+			setShowSettingsMenu(false);
+		}
+		
 		setModalGeneralContent(
-			<div className="notification-modal">
-				<h2>{notif.titulo}</h2>
-				<p>
-					<b>De:</b> {notif.remitente?.nombres ? `${notif.remitente.nombres} ${notif.remitente.apellidos}` : "SGFC"}
-				</p>
-				<p>
-					<b>Mensaje:</b>
-				</p>
-				<div className="notification-message" dangerouslySetInnerHTML={{ __html: notif.mensaje }} />
-				
-				{/* Mostrar estado actual si ya fue respondida */}
-				{notif.estadoInvitacion && notif.estadoInvitacion !== 'pendiente' && (
-					<div className="notification-status">
-						<p><b>Estado:</b> 
-							<span className={`status-${notif.estadoInvitacion}`}>
-								{notif.estadoInvitacion === 'aceptada' ? ' Aceptada' : ' Rechazada'}
-							</span>
-						</p>
+			<div className="notification-modal-overlay">
+				<div className="notification-modal-container">
+					<div className="notification-modal-header">
+						<div className="notification-header-content">
+							<h2 className="notification-modal-title">
+								<FontAwesomeIcon icon={faBell} style={{ color: '#00c853' }} />
+								{notif.titulo}
+							</h2>
+							<button
+								className="notification-close-btn"
+								onClick={handleCloseNotificationModal}
+							>
+								<FontAwesomeIcon icon={faTimes} />
+							</button>
+						</div>
 					</div>
-				)}
-				
-				{notif.tipo === "invitacion_cursoInstructor" && notif.invitacion_ID && (
-					<div className="notification-buttons-container">
+
+					<div className="notification-modal-body">
+						<div className="notification-modal-content">
+							<div className="notification-modal-info">
+								<p className="notification-modal-sender">
+									<FontAwesomeIcon icon={faUser} style={{ marginRight: '0.5rem', color: '#00c853' }} />
+									<strong>De:</strong> {notif.remitente?.nombres ? `${notif.remitente.nombres} ${notif.remitente.apellidos}` : "SGFC"}
+								</p>
+
+								<div className="notification-modal-message-section">
+									<p className="notification-modal-message-label">
+										<FontAwesomeIcon icon={faCommentAlt} />
+										<strong>Mensaje:</strong>
+									</p>
+									<div
+										className="notification-modal-message-content"
+										dangerouslySetInnerHTML={{ __html: notif.mensaje }}
+									/>
+								</div>
+
+								{notif.estadoInvitacion && notif.estadoInvitacion !== 'pendiente' && (
+									<div className="notification-modal-status">
+										<p>
+											<FontAwesomeIcon icon={faFileAlt} style={{ marginRight: '0.5rem' }} />
+											<strong>Estado:</strong>
+											<span className={`notification-status-${notif.estadoInvitacion}`}>
+												{notif.estadoInvitacion === 'aceptada' ? ' Aceptada' : ' Rechazada'}
+											</span>
+										</p>
+									</div>
+								)}
+
+								{notif.archivo && (
+									<div className="notification-modal-attachment">
+										<a
+											href={`http://localhost:3001/uploads/solicitudes/${notif.archivo}`}
+											target="_blank"
+											rel="noopener noreferrer"
+											className="notification-attachment-link"
+										>
+											<FontAwesomeIcon icon={faFileAlt} />
+											📎 Ver PDF adjunto
+										</a>
+									</div>
+								)}
+							</div>
+
+							{notif.tipo === "invitacion_cursoInstructor" && notif.invitacion_ID && (
+								<div className="notification-modal-actions">
+									<div className="notification-action-buttons">
+										<button
+											className={`notification-btn-accept ${notif.estadoInvitacion ? 'disabled' : ''}`}
+											onClick={() => cambiarEstadoInvitacion(notif.invitacion_ID, "aceptada")}
+											disabled={notif.estadoInvitacion || processingInvitation === notif.invitacion_ID}
+										>
+											{processingInvitation === notif.invitacion_ID ? (
+												<>
+													<FontAwesomeIcon icon={faBell} spin style={{ marginRight: '0.5rem' }} />
+													Procesando...
+												</>
+											) : notif.estadoInvitacion === 'aceptada' ? (
+												<>
+													<FontAwesomeIcon icon={faBell} style={{ marginRight: '0.5rem' }} />
+													✓ Aceptada
+												</>
+											) : (
+												<>
+													<FontAwesomeIcon icon={faBell} style={{ marginRight: '0.5rem' }} />
+													Aceptar
+												</>
+											)}
+										</button>
+										<button
+											className={`notification-btn-reject ${notif.estadoInvitacion ? 'disabled' : ''}`}
+											onClick={() => cambiarEstadoInvitacion(notif.invitacion_ID, "rechazada")}
+											disabled={notif.estadoInvitacion || processingInvitation === notif.invitacion_ID}
+										>
+											{processingInvitation === notif.invitacion_ID ? (
+												<>
+													<FontAwesomeIcon icon={faBell} spin style={{ marginRight: '0.5rem' }} />
+													Procesando...
+												</>
+											) : notif.estadoInvitacion === 'rechazada' ? (
+												<>
+													<FontAwesomeIcon icon={faTimes} style={{ marginRight: '0.5rem' }} />
+													✗ Rechazada
+												</>
+											) : (
+												<>
+													<FontAwesomeIcon icon={faTimes} style={{ marginRight: '0.5rem' }} />
+													Rechazar
+												</>
+											)}
+										</button>
+									</div>
+								</div>
+							)}
+
+							{notif.tipo === "solicitud_curso" && notif.estado !== "leida" && (
+								<div className="notification-modal-actions">
+									{justifying && (
+										<div className="notification-justification-section">
+											<textarea
+												className="notification-justification-textarea"
+												placeholder="Escriba el motivo por el que se rechazó la solicitud"
+												value={justificationDenial}
+												onChange={(e) => setJustificationDenial(e.target.value)}
+												rows="4"
+											/>
+										</div>
+									)}
+
+									<div className="notification-action-buttons">
+										<button
+											className={`notification-btn-accept ${processingSolicitud ? "disabled" : ""}`}
+											onClick={() => aceptarSolicitudCurso(notif)}
+											disabled={processingSolicitud}
+										>
+											{processingSolicitud ? (
+												<>
+													<FontAwesomeIcon icon={faBell} spin style={{ marginRight: '0.5rem' }} />
+													Procesando...
+												</>
+											) : (
+												<>
+													<FontAwesomeIcon icon={faBell} style={{ marginRight: '0.5rem' }} />
+													Aceptar
+												</>
+											)}
+										</button>
+										<button
+											className={`notification-btn-reject ${processingSolicitud ? "disabled" : ""}`}
+											onClick={() => {
+												if (justifying)
+													rechazarSolicitudCurso(notif)
+												else {
+													setJustifying(true)
+												}
+											}}
+											disabled={processingSolicitud}
+										>
+											{processingSolicitud ? (
+												<>
+													<FontAwesomeIcon icon={faBell} spin style={{ marginRight: '0.5rem' }} />
+													Procesando...
+												</>
+											) : (
+												<>
+													<FontAwesomeIcon icon={faTimes} style={{ marginRight: '0.5rem' }} />
+													{justifying ? 'Confirmar Rechazo' : 'Rechazar'}
+												</>
+											)}
+										</button>
+									</div>
+								</div>
+							)}
+
+							{notif.tipo === "solicitud_curso" && notif.estado === "leida" && (
+								<div className="notification-processed-message">
+									<FontAwesomeIcon icon={faFileAlt} style={{ marginRight: '0.5rem' }} />
+									<strong>Se ha procesado esta solicitud.</strong>
+								</div>
+							)}
+						</div>
+					</div>
+
+					<div className="notification-modal-footer">
 						<button
-							className={`notification-btn-accept ${notif.estadoInvitacion ? 'disabled' : ''}`}
-							onClick={() => cambiarEstadoInvitacion(notif.invitacion_ID, "aceptada")}
-							disabled={notif.estadoInvitacion || processingInvitation === notif.invitacion_ID}
+							className="notification-back-btn"
+							onClick={handleCloseNotificationModal}
 						>
-							{processingInvitation === notif.invitacion_ID ? 'Procesando...' : 
-							notif.estadoInvitacion === 'aceptada' ? '✓ Aceptada' : 'Aceptar'}
-						</button>
-						<button
-							className={`notification-btn-reject ${notif.estadoInvitacion ? 'disabled' : ''}`}
-							onClick={() => cambiarEstadoInvitacion(notif.invitacion_ID, "rechazada")}
-							disabled={notif.estadoInvitacion || processingInvitation === notif.invitacion_ID}
-						>
-							{processingInvitation === notif.invitacion_ID ? 'Procesando...' : 
-							notif.estadoInvitacion === 'rechazada' ? '✗ Rechazada' : 'Rechazar'}
+							<FontAwesomeIcon icon={faArrowLeft} />
+							Volver
 						</button>
 					</div>
-				)}
-
-				{notif.archivo && (
-					<div className="notification-attachment">
-						<a
-							href={`http://localhost:3001/uploads/solicitudes/${notif.archivo}`}
-							target="_blank"
-							rel="noopener noreferrer"
-							style={{ color: "rgb(0 132 61)", textDecoration: "underline" }}
-						>
-							Ver PDF adjunto
-						</a>
-					</div>
-				)}
-
-				{justifying && (
-					<textarea
-						type="text"
-						className="search-input reason-textarea"
-						placeholder="Escriba el motivo por el que se rechazó la solicitud"
-						value={justificationDenial}
-						onChange={(e) => {
-							setJustificationDenial(e.target.value)
-						}}
-					/>
-				)}
-
-				{notif.tipo === "solicitud_curso" && notif.estado !== "leida" && (
-					<div className="notification-buttons-container">
-						<button
-							className={`notification-btn-accept ${processingSolicitud ? "disabled" : ""}`}
-							onClick={() => aceptarSolicitudCurso(notif)}
-						>
-							{processingSolicitud ? "Procesando..." : "Aceptar"}
-						</button>
-						<button
-							className={`notification-btn-reject ${processingSolicitud ? "disabled" : ""}`}
-							onClick={() => {
-								if (justifying)
-									rechazarSolicitudCurso(notif)
-								else {
-									setJustifying(true)
-								}
-							}}
-						>
-							{processingSolicitud ? "Procesando..." : "Rechazar"}
-						</button>
-					</div>
-				)}
-
-				{notif.tipo === "solicitud_curso" && notif.estado === "leida" && (
-					<b
-						style={{
-							marginTop: "8%"
-						}}
-					>Se ha procesado esta solicitud.</b>
-				)}
-			</div>,
+				</div>
+			</div>
 		)
 		setShowModalGeneral(true)
 	}
 
-	//Filtro para detectar el estado de la notificación seleccionado
 	const handleSearchState = (e) => {
+		e.stopPropagation(); // Prevenir propagación del evento
 		setLoadingNotifications(true);
 		try {
 			const value = e.target.value;
-			if(value =="All"){
-				setFilteredNotifications(notificationsList)
+			if (value == "All") {
+				setFilter(notificationsList)
 				setLoadingNotifications(false)
 				return;
 			}
 
 			const filter = notificationsList.filter((notif) => notif.estado === value);
-			setFilteredNotifications(filter);
-		}catch(err){
-					Swal.fire({
+			setFilter(filter);
+		} catch (err) {
+			Swal.fire({
 				icon: 'error',
 				title: 'Error al filtrar',
 				text: "Error al filtrar notificaciones, por favor, intentelo de nuevo",
 				confirmButtonText: 'Aceptar',
-				theme:"bulma",
-      customClass: { confirmButton: 'centered-swal-button' }
+				theme: "bulma",
+				customClass: { confirmButton: 'centered-swal-button' }
 			})
 		}
-		
+
 		setLoadingNotifications(false);
 	}
 
 	useEffect(() => {
-		setLoadingNotifications(true);
-
-		let currentFilter = notificationsList;
-
-		if(Filter !== "All"){
-			currentFilter = currentFilter.filter((notif) => notif.estado === Filter);
-		}
-
-		try{
-			setFilter(notificationsList)
-			const SearchName = notificationsList.filter((notif )=>  {
+		if (!loadingNotifications)
+			setLoadingNotifications(true);
+		try {
+			const SearchName = notificationsList.filter((notif) => {
 				const charNotifications = notif.titulo.toLowerCase().includes(inputElement.toLowerCase());
 				const remitenteNotifications = notif.remitente?.nombres?.toLowerCase().includes(inputElement.toLowerCase());
 				const dateMatch = !Date && !DateEnd || (notif.fecha_envio >= Date && notif.fecha_envio <= DateEnd);
 				return charNotifications || remitenteNotifications || dateMatch;
-		});
-			setFilteredNotifications(SearchName)
+			});
+			setFilter(SearchName)
 			setLoadingNotifications(false);
-		}catch(err){
-				Swal.fire({
+		} catch (err) {
+			Swal.fire({
 				icon: 'error',
 				title: 'Error al buscar notificaciones',
 				text: "Error al buscar notificaciones por nombre, por favor, intentelo de nuevo",
 				confirmButtonText: 'Aceptar',
-				theme:"bulma",
-      customClass: { confirmButton: 'centered-swal-button' }
+				theme: "bulma",
+				customClass: { confirmButton: 'centered-swal-button' }
 			})
 			setLoadingNotifications(false);
 		}
-	}, [inputElement, notificationsList, Date, DateEnd, Filter])
+	}, [inputElement, notificationsList, Date, DateEnd])
 
 	useEffect(() => {
 		if (activeNotification)
@@ -363,33 +539,66 @@ export const NavBar = ({ children }) => {
 	}, [justifying, justificationDenial, processingSolicitud])
 
 	const cambiarEstadoInvitacion = async (invitacionId, nuevoEstado) => {
-		// Si ya se está procesando esta invitación, no hacer nada
 		if (processingInvitation === invitacionId) return
-		
+
 		setProcessingInvitation(invitacionId)
 
 		try {
 			const response = await axiosInstance.put(`/api/courses/cambiarEstadoInvitacion/${invitacionId}`, { nuevoEstado })
-			
-			// Actualizar el estado local de las notificaciones
-			setNotificationsList(prevNotifications => 
-				prevNotifications.map(notif => 
-					notif.invitacion_ID === invitacionId 
+
+			setNotificationsList(prevNotifications =>
+				prevNotifications.map(notif =>
+					notif.invitacion_ID === invitacionId
 						? { ...notif, estadoInvitacion: nuevoEstado }
 						: notif
 				)
 			)
 			await Swal.fire({
-					icon: 'success',
-					title: 'Estado actualizado',
-					text: response.data.message || "Estado actualizado correctamente",
-					confirmButtonText: 'Aceptar',
-					theme:"bulma",
-						customClass: { confirmButton: 'centered-swal-button' }
-
+				icon: 'success',
+				title: 'Estado actualizado',
+				text: response.data.message || "Estado actualizado correctamente",
+				confirmButtonText: 'Aceptar',
+				theme: "bulma",
+				customClass: { confirmButton: 'centered-swal-button' }
 			})
 
+			if (nuevoEstado === "aceptada") {
+				const notif = notificationsList.find((n) => n.invitacion_ID === invitacionId)
+				if (notif) {
+					try {
+						const asignacionResponse = await axiosInstance.post("/api/courses/asignaciones", {
+							instructor_ID: notif.destinatario_ID,
+							curso_ID: notif.curso_ID,
+						})
+						if (asignacionResponse.status >= 200 && asignacionResponse.status < 300) {
+							Swal.fire({
+								icon: "success",
+								title: "Curso asignado",
+								text: asignacionResponse.data.message || "Curso asignado correctamente al instructor.",
+								theme: "bulma",
+								confirmButtonText: 'Aceptar',
+								customClass: { confirmButton: 'centered-swal-button' }
+							})
+						} else {
+							throw new Error(asignacionResponse.data.message || "Error en la asignación")
+						}
+					} catch (asignacionError) {
+						console.error("Error al asignar instructor:", asignacionError)
+						await Swal.fire({
+							icon: 'error',
+							title: 'Error en asignación',
+							text: asignacionError.response?.data?.message || "Error al asignar el instructor al curso.",
+							confirmButtonText: 'Aceptar',
+							confirmButtonColor: "#006c30",
+							theme: "bulma",
+							customClass: { confirmButton: 'centered-swal-button' }
+						})
+					}
+				}
+			}
+
 			setShowModalGeneral(false)
+			fetchNotifications()
 		} catch (error) {
 			console.error("Error al cambiar estado de invitación:", error)
 			await Swal.fire({
@@ -397,35 +606,80 @@ export const NavBar = ({ children }) => {
 				title: 'Error',
 				text: error.response?.data?.message || "Error al actualizar el estado de la invitación.",
 				confirmButtonText: 'Aceptar',
-				theme:"bulma",
-      		customClass: { confirmButton: 'centered-swal-button' }
+				theme: "bulma",
+				customClass: { confirmButton: 'centered-swal-button' }
 			})
 		} finally {
 			setProcessingInvitation(null)
 		}
 	}
 
-		const handlePoliticasSeguridad = () => {
-		navigate("/politicas-seguridad")
-		setShowSettingsMenu(false)
-	}
+	const handlePoliticasSeguridad = (e) => {
+		if (e) e.stopPropagation(); // Prevenir propagación
+		navigate("/politicas-seguridad");
+		setShowSettingsMenu(false);
+		setIsMobileMenuOpen(false);
+	};
 
-	// Función para manejar Pregunta de Seguridad
-	const handlePreguntaSeguridad = () => {
+	const handlePreguntaSeguridad = (e) => {
+		if (e) e.stopPropagation(); // Prevenir propagación
 		navigate("/pregunta-seguridad");
 		setShowSettingsMenu(false);
+		setIsMobileMenuOpen(false);
+	};
+
+	const toggleMobileMenu = () => {
+		setIsMobileMenuOpen(!isMobileMenuOpen);
+		// Cuando se abre el menú móvil, cerrar otros menús
+		if (!isMobileMenuOpen) {
+			setShowNotificationsMenu(false);
+			setShowSettingsMenu(false);
+		}
+	};
+
+	const toggleNotificationsMenu = (e) => {
+		e.stopPropagation(); // Prevenir que el clic cierre el menú móvil
+		const newState = !showNotificationsMenu;
+		setShowNotificationsMenu(newState);
+		
+		if (newState) {
+			fetchNotifications();
+		}
+		
+		// Cerrar configuración si está abierta
+		if (showSettingsMenu) {
+			setShowSettingsMenu(false);
+		}
+	};
+
+	const toggleSettingsMenu = (e) => {
+		e.stopPropagation(); // Prevenir que el clic cierre el menú móvil
+		setShowSettingsMenu(!showSettingsMenu);
+		// Cerrar notificaciones si están abiertas
+		if (showNotificationsMenu) {
+			setShowNotificationsMenu(false);
+		}
 	};
 
 	return (
 		<div className="navBar">
-			<div className="logo">SGFC</div>
+			<div className="logo" onClick={() => navigate("/")} style={{ cursor: 'pointer' }}>
+				SGFC
+			</div>
 
-			<button className="hamburger-btn" onClick={() => setIsMobileMenuOpen((prev) => !prev)}>
-				☰
+			<button
+				className="hamburger-btn"
+				onClick={toggleMobileMenu}
+				aria-label="Menú"
+			>
+				<FontAwesomeIcon icon={isMobileMenuOpen ? faTimesCircle : faBars} />
 			</button>
 
-			{/* Contenido móvil */}
-			<div className={`mobile-menu ${isMobileMenuOpen ? "open" : "closed"}`}>
+			{/* Menú móvil */}
+			<div
+				className={`mobile-menu ${isMobileMenuOpen ? "open" : "closed"}`}
+				ref={mobileMenuRef}
+			>
 				<div className="container_options">{children}</div>
 
 				{!isLoggedIn && (
@@ -436,34 +690,175 @@ export const NavBar = ({ children }) => {
 
 				{isLoggedIn && (
 					<div className="container_options_profile">
-						<div className="settings-menu" ref={settingsMenuRef}>
-							<button 
-								className="btn-settings" ref={settingsButtonRef}
-								onClick={() => setShowSettingsMenu(!showSettingsMenu)}
+						<div className="settings-menu-mobile">
+							<button
+								className="mobile-profile-btn"
+								onClick={toggleSettingsMenu}
 							>
-								<img src={settings} alt="Configuración" />
+								<FontAwesomeIcon icon={faCog} className="mobile-icon" />
+								<span className="mobile-label">Configuración</span>
+								<FontAwesomeIcon
+									icon={showSettingsMenu ? faChevronUp : faChevronDown}
+									className="mobile-chevron"
+								/>
 							</button>
-							
-						</div>
-						<button className="mobile-profile-btn" onClick={() => setShowNotificationsMenu((prev) => !prev)}>
-							<span className="mobile-label">Notificaciones</span>
-							<img className="desktop-icon" src={notifications} alt="Notificaciones" />
-						</button>
 
-						<button className="mobile-profile-btn" id="btn_profile" onClick={handleProfileClick}>
+							{showSettingsMenu && (
+								<div className="dropdown-settings-mobile">
+									<button
+										className="settings-dropdown-item"
+										onClick={handlePoliticasSeguridad}
+									>
+										<FontAwesomeIcon icon={faFileAlt} className="settings-icon" />
+										Políticas y seguridad
+									</button>
+									<button
+										className="settings-dropdown-item"
+										onClick={handlePreguntaSeguridad}
+									>
+										<FontAwesomeIcon icon={faFileAlt} className="settings-icon" />
+										Pregunta de seguridad
+									</button>
+								</div>
+							)}
+						</div>
+
+						{/* Notificaciones en móvil */}
+						<div className="notifications-menu-mobile">
+							<button
+								className="mobile-profile-btn"
+								onClick={toggleNotificationsMenu}
+							>
+								<FontAwesomeIcon icon={faBell} className="mobile-icon" />
+								<span className="mobile-label">Notificaciones</span>
+								<FontAwesomeIcon
+									icon={showNotificationsMenu ? faChevronUp : faChevronDown}
+									className="mobile-chevron"
+								/>
+							</button>
+
+							{showNotificationsMenu && (
+								<div className="dropdown-notifications-mobile" ref={notificationsMenuRef} onClick={(e) => e.stopPropagation()}>
+									<div className="content-SearchNotification">
+										<h2 className="titleNotification">
+											<FontAwesomeIcon icon={faBell} /> Notificaciones
+										</h2>
+										<div className="search-notification">
+											<div className="search-input-container">
+												<FontAwesomeIcon icon={faSearch} className="search-icon" />
+												<input
+													className="inputSesarch"
+													type="text"
+													placeholder="Buscar notificaciones por nombre"
+													value={inputElement}
+													onChange={(e) => setInputElement(e.target.value)}
+													onClick={(e) => e.stopPropagation()}
+												/>
+											</div>
+										</div>
+										<div className="content-state">
+											<button className="btnNotificationState" value="All" onClick={handleSearchState}>
+												<FontAwesomeIcon icon={faFilter} /> Todos
+											</button>
+											<button className="btnNotificationState" value="enviada" onClick={handleSearchState}>
+												Enviada
+											</button>
+											<button className="btnNotificationState" value="leida" onClick={handleSearchState}>
+												Leída
+											</button>
+											<button className="btnNotificationState" value="sin_leer" onClick={handleSearchState}>
+												Sin leer
+											</button>
+											<button className="btnNotificationState" value="pendiente" onClick={handleSearchState}>
+												Pendiente
+											</button>
+										</div>
+										<div className="content-date">
+											<h2 className="SubtitleNotification">
+												<FontAwesomeIcon icon={faCalendarAlt} /> Buscar por fechas:
+											</h2>
+											<div className="SubContentDate">
+												<div className="date-input-group">
+													<label>Fecha inicio:</label>
+													<div className="date-input-container">
+														<FontAwesomeIcon icon={faCalendarAlt} className="date-icon" />
+														<input 
+															type="date" 
+															className="notificationsDate" 
+															onChange={(e) => setDate(e.target.value)}
+															onClick={(e) => e.stopPropagation()}
+														/>
+													</div>
+												</div>
+												<div className="date-input-group">
+													<label>Fecha Fin:</label>
+													<div className="date-input-container">
+														<FontAwesomeIcon icon={faCalendarAlt} className="date-icon" />
+														<input 
+															type="date" 
+															className="notificationsDate" 
+															onChange={(e) => setDateEnd(e.target.value)}
+															onClick={(e) => e.stopPropagation()}
+														/>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+									<div className="notification-item">
+										{loadingNotifications ? (
+											<div className="loading-notifications">Cargando notificaciones...</div>
+										) : Filter.length === 0 ? (
+											<div className="no-notifications">No hay notificaciones</div>
+										) : (
+											Filter.map((notif) => (
+												<div className="notification" key={notif.ID}>
+													<div
+														className="SubContentNotif"
+														style={{ cursor: "pointer" }}
+														onClick={(e) => {
+															e.stopPropagation();
+															handleNotificationClick(notif);
+														}}
+													>
+														<div className="container-img-notifications">
+															<img src={notif.estado === "sin_leer" ? noRead : ifRead} alt="" />
+														</div>
+														<div className="container-text-notifications">
+															<p className="notification-sender">
+																{notif.remitente?.nombres
+																	? `${notif.remitente.nombres} ${notif.remitente.apellidos}`
+																	: "SGFC"}
+															</p>
+															<span className="notification-affair">{notif.titulo}</span>
+														</div>
+													</div>
+												</div>
+											))
+										)}
+									</div>
+								</div>
+							)}
+						</div>
+
+						<button
+							className="mobile-profile-btn"
+							id="btn_profile"
+							onClick={handleProfileClick}
+						>
+							<FontAwesomeIcon icon={faUser} className="mobile-icon" />
 							<span className="mobile-label">Perfil</span>
-							<img className="desktop-icon" src={profile} alt="Perfil" />
 						</button>
 
 						<button className="mobile-profile-btn" onClick={handleLogout}>
+							<FontAwesomeIcon icon={faSignOutAlt} className="mobile-icon" />
 							<span className="mobile-label">Cerrar sesión</span>
-							<img className="desktop-icon" src={logout} alt="Cerrar sesión" />
 						</button>
 					</div>
 				)}
 			</div>
 
-			{/* Contenido escritorio */}
+			{/* Menú escritorio */}
 			<div className="desktop-options">
 				<div className="container_options">{children}</div>
 
@@ -475,110 +870,145 @@ export const NavBar = ({ children }) => {
 
 				{isLoggedIn && (
 					<div className="container_options_profile">
-					<button 
+						<div className="settings-menu" ref={settingsMenuRef}>
+							<button
 								className="btn-settings"
+								ref={settingsButtonRef}
 								onClick={() => setShowSettingsMenu(!showSettingsMenu)}
 							>
-								<img src={settings} alt="Configuración" />
-							</button>
-
-						<div className="notifications-menu">
-							<button className="btn-notifications" onClick={() => setShowNotificationsMenu((prev) => !prev)}>
-								<img className="img_notifications" src={notifications} alt="Notificaciones" />
+								<FontAwesomeIcon icon={faCog} className="settings-icon" />
 							</button>
 						</div>
+
+						<div className="notifications-menu">
+							<button
+								className="btn-notifications"
+								onClick={toggleNotificationsMenu}
+							>
+								<FontAwesomeIcon icon={faBell} className="img_notifications" />
+								{notificationsList.length > 0 && (
+									<span className="notification-badge">{notificationsList.length}</span>
+								)}
+							</button>
+
 							{showNotificationsMenu && (
 								<div className="dropdown-notifications" ref={notificationsMenuRef}>
 									<div className="content-SearchNotification">
-										<h2 className="titleNotification"> Notificaciones </h2>
+										<h2 className="titleNotification">
+											<FontAwesomeIcon icon={faBell} /> Notificaciones
+										</h2>
 										<div className="search-notification">
-											<input 
-												className="inputSesarch" type="text" placeholder="Busar notificaciones por nombre" 
-												value={inputElement} onChange={(e)=>setInputElement(e.target.value)} />
+											<div className="search-input-container">
+												<FontAwesomeIcon icon={faSearch} className="search-icon" />
+												<input
+													className="inputSesarch"
+													type="text"
+													placeholder="Buscar notificaciones por nombre"
+													value={inputElement}
+													onChange={(e) => setInputElement(e.target.value)}
+												/>
+											</div>
 										</div>
 										<div className="content-state">
-											<button className="btnNotificationState" value="All" onClick={(e) => handleSearchState(e)}> Todos </button>
-											<button className="btnNotificationState" value="enviada" onClick={(e) => handleSearchState(e)}> Enviada</button>
-											<button className="btnNotificationState" value="leida"  onClick={(e) => handleSearchState(e)}> Leida</button>
-											<button className="btnNotificationState" value="sin_leer" onClick={(e) => handleSearchState(e)}> Sin leer</button>
-											<button className="btnNotificationState" value="pendiente" onClick={(e) => handleSearchState(e)}> Pendiente </button>
+											<button className="btnNotificationState" value="All" onClick={handleSearchState}>
+												<FontAwesomeIcon icon={faFilter} /> Todos
+											</button>
+											<button className="btnNotificationState" value="enviada" onClick={handleSearchState}>
+												Enviada
+											</button>
+											<button className="btnNotificationState" value="leida" onClick={handleSearchState}>
+												Leída
+											</button>
+											<button className="btnNotificationState" value="sin_leer" onClick={handleSearchState}>
+												Sin leer
+											</button>
+											<button className="btnNotificationState" value="pendiente" onClick={handleSearchState}>
+												Pendiente
+											</button>
 										</div>
 										<div className="content-date">
-											<h2 className="SubtitleNotification">Busar por fechas:</h2>
+											<h2 className="SubtitleNotification">
+												<FontAwesomeIcon icon={faCalendarAlt} /> Buscar por fechas:
+											</h2>
 											<div className="SubContentDate">
-												<div>	
-													<label> Fecha inicio: </label>
-													<input type="date" className="notificationsDate" placeholder="Ingrese fecha de inicio: " onChange={(e) => setDate(e.target.value)} />
+												<div className="date-input-group">
+													<label>Fecha inicio:</label>
+													<div className="date-input-container">
+														<FontAwesomeIcon icon={faCalendarAlt} className="date-icon" />
+														<input type="date" className="notificationsDate" onChange={(e) => setDate(e.target.value)} />
+													</div>
 												</div>
-												<div>
-													<label> Fecha Fin: </label>
-													<input type="date" className="notificationsDate" placeholder="Ingrese fecha fin: " onChange={(e) => setDateEnd(e.target.value)} />
+												<div className="date-input-group">
+													<label>Fecha Fin:</label>
+													<div className="date-input-container">
+														<FontAwesomeIcon icon={faCalendarAlt} className="date-icon" />
+														<input type="date" className="notificationsDate" onChange={(e) => setDateEnd(e.target.value)} />
+													</div>
 												</div>
 											</div>
 										</div>
 									</div>
 									<div className="notification-item">
 										{loadingNotifications ? (
-										<div>Cargando...</div>
-											) : filteredNotifications.length === 0 ? (
-												<div>Sin notificaciones</div>
-											) : (
-											filteredNotifications.map((notif) => (
-											<div className="notification">
-												<div
-													className="SubContentNotif"
-													key={notif.ID}
-													style={{ cursor: "pointer" }}
-													onClick={() => handleNotificationClick(notif)}
-												>
-													<div className="container-img-notifications">
-														<img src={notif.estado === "sin_leer" ? noRead : ifRead} alt="" />
-													</div>
-													<div className="container-text-notifications">
-														<p className="notification-sender">
-															{notif.remitente?.nombres
-																? `${notif.remitente.nombres} ${notif.remitente.apellidos}`
-																: "SGFC"}
-														</p>
-														<span className="notification-affair">{notif.titulo}</span>
+											<div className="loading-notifications">Cargando notificaciones...</div>
+										) : Filter.length === 0 ? (
+											<div className="no-notifications">No hay notificaciones</div>
+										) : (
+											Filter.map((notif) => (
+												<div className="notification" key={notif.ID}>
+													<div
+														className="SubContentNotif"
+														style={{ cursor: "pointer" }}
+														onClick={() => handleNotificationClick(notif)}
+													>
+														<div className="container-img-notifications">
+															<img src={notif.estado === "sin_leer" ? noRead : ifRead} alt="" />
+														</div>
+														<div className="container-text-notifications">
+															<p className="notification-sender">
+																{notif.remitente?.nombres
+																	? `${notif.remitente.nombres} ${notif.remitente.apellidos}`
+																	: "SGFC"}
+															</p>
+															<span className="notification-affair">{notif.titulo}</span>
+														</div>
 													</div>
 												</div>
-											</div>
-										
 											))
-									
 										)}
 									</div>
 								</div>
 							)}
-							
+						</div>
 
 						<button id="btn_profile" onClick={handleProfileClick}>
-							<img src={profile} alt="Perfil" />
+							<FontAwesomeIcon icon={faUser} />
 						</button>
 
 						<button onClick={handleLogout}>
-							<img src={logout} alt="Cerrar sesión" />
+							<FontAwesomeIcon icon={faSignOutAlt} />
 						</button>
 					</div>
 				)}
 			</div>
-			{showSettingsMenu && (
-				<div className="dropdown-settings" id="settings-menu" ref={settingsMenuRef} >
-					<div className="arrow-up" />
-					<button 
+
+			{showSettingsMenu && !isMobileView && (
+				<div className="dropdown-settings" id="settings-menu" ref={settingsMenuRef}>
+					<button
 						className="settings-dropdown-item"
 						onClick={handlePoliticasSeguridad}
 					>
+						<FontAwesomeIcon icon={faFileAlt} className="settings-icon" />
 						Políticas y seguridad
 					</button>
-					<button 
+					<button
 						className="settings-dropdown-item"
 						onClick={handlePreguntaSeguridad}
 					>
+						<FontAwesomeIcon icon={faFileAlt} className="settings-icon" />
 						Pregunta de seguridad
 					</button>
-					</div>
+				</div>
 			)}
 		</div>
 	)

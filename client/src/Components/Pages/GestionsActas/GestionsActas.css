@@ -1,385 +1,1108 @@
-/* Estilos para el título responsivo */
-.tituloGestionsCompany {
-  margin-top: 2rem;
-  margin-bottom: 1.5rem;
-  font-size: 2rem;
-  text-align: center;
+/* Contenedor Principal */
+.gestions-actas-container {
+  width: 90%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem;
+  min-height: calc(100vh - 120px);
+  color: #fff;
 }
 
-/* Responsive para móviles */
-@media (max-width: 768px) {
-  .tituloGestionsCompany {
-    margin-top: 3rem;
-    font-size: 1.5rem;
-    margin-bottom: 1rem;
-  }
-}
-
-/* Estilos para la tabla de resultados */
-.resultTableGestionsCompany {
-  background: transparent;
-  border-radius: 12px;
+/* Header Principal - Más compacto */
+.actas-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1.5rem;
+  align-items: center;
+  background: linear-gradient(135deg, rgba(0, 132, 61, 0.15) 0%, rgba(0, 200, 83, 0.1) 100%);
+  border: 1px solid rgba(0, 200, 83, 0.3);
+  border-radius: 16px;
   padding: 1.5rem;
-  margin-top: 1rem;
-  width: 100%;
+  margin-bottom: 1.5rem;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 4px 20px rgba(0, 132, 61, 0.1);
 }
 
-.resultTableHeader {
-  margin-bottom: 1rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 2px solid #b0b0b0;
-}
-
-.table-container {
-  width: 100%;
-}
-
-/* Encabezados de tabla - SIMPLIFICADO */
-.table-header.desktop-only {
-  display: grid;
-  width: 100%;
-  grid-template-columns: 80px 100px 1fr 100px 60px;
-  gap: 0.5rem;
-  padding: 0.8rem;
-  background: #b0b0b038;
-  border-radius: 8px;
-  font-weight: bold;
-  margin-bottom: 0.3rem;
-  color: #333;
-}
-
-.table-header.desktop-only > div {
+.header-content {
+  flex: 1;
   text-align: center;
+}
+
+.main-title {
+  color: #fff;
+  font-size: 2rem;
+  font-weight: 300;
+  margin: 0 0 0.3rem 0;
+}
+
+.accent-text {
+  color: #00c853;
+  font-weight: 500;
+}
+
+.subtitle {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 1rem;
+  margin: 0;
+}
+
+.subtitle strong {
+  color: #00c853;
+  font-weight: 600;
+}
+
+.header-stats {
+  display: flex;
+  align-items: center;
+}
+
+.stat-card {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 1rem 1.2rem;
+  text-align: center;
+  backdrop-filter: blur(10px);
+  min-width: 120px;
+}
+
+.stat-number {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #00c853;
+  margin-bottom: 0.2rem;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.8);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Panel de Búsqueda y Filtros - Diseño Compacto */
+.search-panel {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  backdrop-filter: blur(10px);
+}
+
+/* Encabezado de búsqueda y botón */
+.search-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-bottom: 1.2rem;
+  flex-wrap: wrap;
+}
+
+.search-section {
+  flex: 1;
+  min-width: 300px;
+}
+
+.search-input-container {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+}
+
+.search-input {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 25px;
+  padding: 0.8rem 1.2rem 0.8rem 2.5rem;
+  font-size: 0.9rem;
+  color: #fff;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #00c853;
+  box-shadow: 0 0 0 2px rgba(0, 200, 83, 0.1);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.search-input::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.search-icon-left {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1rem;
+  color: #00c853;
+}
+
+/* Botón Generar Acta - en línea con búsqueda */
+.generate-acta-section {
+  flex-shrink: 0;
+}
+
+.generate-acta-btn {
+  background: rgba(0, 200, 83, 0.1);
+  border: 1px solid rgba(0, 200, 83, 0.3);
+  color: #00c853;
+  padding: 0.8rem 1.5rem;
+  border-radius: 20px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+}
+
+.generate-acta-btn:hover {
+  background: rgba(0, 200, 83, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 200, 83, 0.2);
+}
+
+/* Panel de Filtros Compacto */
+.filters-panel {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 1.2rem;
+  margin-top: 1rem;
+}
+
+.filters-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  padding-bottom: 0.8rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.filters-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.filters-title-icon {
+  color: #00c853;
   font-size: 0.9rem;
 }
 
-.inputDateFilter{
-  background-color: #f3f3f3;
-  color: #1a1a1a;
-  font: 100% sans-serif;
+.clear-filters-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.7);
+  padding: 0.4rem 0.8rem;
+  border-radius: 15px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
   display: flex;
-  border-radius: 10px;
-  width: auto;
-  height: auto;
+  align-items: center;
+  gap: 0.3rem;
 }
 
-/* Filas de la tabla - MISMA ESTRUCTURA que encabezados */
-.table-row.desktop-view {
+.clear-filters-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  border-color: rgba(0, 200, 83, 0.3);
+}
+
+/* Filtros en grid compacto */
+.filters-grid {
   display: grid;
-  grid-template-columns: 80px 100px 1fr 100px 60px; /* EXACTAMENTE igual */
-  gap: 0.5rem; /* EXACTAMENTE igual */
-  padding: 0.8rem; /* EXACTAMENTE igual */
-  align-items: center;
-  background: #b0b0b038;
-  border-radius: 8px;
-  margin-bottom: 0.5rem;
-  text-align: center;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.2rem;
 }
 
-/* Asegurar que cada celda se comporte igual */
-.table-row.desktop-view > div {
+.filter-group-compact {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.filter-group-header {
   display: flex;
   align-items: center;
-  justify-content: center;
-  text-align: center;
-  word-break: break-word;
+  gap: 0.4rem;
+  margin-bottom: 0.3rem;
 }
 
-/* Estados mejorados */
-.estado-badge {
-  padding: 0.3rem 0.6rem;
-  border-radius: 6px;
+.filter-label-compact {
+  color: rgba(255, 255, 255, 0.9);
   font-size: 0.8rem;
-  font-weight: bold;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.filter-icon-compact {
+  color: #00c853;
+  font-size: 0.75rem;
+}
+
+/* Fechas en línea */
+.date-filters-row {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-end;
+}
+
+.date-filter-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.date-label {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.8rem;
+  font-weight: 500;
+  margin-bottom: 0.2rem;
+}
+
+.filter-date-input-compact {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  padding: 0.5rem 0.8rem;
+  color: #fff;
+  font-size: 0.8rem;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  width: 100%;
+}
+
+.filter-date-input-compact:focus {
+  outline: none;
+  border-color: #00c853;
+  box-shadow: 0 0 0 2px rgba(0, 200, 83, 0.1);
+}
+
+/* Chips de filtro mejorados */
+.filter-chips-container-compact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+}
+
+.filter-chip-compact {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 15px;
+  padding: 0.35rem 0.7rem;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.7rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
+  white-space: nowrap;
+}
+
+.filter-chip-compact:hover {
+  border-color: #00c853;
+  color: #00c853;
+  transform: translateY(-1px);
+}
+
+.filter-chip-compact.selected {
+  background: rgba(0, 200, 83, 0.1);
+  border-color: #00c853;
+  color: #00c853;
+  font-weight: 600;
+}
+
+/* Contador de filtros activos */
+.active-filters-badge {
+  background: rgba(0, 200, 83, 0.2);
+  color: #00c853;
+  border-radius: 10px;
+  padding: 0.1rem 0.5rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  margin-left: 0.3rem;
+}
+
+/* Estados de la Aplicación */
+.no-results-state {
+  text-align: center;
+  padding: 2rem 1.5rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  backdrop-filter: blur(10px);
+  margin: 1.5rem 0;
+}
+
+.no-results-icon {
+  font-size: 2.5rem;
+  margin-bottom: 0.8rem;
+  opacity: 0.7;
+}
+
+.no-results-state h3 {
+  color: #fff;
+  font-size: 1.2rem;
+  margin-bottom: 0.4rem;
+}
+
+.no-results-state p {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9rem;
+  margin-bottom: 1.2rem;
+}
+
+.reset-filters-btn {
+  background: rgba(0, 200, 83, 0.1);
+  border: 1px solid rgba(0, 200, 83, 0.3);
+  color: #00c853;
+  padding: 0.6rem 1.2rem;
+  border-radius: 20px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.85rem;
+}
+
+.reset-filters-btn:hover {
+  background: rgba(0, 200, 83, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 200, 83, 0.2);
+}
+
+/* Sección de Resultados */
+.results-section {
+  width: 100%;
+}
+
+.results-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.8rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.results-title {
+  color: #fff;
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.results-count {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9rem;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 0.3rem 0.8rem;
+  border-radius: 12px;
+}
+
+/* Grid de Actas */
+.actas-grid-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.actas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.2rem;
+  width: 100%;
+  max-width: 1200px;
+}
+
+/* Tarjetas de Actas */
+.acta-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  position: relative;
+  min-height: 140px;
+  display: flex;
+  flex-direction: column;
+}
+
+.acta-card:hover {
+  transform: translateY(-4px);
+  border-color: #00c853;
+  box-shadow: 0 8px 20px rgba(0, 200, 83, 0.15);
+}
+
+.card-header-acta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1rem 0.5rem;
+}
+
+.acta-badge {
+  padding: 0.3rem 0.6rem;
+  border-radius: 15px;
+  font-size: 0.7rem;
+  font-weight: 600;
   text-transform: capitalize;
-  width: fit-content;
-  margin: 0 auto;
-}
-
-.estado-aprobada {
-  background: #00843d;
-  color: white;
-}
-
-.estado-rechazada {
-  background: #b0b0b0;
-  color: #222;
 }
 
 .estado-pendiente {
-  background: #b0b0b038;
-  color: #222;
-  border: 1px solid #b0b0b0;
+  background: rgba(176, 176, 176, 0.2);
+  color: #fff;
+  border: 1px solid rgba(176, 176, 176, 0.5);
 }
 
-/* Icono de ver */
-.view-icon {
-  width: 20px;
-  height: 20px;
+.estado-aprobada {
+  background: rgba(0, 132, 61, 0.2);
+  color: #00c853;
+  border: 1px solid rgba(0, 200, 83, 0.5);
+}
+
+.estado-rechazada {
+  background: rgba(211, 51, 51, 0.2);
+  color: #ff6b6b;
+  border: 1px solid rgba(255, 107, 107, 0.5);
+}
+
+.acta-date {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.75rem;
+}
+
+.card-content-acta {
+  padding: 0 1rem 1rem;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.acta-title {
+  color: #fff;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem 0;
+  text-align: center;
+}
+
+.acta-type {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.8rem;
+  text-align: center;
+  margin: 0 0 1rem 0;
+  text-transform: capitalize;
+}
+
+.acta-actions {
+  display: flex;
+  justify-content: center;
+}
+
+.view-acta-btn {
+  background: rgba(0, 200, 83, 0.1);
+  border: 1px solid rgba(0, 200, 83, 0.3);
+  color: #00c853;
+  padding: 0.5rem 1rem;
+  border-radius: 15px;
+  font-weight: 600;
   cursor: pointer;
-  transition: transform 0.2s;
-  margin: 0 auto;
-}
-
-.view-icon:hover {
-  transform: scale(1.1);
-}
-
-/* Vista Mobile - Card (igual que antes) */
-.table-item.mobile-view {
-  display: none;
-  flex-direction: column;
-  padding: 1rem;
-  gap: 0.75rem;
-  background: #b0b0b038;
-  border-radius: 8px;
-  margin-bottom: 0.5rem;
-}
-
-.card-header {
+  transition: all 0.3s ease;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.5rem;
+  gap: 0.4rem;
+  font-size: 0.8rem;
 }
 
-.card-body {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+.view-acta-btn:hover {
+  background: rgba(0, 200, 83, 0.2);
+  transform: translateY(-1px);
 }
 
-.card-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.3rem 0;
-}
-
-.card-label {
-  font-weight: bold;
-  color: #495057;
+/* Iconos generales */
+.btn-icon {
+  margin-right: 0.5rem;
   font-size: 0.9rem;
 }
 
-.card-actions {
+/* ========== ESTILOS DE MODALES UNIFICADOS ========== */
+
+/* Modal Overlay */
+.modal-actas-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(10px);
   display: flex;
   justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 15px;
+}
+
+.modal-actas-container {
+  width: 100%;
+  max-width: 500px;
+  max-height: 80vh;
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header del Modal */
+.modal-actas-header {
+  background: linear-gradient(135deg, rgba(0, 132, 61, 0.2) 0%, rgba(0, 200, 83, 0.15) 100%);
+  border-bottom: 1px solid rgba(0, 200, 83, 0.3);
+  padding: 1.2rem 1.5rem;
+  backdrop-filter: blur(10px);
+  flex-shrink: 0;
+}
+
+.modal-actas-header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-actas-header-content h2 {
+  color: #fff;
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.modal-actas-header-icon {
+  color: #00c853;
+}
+
+.modal-actas-close-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  color: #fff;
+  padding: 0.6rem 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  backdrop-filter: blur(10px);
+}
+
+.modal-actas-close-btn:hover {
+  background: rgba(0, 200, 83, 0.2);
+  border-color: #00c853;
+  transform: translateY(-1px);
+}
+
+/* Body del Modal */
+.modal-actas-body {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-actas-content {
+  padding: 1.5rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-height: 0;
+  flex: 1;
+}
+
+/* Opciones del Modal de Actas */
+.modal-actas-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  width: 100%;
+}
+
+.modal-actas-btn {
+  background: #00843d;
+  color: #fff;
+  padding: 0.8rem 1.2rem;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  border: none;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.modal-actas-btn:hover {
+  background: #006f32;
+  transform: translateY(-2px);
+}
+
+.modal-actas-upload-label {
+  background: #007bff;
+  color: #fff;
+  padding: 0.8rem 1.2rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.modal-actas-upload-label:hover {
+  background: #0056b3;
+  transform: translateY(-2px);
+}
+
+.modal-actas-upload-input {
+  display: none;
+}
+
+.modal-actas-change-state-section {
+  text-align: center;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.modal-actas-state-label {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #fff;
+  font-size: 0.9rem;
+}
+
+.modal-actas-state-select {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  border-radius: 6px;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  font-weight: 600;
+  width: 100%;
+  margin-bottom: 1rem;
+  font-size: 0.85rem;
+}
+
+.modal-actas-state-select:focus {
+  outline: none;
+  border-color: #00c853;
+}
+
+.modal-actas-observation-label {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #fff;
+  font-size: 0.9rem;
+}
+
+.modal-actas-observation-textarea {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  padding: 0.7rem;
+  color: #fff;
+  width: 100%;
+  min-height: 70px;
+  resize: vertical;
+  margin-bottom: 1rem;
+  font-size: 0.85rem;
+}
+
+.modal-actas-observation-textarea:focus {
+  outline: none;
+  border-color: #00c853;
+}
+
+.modal-actas-save-state-btn {
+  background: #00843d;
+  color: #fff;
+  padding: 0.7rem 1.2rem;
+  border-radius: 6px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.85rem;
+}
+
+.modal-actas-save-state-btn:hover {
+  background: #006f32;
+  transform: translateY(-1px);
+}
+
+.modal-actas-info-message {
+  text-align: center;
+  padding: 0.8rem;
+  color: rgba(255, 255, 255, 0.7);
+  font-style: italic;
+  border-radius: 6px;
   margin-top: 0.5rem;
-  padding-top: 0.5rem;
-  border-top: 1px solid #b0b0b0;
+  background: rgba(255, 255, 255, 0.05);
+  font-size: 0.85rem;
 }
 
-.fecha-mobile {
-  font-size: 0.875rem;
-  color: #6c757d;
+.modal-actas-observation-display {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  padding: 0.8rem;
+  margin-top: 0.5rem;
 }
 
-/* Responsive */
+.modal-actas-observation-display b {
+  color: #00c853;
+  font-size: 0.9rem;
+}
+
+.modal-actas-observation-display p {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.85rem;
+  margin: 0.3rem 0 0 0;
+  line-height: 1.4;
+}
+
+/* Modal de Tipo de Acta */
+.modal-acta-type-content {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.modal-acta-type-options {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+  max-width: 300px;
+}
+
+.modal-acta-type-option {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 1.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  text-align: center;
+  backdrop-filter: blur(10px);
+}
+
+.modal-acta-type-option:hover {
+  background: rgba(0, 200, 83, 0.1);
+  border-color: #00c853;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 200, 83, 0.15);
+}
+
+.modal-acta-type-icon-container {
+  width: 70px;
+  height: 70px;
+  background: rgba(0, 200, 83, 0.1);
+  border: 2px solid rgba(0, 200, 83, 0.3);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.modal-acta-type-option:hover .modal-acta-type-icon-container {
+  background: rgba(0, 200, 83, 0.2);
+  border-color: #00c853;
+  transform: scale(1.1);
+}
+
+.modal-acta-type-icon {
+  font-size: 1.8rem;
+  color: #00c853;
+}
+
+.modal-acta-type-option p {
+  color: #fff;
+  font-weight: 600;
+  font-size: 1rem;
+  margin: 0;
+}
+
+/* Scrollbars */
+.modal-actas-content::-webkit-scrollbar {
+  width: 5px;
+}
+
+.modal-actas-content::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 3px;
+}
+
+.modal-actas-content::-webkit-scrollbar-thumb {
+  background: rgba(0, 200, 83, 0.3);
+  border-radius: 3px;
+}
+
+/* ========== RESPONSIVE DESIGN ========== */
+
+/* Tablets */
+@media (max-width: 1024px) {
+  .gestions-actas-container {
+    width: 95%;
+    padding: 1rem 0.8rem;
+  }
+  
+  .actas-header {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+    padding: 1.2rem;
+  }
+  
+  .main-title {
+    font-size: 1.8rem;
+  }
+  
+  .actas-grid {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.2rem;
+  }
+  
+  .filters-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Tablets pequeñas */
 @media (max-width: 768px) {
-  .desktop-only {
-    display: none;
+  .gestions-actas-container {
+    padding: 0.8rem 0.5rem;
   }
   
-  .table-row.desktop-view {
-    display: none;
+  .main-title {
+    font-size: 1.6rem;
   }
   
-  .table-item.mobile-view {
-    display: flex;
+  .search-panel {
+    padding: 1.2rem;
   }
   
-  .resultTableGestionsCompany {
+  .search-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+  
+  .search-section {
+    min-width: 100%;
+  }
+  
+  .search-input-container {
+    max-width: 100%;
+  }
+  
+  .generate-acta-section {
+    align-self: flex-start;
+  }
+  
+  .date-filters-row {
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+  
+  .actas-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    max-width: 350px;
+  }
+  
+  .acta-card {
+    max-width: 100%;
+  }
+
+  /* Responsive para modales */
+  .modal-actas-container {
+    max-width: 95%;
+    max-height: 85vh;
+  }
+  
+  .modal-actas-header {
     padding: 1rem;
   }
+  
+  .modal-actas-header-content h2 {
+    font-size: 1.2rem;
+  }
+  
+  .modal-actas-content {
+    padding: 1.2rem;
+  }
 }
 
-@media (min-width: 769px) {
-  .table-item.mobile-view {
+/* Móviles */
+@media (max-width: 480px) {
+  .gestions-actas-container {
+    padding: 0.5rem 0.3rem;
+  }
+  
+  .actas-header {
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .main-title {
+    font-size: 1.4rem;
+  }
+  
+  .subtitle {
+    font-size: 0.9rem;
+  }
+  
+  .stat-card {
+    padding: 0.8rem;
+    min-width: 100px;
+  }
+  
+  .stat-number {
+    font-size: 1.3rem;
+  }
+  
+  .search-panel {
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .search-input {
+    padding: 0.7rem 1rem 0.7rem 2.2rem;
+  }
+  
+  .results-header {
+    margin-bottom: 1.5rem;
+  }
+  
+  .results-title {
+    font-size: 1.3rem;
+  }
+  
+  .no-results-state {
+    padding: 1.5rem 1rem;
+    margin: 1rem 0;
+  }
+
+  /* Responsive para modales en móviles */
+  .modal-actas-overlay {
+    padding: 10px;
+  }
+  
+  .modal-actas-container {
+    border-radius: 12px;
+    max-height: 90vh;
+  }
+  
+  .modal-actas-header {
+    padding: 0.8rem;
+  }
+  
+  .modal-actas-header-content h2 {
+    font-size: 1.1rem;
+  }
+  
+  .modal-actas-close-btn span {
     display: none;
   }
   
-  .table-row.desktop-view {
-    display: grid;
+  .modal-actas-content {
+    padding: 1rem;
+  }
+  
+  .modal-acta-type-content {
+    padding: 1rem;
+  }
+  
+  .modal-acta-type-option {
+    padding: 1.2rem;
+  }
+  
+  .modal-acta-type-icon-container {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .modal-acta-type-icon {
+    font-size: 1.5rem;
   }
 }
 
-/* Mantener estilos existentes del filtro */
-.statusOptionActas {
-  background: #b0b0b038;
-  border-radius: 8px;
-  padding: 0.3rem 1rem;
-  margin: 0.2rem 0.5rem 0.2rem 0;
-  display: inline-block;
-  transition: background 0.2s, color 0.2s;
-  width: auto;
-  height: auto;
-  cursor: pointer;
-}
-
-.statusOptionActas.selected {
-	background: #00843d;
-  color: white;
-}
-
-.selectEstadoActa {
-	background: #b0b0b0;
-	color: #222;
-	border-radius: 8px;
-	padding: 0.3rem 1rem;
-	border: none;
-	font-weight: bold;
-	width: auto;
-	height: auto;
-	margin-top: 0.5rem;
-	margin-bottom: 0.5rem;
-}
-
-.selectEstadoActa option {
-	background: #b0b0b0;
-	color: #222;
-}
-
-.selectEstadoActa option:hover,
-.selectEstadoActa option:checked {
-	background: #00843d;
-	color: #fff;
-}
-
-.selectEstadoActa:focus {
-	outline: none;
-	border: 2px solid #00843d;
-	box-shadow: 0 0 0 2px #b0b0b0;
-}
-
-.container-button-firmar {
-  width: 100%;
-  height: auto;
-  align-items: center;
-  display: flex;
-  justify-content: center;
-}
-
-.button-proceedings-generar {
-	background-color: #00843d;
-	color: white;
-	padding: 0.6rem 2rem;
-	border: none;
-	border-radius: 30px;
-	cursor: pointer;
-	font-size: 1rem;
-	transition: background 0.3s ease;
-	width: 50%;
-	height: auto;
-	margin-bottom: 4%;
-}
-
-.modal-tipo-acta-opciones {
-	display: flex;
-	flex-direction: column;
-	gap: 1rem;
-	margin-top: 2rem;
-	align-items: center;
-}
-
-.button-tipo-acta {
-	background-color: #b8b8b8;
-	color: #00843D;
-	font-size: 1rem;
-	border: none;
-	border-radius: 30px;
-	padding: 0.6rem 2rem;
-	cursor: pointer;
-	transition: background 0.3s, color 0.3s;
-	width: 80%;
-	margin: 0 auto;
-}
-
-.button-tipo-acta:hover,
-.button-tipo-acta.selected {
-	background-color: #00843D;
-	color: white;
-}
-
-.container-modal-acta {
-	display: flex;
-	flex-direction: column;
-	gap: 1rem;
-	margin-top: 2rem;
-	align-items: center;
-}
-
-.title-modal-acta {
-	width: 100%;
-	height: auto;
-	text-align: center;
-}
-
-.option-1Acta,
-.option-2Acta {
-	width: auto;
-	height: auto;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	gap: 1rem;
-	cursor: pointer;
-}
-
-.container-1Acta,
-.container-2Acta {
-	width: 90px;
-	height: 90px;
-	background-color: #454545;
-	border-radius: 50%;
-	opacity: 50%;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	border-style: none;
-	cursor: pointer;
-}
-
-.container-1Acta:hover,
-.container-2Acta:hover {
-	background-color: #00843D;
-	opacity: 70%;
-}
-
-.option-1Acta>p,
-.option-2Acta>p {
-	width: auto;
-	height: auto;
-}
-
-.container-1Acta>img,
-.container-2Acta>img {
-	width: 60%;
-	height: auto;
-	margin-left: 1rem;
-	object-fit: contain;
-}
-
-.Acta-Contenedor {
-	display: flex;
-	flex-direction: row;
-	justify-content: space-between;
-	padding: 0.75rem;
-	width: 100%;
-	background: rgba(34, 34, 34, 0.8);
-	border: 1px solid rgba(255,255,255,0.1);
-	margin-bottom: 0.5rem;
-}
-
-.Acta-Boton {
-	background: #00843d;
-	color: #fff;
-	padding: 0.5rem 1rem;
-	border-radius: 5px;
-	text-decoration: none;
-	font-weight: bold;
-	width: auto;
-	height: auto;
-	border-width: 0px;
-	font-size: 16px;
+/* Móviles pequeños */
+@media (max-width: 360px) {
+  .main-title {
+    font-size: 1.3rem;
+  }
+  
+  .stat-card {
+    padding: 0.6rem;
+  }
+  
+  .filter-group-compact {
+    min-width: 180px;
+  }
+  
+  .acta-card {
+    margin: 0 0.3rem;
+  }
+  
+  .modal-actas-header-content h2 {
+    font-size: 1rem;
+  }
 }

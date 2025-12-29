@@ -33,6 +33,7 @@ const Curso = require("../models/curso");
 const InscripcionCurso = require("../models/InscripcionCurso");
 const { log } = require("console");
 const { console } = require("inspector");
+const { Console } = require("console");
 const fotoDefectPerfil = "../Img/userDefect.png"; // Importar la imagen por defecto
 
 //registrar usuario (empresa o aprendiz)
@@ -590,6 +591,7 @@ const getAllUsers = async (req, res) => {
 					"resetPasswordExpires",
 				],
 			},
+			include: [{ model: Empresa, as: "Empresa" }],
 		}
 
 		if (page) {
@@ -628,7 +630,7 @@ const getAllUsers = async (req, res) => {
 			usuarios: users.rows
 		});
 	} catch (error) {
-		console.error("Error al obtener los usuarios:", error);
+		console.log("Error al obtener los usuarios:", error);
 		res.status(500).json({ message: "Error al obtener los usuarios" });
 	}
 };
@@ -895,6 +897,7 @@ const updateUserProfile = async (req, res) => {
 			estado,
 			titulo_profesional,
 			tipoDocumento,
+			empresa_asignada
 		} = req.body;
 
 		// Procesar imagen de perfil si se sube (como base64)
@@ -1015,6 +1018,7 @@ const updateUserProfile = async (req, res) => {
                 titulo_profesional: user.titulo_profesional,
                 tipoDocumento: user.tipoDocumento,
                 foto_perfil: user.foto_perfil,
+				empresa_ID: user.empresa_ID
             };
 
             const nombresClean = cleanValue(nombres);
@@ -1118,6 +1122,7 @@ const updateUserProfile = async (req, res) => {
                 if (foto_perfil) user.foto_perfil = foto_perfil;
                 if (documento) user.documento = documento;
                 if (tipoDocumento) user.tipoDocumento = tipoDocumento;
+				if (empresa_asignada) user.empresa_ID = empresa_asignada;
 
 			// Si se envía información de empresa, permitir que el administrador la actualice también
 			if (req.body.empresa && user.Empresa) {
@@ -1412,8 +1417,7 @@ const updateUserProfile = async (req, res) => {
 					}
 					user.Empresa.email_empresa = email_empresa;
 				}
-				if (nombre_empresa)
-					user.Empresa.nombre_empresa = nombre_empresa;
+				if (nombre_empresa) user.Empresa.nombre_empresa = nombre_empresa;
 				if (direccion) user.Empresa.direccion = direccion;
 				if (categoria) user.Empresa.categoria = categoria;
 				if (telefono) user.Empresa.telefono = telefono;
@@ -2364,8 +2368,7 @@ const getAllEmpleadosForAdmin = async (req, res) => {
 				...empleado.dataValues,
 				cursos
 			})
-		}
-
+		};
 		res.status(200).json({
 			success: true,
 			empleados: listaEmpleados,// TODO,
@@ -2391,7 +2394,13 @@ const getAllEmpresasForAdmin = async (req, res) => {
 			order: [["nombre_empresa", "ASC"]],
 		});
 
-		res.status(200).json({ success: true, empresas });
+		const result = empresas.map(emp => {
+			if(emp.ID && emp.NIT) {
+				return emp
+			}
+
+		})
+		res.status(200).json({ success: true, empresas: result });
 	} catch (error) {
 		console.error("Error al obtener empresas:", error);
 		res.status(500).json({ message: "Error al obtener las empresas." });
@@ -2696,42 +2705,42 @@ const createEmpresa = async (req, res) => {
             categoria,
             direccion,
             telefono,
-			descripcion,
+            descripcion,
             email_empresa,
             departamento_ID,
             ciudad_ID,
             estado = 'activo',
-			sitio_web
+            sitio_web,
+            manager_email  
         } = req.body;
 
-		const { email } = req.params;
 
-		console.log(email)
+        console.log('Cuerpo recibido :', req.body);
 
-		if(!email){
-			return res.status(400).json({
-				message: 'Es necesario el email del manager'
-			})
-		}
+        if(!manager_email){
+            return res.status(400).json({
+                message: 'Es necesario el email del manager'
+            })
+        }
 
-        // Validar datos obligatorios
-        if (!nombre_empresa || !NIT || !categoria || !direccion || !telefono || !email_empresa || !ciudad_ID) {
+        
+        if (!nombre_empresa || !NIT || !categoria || !direccion || !telefono || !email_empresa || !ciudad_ID ||! manager_email) {
             return res.status(400).json({ 
                 message: 'Todos los campos marcados con * son obligatorios' 
             });
         }
 
-		let newEmpresa = { ...req.body};
+        let newEmpresa = { ...req.body};
 
-        // Procesar imagen si se sube
+      
         if (req.file) {
             newEmpresa.image = req.file.buffer.toString('base64');
         } else if (req.body.img_empresa) {
             newEmpresa.image = req.body.img_empresa;
         }
 
-        // Crear la empresa
-		const nuevaEmpresa = await UserServices.CreateEmpresaByAdmin(email, newEmpresa);
+       
+        const nuevaEmpresa = await UserServices.CreateEmpresaByAdmin(manager_email, newEmpresa);
 
         res.status(201).json({ 
             message: 'Empresa creada con éxito',
@@ -2739,33 +2748,9 @@ const createEmpresa = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Error al crear empresa:', error);
-        
-        if (error.name === 'SequelizeValidationError') {
-            const errors = error.errors.map(err => err.message);
-            return res.status(400).json({ 
-                message: 'Error de validación', 
-                errors 
-            });
-        }
-        
-        if (error.name === 'SequelizeForeignKeyConstraintError') {
-            return res.status(400).json({ 
-                message: 'La ciudad o departamento seleccionado no existe' 
-            });
-        }
-
-		if (error.message && error.message !== 'Error en el servidor. Intente de nuevo más tarde.') {
-            return res.status(400).json({ 
-                message: error.message
-            });
-        }
-
-        res.status(500).json({ 
-            message: 'Error interno al crear la empresa',
-            error: error.message 
-        });
-      }
+        console.error("No se logro crear la empresa", error)
+		res.status(500).json({ message: error, hola : "error"})
+    }
 };
 
 const changeRole = async (req, res) => {

@@ -4,7 +4,6 @@ import { useState, useRef, useEffect } from "react";
 import { NavBar } from "../../UI/NavBar/NavBar";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import "./Header.css";
-import path from "path";
 
 export const Header = ({
 	setShowSignIn,
@@ -14,11 +13,29 @@ export const Header = ({
 	const [showCoursesMenu, setShowCoursesMenu] = useState(false);
 	const [showGestionesMenu, setShowGestionesMenu] = useState(false);
 	const [showEmpleadosMenu, setShowEmpleadosMenu] = useState(false);
+	const [hoverTimeout, setHoverTimeout] = useState(null);
+	const [isMobileView, setIsMobileView] = useState(false);
+
 	const coursesMenuRef = useRef(null);
 	const gestionesMenuRef = useRef(null);
 	const empleadosMenuRef = useRef(null);
+
 	const navigate = useNavigate();
 	const location = useLocation();
+
+	// Detectar tamaño de pantalla
+	useEffect(() => {
+		const checkMobile = () => {
+			setIsMobileView(window.innerWidth <= 768);
+		};
+
+		checkMobile();
+		window.addEventListener('resize', checkMobile);
+
+		return () => {
+			window.removeEventListener('resize', checkMobile);
+		};
+	}, []);
 
 	const userSession =
 		JSON.parse(localStorage.getItem("userSession")) ||
@@ -27,19 +44,22 @@ export const Header = ({
 	const isLoggedIn = !!userSession;
 	const accountType = userSession?.accountType || null;
 
-	const toggleCoursesMenu = () => {
+	const toggleCoursesMenu = (e) => {
+		if (e) e.stopPropagation();
 		setShowGestionesMenu(false);
 		setShowEmpleadosMenu(false);
 		setShowCoursesMenu((prev) => !prev);
 	};
 
-	const toggleGestionesMenu = () => {
+	const toggleGestionesMenu = (e) => {
+		if (e) e.stopPropagation();
 		setShowCoursesMenu(false);
 		setShowEmpleadosMenu(false);
 		setShowGestionesMenu((prev) => !prev);
 	};
 
-	const toggleEmpleadosMenu = () => {
+	const toggleEmpleadosMenu = (e) => {
+		if (e) e.stopPropagation();
 		setShowCoursesMenu(false);
 		setShowGestionesMenu(false);
 		setShowEmpleadosMenu((prev) => !prev);
@@ -52,7 +72,13 @@ export const Header = ({
 		setShowEmpleadosMenu(false);
 	};
 
+	// Cerrar menús al hacer clic fuera (solo en escritorio)
 	useEffect(() => {
+		// Si es móvil, no usar este listener
+		if (isMobileView) {
+			return;
+		}
+
 		const handleClickOutside = (event) => {
 			if (
 				!coursesMenuRef.current?.contains(event.target) &&
@@ -64,12 +90,65 @@ export const Header = ({
 				setShowEmpleadosMenu(false);
 			}
 		};
+
 		document.addEventListener("mousedown", handleClickOutside);
 		return () =>
 			document.removeEventListener("mousedown", handleClickOutside);
-	}, []);
+	}, [isMobileView]);
 
-	// Detectar rutas activas para menús con subopciones
+	// Limpiar timeout al desmontar
+	useEffect(() => {
+		return () => {
+			if (hoverTimeout) {
+				clearTimeout(hoverTimeout);
+			}
+		};
+	}, [hoverTimeout]);
+
+	// Funciones para manejar hover (solo escritorio)
+	const handleMouseEnterCourses = () => {
+		if (window.innerWidth >= 769) {
+			if (hoverTimeout) {
+				clearTimeout(hoverTimeout);
+				setHoverTimeout(null);
+			}
+			setShowGestionesMenu(false);
+			setShowEmpleadosMenu(false);
+			setShowCoursesMenu(true);
+		}
+	};
+
+	const handleMouseLeaveCourses = () => {
+		if (window.innerWidth >= 769) {
+			const timeout = setTimeout(() => {
+				setShowCoursesMenu(false);
+			}, 300);
+			setHoverTimeout(timeout);
+		}
+	};
+
+	const handleMouseEnterGestiones = () => {
+		if (window.innerWidth >= 769) {
+			if (hoverTimeout) {
+				clearTimeout(hoverTimeout);
+				setHoverTimeout(null);
+			}
+			setShowCoursesMenu(false);
+			setShowEmpleadosMenu(false);
+			setShowGestionesMenu(true);
+		}
+	};
+
+	const handleMouseLeaveGestiones = () => {
+		if (window.innerWidth >= 769) {
+			const timeout = setTimeout(() => {
+				setShowGestionesMenu(false);
+			}, 300);
+			setHoverTimeout(timeout);
+		}
+	};
+
+	// Detectar rutas activas
 	const isCoursesActive = [
 		"/Cursos/MisCursos",
 		"/Cursos/MisCursosAsignados",
@@ -89,20 +168,86 @@ export const Header = ({
 		"/reportes/asistencia-progreso",
 	].some((path) => location.pathname.startsWith(path));
 
-	const isEmpresasActive = location.pathname.startsWith(
-		"/Gestiones/Empresas",
-	);
-
-	const isEmpleadosActive = [
-		"/Empleados/MisEmpleados",
-		"/Empleados/CrearEmpleado",
-		"/Empleados/CrearVariosEmpleados",
-	].some((path) => location.pathname.startsWith(path));
-
 	const showDropdown = (optionsCount) => optionsCount > 1;
 
+	// Función para renderizar opciones del dropdown
+	const renderDropdownOptions = (options) => {
+		if (isMobileView) {
+			// En móvil, usar NavLink que funcionará con react-router
+			return options.map((opt, index) => (
+				<NavLink
+					key={index}
+					to={opt.path}
+					className={({ isActive }) =>
+						isActive
+							? "header-dropdown-link mobile-dropdown-link active"
+							: "header-dropdown-link mobile-dropdown-link"
+					}
+					onClick={(e) => {
+						e.stopPropagation();
+						setShowCoursesMenu(false);
+						setShowGestionesMenu(false);
+						setShowEmpleadosMenu(false);
+					}}
+					end
+				>
+					{opt.label}
+				</NavLink>
+			));
+		} else {
+			// En escritorio, usar button con onClick
+			return options.map((opt, index) => (
+				<button
+					key={index}
+					className={
+						location.pathname.startsWith(opt.path) ? "active" : ""
+					}
+					onClick={() => handleMenuClick(opt.path)}
+				>
+					{opt.label}
+				</button>
+			));
+		}
+	};
+
+	// Función para renderizar opciones de gestión
+	const renderGestionesOptions = (options) => {
+		if (isMobileView) {
+			return options.map((opt, index) => (
+				<NavLink
+					key={index}
+					to={opt.path}
+					className={({ isActive }) =>
+						isActive
+							? "header-dropdown-link mobile-dropdown-link active"
+							: "header-dropdown-link mobile-dropdown-link"
+					}
+					onClick={(e) => {
+						e.stopPropagation();
+						setShowGestionesMenu(false);
+					}}
+					end
+				>
+					{opt.label}
+				</NavLink>
+			));
+		} else {
+			return options.map((opt, index) => (
+				<button
+					key={index}
+					className={
+						location.pathname.startsWith(opt.path) ? "active" : ""
+					}
+					onClick={() => handleMenuClick(opt.path)}
+				>
+					{opt.label}
+				</button>
+			));
+		}
+	};
+
 	return (
-		<div className="header">
+		<div className="header-container">
 			<NavBar
 				setShowSignIn={setShowSignIn}
 				setShowSignUp={setShowSignUp}
@@ -111,8 +256,15 @@ export const Header = ({
 				<NavLink
 					to="/"
 					className={({ isActive }) =>
-						isActive ? "startOption active" : "startOption"
+						isActive ? "header-link active" : "header-link"
 					}
+					end
+					onClick={() => {
+						if (isMobileView) {
+							setShowCoursesMenu(false);
+							setShowGestionesMenu(false);
+						}
+					}}
 				>
 					Inicio
 				</NavLink>
@@ -120,8 +272,14 @@ export const Header = ({
 				<NavLink
 					to="/QuienesSomos"
 					className={({ isActive }) =>
-						isActive ? "whoWeAre active" : "whoWeAre"
+						isActive ? "header-link active" : "header-link"
 					}
+					onClick={() => {
+						if (isMobileView) {
+							setShowCoursesMenu(false);
+							setShowGestionesMenu(false);
+						}
+					}}
 				>
 					Quienes somos
 				</NavLink>
@@ -135,8 +293,14 @@ export const Header = ({
 							<NavLink
 								to="/Cursos/BuscarCursos"
 								className={({ isActive }) =>
-									isActive ? "courses active" : "courses"
+									isActive ? "header-link active" : "header-link"
 								}
+								onClick={() => {
+									if (isMobileView) {
+										setShowCoursesMenu(false);
+										setShowGestionesMenu(false);
+									}
+								}}
 							>
 								Cursos
 							</NavLink>
@@ -145,99 +309,39 @@ export const Header = ({
 
 					switch (accountType) {
 						case "Administrador":
-							options = [
-								{
-									label: "Mis cursos",
-									path: "/Cursos/MisCursos",
-								},
-								{
-									label: "Buscar cursos",
-									path: "/Cursos/BuscarCursos",
-								},
-								{
-									label: "Crear curso",
-									path: "/Cursos/CrearCurso",
-								},
-								{
-									label: "Material de Apoyo",
-									path: "/SupportMaterial",
-								},
+							options = [								
+								{ label: "Buscar cursos", path: "/Cursos/BuscarCursos" },
+								{ label: "Crear curso", path: "/Cursos/CrearCurso" },
+								{ label: "Material de Apoyo", path: "/SupportMaterial" },
 							];
 							break;
 						case "Instructor":
 							options = [
-								{
-									label: "Mis cursos",
-									path: "/Cursos/MisCursosAsignados",
-								},
-								{
-									label: "Buscar cursos",
-									path: "/Cursos/BuscarCursos",
-								},
-								{
-									label: "Material de Apoyo",
-									path: "/SupportMaterial",
-								},
-								{
-									label: "Criterios de certificación",
-									path: "/Gestiones/Criterios",
-								},
+								{ label: "Mis cursos", path: "/Cursos/MisCursosAsignados" },
+								{ label: "Buscar cursos", path: "/Cursos/BuscarCursos" },
+								{ label: "Material de Apoyo", path: "/SupportMaterial" },
+								{ label: "Criterios de certificación", path: "/Gestiones/Criterios" },
 							];
 							break;
 						case "Gestor":
-							options = [
-								{
-									label: "Mis cursos",
-									path: "/Cursos/MisCursos",
-								},
-								{
-									label: "Buscar cursos",
-									path: "/Cursos/BuscarCursos",
-								},
-								{
-									label: "Crear curso",
-									path: "/Cursos/CrearCurso",
-								},
-								{
-									label: "Material de Apoyo",
-									path: "/SupportMaterial",
-								},
+							options = [								
+								{ label: "Buscar cursos", path: "/Cursos/BuscarCursos" },
+								{ label: "Crear curso", path: "/Cursos/CrearCurso" },
+								{ label: "Material de Apoyo", path: "/SupportMaterial" },
 							];
 							break;
 						case "Empresa":
 							options = [
-								{
-									label: "Mis cursos",
-									path: "/Cursos/MisCursos",
-								},
-								{
-									label: "Buscar cursos",
-									path: "/Cursos/BuscarCursos",
-								},
-								{
-									label: "Solicitar curso",
-									path: "/SolicitarCurso"
-								},
-								{
-									label: "Material de Apoyo",
-									path: "/SupportMaterial",
-								},
+								{ label: "Mis cursos", path: "/Cursos/MisCursos" },
+								{ label: "Buscar cursos", path: "/Cursos/BuscarCursos" },
+								{ label: "Solicitar curso", path: "/SolicitarCurso" },
+								{ label: "Material de Apoyo", path: "/SupportMaterial" },
 							];
 							break;
 						case "Aprendiz":
 							options = [
-								{
-									label: "Mis cursos",
-									path: "/Cursos/MisCursosAsignados",
-								},
-								{
-									label: "Buscar cursos",
-									path: "/Cursos/BuscarCursos",
-								},
-								{
-									label: "Solicitar curso",
-									path: "/SolicitarCursoAp"
-								},
+								{ label: "Mis cursos", path: "/Cursos/MisCursosAsignados" },
+								{ label: "Buscar cursos", path: "/Cursos/BuscarCursos" },								
 							];
 							break;
 						default:
@@ -245,37 +349,26 @@ export const Header = ({
 					}
 
 					return showDropdown(options.length) ? (
-						<div className="courses-menu" ref={coursesMenuRef}>
+						<div
+							className="header-dropdown-container"
+							ref={coursesMenuRef}
+							onMouseEnter={handleMouseEnterCourses}
+							onMouseLeave={handleMouseLeaveCourses}
+							onClick={(e) => e.stopPropagation()}
+						>
 							<button
-								className={`courses${
-									showCoursesMenu || isCoursesActive
-										? " active"
-										: ""
-								}`}
+								className={`header-dropdown-button${showCoursesMenu || isCoursesActive ? " active" : ""
+									}`}
 								onClick={toggleCoursesMenu}
 							>
 								Cursos
+								<span className={`dropdown-arrow ${showCoursesMenu ? "open" : ""}`}>
+									▼
+								</span>
 							</button>
-							{showCoursesMenu && (
-								<div className="dropdown-courses">
-									<div className="arrow-up" />
-									{options.map((opt, index) => (
-										<button
-											key={index}
-											className={
-												location.pathname.startsWith(
-													opt.path
-												)
-													? "active"
-													: ""
-											}
-											onClick={() =>
-												handleMenuClick(opt.path)
-											}
-										>
-											{opt.label}
-										</button>
-									))}
+							{(showCoursesMenu || (window.innerWidth >= 769 && showCoursesMenu)) && (
+								<div className="header-dropdown-content" onClick={(e) => e.stopPropagation()}>
+									{renderDropdownOptions(options)}
 								</div>
 							)}
 						</div>
@@ -283,309 +376,155 @@ export const Header = ({
 						<NavLink
 							to={options[0].path}
 							className={({ isActive }) =>
-								isActive ? "courses active" : "courses"
+								isActive ? "header-link active" : "header-link"
 							}
+							onClick={() => {
+								if (isMobileView) {
+									setShowCoursesMenu(false);
+									setShowGestionesMenu(false);
+								}
+							}}
 						>
 							Cursos
 						</NavLink>
 					);
 				})()}
 
-				{/* Gestiones - Menú completo para Administrador */}
+				{/* Gestiones - Administrador */}
 				{isLoggedIn && accountType === "Administrador" && (
-					<div className="gestiones-menu" ref={gestionesMenuRef}>
+					<div
+						className="header-dropdown-container"
+						ref={gestionesMenuRef}
+						onMouseEnter={handleMouseEnterGestiones}
+						onMouseLeave={handleMouseLeaveGestiones}
+						onClick={(e) => e.stopPropagation()}
+					>
 						<button
-							className={`gestiones${
-								showGestionesMenu || isGestionesActive
-									? " active"
-									: ""
-							}`}
+							className={`header-dropdown-button${showGestionesMenu || isGestionesActive ? " active" : ""
+								}`}
 							onClick={toggleGestionesMenu}
 						>
 							Gestiones
+							<span className={`dropdown-arrow ${showGestionesMenu ? "open" : ""}`}>
+								▼
+							</span>
 						</button>
-						{showGestionesMenu && (
-							<div className="dropdown-gestiones">
-								<div className="arrow-up" />
-								<button
-									className={
-										location.pathname.startsWith(
-											"/Gestiones/Instructor"
-										)
-											? "active"
-											: ""
-									}
-									onClick={() =>
-										handleMenuClick("/Gestiones/Instructor")
-									}
-								>
-									Gestión de Instructores
-								</button>
-								<button
-									className={
-										location.pathname.startsWith(
-											"/Gestiones/Gestor"
-										)
-											? "active"
-											: ""
-									}
-									onClick={() =>
-										handleMenuClick("/Gestiones/Gestor")
-									}
-								>
-									Gestión de Gestores
-								</button>
-								<button
-									className={
-										location.pathname.startsWith(
-											"/Gestiones/Actas"
-										)
-											? "active"
-											: ""
-									}
-									onClick={() =>
-										handleMenuClick("/Gestiones/Actas")
-									}
-								>
-									Gestión de Actas
-								</button>
-								<button
-									className={
-										location.pathname.startsWith(
-											"/Gestiones/Criterios"
-										)
-											? "active"
-											: ""
-									}
-									onClick={() =>
-										handleMenuClick("/Gestiones/Criterios")
-									}
-								>
-									Criterios de certificación
-								</button>
-								<button
-									className={
-										location.pathname.startsWith(
-											"/Empleados/MisEmpleados"
-										)
-											? "active"
-											: ""
-									}
-									onClick={() =>
-										handleMenuClick(
-											"/Empleados/MisEmpleados"
-										)
-									}
-								>
-									Gestión de Empleados
-								</button>
-								<button
-									className={
-										location.pathname.startsWith(
-											"/Gestiones/Usuarios"
-										)
-											? "active"
-											: ""
-									}
-									onClick={() =>
-										handleMenuClick(
-											"/Gestiones/Usuarios"
-										)
-									}
-								>
-									Gestión de Usuarios
-								</button>
-								<button
-									className={
-										location.pathname.startsWith(
-											"/GestionReporteEstadisticas/ReporteEstadisticas"
-										)
-											? "active"
-											: ""
-									}
-									onClick={() =>
-										handleMenuClick(
-											"/GestionReporteEstadisticas/ReporteEstadisticas"
-										)
-									}
-								>
-									Reporte y Estadísticas
-								</button>
-								<button
-									className={
-										location.pathname.startsWith(
-											"/reportes/asistencia-progreso"
-										)
-											? "active"
-											: ""
-									}
-									onClick={() =>
-										handleMenuClick(
-											"/reportes/asistencia-progreso"
-										)
-									}
-								>
-									Asistencia y Progreso
-								</button>
+						{(showGestionesMenu || (window.innerWidth >= 769 && showGestionesMenu)) && (
+							<div className="header-dropdown-content" onClick={(e) => e.stopPropagation()}>
+								{renderGestionesOptions([
+									{ label: "Gestión de Instructores", path: "/Gestiones/Instructor" },
+									{ label: "Gestión de Gestores", path: "/Gestiones/Gestor" },
+									{ label: "Gestión de Actas", path: "/Gestiones/Actas" },
+									{ label: "Criterios de certificación", path: "/Gestiones/Criterios" },
+									{ label: "Gestión de Empleados", path: "/Empleados/MisEmpleados" },
+									{ label: "Gestión de Usuarios", path: "/Gestiones/Usuarios" },
+									{ label: "Reporte y Estadísticas", path: "/GestionReporteEstadisticas/ReporteEstadisticas" },
+									{ label: "Asistencia y Progreso", path: "/reportes/asistencia-progreso" },
+								])}
 							</div>
 						)}
 					</div>
 				)}
 
-				{/* Gestiones - Menú para Gestor: incluir Gestión de Empleados */}
+				{/* Gestiones - Gestor */}
 				{isLoggedIn && accountType === "Gestor" && (
-					<div className="gestiones-menu" ref={gestionesMenuRef}>
+					<div
+						className="header-dropdown-container"
+						ref={gestionesMenuRef}
+						onMouseEnter={handleMouseEnterGestiones}
+						onMouseLeave={handleMouseLeaveGestiones}
+						onClick={(e) => e.stopPropagation()}
+					>
 						<button
-							className={`gestiones${
-								showGestionesMenu || isGestionesActive
-									? " active"
-									: ""
-							}`}
+							className={`header-dropdown-button${showGestionesMenu || isGestionesActive ? " active" : ""
+								}`}
 							onClick={toggleGestionesMenu}
 						>
 							Gestiones
+							<span className={`dropdown-arrow ${showGestionesMenu ? "open" : ""}`}>
+								▼
+							</span>
 						</button>
-						{showGestionesMenu && (
-							<div className="dropdown-gestiones">
-								<div className="arrow-up" />
-								<button
-									className={
-										location.pathname.startsWith(
-											"/Gestiones/Instructor"
-										)
-											? "active"
-											: ""
-									}
-									onClick={() =>
-										handleMenuClick("/Gestiones/Instructor")
-									}
-								>
-									Gestión de Instructores
-								</button>
-								<button
-									className={
-										location.pathname.startsWith(
-											"/Empleados/MisEmpleados"
-										)
-											? "active"
-											: ""
-									}
-									onClick={() =>
-										handleMenuClick(
-											"/Empleados/MisEmpleados"
-										)
-									}
-								>
-									Gestión de Empleados
-								</button>
-								<button
-									className={
-										location.pathname.startsWith(
-											"/GestionReporteEstadisticas/ReporteEstadisticas"
-										)
-											? "active"
-											: ""
-									}
-									onClick={() =>
-										handleMenuClick(
-											"/GestionReporteEstadisticas/ReporteEstadisticas"
-										)
-									}
-								>
-									Reporte y Estadísticas
-								</button>
-								<button
-									className={
-										location.pathname.startsWith(
-											"/reportes/asistencia-progreso"
-										)
-											? "active"
-											: ""
-									}
-									onClick={() =>
-										handleMenuClick(
-											"/reportes/asistencia-progreso"
-										)
-									}
-								>
-									Asistencia y Progreso
-								</button>
-								<button
-									className={
-										location.pathname.startsWith(
-											"/Gestiones/Actas"
-										)
-											? "active"
-											: ""
-									}
-									onClick={() =>
-										handleMenuClick("/Gestiones/Actas")
-									}
-								>
-									Gestión de Actas
-								</button>
-								<button
-									className={
-										location.pathname.startsWith(
-											"/Gestiones/Criterios"
-										)
-											? "active"
-											: ""
-									}
-									onClick={() =>
-										handleMenuClick(
-											"/Gestiones/Criterios"
-										)
-									}
-								>
-									Criterios de Certificación
-								</button>
+						{(showGestionesMenu || (window.innerWidth >= 769 && showGestionesMenu)) && (
+							<div className="header-dropdown-content" onClick={(e) => e.stopPropagation()}>
+								{renderGestionesOptions([
+									{ label: "Gestión de Instructores", path: "/Gestiones/Instructor" },
+									{ label: "Gestión de Empleados", path: "/Empleados/MisEmpleados" },
+									{ label: "Reporte y Estadísticas", path: "/GestionReporteEstadisticas/ReporteEstadisticas" },
+									{ label: "Asistencia y Progreso", path: "/reportes/asistencia-progreso" },
+									{ label: "Gestión de Actas", path: "/Gestiones/Actas" },
+									{ label: "Criterios de Certificación", path: "/Gestiones/Criterios" },
+								])}
 							</div>
 						)}
 					</div>
 				)}
 
-				{/* Gestión de Actas - Solo para Instructor (enlace directo) */}
+				{/* Mis Actas - Instructor */}
 				{isLoggedIn && accountType === "Instructor" && (
 					<NavLink
 						to="/Gestiones/Actas"
 						className={({ isActive }) =>
-							isActive ? "gestiones active" : "gestiones"
+							isActive ? "header-link active" : "header-link"
 						}
+						onClick={() => {
+							if (isMobileView) {
+								setShowCoursesMenu(false);
+								setShowGestionesMenu(false);
+							}
+						}}
 					>
 						Mis Actas
 					</NavLink>
 				)}
 
-				{/* (solo Administrador) */}
+				{/* Empresas e Historial - Administrador */}
 				{isLoggedIn && accountType === "Administrador" && (
 					<>
 						<NavLink
 							to="/Gestiones/Empresas"
 							className={({ isActive }) =>
-								isActive ? "empresas active" : "empresas"
+								isActive ? "header-link active" : "header-link"
 							}
+							onClick={() => {
+								if (isMobileView) {
+									setShowCoursesMenu(false);
+									setShowGestionesMenu(false);
+								}
+							}}
 						>
 							Empresas
-						</NavLink>					
+						</NavLink>
 						<NavLink
 							to="/Gestiones/Historial"
 							className={({ isActive }) =>
-								isActive ? "empresas active" : "empresas"
+								isActive ? "header-link active" : "header-link"
 							}
+							onClick={() => {
+								if (isMobileView) {
+									setShowCoursesMenu(false);
+									setShowGestionesMenu(false);
+								}
+							}}
 						>
 							Historial
 						</NavLink>
 					</>
 				)}
 
-				{/* Empleados (solo Empresa) */}
+				{/* Empleados - Empresa */}
 				{isLoggedIn && accountType === "Empresa" && (
 					<NavLink
 						to="/Empleados/MisEmpleados"
 						className={({ isActive }) =>
-							isActive ? "historial active" : "historial"
+							isActive ? "header-link active" : "header-link"
 						}
+						onClick={() => {
+							if (isMobileView) {
+								setShowCoursesMenu(false);
+								setShowGestionesMenu(false);
+							}
+						}}
 					>
 						Empleados
 					</NavLink>

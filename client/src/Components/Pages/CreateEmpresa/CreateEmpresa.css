@@ -1,5 +1,5 @@
 /* ========================================
-   MODAL DUAL FORM STYLES - OPTIMIZED DESIGN
+   MODAL OVERLAY Y CONTENEDOR PRINCIPAL
    ======================================== */
 
 .modal-overlay-dual {
@@ -24,15 +24,19 @@
   max-width: 1100px;
   max-height: 90vh;
   overflow-y: auto;
-  border: 1px solid rgba(255,255,255,0.15);
-  box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
   display: flex;
   flex-direction: column;
 }
 
+/* ========================================
+   HEADER DEL MODAL
+   ======================================== */
+
 .modal-header-dual {
   padding: 1.5rem 2rem;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   background: rgba(0, 132, 61, 0.15);
   backdrop-filter: blur(10px);
   position: sticky;
@@ -42,7 +46,7 @@
 
 .modal-header-dual h2 {
   margin: 0;
-  color: #fff;
+  color: #ffffff;
   font-size: 1.5rem;
   font-weight: 700;
   text-align: center;
@@ -52,9 +56,9 @@
   position: absolute;
   right: 1.5rem;
   top: 1.5rem;
-  background: rgba(255,255,255,0.1);
+  background: rgba(255, 255, 255, 0.1);
   border: none;
-  color: #fff;
+  color: #ffffff;
   font-size: 1.5rem;
   cursor: pointer;
   padding: 0;
@@ -68,20 +72,28 @@
 }
 
 .close-button-dual:hover {
-  background: rgba(255,255,255,0.2);
+  background: rgba(255, 255, 255, 0.2);
   transform: rotate(90deg);
 }
 
 /* ========================================
-   DUAL FORM CONTAINER - COMPACT LAYOUT
+   ESTRUCTURA DEL FORMULARIO DUAL
    ======================================== */
 
 .dual-form-container {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.form-sections-wrapper {
   display: grid;
   grid-template-columns: 380px 1fr;
   gap: 0;
-  min-height: 500px;
-  padding: 0;
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
 }
 
 .form-section {
@@ -93,7 +105,7 @@
   max-height: 60vh;
 }
 
-/* Manager Section */
+/* Sección Manager */
 .manager-section {
   background: rgba(0, 132, 61, 0.05);
   border-right: 1px solid rgba(0, 132, 61, 0.3);
@@ -105,7 +117,7 @@
   position: sticky;
   top: 0;
   background: #00843d;
-  color: white;
+  color: #ffffff;
   padding: 0.5rem 1rem;
   border-radius: 20px;
   font-size: 0.75rem;
@@ -117,9 +129,9 @@
   text-align: center;
 }
 
-/* Empresa Section */
+/* Sección Empresa */
 .empresa-section {
-  background: rgba(255,255,255,0.02);
+  background: rgba(255, 255, 255, 0.02);
   padding-left: 1.5rem;
 }
 
@@ -128,7 +140,7 @@
   position: sticky;
   top: 0;
   background: #00843d;
-  color: white;
+  color: #ffffff;
   padding: 0.5rem 1rem;
   border-radius: 20px;
   font-size: 0.75rem;
@@ -141,7 +153,7 @@
 }
 
 /* ========================================
-   COMPACT FORM GRID SYSTEM
+   SISTEMA DE GRID Y DISPOSICIÓN
    ======================================== */
 
 .form-grid {
@@ -156,7 +168,6 @@
   gap: 1rem;
 }
 
-/* Optimized grid layouts */
 .form-row-2 {
   grid-template-columns: 1fr 1fr;
 }
@@ -166,9 +177,10 @@
 }
 
 /* ========================================
-   COMPACT FORM GROUP STYLES
+   COMPONENTES DE FORMULARIO
    ======================================== */
 
+/* Grupos de formulario */
 .form-group-dual {
   display: flex;
   flex-direction: column;
@@ -177,26 +189,27 @@
 .form-group-dual label {
   display: block;
   margin-bottom: 0.4rem;
-  color: #fff;
+  color: #ffffff;
   font-weight: 600;
   font-size: 0.85rem;
 }
 
 .form-group-dual .label-optional {
-  color: #888;
+  color: #888888;
   font-weight: 400;
   font-size: 0.75rem;
 }
 
+/* Campos de entrada base */
 .form-group-dual input,
 .form-group-dual select,
 .form-group-dual textarea {
   width: 100%;
   padding: 0.75rem;
   border-radius: 8px;
-  border: 1px solid rgba(255,255,255,0.2);
-  background: rgba(255,255,255,0.08);
-  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
   font-size: 0.9rem;
   transition: all 0.3s ease;
   font-family: inherit;
@@ -214,21 +227,26 @@
 .form-group-dual textarea:focus {
   outline: none;
   border-color: #00843d;
-  background: rgba(255,255,255,0.12);
+  background: rgba(255, 255, 255, 0.12);
   box-shadow: 0 0 0 2px rgba(0, 132, 61, 0.2);
 }
 
 .form-group-dual input::placeholder,
 .form-group-dual textarea::placeholder {
-  color: #aaa;
+  color: #888888;
   font-size: 0.85rem;
+  transition: color 0.3s ease;
+}
+
+.form-group-dual input:focus::placeholder,
+.form-group-dual textarea:focus::placeholder {
+  color: #aaaaaa;
 }
 
 /* ========================================
-   SELECT DROPDOWN STYLING FIX
+   ESTILOS ESPECIALIZADOS PARA SELECT
    ======================================== */
 
-/* Estilos para el dropdown del select */
 .form-group-dual select {
   appearance: none;
   background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
@@ -237,40 +255,33 @@
   background-size: 1rem;
   padding-right: 2.5rem;
   cursor: pointer;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
 }
 
-
-/* Estilos para las opciones del select */
-.form-group-dual select option {
-  background-color: #2a2a2a !important;
-  color: #ffffff !important;
-  padding: 0.75rem !important;
-  font-size: 0.9rem !important;
-  border: none !important;
-  border-bottom: 1px solid rgba(255,255,255,0.1) !important;
+.form-group-dual select::-ms-expand {
+  display: none;
 }
 
-.form-group-dual select option:hover {
-  background-color: #00843d !important;
-  color: #ffffff !important;
+.form-group-dual select:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23666'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
 }
 
-.form-group-dual select option:checked {
-  background-color: #00843d !important;
-  color: #ffffff !important;
+.form-group-dual select:hover:not(:disabled) {
+  border-color: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.1);
 }
 
-.form-group-dual select option:focus {
-  background-color: #006f33 !important;
-}
-
-/* Para navegadores WebKit (Chrome, Safari) */
+/* Scrollbar para selects */
 .form-group-dual select::-webkit-scrollbar {
   width: 8px;
 }
 
 .form-group-dual select::-webkit-scrollbar-track {
-  background: rgba(255,255,255,0.05);
+  background: rgba(255, 255, 255, 0.05);
   border-radius: 4px;
 }
 
@@ -283,112 +294,8 @@
   background: rgba(0, 132, 61, 0.7);
 }
 
-/* Para Firefox */
-@-moz-document url-prefix() {
-  .form-group-dual select {
-    color: #ffffff;
-    text-shadow: 0 0 0 #ffffff;
-  }
-  
-  .form-group-dual select option {
-    background-color: #2a2a2a;
-    color: #ffffff;
-  }
-}
-
-/* Estilos para selects deshabilitados */
-.form-group-dual select:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23666'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
-}
-
-/* Mejora visual para el estado de foco */
-.form-group-dual select:focus {
-  border-color: #00843d;
-  box-shadow: 0 0 0 2px rgba(0, 132, 61, 0.2);
-  outline: none;
-}
-
 /* ========================================
-   COMPACT SOCIAL LINKS SECTION
-   ======================================== */
-
-.social-links-section {
-  background: rgba(255,255,255,0.03);
-  border-radius: 8px;
-  padding: 1rem;
-  margin-top: 0.5rem;
-  border: 1px solid rgba(255,255,255,0.1);
-}
-
-.social-links-title {
-  color: #fff;
-  font-size: 0.9rem;
-  font-weight: 600;
-  margin-bottom: 0.75rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.social-links-title::before {
-  content: "";
-  font-size: 0.9rem;
-}
-
-/* Horizontal social links grid */
-.social-links-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.75rem;
-}
-
-.social-link-item {
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-}
-
-.social-link-label {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  color: #fff;
-  font-size: 0.8rem;
-  font-weight: 600;
-}
-
-.social-link-icon {
-  font-size: 0.9rem;
-  width: 16px;
-  text-align: center;
-}
-
-.social-link-input {
-  width: 100%;
-  padding: 0.6rem;
-  border-radius: 6px;
-  border: 1px solid rgba(255,255,255,0.15);
-  background: rgba(255,255,255,0.06);
-  color: #fff;
-  font-size: 0.8rem;
-  transition: all 0.3s ease;
-}
-
-.social-link-input:focus {
-  outline: none;
-  border-color: #00843d;
-  background: rgba(255,255,255,0.1);
-}
-
-.social-link-input::placeholder {
-  color: #666;
-  font-size: 0.75rem;
-}
-
-/* ========================================
-   COMPACT PASSWORD STYLES
+   COMPONENTE DE CONTRASEÑA
    ======================================== */
 
 .password-container-dual {
@@ -420,7 +327,7 @@
 }
 
 /* ========================================
-   COMPACT PASSWORD REQUIREMENTS
+   REQUISITOS DE CONTRASEÑA
    ======================================== */
 
 .password-requirements-dual {
@@ -428,14 +335,14 @@
   padding: 0.6rem;
   margin: 0.5rem 0 0 0;
   font-size: 0.75rem;
-  background: rgba(255,255,255,0.05);
+  background: rgba(255, 255, 255, 0.05);
   border-radius: 6px;
-  border: 1px solid rgba(255,255,255,0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .password-requirements-dual h4 {
   margin: 0 0 0.4rem 0;
-  color: #fff;
+  color: #ffffff;
   font-size: 0.8rem;
   font-weight: 600;
 }
@@ -480,7 +387,7 @@
 }
 
 /* ========================================
-   COMPACT FILE INPUT
+   INPUT DE ARCHIVO
    ======================================== */
 
 .file-input-container-dual {
@@ -503,17 +410,17 @@
   width: 100%;
   padding: 0.75rem;
   border-radius: 8px;
-  border: 2px dashed rgba(255,255,255,0.3);
-  background: rgba(255,255,255,0.05);
-  color: #fff;
+  border: 2px dashed rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.05);
+  color: #ffffff;
   font-size: 0.85rem;
   cursor: pointer;
   transition: all 0.3s ease;
 }
 
 .file-input-label-dual:hover {
-  background: rgba(255,255,255,0.08);
-  border-color: rgba(255,255,255,0.5);
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.5);
 }
 
 .file-input-label-dual.has-file {
@@ -523,13 +430,90 @@
   color: #00c851;
 }
 
+.file-input-label-dual.has-file::before {
+  content: "✓ ";
+  font-weight: bold;
+  color: #00c851;
+}
+
 /* ========================================
-   MODAL FOOTER - COMPACT
+   SECCIÓN DE REDES SOCIALES
+   ======================================== */
+
+.social-links-section {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-top: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.social-links-title {
+  color: #ffffff;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.social-links-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.social-link-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.social-link-label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #ffffff;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.social-link-icon {
+  font-size: 0.9rem;
+  width: 16px;
+  text-align: center;
+}
+
+.social-link-input {
+  width: 100%;
+  padding: 0.6rem;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.06);
+  color: #ffffff;
+  font-size: 0.8rem;
+  transition: all 0.3s ease;
+}
+
+.social-link-input:focus {
+  outline: none;
+  border-color: #00843d;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.social-link-input::placeholder {
+  color: #666666;
+  font-size: 0.75rem;
+}
+
+/* ========================================
+   FOOTER DEL MODAL
    ======================================== */
 
 .modal-footer-dual {
   padding: 1.25rem 2rem;
-  border-top: 1px solid rgba(255,255,255,0.1);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -541,7 +525,7 @@
 }
 
 .footer-info {
-  color: #aaa;
+  color: #aaaaaa;
   font-size: 0.8rem;
   flex: 1;
 }
@@ -551,11 +535,15 @@
   gap: 0.75rem;
 }
 
+/* ========================================
+   BOTONES
+   ======================================== */
+
 .btn-cancel-dual {
   padding: 0.75rem 1.5rem;
-  border: 1px solid #666;
+  border: 1px solid #666666;
   background: transparent;
-  color: #fff;
+  color: #ffffff;
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -565,15 +553,15 @@
 }
 
 .btn-cancel-dual:hover {
-  background: rgba(255,255,255,0.1);
-  border-color: #888;
+  background: rgba(255, 255, 255, 0.1);
+  border-color: #888888;
 }
 
 .btn-save-dual {
   padding: 0.75rem 1.5rem;
   border: 1px solid #00843d;
   background: linear-gradient(135deg, #00843d 0%, #00a844 100%);
-  color: #fff;
+  color: #ffffff;
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -582,34 +570,28 @@
   min-width: 160px;
 }
 
-.btn-save-dual:hover {
+.btn-save-dual:hover:not(:disabled) {
   background: linear-gradient(135deg, #006f33 0%, #00843d 100%);
   border-color: #006f33;
   transform: translateY(-1px);
 }
 
+.btn-save-dual:disabled {
+  background: linear-gradient(135deg, #666666 0%, #888888 100%);
+  border-color: #666666;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
 /* ========================================
-   MEJORAS ADICIONALES DE ESTILO
+   ESTADOS DE VALIDACIÓN
    ======================================== */
 
-/* Placeholder styling mejorado */
-.form-group-dual input::placeholder,
-.form-group-dual textarea::placeholder {
-  color: #888;
-  font-size: 0.85rem;
-  transition: color 0.3s ease;
-}
-
-.form-group-dual input:focus::placeholder,
-.form-group-dual textarea:focus::placeholder {
-  color: #aaa;
-}
-
-/* Estados de validación visual */
 .form-group-dual input:invalid:not(:focus):not(:placeholder-shown),
 .form-group-dual select:invalid:not(:focus) {
-  border-color: #666;
-  background: rgba(255,255,255,0.1);
+  border-color: #666666;
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .form-group-dual input:valid:not(:focus):not(:placeholder-shown),
@@ -618,46 +600,8 @@
   background: rgba(0, 200, 81, 0.05);
 }
 
-/* Loading state para botones */
-.btn-save-dual:disabled {
-  background: linear-gradient(135deg, #666 0%, #888 100%);
-  border-color: #666;
-  cursor: not-allowed;
-  transform: none !important;
-  box-shadow: none !important;
-}
-
-/* Mejora visual para file input */
-.file-input-label-dual.has-file::before {
-  content: "✓ ";
-  font-weight: bold;
-  color: #00c851;
-}
-
-/* Efectos hover mejorados */
-.form-group-dual select:hover:not(:disabled) {
-  border-color: rgba(255,255,255,0.3);
-  background: rgba(255,255,255,0.1);
-}
-
-/* Animaciones suaves para transiciones */
-.form-group-dual input,
-.form-group-dual select,
-.form-group-dual textarea {
-  transition: all 0.2s ease-in-out;
-}
-
-/* Estilo para cuando no hay ciudades disponibles */
-.form-group-dual select:disabled {
-  color: #888;
-}
-
-.form-group-dual select:disabled option {
-  color: #888;
-}
-
 /* ========================================
-   SCROLLBAR OPTIMIZATION
+   SCROLLBARS PERSONALIZADOS
    ======================================== */
 
 .form-section::-webkit-scrollbar {
@@ -670,7 +614,7 @@
 }
 
 .form-section::-webkit-scrollbar-track {
-  background: rgba(255,255,255,0.05);
+  background: rgba(255, 255, 255, 0.05);
   border-radius: 10px;
 }
 
@@ -684,12 +628,12 @@
 }
 
 .modal-content-dual::-webkit-scrollbar-track {
-  background: rgba(255,255,255,0.05);
+  background: rgba(255, 255, 255, 0.05);
   border-radius: 10px;
 }
 
 /* ========================================
-   RESPONSIVE DESIGN
+   DISEÑO RESPONSIVE
    ======================================== */
 
 @media (max-width: 768px) {
@@ -698,7 +642,7 @@
     max-height: 95vh;
   }
   
-  .dual-form-container {
+  .form-sections-wrapper {
     grid-template-columns: 1fr;
     gap: 0;
   }
@@ -742,6 +686,10 @@
     flex: 1;
     min-width: auto;
   }
+  
+  .form-group-dual select {
+    font-size: 16px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -766,7 +714,7 @@
   }
 }
 
-/* High-density screens optimization */
+/* Optimización para pantallas de alta densidad */
 @media (min-height: 800px) {
   .form-section {
     max-height: 65vh;
@@ -779,38 +727,52 @@
   }
 }
 
-/* Responsive mejorado para selects */
-@media (max-width: 768px) {
-  .form-group-dual select {
-    font-size: 16px; /* Previene zoom en iOS */
+/* ========================================
+   MEJORAS DE ACCESIBILIDAD Y USABILIDAD
+   ======================================== */
+
+/* Focus visible para navegación con teclado */
+.form-group-dual input:focus-visible,
+.form-group-dual select:focus-visible,
+.form-group-dual textarea:focus-visible {
+  outline: 2px solid #00843d;
+  outline-offset: 2px;
+}
+
+/* Mejora de contraste para mejor accesibilidad */
+@media (prefers-contrast: high) {
+  .form-group-dual input,
+  .form-group-dual select,
+  .form-group-dual textarea {
+    border-color: rgba(255, 255, 255, 0.4);
+    background: rgba(255, 255, 255, 0.12);
   }
 }
 
-/* ALTERNATIVA: Estilos más agresivos para los selects */
-.form-group-dual select * {
-  background-color: #2a2a2a !important;
-  color: #ffffff !important;
-}
-
-.form-group-dual select option {
-  background: #2a2a2a !important;
-  color: #ffffff !important;
-  padding: 12px !important;
-}
-
-.form-group-dual select optgroup {
-  background: #1e1e1e !important;
-  color: #00843d !important;
-  font-weight: bold !important;
-}
-
-/* Forzar estilos en todos los navegadores */
-.form-group-dual select {
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-}
-
-.form-group-dual select::-ms-expand {
-  display: none; /* Oculta la flecha por defecto en IE */
+/* Reduce motion para usuarios sensibles */
+@media (prefers-reduced-motion: reduce) {
+  .close-button-dual,
+  .btn-save-dual,
+  .form-group-dual input,
+  .form-group-dual select,
+  .form-group-dual textarea,
+  .file-input-label-dual,
+  .social-link-input,
+  .password-icon-dual {
+    transition: none;
+  }
+  
+  .close-button-dual:hover {
+    transform: none;
+  }
+  
+  .btn-save-dual:hover:not(:disabled) {
+    transform: none;
+  }
+  
+  .password-requirements-dual li,
+  .form-group-dual input::placeholder,
+  .form-group-dual textarea::placeholder {
+    transition: none;
+  }
 }

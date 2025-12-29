@@ -1,108 +1,468 @@
-#modal-assingInstructorCourse {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.579);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    transform: translate(-50%, -50%);
-    z-index: 1000;
-    padding: 20px;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+/* Modal Overlay */
+.modal-overlay-assign {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(10px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 15px;
 }
 
-.modal-bodyAssignInstructorCourse {
-    width: 800px;
-    max-width: 95vw;
-    height: 700px;
-    max-height: 95vh;
-    background-color: #1A1A1A;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    border-radius: 15px;
-    overflow: hidden;
-    gap: 1rem;
-    position: relative;
+.modal-container-assign {
+  width: 100%;
+  max-width: 800px;
+  max-height: 85vh;
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
-.modal-bodyAssignInstructorCourse>h2 {
-    height: auto;
-    text-align: center;
-    margin-top: 3rem;
-    width: 50%;
-    border-bottom: 1px solid #00843D;
-    padding-bottom: 0.5rem;
-    margin-bottom: 1rem;
+/* Header */
+.modal-header-assign {
+  background: linear-gradient(135deg, rgba(0, 132, 61, 0.2) 0%, rgba(0, 200, 83, 0.15) 100%);
+  border-bottom: 1px solid rgba(0, 200, 83, 0.3);
+  padding: 1.2rem 1.5rem;
+  backdrop-filter: blur(10px);
+  flex-shrink: 0;
 }
 
-
-
-.container_return_AssignInstructor {
-    width: 142px;
-    height: 142px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    position: absolute;
-    top: -21px;
-    right: 0px;
-    z-index: 1000;
+.header-content-assign {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.container_return_AssignInstructor>h5 {
-    width: auto;
-    height: auto;
-    position: relative;
-    top: 27%;
-    font-size: 18px;
-    font-weight: 400;
-    color: #fff;
-    left: 4%;
-    cursor: pointer;
+.header-content-assign h2 {
+  color: #fff;
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
 }
 
-/* Mejoras responsivas para carrusel e info */
-.carousel-container_2-results {
-    width: 100%;
-    padding: 0 1rem;
+.header-icon {
+  color: #00c853;
 }
 
-.carousel-card-results {
-    width: 220px;
-    max-width: 60vw;
+.close-btn-assign {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  color: #fff;
+  padding: 0.6rem 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  backdrop-filter: blur(10px);
 }
 
-.instructor-info {
-    text-align: center;
-    margin-top: 1rem;
-    padding: 0 1rem;
+.close-btn-assign:hover {
+  background: rgba(0, 200, 83, 0.2);
+  border-color: #00c853;
+  transform: translateY(-1px);
 }
 
-.profile-btn[disabled] {
-    opacity: 0.5;
-    background-color: hotpink;
-    cursor: not-allowed;
+/* Body */
+.modal-body-assign {
+  flex: 1;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  overflow: hidden;
 }
 
+/* Sección de búsqueda */
+.search-section-assign {
+  flex-shrink: 0;
+}
+
+.search-container-assign {
+  position: relative;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.search-input-assign {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 0.8rem 1rem 0.8rem 2.5rem;
+  color: #fff;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.search-input-assign:focus {
+  outline: none;
+  border-color: #00c853;
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 0 2px rgba(0, 200, 83, 0.2);
+}
+
+.search-input-assign::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.search-icon {
+  position: absolute;
+  left: 0.9rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.9rem;
+}
+
+/* Sección de contenido principal */
+.content-section-assign {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  min-height: 0;
+}
+
+/* Carrusel */
+.carousel-section-assign {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.carousel-arrow-assign {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  color: #fff;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 1.1rem;
+  backdrop-filter: blur(10px);
+  flex-shrink: 0;
+}
+
+.carousel-arrow-assign:hover {
+  background: rgba(0, 200, 83, 0.2);
+  border-color: #00c853;
+  transform: scale(1.1);
+}
+
+.carousel-arrow-assign:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.carousel-container-assign {
+  flex: 1;
+  max-width: 500px;
+  overflow: hidden;
+}
+
+.carousel-track-assign {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  position: relative;
+  height: 200px;
+}
+
+/* Tarjetas del carrusel */
+.carousel-card-assign {
+  position: absolute;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.card-image-container-assign {
+  width: 120px;
+  height: 120px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.card-image-assign {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Posiciones del carrusel */
+.card-center-assign {
+  transform: scale(1);
+  z-index: 3;
+}
+
+.card-center-assign .card-image-container-assign {
+  border-color: #00c853;
+  box-shadow: 0 4px 15px rgba(0, 200, 83, 0.3);
+}
+
+.card-left-assign {
+  transform: translateX(-120px) scale(0.8);
+  opacity: 0.6;
+  z-index: 2;
+}
+
+.card-right-assign {
+  transform: translateX(120px) scale(0.8);
+  opacity: 0.6;
+  z-index: 2;
+}
+
+.card-active-indicator-assign {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #00c853;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: rgba(0, 200, 83, 0.1);
+  padding: 0.3rem 0.6rem;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 200, 83, 0.3);
+}
+
+.active-dot-assign {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #00c853;
+  animation: pulse 2s infinite;
+}
+
+/* Información del instructor */
+.instructor-info-assign {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 1.5rem;
+  backdrop-filter: blur(10px);
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.instructor-name-assign {
+  color: #fff;
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin: 0 0 0.8rem 0;
+}
+
+.instructor-title-assign,
+.instructor-document-assign {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.9rem;
+  margin: 0.4rem 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.instructor-status-assign {
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin: 1rem 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  backdrop-filter: blur(10px);
+  border: 1px solid;
+}
+
+.instructor-status-assign.activo {
+  background: rgba(0, 200, 83, 0.15);
+  color: #00c853;
+  border-color: rgba(0, 200, 83, 0.4);
+}
+
+.instructor-status-assign.inactivo {
+  background: rgba(255, 107, 107, 0.15);
+  color: #ff6b6b;
+  border-color: rgba(255, 107, 107, 0.4);
+}
+
+.status-dot-assign {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+/* Botón de invitar */
+.invite-btn-assign {
+  width: 100%;
+  background: linear-gradient(135deg, #00c853 0%, #00a844 100%);
+  border: none;
+  border-radius: 10px;
+  color: #000;
+  font-weight: 700;
+  padding: 1rem 1.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  box-shadow: 0 4px 12px rgba(0, 200, 83, 0.3);
+  margin-top: 1rem;
+}
+
+.invite-btn-assign:hover:not(.disabled) {
+  background: linear-gradient(135deg, #00e676 0%, #00c853 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 200, 83, 0.4);
+}
+
+.invite-btn-assign.disabled {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.5);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Contador de resultados */
+.results-counter-assign {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.85rem;
+  padding: 0.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  flex-shrink: 0;
+}
+
+/* Sin resultados */
+.no-results-assign {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.9rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+}
+
+.no-results-icon {
+  font-size: 2.5rem;
+  color: rgba(255, 255, 255, 0.3);
+}
+
+/* Animación de pulso */
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+/* Responsive */
 @media (max-width: 768px) {
-    .modal-bodyAssignInstructorCourse>h2 {
-        width: 80%;
-        margin-top: 1.5rem;
-    }
-    .container_return_AssignInstructor {
-        transform: scale(0.9);
-    }
+  .modal-container-assign {
+    max-height: 90vh;
+  }
+  
+  .modal-body-assign {
+    padding: 1rem;
+    gap: 1rem;
+  }
+  
+  .carousel-track-assign {
+    height: 180px;
+  }
+  
+  .card-image-container-assign {
+    width: 100px;
+    height: 100px;
+  }
+  
+  .card-left-assign {
+    transform: translateX(-80px) scale(0.8);
+  }
+  
+  .card-right-assign {
+    transform: translateX(80px) scale(0.8);
+  }
+  
+  .instructor-info-assign {
+    padding: 1.2rem;
+  }
+  
+  .instructor-name-assign {
+    font-size: 1.1rem;
+  }
 }
 
 @media (max-width: 480px) {
-    .modal-bodyAssignInstructorCourse {
-        gap: 0.5rem;
-    }
-    .carousel-card-results {
-        width: 180px;
-    }
+  .modal-overlay-assign {
+    padding: 10px;
+  }
+  
+  .modal-header-assign {
+    padding: 1rem;
+  }
+  
+  .header-content-assign h2 {
+    font-size: 1.1rem;
+  }
+  
+  .close-btn-assign span {
+    display: none;
+  }
+  
+  .carousel-arrow-assign {
+    width: 35px;
+    height: 35px;
+  }
+  
+  .card-image-container-assign {
+    width: 80px;
+    height: 80px;
+  }
+  
+  .card-left-assign {
+    transform: translateX(-60px) scale(0.7);
+  }
+  
+  .card-right-assign {
+    transform: translateX(60px) scale(0.7);
+  }
 }

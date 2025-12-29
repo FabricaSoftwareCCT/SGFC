@@ -24,95 +24,95 @@ import { faInstagram, faFacebook, faLinkedin, faTwitter } from "@fortawesome/fre
 import { faGlobe, faPenToSquare } from '@fortawesome/free-solid-svg-icons';
 
 export const SeeMyProfile = () => {
-  const location = useLocation()
-  const navigate = useNavigate()
-  const userId = location.state?.userId
-  const requiresCompletion = location.state?.requiresCompletion
-  const fotoPerfilInputRef = React.useRef(null)
-  const logoEmpresaInputRef = React.useRef(null)
-  const [perfil, setPerfil] = useState(null)
-  const [perfilOriginal, setPerfilOriginal] = useState(null)
-  const [tipoCuenta, setTipoCuenta] = useState("")
-  const [editMode, setEditMode] = useState(false)
-  const [departamentos, setDepartamentos] = useState([])
-  const [ciudades, setCiudades] = useState([])
-  const [departamentoSeleccionado, setDepartamentoSeleccionado] = useState("")
-  const [ciudadSeleccionada, setCiudadSeleccionada] = useState("")
-  const [cursos, setCursos] = useState([])
-  const [instructores, setInstructores] = useState([])
-  const { setShowModalGeneral, setModalGeneralContent } = useModal()
+	const location = useLocation()
+	const navigate = useNavigate()
+	const userId = location.state?.userId
+	const requiresCompletion = location.state?.requiresCompletion
+	const fotoPerfilInputRef = React.useRef(null)
+	const logoEmpresaInputRef = React.useRef(null)
+	const [perfil, setPerfil] = useState(null)
+	const [perfilOriginal, setPerfilOriginal] = useState(null)
+	const [tipoCuenta, setTipoCuenta] = useState("")
+	const [editMode, setEditMode] = useState(false)
+	const [departamentos, setDepartamentos] = useState([])
+	const [ciudades, setCiudades] = useState([])
+	const [departamentoSeleccionado, setDepartamentoSeleccionado] = useState("")
+	const [ciudadSeleccionada, setCiudadSeleccionada] = useState("")
+	const [cursos, setCursos] = useState([])
+	const [instructores, setInstructores] = useState([])
+	const { setShowModalGeneral, setModalGeneralContent } = useModal()
 
-  const fetchCursos = useCallback(async () => {
-    if (!userId) {
-      return
-    }
+	const fetchCursos = useCallback(async () => {
+		if (!userId) {
+			return
+		}
 
-    try {
-      const profileResponse = await axiosInstance.get(`/api/users/profile/${userId}`)
-      const empresaId = profileResponse.data?.Empresa?.ID
+		try {
+			const profileResponse = await axiosInstance.get(`/api/users/profile/${userId}`)
+			const empresaId = profileResponse.data?.Empresa?.ID
 
-      if (!empresaId) {
-        setCursos([])
-        setInstructores([])
-        return
-      }
+			if (!empresaId) {
+				setCursos([])
+				setInstructores([])
+				return
+			}
 
-      const cursosResponse = await axiosInstance.get(`/api/courses/empresa/${empresaId}`)
+			const cursosResponse = await axiosInstance.get(`/api/courses/empresa/${empresaId}`)
 
-      if (!cursosResponse.data.success) {
-        throw new Error("No se pudo realizar")
-      }
+			if (!cursosResponse.data.success) {
+				throw new Error("No se pudo realizar")
+			}
 
-      setCursos(cursosResponse.data.cursos)
-      setInstructores(
-        cursosResponse.data.cursos
-          .filter((cursoItem) => cursoItem.Instructor)
-          .map((cursoItem) => ({
-            ID: cursoItem.Instructor.ID,
-            nombre_instructor: `${cursoItem.Instructor.nombres} ${cursoItem.Instructor.apellidos}`,
-            nombre_curso: cursoItem.nombre_curso,
-            id_curso: cursoItem.ID,
-            numero: cursoItem.Instructor.celular,
-            email: cursoItem.Instructor.email,
-          })),
-      )
-    } catch (error) {
-      Swal.fire({
-        icon:"error",
-        title:"Error al consultar",
-        text:"Ocurrió un error al consultar los cursos",
-        confirmButtonText:"Okay",
-        theme:"bulma",
-        customClass: { confirmButton: 'centered-swal-button' }
-      })
-      console.log(error)
-    }
-  }, [userId])
+			setCursos(cursosResponse.data.cursos)
+			setInstructores(
+				cursosResponse.data.cursos
+					.filter((cursoItem) => cursoItem.Instructor)
+					.map((cursoItem) => ({
+						ID: cursoItem.Instructor.ID,
+						nombre_instructor: `${cursoItem.Instructor.nombres} ${cursoItem.Instructor.apellidos}`,
+						nombre_curso: cursoItem.nombre_curso,
+						id_curso: cursoItem.ID,
+						numero: cursoItem.Instructor.celular,
+						email: cursoItem.Instructor.email,
+					})),
+			)
+		} catch (error) {
+			Swal.fire({
+				icon: "error",
+				title: "Error al consultar",
+				text: "Ocurrió un error al consultar los cursos",
+				confirmButtonText: "Okay",
+				theme: "bulma",
+				customClass: { confirmButton: 'centered-swal-button' }
+			})
+			console.log(error)
+		}
+	}, [userId])
 
-  const fetchCursosInstructor = useCallback(async () => {
-    if (!userId) {
-      setCursos([])
-      return
-    }
+	const fetchCursosInstructor = useCallback(async () => {
+		if (!userId) {
+			setCursos([])
+			return
+		}
 
-    try {
-      const response = await axiosInstance.get(`/api/courses/cursos-asignados/${userId}`)
-      console.log("Respuesta de cursos asignados:", response.data)
+		try {
+			const response = await axiosInstance.get(`/api/courses/cursos-asignados/${userId}`)
+			console.log("Respuesta de cursos asignados:", response.data)
 
-      if (response.data && Array.isArray(response.data)) {
-        const cursosAsignados = response.data
-          .filter((asignacion) => asignacion.Curso)
-          .map((asignacion) => asignacion.Curso)
+			if (response.data && Array.isArray(response.data)) {
+				const cursosAsignados = response.data
+					.filter((asignacion) => asignacion.Curso)
+					.map((asignacion) => asignacion.Curso)
 
-        setCursos(cursosAsignados)
-      } else {
-        setCursos([])
-      }
-    } catch (error) {
-      console.error("Error al consultar los cursos del instructor:", error)
-      setCursos([])
-    }
-  }, [userId])
+				setCursos(cursosAsignados)
+			} else {
+				setCursos([])
+			}
+		} catch (error) {
+			console.error("Error al consultar los cursos del instructor:", error)
+			setCursos([])
+		}
+	}, [userId])
 
 	const getImageSrcFromBase64 = (value) => {
 		if (!value) return fotoPerfilDefect
@@ -144,11 +144,11 @@ export const SeeMyProfile = () => {
 		if (requiresCompletion) {
 			setEditMode(true)
 			Swal.fire({
-				icon:"info",
-				title:"Completar datos de perfil",
-				text:"Por favor completa tu perfil para continuar usando la aplicación",
-				confirmButtonText:"Aceptar",
-				theme:"bulma",
+				icon: "info",
+				title: "Completar datos de perfil",
+				text: "Por favor completa tu perfil para continuar usando la aplicación",
+				confirmButtonText: "Aceptar",
+				theme: "bulma",
 				customClass: { confirmButton: 'centered-swal-button' }
 			})
 		}
@@ -156,7 +156,7 @@ export const SeeMyProfile = () => {
 		const fetchProfile = async () => {
 			try {
 				const response = await axiosInstance.get(`/api/users/profile/${userId}`)
-				
+
 				const profileData = response.data
 				if (profileData.Empresa && !profileData.Empresa.sitio_web) {
 					profileData.Empresa.sitio_web = {
@@ -167,7 +167,7 @@ export const SeeMyProfile = () => {
 						web: ""
 					}
 				}
-				
+
 				setPerfil(profileData)
 				setPerfilOriginal(profileData)
 				setTipoCuenta(profileData.accountType)
@@ -183,21 +183,21 @@ export const SeeMyProfile = () => {
 			} catch (error) {
 				console.error("Error al obtener el perfil:", error)
 				Swal.fire({
-					icon:"error",
-					title:"Error Perfil",
-					text:"Ocurrio un error en el perfil",
-					confirmButtonText:"Aceptar",
-					confirmButtonColor:"#d33",
-					theme:"bulma",
+					icon: "error",
+					title: "Error Perfil",
+					text: "Ocurrio un error en el perfil",
+					confirmButtonText: "Aceptar",
+					confirmButtonColor: "#d33",
+					theme: "bulma",
 					customClass: { confirmButton: 'centered-swal-button' }
 				})
 			}
 		}
 
-    if (userId) {
-      fetchProfile()
-    }
-  }, [userId, requiresCompletion, fetchCursos, fetchCursosInstructor])
+		if (userId) {
+			fetchProfile()
+		}
+	}, [userId, requiresCompletion, fetchCursos, fetchCursosInstructor])
 
 	const cargarUbicaciones = async (empresaData) => {
 		try {
@@ -232,7 +232,7 @@ export const SeeMyProfile = () => {
 
 		if (name.startsWith("Empresa.")) {
 			const key = name.split(".")[1]
-			
+
 			if (name.startsWith("Empresa.sitio_web.")) {
 				const socialKey = name.split(".")[2]
 				setPerfil((prevPerfil) => ({
@@ -281,11 +281,11 @@ export const SeeMyProfile = () => {
 			} catch (error) {
 				console.error("Error al cargar ciudades:", error)
 				Swal.fire({
-					icon:"error",
-					title:"Error en el sistema",
-					text:"No se pudieron cargar las ciudades",
-					confirmButtonText:"Okay",
-					theme:"bulma",
+					icon: "error",
+					title: "Error en el sistema",
+					text: "No se pudieron cargar las ciudades",
+					confirmButtonText: "Okay",
+					theme: "bulma",
 					customClass: { confirmButton: 'centered-swal-button' }
 				})
 				setCiudades([])
@@ -352,6 +352,12 @@ export const SeeMyProfile = () => {
 			apellidos: validateText(perfil?.apellidos || ""),
 			email: validateEmail(perfil?.email || ""),
 			Celular: validateNumber(perfil?.celular || ""),
+		};
+
+		// Solo validar documento para Aprendiz
+		if (tipoCuenta === "Aprendiz") {
+			ValidationGeneral.documento = perfil?.documento && perfil.documento.trim().length > 0 ? "" : "El número de documento es obligatorio";
+			ValidationGeneral.tipoDocumento = perfil?.tipoDocumento && perfil.tipoDocumento.trim().length > 0 ? "" : "El tipo de documento es obligatorio";
 		}
 
 		if (tipoCuenta === "Empresa") {
@@ -365,8 +371,8 @@ export const SeeMyProfile = () => {
 				telefono: validateNumber(empresaSnapshot.telefono || ""),
 				email: validateEmail(empresaSnapshot.email_empresa || ""),
 				nit: validateNIT(empresaSnapshot?.NIT || ""),
-				descripcion: empresaSnapshot.descripcion && empresaSnapshot.descripcion.trim().length > 0 
-					? "" 
+				descripcion: empresaSnapshot.descripcion && empresaSnapshot.descripcion.trim().length > 0
+					? ""
 					: "La descripción es obligatoria",
 			}
 		}
@@ -384,7 +390,7 @@ export const SeeMyProfile = () => {
 				html: hastErrors,
 				confirmButtonText: 'Aceptar',
 				confirmButtonColor: '#d33',
-				theme:"bulma",
+				theme: "bulma",
 				customClass: { confirmButton: 'centered-swal-button' }
 			});
 			setPerfil(perfilOriginal)
@@ -437,7 +443,7 @@ export const SeeMyProfile = () => {
 				text: 'Perfil actualizado con éxito',
 				confirmButtonText: 'Aceptar',
 				confirmButtonColor: '#049019',
-				theme:"bulma",
+				theme: "bulma",
 				customClass: { confirmButton: 'centered-swal-button' }
 			});
 
@@ -470,7 +476,7 @@ export const SeeMyProfile = () => {
 				text: errorMessage,
 				confirmButtonText: 'Aceptar',
 				confirmButtonColor: '#d33',
-				theme:"bulma",
+				theme: "bulma",
 				customClass: { confirmButton: 'centered-swal-button' }
 			});
 
@@ -508,13 +514,12 @@ export const SeeMyProfile = () => {
 							/>
 							<h3 className="profile_role">{tipoCuenta}</h3>
 							<p className="profile_email">{perfil?.email || ""}</p>
-							
+
 							{(tipoCuenta === "Empresa" || tipoCuenta === "Aprendiz") && (
 								<div className="manager_status_badge">
 									<div
-										className={`status_indicator ${
-											perfil?.estado === "activo" ? "status_active" : "status_inactive"
-										}`}
+										className={`status_indicator ${perfil?.estado === "activo" ? "status_active" : "status_inactive"
+											}`}
 									></div>
 									<div className="status_text">
 										<span className="status_label">{perfil?.estado === "activo" ? "Activo" : "Inactivo"}</span>
@@ -554,6 +559,71 @@ export const SeeMyProfile = () => {
 								/>
 							</div>
 
+							{/* AGREGAR SOLO PARA APRENDIZ */}
+							{tipoCuenta === "Aprendiz" && (
+								<>
+									<div className="profile_field">
+										<label>Tipo de Documento:</label>
+										{editMode ? (
+											<select
+												name="tipoDocumento"
+												className="input_updateData custom-select"
+												value={perfil?.tipoDocumento || ""}
+												onChange={handleInputChange}
+												disabled={!editMode}
+											>
+												<option value="">Seleccione un tipo...</option>
+												<option value="CedulaCiudadania">Cédula de Ciudadanía</option>
+												<option value="TarjetaIdentidad">Tarjeta de Identidad</option>
+												<option value="CedulaExtranjeria">Cédula de Extranjería</option>
+												<option value="PPT">Permiso por Protección Temporal</option>
+											</select>
+										) : (
+											<span className="profile_value">
+												{perfil?.tipoDocumento === "CedulaCiudadania" && "Cédula de Ciudadanía"}
+												{perfil?.tipoDocumento === "TarjetaIdentidad" && "Tarjeta de Identidad"}
+												{perfil?.tipoDocumento === "CedulaExtranjeria" && "Cédula de Extranjería"}
+												{perfil?.tipoDocumento === "PPT" && "Permiso por Protección Temporal"}
+												{!perfil?.tipoDocumento && "No especificado"}
+											</span>
+										)}
+									</div>
+
+									<div className="profile_field">
+										<label>Número de Documento:</label>
+										{editMode ? (
+											<input
+												type="text"
+												name="documento"
+												className="input_updateData"
+												placeholder="Ingrese número de documento..."
+												value={perfil?.documento || ""}
+												onChange={handleInputChange}
+												disabled={!editMode}
+											/>
+										) : (
+											<span className="profile_value">{perfil?.documento || "No especificado"}</span>
+										)}
+									</div>
+								</>
+							)}
+
+							<div className="profile_field">
+								<label>Número de Documento:</label>
+								{editMode ? (
+									<input
+										type="text"
+										name="documento"
+										className="input_updateData"
+										placeholder="Ingrese número de documento..."
+										value={perfil?.documento || ""}
+										onChange={handleInputChange}
+										disabled={!editMode}
+									/>
+								) : (
+									<span className="profile_value">{perfil?.documento || "No especificado"}</span>
+								)}
+							</div>
 							<div className="profile_field">
 								<label>Email:</label>
 								{editMode ? (
@@ -634,9 +704,8 @@ export const SeeMyProfile = () => {
 									<div className="admin_header_right">
 										<div className="admin_status_badge">
 											<div
-												className={`status_indicator ${
-													perfil?.estado === "activo" ? "status_active" : "status_inactive"
-												}`}
+												className={`status_indicator ${perfil?.estado === "activo" ? "status_active" : "status_inactive"
+													}`}
 											></div>
 											<div className="status_text">
 												<span className="status_label">{perfil?.estado === "activo" ? "Activo" : "Inactivo"}</span>
@@ -689,492 +758,491 @@ export const SeeMyProfile = () => {
 								</div>
 
 								{tipoCuenta === "Instructor" && (
-								<div className="admin_cursos_section">
-									<h3 className="section_title">Cursos Asignados</h3>
-									<div className="cursos_table">
-										{cursos.length > 0 ? (
-											<>
-												{cursos.map((c) => (
-													<div key={c.ID} className="curso_row">
-														<div className="curso_info">
-															<span className="curso_nombre">{c.nombre_curso}</span>
-															<span className="curso_descripcion">
-																{c.descripcion 
-																	? (c.descripcion.length > 120 
-																			? `${c.descripcion.substring(0, 120)}...` 
+									<div className="admin_cursos_section">
+										<h3 className="section_title">Cursos Asignados</h3>
+										<div className="cursos_table">
+											{cursos.length > 0 ? (
+												<>
+													{cursos.map((c) => (
+														<div key={c.ID} className="curso_row">
+															<div className="curso_info">
+																<span className="curso_nombre">{c.nombre_curso}</span>
+																<span className="curso_descripcion">
+																	{c.descripcion
+																		? (c.descripcion.length > 120
+																			? `${c.descripcion.substring(0, 120)}...`
 																			: c.descripcion)
-																	: "Descripción no disponible"
-																}
-															</span>
+																		: "Descripción no disponible"
+																	}
+																</span>
+															</div>
+															<button
+																className="btn_ver_detalles"
+																onClick={() => {
+																	navigate(`/Cursos/${c.ID}`)
+																}}
+															>
+																Ver detalles
+															</button>
 														</div>
-														<button
-															className="btn_ver_detalles"
-															onClick={() => {
-																navigate(`/Cursos/${c.ID}`)
-															}}
-														>
-															Ver detalles
-														</button>
-													</div>
-												))}
-											</>
-										) : (
-											<div className="cursos_empty">
-												<p>Aún no tienes cursos asignados...</p>
-											</div>
-										)}
+													))}
+												</>
+											) : (
+												<div className="cursos_empty">
+													<p>Aún no tienes cursos asignados...</p>
+												</div>
+											)}
+										</div>
 									</div>
-								</div>
-							)}
+								)}
 							</div>
 						)}
 
 					{/* EMPRESA */}
-{tipoCuenta === "Empresa" && (
-	<div className="empresa_profile_container">
-		{/* Header con info de empresa y estado */}
-		<div className="empresa_header">
-			<div className="empresa_header_left">
-				<img
-					src={getImageSrcFromBase64(perfil?.Empresa?.img_empresa) || "/placeholder.svg"}
-					alt="Logo empresa"
-					className="empresa_logo"
-					style={{
-						cursor: editMode ? "pointer" : "default",
-					}}
-					onClick={() => {
-						if (editMode && logoEmpresaInputRef.current) logoEmpresaInputRef.current.click()
-					}}
-				/>
-				<input
-					type="file"
-					accept="image/*"
-					ref={logoEmpresaInputRef}
-					style={{ display: "none" }}
-					onChange={(e) => handleFileChange(e, "img_empresa")}
-				/>
-				<div className="empresa_info">
-					<h2 className="empresa_nombre">
-						{editMode ? (
-							<input
-								type="text"
-								name="Empresa.nombre_empresa"
-								className="empresa_input_nombre"
-								value={perfil?.Empresa?.nombre_empresa || ""}
-								onChange={handleInputChange}
-								disabled={!editMode}
-							/>
-						) : (
-							perfil?.Empresa?.nombre_empresa || ""
-						)}
-					</h2>
-					<p className="empresa_nit">
-						Nit:{" "}
-						{editMode ? (
-							<input
-								type="text"
-								name="Empresa.NIT"
-								className="empresa_input_nit"
-								value={perfil?.Empresa?.NIT || ""}
-								onChange={handleInputChange}
-								disabled={!editMode}
-							/>
-						) : (
-							perfil?.Empresa?.NIT || ""
-						)}
-					</p>
-				</div>
-			</div>
-
-			<div className="empresa_header_right">
-				{/* Estado de la Empresa - Reemplaza al del Manager */}
-				<div className="empresa_status_badge">
-					{editMode ? (
-						<select
-							name="Empresa.estado"
-							className="empresa_status_select"
-							value={perfil?.Empresa?.estado || "activo"}
-							onChange={handleInputChange}
-							disabled={!editMode}
-						>
-							<option value="activo">Activo</option>
-							<option value="inactivo">Inactivo</option>
-						</select>
-					) : (
-						<>
-							<div
-								className={`status_indicator ${
-									perfil?.Empresa?.estado === "activo" ? "status_active" : "status_inactive"
-								}`}
-							></div>
-							<div className="status_text">
-								<span className="status_label">
-									{perfil?.Empresa?.estado === "activo" ? "Activo" : "Inactivo"}
-								</span>
-								<span className="status_role">Empresa</span>
-							</div>
-						</>
-					)}
-				</div>
-
-				{editMode && (
-					<div className="empresa_action_buttons">
-						<button className="btn_guardar" onClick={handleSaveChanges}>
-							Guardar
-						</button>
-						<button className="btn_cancelar" onClick={handleCancel}>
-							Cancelar
-						</button>
-					</div>
-				)}
-			</div>
-		</div>
-		{/* Datos Empresa */}
-		<div className="empresa_datos_section">
-			<h3 className="section_title">Datos Empresa</h3>
-			<div className="empresa_datos_grid">
-				<div className="empresa_field">
-					<label>Teléfono:</label>
-					{editMode ? (
-						<input
-							type="text"
-							name="Empresa.telefono"
-							className="empresa_input"
-							placeholder="Ingrese un teléfono..."
-							value={perfil?.Empresa?.telefono || ""}
-							onChange={handleInputChange}
-							disabled={!editMode}
-						/>
-					) : (
-						<span className="empresa_value">{perfil?.Empresa?.telefono || "-"}</span>
-					)}
-				</div>
-
-				<div className="empresa_field">
-					<label>Dirección:</label>
-					{editMode ? (
-						<input
-							type="text"
-							name="Empresa.direccion"
-							className="empresa_input"
-							placeholder="Ingrese una dirección..."
-							value={perfil?.Empresa?.direccion || ""}
-							onChange={handleInputChange}
-							disabled={!editMode}
-						/>
-					) : (
-						<span className="empresa_value">{perfil?.Empresa?.direccion || "-"}</span>
-					)}
-				</div>
-
-				<div className="empresa_field">
-					<label>Email Corporativo:</label>
-					{editMode ? (
-						<input
-							type="text"
-							name="Empresa.email_empresa"
-							className="empresa_input"
-							placeholder="Ingrese un email..."
-							value={perfil?.Empresa?.email_empresa || ""}
-							onChange={handleInputChange}
-							disabled={!editMode}
-						/>
-					) : (
-						<span className="empresa_value">{perfil?.Empresa?.email_empresa || "-"}</span>
-					)}
-				</div>
-
-				<div className="empresa_field">
-					<label>Categoría:</label>
-					{editMode ? (
-						<select
-							name="Empresa.categoria"
-							className="empresa_input-s"
-							value={perfil?.Empresa?.categoria || ""}
-							onChange={handleInputChange}
-							disabled={!editMode}
-						>
-							<option value="">Seleccione una categoría...</option>
-							<option value="tecnologia">Tecnología</option>
-							<option value="servicios">Servicios</option>
-							<option value="comercio">Comercio</option>
-							<option value="industria">Industria</option>
-							<option value="educacion">Educación</option>
-							<option value="salud">Salud</option>
-							<option value="construccion">Construcción</option>
-							<option value="alimentos">Alimentos</option>
-							<option value="textil">Textil</option>
-						</select>
-					) : (
-						<span className="empresa_value">
-							{perfil?.Empresa?.categoria ? 
-								perfil.Empresa.categoria.charAt(0).toUpperCase() + perfil.Empresa.categoria.slice(1) 
-								: "-"
-							}
-						</span>
-					)}
-				</div>
-
-				<div className="empresa_field">
-					<label>Departamento:</label>
-					{editMode ? (
-						<select
-							name="departamento"
-							className="empresa_input-s"
-							value={departamentoSeleccionado || ""}  
-							onChange={handleDepartamentoChange}
-							disabled={!editMode}
-						>
-							<option value="">Seleccione un departamento...</option>
-							{departamentos.map((dep) => (
-								<option key={dep.ID} value={dep.ID.toString()}>
-									{dep.nombre}
-								</option>
-							))}
-						</select>
-					) : (
-						<span className="empresa_value">{perfil?.Empresa?.Ciudad?.Departamento?.nombre || "-"}</span>
-					)}
-				</div>
-
-				<div className="empresa_field">
-					<label>Ciudad:</label>
-					{editMode ? (
-						<select
-							name="ciudad"
-							className={`empresa_input-s ${!departamentoSeleccionado ? 'select-disabled' : ''}`}
-							value={ciudadSeleccionada || ""}
-							onChange={handleCiudadChange}
-							disabled={!editMode || !departamentoSeleccionado}
-						>
-							<option value="">Seleccione una ciudad...</option>
-							{ciudades.map((ciudad) => (
-								<option key={ciudad.ID} value={ciudad.ID.toString()}>
-									{ciudad.nombre}
-								</option>
-							))}
-						</select>
-					) : (
-						<span className="empresa_value">{perfil?.Empresa?.Ciudad?.nombre || "-"}</span>
-					)}
-				</div>
-			</div>
-
-			{/* Descripción de la Empresa */}
-			<div className="empresa_field_full">
-				<label>Descripción de la Empresa:</label>
-				{editMode ? (
-					<textarea
-						name="Empresa.descripcion"
-						className="empresa_textarea"
-						placeholder="Describa los servicios, misión, visión y valores de la empresa..."
-						value={perfil?.Empresa?.descripcion || ""}
-						onChange={handleInputChange}
-						rows="4"
-						disabled={!editMode}
-					/>
-				) : (
-					<div className="empresa_descripcion">
-						{perfil?.Empresa?.descripcion || "No hay descripción disponible"}
-					</div>
-				)}
-			</div>
-
-			{/* Enlaces de Redes Sociales */}
-			{(perfil?.Empresa?.sitio_web && Object.keys(perfil.Empresa.sitio_web).some(key => perfil.Empresa.sitio_web[key])) || editMode ? (
-				<div className="empresa_redes_sociales">
-					<h4 className="redes_sociales_title">Enlaces de Contacto</h4>
-					<div className="redes_sociales_grid">
-						{/* Sitio Web */}
-						<div className="red_social_item">
-							<label><FontAwesomeIcon icon={faGlobe} /> Sitio Web:</label>
-							{editMode ? (
-								<input
-									type="url"
-									name="Empresa.sitio_web.web"
-									className="empresa_input"
-									placeholder="https://www.empresa.com"
-									value={perfil?.Empresa?.sitio_web?.web || ""}
-									onChange={handleInputChange}
-									disabled={!editMode}
-								/>
-							) : (
-								perfil?.Empresa?.sitio_web?.web ? (
-									<a href={perfil.Empresa.sitio_web.web} target="_blank" rel="noopener noreferrer" className="red_social_link">
-										{perfil.Empresa.sitio_web.web}
-									</a>
-								) : (
-									<span className="empresa_value">-</span>
-								)
-							)}
-						</div>
-
-						{/* Facebook */}
-						<div className="red_social_item">
-							<label><FontAwesomeIcon icon={faFacebook} />Facebook:</label>
-							{editMode ? (
-								<input
-									type="url"
-									name="Empresa.sitio_web.facebook"
-									className="empresa_input"
-									placeholder="https://facebook.com/empresa"
-									value={perfil?.Empresa?.sitio_web?.facebook || ""}
-									onChange={handleInputChange}
-									disabled={!editMode}
-								/>
-							) : (
-								perfil?.Empresa?.sitio_web?.facebook ? (
-									<a href={perfil.Empresa.sitio_web.facebook} target="_blank" rel="noopener noreferrer" className="red_social_link">
-										{perfil.Empresa.sitio_web.facebook}
-									</a>
-								) : (
-									<span className="empresa_value">-</span>
-								)
-							)}
-						</div>
-
-						{/* Instagram */}
-						<div className="red_social_item">
-							<label><FontAwesomeIcon icon={faInstagram} /> Instagram:</label>
-							{editMode ? (
-								<input
-									type="url"
-									name="Empresa.sitio_web.instagram"
-									className="empresa_input"
-									placeholder="https://instagram.com/empresa"
-									value={perfil?.Empresa?.sitio_web?.instagram || ""}
-									onChange={handleInputChange}
-									disabled={!editMode}
-								/>
-							) : (
-								perfil?.Empresa?.sitio_web?.instagram ? (
-									<a href={perfil.Empresa.sitio_web.instagram} target="_blank" rel="noopener noreferrer" className="red_social_link">
-										{perfil.Empresa.sitio_web.instagram}
-									</a>
-								) : (
-									<span className="empresa_value">-</span>
-								)
-							)}
-						</div>
-
-						{/* LinkedIn */}
-						<div className="red_social_item">
-							<label><FontAwesomeIcon icon={faLinkedin} /> LinkedIn:</label>
-							{editMode ? (
-								<input
-									type="url"
-									name="Empresa.sitio_web.linkedin"
-									className="empresa_input"
-									placeholder="https://linkedin.com/company/empresa"
-									value={perfil?.Empresa?.sitio_web?.linkedin || ""}
-									onChange={handleInputChange}
-									disabled={!editMode}
-								/>
-							) : (
-								perfil?.Empresa?.sitio_web?.linkedin ? (
-									<a href={perfil.Empresa.sitio_web.linkedin} target="_blank" rel="noopener noreferrer" className="red_social_link">
-										{perfil.Empresa.sitio_web.linkedin}
-									</a>
-								) : (
-									<span className="empresa_value">-</span>
-								)
-							)}
-						</div>
-
-						{/* Twitter */}
-						<div className="red_social_item">
-							<label><FontAwesomeIcon icon={faTwitter} /> Twitter:</label>
-							{editMode ? (
-								<input
-									type="url"
-									name="Empresa.sitio_web.twitter"
-									className="empresa_input"
-									placeholder="https://twitter.com/empresa"
-									value={perfil?.Empresa?.sitio_web?.twitter || ""}
-									onChange={handleInputChange}
-									disabled={!editMode}
-								/>
-							) : (
-								perfil?.Empresa?.sitio_web?.twitter ? (
-									<a href={perfil.Empresa.sitio_web.twitter} target="_blank" rel="noopener noreferrer" className="red_social_link">
-										{perfil.Empresa.sitio_web.twitter}
-									</a>
-								) : (
-									<span className="empresa_value">-</span>
-								)
-							)}
-						</div>
-					</div>
-				</div>
-			) : null}
-		</div>
-
-		{/* Cursos Complementarios */}
-		<div className="empresa_cursos_section">
-			<h3 className="section_title">Cursos Complementarios</h3>
-			<div className="cursos_table">
-				{cursos.length > 0 ? (
-					<>
-						{cursos.map((c) => (
-							<div key={c.ID} className="curso_row">
-								<div className="curso_info">
-									<span className="curso_nombre">{c.nombre_curso}</span>
-									<span className="curso_descripcion">
-										{c.descripcion || "Lorem Ipsum is simply dummy text of the printing and..."}
-									</span>
+					{tipoCuenta === "Empresa" && (
+						<div className="empresa_profile_container">
+							{/* Header con info de empresa y estado */}
+							<div className="empresa_header">
+								<div className="empresa_header_left">
+									<img
+										src={getImageSrcFromBase64(perfil?.Empresa?.img_empresa) || "/placeholder.svg"}
+										alt="Logo empresa"
+										className="empresa_logo"
+										style={{
+											cursor: editMode ? "pointer" : "default",
+										}}
+										onClick={() => {
+											if (editMode && logoEmpresaInputRef.current) logoEmpresaInputRef.current.click()
+										}}
+									/>
+									<input
+										type="file"
+										accept="image/*"
+										ref={logoEmpresaInputRef}
+										style={{ display: "none" }}
+										onChange={(e) => handleFileChange(e, "img_empresa")}
+									/>
+									<div className="empresa_info">
+										<h2 className="empresa_nombre">
+											{editMode ? (
+												<input
+													type="text"
+													name="Empresa.nombre_empresa"
+													className="empresa_input_nombre"
+													value={perfil?.Empresa?.nombre_empresa || ""}
+													onChange={handleInputChange}
+													disabled={!editMode}
+												/>
+											) : (
+												perfil?.Empresa?.nombre_empresa || ""
+											)}
+										</h2>
+										<p className="empresa_nit">
+											Nit:{" "}
+											{editMode ? (
+												<input
+													type="text"
+													name="Empresa.NIT"
+													className="empresa_input_nit"
+													value={perfil?.Empresa?.NIT || ""}
+													onChange={handleInputChange}
+													disabled={!editMode}
+												/>
+											) : (
+												perfil?.Empresa?.NIT || ""
+											)}
+										</p>
+									</div>
 								</div>
-								<button
-									className="btn_ver_detalles"
-									onClick={() => {
-										navigate(`/Cursos/${c.ID}`)
-									}}
-								>
-									Ver detalles
-								</button>
-							</div>
-						))}
-					</>
-				) : (
-					<div className="cursos_empty">
-						<p>Aún no se han creado cursos complementarios...</p>
-					</div>
-				)}
-			</div>
-		</div>
 
-		{/* Instructores */}
-		{instructores.length > 0 && (
-			<div className="empresa_instructores_section">
-				<h3 className="section_title">Instructores</h3>
-				<div className="instructores_list">
-					{instructores.map((i) => (
-						<div key={i.ID} className="instructor_item">
-							<span className="instructor_nombre">
-								{i.nombre_instructor} ({i.nombre_curso})
-							</span>
-							<button
-								className="btn_ver_contacto"
-								onClick={() => {
-									setShowModalGeneral(true)
-									setModalGeneralContent(
+								<div className="empresa_header_right">
+									{/* Estado de la Empresa - Reemplaza al del Manager */}
+									<div className="empresa_status_badge">
+										{editMode ? (
+											<select
+												name="Empresa.estado"
+												className="empresa_status_select"
+												value={perfil?.Empresa?.estado || "activo"}
+												onChange={handleInputChange}
+												disabled={!editMode}
+											>
+												<option value="activo">Activo</option>
+												<option value="inactivo">Inactivo</option>
+											</select>
+										) : (
+											<>
+												<div
+													className={`status_indicator ${perfil?.Empresa?.estado === "activo" ? "status_active" : "status_inactive"
+														}`}
+												></div>
+												<div className="status_text">
+													<span className="status_label">
+														{perfil?.Empresa?.estado === "activo" ? "Activo" : "Inactivo"}
+													</span>
+													<span className="status_role">Empresa</span>
+												</div>
+											</>
+										)}
+									</div>
+
+									{editMode && (
+										<div className="empresa_action_buttons">
+											<button className="btn_guardar" onClick={handleSaveChanges}>
+												Guardar
+											</button>
+											<button className="btn_cancelar" onClick={handleCancel}>
+												Cancelar
+											</button>
+										</div>
+									)}
+								</div>
+							</div>
+							{/* Datos Empresa */}
+							<div className="empresa_datos_section">
+								<h3 className="section_title">Datos Empresa</h3>
+								<div className="empresa_datos_grid">
+									<div className="empresa_field">
+										<label>Teléfono:</label>
+										{editMode ? (
+											<input
+												type="text"
+												name="Empresa.telefono"
+												className="empresa_input"
+												placeholder="Ingrese un teléfono..."
+												value={perfil?.Empresa?.telefono || ""}
+												onChange={handleInputChange}
+												disabled={!editMode}
+											/>
+										) : (
+											<span className="empresa_value">{perfil?.Empresa?.telefono || "-"}</span>
+										)}
+									</div>
+
+									<div className="empresa_field">
+										<label>Dirección:</label>
+										{editMode ? (
+											<input
+												type="text"
+												name="Empresa.direccion"
+												className="empresa_input"
+												placeholder="Ingrese una dirección..."
+												value={perfil?.Empresa?.direccion || ""}
+												onChange={handleInputChange}
+												disabled={!editMode}
+											/>
+										) : (
+											<span className="empresa_value">{perfil?.Empresa?.direccion || "-"}</span>
+										)}
+									</div>
+
+									<div className="empresa_field">
+										<label>Email Corporativo:</label>
+										{editMode ? (
+											<input
+												type="text"
+												name="Empresa.email_empresa"
+												className="empresa_input"
+												placeholder="Ingrese un email..."
+												value={perfil?.Empresa?.email_empresa || ""}
+												onChange={handleInputChange}
+												disabled={!editMode}
+											/>
+										) : (
+											<span className="empresa_value">{perfil?.Empresa?.email_empresa || "-"}</span>
+										)}
+									</div>
+
+									<div className="empresa_field">
+										<label>Categoría:</label>
+										{editMode ? (
+											<select
+												name="Empresa.categoria"
+												className="empresa_input-s"
+												value={perfil?.Empresa?.categoria || ""}
+												onChange={handleInputChange}
+												disabled={!editMode}
+											>
+												<option value="">Seleccione una categoría...</option>
+												<option value="tecnologia">Tecnología</option>
+												<option value="servicios">Servicios</option>
+												<option value="comercio">Comercio</option>
+												<option value="industria">Industria</option>
+												<option value="educacion">Educación</option>
+												<option value="salud">Salud</option>
+												<option value="construccion">Construcción</option>
+												<option value="alimentos">Alimentos</option>
+												<option value="textil">Textil</option>
+											</select>
+										) : (
+											<span className="empresa_value">
+												{perfil?.Empresa?.categoria ?
+													perfil.Empresa.categoria.charAt(0).toUpperCase() + perfil.Empresa.categoria.slice(1)
+													: "-"
+												}
+											</span>
+										)}
+									</div>
+
+									<div className="empresa_field">
+										<label>Departamento:</label>
+										{editMode ? (
+											<select
+												name="departamento"
+												className="empresa_input-s"
+												value={departamentoSeleccionado || ""}
+												onChange={handleDepartamentoChange}
+												disabled={!editMode}
+											>
+												<option value="">Seleccione un departamento...</option>
+												{departamentos.map((dep) => (
+													<option key={dep.ID} value={dep.ID.toString()}>
+														{dep.nombre}
+													</option>
+												))}
+											</select>
+										) : (
+											<span className="empresa_value">{perfil?.Empresa?.Ciudad?.Departamento?.nombre || "-"}</span>
+										)}
+									</div>
+
+									<div className="empresa_field">
+										<label>Ciudad:</label>
+										{editMode ? (
+											<select
+												name="ciudad"
+												className={`empresa_input-s ${!departamentoSeleccionado ? 'select-disabled' : ''}`}
+												value={ciudadSeleccionada || ""}
+												onChange={handleCiudadChange}
+												disabled={!editMode || !departamentoSeleccionado}
+											>
+												<option value="">Seleccione una ciudad...</option>
+												{ciudades.map((ciudad) => (
+													<option key={ciudad.ID} value={ciudad.ID.toString()}>
+														{ciudad.nombre}
+													</option>
+												))}
+											</select>
+										) : (
+											<span className="empresa_value">{perfil?.Empresa?.Ciudad?.nombre || "-"}</span>
+										)}
+									</div>
+								</div>
+
+								{/* Descripción de la Empresa */}
+								<div className="empresa_field_full">
+									<label>Descripción de la Empresa:</label>
+									{editMode ? (
+										<textarea
+											name="Empresa.descripcion"
+											className="empresa_textarea"
+											placeholder="Describa los servicios, misión, visión y valores de la empresa..."
+											value={perfil?.Empresa?.descripcion || ""}
+											onChange={handleInputChange}
+											rows="4"
+											disabled={!editMode}
+										/>
+									) : (
+										<div className="empresa_descripcion">
+											{perfil?.Empresa?.descripcion || "No hay descripción disponible"}
+										</div>
+									)}
+								</div>
+
+								{/* Enlaces de Redes Sociales */}
+								{(perfil?.Empresa?.sitio_web && Object.keys(perfil.Empresa.sitio_web).some(key => perfil.Empresa.sitio_web[key])) || editMode ? (
+									<div className="empresa_redes_sociales">
+										<h4 className="redes_sociales_title">Enlaces de Contacto</h4>
+										<div className="redes_sociales_grid">
+											{/* Sitio Web */}
+											<div className="red_social_item">
+												<label><FontAwesomeIcon icon={faGlobe} /> Sitio Web:</label>
+												{editMode ? (
+													<input
+														type="url"
+														name="Empresa.sitio_web.web"
+														className="empresa_input"
+														placeholder="https://www.empresa.com"
+														value={perfil?.Empresa?.sitio_web?.web || ""}
+														onChange={handleInputChange}
+														disabled={!editMode}
+													/>
+												) : (
+													perfil?.Empresa?.sitio_web?.web ? (
+														<a href={perfil.Empresa.sitio_web.web} target="_blank" rel="noopener noreferrer" className="red_social_link">
+															{perfil.Empresa.sitio_web.web}
+														</a>
+													) : (
+														<span className="empresa_value">-</span>
+													)
+												)}
+											</div>
+
+											{/* Facebook */}
+											<div className="red_social_item">
+												<label><FontAwesomeIcon icon={faFacebook} />Facebook:</label>
+												{editMode ? (
+													<input
+														type="url"
+														name="Empresa.sitio_web.facebook"
+														className="empresa_input"
+														placeholder="https://facebook.com/empresa"
+														value={perfil?.Empresa?.sitio_web?.facebook || ""}
+														onChange={handleInputChange}
+														disabled={!editMode}
+													/>
+												) : (
+													perfil?.Empresa?.sitio_web?.facebook ? (
+														<a href={perfil.Empresa.sitio_web.facebook} target="_blank" rel="noopener noreferrer" className="red_social_link">
+															{perfil.Empresa.sitio_web.facebook}
+														</a>
+													) : (
+														<span className="empresa_value">-</span>
+													)
+												)}
+											</div>
+
+											{/* Instagram */}
+											<div className="red_social_item">
+												<label><FontAwesomeIcon icon={faInstagram} /> Instagram:</label>
+												{editMode ? (
+													<input
+														type="url"
+														name="Empresa.sitio_web.instagram"
+														className="empresa_input"
+														placeholder="https://instagram.com/empresa"
+														value={perfil?.Empresa?.sitio_web?.instagram || ""}
+														onChange={handleInputChange}
+														disabled={!editMode}
+													/>
+												) : (
+													perfil?.Empresa?.sitio_web?.instagram ? (
+														<a href={perfil.Empresa.sitio_web.instagram} target="_blank" rel="noopener noreferrer" className="red_social_link">
+															{perfil.Empresa.sitio_web.instagram}
+														</a>
+													) : (
+														<span className="empresa_value">-</span>
+													)
+												)}
+											</div>
+
+											{/* LinkedIn */}
+											<div className="red_social_item">
+												<label><FontAwesomeIcon icon={faLinkedin} /> LinkedIn:</label>
+												{editMode ? (
+													<input
+														type="url"
+														name="Empresa.sitio_web.linkedin"
+														className="empresa_input"
+														placeholder="https://linkedin.com/company/empresa"
+														value={perfil?.Empresa?.sitio_web?.linkedin || ""}
+														onChange={handleInputChange}
+														disabled={!editMode}
+													/>
+												) : (
+													perfil?.Empresa?.sitio_web?.linkedin ? (
+														<a href={perfil.Empresa.sitio_web.linkedin} target="_blank" rel="noopener noreferrer" className="red_social_link">
+															{perfil.Empresa.sitio_web.linkedin}
+														</a>
+													) : (
+														<span className="empresa_value">-</span>
+													)
+												)}
+											</div>
+
+											{/* Twitter */}
+											<div className="red_social_item">
+												<label><FontAwesomeIcon icon={faTwitter} /> Twitter:</label>
+												{editMode ? (
+													<input
+														type="url"
+														name="Empresa.sitio_web.twitter"
+														className="empresa_input"
+														placeholder="https://twitter.com/empresa"
+														value={perfil?.Empresa?.sitio_web?.twitter || ""}
+														onChange={handleInputChange}
+														disabled={!editMode}
+													/>
+												) : (
+													perfil?.Empresa?.sitio_web?.twitter ? (
+														<a href={perfil.Empresa.sitio_web.twitter} target="_blank" rel="noopener noreferrer" className="red_social_link">
+															{perfil.Empresa.sitio_web.twitter}
+														</a>
+													) : (
+														<span className="empresa_value">-</span>
+													)
+												)}
+											</div>
+										</div>
+									</div>
+								) : null}
+							</div>
+
+							{/* Cursos Complementarios */}
+							<div className="empresa_cursos_section">
+								<h3 className="section_title">Cursos Complementarios</h3>
+								<div className="cursos_table">
+									{cursos.length > 0 ? (
 										<>
-											<b>Número de telefono</b>
-											<span>{i.numero}</span>
-											<b>Email</b>
-											<span>{i.email}</span>
-										</>,
-									)
-								}}
-							>
-								Ver contacto
-							</button>
+											{cursos.map((c) => (
+												<div key={c.ID} className="curso_row">
+													<div className="curso_info">
+														<span className="curso_nombre">{c.nombre_curso}</span>
+														<span className="curso_descripcion">
+															{c.descripcion || "Lorem Ipsum is simply dummy text of the printing and..."}
+														</span>
+													</div>
+													<button
+														className="btn_ver_detalles"
+														onClick={() => {
+															navigate(`/Cursos/${c.ID}`)
+														}}
+													>
+														Ver detalles
+													</button>
+												</div>
+											))}
+										</>
+									) : (
+										<div className="cursos_empty">
+											<p>Aún no se han creado cursos complementarios...</p>
+										</div>
+									)}
+								</div>
+							</div>
+
+							{/* Instructores */}
+							{instructores.length > 0 && (
+								<div className="empresa_instructores_section">
+									<h3 className="section_title">Instructores</h3>
+									<div className="instructores_list">
+										{instructores.map((i) => (
+											<div key={i.ID} className="instructor_item">
+												<span className="instructor_nombre">
+													{i.nombre_instructor} ({i.nombre_curso})
+												</span>
+												<button
+													className="btn_ver_contacto"
+													onClick={() => {
+														setShowModalGeneral(true)
+														setModalGeneralContent(
+															<>
+																<b>Número de telefono</b>
+																<span>{i.numero}</span>
+																<b>Email</b>
+																<span>{i.email}</span>
+															</>,
+														)
+													}}
+												>
+													Ver contacto
+												</button>
+											</div>
+										))}
+									</div>
+								</div>
+							)}
 						</div>
-					))}
-				</div>
-			</div>
-		)}
-	</div>
-)}
+					)}
 
 					{tipoCuenta === "Aprendiz" && perfil?.empresa_ID && (
 						<div className="aprendiz_profile_container">
@@ -1190,32 +1258,32 @@ export const SeeMyProfile = () => {
 								</div>
 							</div>
 
-              {/* Datos Empleado */}
-              <div className="aprendiz_datos_section">
-                <h3 className="section_title">Datos Empleado</h3>
-                <div className="aprendiz_empresa_info">
-                  <p>
-                    <strong>Nombre empresa:</strong>{" "}
-                    {perfil?.Empresa?.nombre_empresa || "Sin información"}
-                  </p>
-                  <p>
-                    <strong>NIT:</strong>{" "}
-                    {perfil?.Empresa?.NIT || "No registrado"}
-                  </p>
-                </div>
-                <div className="aprendiz_datos_grid">
-                  <div className="aprendiz_field">
-                    <label>Nombre:</label>
-                    <input
-                      type="text"
-                      name="nombres"
-                      className="aprendiz_input"
-                      placeholder="Ingrese un nombre..."
-                      value={perfil?.nombres || ""}
-                      onChange={handleInputChange}
-                      disabled={!editMode}
-                    />
-                  </div>
+							{/* Datos Empleado */}
+							<div className="aprendiz_datos_section">
+								<h3 className="section_title">Datos Empleado</h3>
+								<div className="aprendiz_empresa_info">
+									<p>
+										<strong>Nombre empresa:</strong>{" "}
+										{perfil?.Empresa?.nombre_empresa || "Sin información"}
+									</p>
+									<p>
+										<strong>NIT:</strong>{" "}
+										{perfil?.Empresa?.NIT || "No registrado"}
+									</p>
+								</div>
+								<div className="aprendiz_datos_grid">
+									<div className="aprendiz_field">
+										<label>Nombre:</label>
+										<input
+											type="text"
+											name="nombres"
+											className="aprendiz_input"
+											placeholder="Ingrese un nombre..."
+											value={perfil?.nombres || ""}
+											onChange={handleInputChange}
+											disabled={!editMode}
+										/>
+									</div>
 
 									<div className="aprendiz_field">
 										<label>Apellido:</label>

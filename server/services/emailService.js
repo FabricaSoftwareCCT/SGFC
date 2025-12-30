@@ -16,7 +16,7 @@ const transporter = nodemailer.createTransport({
 	service: "gmail",
 	auth: {
 		user: process.env.EMAIL_USER,
-		pass: process.env.GOOGLE_APP_PASSWORD,
+		pass: process.env.EMAIL_PASS,
 	},
 	tls: {
 		rejectUnauthorized: false,
@@ -99,7 +99,7 @@ const sendRequestCourseEmail = async (req, res) => {
 			service: "Gmail",
 			auth: {
 				user: process.env.EMAIL_USER,
-				pass: process.env.GOOGLE_APP_PASSWORD,
+				pass: process.env.EMAIL_PASS,
 			},
 		});
 
@@ -173,7 +173,7 @@ const sendRequestCourseEmailAp = async (req, res) => {
 			service: "Gmail",
 			auth: {
 				user: process.env.EMAIL_USER,
-				pass: process.env.GOOGLE_APP_PASSWORD,
+				pass: process.env.EMAIL_PASS,
 			},
 		});
 
@@ -805,8 +805,8 @@ const sendConcertacionActaEmail = async (req, res) => {
 					let transporter = nodemailer.createTransport({
 						service: "Gmail",
 						auth: {
-							user: "softwareccyt@gmail.com",
-							pass: process.env.GOOGLE_APP_PASSWORD,
+							user: process.env.EMAIL_USER,
+							pass: process.env.EMAIL_PASS,
 						},
 					});
 
@@ -948,8 +948,8 @@ const sendTrainingPlaceActaEmail = async (req, res) => {
 		let transporter = nodemailer.createTransport({
 			service: "Gmail",
 			auth: {
-				user: "softwareccyt@gmail.com",
-				pass: process.env.GOOGLE_APP_PASSWORD,
+				user: EMAIL_USER,
+				pass: process.env.EMAIL_PASS,
 			},
 		});
 

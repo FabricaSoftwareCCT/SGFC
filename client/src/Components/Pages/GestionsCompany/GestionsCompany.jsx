@@ -271,7 +271,7 @@ export const GestionsCompany = () => {
 															{isAdmin && (
 																<button
 																	className="action-btn-main manage-btn-main"
-																	onClick={() => setSelectedEmpresa(empresa)}
+																	onClick={() => setSelectedEmpresa(empresa.Empresa)}
 																>
 																	<FontAwesomeIcon icon={faUsers} />
 																	<span>Gestionar</span>

@@ -10,7 +10,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faBuilding, faIdCard, faPhone, faEnvelope, faMapMarkerAlt, faCamera, faTag } from '@fortawesome/free-solid-svg-icons';
 
 export const ManageCompany = ({ empresa, onClose }) => {
-	const datosEmpresa = empresa?.Empresa || {};
+	const datosEmpresa = empresa || {};
 	const userId = empresa?.ID;
 	const [isEditing, setIsEditing] = useState(false);
 	const [departamentos, setDepartamentos] = useState([]);

@@ -342,6 +342,27 @@
   grid-template-columns: 1fr;
   gap: 1.5rem;
   margin-bottom: 2rem;
+  max-height: 500px;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+}
+
+.criteria-grid::-webkit-scrollbar {
+  width: 6px;
+}
+
+.criteria-grid::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 3px;
+}
+
+.criteria-grid::-webkit-scrollbar-thumb {
+  background: var(--primary-green);
+  border-radius: 3px;
+}
+
+.criteria-grid::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-light);
 }
 
 /* Item de criterio */
@@ -638,7 +659,7 @@
   max-width: 400px;
 }
 
-/* Modal de reportes */
+/* Modal de reportes - CORREGIDO CON SCROLL */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -652,6 +673,7 @@
   align-items: center;
   z-index: 10000;
   animation: fadeIn 0.3s ease;
+  padding: 1rem;
 }
 
 @keyframes fadeIn {
@@ -662,13 +684,15 @@
 .modal-container {
   width: 100%;
   max-width: 600px;
-  max-height: 85vh;
+  max-height: 90vh;
   background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 16px;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
   overflow: hidden;
   animation: slideUp 0.3s ease;
+  display: flex;
+  flex-direction: column;
 }
 
 @keyframes slideUp {
@@ -689,6 +713,10 @@
   padding: 1.5rem 2rem;
   background: linear-gradient(135deg, rgba(0, 132, 61, 0.2) 0%, rgba(0, 200, 83, 0.15) 100%);
   border-bottom: 1px solid rgba(0, 200, 83, 0.3);
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
 .modal-header h2 {
@@ -713,6 +741,7 @@
   justify-content: center;
   cursor: pointer;
   transition: var(--transition);
+  border: none;
 }
 
 .modal-close-btn:hover {
@@ -722,11 +751,33 @@
 }
 
 .modal-body {
-  padding: 2rem;
+  flex: 1;
   overflow-y: auto;
+  padding: 0;
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary-green) rgba(255, 255, 255, 0.05);
+}
+
+.modal-body::-webkit-scrollbar {
+  width: 8px;
+}
+
+.modal-body::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+  background: linear-gradient(to bottom, var(--primary-green), var(--primary-light));
+  border-radius: 4px;
+}
+
+.modal-body::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(to bottom, var(--primary-light), #69f0ae);
 }
 
 .report-type-selector {
+  padding: 2rem;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
@@ -737,6 +788,7 @@
   font-size: 1.2rem;
   font-weight: 600;
   margin: 0;
+  text-align: center;
 }
 
 .type-options {
@@ -756,6 +808,7 @@
   display: flex;
   align-items: flex-start;
   gap: 1rem;
+  border: none;
 }
 
 .type-option:hover {
@@ -814,6 +867,10 @@
   margin-top: 1rem;
 }
 
+.report-actions .btn-primary {
+  min-width: 200px;
+}
+
 .download-ready {
   display: flex;
   flex-direction: column;
@@ -836,6 +893,11 @@
   font-size: 1.2rem;
   font-weight: 600;
   margin: 0;
+}
+
+.download-ready .btn-primary {
+  min-width: 200px;
+  text-decoration: none;
 }
 
 /* =========================================== */
@@ -925,6 +987,32 @@
     margin: 1rem;
     max-height: 90vh;
   }
+  
+  .modal-header {
+    padding: 1.25rem 1.5rem;
+  }
+  
+  .modal-header h2 {
+    font-size: 1.3rem;
+  }
+  
+  .report-type-selector {
+    padding: 1.5rem;
+  }
+  
+  .type-option {
+    padding: 1.25rem;
+  }
+  
+  .report-actions .btn-primary,
+  .download-ready .btn-primary {
+    width: 100%;
+    min-width: auto;
+  }
+  
+  .criteria-grid {
+    max-height: 400px;
+  }
 }
 
 /* Móviles (480px - 600px) */
@@ -1012,7 +1100,48 @@
   }
   
   .modal-body {
+    padding: 0;
+  }
+  
+  .report-type-selector {
     padding: 1.2rem;
+  }
+  
+  .type-option {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.75rem;
+    padding: 1rem;
+  }
+  
+  .type-icon {
+    width: 50px;
+    height: 50px;
+    font-size: 1.5rem;
+  }
+  
+  .type-info h4 {
+    font-size: 1rem;
+  }
+  
+  .type-info p {
+    font-size: 0.85rem;
+  }
+  
+  .download-ready {
+    padding: 1.5rem;
+  }
+  
+  .download-icon {
+    font-size: 2.5rem;
+  }
+  
+  .download-ready h4 {
+    font-size: 1.1rem;
+  }
+  
+  .criteria-grid {
+    max-height: 350px;
   }
 }
 
@@ -1071,6 +1200,10 @@
   .empty-state p {
     font-size: 0.9rem;
   }
+  
+  .criteria-grid {
+    max-height: 300px;
+  }
 }
 
 /* Landscape en móviles */
@@ -1095,10 +1228,22 @@
   
   .criteria-grid {
     margin-bottom: 1rem;
+    max-height: 200px;
   }
   
   .modal-container {
     max-height: 95vh;
+  }
+}
+
+/* Para pantallas muy altas */
+@media (min-height: 900px) {
+  .criteria-grid {
+    max-height: 600px;
+  }
+  
+  .modal-container {
+    max-height: 80vh;
   }
 }
 
@@ -1110,25 +1255,47 @@ textarea:focus {
   outline-offset: 2px;
 }
 
-/* Scrollbar personalizado */
-.modal-body::-webkit-scrollbar,
-.criteria-grid::-webkit-scrollbar {
-  width: 6px;
+/* Scrollbar personalizado para Firefox */
+@supports (scrollbar-width: thin) {
+  .criteria-grid {
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary-green) rgba(255, 255, 255, 0.05);
+  }
+  
+  .modal-body {
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary-green) rgba(255, 255, 255, 0.05);
+  }
 }
 
-.modal-body::-webkit-scrollbar-track,
-.criteria-grid::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 3px;
+/* Corrección para botones del modal */
+.modal-body button {
+  border: none;
 }
 
-.modal-body::-webkit-scrollbar-thumb,
-.criteria-grid::-webkit-scrollbar-thumb {
-  background: var(--primary-green);
-  border-radius: 3px;
+/* Asegurar que los enlaces en el modal se vean como botones */
+.modal-body a.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  text-decoration: none;
 }
 
-.modal-body::-webkit-scrollbar-thumb:hover,
-.criteria-grid::-webkit-scrollbar-thumb:hover {
-  background: var(--primary-light);
+/* Indicador de scroll (mejora visual) */
+.modal-body::after {
+  content: '';
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 30px;
+  background: linear-gradient(to top, rgba(26, 26, 26, 0.9), transparent);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.modal-body.scrolled::after {
+  opacity: 1;
 }

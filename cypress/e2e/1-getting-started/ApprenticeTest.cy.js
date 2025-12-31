@@ -76,7 +76,7 @@ describe('Prueba Modulo Aprendiz', () => {
     cy.visit("http://localhost:5173/Cursos/MisCursosAsignados");
     
     //Entrar a un curso asignado
-    cy.get('.course-card-carousel').click({force : true});
+    cy.get('course-card-carousel').click({force : true});
 
     //Ver Material del curso
     cy.contains('Ver Material').click()
@@ -111,7 +111,7 @@ describe('Prueba Modulo Aprendiz', () => {
     
   })
 
-  it.skip('Buscar cursos como aprendiz', () => {
+  it('Buscar cursos como aprendiz', () => {
     // Visitar directamente la página de búsqueda de cursos
     cy.visit("http://localhost:5173/Cursos/BuscarCursos");
     

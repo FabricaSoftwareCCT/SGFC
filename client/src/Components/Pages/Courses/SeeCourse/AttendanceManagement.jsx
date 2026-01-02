@@ -373,7 +373,7 @@ export const AttendanceManagement = ({ open, onClose, courseId, selectedDate }) 
                             ← Volver
                         </button>
                         <h2>
-                            <span className="header-icon-attendance">📊</span>
+                            <span className="header-icon-attendance"></span>
                             Gestión de Asistencias
                         </h2>
                     </div>
@@ -577,7 +577,7 @@ export const AttendanceManagement = ({ open, onClose, courseId, selectedDate }) 
                                 ← Volver
                             </button>
                             <h2>
-                                <span className="header-icon-attendance">🔄</span>
+                                <span className="header-icon-attendance"></span>
                                 Actualizar <span className="complementary-text-attendance">Asistencia</span>
                             </h2>
                         </div>

@@ -103,7 +103,7 @@ export default function ReporteEstadisticas() {
     // Estados de paginación
     const [currentPage, setCurrentPage] = useState(1);
     const [postsPerPage] = useState(10);
-    const [tipoCuenta, setTipoCuenta] = useState(null)
+    const [tipoCuenta, setTipoCuenta] = useState(undefined)
 
     const [filtros, setFiltros] = useState({
         estado: {
@@ -143,16 +143,16 @@ export default function ReporteEstadisticas() {
     useEffect(() =>{
        const dataUser = JSON.parse(sessionStorage.getItem("userSession"));
        if (dataUser?.id) {
-            setTipoCuenta(dataUser.id)
+            setTipoCuenta(Number(dataUser.id))
        }
     }, [])
 
     // Cargar datos iniciales
     useEffect(() => {
+        if (!tipoCuenta) return
         async function fetchData() {
             try {
                 setLoading(true);
-                console.log(tipoCuenta)
                 const data = await getCursos(tipoCuenta);
                 if (!data) {
                     Swal.fire({

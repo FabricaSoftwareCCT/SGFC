@@ -28,6 +28,7 @@ import {
     faFolderOpen
 } from '@fortawesome/free-solid-svg-icons';
 
+// Configuración de SweetAlert2 con z-index alto
 const swalConfig = {
     theme: "bulma",
     customClass: {
@@ -40,6 +41,13 @@ const swalConfig = {
     confirmButtonText: "Aceptar",
     cancelButtonText: "Cancelar",
 };
+
+// Configuración global para SweetAlert2 - AUMENTAR Z-INDEX
+Swal.mixin({
+    customClass: {
+        popup: 'swal2-popup-custom'
+    }
+});
 
 export const SupportMaterialCourse = () => {
     const navigate = useNavigate();
@@ -161,6 +169,7 @@ export const SupportMaterialCourse = () => {
             notifyPermissionError();
             return;
         }
+        
         setSubiendoArchivo(true);
         try {
             let requests = [];
@@ -202,13 +211,26 @@ export const SupportMaterialCourse = () => {
                             confirmButton: 'button is-primary',
                             actions: 'swal2-actions-centered'
                         }
-                    }); setSubiendoArchivo(false);
+                    });
+                    setSubiendoArchivo(false);
                     return;
                 }
                 requests = linksToSend.map((link) => axiosInstance.post(`/api/material/create/${id}`, { tipo: 'enlace', link }));
             }
+            
             const responses = await Promise.all(requests);
             const firstMsg = responses[0]?.data?.message;
+            
+            // Cerrar modal primero
+            setShowMaterialCreation(false);
+            setPendingFiles([]);
+            setPendingLinks([]);
+            setMaterial('');
+            
+            // Esperar un poco para que se cierre el modal completamente
+            await new Promise(resolve => setTimeout(resolve, 100));
+            
+            // Mostrar alerta después de cerrar el modal
             if (firstMsg) {
                 await Swal.fire({
                     icon: 'success',
@@ -222,12 +244,13 @@ export const SupportMaterialCourse = () => {
                     }
                 });
             }
-            setShowMaterialCreation(false);
-            setPendingFiles([]);
-            setPendingLinks([]);
-            setMaterial('');
+            
             await fetchMaterial();
         } catch (e) {
+            console.error('Error al crear material:', e);
+            // Asegurarse de resetear el estado de carga incluso en caso de error
+            setSubiendoArchivo(false);
+            
             await Swal.fire({
                 icon: 'error',
                 title: 'Error',
@@ -240,6 +263,7 @@ export const SupportMaterialCourse = () => {
                 }
             });
         } finally {
+            // Asegurarse de que siempre se reinicie el estado de carga
             setSubiendoArchivo(false);
         }
     };
@@ -267,6 +291,8 @@ export const SupportMaterialCourse = () => {
 
         if (result.isConfirmed) {
             try {
+                await axiosInstance.delete(`/api/material/delete/${archivoId}`);
+                
                 await Swal.fire({
                     icon: 'success',
                     title: 'Eliminado',
@@ -278,8 +304,10 @@ export const SupportMaterialCourse = () => {
                         actions: 'swal2-actions-centered'
                     }
                 });
+                
                 await fetchMaterial();
             } catch (error) {
+                console.error('Error al eliminar archivo:', error);
                 await Swal.fire({
                     icon: 'error',
                     title: 'Error',
@@ -320,8 +348,8 @@ export const SupportMaterialCourse = () => {
                 await fetchMaterial();
                 if (resp?.data?.message)
                     Swal.fire({
-                        icon: "error",
-                        title: "Error al actualizar enlace",
+                        icon: "success",
+                        title: "Actualizado",
                         text: resp.data.message,
                         theme: "bulma",
                         customClass: {
@@ -465,6 +493,7 @@ export const SupportMaterialCourse = () => {
                                             <button
                                                 className="create-btn"
                                                 onClick={() => setShowMaterialCreation(true)}
+                                                disabled={subiendoArchivo}
                                             >
                                                 <FontAwesomeIcon icon={faPlus} />
                                                 <span>Agregar primer material</span>
@@ -611,6 +640,7 @@ export const SupportMaterialCourse = () => {
                                         setMaterial('');
                                     }}
                                     className="close-btn-material"
+                                    disabled={subiendoArchivo}
                                 >
                                     <FontAwesomeIcon icon={faTimes} />
                                     <span>Cancelar</span>
@@ -641,11 +671,14 @@ export const SupportMaterialCourse = () => {
                                                 key={t}
                                                 className={`type-option-material ${materialType === t ? 'active' : ''}`}
                                                 onClick={() => {
-                                                    setMaterialType(t);
-                                                    setPendingFiles([]);
-                                                    setPendingLinks([]);
-                                                    setMaterial("");
+                                                    if (!subiendoArchivo) {
+                                                        setMaterialType(t);
+                                                        setPendingFiles([]);
+                                                        setPendingLinks([]);
+                                                        setMaterial("");
+                                                    }
                                                 }}
+                                                disabled={subiendoArchivo}
                                             >
                                                 <div className="type-icon-material">
                                                     {t === "PDF" && <FontAwesomeIcon icon={faFilePdf} />}
@@ -800,10 +833,12 @@ export const SupportMaterialCourse = () => {
                                         <button
                                             className="submit-btn-material secondary"
                                             onClick={() => {
-                                                setShowMaterialCreation(false);
-                                                setPendingFiles([]);
-                                                setPendingLinks([]);
-                                                setMaterial("");
+                                                if (!subiendoArchivo) {
+                                                    setShowMaterialCreation(false);
+                                                    setPendingFiles([]);
+                                                    setPendingLinks([]);
+                                                    setMaterial("");
+                                                }
                                             }}
                                             disabled={subiendoArchivo}
                                         >

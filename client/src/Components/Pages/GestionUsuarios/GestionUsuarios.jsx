@@ -18,7 +18,8 @@ export const GestionUsuarios = () => {
 
 	const userSession = JSON.parse(localStorage.getItem("userSession")) || JSON.parse(sessionStorage.getItem("userSession"))
 
-	const [users, setUsers] = useState([])
+	const [allUsers, setAllUsers] = useState([]) // Todos los usuarios
+	const [users, setUsers] = useState([]) // Usuarios de la página actual
 	const [total, setTotal] = useState(0)
 	const [totalPages, setTotalPages] = useState(0)
 	const [page, setPage] = useState(0)
@@ -31,12 +32,27 @@ export const GestionUsuarios = () => {
 	const isLoggedIn = !!userSession
 	const accountType = userSession?.accountType || null
 
+	const ITEMS_PER_PAGE = 10 // Número de usuarios por página
+
 	const fetchUsuarios = async () => {
 		try {
 			const resp = await axiosInstance.get(`/api/users/users?name=${name}&doc=${document}`)
-			setUsers(resp.data.usuarios)
-			setTotal(parseInt(resp.data.total))
-			setTotalPages(parseInt(resp.data.total / 10) + 1)
+			
+			// Guardar todos los usuarios
+			setAllUsers(resp.data.usuarios || [])
+			setTotal(resp.data.usuarios?.length || 0)
+			
+			// Calcular paginación
+			const totalItems = resp.data.usuarios?.length || 0
+			const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE)
+			setTotalPages(totalPages > 0 ? totalPages : 1)
+			
+			// Obtener usuarios de la página actual
+			const startIndex = page * ITEMS_PER_PAGE
+			const endIndex = startIndex + ITEMS_PER_PAGE
+			const paginatedUsers = resp.data.usuarios?.slice(startIndex, endIndex) || []
+			setUsers(paginatedUsers)
+			
 		} catch (error) {
 			console.log(error)
 			Swal.fire({
@@ -50,15 +66,31 @@ export const GestionUsuarios = () => {
 				}
 			})
 		}
-	} 
+	}
 
+	// Efecto para cargar usuarios inicialmente
 	useEffect(() => {
 		if (isLoggedIn && accountType == "Administrador") {
 			fetchUsuarios()
 		} else {
 			navigate("/no-autorizado");
 		}
-	}, [page])
+	}, [])
+
+	// Efecto para cambiar de página
+	useEffect(() => {
+		if (allUsers.length > 0) {
+			const startIndex = page * ITEMS_PER_PAGE
+			const endIndex = startIndex + ITEMS_PER_PAGE
+			const paginatedUsers = allUsers.slice(startIndex, endIndex)
+			setUsers(paginatedUsers)
+		}
+	}, [page, allUsers])
+
+	// Efecto para resetear a página 0 cuando se cambian los filtros
+	useEffect(() => {
+		setPage(0)
+	}, [name, document])
 
 	const getLogoSrc = (logo) => {
 		if (!logo) return fotoPerfilDefect;
@@ -237,7 +269,7 @@ export const GestionUsuarios = () => {
 			
 			setIsEditing(false);
 			handleCloseModal();
-			fetchUsuarios();
+			fetchUsuarios(); // Recargar los datos
 		} catch (error) {
 			console.error("Error al actualizar el usuario:", error.response?.data || error.message);
 			
@@ -265,6 +297,10 @@ export const GestionUsuarios = () => {
 				customClass: { confirmButton: 'centered-swal-button' }
 			});
 		}
+	}
+
+	const handlePageChange = (newPage) => {
+		setPage(newPage)
 	}
 
 	const renderUser = (user) => {
@@ -356,7 +392,10 @@ export const GestionUsuarios = () => {
 								</div>
 								<button
 									className="gu-button"
-									onClick={() => fetchUsuarios()}	
+									onClick={() => {
+										setPage(0); // Resetear a la primera página
+										fetchUsuarios();
+									}}	
 								>Filtrar</button>
 							</article>
 						</section>
@@ -365,6 +404,9 @@ export const GestionUsuarios = () => {
 								<label className="gu-label-filter-result">
 									{total} Resultados · Página {page + 1} de {totalPages}
 								</label>
+								<div className="gu-items-per-page">
+									<span>Mostrando {users.length} de {total} usuarios</span>
+								</div>
 							</div>
 							<div className="gu-table-wrapper">
 								<div className="gu-table-container">
@@ -394,12 +436,27 @@ export const GestionUsuarios = () => {
 									value={page + 1}
 									max={totalPages}
 									next={() => {
-										setPage(page + 1)
+										if (page + 1 < totalPages) {
+											setPage(page + 1)
+										}
 									}}
 									prev={() => {
-										setPage(page - 1)
+										if (page > 0) {
+											setPage(page - 1)
+										}
 									}}
 								/>
+								<div className="gu-page-numbers">
+									{Array.from({ length: totalPages }, (_, i) => i + 1).map(pageNum => (
+										<button
+											key={pageNum}
+											className={`gu-page-number ${page + 1 === pageNum ? 'active' : ''}`}
+											onClick={() => setPage(pageNum - 1)}
+										>
+											{pageNum}
+										</button>
+									))}
+								</div>
 							</div>
 						</section>
 

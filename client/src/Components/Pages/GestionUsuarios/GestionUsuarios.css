@@ -154,6 +154,11 @@
     margin-bottom: 1.5rem;
     padding-bottom: 1rem;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
 }
 
 .gu-label-filter-result {
@@ -164,6 +169,15 @@
     border-radius: 8px;
     border: 1px solid rgba(255, 255, 255, 0.1);
     display: inline-block;
+}
+
+.gu-items-per-page {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.85rem;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 /* NUEVO: Contenedor para el scroll */
@@ -384,11 +398,98 @@
     min-height: 200px;
 }
 
+/* Paginación */
 .gu-pagination-container {
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
     padding-top: 1.5rem;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Números de página */
+.gu-page-numbers {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+}
+
+.gu-page-number {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.85rem;
+    font-weight: 500;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.gu-page-number:hover {
+    background: rgba(0, 200, 83, 0.1);
+    border-color: rgba(0, 200, 83, 0.3);
+    color: #00c853;
+    transform: translateY(-2px);
+}
+
+.gu-page-number.active {
+    background: rgba(0, 200, 83, 0.2);
+    border-color: #00c853;
+    color: #00c853;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(0, 200, 83, 0.2);
+    transform: translateY(0);
+}
+
+.gu-page-number.active:hover {
+    transform: translateY(-2px);
+}
+
+/* Botones de paginación (si usas PageMover componente) */
+.gu-pagination-container :global(.page-mover) {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.gu-pagination-container :global(.page-mover button) {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    color: rgba(255, 255, 255, 0.8);
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    font-size: 0.85rem;
+}
+
+.gu-pagination-container :global(.page-mover button:hover:not(:disabled)) {
+    background: rgba(0, 200, 83, 0.1);
+    border-color: rgba(0, 200, 83, 0.3);
+    color: #00c853;
+    transform: translateY(-2px);
+}
+
+.gu-pagination-container :global(.page-mover button:disabled) {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.gu-pagination-container :global(.page-mover span) {
+    font-weight: 600;
+    color: #fff;
+    padding: 0 0.5rem;
 }
 
 /* ===== MODAL DE USUARIO ===== */
@@ -888,6 +989,16 @@
         grid-column: span 2;
         justify-self: start;
     }
+    
+    .gu-page-numbers {
+        gap: 0.3rem;
+    }
+    
+    .gu-page-number {
+        width: 35px;
+        height: 35px;
+        font-size: 0.8rem;
+    }
 }
 
 /* Tablets */
@@ -942,6 +1053,30 @@
     .gu-company-row td {
         padding: 0.8rem;
         font-size: 0.85rem;
+    }
+    
+    .gu-results-header {
+        flex-direction: column;
+        align-items: stretch;
+        text-align: center;
+    }
+    
+    .gu-items-per-page {
+        text-align: center;
+    }
+    
+    .gu-pagination-container {
+        gap: 0.8rem;
+    }
+    
+    .gu-page-numbers {
+        gap: 0.2rem;
+    }
+    
+    .gu-page-number {
+        width: 32px;
+        height: 32px;
+        font-size: 0.75rem;
     }
     
     .gu-modal-overlay {
@@ -1055,6 +1190,20 @@
         min-width: 100px;
     }
     
+    .gu-page-numbers {
+        max-width: 100%;
+        overflow-x: auto;
+        justify-content: flex-start;
+        padding-bottom: 0.5rem;
+    }
+    
+    .gu-page-number {
+        width: 30px;
+        height: 30px;
+        font-size: 0.7rem;
+        flex-shrink: 0;
+    }
+    
     .gu-modal-overlay {
         padding: 8px;
     }
@@ -1157,6 +1306,12 @@
         height: 35px;
         min-width: 35px;
         min-height: 35px;
+    }
+    
+    .gu-page-number {
+        width: 28px;
+        height: 28px;
+        font-size: 0.65rem;
     }
     
     .gu-image-display,

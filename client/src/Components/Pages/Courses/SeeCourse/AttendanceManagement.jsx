@@ -28,6 +28,60 @@ export const AttendanceManagement = ({ open, onClose, courseId, selectedDate }) 
     const [showApprenticeDetails, setShowApprenticeDetails] = useState(false);
     const [selectedApprentice, setSelectedApprentice] = useState(null);
 
+    // FUNCIÓN MEJORADA PARA MANEJAR IMÁGENES DE PERFIL
+    const getImageSrcFromBase64 = (imageData) => {
+        if (!imageData) {
+            return "/src/assets/Icons/usuario.png";
+        }
+
+        if (typeof imageData !== 'string') {
+            return "/src/assets/Icons/usuario.png";
+        }
+
+        // Si ya es una URL data:image, devolverla directamente
+        if (imageData.startsWith("data:image/")) {
+            return imageData;
+        }
+
+        // Si es una URL de Google
+        if (imageData.includes('googleusercontent.com')) {
+            return `${imageData}=s400-c-rw`;
+        }
+
+        // Si es una URL de ruta local
+        if (imageData.startsWith('/') || imageData.startsWith('./') || imageData.startsWith('../')) {
+            return imageData;
+        }
+
+        // Si es una URL completa (http/https)
+        if (imageData.startsWith('http://') || imageData.startsWith('https://')) {
+            return imageData;
+        }
+
+        // Detectar si es base64 basándose en patrones comunes
+        const base64Pattern = /^[A-Za-z0-9+/=]+$/;
+        
+        // Si parece ser base64 (más de 50 caracteres y solo caracteres base64)
+        if (imageData.length > 50 && base64Pattern.test(imageData)) {
+            // Intentar detectar el tipo de imagen
+            if (imageData.startsWith('/9j/') || imageData.startsWith('/9j//') || imageData.startsWith('/9j/4AAQ')) {
+                return `data:image/jpeg;base64,${imageData}`;
+            } else if (imageData.startsWith('iVBORw0KGgo')) {
+                return `data:image/png;base64,${imageData}`;
+            } else if (imageData.startsWith('R0lGODlh')) {
+                return `data:image/gif;base64,${imageData}`;
+            } else if (imageData.startsWith('SUkq')) {
+                return `data:image/jpeg;base64,${imageData}`;
+            } else {
+                // Por defecto, asumir JPEG
+                return `data:image/jpeg;base64,${imageData}`;
+            }
+        }
+
+        // Si no coincide con ningún patrón, devolver imagen por defecto
+        return "/src/assets/Icons/usuario.png";
+    };
+
     useEffect(() => {
         if (open) {
             setShowOptions(true);
@@ -101,7 +155,8 @@ export const AttendanceManagement = ({ open, onClose, courseId, selectedDate }) 
                             ID: participant.aprendiz.ID,
                             nombres: participant.aprendiz.nombres,
                             apellidos: participant.aprendiz.apellidos,
-                            documento: participant.aprendiz.documento
+                            documento: participant.aprendiz.documento,
+                            foto_perfil: participant.aprendiz.foto_perfil
                         },
                         estado_asistencia: 'Pendiente',
                         curso_ID: courseId
@@ -189,7 +244,6 @@ export const AttendanceManagement = ({ open, onClose, courseId, selectedDate }) 
         }
     };
 
-    // FUNCIÓN SIMPLIFICADA: Igual que la de tu compañero
     const handleSaveAttendance = async () => {
         try {
             setLoading(true);
@@ -221,25 +275,25 @@ export const AttendanceManagement = ({ open, onClose, courseId, selectedDate }) 
                 text: 'Asistencias registradas exitosamente',
                 confirmButtonColor:"#00843d",
                 theme: 'bulma',
-        customClass: {
-            actions: 'swal2-center-actions',
-            confirmButton: 'swal2-confirm-bulma'
-        },
+                customClass: {
+                    actions: 'swal2-center-actions',
+                    confirmButton: 'swal2-confirm-bulma'
+                },
             });
 
         } catch (error) {
             console.error('Error al guardar asistencias:', error);
             setError('Error al guardar las asistencias');
-                        await Swal.fire({
+            await Swal.fire({
                 icon: 'error',
                 title: 'Error',
                 text: 'Error al guardar las asistencias',
                 confirmButtonText:"Okay",
                 confirmButtonColor:"#00843d",
-                        theme: 'bulma',
-        customClass: {
-          actions: 'swal2-center-actions'
-        }
+                theme: 'bulma',
+                customClass: {
+                    actions: 'swal2-center-actions'
+                }
             });
         } finally {
             setLoading(false);
@@ -295,7 +349,6 @@ export const AttendanceManagement = ({ open, onClose, courseId, selectedDate }) 
         setSelectedOption('update');
     };
 
-    // FUNCIÓN SIMPLIFICADA: Igual que la de tu compañero
     const handleToggleAttendance = async () => {
         if (!selectedApprentice) return;
 
@@ -332,12 +385,12 @@ export const AttendanceManagement = ({ open, onClose, courseId, selectedDate }) 
                 icon: 'success',
                 title: 'Asistencia actualizada',
                 text: `Asistencia cambiada a ${newStatus}`,
-                           confirmButtonText:"Okay",
+                confirmButtonText:"Okay",
                 confirmButtonColor:"#00843d",
-                        theme: 'bulma',
-        customClass: {
-          actions: 'swal2-center-actions'
-        }
+                theme: 'bulma',
+                customClass: {
+                    actions: 'swal2-center-actions'
+                }
             });
 
         } catch (error) {
@@ -347,16 +400,16 @@ export const AttendanceManagement = ({ open, onClose, courseId, selectedDate }) 
             const errorMessage = error.response?.data?.message || 'Error al actualizar la asistencia';
             setError(errorMessage);
 
-                        await Swal.fire({
+            await Swal.fire({
                 icon: 'error',
                 title: 'Error',
                 text: 'Error al actualizar la asistencia',
-                           confirmButtonText:"Okay",
+                confirmButtonText:"Okay",
                 confirmButtonColor:"#00843d",
-                        theme: 'bulma',
-        customClass: {
-          actions: 'swal2-center-actions'
-        }
+                theme: 'bulma',
+                customClass: {
+                    actions: 'swal2-center-actions'
+                }
             });
         }
     };
@@ -366,70 +419,70 @@ export const AttendanceManagement = ({ open, onClose, courseId, selectedDate }) 
     if (showOptions) {
         return (
             <div className="modal-overlay-attendance">
-            <div className="modal-container-attendance">
-                <div className="modal-header-attendance">
-                    <div className="header-content-attendance">
-                        <button className="back-btn-attendance" onClick={onClose}> {/* Cambiado de handleBack a onClose */}
-                            ← Volver
-                        </button>
-                        <h2>
-                            <span className="header-icon-attendance"></span>
-                            Gestión de Asistencias
-                        </h2>
+                <div className="modal-container-attendance">
+                    <div className="modal-header-attendance">
+                        <div className="header-content-attendance">
+                            <button className="back-btn-attendance" onClick={onClose}>
+                                ← Volver
+                            </button>
+                            <h2>
+                                <span className="header-icon-attendance"></span>
+                                Gestión de Asistencias
+                            </h2>
+                        </div>
                     </div>
-                </div>
 
-                <div className="modal-body-attendance">
-                    <p className="instruction-text-attendance">
-                        Por favor seleccione una de las siguientes opciones
-                    </p>
+                    <div className="modal-body-attendance">
+                        <p className="instruction-text-attendance">
+                            Por favor seleccione una de las siguientes opciones
+                        </p>
 
-                    <div className="options-grid-attendance">
-                        <div 
-                            className={`option-card-attendance ${selectedOption === 'add' ? 'selected' : ''}`}
-                            onClick={() => handleOptionSelect('add')}
-                        >
-                            <div className="option-icon-container-attendance">
-                                <img 
-                                    src="/src/assets/Icons/agregar-archivo.png" 
-                                    alt="Agregar Asistencia"
-                                    className="option-icon-attendance"
-                                />
+                        <div className="options-grid-attendance">
+                            <div 
+                                className={`option-card-attendance ${selectedOption === 'add' ? 'selected' : ''}`}
+                                onClick={() => handleOptionSelect('add')}
+                            >
+                                <div className="option-icon-container-attendance">
+                                    <img 
+                                        src="/src/assets/Icons/agregar-archivo.png" 
+                                        alt="Agregar Asistencia"
+                                        className="option-icon-attendance"
+                                    />
+                                </div>
+                                <p className="option-text-attendance">Agregar Asistencia</p>
                             </div>
-                            <p className="option-text-attendance">Agregar Asistencia</p>
-                        </div>
 
-                        <div 
-                            className={`option-card-attendance ${selectedOption === 'update' ? 'selected' : ''}`}
-                            onClick={() => handleOptionSelect('update')}
-                        >
-                            <div className="option-icon-container-attendance">
-                                <img 
-                                    src="/src/assets/Icons/actualizar (1).png" 
-                                    alt="Actualizar Asistencia"
-                                    className="option-icon-attendance"
-                                />
+                            <div 
+                                className={`option-card-attendance ${selectedOption === 'update' ? 'selected' : ''}`}
+                                onClick={() => handleOptionSelect('update')}
+                            >
+                                <div className="option-icon-container-attendance">
+                                    <img 
+                                        src="/src/assets/Icons/actualizar (1).png" 
+                                        alt="Actualizar Asistencia"
+                                        className="option-icon-attendance"
+                                    />
+                                </div>
+                                <p className="option-text-attendance">Actualizar Asistencia</p>
                             </div>
-                            <p className="option-text-attendance">Actualizar Asistencia</p>
-                        </div>
 
-                        <div 
-                            className={`option-card-attendance ${selectedOption === 'view' ? 'selected' : ''}`}
-                            onClick={() => handleOptionSelect('view')}
-                        >
-                            <div className="option-icon-container-attendance">
-                                <img 
-                                    src="/src/assets/Icons/archivos.png" 
-                                    alt="Consultar Asistencias"
-                                    className="option-icon-attendance"
-                                />
+                            <div 
+                                className={`option-card-attendance ${selectedOption === 'view' ? 'selected' : ''}`}
+                                onClick={() => handleOptionSelect('view')}
+                            >
+                                <div className="option-icon-container-attendance">
+                                    <img 
+                                        src="/src/assets/Icons/archivos.png" 
+                                        alt="Consultar Asistencias"
+                                        className="option-icon-attendance"
+                                    />
+                                </div>
+                                <p className="option-text-attendance">Consultar Asistencias</p>
                             </div>
-                            <p className="option-text-attendance">Consultar Asistencias</p>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
         );
     }
 
@@ -446,7 +499,7 @@ export const AttendanceManagement = ({ open, onClose, courseId, selectedDate }) 
                                 ← Volver
                             </button>
                             <h2>
-                                <span className="header-icon-attendance">➕</span>
+                                <span className="header-icon-attendance"></span>
                                 Agregar <span className="complementary-text-attendance">Asistencia</span>
                             </h2>
                         </div>
@@ -500,11 +553,7 @@ export const AttendanceManagement = ({ open, onClose, courseId, selectedDate }) 
                                                     >
                                                         <div className="participant-image-attendance">
                                                             <img
-                                                                src={participant.aprendiz?.foto_perfil ?
-                                                                    participant.aprendiz.foto_perfil.includes('googleusercontent.com') ?
-                                                                        `${participant.aprendiz.foto_perfil}=s400-c-rw` :
-                                                                        participant.aprendiz.foto_perfil
-                                                                    : "/src/assets/Icons/usuario.png"}
+                                                                src={getImageSrcFromBase64(participant.aprendiz?.foto_perfil)}
                                                                 alt={`Foto de ${participant.aprendiz?.nombres}`}
                                                                 onError={(e) => {
                                                                     e.target.onerror = null;
@@ -551,7 +600,7 @@ export const AttendanceManagement = ({ open, onClose, courseId, selectedDate }) 
                                         className="primary-btn-attendance"
                                         onClick={handleSaveAttendance}
                                     >
-                                        <span>💾</span>
+                                        <span></span>
                                         Guardar Reporte
                                     </button>
                                 </div>
@@ -590,7 +639,7 @@ export const AttendanceManagement = ({ open, onClose, courseId, selectedDate }) 
 
                         <div className="update-layout-attendance">
                             <div className="filters-section-attendance">
-                                <h3 className="filters-header-attendance">🔍 Filtros</h3>
+                                <h3 className="filters-header-attendance"> Filtros</h3>
                                 
                                 <div className="filters-grid-attendance">
                                     <div className="filter-group-attendance">
@@ -690,11 +739,7 @@ export const AttendanceManagement = ({ open, onClose, courseId, selectedDate }) 
                                                             >
                                                                 <div className="participant-image-attendance">
                                                                     <img
-                                                                        src={participant.aprendiz?.foto_perfil ?
-                                                                            participant.aprendiz.foto_perfil.includes('googleusercontent.com') ?
-                                                                                `${participant.aprendiz.foto_perfil}=s400-c-rw` :
-                                                                                participant.aprendiz.foto_perfil
-                                                                            : "/src/assets/Icons/usuario.png"}
+                                                                        src={getImageSrcFromBase64(participant.aprendiz?.foto_perfil)}
                                                                         alt={`Foto de ${participant.aprendiz?.nombres}`}
                                                                         onError={(e) => {
                                                                             e.target.onerror = null;
@@ -727,7 +772,7 @@ export const AttendanceManagement = ({ open, onClose, courseId, selectedDate }) 
                                                 onClick={handleSeeApprentice}
                                                 disabled={!filteredParticipants[currentParticipantIndex]}
                                             >
-                                                <span>👤</span>
+                                                <span></span>
                                                 Ver Aprendiz
                                             </button>
                                         </div>
@@ -757,7 +802,7 @@ export const AttendanceManagement = ({ open, onClose, courseId, selectedDate }) 
                                 ← Volver
                             </button>
                             <h2>
-                                <span className="header-icon-attendance">📋</span>
+                                <span className="header-icon-attendance"></span>
                                 Reporte de <span className="complementary-text-attendance">Asistencias</span>
                             </h2>
                         </div>
@@ -902,11 +947,7 @@ export const AttendanceManagement = ({ open, onClose, courseId, selectedDate }) 
                         <div className="apprentice-details-attendance">
                             <div className="apprentice-image-attendance">
                                 <img
-                                    src={selectedApprentice.aprendiz?.foto_perfil ?
-                                        selectedApprentice.aprendiz.foto_perfil.includes('googleusercontent.com') ?
-                                            `${selectedApprentice.aprendiz.foto_perfil}=s400-c-rw` :
-                                            selectedApprentice.aprendiz.foto_perfil
-                                        : "/src/assets/Icons/usuario.png"}
+                                    src={getImageSrcFromBase64(selectedApprentice.aprendiz?.foto_perfil)}
                                     alt={`Foto de ${selectedApprentice.aprendiz?.nombres}`}
                                     onError={(e) => {
                                         e.target.onerror = null;

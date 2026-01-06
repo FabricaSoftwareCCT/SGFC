@@ -8,6 +8,7 @@ import { Main } from "../../../Components/Layouts/Main/Main"
 import { UpdateEmploye } from "./UpdateEmploye/UpdateEmploye"
 import axiosInstance from "../../../config/axiosInstance"
 import { useModal } from "../../../Context/ModalContext"
+import { BulkUploadModal } from "./BulkUploadModal/BulkUploadModal"
 import { InscribeEmployes } from "../GestionsEmployes/InscribeEmployes/InscribeEmployes"
 import Swal from 'sweetalert2'
 import 'sweetalert2/themes/bulma.css'
@@ -15,7 +16,32 @@ import { ReportEmployee } from "./ReportEmployee/ReportEmployee"
 import { generarExcelEmpleado } from "../../../utils/Reports/Empleados"
 import html2pdf from "html2pdf.js"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faUserPlus, faCheck, faUsers, faSearch, faFolderOpen, faIdCard, faEnvelope, faBuilding, faFileAlt, faFilter, faDownload,faTimes,faFilePdf,faFileExcel,faArrowLeft,faSpinner,faChevronLeft,faChevronRight,faEye,faFileExport} from '@fortawesome/free-solid-svg-icons'
+import {
+    faUserPlus,
+    faChartLine,
+    faCheck,
+    faUsers,
+    faSearch,
+    faFolderOpen,
+    faIdCard,
+    faPhone,
+    faEnvelope,
+    faBuilding,
+    faFileAlt,
+    faFilter,
+    faDownload,
+    faTimes,
+    faFilePdf,
+    faFileExcel,
+    faArrowLeft,
+    faSpinner,
+    faChevronLeft,
+    faChevronRight,
+    faEye,
+    faFileExport,
+    faUpload,
+    faFileArrowDown
+} from '@fortawesome/free-solid-svg-icons'
 
 export const GestionsEmployes = () => {
     const [employes, setEmployes] = useState([])
@@ -24,6 +50,8 @@ export const GestionsEmployes = () => {
     const [selectedState, setSelectedState] = useState("todos")
     const [selectedEmploye, setSelectedEmploye] = useState(null)
     const [showUpdateModal, setShowUpdateModal] = useState(false)
+    const [showBulkModal, setShowBulkModal] = useState(false)
+
 
     const [empresas, setEmpresas] = useState([])
     const [selectedEmpresa, setSelectedEmpresa] = useState("")
@@ -132,7 +160,7 @@ export const GestionsEmployes = () => {
         if (isAdmin) {
             fetchEmpresas()
         }
-        
+
         window.refreshEmployesList = () => {
             if (isAdmin) {
                 fetchEmployes(currentPage)
@@ -140,11 +168,11 @@ export const GestionsEmployes = () => {
                 fetchEmployes()
             }
         }
-        
+
         window.updateSelectedEmploye = (updatedEmploye) => {
             setSelectedEmploye(updatedEmploye)
         }
-        
+
         return () => {
             delete window.refreshEmployesList
             delete window.updateSelectedEmploye
@@ -233,29 +261,29 @@ export const GestionsEmployes = () => {
         if (!imageData) {
             return "/src/assets/Icons/userDefect.png"
         }
-        
+
         if (typeof imageData === 'string') {
             if (imageData.startsWith("data:")) {
                 return imageData
             }
-            
+
             if (imageData.startsWith("iVBORw0KGgo") || imageData.startsWith("iVBOR")) {
                 return `data:image/png;base64,${imageData}`
             }
-            
+
             if (imageData.startsWith("/9j/")) {
                 return `data:image/jpeg;base64,${imageData}`
             }
-            
+
             if (imageData.length > 1000) {
                 return `data:image/jpeg;base64,${imageData}`
             }
-            
+
             const base64Regex = /^[A-Za-z0-9+/=]+$/
             if (imageData.length > 50 && base64Regex.test(imageData)) {
                 return `data:image/jpeg;base64,${imageData}`
             }
-            
+
             if (imageData.startsWith('../') || imageData.startsWith('/')) {
                 if (imageData.startsWith('../Img/')) {
                     const newPath = imageData.replace('../Img/', '/src/assets/Icons/')
@@ -263,10 +291,10 @@ export const GestionsEmployes = () => {
                 }
                 return imageData
             }
-            
+
             return "/src/assets/Icons/userDefect.png"
         }
-        
+
         return "/src/assets/Icons/userDefect.png"
     }
 
@@ -282,7 +310,7 @@ export const GestionsEmployes = () => {
                 }).from(pdfContent.current)
                 setGenerating(false)
                 setDoneGenerating(true)
-                
+
                 // Descargar automáticamente
                 const blob = await worker.output("blob")
                 const blobUrl = URL.createObjectURL(blob)
@@ -292,7 +320,7 @@ export const GestionsEmployes = () => {
                 document.body.appendChild(a)
                 a.click()
                 document.body.removeChild(a)
-                
+
                 Swal.fire({
                     icon: 'success',
                     title: '¡Reporte generado!',
@@ -370,6 +398,10 @@ export const GestionsEmployes = () => {
             setTotalPages(total)
         }
     }, [filteredEmployes, isAdmin])
+
+    const showModalBulkUpload = () => {
+        setShowBulkModal(true)
+    }
 
     return (
         <>
@@ -450,7 +482,7 @@ export const GestionsEmployes = () => {
                                                                 src={getImageSrcFromBase64(employe?.foto_perfil)}
                                                                 alt={`${employe.nombres || 'Sin nombre'} ${employe.apellidos || 'Sin apellido'}`}
                                                                 className="employee-image-improved"
-                                                                onError={(e) => {   
+                                                                onError={(e) => {
                                                                     e.target.src = "/src/assets/Icons/userDefect.png"
                                                                 }}
                                                             />
@@ -458,7 +490,7 @@ export const GestionsEmployes = () => {
                                                                 {employe.estado || 'Inactivo'}
                                                             </div>
                                                         </div>
-                                                        
+
                                                         <div className="employee-info-improved">
                                                             <h4>{employe.nombres || "Sin nombre"} {employe.apellidos || "Sin apellido"}</h4>
                                                             <div className="employee-details-improved">
@@ -478,18 +510,18 @@ export const GestionsEmployes = () => {
                                                                 )}
                                                             </div>
                                                         </div>
-                                                        
+
                                                         <div className="employee-actions-improved">
-                                                            <button 
-                                                                className="profile-btn-improved" 
+                                                            <button
+                                                                className="profile-btn-improved"
                                                                 onClick={() => showModalSeeProfile(employe)}
                                                             >
                                                                 <FontAwesomeIcon icon={faEye} />
                                                                 <span>Ver Perfil</span>
                                                             </button>
                                                             {(accountType === "Empresa" || accountType === "Instructor") && (
-                                                                <button 
-                                                                    className="report-btn-improved" 
+                                                                <button
+                                                                    className="report-btn-improved"
                                                                     onClick={() => {
                                                                         setSelectedEmploye(employe)
                                                                         setShowReportOptions(true)
@@ -506,9 +538,9 @@ export const GestionsEmployes = () => {
 
                                             {totalPages > 1 && (
                                                 <div className="pagination-improved">
-                                                    <button 
-                                                        className="pagination-btn" 
-                                                        disabled={currentPage === 1} 
+                                                    <button
+                                                        className="pagination-btn"
+                                                        disabled={currentPage === 1}
                                                         onClick={() => handlePageChange(currentPage - 1)}
                                                     >
                                                         <FontAwesomeIcon icon={faChevronLeft} />
@@ -517,9 +549,9 @@ export const GestionsEmployes = () => {
                                                     <span className="pagination-info">
                                                         Página {currentPage} de {totalPages}
                                                     </span>
-                                                    <button 
-                                                        className="pagination-btn" 
-                                                        disabled={currentPage === totalPages} 
+                                                    <button
+                                                        className="pagination-btn"
+                                                        disabled={currentPage === totalPages}
                                                         onClick={() => handlePageChange(currentPage + 1)}
                                                     >
                                                         <span>Siguiente</span>
@@ -539,7 +571,7 @@ export const GestionsEmployes = () => {
                                     <FontAwesomeIcon icon={faFilter} />
                                     <span>Filtros y Búsqueda</span>
                                 </h3>
-                                
+
                                 <div className="search-container-improved">
                                     <div className="input-search-improved">
                                         <FontAwesomeIcon icon={faSearch} className="search-icon" />
@@ -609,6 +641,11 @@ export const GestionsEmployes = () => {
                                     <span>Agregar Empleado</span>
                                 </button>
 
+                                <button className="bulk-upload-btn-improved" onClick={showModalBulkUpload}>
+                                    <FontAwesomeIcon icon={faFileExcel} />
+                                    <span>Carga Masiva</span>
+                                </button>
+
                                 <button className="inscribe-employees-btn-improved" onClick={handleInscribeEmployes}>
                                     <FontAwesomeIcon icon={faUsers} />
                                     <span>Inscribir a Cursos</span>
@@ -620,12 +657,12 @@ export const GestionsEmployes = () => {
             </Main>
 
             {showUpdateModal && selectedEmploye && (
-                <UpdateEmploye 
-                    empleado={selectedEmploye} 
+                <UpdateEmploye
+                    empleado={selectedEmploye}
                     onClose={handleCloseUpdateModal}
                 />
             )}
-            
+
             {showReportOptions && selectedEmploye && (
                 <div className="report-modal-overlay">
                     <div className="report-modal" ref={reportModalRef}>
@@ -687,7 +724,7 @@ export const GestionsEmployes = () => {
                                     <FontAwesomeIcon icon={faFilter} />
                                     <span>Filtros {!showFilters ? <>&#x25BC;</> : <>&#x25B2;</>}</span>
                                 </button>
-                                
+
                                 {showFilters && (
                                     <div className="filter-options-list">
                                         <div className="filter-option-item">
@@ -695,7 +732,7 @@ export const GestionsEmployes = () => {
                                                 type="checkbox"
                                                 className="filter-checkbox"
                                                 checked={filters.personalData}
-                                                onChange={() => setFilters({...filters, personalData: !filters.personalData})}
+                                                onChange={() => setFilters({ ...filters, personalData: !filters.personalData })}
                                             />
                                             <label>Incluir datos personales</label>
                                         </div>
@@ -704,7 +741,7 @@ export const GestionsEmployes = () => {
                                                 type="checkbox"
                                                 className="filter-checkbox"
                                                 checked={filters.presence}
-                                                onChange={() => setFilters({...filters, presence: !filters.presence})}
+                                                onChange={() => setFilters({ ...filters, presence: !filters.presence })}
                                             />
                                             <label>Incluir asistencias</label>
                                         </div>
@@ -713,7 +750,7 @@ export const GestionsEmployes = () => {
                                                 type="checkbox"
                                                 className="filter-checkbox"
                                                 checked={filters.criteria}
-                                                onChange={() => setFilters({...filters, criteria: !filters.criteria})}
+                                                onChange={() => setFilters({ ...filters, criteria: !filters.criteria })}
                                             />
                                             <label>Incluir criterios de certificación</label>
                                         </div>
@@ -769,6 +806,13 @@ export const GestionsEmployes = () => {
                         </div>
                     </div>
                 </div>
+            )}
+            {showBulkModal && (
+                <BulkUploadModal
+                    isOpen={showBulkModal}
+                    onClose={() => setShowBulkModal(false)}
+                    empresaId={userSession?.empresa_ID}
+                />
             )}
             <Footer />
         </>

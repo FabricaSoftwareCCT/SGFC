@@ -196,7 +196,6 @@ it.skip('Crear Curso sin número de ficha', () => {
     cy.contains('button','+').click()
 
     cy.contains('button','Crear Curso').click()
-    
    
 })
 

@@ -151,9 +151,14 @@
 }
 
 .gu-results-header {
-	margin-bottom: 1.5rem;
-	padding-bottom: 1rem;
-	border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
 }
 
 .gu-label-filter-result {
@@ -164,6 +169,15 @@
 	border-radius: 8px;
 	border: 1px solid rgba(255, 255, 255, 0.1);
 	display: inline-block;
+}
+
+.gu-items-per-page {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.85rem;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 /* NUEVO: Contenedor para el scroll */
@@ -384,11 +398,14 @@
 	min-height: 200px;
 }
 
+/* Paginación */
 .gu-pagination-container {
-	display: flex;
-	justify-content: center;
-	padding-top: 1.5rem;
-	border-top: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .company-results-normal {
@@ -421,6 +438,90 @@
 
 .company-results-normal li:last-child {
 	border-bottom: none;
+}
+
+/* Números de página */
+.gu-page-numbers {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+}
+
+.gu-page-number {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.85rem;
+    font-weight: 500;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.gu-page-number:hover {
+    background: rgba(0, 200, 83, 0.1);
+    border-color: rgba(0, 200, 83, 0.3);
+    color: #00c853;
+    transform: translateY(-2px);
+}
+
+.gu-page-number.active {
+    background: rgba(0, 200, 83, 0.2);
+    border-color: #00c853;
+    color: #00c853;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(0, 200, 83, 0.2);
+    transform: translateY(0);
+}
+
+.gu-page-number.active:hover {
+    transform: translateY(-2px);
+}
+
+/* Botones de paginación (si usas PageMover componente) */
+.gu-pagination-container :global(.page-mover) {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.gu-pagination-container :global(.page-mover button) {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    color: rgba(255, 255, 255, 0.8);
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    font-size: 0.85rem;
+}
+
+.gu-pagination-container :global(.page-mover button:hover:not(:disabled)) {
+    background: rgba(0, 200, 83, 0.1);
+    border-color: rgba(0, 200, 83, 0.3);
+    color: #00c853;
+    transform: translateY(-2px);
+}
+
+.gu-pagination-container :global(.page-mover button:disabled) {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.gu-pagination-container :global(.page-mover span) {
+    font-weight: 600;
+    color: #fff;
+    padding: 0 0.5rem;
 }
 
 /* ===== MODAL DE USUARIO ===== */
@@ -899,306 +1000,360 @@
 
 /* Tablets grandes y laptops pequeños */
 @media (max-width: 1024px) {
-	.gu-section-principal {
-		padding: 1.2rem;
-		max-width: 100%;
-	}
-	
-	.gu-titulo {
-		font-size: 2rem;
-	}
-	
-	.gu-paragraph {
-		font-size: 1rem;
-	}
-	
-	.gu-filter-options {
-		grid-template-columns: 1fr 1fr;
-	}
-	
-	.gu-button {
-		grid-column: span 2;
-		justify-self: start;
-	}
+    .gu-section-principal {
+        padding: 1.2rem;
+        max-width: 100%;
+    }
+    
+    .gu-titulo {
+        font-size: 2rem;
+    }
+    
+    .gu-paragraph {
+        font-size: 1rem;
+    }
+    
+    .gu-filter-options {
+        grid-template-columns: 1fr 1fr;
+    }
+    
+    .gu-button {
+        grid-column: span 2;
+        justify-self: start;
+    }
+    
+    .gu-page-numbers {
+        gap: 0.3rem;
+    }
+    
+    .gu-page-number {
+        width: 35px;
+        height: 35px;
+        font-size: 0.8rem;
+    }
 }
 
 /* Tablets */
 @media (max-width: 768px) {
-	.gu-pantalla {
-		width: 100%;
-		padding: 0.5rem;
-	}
-	
-	.gu-section-principal {
-		padding: 1rem;
-	}
-	
-	.gu-section-header {
-		padding: 1.2rem;
-	}
-	
-	.gu-titulo {
-		font-size: 1.8rem;
-		text-align: center;
-	}
-	
-	.gu-paragraph {
-		text-align: center;
-		font-size: 0.95rem;
-	}
-	
-	.gu-filter-options {
-		grid-template-columns: 1fr;
-		gap: 1rem;
-	}
-	
-	.gu-button {
-		grid-column: 1;
-		width: 100%;
-		justify-self: center;
-	}
-	
-	.gu-table-container {
-		max-height: 400px;
-	}
-	
-	.gu-table-wrapper {
-		border-radius: 8px;
-	}
-	
-	.gu-table-header th {
-		padding: 0.8rem;
-		font-size: 0.8rem;
-	}
-	
-	.gu-company-row td {
-		padding: 0.8rem;
-		font-size: 0.85rem;
-	}
-	
-	.gu-modal-overlay {
-		padding: 10px;
-	}
-	
-	.gu-modal-container {
-		max-height: 85vh;
-		max-width: 95%;
-	}
-	
-	.gu-modal-content {
-		grid-template-columns: 1fr;
-	}
-	
-	.gu-image-column {
-		border-left: none;
-		border-top: 1px solid rgba(255, 255, 255, 0.1);
-		padding: 1.2rem;
-	}
-	
-	.gu-form-grid {
-		grid-template-columns: 1fr;
-	}
-	
-	.gu-image-display,
-	.gu-image-upload {
-		width: 180px;
-		height: 220px;
-	}
-	
-	.gu-header-content {
-		flex-direction: column;
-		align-items: stretch;
-		gap: 0.8rem;
-	}
-	
-	.gu-header-content h2 {
-		justify-content: center;
-	}
-	
-	.gu-close-btn {
-		width: 100%;
-		justify-content: center;
-	}
+    .gu-pantalla {
+        width: 100%;
+        padding: 0.5rem;
+    }
+    
+    .gu-section-principal {
+        padding: 1rem;
+    }
+    
+    .gu-section-header {
+        padding: 1.2rem;
+    }
+    
+    .gu-titulo {
+        font-size: 1.8rem;
+        text-align: center;
+    }
+    
+    .gu-paragraph {
+        text-align: center;
+        font-size: 0.95rem;
+    }
+    
+    .gu-filter-options {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .gu-button {
+        grid-column: 1;
+        width: 100%;
+        justify-self: center;
+    }
+    
+    .gu-table-container {
+        max-height: 400px;
+    }
+    
+    .gu-table-wrapper {
+        border-radius: 8px;
+    }
+    
+    .gu-table-header th {
+        padding: 0.8rem;
+        font-size: 0.8rem;
+    }
+    
+    .gu-company-row td {
+        padding: 0.8rem;
+        font-size: 0.85rem;
+    }
+    
+    .gu-results-header {
+        flex-direction: column;
+        align-items: stretch;
+        text-align: center;
+    }
+    
+    .gu-items-per-page {
+        text-align: center;
+    }
+    
+    .gu-pagination-container {
+        gap: 0.8rem;
+    }
+    
+    .gu-page-numbers {
+        gap: 0.2rem;
+    }
+    
+    .gu-page-number {
+        width: 32px;
+        height: 32px;
+        font-size: 0.75rem;
+    }
+    
+    .gu-modal-overlay {
+        padding: 10px;
+    }
+    
+    .gu-modal-container {
+        max-height: 85vh;
+        max-width: 95%;
+    }
+    
+    .gu-modal-content {
+        grid-template-columns: 1fr;
+    }
+    
+    .gu-image-column {
+        border-left: none;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 1.2rem;
+    }
+    
+    .gu-form-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .gu-image-display,
+    .gu-image-upload {
+        width: 180px;
+        height: 220px;
+    }
+    
+    .gu-header-content {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.8rem;
+    }
+    
+    .gu-header-content h2 {
+        justify-content: center;
+    }
+    
+    .gu-close-btn {
+        width: 100%;
+        justify-content: center;
+    }
 }
 
 /* Teléfonos grandes */
 @media (max-width: 480px) {
-	.gu-section-principal {
-		padding: 0.8rem;
-	}
-	
-	.gu-section-header {
-		padding: 1rem;
-		border-radius: 15px;
-	}
-	
-	.gu-titulo {
-		font-size: 1.6rem;
-		line-height: 1.3;
-	}
-	
-	.gu-titulo-verde {
-		display: block;
-	}
-	
-	.gu-paragraph {
-		font-size: 0.9rem;
-	}
-	
-	.gu-filter {
-		padding: 1.2rem;
-	}
-	
-	.gu-result-table {
-		padding: 1.2rem;
-	}
-	
-	.gu-table-container {
-		max-height: 350px;
-		min-height: 150px;
-	}
-	
-	.gu-table-header th {
-		padding: 0.6rem 0.5rem;
-		font-size: 0.75rem;
-	}
-	
-	.gu-company-row td {
-		padding: 0.6rem 0.5rem;
-		font-size: 0.8rem;
-	}
-	
-	.gu-company-logo {
-		width: 40px;
-		height: 40px;
-		min-width: 40px;
-		min-height: 40px;
-	}
-	
-	.gu-status-pill {
-		padding: 0.3rem 0.6rem;
-		font-size: 0.7rem;
-		min-width: 70px;
-	}
-	
-	.gu-manage-button {
-		padding: 0.5rem 0.8rem;
-		font-size: 0.8rem;
-		min-width: 100px;
-	}
-	
-	.gu-modal-overlay {
-		padding: 8px;
-	}
-	
-	.gu-modal-container {
-		max-height: 90vh;
-		border-radius: 12px;
-	}
-	
-	.gu-modal-header {
-		padding: 1rem;
-	}
-	
-	.gu-header-content h2 {
-		font-size: 1.1rem;
-		justify-content: center;
-	}
-	
-	.gu-close-btn {
-		padding: 0.5rem 0.8rem;
-		font-size: 0.8rem;
-	}
-	
-	.gu-close-btn span {
-		display: none;
-	}
-	
-	.gu-info-column {
-		padding: 1rem;
-		gap: 1.2rem;
-	}
-	
-	.gu-form-section {
-		padding: 1rem;
-	}
-	
-	.gu-section-title {
-		font-size: 1rem;
-		justify-content: center;
-	}
-	
-	.gu-image-column {
-		padding: 1rem;
-	}
-	
-	.gu-image-display,
-	.gu-image-upload {
-		width: 160px;
-		height: 200px;
-	}
-	
-	.gu-submit-btn {
-		padding: 0.8rem 1rem;
-		font-size: 0.9rem;
-	}
-	
-	.gu-status-buttons {
-		flex-direction: column;
-	}
-	
-	.gu-status-btn {
-		min-width: 100%;
-	}
+    .gu-section-principal {
+        padding: 0.8rem;
+    }
+    
+    .gu-section-header {
+        padding: 1rem;
+        border-radius: 15px;
+    }
+    
+    .gu-titulo {
+        font-size: 1.6rem;
+        line-height: 1.3;
+    }
+    
+    .gu-titulo-verde {
+        display: block;
+    }
+    
+    .gu-paragraph {
+        font-size: 0.9rem;
+    }
+    
+    .gu-filter {
+        padding: 1.2rem;
+    }
+    
+    .gu-result-table {
+        padding: 1.2rem;
+    }
+    
+    .gu-table-container {
+        max-height: 350px;
+        min-height: 150px;
+    }
+    
+    .gu-table-header th {
+        padding: 0.6rem 0.5rem;
+        font-size: 0.75rem;
+    }
+    
+    .gu-company-row td {
+        padding: 0.6rem 0.5rem;
+        font-size: 0.8rem;
+    }
+    
+    .gu-company-logo {
+        width: 40px;
+        height: 40px;
+        min-width: 40px;
+        min-height: 40px;
+    }
+    
+    .gu-status-pill {
+        padding: 0.3rem 0.6rem;
+        font-size: 0.7rem;
+        min-width: 70px;
+    }
+    
+    .gu-manage-button {
+        padding: 0.5rem 0.8rem;
+        font-size: 0.8rem;
+        min-width: 100px;
+    }
+    
+    .gu-page-numbers {
+        max-width: 100%;
+        overflow-x: auto;
+        justify-content: flex-start;
+        padding-bottom: 0.5rem;
+    }
+    
+    .gu-page-number {
+        width: 30px;
+        height: 30px;
+        font-size: 0.7rem;
+        flex-shrink: 0;
+    }
+    
+    .gu-modal-overlay {
+        padding: 8px;
+    }
+    
+    .gu-modal-container {
+        max-height: 90vh;
+        border-radius: 12px;
+    }
+    
+    .gu-modal-header {
+        padding: 1rem;
+    }
+    
+    .gu-header-content h2 {
+        font-size: 1.1rem;
+        justify-content: center;
+    }
+    
+    .gu-close-btn {
+        padding: 0.5rem 0.8rem;
+        font-size: 0.8rem;
+    }
+    
+    .gu-close-btn span {
+        display: none;
+    }
+    
+    .gu-info-column {
+        padding: 1rem;
+        gap: 1.2rem;
+    }
+    
+    .gu-form-section {
+        padding: 1rem;
+    }
+    
+    .gu-section-title {
+        font-size: 1rem;
+        justify-content: center;
+    }
+    
+    .gu-image-column {
+        padding: 1rem;
+    }
+    
+    .gu-image-display,
+    .gu-image-upload {
+        width: 160px;
+        height: 200px;
+    }
+    
+    .gu-submit-btn {
+        padding: 0.8rem 1rem;
+        font-size: 0.9rem;
+    }
+    
+    .gu-status-buttons {
+        flex-direction: column;
+    }
+    
+    .gu-status-btn {
+        min-width: 100%;
+    }
 }
 
 /* Teléfonos muy pequeños */
 @media (max-width: 360px) {
-	.gu-titulo {
-		font-size: 1.4rem;
-	}
-	
-	.gu-titulo-filtrar {
-		font-size: 1.1rem;
-		text-align: center;
-	}
-	
-	.gu-label-filter-result {
-		font-size: 0.8rem;
-		padding: 0.5rem 0.8rem;
-		display: block;
-		text-align: center;
-	}
-	
-	.gu-table-container {
-		max-height: 300px;
-	}
-	
-	.gu-table-header th {
-		font-size: 0.7rem;
-		padding: 0.5rem 0.4rem;
-	}
-	
-	.gu-company-row td {
-		font-size: 0.75rem;
-		padding: 0.5rem 0.4rem;
-	}
-	
-	.gu-company-logo {
-		width: 35px;
-		height: 35px;
-		min-width: 35px;
-		min-height: 35px;
-	}
-	
-	.gu-image-display,
-	.gu-image-upload {
-		width: 140px;
-		height: 180px;
-	}
-	
-	.gu-modal-container {
-		max-width: 100%;
-		max-height: 95vh;
-	}
+    .gu-titulo {
+        font-size: 1.4rem;
+    }
+    
+    .gu-titulo-filtrar {
+        font-size: 1.1rem;
+        text-align: center;
+    }
+    
+    .gu-label-filter-result {
+        font-size: 0.8rem;
+        padding: 0.5rem 0.8rem;
+        display: block;
+        text-align: center;
+    }
+    
+    .gu-table-container {
+        max-height: 300px;
+    }
+    
+    .gu-table-header th {
+        font-size: 0.7rem;
+        padding: 0.5rem 0.4rem;
+    }
+    
+    .gu-company-row td {
+        font-size: 0.75rem;
+        padding: 0.5rem 0.4rem;
+    }
+    
+    .gu-company-logo {
+        width: 35px;
+        height: 35px;
+        min-width: 35px;
+        min-height: 35px;
+    }
+    
+    .gu-page-number {
+        width: 28px;
+        height: 28px;
+        font-size: 0.65rem;
+    }
+    
+    .gu-image-display,
+    .gu-image-upload {
+        width: 140px;
+        height: 180px;
+    }
+    
+    .gu-modal-container {
+        max-width: 100%;
+        max-height: 95vh;
+    }
 }

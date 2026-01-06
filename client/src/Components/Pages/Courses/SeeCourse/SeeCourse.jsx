@@ -7,12 +7,12 @@ import { Main } from '../../../Layouts/Main/Main';
 import { useParams } from 'react-router-dom';
 import axiosInstance from '../../../../config/axiosInstance';
 import calendar from '../../../../assets/Icons/calendar.png';
-import buttonEdit from '../../../../assets/Icons/buttonEdit.png';
-import materialIcon from '../../../../assets/Icons/material.png'; 
 import { AssignInstructorCourse } from '../AssignInstructorCourse/AssignInstructorCourse';
 import ViewCalendar from '../../../UI/Modal_Calendar/ViewCalendar/Calendar';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPenToSquare, faBookOpen, faUsers } from '@fortawesome/free-solid-svg-icons'
+import { faPenToSquare, faBookOpen, faUsers, faExpandAlt, faXmark, faEye } from '@fortawesome/free-solid-svg-icons'
+import Swal from 'sweetalert2';
+import 'sweetalert2/themes/bulma.css';
 
 export const SeeCourse = () => {
 	const { id } = useParams();
@@ -22,12 +22,8 @@ export const SeeCourse = () => {
 	const [showModal, setShowModal] = useState(false);
 	const [temario, setTemario] = useState([]);
 	const [isUserEnrolled, setIsUserEnrolled] = useState(false);
-	
-	// Estado para la duración del curso
-	const [duracionCurso, setDuracionCurso] = useState({
-		cantidad: "",
-		unidad: "horas"
-	});
+	const [showTemaModal, setShowTemaModal] = useState(false);
+	const [temaSeleccionado, setTemaSeleccionado] = useState({fecha: "", tema: ""});
 	const [empresa, setEmpresa] = useState()
 
 	const userSession =
@@ -50,7 +46,14 @@ export const SeeCourse = () => {
 				}
 			}
 		} catch (error) {
-			console.error("Error al obtener el curso:qq", error);
+			console.error("Error al obtener el curso:", error);
+			Swal.fire({
+				icon: 'error',
+				title: 'Error',
+				text: 'No se pudo cargar la información del curso',
+				confirmButtonText: 'Aceptar',
+				theme: 'bulma'
+			});
 		}
 	};
 
@@ -103,8 +106,26 @@ export const SeeCourse = () => {
 		}
 	}, [checkEnrollmentStatus, userSession?.accountType]);
 
+	const verTemaCompleto = (tema) => {
+		setTemaSeleccionado(tema);
+		setShowTemaModal(true);
+	};
+
+	const formatDate = (dateString) => {
+		const date = new Date(dateString);
+		return date.toLocaleDateString('es-ES', {
+			day: '2-digit',
+			month: 'short'
+		});
+	};
+
 	if (!curso) {
-		return <p>Cargando...</p>;
+		return (
+			<div className="loading-container">
+				<div className="loading-spinner"></div>
+				<p>Cargando curso...</p>
+			</div>
+		);
 	}
 
 	const calendarData = {
@@ -135,7 +156,7 @@ export const SeeCourse = () => {
 
 					{/* Grid Principal */}
 					<div className="course-grid">
-						{/* Columna Izquierda - Imagen e Info */}
+						{/* Columna Izquierda - Imagen e Info MÁS ANCHA */}
 						<div className="side-panel">
 							<div className="image-section">
 								{curso.imagen ? (
@@ -191,28 +212,23 @@ export const SeeCourse = () => {
 								</div>
 							</div>
 
-							<div className="details-grid">
-								<div className="detail-group">
-									<label>Configuración del Curso</label>
-									<div className="detail-pair">
-										<div className="detail-item">
-											<span className="detail-label">Tipo de Oferta:</span>
-											<span className="detail-value">{curso.tipo_oferta}</span>
-										</div>
-										<div className="detail-item">
-											<span className="detail-label">Estado:</span>
-											<span className={`detail-value status-${curso.estado?.toLowerCase().replace(' ', '-')}`}>
-												{curso.estado}
-											</span>
-										</div>
+							{/* CONFIGURACIÓN DEL CURSO */}
+							<div className="course-config-section">
+								<label>Configuración del Curso</label>
+								<div className="config-grid">
+									<div className="config-item">
+										<span className="config-label">Tipo de Oferta:</span>
+										<span className="config-value">{curso.tipo_oferta}</span>
 									</div>
-								</div>
-
-								<div className="detail-group">
-									<label>Instructor</label>
-									<div className="detail-item full-width">
-										<span className="detail-label">Instructor Asignado:</span>
-										<span className="detail-value">
+									<div className="config-item">
+										<span className="config-label">Estado:</span>
+										<span className={`config-value status-${curso.estado?.toLowerCase().replace(' ', '-')}`}>
+											{curso.estado}
+										</span>
+									</div>
+									<div className="config-item full-width">
+										<span className="config-label">Instructor Asignado:</span>
+										<span className="config-value instructor-name">
 											{curso?.Instructor ? `${curso.Instructor.nombres} ${curso.Instructor.apellidos}` : "Sin asignar"}
 										</span>
 									</div>
@@ -224,24 +240,51 @@ export const SeeCourse = () => {
 						<div className="side-actions">
 							{/* Sección del Temario */}
 							<div className="syllabus-section">
-								<label>Temario del Curso</label>
+								<div className="syllabus-header-container">
+									<label>Temario del Curso</label>
+									<span className="topic-count">{temario.length} Temas</span>
+								</div>
 								
 								{temario.length > 0 ? (
-									<div className="syllabus-list">
-										<div className="syllabus-header">
-											<span>FECHA</span>
-											<span>CONTENIDO</span>
-										</div>
-										{temario.map((item, index) => (
-											<div key={index} className="syllabus-item">
-												<span className="syllabus-date">{item.fecha}</span>
-												<span className="syllabus-topic">{item.tema}</span>
+									<div className="syllabus-list-container">
+										<div className="syllabus-list">
+											<div className="syllabus-header">
+												<span className="header-date">FECHA</span>
+												<span className="header-content">CONTENIDO</span>
+												<span className="header-action">ACCIÓN</span>
 											</div>
-										))}
+											{temario.map((item, index) => (
+												<div key={index} className="syllabus-item">
+													<span className="syllabus-date">{formatDate(item.fecha)}</span>
+													<span className="syllabus-topic">
+														{item.tema.length > 100 ? `${item.tema.substring(0, 100)}...` : item.tema}
+													</span>
+													{item.tema.length > 100 && (
+														<button 
+															className="view-tema-btn"
+															onClick={() => verTemaCompleto(item)}
+															title="Ver tema completo"
+														>
+															<FontAwesomeIcon icon={faEye} />
+														</button>
+													)}
+													{item.tema.length <= 100 && (
+														<div className="no-action-placeholder"></div>
+													)}
+												</div>
+											))}
+										</div>
 									</div>
 								) : (
 									<div className="empty-syllabus">
-										No hay temas agregados al temario.
+										<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1">
+											<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+											<polyline points="14 2 14 8 20 8"></polyline>
+											<line x1="16" y1="13" x2="8" y2="13"></line>
+											<line x1="16" y1="17" x2="8" y2="17"></line>
+											<polyline points="10 9 9 9 8 9"></polyline>
+										</svg>
+										<p>No hay temas agregados al temario aún.</p>
 									</div>
 								)}
 							</div>
@@ -253,9 +296,11 @@ export const SeeCourse = () => {
 										className="material-btn"
 										onClick={() => navigate(`/Cursos/${id}/actividades`)}
 									>
+										<FontAwesomeIcon icon={faBookOpen} className="btn-icon" />
 										Ver Actividades
 									</button>
 								)}
+								
 								<button className='material-btn' onClick={()=> navigate(`/SupportMaterialCourse/${id}`)}>
 									<FontAwesomeIcon icon={faBookOpen} className="btn-icon" />
 									Ver Material
@@ -298,18 +343,42 @@ export const SeeCourse = () => {
 										Gestionar Asistencias
 									</button>
 								)}
-								
-								{/* {userSession && userSession.accountType === 'Gestor' && (
-									<button className='enroll-btn' onClick={() => navigate(`/Cursos/${id}/inscribir-aprendices`)}>
-										Inscribir Aprendices
-									</button>
-								)}	 */}
 							</div>
 						</div>
 					</div>
 				</div>
 			</Main>
 			<Footer />
+
+			{/* Modal para ver tema completo */}
+			{showTemaModal && (
+				<div className="tema-modal-overlay">
+					<div className="tema-modal">
+						<div className="tema-modal-header">
+							<h3>Tema Completo</h3>
+							<button 
+								className="close-modal-btn"
+								onClick={() => setShowTemaModal(false)}
+							>
+								<FontAwesomeIcon icon={faXmark} />
+							</button>
+						</div>
+						<div className="tema-modal-content">
+							<div className="tema-info">
+								<div className="tema-fecha">
+									<strong>Fecha:</strong> {temaSeleccionado.fecha}
+								</div>
+								<div className="tema-contenido">
+									<strong>Contenido:</strong>
+									<div className="tema-texto">
+										{temaSeleccionado.tema}
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			)}
 
 			{showModal && curso && (
 				<AssignInstructorCourse 

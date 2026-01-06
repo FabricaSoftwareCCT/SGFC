@@ -165,7 +165,7 @@ export const NavBar = ({ children, setShowSignIn }) => {
 		setLoadingNotifications(true)
 		try {
 			const res = await axiosInstance.get('/api/notifications?limit=5');
-			res.data.notifications = res.data.notifications.filter(notif => notif.estado !== 'aceptada' && notif.estado !== 'rechazada');
+			res.data.notifications = res.data.notifications.filter(notif => notif.estado !== 'aceptada' && notif.estado !== 'rechazada' && notif.estado !== 'leida');
 			setNotificationsList(res.data.notifications || []);
 			setFilteredNotifications(res.data.notifications || []);
 		} catch (err) {

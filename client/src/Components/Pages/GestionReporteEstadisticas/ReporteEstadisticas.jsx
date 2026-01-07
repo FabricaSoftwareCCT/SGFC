@@ -141,7 +141,7 @@ export default function ReporteEstadisticas() {
     }, [mostrarFiltro]);
 
     useEffect(() =>{
-       const dataUser = JSON.parse(sessionStorage.getItem("userSession"));
+       const dataUser = JSON.parse(sessionStorage.getItem("userSession"))
        if (dataUser?.id) {
             setTipoCuenta(Number(dataUser.id))
        }
@@ -364,6 +364,7 @@ export default function ReporteEstadisticas() {
             })
             return;
         }
+        console.log("Curso seleccionado:", curso);
         setCursoSeleccionado(curso);
         setPantallaActual('estudiantes');
     };

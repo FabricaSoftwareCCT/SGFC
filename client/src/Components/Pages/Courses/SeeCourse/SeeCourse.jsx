@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import './SeeCourse.css';
+import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
 import { Header } from '../../../Layouts/Header/Header';
 import { Footer } from '../../../Layouts/Footer/Footer';
@@ -13,6 +14,8 @@ import { AssignInstructorCourse } from '../AssignInstructorCourse/AssignInstruct
 import ViewCalendar from '../../../UI/Modal_Calendar/ViewCalendar/Calendar';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPenToSquare, faBookOpen, faUsers } from '@fortawesome/free-solid-svg-icons'
+import ReporteEstudiantes from '../../GestionReporteEstadisticas/ReporteEstudiantes';
+
 
 export const SeeCourse = () => {
 	const { id } = useParams();
@@ -22,6 +25,8 @@ export const SeeCourse = () => {
 	const [showModal, setShowModal] = useState(false);
 	const [temario, setTemario] = useState([]);
 	const [isUserEnrolled, setIsUserEnrolled] = useState(false);
+	const [cursoSeleccionado, setCursoSeleccionado] = useState(null);
+	const [pantallaActual, setPantallaActual] = useState('verCurso');
 	
 	// Estado para la duración del curso
 	const [duracionCurso, setDuracionCurso] = useState({
@@ -38,7 +43,6 @@ export const SeeCourse = () => {
 		try {
 			const response = await axiosInstance.get(`api/courses/cursos/${id}`);
 			setCurso(response.data);
-			
 			// Cargar temario si existe
 			if (response.data.temario) {
 				try {
@@ -62,6 +66,34 @@ export const SeeCourse = () => {
 			console.error("Error al obtener la empresa:", error);
 		}
 	};
+	
+	const handleSelectCurso = (curso) => {
+  		const cupos = Number(curso.cupos_disponibles);
+
+  		if (isNaN(cupos) || cupos >= 30) {
+    		Swal.fire({
+      		icon: "error",
+      		title: "Error del sistema",
+      		text: "Este curso no tiene empleados registrados. No se puede generar un reporte.",
+      		confirmButtonText: "Okay",
+      		theme: "bulma",
+      		customClass: {
+        	confirmButton: 'button is-primary',
+        	actions: 'swal2-actions-centered'
+      		}
+    		});
+    		return;
+  		}
+  		setCursoSeleccionado(curso);
+  		setPantallaActual('reporteEstudiantes');
+	};
+
+
+	const handleVolverACursos = () => {
+        setPantallaActual('verCurso');
+        setCursoSeleccionado(null);
+    };
+
 
 	const checkEnrollmentStatus = useCallback(async () => {
 		if (!userSession || userSession.accountType !== "Aprendiz") {
@@ -112,6 +144,15 @@ export const SeeCourse = () => {
 		endDate: curso.fecha_fin ? curso.fecha_fin.split('T')[0] : '',
 		slots_formacion: curso.slots_formacion ? JSON.parse(curso.slots_formacion) : []
 	};
+
+	if (pantallaActual === 'reporteEstudiantes') {
+		return (
+			<ReporteEstudiantes 
+				cursoSeleccionado={cursoSeleccionado} 
+				onVolver={handleVolverACursos} 
+			/>
+		)
+	}
 
 	const isApprentice = userSession?.accountType === "Aprendiz";
 	const userCanSeeActivities = !isApprentice || isUserEnrolled;
@@ -279,6 +320,17 @@ export const SeeCourse = () => {
 								{userSession && userSession.accountType === 'Empresa' && !id && (
 									<button className='request-btn' onClick={() => navigate(`/SolicitarCurso/${encodeURIComponent(curso.nombre_curso)}`)}>
 										Solicitar Curso
+									</button>
+								)}
+
+								{userSession && (userSession.accountType === 'Empresa' || userSession.accountType === 'Instructor') && (
+									<button className='request-btn'
+										onClick={(e) => {
+											e.stopPropagation();
+											handleSelectCurso(curso)
+											}}
+									>
+										Reporte y Estadisticas
 									</button>
 								)}
 

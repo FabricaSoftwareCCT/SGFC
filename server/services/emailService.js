@@ -18,9 +18,6 @@ const transporter = nodemailer.createTransport({
 		user: process.env.EMAIL_USER,
 		pass: process.env.EMAIL_PASS,
 	},
-	tls: {
-		rejectUnauthorized: false,
-	},
 });
 
 // Función genérica para enviar cualquier tipo de email
@@ -96,7 +93,7 @@ const sendRequestCourseEmail = async (req, res) => {
 
 		// Enviar el correo
 		let transporter = nodemailer.createTransport({
-			service: "Gmail",
+			service: "gmail",
 			auth: {
 				user: process.env.EMAIL_USER,
 				pass: process.env.EMAIL_PASS,
@@ -170,7 +167,7 @@ const sendRequestCourseEmailAp = async (req, res) => {
 		});
 
 		let transporter = nodemailer.createTransport({
-			service: "Gmail",
+			service: "gmail",
 			auth: {
 				user: process.env.EMAIL_USER,
 				pass: process.env.EMAIL_PASS,
@@ -803,7 +800,7 @@ const sendConcertacionActaEmail = async (req, res) => {
 
 					//  Enviar correo con el acta adjunta
 					let transporter = nodemailer.createTransport({
-						service: "Gmail",
+						service: "gmail",
 						auth: {
 							user: process.env.EMAIL_USER,
 							pass: process.env.EMAIL_PASS,
@@ -946,9 +943,9 @@ const sendTrainingPlaceActaEmail = async (req, res) => {
 
 		// ✅ Enviar correo con el acta adjunta
 		let transporter = nodemailer.createTransport({
-			service: "Gmail",
+			service: "gmail",
 			auth: {
-				user: EMAIL_USER,
+				user: process.env.EMAIL_USER,
 				pass: process.env.EMAIL_PASS,
 			},
 		});

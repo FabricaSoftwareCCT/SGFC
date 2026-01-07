@@ -15,7 +15,7 @@ router.post("/create", certificationCriteriaController.createCriteriosCurso)
 router.put("/update/:id", certificationCriteriaController.updateCriteria)
 
 // Ver los criterios de un aprendiz
-router.get("/course/:course/aprendiz/:id", authorizeRoles(['Administrador', 'Gestor', "Instructor"]), certificationCriteriaController.getAprenticeCriteria)
+router.get("/course/:course/aprendiz/:id", authorizeRoles(['Administrador', 'Gestor', "Instructor", "Empresa"]), certificationCriteriaController.getAprenticeCriteria)
 
 // Actualizar el estado de la certificación del aprendiz
 router.put("/course/:course/update/:id", certificationCriteriaController.updateAprenticeCertificationStatus)

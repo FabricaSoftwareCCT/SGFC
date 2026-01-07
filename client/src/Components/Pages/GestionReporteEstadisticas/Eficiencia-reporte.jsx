@@ -42,12 +42,22 @@ export default function EficienciaReporte({ cursoSeleccionado, onVolver }) {
     const filtroRef = useRef(null);
     const pdfContent = useRef();
 
+	const cursoId = useMemo(()=>{
+		return (
+		  cursoSeleccionado?.id ??
+		  cursoSeleccionado?.ID ??
+		  cursoSeleccionado?.curso_ID ??
+		  cursoSeleccionado?.cursoId ??
+		  null
+		)
+	  }, [cursoSeleccionado])
+
     const fetchEstudiantes = async () => {
         try {
-            const aprendices = (await axiosInstance.get(`/api/courses/cursos/${cursoSeleccionado.id}/participants`))?.data.participants.map((a) => a.aprendiz)
+            const aprendices = (await axiosInstance.get(`/api/courses/cursos/${cursoId}/participants`))?.data.participants.map((a) => a.aprendiz)
             let aprendicesData = []
             for (let a of aprendices) {
-                const estadoCurso = (await axiosInstance.get(`/api/certification/course/${cursoSeleccionado.id}/aprendiz/${a.ID}`))?.data
+                const estadoCurso = (await axiosInstance.get(`/api/certification/course/${cursoId}/aprendiz/${a.ID}`))?.data
                 aprendicesData.push(
                     {
                         nombre: a.nombres,

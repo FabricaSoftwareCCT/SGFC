@@ -4,6 +4,7 @@ import { Main } from "../../Layouts/Main/Main";
 import "./GestionsActas.css";
 import { Footer } from "../../Layouts/Footer/Footer";
 import axiosInstance from "../../../config/axiosInstance";
+import { API_URL } from "../../../config/env";
 import seePasswordIcon from "../../../assets/Icons/seePassword.png";
 import { useModal } from "../../../Context/ModalContext";
 import { NavLink, useNavigate } from "react-router-dom";
@@ -248,8 +249,8 @@ export const GestionsActas = () => {
 									onClick={e => {
 										e.preventDefault();
 										const baseUrl = acta.tipo_acta === 'Solicitud'
-											? 'http://localhost:3001/uploads/solicitudes'
-											: 'http://localhost:3001/uploads/documentos';
+											? `${API_URL}/uploads/solicitudes`
+											: `${API_URL}/uploads/documentos`;
 										window.open(`${baseUrl}/${acta.pdf_acta}`, "_blank");
 									}}
 									className="modal-actas-btn"
@@ -263,8 +264,8 @@ export const GestionsActas = () => {
 										e.preventDefault();
 										if (acta.pdf_radicado) {
 											const baseUrl = acta.tipo_acta === 'Solicitud'
-												? 'http://localhost:3001/uploads/solicitudes'
-												: 'http://localhost:3001/uploads/documentos';
+												? `${API_URL}/uploads/solicitudes`
+												: `${API_URL}/uploads/documentos`;
 											window.open(`${baseUrl}/${acta.pdf_radicado}`, "_blank");
 										}
 									}}

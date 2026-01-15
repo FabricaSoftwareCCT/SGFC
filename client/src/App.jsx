@@ -116,7 +116,8 @@ function App() {
 					return;
 				}
 
-				const response = await fetch("http://localhost:3001/api/users/recordsession", {
+				const { API_URL } = await import('./config/env');
+				const response = await fetch(`${API_URL}/api/users/recordsession`, {
 					method: "GET",
 					credentials: "include" 
 				});

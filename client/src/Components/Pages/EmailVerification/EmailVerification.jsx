@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axiosInstance from "../../../config/axiosInstance";
+import { API_URL } from "../../../config/env";
 import { useModal } from "../../../Context/ModalContext";
 import "./EmailVerification.css";
 
@@ -10,7 +11,7 @@ export const EmailVerification = () => {
   const [isVerified, setIsVerified] = useState(false);
   const [message, setMessage] = useState("");
 
-  // Importa los métodos del contexto de modales
+  // Importa los metodos del contexto de modales
   const {
     setShowModalSuccesfull,
     setModalSuccesfullContent,
@@ -25,12 +26,12 @@ useEffect(() => {
     console.log("Token recibido en EmailVerification:", token);
 
     if (!token) {
-      showError("No se proporcionó un token de verificación.");
+      showError("No se proporciono un token de verificacion.");
       return;
     }
 
     try {
-      const response = await fetch(`http://localhost:3001/api/users/verificarCorreo?token=${token}`);
+      const response = await fetch(`${API_URL}/api/users/verificarCorreo?token=${token}`);
       console.log("Respuesta cruda del backend:", response);
 
       let data;

@@ -206,7 +206,8 @@ export const Modal_SignIn = () => {
     setLoginning(true);
 
     try {
-      const res = await fetch("http://localhost:3001/api/users/auth/googleSignIn", {
+      const { API_URL } = await import('../../../config/env');
+      const res = await fetch(`${API_URL}/api/users/auth/googleSignIn`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ idToken }),

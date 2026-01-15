@@ -96,7 +96,8 @@ export const Modal_SignUp = ({ accountType }) => {
     }
 
     try {
-      const response = await fetch("http://localhost:3001/api/users/createUser", {
+      const { API_URL } = await import('../../../config/env');
+      const response = await fetch(`${API_URL}/api/users/createUser`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -158,7 +159,8 @@ const handleGoogleResponse = async (response) => {
     const idToken = response.credential;
 
     try {
-      const res = await fetch("http://localhost:3001/api/users/auth/googleSignUp", {
+      const { API_URL: apiUrl } = await import('../../../config/env');
+      const res = await fetch(`${apiUrl}/api/users/auth/googleSignUp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ idToken, accountType }), 

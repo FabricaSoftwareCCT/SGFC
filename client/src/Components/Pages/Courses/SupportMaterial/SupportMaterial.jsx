@@ -5,6 +5,7 @@ import { Footer } from '../../../Layouts/Footer/Footer';
 import { Main } from '../../../Layouts/Main/Main';
 import './SupportMaterial.css';
 import axiosInstance from '../../../../config/axiosInstance';
+import { API_URL } from '../../../../config/env';
 import { useEffect } from 'react';
 import Swal from 'sweetalert2';
 import 'sweetalert2/themes/bulma.css';
@@ -634,7 +635,7 @@ export const SupportMaterial = () => {
                                                             {archivo.tipo_contenido != "link" && (
                                                                 <a
                                                                     className="action-btn download-btn"
-                                                                    href={`http://localhost:3001${archivo.contenido}`}
+                                                                    href={`${API_URL}${archivo.contenido}`}
                                                                     target="_blank"
                                                                     rel="noopener noreferrer"
                                                                     download

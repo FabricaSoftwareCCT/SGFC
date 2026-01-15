@@ -1,4 +1,5 @@
 import axiosInstance from "../../config/axiosInstance";
+import { API_URL } from "../../config/env";
 
 export const getCursos = async (page) => {
 	const data = (await axiosInstance.get(`/api/reports/ObtenerCursos/admin/${page}`))?.data
@@ -38,7 +39,7 @@ export const getCursos = async (page) => {
 }
 
 export const getIdCurso = async (id) => {
-    const res = await fetch(`http://localhost:3001/api/courses/cursos/${id}`, {
+    const res = await fetch(`${API_URL}/api/courses/cursos/${id}`, {
         method : "GET",
         credentials : "include"
     })
@@ -47,7 +48,7 @@ export const getIdCurso = async (id) => {
 }
 
 export const getAllInscripciones = async (page) =>{
-	const res = await fetch(`http://localhost:3001/api/courses/getAllInscripciones/${page}`,{
+	const res = await fetch(`${API_URL}/api/courses/getAllInscripciones/${page}`,{
 		method : "GET",
 		credentials : "include"
 	})
@@ -71,7 +72,7 @@ export const updateBulkStatus = async (estadosP) =>{
 		if (!Array.isArray(estadosP) || estadosP.length === 0) {
 			return console.log("No se envio ninguna informacion")
 		}
-		const res = await axiosInstance.put('http://localhost:3001/api/courses/updateStatusInscripciones', {estadosP})
+		const res = await axiosInstance.put('/api/courses/updateStatusInscripciones', {estadosP})
 		
 		return res.status
 	} catch (error) {

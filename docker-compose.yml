@@ -1,48 +1,66 @@
-version: '3.8'
 services:
-  #Servicio de base de datos MySQL
   mysql-db:
     image: mysql:8.0
     restart: always
     environment:
-      # MySQL oficial permite usar _FILE para leer la contraseña desde un secreto
-      - MYSQL_ROOT_PASSWORD=root_password_local
-    secrets:
-      - db_password
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${DB_NAME}
     volumes:
       - mysql_data:/var/lib/mysql
     networks:
       - app
-  #Servicios backend
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
   backend:
     build:
       context: ./server
     ports:
       - "5000:5000"
     depends_on:
-      - mysql-db
+      mysql-db:
+        condition: service_healthy
     environment:
-      - DB_HOST=
-      - DB_USER=
-      - DB_PASSWORD=
-      - DB_NAME=
-      - DB_PORT=
-      - NODE-ENV=production
+      - PORT=5000
+      - DB_HOST=${DB_HOST}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - DB_PORT=${DB_PORT}
+      - GOOGLE_APP_PASSWORD=${GOOGLE_APP_PASSWORD}
+      - GOOGLE_APPLICATION_CREDENTIALS_PATH=${GOOGLE_APPLICATION_CREDENTIALS_PATH}
+      - GOOGLE_PROJECT_ID=${GOOGLE_PROJECT_ID}
+      - EMAIL_USER=${EMAIL_USER}
+      - EMAIL_PASS=${GOOGLE_APP_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET}
+      - NODE_ENV=${NODE_ENV}
+      - FRONTEND_URL=${FRONTEND_URL}
+      - BACKEND_URL=${BACKEND_URL}
     networks:
       - app
     restart: always
-  #Servicios frontend
+
   frontend:
     build:
       context: ./client
+      args:
+        - VITE_GOOGLE_CLIENT_ID=${VITE_GOOGLE_CLIENT_ID}
+        - VITE_API_URL=${VITE_API_URL}
     ports:
       - "3000:80"
     depends_on:
-      - server
+      - backend
     networks:
       - app
     restart: always
-#Red de la aplicacion - unión entre servicios
+
+volumes:
+  mysql_data:
+
 networks:
   app:
     driver: bridge

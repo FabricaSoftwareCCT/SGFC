@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react"
 import "./NavBar.css"
 import { useNavigate, NavLink } from "react-router-dom"
 import axiosInstance from "../../../config/axiosInstance"
+import { API_URL } from "../../../config/env"
 import noRead from "../../../assets/Icons/mensaje-no-leido.png"
 import ifRead from "../../../assets/Icons/mensaje-leido.png"
 import { useModal } from "../../../Context/ModalContext"
@@ -333,7 +334,7 @@ export const NavBar = ({ children, setShowSignIn }) => {
 								{notif.archivo && (
 									<div className="notification-modal-attachment">
 										<a
-											href={`http://localhost:3001/uploads/solicitudes/${notif.archivo}`}
+											href={`${API_URL}/uploads/solicitudes/${notif.archivo}`}
 											target="_blank"
 											rel="noopener noreferrer"
 											className="notification-attachment-link"

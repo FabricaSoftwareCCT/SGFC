@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import "./CreateEmpresa.css";
 import axiosInstance from '../../../config/axiosInstance';
+import { API_URL } from '../../../config/env';
 import { 
   validateEmail, 
   validateNumber, 
@@ -217,8 +218,8 @@ export const CreateEmpresa = ({ onClose, onCompanyCreated }) => {
       return;
     }
 
-    console.log("📤 Creando manager...");
-    const userResponse = await fetch("http://localhost:3001/api/users/createUser", {
+    console.log("Creando manager...");
+    const userResponse = await fetch(`${API_URL}/api/users/createUser`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

@@ -4,6 +4,7 @@ import { Header } from '../../../Layouts/Header/Header';
 import { Main } from '../../../Layouts/Main/Main';
 import './SupportMaterialCourse.css';
 import axiosInstance from '../../../../config/axiosInstance';
+import { API_URL } from '../../../../config/env';
 import Swal from 'sweetalert2';
 import 'sweetalert2/themes/bulma.css';
 import { useUserSession } from '../../../../hooks/useUserSession';
@@ -578,7 +579,7 @@ export const SupportMaterialCourse = () => {
                                                         {(archivo.tipo_contenido !== "link" && archivo.tipo_contenido !== "enlace") && (
                                                             <a
                                                                 className="action-btn download-btn"
-                                                                href={`http://localhost:3001${archivo.contenido}`}
+                                                                href={`${API_URL}${archivo.contenido}`}
                                                                 target="_blank"
                                                                 rel="noopener noreferrer"
                                                                 download

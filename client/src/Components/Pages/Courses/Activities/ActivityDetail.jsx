@@ -16,6 +16,7 @@ import {
 	reviewDelivery,
 } from "../../../../api/activitiesApi";
 import axiosInstance from "../../../../config/axiosInstance";
+import { API_URL } from "../../../../config/env";
 import { useUserSession } from "../../../../hooks/useUserSession";
 import {
 	DeliveryModal,
@@ -53,7 +54,7 @@ const downloadUrl = (relativePath) => {
 	if (!relativePath) return null;
 	const normalized = relativePath.startsWith("http")
 		? relativePath
-		: `http://localhost:3001${relativePath}`;
+		: `${API_URL}${relativePath}`;
 	return normalized;
 };
 

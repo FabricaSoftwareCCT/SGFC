@@ -1,8 +1,9 @@
 import Axios from "axios";
+import { API_URL } from "./env";
 
 const axiosInstance = Axios.create({
-  baseURL: "http://localhost:3001", // Cambia según tu backend
-  withCredentials: true, // Necesario para cookies httpOnly
+  baseURL: API_URL,
+  withCredentials: true,
   headers: {
     "Content-Type": "application/json",
   },

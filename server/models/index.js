@@ -148,8 +148,17 @@ async function initializeDatabase() {
   })
 
   // Sincronizar tablas
-  await sequelize.sync({ alter: true })
-  console.log("📂 Tablas sincronizadas con la base de datos.")
+  // En desarrollo: alter: true permite modificar tablas en tiempo real
+  // En produccion: sync() sin alter para evitar errores de indices duplicados
+  const isProduction = process.env.NODE_ENV === 'production';
+  
+  if (isProduction) {
+    await sequelize.sync();
+    console.log("Tablas sincronizadas (modo produccion).");
+  } else {
+    await sequelize.sync({ alter: true });
+    console.log("Tablas sincronizadas con alter (modo desarrollo).");
+  }
 
   // Se añaden los triggers
   console.log("Creando triggers...")

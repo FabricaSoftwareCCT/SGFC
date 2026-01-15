@@ -2,7 +2,7 @@ module.exports = {
   apps: [{
     name: "sgfc-backend",
     script: "./server.js",
-    instances: 5,
+    instances: 4,
     exec_mode: "cluster",
     watch: false,
     max_memory_restart: "500M",

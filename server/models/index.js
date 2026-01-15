@@ -149,12 +149,12 @@ async function initializeDatabase() {
 
   // Sincronizar tablas
   // En desarrollo: alter: true permite modificar tablas en tiempo real
-  // En produccion: sync() sin alter para evitar errores de indices duplicados
+  // En produccion: no sincronizamos para evitar errores de indices duplicados
   const isProduction = process.env.NODE_ENV === 'production';
   
   if (isProduction) {
-    await sequelize.sync();
-    console.log("Tablas sincronizadas (modo produccion).");
+    // En produccion las tablas ya existen, no sincronizamos
+    console.log("Modo produccion: sincronizacion de tablas deshabilitada.");
   } else {
     await sequelize.sync({ alter: true });
     console.log("Tablas sincronizadas con alter (modo desarrollo).");

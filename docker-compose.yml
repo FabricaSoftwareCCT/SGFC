@@ -1,0 +1,28 @@
+version: '3.8'
+services:
+  #Servicios backend
+  backend:
+    build:
+      context: ./server
+    ports:
+      - "5000:5000"
+    environment:
+      - NODE-ENV=production
+    networks:
+      - app
+    restart: always
+  #Servicios frontend
+  frontend:
+    build:
+      context: ./client
+    ports:
+      - "3000:80"
+    depends_on:
+      - server
+    networks:
+      - app
+    restart: always
+#Red de la aplicacion - unión entre servicios
+networks:
+  app:
+    driver: bridge

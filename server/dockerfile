@@ -1,0 +1,29 @@
+
+#Imagen base 
+FROM node:18-alpine
+
+#Definimos el directorio de trabajo
+WORKDIR /usr/src/app
+
+#Copiar dependencias de produccion
+COPY package*.json ./
+
+#Instalar dependencias de produccion
+RUN npm ci --production --silent 
+
+#Copiar archivos del directorio 
+COPY . . 
+
+
+# Cambiar usuario de ejeccuón de app para evitar usar root
+# Practica de seguridad 
+USER node 
+
+#Exponer pueseto de nuestra app
+EXPOSE 3001
+
+# COnfigurar que el comando de docker para verificar si la app esta corriendo correctamente
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s CMD wget -qO- http://localhost:3001/health || exit 1
+
+#Comando para iniciar la app 
+CMD ["node", "server.js"]

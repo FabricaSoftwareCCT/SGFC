@@ -1,0 +1,30 @@
+#Usamos node para contrucción la build (npm run build)
+FROM node:18-alpine as build
+
+#Definimos el directorio de trabajo
+WORKDIR /usr/src/app
+
+#Copiamos dependencias
+COPY package*.json ./
+
+#instalamos dependencias
+RUN npm ci 
+
+#Copiamos el resto de archivos
+COPY . .
+
+#Creamos a build para producción 
+RUN npm run build 
+
+#Usamos nginx para servir la app en producción
+FROM nginx:alpine
+
+#Copiamos los archivos estaticos de la etapa build 
+COPY --from=build /usr/src/app/dist /usr/share/nginx/html 
+
+#Copiamos configuración de ngnix 
+COPY ./nginx/nginx.conf /etc/nginx/default.conf
+
+#Exponemos el puerto 
+EXPOSE 3000
+CMD ["nginx", "-g", "daemon off;"]

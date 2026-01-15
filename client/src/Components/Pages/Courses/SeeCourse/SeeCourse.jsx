@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import './SeeCourse.css';
+import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
 import { Header } from '../../../Layouts/Header/Header';
 import { Footer } from '../../../Layouts/Footer/Footer';
@@ -7,12 +8,13 @@ import { Main } from '../../../Layouts/Main/Main';
 import { useParams } from 'react-router-dom';
 import axiosInstance from '../../../../config/axiosInstance';
 import calendar from '../../../../assets/Icons/calendar.png';
-import buttonEdit from '../../../../assets/Icons/buttonEdit.png';
-import materialIcon from '../../../../assets/Icons/material.png'; 
 import { AssignInstructorCourse } from '../AssignInstructorCourse/AssignInstructorCourse';
 import ViewCalendar from '../../../UI/Modal_Calendar/ViewCalendar/Calendar';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPenToSquare, faBookOpen, faUsers } from '@fortawesome/free-solid-svg-icons'
+import { faPenToSquare, faBookOpen, faUsers, faExpandAlt, faXmark, faEye } from '@fortawesome/free-solid-svg-icons'
+import ReporteEstudiantes from '../../GestionReporteEstadisticas/ReporteEstudiantes';
+
+import 'sweetalert2/themes/bulma.css';
 
 export const SeeCourse = () => {
 	const { id } = useParams();
@@ -22,12 +24,10 @@ export const SeeCourse = () => {
 	const [showModal, setShowModal] = useState(false);
 	const [temario, setTemario] = useState([]);
 	const [isUserEnrolled, setIsUserEnrolled] = useState(false);
-	
-	// Estado para la duración del curso
-	const [duracionCurso, setDuracionCurso] = useState({
-		cantidad: "",
-		unidad: "horas"
-	});
+	const [cursoSeleccionado, setCursoSeleccionado] = useState(null);
+	const [pantallaActual, setPantallaActual] = useState('verCurso');
+	const [showTemaModal, setShowTemaModal] = useState(false);
+	const [temaSeleccionado, setTemaSeleccionado] = useState({fecha: "", tema: ""});
 	const [empresa, setEmpresa] = useState()
 
 	const userSession =
@@ -38,7 +38,6 @@ export const SeeCourse = () => {
 		try {
 			const response = await axiosInstance.get(`api/courses/cursos/${id}`);
 			setCurso(response.data);
-			
 			// Cargar temario si existe
 			if (response.data.temario) {
 				try {
@@ -50,7 +49,14 @@ export const SeeCourse = () => {
 				}
 			}
 		} catch (error) {
-			console.error("Error al obtener el curso:qq", error);
+			console.error("Error al obtener el curso:", error);
+			Swal.fire({
+				icon: 'error',
+				title: 'Error',
+				text: 'No se pudo cargar la información del curso',
+				confirmButtonText: 'Aceptar',
+				theme: 'bulma'
+			});
 		}
 	};
 
@@ -62,6 +68,34 @@ export const SeeCourse = () => {
 			console.error("Error al obtener la empresa:", error);
 		}
 	};
+	
+	const handleSelectCurso = (curso) => {
+  		const cupos = Number(curso.cupos_disponibles);
+
+  		if (isNaN(cupos) || cupos >= 30) {
+    		Swal.fire({
+      		icon: "error",
+      		title: "Error del sistema",
+      		text: "Este curso no tiene empleados registrados. No se puede generar un reporte.",
+      		confirmButtonText: "Okay",
+      		theme: "bulma",
+      		customClass: {
+        	confirmButton: 'button is-primary',
+        	actions: 'swal2-actions-centered'
+      		}
+    		});
+    		return;
+  		}
+  		setCursoSeleccionado(curso);
+  		setPantallaActual('reporteEstudiantes');
+	};
+
+
+	const handleVolverACursos = () => {
+        setPantallaActual('verCurso');
+        setCursoSeleccionado(null);
+    };
+
 
 	const checkEnrollmentStatus = useCallback(async () => {
 		if (!userSession || userSession.accountType !== "Aprendiz") {
@@ -103,8 +137,26 @@ export const SeeCourse = () => {
 		}
 	}, [checkEnrollmentStatus, userSession?.accountType]);
 
+	const verTemaCompleto = (tema) => {
+		setTemaSeleccionado(tema);
+		setShowTemaModal(true);
+	};
+
+	const formatDate = (dateString) => {
+		const date = new Date(dateString);
+		return date.toLocaleDateString('es-ES', {
+			day: '2-digit',
+			month: 'short'
+		});
+	};
+
 	if (!curso) {
-		return <p>Cargando...</p>;
+		return (
+			<div className="loading-container">
+				<div className="loading-spinner"></div>
+				<p>Cargando curso...</p>
+			</div>
+		);
 	}
 
 	const calendarData = {
@@ -112,6 +164,15 @@ export const SeeCourse = () => {
 		endDate: curso.fecha_fin ? curso.fecha_fin.split('T')[0] : '',
 		slots_formacion: curso.slots_formacion ? JSON.parse(curso.slots_formacion) : []
 	};
+
+	if (pantallaActual === 'reporteEstudiantes') {
+		return (
+			<ReporteEstudiantes 
+				cursoSeleccionado={cursoSeleccionado} 
+				onVolver={handleVolverACursos} 
+			/>
+		)
+	}
 
 	const isApprentice = userSession?.accountType === "Aprendiz";
 	const userCanSeeActivities = !isApprentice || isUserEnrolled;
@@ -135,7 +196,7 @@ export const SeeCourse = () => {
 
 					{/* Grid Principal */}
 					<div className="course-grid">
-						{/* Columna Izquierda - Imagen e Info */}
+						{/* Columna Izquierda - Imagen e Info MÁS ANCHA */}
 						<div className="side-panel">
 							<div className="image-section">
 								{curso.imagen ? (
@@ -191,28 +252,23 @@ export const SeeCourse = () => {
 								</div>
 							</div>
 
-							<div className="details-grid">
-								<div className="detail-group">
-									<label>Configuración del Curso</label>
-									<div className="detail-pair">
-										<div className="detail-item">
-											<span className="detail-label">Tipo de Oferta:</span>
-											<span className="detail-value">{curso.tipo_oferta}</span>
-										</div>
-										<div className="detail-item">
-											<span className="detail-label">Estado:</span>
-											<span className={`detail-value status-${curso.estado?.toLowerCase().replace(' ', '-')}`}>
-												{curso.estado}
-											</span>
-										</div>
+							{/* CONFIGURACIÓN DEL CURSO */}
+							<div className="course-config-section">
+								<label>Configuración del Curso</label>
+								<div className="config-grid">
+									<div className="config-item">
+										<span className="config-label">Tipo de Oferta:</span>
+										<span className="config-value">{curso.tipo_oferta}</span>
 									</div>
-								</div>
-
-								<div className="detail-group">
-									<label>Instructor</label>
-									<div className="detail-item full-width">
-										<span className="detail-label">Instructor Asignado:</span>
-										<span className="detail-value">
+									<div className="config-item">
+										<span className="config-label">Estado:</span>
+										<span className={`config-value status-${curso.estado?.toLowerCase().replace(' ', '-')}`}>
+											{curso.estado}
+										</span>
+									</div>
+									<div className="config-item full-width">
+										<span className="config-label">Instructor Asignado:</span>
+										<span className="config-value instructor-name">
 											{curso?.Instructor ? `${curso.Instructor.nombres} ${curso.Instructor.apellidos}` : "Sin asignar"}
 										</span>
 									</div>
@@ -224,24 +280,51 @@ export const SeeCourse = () => {
 						<div className="side-actions">
 							{/* Sección del Temario */}
 							<div className="syllabus-section">
-								<label>Temario del Curso</label>
+								<div className="syllabus-header-container">
+									<label>Temario del Curso</label>
+									<span className="topic-count">{temario.length} Temas</span>
+								</div>
 								
 								{temario.length > 0 ? (
-									<div className="syllabus-list">
-										<div className="syllabus-header">
-											<span>FECHA</span>
-											<span>CONTENIDO</span>
-										</div>
-										{temario.map((item, index) => (
-											<div key={index} className="syllabus-item">
-												<span className="syllabus-date">{item.fecha}</span>
-												<span className="syllabus-topic">{item.tema}</span>
+									<div className="syllabus-list-container">
+										<div className="syllabus-list">
+											<div className="syllabus-header">
+												<span className="header-date">FECHA</span>
+												<span className="header-content">CONTENIDO</span>
+												<span className="header-action">ACCIÓN</span>
 											</div>
-										))}
+											{temario.map((item, index) => (
+												<div key={index} className="syllabus-item">
+													<span className="syllabus-date">{formatDate(item.fecha)}</span>
+													<span className="syllabus-topic">
+														{item.tema.length > 100 ? `${item.tema.substring(0, 100)}...` : item.tema}
+													</span>
+													{item.tema.length > 100 && (
+														<button 
+															className="view-tema-btn"
+															onClick={() => verTemaCompleto(item)}
+															title="Ver tema completo"
+														>
+															<FontAwesomeIcon icon={faEye} />
+														</button>
+													)}
+													{item.tema.length <= 100 && (
+														<div className="no-action-placeholder"></div>
+													)}
+												</div>
+											))}
+										</div>
 									</div>
 								) : (
 									<div className="empty-syllabus">
-										No hay temas agregados al temario.
+										<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1">
+											<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+											<polyline points="14 2 14 8 20 8"></polyline>
+											<line x1="16" y1="13" x2="8" y2="13"></line>
+											<line x1="16" y1="17" x2="8" y2="17"></line>
+											<polyline points="10 9 9 9 8 9"></polyline>
+										</svg>
+										<p>No hay temas agregados al temario aún.</p>
 									</div>
 								)}
 							</div>
@@ -253,9 +336,11 @@ export const SeeCourse = () => {
 										className="material-btn"
 										onClick={() => navigate(`/Cursos/${id}/actividades`)}
 									>
+										<FontAwesomeIcon icon={faBookOpen} className="btn-icon" />
 										Ver Actividades
 									</button>
 								)}
+								
 								<button className='material-btn' onClick={()=> navigate(`/SupportMaterialCourse/${id}`)}>
 									<FontAwesomeIcon icon={faBookOpen} className="btn-icon" />
 									Ver Material
@@ -282,6 +367,17 @@ export const SeeCourse = () => {
 									</button>
 								)}
 
+								{userSession && (userSession.accountType === 'Empresa' || userSession.accountType === 'Instructor') && (
+									<button className='request-btn'
+										onClick={(e) => {
+											e.stopPropagation();
+											handleSelectCurso(curso)
+											}}
+									>
+										Reporte y Estadisticas
+									</button>
+								)}
+
 								{userCanEnroll && (
 									<button
 										className="enroll-btn"
@@ -298,18 +394,42 @@ export const SeeCourse = () => {
 										Gestionar Asistencias
 									</button>
 								)}
-								
-								{/* {userSession && userSession.accountType === 'Gestor' && (
-									<button className='enroll-btn' onClick={() => navigate(`/Cursos/${id}/inscribir-aprendices`)}>
-										Inscribir Aprendices
-									</button>
-								)}	 */}
 							</div>
 						</div>
 					</div>
 				</div>
 			</Main>
 			<Footer />
+
+			{/* Modal para ver tema completo */}
+			{showTemaModal && (
+				<div className="tema-modal-overlay">
+					<div className="tema-modal">
+						<div className="tema-modal-header">
+							<h3>Tema Completo</h3>
+							<button 
+								className="close-modal-btn"
+								onClick={() => setShowTemaModal(false)}
+							>
+								<FontAwesomeIcon icon={faXmark} />
+							</button>
+						</div>
+						<div className="tema-modal-content">
+							<div className="tema-info">
+								<div className="tema-fecha">
+									<strong>Fecha:</strong> {temaSeleccionado.fecha}
+								</div>
+								<div className="tema-contenido">
+									<strong>Contenido:</strong>
+									<div className="tema-texto">
+										{temaSeleccionado.tema}
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			)}
 
 			{showModal && curso && (
 				<AssignInstructorCourse 

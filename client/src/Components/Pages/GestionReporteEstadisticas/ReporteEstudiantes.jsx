@@ -39,19 +39,29 @@ export default function ReporteEstudiantes({ cursoSeleccionado, onVolver }) {
     asistencias: ''
   });
 
+  const cursoId = useMemo(()=>{
+    return (
+      cursoSeleccionado?.id ??
+      cursoSeleccionado?.ID ??
+      cursoSeleccionado?.curso_ID ??
+      cursoSeleccionado?.cursoId ??
+      null
+    )
+  }, [cursoSeleccionado])
+
   // Cargar empleados del curso con estadísticas de asistencias
   useEffect(() => {
     const cargarDatosEstudiantes = async () => {
-      if (!cursoSeleccionado || !cursoSeleccionado.id) {
-        setIsLoading(false);
-        return;
-      }
+        if (!cursoId) {
+          setIsLoading(false)
+          return
+        }
 
       setIsLoading(true);
       try {
         // Obtener participantes del curso
         const participantsResponse = await axiosInstance.get(
-          `/api/courses/cursos/${cursoSeleccionado.id}/participants`,
+          `/api/courses/cursos/${cursoId}/participants`,
           { params: { limit: 9999 } }
         );
 
@@ -86,7 +96,7 @@ export default function ReporteEstudiantes({ cursoSeleccionado, onVolver }) {
         let registrosAsistencia = [];
         try {
           const attendanceResponse = await axiosInstance.get(
-            `/api/attendance/courses/${cursoSeleccionado.id}/get`,
+            `/api/attendance/courses/${cursoId}/get`,
             { params: { limit: 9999 } }
           );
 
@@ -230,7 +240,7 @@ export default function ReporteEstudiantes({ cursoSeleccionado, onVolver }) {
     };
 
     cargarDatosEstudiantes();
-  }, [cursoSeleccionado]);
+  }, [cursoId]);
 
   useEffect(() => {
     function handleClickOutside(event) {

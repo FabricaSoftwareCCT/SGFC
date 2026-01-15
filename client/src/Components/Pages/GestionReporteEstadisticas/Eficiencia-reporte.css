@@ -894,6 +894,30 @@
     box-shadow: none;
 }
 
+/* Asegurar que SweetAlert2 tenga un z-index mayor que el modal */
+.swal2-popup {
+    z-index: 9999 !important;
+}
+
+/* Clase específica para cuando el modal está abierto */
+.swal2-modal-zindex {
+    z-index: 9999 !important;
+}
+
+/* Asegurar que el overlay de SweetAlert2 también tenga un z-index alto */
+.swal2-container {
+    z-index: 9999 !important;
+}
+
+/* Asegurar que el modal tenga un z-index controlado */
+.modal-overlay {
+    z-index: 2000;
+}
+
+.modal-background-a {
+    z-index: 2001;
+}
+
 /* Responsive Design */
 @media (max-width: 1024px) {
     .reporte-container-eficiencia {

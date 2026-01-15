@@ -81,15 +81,15 @@ export const SeeCourseCriteria = () => {
 			);
 			if (!response.data.success) throw response.data;
 
-			const participants = response.data.participants.map((aprentice) => {
-				return {
-					name: `${aprentice.aprendiz.nombres} ${aprentice.aprendiz.apellidos}`,
-					personId: aprentice.aprendiz.documento,
-					state: aprentice.aprendiz.estado,
-					certState: aprentice.estado_certificacion,
-					id: aprentice.aprendiz.ID,
-				};
-			});
+			const participants = response.data.participants
+			.filter(p => p?.aprendiz?.nombres && p?.aprendiz?.apellidos)
+			.map(p => ({
+				id: p.aprendiz.ID,
+				name: `${p.aprendiz.nombres.trim()} ${p.aprendiz.apellidos.trim()}`,
+				personId: p.aprendiz.documento,
+				state: p.aprendiz.estado,
+				certState: p.estado_certificacion
+			}));
 
 			setAprentices(participants);
 			setPages(response.data.pages);

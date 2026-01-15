@@ -258,6 +258,7 @@
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
+  min-height: 42px;
 }
 
 .form-group-dual select::-ms-expand {
@@ -273,6 +274,33 @@
 .form-group-dual select:hover:not(:disabled) {
   border-color: rgba(255, 255, 255, 0.3);
   background: rgba(255, 255, 255, 0.1);
+}
+
+/* Estilos específicos para las opciones del select */
+.form-group-dual select option {
+  background-color: #2a2a2a;
+  color: #ffffff;
+  padding: 0.75rem;
+  font-size: 0.9rem;
+}
+
+.form-group-dual select option:checked {
+  background-color: #00843d;
+  color: #ffffff;
+}
+
+.form-group-dual select option:hover {
+  background-color: #00a844;
+}
+
+.form-group-dual select option:disabled {
+  color: #888888;
+  background-color: #1e1e1e;
+}
+
+.form-group-dual select option[value=""] {
+  color: #888888;
+  font-style: italic;
 }
 
 /* Scrollbar para selects */
@@ -746,6 +774,11 @@
   .form-group-dual textarea {
     border-color: rgba(255, 255, 255, 0.4);
     background: rgba(255, 255, 255, 0.12);
+  }
+  
+  .form-group-dual select option {
+    background-color: #1e1e1e;
+    color: #ffffff;
   }
 }
 

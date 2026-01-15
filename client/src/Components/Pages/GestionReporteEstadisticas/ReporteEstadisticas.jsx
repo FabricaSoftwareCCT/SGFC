@@ -38,6 +38,7 @@ import {
     faCalendarCheck,
     faEye
 } from '@fortawesome/free-solid-svg-icons';
+import { data } from 'react-router-dom';
 
 const swalConfig = {
     theme: "bulma",
@@ -102,6 +103,7 @@ export default function ReporteEstadisticas() {
     // Estados de paginación
     const [currentPage, setCurrentPage] = useState(1);
     const [postsPerPage] = useState(10);
+    const [tipoCuenta, setTipoCuenta] = useState(undefined)
 
     const [filtros, setFiltros] = useState({
         estado: {
@@ -138,12 +140,20 @@ export default function ReporteEstadisticas() {
         };
     }, [mostrarFiltro]);
 
+    useEffect(() =>{
+       const dataUser = JSON.parse(sessionStorage.getItem("userSession"))
+       if (dataUser?.id) {
+            setTipoCuenta(Number(dataUser.id))
+       }
+    }, [])
+
     // Cargar datos iniciales
     useEffect(() => {
+        if (!tipoCuenta) return
         async function fetchData() {
             try {
                 setLoading(true);
-                const data = await getCursos(currentPage);
+                const data = await getCursos(tipoCuenta);
                 if (!data) {
                     Swal.fire({
                         icon: 'error',
@@ -172,7 +182,7 @@ export default function ReporteEstadisticas() {
             }
         }
         fetchData()
-    }, []);
+    }, [tipoCuenta]);
 
     // Resetear página cuando cambien filtros
     useEffect(() => {
@@ -354,6 +364,7 @@ export default function ReporteEstadisticas() {
             })
             return;
         }
+        console.log("Curso seleccionado:", curso);
         setCursoSeleccionado(curso);
         setPantallaActual('estudiantes');
     };

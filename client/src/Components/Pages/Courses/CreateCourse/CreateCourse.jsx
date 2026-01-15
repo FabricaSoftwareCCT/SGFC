@@ -62,7 +62,6 @@ export const CreateCourse = () => {
 	};
 
 	const handleCalendarSave = (data) => {
-		// Calcular la duración en días usando la misma lógica del modal
 		const calculateDuration = (startDate, endDate) => {
 			if (!startDate || !endDate) return 0;
 			const start = new Date(startDate);
@@ -71,12 +70,8 @@ export const CreateCourse = () => {
 			return Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
 		};
 
-		// Obtener la duración calculada
 		const duracionCalculada = calculateDuration(data.startDate, data.endDate);
-
-		// Actualizar el estado del calendario
 		setCalendarData(data);
-		// Actualizar automáticamente la duración del curso
 		setDuracionCurso(duracionCalculada);
 		setIsEditCalendarOpen(false);
 	};
@@ -90,7 +85,8 @@ export const CreateCourse = () => {
 		if (nuevaFecha && nuevoTema.trim()) {
 			const nuevoTemaObj = {
 				fecha: nuevaFecha,
-				tema: nuevoTema.trim()
+				tema: nuevoTema.trim(),
+				id: Date.now() + Math.random()
 			};
 			setTemario([...temario, nuevoTemaObj]);
 			setNuevaFecha("");
@@ -109,7 +105,7 @@ export const CreateCourse = () => {
 	};
 
 	const handleKeyPress = (e) => {
-		if (e.key === 'Enter') {
+		if (e.key === 'Enter' && e.ctrlKey) {
 			agregarTema();
 		}
 	};
@@ -146,6 +142,7 @@ export const CreateCourse = () => {
 
 		const temarioActualizado = [...temario];
 		temarioActualizado[indiceTemaEnEdicion] = {
+			...temarioActualizado[indiceTemaEnEdicion],
 			fecha: temaEnEdicion.fecha,
 			tema: temaEnEdicion.tema.trim()
 		};
@@ -184,7 +181,6 @@ export const CreateCourse = () => {
 			return;
 		}
 
-		// Validar longitud mínima de la descripción
 		if (descripcion.length < 100) {
 			Swal.fire({
 				icon: 'warning',
@@ -229,7 +225,7 @@ export const CreateCourse = () => {
 			formData.append("estado", selectedStatus);
 			formData.append("fecha_inicio", calendarData.startDate);
 			formData.append("fecha_fin", calendarData.endDate);
-			formData.append("temario", JSON.stringify(temario));
+			formData.append("temario", JSON.stringify(temario.map(({fecha, tema}) => ({fecha, tema}))));
 			formData.append("modalidad", selectedModality);
 
 			const slotsByDay = {};
@@ -359,6 +355,16 @@ export const CreateCourse = () => {
 		buscarEmpresaPorNIT(empresaNIT);
 	}, [empresaNIT]);
 
+	// Función para formatear fecha
+	const formatDate = (dateString) => {
+		const date = new Date(dateString);
+		return date.toLocaleDateString('es-ES', {
+			weekday: 'short',
+			day: '2-digit',
+			month: 'short'
+		});
+	};
+
 	return (
 		<>
 			<Main>
@@ -412,7 +418,6 @@ export const CreateCourse = () => {
 										min="1"
 										value={duracionCurso}
 										onChange={(e) => {
-											// Solo permitir cambio si NO hay fechas seleccionadas
 											if (!calendarData.startDate || !calendarData.endDate) {
 												setDuracionCurso(e.target.value);
 											}
@@ -574,111 +579,157 @@ export const CreateCourse = () => {
 							)}
 
 							<div className="syllabus-section">
-								<label>Temario del Curso</label>
+								<div className="syllabus-header-container">
+									<label>Temario del Curso</label>
+									<div className="syllabus-stats">
+										<span className="topic-count">{temario.length} Temas</span>
+										{temario.length > 0 && (
+											<button 
+												className="clear-all-btn"
+												onClick={() => {
+													if(window.confirm('¿Estás seguro de eliminar todos los temas?')) {
+														setTemario([]);
+													}
+												}}
+											>
+												Limpiar todo
+											</button>
+										)}
+									</div>
+								</div>
 
 								<div className="syllabus-inputs">
-									<input
-										type="date"
-										value={nuevaFecha}
-										onChange={(e) => setNuevaFecha(e.target.value)}
-									/>
-									<textarea
-										className='form-textarea-right'
-										type="text"
-										placeholder="Agregar nuevo tema"
-										value={nuevoTema}
-										onChange={(e) => setNuevoTema(e.target.value)}
-										onKeyPress={handleKeyPress}
-									/>
+									<div className="date-input-container">
+										<input
+											type="date"
+											value={nuevaFecha}
+											onChange={(e) => setNuevaFecha(e.target.value)}
+											className="date-picker"
+										/>
+									</div>
+									<div className="topic-input-container">
+										<textarea
+											className='form-textarea-right'
+											type="text"
+											placeholder="Escribe el contenido del tema..."
+											value={nuevoTema}
+											onChange={(e) => setNuevoTema(e.target.value)}
+											onKeyDown={handleKeyPress}
+											rows={3}
+										/>
+										<div className="topic-input-hint">
+											<span>Presiona Ctrl + Enter para agregar</span>
+										</div>
+									</div>
 									<button
 										className="add-topic-btn"
 										onClick={agregarTema}
 										disabled={!nuevaFecha || !nuevoTema.trim()}
+										title="Agregar tema"
 									>
-										+
+										<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+											<line x1="12" y1="5" x2="12" y2="19"></line>
+											<line x1="5" y1="12" x2="19" y2="12"></line>
+										</svg>
+										Agregar
 									</button>
 								</div>
 
 								{temario.length > 0 ? (
-									<div className="syllabus-list">
-										<div className="syllabus-header">
-											<span>FECHA</span>
-											<span>CONTENIDO</span>
-											<span>ACCIONES</span>
-										</div>
-										{temario.map((item, index) => {
-											const temaEnEdicionActivo = indiceTemaEnEdicion === index;
+									<div className="syllabus-cards-container">
+										<div className="syllabus-cards-grid">
+											{temario.map((item, index) => {
+												const temaEnEdicionActivo = indiceTemaEnEdicion === index;
 
-											return (
-												<div
-													key={`${item.fecha}-${index}`}
-													className={`syllabus-item${temaEnEdicionActivo ? " syllabus-item-editing" : ""}`}
-												>
-													{temaEnEdicionActivo ? (
-														<>
-															<input
-																type="date"
-																className="syllabus-edit-input"
-																value={temaEnEdicion.fecha}
-																onChange={(event) =>
-																	actualizarTemaEnEdicion("fecha", event.target.value)
-																}
-															/>
+												if (temaEnEdicionActivo) {
+													return (
+														<div key={item.id} className="syllabus-card editing">
+															<div className="card-header">
+																<input
+																	type="date"
+																	className="edit-date-input"
+																	value={temaEnEdicion.fecha}
+																	onChange={(e) => actualizarTemaEnEdicion("fecha", e.target.value)}
+																/>
+																<div className="card-actions">
+																	<button
+																		className="card-action-btn save-btn"
+																		onClick={guardarEdicionTema}
+																	>
+																		Guardar
+																	</button>
+																	<button
+																		className="card-action-btn cancel-btn"
+																		onClick={cancelarEdicionTema}
+																	>
+																		Cancelar
+																	</button>
+																</div>
+															</div>
 															<textarea
-																className="form-textarea-right syllabus-edit-textarea"
-																placeholder="Contenido del tema"
+																className="edit-content-input"
 																value={temaEnEdicion.tema}
-																rows={2}
-																onChange={(event) =>
-																	actualizarTemaEnEdicion("tema", event.target.value)
-																}
+																onChange={(e) => actualizarTemaEnEdicion("tema", e.target.value)}
+																placeholder="Contenido del tema"
+																rows={4}
 															/>
-															<div className="syllabus-action-buttons">
-																<button
-																	type="button"
-																	className="syllabus-action-button save-topic"
-																	onClick={guardarEdicionTema}
-																>
-																	Guardar
-																</button>
-																<button
-																	type="button"
-																	className="syllabus-action-button cancel-topic"
-																	onClick={cancelarEdicionTema}
-																>
-																	Cancelar
-																</button>
+														</div>
+													);
+												}
+
+												return (
+													<div key={item.id} className="syllabus-card">
+														<div className="card-header">
+															<div className="card-date">
+																<span className="date-day">{formatDate(item.fecha)}</span>
+																<span className="date-full">{item.fecha}</span>
 															</div>
-														</>
-													) : (
-														<>
-															<span className="syllabus-date">{item.fecha}</span>
-															<span className="syllabus-topic">{item.tema}</span>
-															<div className="syllabus-actions">
+															<div className="card-actions">
 																<button
-																	type="button"
-																	className="syllabus-action-button edit-topic"
+																	className="card-action-btn edit-btn"
 																	onClick={() => iniciarEdicionTema(index)}
+																	title="Editar tema"
 																>
-																	Editar
+																	<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+																		<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+																		<path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+																	</svg>
 																</button>
 																<button
-																	type="button"
-																	className="syllabus-action-button delete-topic"
+																	className="card-action-btn delete-btn"
 																	onClick={() => eliminarTema(index)}
+																	title="Eliminar tema"
 																>
-																	×
+																	<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+																		<path d="M3 6h18"></path>
+																		<path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path>
+																		<path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+																	</svg>
 																</button>
 															</div>
-														</>
-													)}
-												</div>
-											);
-										})}
+														</div>
+														<div className="card-content">
+															<p>{item.tema}</p>
+														</div>
+														<div className="card-footer">
+															<span className="topic-number">Tema {index + 1}</span>
+														</div>
+													</div>
+												);
+											})}
+										</div>
 									</div>
 								) : (
 									<div className="empty-syllabus">
-										No hay temas agregados al temario aún.
+										<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1">
+											<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+											<polyline points="14 2 14 8 20 8"></polyline>
+											<line x1="16" y1="13" x2="8" y2="13"></line>
+											<line x1="16" y1="17" x2="8" y2="17"></line>
+											<polyline points="10 9 9 9 8 9"></polyline>
+										</svg>
+										<p>No hay temas agregados al temario aún.</p>
+										<p className="empty-hint">Agrega fechas y temas para comenzar</p>
 									</div>
 								)}
 							</div>

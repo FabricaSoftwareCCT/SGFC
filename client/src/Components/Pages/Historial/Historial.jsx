@@ -394,26 +394,7 @@ export const Historial = () => {
                             )}
                         </div>
                         
-                        <div className="ht-controls-right">
-                            <div className="ht-filter-group">
-                                <FontAwesomeIcon icon={faFilter} className="ht-filter-icon" />
-                                <select
-                                    className="ht-filter-select"
-                                    value={filterType}
-                                    onChange={(e) => {
-                                        setFilterType(e.target.value)
-                                        setPage(0)
-                                    }}
-                                >
-                                    {actionTypes.map(type => (
-                                        <option key={type.value} value={type.value}>
-                                            {type.label}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                            
-                            <div className="ht-sort-group">
+                        <div className="ht-controls-right">                           <div className="ht-sort-group">
                                 <FontAwesomeIcon icon={faSort} className="ht-sort-icon" />
                                 <select
                                     className="ht-sort-select"

@@ -689,10 +689,15 @@
     backdrop-filter: blur(10px);
 }
 
-.close-btn-material:hover {
+.close-btn-material:hover:not(:disabled) {
     background: rgba(0, 200, 83, 0.2);
     border-color: #00c853;
     transform: translateY(-1px);
+}
+
+.close-btn-material:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
 }
 
 .modal-body-material {
@@ -769,7 +774,7 @@
     gap: 0.5rem;
 }
 
-.type-option-material:hover {
+.type-option-material:hover:not(:disabled) {
     background: rgba(0, 200, 83, 0.1);
     border-color: rgba(0, 200, 83, 0.3);
     transform: translateY(-2px);
@@ -781,6 +786,11 @@
     color: #00c853;
     font-weight: 600;
     box-shadow: 0 4px 12px rgba(0, 200, 83, 0.2);
+}
+
+.type-option-material:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 .type-icon-material {
@@ -814,9 +824,14 @@
     text-align: center;
 }
 
-.upload-dropzone-material:hover {
+.upload-dropzone-material:hover:not(.disabled) {
     border-color: #00c853;
     background: rgba(0, 200, 83, 0.05);
+}
+
+.upload-dropzone-material.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
 }
 
 .upload-icon-material {
@@ -1110,6 +1125,44 @@
 }
 
 /* =========================================== */
+/* SWEETALERT2 CUSTOM STYLES - IMPORTANTE */
+/* =========================================== */
+
+/* Asegurar que SweetAlert2 aparezca por encima del modal */
+.swal2-popup,
+.swal2-container {
+    z-index: 20000 !important;
+}
+
+.swal2-popup-custom {
+    z-index: 20001 !important;
+}
+
+/* Estilos para SweetAlert2 */
+.swal2-actions-centered {
+    justify-content: center !important;
+}
+
+.swal2-popup-centered {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.swal-cancel-custom {
+    background-color: #c63223 !important;
+    border: none !important;
+    color: white !important;
+    font-weight: 600 !important;
+    padding: 12px 20px !important;
+    border-radius: 8px !important;
+}
+
+.swal-cancel-custom:hover {
+    background-color: #a82a1d !important;
+}
+
+/* =========================================== */
 /* RESPONSIVE DESIGN */
 /* =========================================== */
 
@@ -1282,17 +1335,4 @@
     .modal-container-material {
         max-height: 95vh;
     }
-}
-
-.swal-cancel-custom {
-    background-color: #c63223 !important;
-    border: none !important;
-    color: white !important;
-    font-weight: 600 !important;
-    padding: 12px 20px !important;
-    border-radius: 8px !important;
-}
-
-.swal-cancel-custom:hover {
-    background-color: #a82a1d !important;
 }

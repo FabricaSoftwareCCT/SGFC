@@ -2,7 +2,7 @@ const express = require("express")
 const router = express.Router()
 const upload = require("../config/multer")
 const { authMiddleware, authorizeRoles } = require("../middlewares/authMiddleware")
-const { ActualizarEmpresa } = require("../controllers/EmpresaController")
+const { ActualizarEmpresa } = require("../controllers/empresaController")
 
 router.put(
 	"/actualizar/:id",

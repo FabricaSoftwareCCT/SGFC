@@ -1,12 +1,32 @@
 version: '3.8'
 services:
+  #Servicio de base de datos MySQL
+  mysql-db:
+    image: mysql:8.0
+    restart: always
+    environment:
+      # MySQL oficial permite usar _FILE para leer la contraseña desde un secreto
+      - MYSQL_ROOT_PASSWORD=root_password_local
+    secrets:
+      - db_password
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - app
   #Servicios backend
   backend:
     build:
       context: ./server
     ports:
       - "5000:5000"
+    depends_on:
+      - mysql-db
     environment:
+      - DB_HOST=
+      - DB_USER=
+      - DB_PASSWORD=
+      - DB_NAME=
+      - DB_PORT=
       - NODE-ENV=production
     networks:
       - app

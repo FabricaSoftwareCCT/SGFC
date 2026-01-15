@@ -6,6 +6,7 @@ const { notify } = require('../routes/userRoutes');
 const {sendCreateMaterialApoyo} = require('../services/emailService')
 const { sendNotification, sendAbsenceNotifications, sendCourseRequestStatusEmail, getNotificacionesEstado, createNotificacionMaterialApoyo} = require('../services/notificationService');
 const { Op } = require('sequelize');
+const { FRONTEND_URL } = require('../config/env');
 let dbInstance;
 
 // Función para inyectar la instancia de la base de datos
@@ -322,11 +323,11 @@ const crearNotificacionInvitacionCursoInstructor = async (req, res) => {
 				}
 			</table>`: ""}
 			<a
-				href="http://localhost:5173/SupportMaterial/${curso.ID}"
+				href="${FRONTEND_URL}/SupportMaterial/${curso.ID}"
 				style="color: #00843d"
 			>Ver material del curso</a>
 			<a
-				href="http://localhost:5173/Cursos/${curso.ID}"
+				href="${FRONTEND_URL}/Cursos/${curso.ID}"
 				style="color: #00843d"
 			>Link del curso</a>
 			<br><p>Por favor, acepta o rechaza la invitación.</p>
@@ -435,7 +436,7 @@ const crearNotificacionMaterialApoyo = async (req, res) => {
 
 		const curso = await Curso.findByPk(curso_ID)
 		const emails = usuarios.map(user => user.email);
-		const material_link = `http://localhost:5173/cursos/`;
+		const material_link = `${FRONTEND_URL}/cursos/`;
 		
 		if (emails.length > 0) {
 			await sendCreateMaterialApoyo(emails, curso.dataValues.nombre_curso, material_link)

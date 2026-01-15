@@ -1,6 +1,6 @@
 const Curso = require("../models/curso");
 const User = require("../models/User");
-const Empresa = require('../models/empresa'); // Importar el modelo Empresa
+const Empresa = require('../models/empresa');
 const Notificacion = require('../models/Notificacion');
 const path = require("path");
 const AsignacionCursoInstructor = require("../models/AsignacionCursoInstructor");
@@ -15,6 +15,7 @@ const InvitacionCurso = require('../models/InvitacionCurso');
 const Usuario = require("../models/User");
 const { sendNotification, sendNotifiCursoApi } = require("../services/notificationService");
 const { normalizarTemario } = require("../utils/temarioUtils");
+const { FRONTEND_URL } = require("../config/env");
 
 
 let dbInstance;
@@ -374,7 +375,7 @@ const createCurso = async (req, res) => {
 
 				const emails = usuarios.map(user => user.email);
 				if (emails.length > 0 && nuevoCurso.ID) {
-					const courseLink = `http://localhost:5173/cursos/${nuevoCurso.ID}`;
+					const courseLink = `${FRONTEND_URL}/cursos/${nuevoCurso.ID}`;
 					await sendCourseCreatedEmail(emails, nombre_curso, courseLink, descripcion, estado);
 					await sendNotifiCursoApi(nombre_curso, emails, fecha_inicio, fecha_fin, estado);
 				}

@@ -52,6 +52,13 @@ async function initializeDatabase() {
         },
       },
       logging: false,
+      pool: {
+        max: 10,           // Máximo de conexiones por instancia
+        min: 2,            // Mínimo de conexiones idle
+        acquire: 30000,    // Tiempo máximo (ms) para obtener conexión
+        idle: 10000,       // Tiempo máximo (ms) que una conexión puede estar idle
+        evict: 1000,       // Intervalo (ms) para verificar conexiones idle
+      },
     })
   } else {
     // Desarrollo local: crear base de datos si no existe
@@ -62,6 +69,13 @@ async function initializeDatabase() {
       dialect: "mysql",
       port: DB_PORT,
       logging: false,
+      pool: {
+        max: 10,           // Máximo de conexiones por instancia
+        min: 2,            // Mínimo de conexiones idle
+        acquire: 30000,    // Tiempo máximo (ms) para obtener conexión
+        idle: 10000,       // Tiempo máximo (ms) que una conexión puede estar idle
+        evict: 1000,       // Intervalo (ms) para verificar conexiones idle
+      },
     })
   }
 

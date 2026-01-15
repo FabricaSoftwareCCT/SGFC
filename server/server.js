@@ -46,18 +46,16 @@ const app = express();
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
-const allowedOrigins = [
-  "http://localhost:5173"
-  
-];
+const { ALLOWED_ORIGINS } = require('./config/env');
 
 app.use(
   cors({
     origin: function (origin, callback) {
-      // Permitir solicitudes sin origin (como Postman) o desde orígenes permitidos
-      if (!origin || allowedOrigins.includes(origin)) {
+      // Permitir solicitudes sin origin (como Postman) o desde origenes permitidos
+      if (!origin || ALLOWED_ORIGINS.includes(origin)) {
         callback(null, true);
       } else {
+        console.warn(`CORS bloqueado para origen: ${origin}`);
         callback(new Error("No permitido por CORS"));
       }
     },
@@ -71,9 +69,14 @@ app.use(
 app.use(express.json());
 app.use(cookieParser()); // Usar cookie-parser para manejar cookies
 
-// Servir archivos estáticos
+// Servir archivos estaticos
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/base64storage", express.static(path.join(__dirname, "base64storage")));
+
+// Ruta de healthcheck para Docker
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "ok", timestamp: new Date().toISOString() });
+});
 
 // Registrar rutas
 app.use("/api/auth", authRouter);

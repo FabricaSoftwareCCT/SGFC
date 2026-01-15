@@ -1,10 +1,11 @@
 require("dotenv").config();
 const nodemailer = require("nodemailer");
-const Actas = require("../models/Actas"); // Asegúrate de importar el modelo
+const Actas = require("../models/Actas");
 
 const moment = require("moment-timezone");
 const Usuario = require("../models/User");
 const Notificacion = require("../models/Notificacion");
+const { FRONTEND_URL, BACKEND_URL } = require("../config/env");
 
 const fs = require("fs");
 const path = require("path");
@@ -200,9 +201,9 @@ const sendRequestCourseEmailAp = async (req, res) => {
 	}
 };
 
-// Función para enviar el correo de verificación
+// Funcion para enviar el correo de verificacion
 const sendVerificationEmail = async (email, token, accountType, newPassword, masive) => {
-  const enlaceVerificacion = `http://localhost:5173/verificarCorreo?token=${token}`;
+  const enlaceVerificacion = `${FRONTEND_URL}/verificarCorreo?token=${token}`;
   const fs = require('fs');
   const path = require('path');
   const logoPath = path.join(__dirname, '../Img/sena.png');
@@ -833,8 +834,8 @@ const sendConcertacionActaEmail = async (req, res) => {
 						).toLocaleString()}</p>
 						<p><strong>ID del acta:</strong> ${nuevaActa.ID}</p>
 						<p>Se ha registrado una nueva acta de concertación en el sistema.</p>
-						<a style="color: #00843d" href="http://localhost:3001/uploads/documentos/${pdfFileName}">Ver acta</a>
-					`, // RECUERDA CAMBIAR ESTO
+						<a style="color: #00843d" href="${BACKEND_URL}/uploads/documentos/${pdfFileName}">Ver acta</a>
+					`,
 						attachments: [
 							{
 								filename: pdfFileName,
@@ -851,16 +852,16 @@ const sendConcertacionActaEmail = async (req, res) => {
 
 		//  Respuesta exitosa
 		res.status(200).json({
-			message: "Acta de concertación enviada y registrada correctamente.",
+			message: "Acta de concertacion enviada y registrada correctamente.",
 			pdf_acta: pdfFileName,
 			acta_id: nuevaActa.ID,
 			instructor_ID_guardado: nuevaActa.instructor_ID,
 			gestor_ID_guardado: nuevaActa.gestor_ID,
 		});
 	} catch (error) {
-		console.error("❌ Error completo:", error);
+		console.error("Error completo:", error);
 		res.status(500).json({
-			message: "Error al enviar o registrar el acta de concertación.",
+			message: "Error al enviar o registrar el acta de concertacion.",
 			error: error.message,
 		});
 	}

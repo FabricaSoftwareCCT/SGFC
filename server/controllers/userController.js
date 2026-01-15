@@ -20,6 +20,7 @@ const { createCanvas } = require("canvas");
 const { UserServices } = require("../services/Userservices");
 const { sendNotification, sendProfileUpdateNotification } = require('../services/notificationService');
 const { generateTempPassword } = require("../Helpers/GeneratePassword");
+const { FRONTEND_URL } = require("../config/env");
 
 
 // Registrar usuario
@@ -487,11 +488,10 @@ const requestPasswordReset = async (req, res) => {
 		user.resetPasswordExpires = Date.now() + 3600000; // 1 hora
 		await user.save();
 
-		// 👉 Imprimir el token en consola
 		console.log(`Token generado para ${email}: ${resetToken}`);
 
-		const resetLink = `http://localhost:5173/resetPassword?token=${resetToken}`;
-		console.log(`Enviando correo de recuperación a: ${email}`);
+		const resetLink = `${FRONTEND_URL}/resetPassword?token=${resetToken}`;
+		console.log(`Enviando correo de recuperacion a: ${email}`);
 		await sendPasswordResetEmail(email, resetLink);
 
 		res.status(200).json({
@@ -546,8 +546,8 @@ const resetPassword = async (req, res) => {
 
 		await user.save();
 
-		// Enlace para volver a cambiar la contraseña
-		const resetLink = `http://localhost:5173/resetPassword?token=${newResetToken}`;
+		// Enlace para volver a cambiar la contrasena
+		const resetLink = `${FRONTEND_URL}/resetPassword?token=${newResetToken}`;
 		await sendPasswordChangeConfirmationEmail(user.email, resetLink);
 
 		res.status(200).json({ message: "Contraseña restablecida con éxito" });

@@ -17,7 +17,7 @@ const transporter = nodemailer.createTransport({
 	service: "gmail",
 	auth: {
 		user: process.env.EMAIL_USER,
-		pass: process.env.EMAIL_PASS,
+		pass: process.env.GOOGLE_APP_PASSWORD || process.env.EMAIL_PASS,
 	},
 });
 
@@ -804,7 +804,7 @@ const sendConcertacionActaEmail = async (req, res) => {
 						service: "gmail",
 						auth: {
 							user: process.env.EMAIL_USER,
-							pass: process.env.EMAIL_PASS,
+							pass: process.env.GOOGLE_APP_PASSWORD || process.env.EMAIL_PASS,
 						},
 					});
 

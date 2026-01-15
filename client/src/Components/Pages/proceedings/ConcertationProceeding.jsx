@@ -10,6 +10,7 @@ import { ModalSignature } from '../../UI/Modal_Signature/ModalSignature';
 import { validateText, validateNumber, createMensajeError, validarFecha } from '../../../utils/Validators/formValidator';
 import Swal from 'sweetalert2'
 import 'sweetalert2/themes/bulma.css'
+import IconDescarga from '../../../assets/Icons/IconDescarga.png'
 
 
 
@@ -459,7 +460,7 @@ export const ConcertationProceeding = () => {
 						{!isEditing && (
 							<img
 								className="download-icon-proceedings"
-								src="/src/assets/Icons/IconDescarga.png"
+								src={IconDescarga}
 								alt="Icono de descarga"
 								style={{ cursor: "pointer" }}
 								onClick={handleDownloadPDF}

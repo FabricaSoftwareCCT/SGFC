@@ -11,6 +11,7 @@ import { EditableList } from '../../UI/EditableList/EditableList';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2'
 import 'sweetalert2/themes/bulma.css'
+import IconDescarga from '../../../assets/Icons/IconDescarga.png'
 
 export const TrainingPlaceProceeding = () => {
 	const navigate = useNavigate();
@@ -312,7 +313,7 @@ export const TrainingPlaceProceeding = () => {
 						{!isEditing && (
 							<img
 								className="download-icon-proceedings"
-								src="/src/assets/Icons/IconDescarga.png"
+								src={IconDescarga}
 								alt="Icono de descarga"
 								style={{ cursor: "pointer" }}
 								onClick={handleDownloadPDF}

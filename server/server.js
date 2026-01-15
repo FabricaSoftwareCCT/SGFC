@@ -133,14 +133,19 @@ async function startServer() {
     const ubicacionesRoutes = ubicacionesRoutesFactory(db);
     app.use("/api/ubicaciones", ubicacionesRoutes);
 
-    // Limpiar índices duplicados y asegurar índices faltantes
-    console.log("Limpiando índices duplicados...");
-    await dropDuplicateIndexes(db.sequelize);
-    console.log("Limpieza de índices duplicados completada.");
-    
-    console.log("Asegurando índices faltantes...");
-    await ensureIndexesSmart(db.sequelize);
-    console.log("Aseguramiento de índices completado.");
+    // Limpiar indices duplicados y asegurar indices faltantes
+    // SOLO en desarrollo - en produccion los indices ya existen y esto causa errores
+    if (process.env.NODE_ENV !== 'production') {
+      console.log("Limpiando indices duplicados...");
+      await dropDuplicateIndexes(db.sequelize);
+      console.log("Limpieza de indices duplicados completada.");
+      
+      console.log("Asegurando indices faltantes...");
+      await ensureIndexesSmart(db.sequelize);
+      console.log("Aseguramiento de indices completado.");
+    } else {
+      console.log("Produccion: gestion de indices deshabilitada.");
+    }
 
     // Crear datos por defecto
     await db.Departamento.createDefaultDeparment();

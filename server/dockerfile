@@ -22,8 +22,11 @@ COPY . .
 # Crear directorio para logs de PM2
 RUN mkdir -p logs && chown -R node:node logs
 
-# Crear directorios para uploads con permisos correctos
-RUN mkdir -p uploads/documentos uploads/temp && chown -R node:node uploads
+# Crear todos los directorios de uploads con permisos correctos
+# Las subcarpetas dinamicas (curso-X, actividad-Y) se crean automaticamente con recursive: true
+RUN mkdir -p uploads/documentos uploads/temp uploads/solicitudes uploads/material uploads/actividades && \
+    mkdir -p base64storage xlsxUploads && \
+    chown -R node:node uploads base64storage xlsxUploads
 
 # Cambiar usuario de ejecucion de app para evitar usar root
 # Practica de seguridad

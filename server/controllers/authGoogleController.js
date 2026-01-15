@@ -176,18 +176,19 @@ const generateTokenAndRespond = (user, res) => {
         { expiresIn: "7d" }
     );
 
+    const isSecure = process.env.NODE_ENV === "production" && process.env.USE_HTTPS === "true";
     res.cookie("accessToken", accessToken, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
+        secure: isSecure,
+        sameSite: "lax",
         maxAge: 3600000, // 1 hora
     });
 
     res.cookie("refreshToken", refreshToken, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 días
+        secure: isSecure,
+        sameSite: "lax",
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 dias
     });
 
     res.status(200).json({

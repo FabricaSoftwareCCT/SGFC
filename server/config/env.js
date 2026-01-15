@@ -42,6 +42,17 @@ const getAllowedOrigins = () => {
     origins.push('http://127.0.0.1:5173');
   }
   
+  // En produccion, agregar FRONTEND_URL con puerto 3000 si usa IP
+  if (process.env.NODE_ENV === 'production' && process.env.FRONTEND_URL) {
+    origins.push(process.env.FRONTEND_URL);
+    // Si FRONTEND_URL tiene una IP, agregar tambien con puerto 3000
+    const ipMatch = process.env.FRONTEND_URL.match(/http:\/\/(\d+\.\d+\.\d+\.\d+)/);
+    if (ipMatch) {
+      origins.push(`http://${ipMatch[1]}:3000`);
+      origins.push(`http://${ipMatch[1]}:80`);
+    }
+  }
+  
   // Agregar origenes adicionales desde variable de entorno si existe
   if (process.env.ADDITIONAL_ORIGINS) {
     const additionalOrigins = process.env.ADDITIONAL_ORIGINS.split(',').map(origin => origin.trim());

@@ -297,18 +297,21 @@ const loginUser = async (req, res) => {
 		);
 
 		// Guardar tokens en cookies
+		// Nota: sameSite "lax" permite cookies en navegaciones normales entre puertos
+		// secure debe ser false cuando no hay HTTPS configurado
+		const isSecure = process.env.NODE_ENV === "production" && process.env.USE_HTTPS === "true";
 		res.cookie("accessToken", accessToken, {
 			httpOnly: true,
-			secure: process.env.NODE_ENV === "production",
-			sameSite: "strict",
+			secure: isSecure,
+			sameSite: "lax",
 			maxAge: remember ? 15 * 60 * 1000 : null,
 		});
 
 		res.cookie("refreshToken", refreshToken, {
 			httpOnly: true,
-			secure: process.env.NODE_ENV === "production",
-			sameSite: "strict",
-			maxAge: 7 * 24 * 60 * 60 * 1000, // 7 días
+			secure: isSecure,
+			sameSite: "lax",
+			maxAge: 7 * 24 * 60 * 60 * 1000, // 7 dias
 		});
 
 		// Agregar empresa_ID si es cuenta tipo Empresa
@@ -361,17 +364,18 @@ const recordLogin = async (req, res) => {
 			{ expiresIn: "7d" }
 		);
 
+		const isSecure = process.env.NODE_ENV === "production" && process.env.USE_HTTPS === "true";
 		res.cookie("accessToken", accessToken, {
 			httpOnly: true,
-			secure: process.env.NODE_ENV === "production",
-			sameSite: "strict",
+			secure: isSecure,
+			sameSite: "lax",
 			maxAge: 15 * 60 * 1000,
 		});
 
 		res.cookie("refreshToken", refreshToken, {
 			httpOnly: true,
-			secure: process.env.NODE_ENV === "production",
-			sameSite: "strict",
+			secure: isSecure,
+			sameSite: "lax",
 			maxAge: 7 * 24 * 60 * 60 * 1000, // 7 días
 		});
 
@@ -418,48 +422,50 @@ const refreshAccessToken = async (req, res) => {
 			{ expiresIn: "15m" }
 		);
 
+		const isSecure = process.env.NODE_ENV === "production" && process.env.USE_HTTPS === "true";
 		res.cookie("accessToken", accessToken, {
 			httpOnly: true,
-			secure: process.env.NODE_ENV === "production",
-			sameSite: "strict",
+			secure: isSecure,
+			sameSite: "lax",
 			maxAge: 15 * 60 * 1000, // 15 minutos
 		});
 
-		// ✅ También devolver el nuevo accessToken en la respuesta
+		// Tambien devolver el nuevo accessToken en la respuesta
 		res.status(200).json({
 			message: "Token renovado",
-			accessToken: accessToken, // ✅ Para que el frontend lo guarde
+			accessToken: accessToken,
 			accountType: user.accountType,
 		});
 	} catch (error) {
 		console.error("Error al refrescar el token:", error);
-		res.status(401).json({ message: "Refresh token inválido o expirado" });
+		res.status(401).json({ message: "Refresh token invalido o expirado" });
 	}
 };
 
 //cerrar sesion
 const logoutUser = (req, res) => {
-	// Verificar si el sistema está apagado
+	// Verificar si el sistema esta apagado
 	if (
 		process.env.SYSTEM_STATUS === "offline" ||
 		process.env.SYSTEM_SHUTDOWN === "true"
 	) {
 		return res.status(503).json({
 			message:
-				"El sistema está apagado. No es posible cerrar sesión en este momento.",
+				"El sistema esta apagado. No es posible cerrar sesion en este momento.",
 		});
 	}
 
+	const isSecure = process.env.NODE_ENV === "production" && process.env.USE_HTTPS === "true";
 	res.clearCookie("accessToken", {
 		httpOnly: true,
-		secure: process.env.NODE_ENV === "production",
-		sameSite: "strict",
+		secure: isSecure,
+		sameSite: "lax",
 	});
 
 	res.clearCookie("refreshToken", {
 		httpOnly: true,
-		secure: process.env.NODE_ENV === "production",
-		sameSite: "strict",
+		secure: isSecure,
+		sameSite: "lax",
 	});
 
 	res.status(200).json({ message: "Sesión cerrada correctamente" });

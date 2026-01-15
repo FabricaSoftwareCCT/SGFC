@@ -22,6 +22,9 @@ COPY . .
 # Crear directorio para logs de PM2
 RUN mkdir -p logs && chown -R node:node logs
 
+# Crear directorios para uploads con permisos correctos
+RUN mkdir -p uploads/documentos uploads/temp && chown -R node:node uploads
+
 # Cambiar usuario de ejecucion de app para evitar usar root
 # Practica de seguridad
 USER node

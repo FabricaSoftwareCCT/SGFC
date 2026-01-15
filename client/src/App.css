@@ -13,6 +13,13 @@
   min-width: 320px !important;
 }
 
+/* Forzar layout vertical en modales SweetAlert2 */
+.swal2-popup.swal2-modal.swal2-show[class*=swal2] {
+  padding: 1.5em !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
 .swal2-html-container {
   width: 100% !important;
   max-width: 100% !important;

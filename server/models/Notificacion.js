@@ -15,6 +15,7 @@ class Notificacion extends Model {
                         'recordatorio',
                         'actualizacion_curso',
                         'solicitud_curso',
+                        'estado_solicitud_curso',
                         'invitacion_cursoInstructor',
                         'perfil_actualizado',
                         'actividad',

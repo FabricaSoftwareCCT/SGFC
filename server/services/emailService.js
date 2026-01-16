@@ -19,10 +19,15 @@ const transporter = nodemailer.createTransport({
 		user: process.env.EMAIL_USER,
 		pass: process.env.GOOGLE_APP_PASSWORD || process.env.EMAIL_PASS,
 	},
+	pool: true,
+	maxConnections: 1,
+	maxMessages: 3,
+	rateDelta: 1000,
+	rateLimit: 5,
 });
 
-// Función genérica para enviar cualquier tipo de email
-const sendEmail = async (email, subject, htmlContent) => {
+// Función genérica para enviar cualquier tipo de email con retry logic
+const sendEmail = async (email, subject, htmlContent, retries = 2) => {
 	const mailOptions = {
 		from: `"SGFC" <${process.env.EMAIL_USER}>`,
 		to: email,
@@ -33,17 +38,34 @@ const sendEmail = async (email, subject, htmlContent) => {
 		]
 	};
 
-	return new Promise((resolve, reject) => {
-		transporter.sendMail(mailOptions, (err, info) => {
-			if (err) {
-				console.error("Error al enviar el correo:", err);
-				reject(err);
+	for (let attempt = 0; attempt <= retries; attempt++) {
+		try {
+			return await new Promise((resolve, reject) => {
+				const timeout = setTimeout(() => {
+					reject(new Error('Timeout al enviar email'));
+				}, 30000);
+
+				transporter.sendMail(mailOptions, (err, info) => {
+					clearTimeout(timeout);
+					if (err) {
+						console.error(`Error al enviar el correo (intento ${attempt + 1}/${retries + 1}):`, err.message);
+						reject(err);
+					} else {
+						console.log("Correo enviado:", info.response);
+						resolve(info);
+					}
+				});
+			});
+		} catch (error) {
+			if (attempt < retries) {
+				const delay = Math.pow(2, attempt) * 1000;
+				console.log(`Reintentando envío de email en ${delay}ms...`);
+				await new Promise(resolve => setTimeout(resolve, delay));
 			} else {
-				console.log("Correo enviado:", info.response);
-				resolve(info);
+				throw error;
 			}
-		});
-	});
+		}
+	}
 };
 
 const sendRequestCourseEmail = async (req, res) => {

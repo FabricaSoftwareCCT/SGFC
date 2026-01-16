@@ -387,10 +387,12 @@ const createCourseRequestStatusNotification = async (req, res) => {
 			return res.status(404).json({ message: 'Usuario no encontrado.' });
 		}
 
+		const usuarioId = usuario.ID || usuario.id;
+
 		// Crear la notificación
 		const notificacion = await dbInstance.Notificacion.create({
 			remitente_ID,
-			destinatario_ID: usuario.dataValues.ID,
+			destinatario_ID: usuarioId,
 			tipo: 'estado_solicitud_curso',
 			titulo: `Solicitud de curso ${estado}`,
 			mensaje: `La solicitud de curso ha sido ${estado}.`,
@@ -399,10 +401,12 @@ const createCourseRequestStatusNotification = async (req, res) => {
 			acta_ID: actaID
 		});
 
-		await sendCourseRequestStatusEmail(
-			usuario.dataValues.ID,
-			actaID
-		);
+		// Intentar enviar email de forma no bloqueante
+		// No hacemos await para que no bloquee la respuesta
+		sendCourseRequestStatusEmail(usuarioId, actaID)
+			.catch((emailError) => {
+				console.warn('No se pudo enviar el email de notificación (la notificación en app se creó correctamente):', emailError?.message || emailError);
+			});
 
 		res.status(201).json({
 			success: true,

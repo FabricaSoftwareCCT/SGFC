@@ -413,18 +413,23 @@ const sendCourseRequestStatusEmail = async (userId, actaID) => {
 		const acta = await Actas.findByPk(actaID);
 
 		if (!user || !acta) {
-			throw new Error("Usuario o estado no encontrado");
+			console.warn("Usuario o acta no encontrado para enviar email:", { userId, actaID });
+			return;
 		}
+
 		const fechaActa = format(
-			new Date(acta.dataValues.fecha_acta),
+			new Date(acta.dataValues?.fecha_acta || acta.fecha_acta),
 			"dd/MM/yyyy"
 		);
 
-		const title = `Estado de su solicitud - ${acta.dataValues.estado_acta}`;
+		const estadoActa = acta.dataValues?.estado_acta || acta.estado_acta;
+		const cursoId = acta.dataValues?.curso_ID || acta.curso_ID;
+
+		const title = `Estado de su solicitud - ${estadoActa}`;
 		const message = `
             <h2>Notificación de Estado de Solicitud</h2>
             <p>Estimado(a) ${user.nombres} ${user.apellidos},</p>
-            <p>Le informamos que el estado de su solicitud para el curso <strong>${acta.dataValues.curso_ID}</strong> es: <strong>${acta.dataValues.estado_acta}</strong>.</p>
+            <p>Le informamos que el estado de su solicitud para el curso <strong>${cursoId}</strong> es: <strong>${estadoActa}</strong>.</p>
             <p>Detalles del acta:</p>
             <ul>
                 <li><strong>Fecha del Acta:</strong> ${fechaActa}</li>
@@ -433,13 +438,14 @@ const sendCourseRequestStatusEmail = async (userId, actaID) => {
             <p>Saludos cordiales,<br>SGFC</p>
         `;
 
-		sendEmail(user.email, title, message);
+		await sendEmail(user.email, title, message);
+		console.log(`Email de estado de solicitud enviado correctamente a ${user.email}`);
 	} catch (error) {
 		console.error(
 			"Error al enviar correo de confirmación de estado de solicitud de curso:",
-			error
+			error?.message || error
 		);
-		throw error;
+		// No lanzamos el error para que no bloquee la operación principal
 	}
 };
 

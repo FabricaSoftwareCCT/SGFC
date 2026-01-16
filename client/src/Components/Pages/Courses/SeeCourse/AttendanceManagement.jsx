@@ -10,6 +10,7 @@ import 'sweetalert2/themes/bulma.css';
 import agregarArchivoIcon from '../../../../assets/Icons/agregar-archivo.png';
 import actualizarIcon from '../../../../assets/Icons/actualizar (1).png';
 import archivosIcon from '../../../../assets/Icons/archivos.png';
+import usuarioIcon from '../../../../assets/Icons/usuario.png';
 
 export const AttendanceManagement = ({ open, onClose, courseId, selectedDate }) => {
     const navigate = useNavigate();
@@ -82,7 +83,7 @@ export const AttendanceManagement = ({ open, onClose, courseId, selectedDate }) 
         }
 
         // Si no coincide con ningún patrón, devolver imagen por defecto
-        return "/src/assets/Icons/usuario.png";
+        return usuarioIcon;
     };
 
     useEffect(() => {

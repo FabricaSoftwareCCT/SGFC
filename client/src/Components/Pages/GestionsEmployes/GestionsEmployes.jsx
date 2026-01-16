@@ -16,6 +16,7 @@ import { ReportEmployee } from "./ReportEmployee/ReportEmployee"
 import { generarExcelEmpleado } from "../../../utils/Reports/Empleados"
 import html2pdf from "html2pdf.js"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import userDefectIcon from '../../../assets/Icons/userDefect.png'
 import {
     faUserPlus,
     faChartLine,
@@ -259,7 +260,7 @@ export const GestionsEmployes = () => {
 
     const getImageSrcFromBase64 = (imageData) => {
         if (!imageData) {
-            return "/src/assets/Icons/userDefect.png"
+            return userDefectIcon
         }
 
         if (typeof imageData === 'string') {
@@ -286,16 +287,15 @@ export const GestionsEmployes = () => {
 
             if (imageData.startsWith('../') || imageData.startsWith('/')) {
                 if (imageData.startsWith('../Img/')) {
-                    const newPath = imageData.replace('../Img/', '/src/assets/Icons/')
-                    return newPath
+                    return userDefectIcon
                 }
                 return imageData
             }
 
-            return "/src/assets/Icons/userDefect.png"
+            return userDefectIcon
         }
 
-        return "/src/assets/Icons/userDefect.png"
+        return userDefectIcon
     }
 
     const generarReporte = async () => {

@@ -72,6 +72,7 @@ app.use(cookieParser()); // Usar cookie-parser para manejar cookies
 // Servir archivos estaticos
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/base64storage", express.static(path.join(__dirname, "base64storage")));
+app.use("/img", express.static(path.join(__dirname, "Img")));
 
 // Ruta de healthcheck para Docker
 app.get("/health", (req, res) => {

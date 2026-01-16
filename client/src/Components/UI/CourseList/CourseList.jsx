@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import "./CourseList.css"
-import defaultCourseImage from '../../assets/Ilustrations/f3.jpg'
+import defaultCourseImage from '../../../assets/Ilustrations/f3.jpg'
 
 export const CourseList = ({cursos, loading, onChange}) => {
 	const [current, setCurrent] = useState(0);

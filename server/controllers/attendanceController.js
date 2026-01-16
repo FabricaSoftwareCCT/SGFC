@@ -13,6 +13,13 @@ const setDb = (databaseInstance) => {
  */
 const registerAttendance = async (req, res) => {
     try {
+        if (!req.user || !req.user.id) {
+            return res.status(401).json({
+                success: false,
+                message: 'Usuario no autenticado'
+            });
+        }
+
         const { courseId } = req.params;
         const { usuario_ID, estado, fecha } = req.body;
         const registrador_ID = req.user.id;
@@ -49,6 +56,7 @@ const registerAttendance = async (req, res) => {
         }
 
         // Crear la asistencia con la fecha proporcionada
+        // aprendiz_ID es requerido por el trigger afterAssistance para actualizar criterios
         const asistencia = await dbInstance.Asistencia.create({
             usuario_ID,
             estado_asistencia: estado || 'Pendiente',

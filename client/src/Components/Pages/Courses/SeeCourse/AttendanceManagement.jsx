@@ -13,6 +13,7 @@ import archivosIcon from '../../../../assets/Icons/archivos.png';
 import usuarioIcon from '../../../../assets/Icons/usuario.png';
 import arrowLeftIcon from '../../../../assets/Icons/arrowLeft.png';
 import arrowRightIcon from '../../../../assets/Icons/arrowRight.png';
+import botonEditarGrisIcon from '../../../../assets/Icons/boton-editar-gris.png';
 
 export const AttendanceManagement = ({ open, onClose, courseId, selectedDate }) => {
     const navigate = useNavigate();
@@ -301,15 +302,15 @@ export const AttendanceManagement = ({ open, onClose, courseId, selectedDate }) 
             setError(errorMessage);
             
             await Swal.fire({
-                ...swalConfig,
                 icon: 'error',
                 title: 'Error',
-                text: 'Error al guardar las asistencias',
+                text: errorMessage,
                 confirmButtonText:"Okay",
                 confirmButtonColor:"#00843d",
                 theme: 'bulma',
                 customClass: {
-                    actions: 'swal2-center-actions'
+                    actions: 'swal2-center-actions',
+                    confirmButton: 'swal2-confirm-bulma'
                 }
             });
         } finally {
@@ -886,7 +887,7 @@ export const AttendanceManagement = ({ open, onClose, courseId, selectedDate }) 
                                                         }}
                                                     >
                                                         <img 
-                                                            src="/src/assets/Icons/boton-editar-gris.png" 
+                                                            src={botonEditarGrisIcon} 
                                                             alt="Actualizar" 
                                                         />
                                                     </button>
@@ -927,7 +928,7 @@ export const AttendanceManagement = ({ open, onClose, courseId, selectedDate }) 
                                                         }}
                                                     >
                                                         <img 
-                                                            src="/src/assets/Icons/boton-editar-gris.png" 
+                                                            src={botonEditarGrisIcon} 
                                                             alt="Actualizar" 
                                                         />
                                                     </button>

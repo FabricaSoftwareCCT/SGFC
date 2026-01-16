@@ -479,6 +479,11 @@
 	overflow-y: auto;
 	position: relative;
 	z-index: 1;
+	
+}
+
+.activities-wrapper .modal-body {
+	padding: 3rem;
 }
 
 .materials-body {

@@ -38,6 +38,11 @@ class Asistencia extends Model {
                 fecha_actualizacion: {
                     type: DataTypes.DATE,
                     allowNull: true
+                },
+                aprendiz_ID: {
+                    type: DataTypes.INTEGER,
+                    allowNull: true,
+                    comment: 'Usado por triggers para actualizar criterios de asistencia'
                 }
             },
             {

@@ -5,6 +5,10 @@ const Actas = require("../models/Actas");
 const { Notificacion, Sesion } = require("../models");
 const { format } = require("date-fns");
 const { Op, where } = require("sequelize");
+const { BACKEND_URL } = require("../config/env");
+
+// URL del logo para notificaciones en el navegador
+const LOGO_URL = `${BACKEND_URL}/img/sena.png`;
 
 let dbInstance;
 
@@ -49,7 +53,7 @@ const wrapEmailLayout = ({ title, content }) => `
             <table width="100%" cellpadding="0" cellspacing="0">
               <tr>
                 <td align="center" style="padding-bottom:1.25rem; border-bottom:.0625rem solid #eee;">
-                  <img src="cid:logo" alt="Logo de Fábrica de Software CCT" style="width:5rem; height:auto; margin-bottom:.9375rem; display:block;">
+                  <img src="${LOGO_URL}" alt="Logo de Fábrica de Software CCT" style="width:5rem; height:auto; margin-bottom:.9375rem; display:block;">
                   <h1 style="color:#00843D; margin:0; font-size:1.5rem; font-family:Arial,sans-serif;">${title}</h1>
                 </td>
               </tr>

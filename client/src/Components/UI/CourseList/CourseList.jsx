@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import "./CourseList.css"
+import defaultCourseImage from '../../assets/Ilustrations/f3.jpg'
 
 export const CourseList = ({cursos, loading, onChange}) => {
 	const [current, setCurrent] = useState(0);
@@ -57,7 +58,7 @@ export const CourseList = ({cursos, loading, onChange}) => {
 												src={
 													curso?.imagen
 														? `data:image/jpeg;base64,${curso.imagen}`
-														: "/src/assets/Ilustrations/f3.jpg"
+														: defaultCourseImage
 												}
 												alt={curso?.nombre_curso}
 											/>

@@ -11,6 +11,8 @@ import agregarArchivoIcon from '../../../../assets/Icons/agregar-archivo.png';
 import actualizarIcon from '../../../../assets/Icons/actualizar (1).png';
 import archivosIcon from '../../../../assets/Icons/archivos.png';
 import usuarioIcon from '../../../../assets/Icons/usuario.png';
+import arrowLeftIcon from '../../../../assets/Icons/arrowLeft.png';
+import arrowRightIcon from '../../../../assets/Icons/arrowRight.png';
 
 export const AttendanceManagement = ({ open, onClose, courseId, selectedDate }) => {
     const navigate = useNavigate();
@@ -35,11 +37,11 @@ export const AttendanceManagement = ({ open, onClose, courseId, selectedDate }) 
     // FUNCIÓN MEJORADA PARA MANEJAR IMÁGENES DE PERFIL
     const getImageSrcFromBase64 = (imageData) => {
         if (!imageData) {
-            return "/src/assets/Icons/usuario.png";
+            return usuarioIcon;
         }
 
         if (typeof imageData !== 'string') {
-            return "/src/assets/Icons/usuario.png";
+            return usuarioIcon;
         }
 
         // Si ya es una URL data:image, devolverla directamente
@@ -542,7 +544,7 @@ export const AttendanceManagement = ({ open, onClose, courseId, selectedDate }) 
                                             onClick={handlePrevParticipant}
                                             disabled={currentParticipantIndex === 0}
                                         >
-                                            <img src="/src/assets/Icons/arrowLeft.png" alt="Flecha izquierda" />
+                                            <img src={arrowLeftIcon} alt="Flecha izquierda" />
                                         </button>
 
                                         <div className="carousel-track-attendance">
@@ -728,7 +730,7 @@ export const AttendanceManagement = ({ open, onClose, courseId, selectedDate }) 
                                                     onClick={handlePrevParticipant}
                                                     disabled={currentParticipantIndex === 0}
                                                 >
-                                                    <img src="/src/assets/Icons/arrowLeft.png" alt="Flecha izquierda" />
+                                                    <img src={arrowLeftIcon} alt="Flecha izquierda" />
                                                 </button>
 
                                                 <div className="carousel-track-attendance">
@@ -758,7 +760,7 @@ export const AttendanceManagement = ({ open, onClose, courseId, selectedDate }) 
                                                                         alt={`Foto de ${participant.aprendiz?.nombres}`}
                                                                         onError={(e) => {
                                                                             e.target.onerror = null;
-                                                                            e.target.src = "/src/assets/Icons/usuario.png";
+                                                                            e.target.src = usuarioIcon;
                                                                         }}
                                                                     />
                                                                 </div>
@@ -772,7 +774,7 @@ export const AttendanceManagement = ({ open, onClose, courseId, selectedDate }) 
                                                     onClick={handleNextParticipant}
                                                     disabled={currentParticipantIndex === filteredParticipants.length - 1}
                                                 >
-                                                    <img src="/src/assets/Icons/arrowRight.png" alt="Flecha derecha" />
+                                                    <img src={arrowRightIcon} alt="Flecha derecha" />
                                                 </button>
                                             </div>
                                             

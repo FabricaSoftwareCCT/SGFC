@@ -7,6 +7,9 @@ import { useNavigate } from 'react-router-dom';
 import './AttendanceManagement.css';
 import Swal from 'sweetalert2';
 import 'sweetalert2/themes/bulma.css';
+import agregarArchivoIcon from '../../../../assets/Icons/agregar-archivo.png';
+import actualizarIcon from '../../../../assets/Icons/actualizar (1).png';
+import archivosIcon from '../../../../assets/Icons/archivos.png';
 
 export const AttendanceManagement = ({ open, onClose, courseId, selectedDate }) => {
     const navigate = useNavigate();
@@ -455,7 +458,7 @@ export const AttendanceManagement = ({ open, onClose, courseId, selectedDate }) 
                             >
                                 <div className="option-icon-container-attendance">
                                     <img 
-                                        src="/src/assets/Icons/agregar-archivo.png" 
+                                        src={agregarArchivoIcon} 
                                         alt="Agregar Asistencia"
                                         className="option-icon-attendance"
                                     />
@@ -469,7 +472,7 @@ export const AttendanceManagement = ({ open, onClose, courseId, selectedDate }) 
                             >
                                 <div className="option-icon-container-attendance">
                                     <img 
-                                        src="/src/assets/Icons/actualizar (1).png" 
+                                        src={actualizarIcon} 
                                         alt="Actualizar Asistencia"
                                         className="option-icon-attendance"
                                     />
@@ -483,7 +486,7 @@ export const AttendanceManagement = ({ open, onClose, courseId, selectedDate }) 
                             >
                                 <div className="option-icon-container-attendance">
                                     <img 
-                                        src="/src/assets/Icons/archivos.png" 
+                                        src={archivosIcon} 
                                         alt="Consultar Asistencias"
                                         className="option-icon-attendance"
                                     />

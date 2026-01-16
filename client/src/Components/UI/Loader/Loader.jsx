@@ -5,7 +5,9 @@ const Loader = () =>
   createPortal(
     <div className="loader-overlay">
       <div className="loader">
-        {/* Las bolitas animadas se generan con los pseudoelementos del CSS */}
+        <span className="loader-dot"></span>
+        <span className="loader-dot"></span>
+        <span className="loader-dot"></span>
       </div>
     </div>,
     document.body

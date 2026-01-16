@@ -4,50 +4,52 @@
   position: fixed;
   top: 0;
   left: 0;
-  width: 100vw;
-  height: 100dvh;
-  background-color: #00000040; /* Fondo gris */
+  width: 100%;
+  height: 100%;
+  min-height: 100vh;
+  background-color: rgba(0, 0, 0, 0.4);
   backdrop-filter: blur(5px);
   z-index: 9999;
-  display: grid;
-  place-items: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-/* --- Tu animación original con los colores modificados --- */
+/* Loader con círculos animados - versión con rebote */
 .loader {
-  width: max-content;
-  height: 15px;
-  aspect-ratio: 4;
-  /* Aquí cambiamos el color a tu nuevo tono de verde oscuro */
-  --_g: no-repeat radial-gradient(farthest-side, #00843d 90%, #0000); /* <-- Tu nuevo color para las bolitas */
-  background: var(--_g) left, var(--_g) right;
-  background-size: 25% 100%;
-  display: grid;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  height: 50px;
 }
 
-.loader:before,
-.loader:after {
-  content: "";
-  height: inherit;
-  aspect-ratio: 1;
-  grid-area: 1/1;
-  margin: auto;
+.loader-dot {
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
-  transform-origin: -100% 50%;
-  /* Aquí también cambiamos el color de las bolitas */
-  background: #00843d; /* <-- Tu nuevo color para las bolitas */
-  animation: l49 1s infinite linear;
+  background-color: #00843d;
+  animation: loader-bounce 1.4s infinite ease-in-out;
+  display: block;
 }
 
-.loader:after {
-  transform-origin: 200% 50%;
-  --s: -1;
-  animation-delay: -0.5s;
+.loader-dot:nth-child(1) {
+  animation-delay: 0s;
 }
 
-@keyframes l49 {
-  58%,
-  100% {
-    transform: rotate(calc(var(--s, 1) * 1turn));
+.loader-dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.loader-dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes loader-bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-30px);
   }
 }

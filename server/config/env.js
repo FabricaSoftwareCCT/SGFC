@@ -42,14 +42,29 @@ const getAllowedOrigins = () => {
     origins.push('http://127.0.0.1:5173');
   }
   
-  // En produccion, agregar FRONTEND_URL con puerto 3000 si usa IP
+  // En produccion, agregar variantes de FRONTEND_URL
   if (process.env.NODE_ENV === 'production' && process.env.FRONTEND_URL) {
     origins.push(process.env.FRONTEND_URL);
-    // Si FRONTEND_URL tiene una IP, agregar tambien con puerto 3000
+    
+    // Si FRONTEND_URL tiene una IP, agregar con diferentes puertos
     const ipMatch = process.env.FRONTEND_URL.match(/http:\/\/(\d+\.\d+\.\d+\.\d+)/);
     if (ipMatch) {
       origins.push(`http://${ipMatch[1]}:3000`);
       origins.push(`http://${ipMatch[1]}:80`);
+      origins.push(`http://${ipMatch[1]}`);
+    }
+    
+    // Si es un dominio, agregar variantes con y sin www
+    const domainMatch = process.env.FRONTEND_URL.match(/http:\/\/([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/);
+    if (domainMatch && !ipMatch) {
+      const domain = domainMatch[1];
+      origins.push(`http://${domain}`);
+      origins.push(`https://${domain}`);
+      // Si no tiene www, agregar con www
+      if (!domain.startsWith('www.')) {
+        origins.push(`http://www.${domain}`);
+        origins.push(`https://www.${domain}`);
+      }
     }
   }
   
@@ -59,8 +74,15 @@ const getAllowedOrigins = () => {
     origins.push(...additionalOrigins);
   }
   
-  // Eliminar duplicados
-  return [...new Set(origins)];
+  // Eliminar duplicados y filtrar valores vacios
+  const uniqueOrigins = [...new Set(origins)].filter(Boolean);
+  
+  // Log para depuracion en produccion
+  if (process.env.NODE_ENV === 'production') {
+    console.log('CORS - Origenes permitidos:', uniqueOrigins);
+  }
+  
+  return uniqueOrigins;
 };
 
 /**

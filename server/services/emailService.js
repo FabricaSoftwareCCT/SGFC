@@ -13,6 +13,12 @@ const { Sequelize, Op } = require("sequelize");
 const fechaSolicitud = new Date(
 	Date.now() - new Date().getTimezoneOffset() * 60000
 );
+// Transportador global único para evitar múltiples conexiones SMTP
+// Configuración optimizada para Gmail:
+// - Gmail permite hasta 500 emails/día en cuentas gratuitas
+// - Límite de ~100 emails/hora para evitar bloqueos
+// - maxConnections: 1 evitar abrir múltiples conexiones simultáneas
+// - rateLimit: 14 por minuto = ~840 por hora (dentro del límite seguro)
 const transporter = nodemailer.createTransport({
 	service: "gmail",
 	auth: {
@@ -21,12 +27,54 @@ const transporter = nodemailer.createTransport({
 	},
 	pool: true,
 	maxConnections: 1,
-	maxMessages: 3,
-	rateDelta: 1000,
-	rateLimit: 5,
+	maxMessages: 10,
+	rateDelta: 60000,
+	rateLimit: 14,
+	debug: false,
+	logger: false,
 });
 
-// Función genérica para enviar cualquier tipo de email con retry logic
+// Definir logoAttachment antes de sendEmail para evitar referencia antes de inicialización
+const logoPath = path.join(__dirname, "../Img/sena.png");
+const logoAttachment = {
+	filename: "logo.png",
+	path: logoPath,
+	cid: "logo",
+};
+
+// Cola simple para asegurar envío secuencial de emails
+let emailQueue = [];
+let isProcessingQueue = false;
+
+const processEmailQueue = async () => {
+	if (isProcessingQueue || emailQueue.length === 0) {
+		return;
+	}
+
+	isProcessingQueue = true;
+
+	while (emailQueue.length > 0) {
+		const emailTask = emailQueue.shift();
+		try {
+			await emailTask();
+		} catch (error) {
+			console.error('Error procesando email de la cola:', error?.message || error);
+		}
+		// Pequeño delay entre emails para evitar rate limiting
+		if (emailQueue.length > 0) {
+			await new Promise(resolve => setTimeout(resolve, 100));
+		}
+	}
+
+	isProcessingQueue = false;
+};
+
+const enqueueEmail = (emailTask) => {
+	emailQueue.push(emailTask);
+	processEmailQueue();
+};
+
+// Función genérica para enviar cualquier tipo de email con retry logic y cola
 const sendEmail = async (email, subject, htmlContent, retries = 2) => {
 	const mailOptions = {
 		from: `"SGFC" <${process.env.EMAIL_USER}>`,
@@ -38,34 +86,43 @@ const sendEmail = async (email, subject, htmlContent, retries = 2) => {
 		]
 	};
 
-	for (let attempt = 0; attempt <= retries; attempt++) {
-		try {
-			return await new Promise((resolve, reject) => {
-				const timeout = setTimeout(() => {
-					reject(new Error('Timeout al enviar email'));
-				}, 30000);
+	return new Promise((resolve, reject) => {
+		const sendEmailTask = async () => {
+			for (let attempt = 0; attempt <= retries; attempt++) {
+				try {
+					const result = await new Promise((innerResolve, innerReject) => {
+						const timeout = setTimeout(() => {
+							innerReject(new Error('Timeout al enviar email'));
+						}, 30000);
 
-				transporter.sendMail(mailOptions, (err, info) => {
-					clearTimeout(timeout);
-					if (err) {
-						console.error(`Error al enviar el correo (intento ${attempt + 1}/${retries + 1}):`, err.message);
-						reject(err);
+						transporter.sendMail(mailOptions, (err, info) => {
+							clearTimeout(timeout);
+							if (err) {
+								console.error(`Error al enviar el correo (intento ${attempt + 1}/${retries + 1}):`, err.message);
+								innerReject(err);
+							} else {
+								console.log(`Correo enviado a ${email}:`, info.response);
+								innerResolve(info);
+							}
+						});
+					});
+					resolve(result);
+					return;
+				} catch (error) {
+					if (attempt < retries) {
+						const delay = Math.pow(2, attempt) * 1000;
+						console.log(`Reintentando envío de email a ${email} en ${delay}ms...`);
+						await new Promise(resolve => setTimeout(resolve, delay));
 					} else {
-						console.log("Correo enviado:", info.response);
-						resolve(info);
+						reject(error);
+						return;
 					}
-				});
-			});
-		} catch (error) {
-			if (attempt < retries) {
-				const delay = Math.pow(2, attempt) * 1000;
-				console.log(`Reintentando envío de email en ${delay}ms...`);
-				await new Promise(resolve => setTimeout(resolve, delay));
-			} else {
-				throw error;
+				}
 			}
-		}
-	}
+		};
+
+		enqueueEmail(sendEmailTask);
+	});
 };
 
 const sendRequestCourseEmail = async (req, res) => {
@@ -114,15 +171,7 @@ const sendRequestCourseEmail = async (req, res) => {
 			pdf_acta: pdfFileName,
 		});
 
-		// Enviar el correo
-		let transporter = nodemailer.createTransport({
-			service: "gmail",
-			auth: {
-				user: process.env.EMAIL_USER,
-				pass: process.env.EMAIL_PASS,
-			},
-		});
-
+		// Enviar el correo usando el transporter global
 		await transporter.sendMail({
 			from: `"SGFC" <${process.env.EMAIL_USER}>`,
 			to: process.env.EMAIL_USER,
@@ -189,14 +238,7 @@ const sendRequestCourseEmailAp = async (req, res) => {
 			pdf_acta: pdfFileName,
 		});
 
-		let transporter = nodemailer.createTransport({
-			service: "gmail",
-			auth: {
-				user: process.env.EMAIL_USER,
-				pass: process.env.EMAIL_PASS,
-			},
-		});
-
+		// Usar el transporter global en lugar de crear uno nuevo
 		await transporter.sendMail({
 			from: `"SGFC" <${process.env.EMAIL_USER}>`,
 			to: process.env.EMAIL_USER,
@@ -360,14 +402,6 @@ const emailTemplate = `
   </tr>
 </table>
 `
-
-const logoPath = path.join(__dirname, "../Img/sena.png");
-
-const logoAttachment = {
-	filename: "logo.png",
-	path: logoPath,
-	cid: "logo",
-}
 
 const sendPasswordResetEmail = (email, resetLink) => {
 	const fs = require("fs");
@@ -821,15 +855,7 @@ const sendConcertacionActaEmail = async (req, res) => {
 				if (involucrado) {
 					const emailToSend = involucrado?.dataValues.email
 
-					//  Enviar correo con el acta adjunta
-					let transporter = nodemailer.createTransport({
-						service: "gmail",
-						auth: {
-							user: process.env.EMAIL_USER,
-							pass: process.env.GOOGLE_APP_PASSWORD || process.env.EMAIL_PASS,
-						},
-					});
-
+					//  Enviar correo con el acta adjunta usando el transporter global
 					await transporter.sendMail({
 						from: `"SGFC" <${
 							process.env.EMAIL_USER || "softwareccyt@gmail.com"
@@ -964,15 +990,7 @@ const sendTrainingPlaceActaEmail = async (req, res) => {
 			pdf_acta: pdfFileName,
 		});
 
-		// ✅ Enviar correo con el acta adjunta
-		let transporter = nodemailer.createTransport({
-			service: "gmail",
-			auth: {
-				user: process.env.EMAIL_USER,
-				pass: process.env.EMAIL_PASS,
-			},
-		});
-
+		// ✅ Enviar correo con el acta adjunta usando el transporter global
 		await transporter.sendMail({
 			from: `"SGFC" <${
 				process.env.EMAIL_USER || "softwareccyt@gmail.com"

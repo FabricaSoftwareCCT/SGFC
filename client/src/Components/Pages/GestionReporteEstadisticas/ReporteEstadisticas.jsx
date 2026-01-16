@@ -167,7 +167,7 @@ export default function ReporteEstadisticas() {
                 }
                 setdatosCurso(data);
             } catch (err) {
-                console.log(err)
+                // console.log(err)
                 Swal.fire({
                     icon: 'error',
                     title: 'Error del servidor',
@@ -364,7 +364,7 @@ export default function ReporteEstadisticas() {
             })
             return;
         }
-        console.log("Curso seleccionado:", curso);
+        // console.log("Curso seleccionado:", curso);
         setCursoSeleccionado(curso);
         setPantallaActual('estudiantes');
     };
@@ -473,7 +473,7 @@ export default function ReporteEstadisticas() {
                 theme: 'bulma'
             });
         } catch (error) {
-            console.error("Error generando Excel:", error)
+            // console.error("Error generando Excel:", error)
             Swal.fire({
                 icon: "error",
                 title: "Error al generar Excel",
@@ -536,7 +536,7 @@ export default function ReporteEstadisticas() {
                 });
             }
         } catch (err) {
-            console.error("Error generando PDF:", err)
+            // console.error("Error generando PDF:", err)
             Swal.fire({
                 icon: "error",
                 title: "Error al generar PDF",

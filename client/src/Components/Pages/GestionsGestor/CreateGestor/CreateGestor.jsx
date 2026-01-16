@@ -173,12 +173,12 @@ export const CreateGestor = ({ onClose }) => {
           confirmButton: 'centered-swal-button'
         }
       });
-      console.log(response.data);
+      // console.log(response.data);
 
       closeModalCreateGestor();
       window.location.reload();
     } catch (error) {
-      console.error("Error al crear el gestor:", error);
+      // console.error("Error al crear el gestor:", error);
       
       // Manejar errores específicos del backend
       if (error.response?.status === 400) {

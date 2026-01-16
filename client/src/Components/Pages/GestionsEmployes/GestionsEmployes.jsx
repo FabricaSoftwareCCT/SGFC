@@ -131,7 +131,7 @@ export const GestionsEmployes = () => {
                 setTotalItems(empleados.length)
             }
         } catch (error) {
-            console.error("Error al obtener los empleados:", error)
+            // console.error("Error al obtener los empleados:", error)
             Swal.fire({
                 icon: "error",
                 title: "Error en el sistema",
@@ -152,7 +152,7 @@ export const GestionsEmployes = () => {
             const response = await axiosInstance.get("/api/users/admin/empresas")
             setEmpresas(response.data.empresas || [])
         } catch (error) {
-            console.error("Error al obtener las empresas:", error)
+            // console.error("Error al obtener las empresas:", error)
         }
     }
 
@@ -331,7 +331,7 @@ export const GestionsEmployes = () => {
                 })
             }
         } catch (error) {
-            console.log(error)
+            // console.log(error)
             Swal.fire({
                 icon: "error",
                 title: "Error al generar el reporte",

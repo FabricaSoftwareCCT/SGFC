@@ -238,7 +238,7 @@ export const BulkUploadModal = ({ isOpen, onClose, empresaId }) => {
                 validateData(processedData);
 
             } catch (error) {
-                console.error('Error al leer el archivo:', error);
+                // console.error('Error al leer el archivo:', error);
                 setErrors([{
                     message: 'Error al leer el archivo. Verifica que sea un Excel válido y que tenga datos en la primera hoja.',
                     type: 'file'
@@ -504,9 +504,9 @@ export const BulkUploadModal = ({ isOpen, onClose, empresaId }) => {
             }
 
         } catch (error) {
-            console.error('Error al subir:', error);
-            console.error('URL intentada:', error.config?.url);
-            console.error('Respuesta del servidor:', error.response?.data);
+            // console.error('Error al subir:', error);
+            // console.error('URL intentada:', error.config?.url);
+            // console.error('Respuesta del servidor:', error.response?.data);
 
             // Procesar errores específicos del backend
             const backendError = error.response?.data;

@@ -185,7 +185,7 @@ export const UpdateGestor = ({ gestor, onClose }) => {
       window.location.reload();
       closeModalUpdateGestor();
     } catch (error) {
-      console.error("Error al actualizar el perfil:", error.response?.data || error.message);
+      // console.error("Error al actualizar el perfil:", error.response?.data || error.message);
       
       if (error.response?.status === 400) {
         const errorMsg = error.response?.data?.message;

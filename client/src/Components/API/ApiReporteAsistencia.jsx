@@ -9,7 +9,7 @@ export const getAllCursosForFilters = async () => {
 			name: c.nombre_curso || c.Nombre || c.nombre || 'Sin nombre',
 		}));
   } catch (error) {
-    console.error('Error al obtener cursos:', error);
+    // console.error('Error al obtener cursos:', error);
     throw error;
   }
 };
@@ -24,7 +24,7 @@ export const getAllLearnersForFilters = async () => {
       documento: e.documento 
     }));
   } catch (error) {
-    console.error('Error al obtener aprendices:', error);
+    // console.error('Error al obtener aprendices:', error);
     throw error;
   }
 };
@@ -74,7 +74,7 @@ export const getCoursesByLearner = async (learnerId) => {
 			courses: normalized.filter((course) => course.id != null),
 		};
   } catch (error) {
-    console.error('Error al obtener cursos del aprendiz:', error);
+    // console.error('Error al obtener cursos del aprendiz:', error);
 		return {
 			success: false,
 			message: error?.response?.data?.message || 'Error al obtener cursos',
@@ -90,7 +90,7 @@ export const getLearnersByCourse = async (courseId) => {
     });
     return response.data;
   } catch (error) {
-    console.error('Error al obtener aprendices del curso:', error);
+    // console.error('Error al obtener aprendices del curso:', error);
     throw error;
   }
 };
@@ -115,7 +115,7 @@ export const getAttendanceProgressReport = async (filters) => {
     const response = await axiosInstance.get('/api/reports/asistencia-progreso', { params });
     return response.data;
   } catch (error) {
-    console.error('Error al generar reporte:', error);
+    // console.error('Error al generar reporte:', error);
     throw error;
   }
 };

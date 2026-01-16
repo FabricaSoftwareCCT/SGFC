@@ -44,12 +44,12 @@ export const SeeCourse = () => {
 					const temarioParseado = JSON.parse(response.data.temario);
 					setTemario(temarioParseado);
 				} catch (error) {
-					console.error("Error al parsear el temario:", error);
+					// console.error("Error al parsear el temario:", error);
 					setTemario([]);
 				}
 			}
 		} catch (error) {
-			console.error("Error al obtener el curso:", error);
+			// console.error("Error al obtener el curso:", error);
 			Swal.fire({
 				icon: 'error',
 				title: 'Error',
@@ -65,7 +65,7 @@ export const SeeCourse = () => {
 			const response = await axiosInstance.get(`api/users/empresa/id/${userSession.empresa_ID}`)
 			setEmpresa(response.data)
 		} catch (error) {
-			console.error("Error al obtener la empresa:", error);
+			// console.error("Error al obtener la empresa:", error);
 		}
 	};
 	
@@ -119,7 +119,7 @@ export const SeeCourse = () => {
 
 			setIsUserEnrolled(estaInscrito);
 		} catch (error) {
-			console.error("Error al verificar la inscripción:", error);
+			// console.error("Error al verificar la inscripción:", error);
 			setIsUserEnrolled(false);
 		}
 	}, [id, userSession]);

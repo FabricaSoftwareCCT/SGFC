@@ -22,7 +22,7 @@ export const generarExcelAsistenciaProgreso = (previewData) => {
 		xlsx.utils.book_append_sheet(wb, sheet, 'Reporte');
 		xlsx.writeFile(wb, 'reporte_asistencia_progreso.xlsx', { compression: true });
 	} catch (error) {
-		console.error('Error al generar Excel:', error);
+		// console.error('Error al generar Excel:', error);
 		throw new Error('Ocurrió un error al generar el archivo Excel');
 	}
 };
@@ -126,7 +126,7 @@ export const createPDFContainerAsistenciaProgreso = (previewData, filters, cours
 						});
 					}
 				} catch (e) {
-					console.error('Error al formatear fecha:', row.fechaAsistencia, e);
+					// console.error('Error al formatear fecha:', row.fechaAsistencia, e);
 				}
 			}
 			
@@ -346,7 +346,7 @@ export const generarPDFAsistenciaProgreso = async (previewData, filters, courses
 							printWindow.focus();
 							printWindow.print();
 						} catch (e) {
-							console.error('Error al imprimir:', e);
+							// console.error('Error al imprimir:', e);
 						}
 					}, 1000);
 				};
@@ -392,7 +392,7 @@ export const generarPDFAsistenciaProgreso = async (previewData, filters, courses
 		pdfContainer.style.zIndex = '-1';
 		
 	} catch (error) {
-		console.error('Error al generar PDF:', error);
+		// console.error('Error al generar PDF:', error);
 		throw error;
 	} finally {
 		pdfContainer.style.left = '-10000px';
@@ -407,7 +407,7 @@ export const generarPDFAsistenciaProgreso = async (previewData, filters, courses
 					document.body.removeChild(container);
 				}
 			} catch (e) {
-				console.error('No se pudo eliminar el contenedor PDF:', e);
+				// console.error('No se pudo eliminar el contenedor PDF:', e);
 			}
 		}, 2000);
 	}

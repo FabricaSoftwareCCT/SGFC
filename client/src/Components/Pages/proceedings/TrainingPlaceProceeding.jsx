@@ -115,14 +115,14 @@ export const TrainingPlaceProceeding = () => {
 				if (user.accountType === 'Instructor') {
 					// Si es instructor, agregarlo a instructores asignados
 					setInstructoresAsignados([res.data.nombres || user.name || '']);
-					console.log('✅ Usuario instructor asignado:', res.data.nombres);
+					// console.log('✅ Usuario instructor asignado:', res.data.nombres);
 				} else if (user.accountType === 'Administrador' || user.accountType === 'Gestor') {
 					// Si es administrador o gestor, puede ser inspector
-					console.log('✅ Usuario como inspector:', res.data.nombres);
+					// console.log('✅ Usuario como inspector:', res.data.nombres);
 				}
 			})
 			.catch(err => {
-				console.error("Error al obtener datos:", err);
+				// console.error("Error al obtener datos:", err);
 			});
 	}, []);
 
@@ -264,7 +264,7 @@ export const TrainingPlaceProceeding = () => {
 
 		} catch (error) {
 			setIsExporting(false)
-			console.error('❌ Error completo:', error);
+			// console.error('❌ Error completo:', error);
                 await Swal.fire({
         icon: 'error',
         title: 'Error al enviar acta',

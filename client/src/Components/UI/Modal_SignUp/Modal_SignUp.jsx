@@ -130,7 +130,7 @@ export const Modal_SignUp = ({ accountType }) => {
       }, 5000);
 
     } catch (error) {
-      console.error("Error en el registro:", error);
+      // console.error("Error en el registro:", error);
       Swal.fire({
         icon: "error",
         title: "Error en el registro",

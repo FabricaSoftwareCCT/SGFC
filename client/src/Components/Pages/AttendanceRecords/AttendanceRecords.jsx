@@ -70,7 +70,7 @@ export const AttendanceRecords = () => {
                 });
             }
         } catch (error) {
-            console.error('Error al obtener los registros:', error);
+            // console.error('Error al obtener los registros:', error);
             await Swal.fire({
                 icon: 'error',
                 title: 'Error',
@@ -90,7 +90,7 @@ export const AttendanceRecords = () => {
             const response = await axiosInstance.get('/api/courses/cursos');
             setCourses(response.data);
         } catch (error) {
-            console.error('Error al obtener los cursos:', error);
+            // console.error('Error al obtener los cursos:', error);
                         await Swal.fire({
                 icon: 'error',
                 title: 'Error',

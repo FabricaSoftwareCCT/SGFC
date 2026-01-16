@@ -106,7 +106,7 @@ export const SupportMaterialCourse = () => {
                 });
                 setIsInstructorAssigned(assigned);
             } catch (error) {
-                console.error("Error al obtener cursos asignados:", error);
+                // console.error("Error al obtener cursos asignados:", error);
                 setIsInstructorAssigned(false);
             }
         };
@@ -154,7 +154,7 @@ export const SupportMaterialCourse = () => {
             const resp = await axiosInstance.get(`/api/material/${id}`);
             setArchivos(Array.isArray(resp.data.materiales) ? resp.data.materiales : []);
         } catch (e) {
-            console.error('Error al consultar material', e);
+            // console.error('Error al consultar material', e);
             setArchivos([]);
         }
     };
@@ -248,7 +248,7 @@ export const SupportMaterialCourse = () => {
             
             await fetchMaterial();
         } catch (e) {
-            console.error('Error al crear material:', e);
+            // console.error('Error al crear material:', e);
             // Asegurarse de resetear el estado de carga incluso en caso de error
             setSubiendoArchivo(false);
             
@@ -308,7 +308,7 @@ export const SupportMaterialCourse = () => {
                 
                 await fetchMaterial();
             } catch (error) {
-                console.error('Error al eliminar archivo:', error);
+                // console.error('Error al eliminar archivo:', error);
                 await Swal.fire({
                     icon: 'error',
                     title: 'Error',

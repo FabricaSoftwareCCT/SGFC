@@ -29,7 +29,7 @@ export const GestionsGestor = () => {
       setGestores(response.data);
       setfilteredGestorses(response.data);
     } catch (error) {
-      console.error('Error al obtener los Gestores:', error);
+      // console.error('Error al obtener los Gestores:', error);
       Swal.fire({
         icon: 'error',
         title: 'Error',

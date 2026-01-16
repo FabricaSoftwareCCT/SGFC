@@ -77,7 +77,7 @@ export const CreateEmpresa = ({ onClose, onCompanyCreated }) => {
         const departamentosData = Array.isArray(departamentosRes.data) ? departamentosRes.data : departamentosRes.data.data || [];
         setDepartamentos(departamentosData);
       } catch (error) {
-        console.error('Error al cargar departamentos:', error);
+        // console.error('Error al cargar departamentos:', error);
       }
     };
     cargarDepartamentos();
@@ -92,7 +92,7 @@ export const CreateEmpresa = ({ onClose, onCompanyCreated }) => {
           const ciudadesData = Array.isArray(ciudadesRes.data) ? ciudadesRes.data : ciudadesRes.data.data || [];
           setCiudades(ciudadesData);
         } catch (error) {
-          console.error('Error al cargar ciudades:', error);
+          // console.error('Error al cargar ciudades:', error);
           setCiudades([]);
         }
       } else {
@@ -156,11 +156,11 @@ export const CreateEmpresa = ({ onClose, onCompanyCreated }) => {
   e.preventDefault();
   e.stopPropagation();
   
-  console.log("🔄 handleSubmit ejecutándose - INICIO");
+  // console.log("🔄 handleSubmit ejecutándose - INICIO");
   
   // Protección con ref
   if (loading || isSubmitting.current) {
-    console.log("⏸️ Ya está enviándose, previniendo doble envío");
+    // console.log("⏸️ Ya está enviándose, previniendo doble envío");
     return;
   }
   
@@ -218,7 +218,7 @@ export const CreateEmpresa = ({ onClose, onCompanyCreated }) => {
       return;
     }
 
-    console.log("Creando manager...");
+    // console.log("Creando manager...");
     const userResponse = await fetch(`${API_URL}/api/users/createUser`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -265,10 +265,10 @@ export const CreateEmpresa = ({ onClose, onCompanyCreated }) => {
 
     // ✅ DEBUG: Verificar qué hay en el FormData
     for (let pair of formData.entries()) {
-      console.log(pair[0] + ':', pair[1]);
+      // console.log(pair[0] + ':', pair[1]);
     }
 
-    console.log("email", formData.get('manager_email'));
+    // console.log("email", formData.get('manager_email'));
     
     // ✅ CORREGIDO: Usa el endpoint SIN email en la URL
 
@@ -296,7 +296,7 @@ export const CreateEmpresa = ({ onClose, onCompanyCreated }) => {
     onClose();
 
   } catch (error) {
-    console.error("❌ Error en handleSubmit:", error);
+    // console.error("❌ Error en handleSubmit:", error);
 
     Swal.fire({
       icon: 'error',
@@ -305,7 +305,7 @@ export const CreateEmpresa = ({ onClose, onCompanyCreated }) => {
     });
 
   } finally {
-    console.log("🏁 handleSubmit finalizado");
+    // console.log("🏁 handleSubmit finalizado");
     setLoading(false);
     isSubmitting.current = false;
   }

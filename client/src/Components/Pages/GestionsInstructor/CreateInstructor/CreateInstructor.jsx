@@ -94,12 +94,12 @@ export const CreateInstructor = ({ onClose }) => {
           confirmButton: 'centered-swal-button'
         }
       });
-      console.log(response.data);
+      // console.log(response.data);
 
       document.getElementById("modal-overlayCreateInstructor").style.display = "none";
       window.location.reload();
     } catch (error) {
-      console.error("Error al crear el instructor:", error);
+      // console.error("Error al crear el instructor:", error);
       const errorMsg =
         error.response?.data?.message ||
         "Hubo un problema al crear el instructor.";

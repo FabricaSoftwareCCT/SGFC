@@ -40,7 +40,7 @@ export const GestionsCompany = () => {
 			setEmpresas(res.data);
 		} catch (error) {
 			setEmpresas([]);
-			console.error("Error al cargar empresas:", error);
+			// console.error("Error al cargar empresas:", error);
 		} finally {
 			setLoading(false);
 		}

@@ -27,13 +27,13 @@ export const ManageAttendance = () => {
                 setIsLoading(true);
                 setError(null);
                 const response = await axiosInstance.get(`/api/courses/cursos/${id}`);
-                console.log('Datos del curso recibidos:', response.data);
+                // console.log('Datos del curso recibidos:', response.data);
                 setCurso(response.data);
 
                 if (response.data.dias_formacion) {
                     try {
                         const diasFormacion = JSON.parse(response.data.dias_formacion);
-                        console.log('Días de formación procesados:', diasFormacion);
+                        // console.log('Días de formación procesados:', diasFormacion);
                         const diasProcesados = diasFormacion.map(dia => {
                             if (typeof dia === 'string') {
                                 return dia;
@@ -43,18 +43,18 @@ export const ManageAttendance = () => {
                             return null;
                         }).filter(Boolean);
 
-                        console.log('Días de formación procesados:', diasProcesados);
+                        // console.log('Días de formación procesados:', diasProcesados);
                         setTrainingDays(diasProcesados);
                     } catch (error) {
-                        console.error('Error al procesar los días de formación:', error);
+                        // console.error('Error al procesar los días de formación:', error);
                         setTrainingDays([]);
                     }
                 } else {
-                    console.log('No hay días de formación definidos');
+                    // console.log('No hay días de formación definidos');
                     setTrainingDays([]);
                 }
             } catch (error) {
-                console.error("Error al obtener el curso:", error);
+                // console.error("Error al obtener el curso:", error);
                 setError("Error al cargar los datos del curso. Por favor, intente nuevamente.");
             } finally {
                 setIsLoading(false);
@@ -65,9 +65,9 @@ export const ManageAttendance = () => {
     }, [id]);
 
     const handleDateSelect = (date) => {
-        console.log('Fecha seleccionada:', date);
+        // console.log('Fecha seleccionada:', date);
         if (date) {
-            console.log('Actualizando estado con fecha:', date);
+            // console.log('Actualizando estado con fecha:', date);
             setSelectedDate(date);
             setShowAttendanceManagement(true);
         }
@@ -107,14 +107,14 @@ export const ManageAttendance = () => {
         // Verificar si la fecha es hoy o una fecha pasada
         const isTodayOrPast = currentDateOnly <= todayOnly;
         
-        console.log('=== VERIFICANDO FECHA ===');
-        console.log('Fecha a verificar:', format(currentDateOnly, 'yyyy-MM-dd'));
-        console.log('Inicio curso:', format(startDateOnly, 'yyyy-MM-dd'));
-        console.log('Fin curso:', format(endDateOnly, 'yyyy-MM-dd'));
-        console.log('Hoy:', format(todayOnly, 'yyyy-MM-dd'));
-        console.log('Está en rango:', isInCourseRange);
-        console.log('Es hoy o pasado:', isTodayOrPast);
-        console.log('Es seleccionable:', isInCourseRange && isTodayOrPast);
+        // console.log('=== VERIFICANDO FECHA ===');
+        // console.log('Fecha a verificar:', format(currentDateOnly, 'yyyy-MM-dd'));
+        // console.log('Inicio curso:', format(startDateOnly, 'yyyy-MM-dd'));
+        // console.log('Fin curso:', format(endDateOnly, 'yyyy-MM-dd'));
+        // console.log('Hoy:', format(todayOnly, 'yyyy-MM-dd'));
+        // console.log('Está en rango:', isInCourseRange);
+        // console.log('Es hoy o pasado:', isTodayOrPast);
+        // console.log('Es seleccionable:', isInCourseRange && isTodayOrPast);
         
         return isInCourseRange && isTodayOrPast;
     };

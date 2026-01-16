@@ -47,14 +47,14 @@ export default function ReporteAsistenciaProgreso() {
         setAllCourses(cursosFormateados);
         setCourses(cursosFormateados);
       } catch (err) {
-        console.error('No se pudieron cargar cursos para filtros:', err);
+        // console.error('No se pudieron cargar cursos para filtros:', err);
       }
       try {
         const aprendicesFormateados = await getAllLearnersForFilters();
         setAllLearners(aprendicesFormateados);
         setLearners(aprendicesFormateados);
       } catch (err) {
-        console.error('No se pudieron cargar aprendices para filtros:', err);
+        // console.error('No se pudieron cargar aprendices para filtros:', err);
       }
     };
     fetchInitial();
@@ -149,7 +149,7 @@ export default function ReporteAsistenciaProgreso() {
           setFilterErrorMessage(prev => ({ ...prev, learner: '' }));
         }
       } catch (error) {
-        console.error('Error al cargar filtros dinámicos:', error);
+        // console.error('Error al cargar filtros dinámicos:', error);
         if (filters.learnerId && filters.learnerId !== '') {
           setCourses(allCourses);
           setFilterErrorMessage(prev => ({ ...prev, course: 'Error al cargar cursos' }));

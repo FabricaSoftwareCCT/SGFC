@@ -169,7 +169,7 @@ export const InscribeEmployes = () => {
             setSearchTerm("")
 
         } catch (error) {
-            console.error("Error al realizar la inscripción:", error)
+            // console.error("Error al realizar la inscripción:", error)
             
             let errorMessage = "Hubo un error al realizar la inscripción"
             if (error.response && error.response.data && error.response.data.message) {
@@ -199,7 +199,7 @@ export const InscribeEmployes = () => {
             const empleados = data.empleados || []
             setEmployes(empleados)
         } catch (error) {
-            console.error("Error al cargar empleados de la empresa:", error)
+            // console.error("Error al cargar empleados de la empresa:", error)
             Swal.fire({
                 icon: "error",
                 title: "Error al cargar empleados",
@@ -235,7 +235,7 @@ export const InscribeEmployes = () => {
             await fetchEmpleadosByEmpresa(empresaId)
             
         } catch (error) {
-            console.error(error)
+            // console.error(error)
             Swal.fire({
                 icon: "error",
                 title: "Error al cargar empleados",

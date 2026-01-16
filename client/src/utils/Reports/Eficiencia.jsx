@@ -19,7 +19,7 @@ export const generarExcelEficiencia = async (aprendices, done) => {
 		xlsx.writeFile(workBook, `Reporte de eficiencia.xlsx`, { compression: true })
 		done()
 	} catch (error) {
-		console.log(error)
+		// // console.log(error)
 		alert("Ocurrió un error al general el excel")
 	}
 }

@@ -63,7 +63,7 @@ export const Historial = () => {
             setHistorial(resp.data.historial || [])
             setTotalPages(Math.ceil((resp.data.total || 0) / itemsPerPage))
         } catch (error) {
-            console.error("Error fetching history:", error)
+            // console.error("Error fetching history:", error)
             Swal.fire({
                 icon: "error",
                 title: "Error al consultar historial",

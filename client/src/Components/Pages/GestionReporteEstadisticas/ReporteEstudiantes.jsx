@@ -66,7 +66,7 @@ export default function ReporteEstudiantes({ cursoSeleccionado, onVolver }) {
         );
 
         if (!participantsResponse.data || !participantsResponse.data.success) {
-          console.error('Error: La respuesta no tiene success o no existe', participantsResponse.data);
+          // console.error('Error: La respuesta no tiene success o no existe', participantsResponse.data);
           setDatosEstudiantes([]);
           setIsLoading(false);
           return;
@@ -223,7 +223,7 @@ export default function ReporteEstudiantes({ cursoSeleccionado, onVolver }) {
 
               return estudiante;
             } catch (error) {
-              console.error(`Error procesando participante ${index}:`, error);
+              // console.error(`Error procesando participante ${index}:`, error);
               return null;
             }
           })
@@ -231,8 +231,8 @@ export default function ReporteEstudiantes({ cursoSeleccionado, onVolver }) {
 
         setDatosEstudiantes(estudiantesConEstadisticas);
       } catch (error) {
-        console.error('Error al cargar datos de estudiantes:', error);
-        console.error('Detalles del error:', error.response?.data || error.message);
+        // console.error('Error al cargar datos de estudiantes:', error);
+        // console.error('Detalles del error:', error.response?.data || error.message);
         setDatosEstudiantes([]);
       } finally {
         setIsLoading(false);
@@ -651,7 +651,7 @@ export default function ReporteEstudiantes({ cursoSeleccionado, onVolver }) {
                         await generarPDFEstudiantes(datosReporte, cursoSeleccionado?.curso || 'Curso');
                       }
                     } catch (err) {
-                      console.error(`Error generando ${reportType.toUpperCase()}:`, err);
+                      // console.error(`Error generando ${reportType.toUpperCase()}:`, err);
                       Swal.fire({
                         icon: "error",
                         title: "Error del sistema",

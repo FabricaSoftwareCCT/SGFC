@@ -55,7 +55,7 @@ export const CriteriaManagement = () => {
 			setCursos(todosLosCursos)
 			setLoading(false)
 		} catch (e) {
-			console.log(e)
+			// console.log(e)
 			await Swal.fire({
 				icon: 'error',
 				title: 'Error',

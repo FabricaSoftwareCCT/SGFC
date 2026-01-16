@@ -54,7 +54,7 @@ export const RequestCourse = () => {
 				throw resp.data
 			}
 		} catch (error) {
-			console.error(error)
+			// console.error(error)
 			await Swal.fire({
 				icon: "error",
 				title: "Error en el sistema",
@@ -77,7 +77,7 @@ export const RequestCourse = () => {
 				throw resp.data
 			}
 		} catch (error) {
-			console.error(error)
+			// console.error(error)
 			await Swal.fire({
 				icon: "error",
 				title: "Error en el sistema",
@@ -358,7 +358,7 @@ export const RequestCourse = () => {
 					actions: 'swal2-center-actions'
 				}
 			})
-			console.error(error);
+			// console.error(error);
 		}
 	};
 

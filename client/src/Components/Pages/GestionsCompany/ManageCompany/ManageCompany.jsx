@@ -51,7 +51,7 @@ export const ManageCompany = ({ empresa, onClose }) => {
 						setFormData(prev => ({ ...prev, departamento_ID: res.data.Departamento.ID }));
 					}
 				} catch (_) {
-					console.log("No se pudo obtener el departamento de la ciudad");
+					// console.log("No se pudo obtener el departamento de la ciudad");
 				}
 			}
 		};
@@ -252,7 +252,7 @@ export const ManageCompany = ({ empresa, onClose }) => {
 			window.location.reload();
 			closeModalCompany();
 		} catch (error) {
-			console.error(`Error al actualizar la empresa:`, error.response?.data || error.message);
+			// console.error(`Error al actualizar la empresa:`, error.response?.data || error.message);
 			await Swal.fire({
 				icon: 'error',
 				title: 'Error al actualizar',

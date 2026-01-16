@@ -35,7 +35,7 @@ export const Modal_Inscripcion = ({ onClose, onCursosSeleccionados, id }) => {
           setCursosDisponibles(cursosData);
         }
       } catch (error) {
-        console.error('Error al cargar cursos:', error);
+        // console.error('Error al cargar cursos:', error);
         setCursosDisponibles([]);
       } finally {
         setLoading(false);
@@ -91,7 +91,7 @@ await Swal.fire({
       onClose();
       
     } catch (error) {
-      console.error("Error al procesar el curso:", error);
+      // console.error("Error al procesar el curso:", error);
 await Swal.fire({
     icon: 'error',
     title: 'Error',

@@ -38,7 +38,7 @@ export const CreateEmploye = ({ onClose }) => {
     const accountType = userSession.accountType;
     const adminStatus = accountType === 'Administrador' || accountType === 'Gestor';
     setIsAdmin(adminStatus);
-    console.log(accountType)
+    // console.log(accountType)
 
     if (adminStatus) {
       fetchEmpresas();
@@ -46,15 +46,15 @@ export const CreateEmploye = ({ onClose }) => {
   }, []);
 
   const fetchEmpresas = async () => {
-    console.log("A")
+    // console.log("A")
     try {
       setLoadingEmpresas(true);
       const response = await axiosInstance.get('/api/users/admin/empresas');
       const empresasData = response.data.empresas//  || response.data.data || response.data || [];
-      console.log(response.data)
+      // console.log(response.data)
       setEmpresas(empresasData);
     } catch (error) {
-      console.error("Error al obtener las empresas:", error);
+      // console.error("Error al obtener las empresas:", error);
       Swal.fire({
         icon: 'error',
         title: 'Error',
@@ -280,7 +280,7 @@ export const CreateEmploye = ({ onClose }) => {
             customClass: { confirmButton: 'centered-swal-button' }
           });
         } catch (ocrError) {
-          console.error("Error al procesar documento:", ocrError);
+          // console.error("Error al procesar documento:", ocrError);
           await Swal.fire({
             icon: 'warning',
             title: 'Procesamiento de documento',
@@ -299,7 +299,7 @@ export const CreateEmploye = ({ onClose }) => {
       }
 
     } catch (error) {
-      console.error('Error al crear el Empleado:', error);
+      // console.error('Error al crear el Empleado:', error);
       const errorMsg = error.response?.data?.message || 'Hubo un problema al crear el Empleado.';
       Swal.fire({
         icon: 'error',

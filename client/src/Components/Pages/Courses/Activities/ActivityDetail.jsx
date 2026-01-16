@@ -113,7 +113,7 @@ export const ActivityDetail = () => {
 			const data = await getActivity(actividadId);
 			setActivity(data);
 		} catch (err) {
-			console.error("Error al obtener actividad:", err);
+			// console.error("Error al obtener actividad:", err);
 			setError(
 				err?.message || "No se pudo obtener la información de la actividad."
 			);
@@ -135,7 +135,7 @@ export const ActivityDetail = () => {
 			const materiales = await getCourseMaterials(cursoId);
 			setCourseMaterials(materiales);
 		} catch (error) {
-			console.error("Error al cargar materiales del curso:", error);
+			// console.error("Error al cargar materiales del curso:", error);
 		}
 	}, [cursoId]);
 
@@ -162,7 +162,7 @@ export const ActivityDetail = () => {
 						),
 				});
 			} catch (err) {
-				console.error("Error al cargar los participantes del curso:", err);
+				// console.error("Error al cargar los participantes del curso:", err);
 				setParticipantsState((previous) => ({
 					...previous,
 					items: [],
@@ -249,7 +249,7 @@ export const ActivityDetail = () => {
 				});
 				setIsInstructorAssigned(assigned);
 			} catch (error) {
-				console.error("Error al obtener cursos asignados:", error);
+				// console.error("Error al obtener cursos asignados:", error);
 				setIsInstructorAssigned(false);
 			}
 		};
@@ -401,7 +401,7 @@ export const ActivityDetail = () => {
 			setShowDeliveryModal(false);
 			await loadActivity();
 		} catch (error) {
-			console.error("Error al registrar entrega:", error);
+			// console.error("Error al registrar entrega:", error);
 			const message =
 				error?.response?.data?.message ||
 				error?.message ||
@@ -444,7 +444,7 @@ export const ActivityDetail = () => {
 			setReviewTarget(null);
 			await loadActivity();
 		} catch (error) {
-			console.error("Error al guardar la retroalimentación:", error);
+			// console.error("Error al guardar la retroalimentación:", error);
 			const message =
 				error?.response?.data?.message ||
 				error?.message ||
@@ -484,7 +484,7 @@ export const ActivityDetail = () => {
 			setMaterialModalOpen(false);
 			await loadActivity();
 		} catch (error) {
-			console.error("Error al asociar materiales:", error);
+			// console.error("Error al asociar materiales:", error);
 			await Swal.fire({
 				...swalConfig,
 				icon: "error",
@@ -521,7 +521,7 @@ export const ActivityDetail = () => {
 			});
 			await loadActivity();
 		} catch (error) {
-			console.error("Error al desasociar material:", error);
+			// console.error("Error al desasociar material:", error);
 			await Swal.fire({
 				...swalConfig,
 				icon: "error",

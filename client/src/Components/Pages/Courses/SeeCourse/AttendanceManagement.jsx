@@ -107,7 +107,7 @@ export const AttendanceManagement = ({ open, onClose, courseId, selectedDate }) 
         try {
             setLoading(true);
             setError(null);
-            console.log(selectedDate)
+            // console.log(selectedDate)
             const response = await axiosInstance.get(`/api/courses/cursos/${courseId}/participants`);
             if (response.data.success) {
                 setParticipants(response.data.participants);
@@ -115,7 +115,7 @@ export const AttendanceManagement = ({ open, onClose, courseId, selectedDate }) 
                 setError('Error al cargar los participantes');
             }
         } catch (error) {
-            console.error('Error al obtener participantes:', error);
+            // console.error('Error al obtener participantes:', error);
             if (error.response?.status === 401) {
                 localStorage.removeItem('userSession');
                 sessionStorage.removeItem('userSession');
@@ -133,7 +133,7 @@ export const AttendanceManagement = ({ open, onClose, courseId, selectedDate }) 
     const fetchAttendanceRecords = async () => {
         try {
             setLoading(true);
-            console.log(selectedDate)
+            // console.log(selectedDate)
            const response = await axiosInstance.get(`/api/attendance/courses/${courseId}/get`,
             {
             params: {
@@ -183,7 +183,7 @@ export const AttendanceManagement = ({ open, onClose, courseId, selectedDate }) 
             }
             setLoading(false);
         } catch (error) {
-            console.error('Error al obtener registros de asistencia:', error);
+            // console.error('Error al obtener registros de asistencia:', error);
             setError(error.response?.data?.message || 'Error al cargar los registros de asistencia');
             setLoading(false);
         }
@@ -209,7 +209,7 @@ export const AttendanceManagement = ({ open, onClose, courseId, selectedDate }) 
 
             await fetchAttendanceRecords();
         } catch (error) {
-            console.error('Error al actualizar asistencia:', error);
+            // console.error('Error al actualizar asistencia:', error);
             setError('Error al actualizar la asistencia');
         }
     };
@@ -264,8 +264,8 @@ export const AttendanceManagement = ({ open, onClose, courseId, selectedDate }) 
 
             const formattedDate = format(parseISO(selectedDate), 'yyyy-MM-dd');
 
-            console.log('Guardando asistencias para la fecha:', formattedDate);
-            console.log('Asistencias temporales:', tempAttendance);
+            // console.log('Guardando asistencias para la fecha:', formattedDate);
+            // console.log('Asistencias temporales:', tempAttendance);
 
             const attendancePromises = Object.entries(tempAttendance).map(([participantId, status]) =>
                 axiosInstance.post(`/api/attendance/courses/${courseId}/register`, {
@@ -295,8 +295,8 @@ export const AttendanceManagement = ({ open, onClose, courseId, selectedDate }) 
             });
 
         } catch (error) {
-            console.error('Error al guardar asistencias:', error);
-            console.error('Detalles del error:', error.response?.data);
+            // console.error('Error al guardar asistencias:', error);
+            // console.error('Detalles del error:', error.response?.data);
             
             const errorMessage = error.response?.data?.message || 'Error al guardar las asistencias';
             setError(errorMessage);
@@ -345,7 +345,7 @@ export const AttendanceManagement = ({ open, onClose, courseId, selectedDate }) 
     const handleSeeApprentice = () => {
         const currentApprentice = filteredParticipants[currentParticipantIndex];
         if (!currentApprentice) {
-            console.error('No hay aprendiz seleccionado');
+            // console.error('No hay aprendiz seleccionado');
             return;
         }
 
@@ -412,8 +412,8 @@ export const AttendanceManagement = ({ open, onClose, courseId, selectedDate }) 
             });
 
         } catch (error) {
-            console.error('Error al actualizar asistencia:', error);
-            console.error('Detalles del error:', error.response?.data);
+            // console.error('Error al actualizar asistencia:', error);
+            // console.error('Detalles del error:', error.response?.data);
             
             const errorMessage = error.response?.data?.message || 'Error al actualizar la asistencia';
             setError(errorMessage);

@@ -85,7 +85,7 @@ export const SeeMyProfile = () => {
 				theme: "bulma",
 				customClass: { confirmButton: 'centered-swal-button' }
 			})
-			console.log(error)
+			// console.log(error)
 		}
 	}, [userId])
 
@@ -97,7 +97,7 @@ export const SeeMyProfile = () => {
 
 		try {
 			const response = await axiosInstance.get(`/api/courses/cursos-asignados/${userId}`)
-			console.log("Respuesta de cursos asignados:", response.data)
+			// console.log("Respuesta de cursos asignados:", response.data)
 
 			if (response.data && Array.isArray(response.data)) {
 				const cursosAsignados = response.data
@@ -109,7 +109,7 @@ export const SeeMyProfile = () => {
 				setCursos([])
 			}
 		} catch (error) {
-			console.error("Error al consultar los cursos del instructor:", error)
+			// console.error("Error al consultar los cursos del instructor:", error)
 			setCursos([])
 		}
 	}, [userId])
@@ -181,7 +181,7 @@ export const SeeMyProfile = () => {
 					await fetchCursosInstructor()
 				}
 			} catch (error) {
-				console.error("Error al obtener el perfil:", error)
+				// console.error("Error al obtener el perfil:", error)
 				Swal.fire({
 					icon: "error",
 					title: "Error Perfil",
@@ -223,7 +223,7 @@ export const SeeMyProfile = () => {
 				}
 			}
 		} catch (error) {
-			console.error("Error al cargar ubicaciones:", error)
+			// console.error("Error al cargar ubicaciones:", error)
 		}
 	}
 
@@ -279,7 +279,7 @@ export const SeeMyProfile = () => {
 				const ciudadesData = Array.isArray(ciudadesRes.data) ? ciudadesRes.data : ciudadesRes.data.data || []
 				setCiudades(ciudadesData)
 			} catch (error) {
-				console.error("Error al cargar ciudades:", error)
+				// console.error("Error al cargar ciudades:", error)
 				Swal.fire({
 					icon: "error",
 					title: "Error en el sistema",
@@ -434,7 +434,7 @@ export const SeeMyProfile = () => {
 				payload.empresa = JSON.stringify(empresaPayload)
 			}
 
-			console.log("Payload a enviar:", payload)
+			// console.log("Payload a enviar:", payload)
 
 			await axiosInstance.put(`/api/users/perfil/actualizar/${userId}`, payload)
 			Swal.fire({
@@ -457,8 +457,8 @@ export const SeeMyProfile = () => {
 				navigate("/")
 			}
 		} catch (error) {
-			console.error("Error al actualizar el perfil:", error)
-			console.error("Error response:", error.response)
+			// console.error("Error al actualizar el perfil:", error)
+			// console.error("Error response:", error.response)
 
 			let errorMessage = "Hubo un error al actualizar el perfil"
 			if (error.response?.data?.message) {

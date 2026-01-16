@@ -122,7 +122,7 @@ export const Modal_SignIn = () => {
               .catch(error => {
                 // Si hay error 404, el endpoint no existe - redirigir al home
                 if (error.response?.status === 404) {
-                  console.log("Endpoint check-profile no disponible, redirigiendo al home");
+                  // console.log("Endpoint check-profile no disponible, redirigiendo al home");
                   return { data: { isComplete: true } }; // Asumir perfil completo
                 }
                 throw error;
@@ -146,7 +146,7 @@ export const Modal_SignIn = () => {
               });
             }
           } catch (error) {
-            console.error("Error verificando perfil:", error);
+            // console.error("Error verificando perfil:", error);
             // En caso de error, redirigir al home por defecto
             closeModalSignIn();
             navigate("/", {
@@ -215,7 +215,7 @@ export const Modal_SignIn = () => {
       });
 
       const data = await res.json();
-      console.log(data)
+      // console.log(data)
 
       if (res.ok && data.success) {
         sessionStorage.setItem("userSession", JSON.stringify({
@@ -232,7 +232,7 @@ export const Modal_SignIn = () => {
             const profileCheck = await axiosInstance.get("/api/users/check-profile")
               .catch(error => {
                 if (error.response?.status === 404) {
-                  console.log("Endpoint check-profile no disponible, redirigiendo al home");
+                  // console.log("Endpoint check-profile no disponible, redirigiendo al home");
                   return { data: { isComplete: true } };
                 }
                 throw error;
@@ -252,7 +252,7 @@ export const Modal_SignIn = () => {
               navigate('/', { state: { accountType: data.user.accountType } });
             }
           } catch (error) {
-            console.error("Error verificando perfil Google:", error);
+            // console.error("Error verificando perfil Google:", error);
             closeModalSignIn();
             navigate('/', { state: { accountType: data.user.accountType } });
           } finally {
@@ -274,7 +274,7 @@ export const Modal_SignIn = () => {
         setLoginning(false);
       }
     } catch (error) {
-  console.error("Error verificando perfil Google:", error);
+  // console.error("Error verificando perfil Google:", error);
   
   Swal.fire({
     icon: 'error',

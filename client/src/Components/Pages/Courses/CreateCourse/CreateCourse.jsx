@@ -307,7 +307,7 @@ export const CreateCourse = () => {
 			}
 
 		} catch (error) {
-			console.error("Error al crear el curso:", error);
+			// console.error("Error al crear el curso:", error);
 			if (error.response?.data?.message) {
 				Swal.fire({
 					icon: 'error',

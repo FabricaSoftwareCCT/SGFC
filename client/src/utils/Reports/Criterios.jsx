@@ -29,7 +29,7 @@ export const generarExcelHistorial = async (aprentices, curso, id, done) => {
 		xlsx.writeFile(workBook, `Reporte del curso ${curso.nombre_curso} - ${curso.ficha}.xlsx`, { compression: true })
 		done()
 	} catch (error) {
-		console.log(error)
+		// console.log(error)
         Swal.fire({
           icon:"error",
           title:"Error del sistema",
@@ -47,7 +47,7 @@ export const generarExcelHistorial = async (aprentices, curso, id, done) => {
 export const generarExcelCriterios = async (id, curso, done) => {
 	try {
 		const criteria = (await axiosInstance.get(`/api/certification/course/${id}?limit=9999`)).data.criteria
-		console.log(criteria)
+		// console.log(criteria)
 		const criteriaData = criteria.map((c) => ({
 			"Criterio": c.title,
 			"Descripción": c.description,
@@ -61,7 +61,7 @@ export const generarExcelCriterios = async (id, curso, done) => {
 		xlsx.writeFile(workBook, `Criterios de certificación del curso ${curso.nombre_curso} - ${curso.ficha}.xlsx`, { compression: true })
 		done()
 	} catch (error) {
-		console.log(error)
+		// console.log(error)
 		Swal.fire({
           icon:"error",
           title:"Error del sistema",

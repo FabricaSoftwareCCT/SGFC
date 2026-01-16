@@ -63,7 +63,7 @@ export const SeeCourseCriteria = () => {
 			const response = await axiosInstance.get(`api/courses/cursos/${id}`);
 			setCurso(response.data);
 		} catch (error) {
-			console.error("Error al obtener el curso:", error);
+			// console.error("Error al obtener el curso:", error);
 		}
 	}
 
@@ -94,7 +94,7 @@ export const SeeCourseCriteria = () => {
 			setAprentices(participants);
 			setPages(response.data.pages);
 		} catch (error) {
-			console.error(error);
+			// console.error(error);
 			Swal.fire({
 				icon: "error",
 				title: "Error al consultar",
@@ -124,7 +124,7 @@ export const SeeCourseCriteria = () => {
 			setCertificationStatus(resp.data.certification_status);
 			setCertificationDenialStatus(resp.data.denial_justification);
 		} catch (error) {
-			console.error(error);
+			// console.error(error);
 			Swal.fire({
 				icon: "error",
 				title: "Error al consultar",
@@ -187,7 +187,7 @@ export const SeeCourseCriteria = () => {
 			fetchAprentices();
 			setShowAprenticeCriteria(false);
 		} catch (error) {
-			console.error(error);
+			// console.error(error);
 			Swal.fire({
 				icon: "error",
 				title: "Error al actualizar",
@@ -281,7 +281,7 @@ export const SeeCourseCriteria = () => {
 				setShowingDownloadingOptions(false);
 			}
 		} catch (error) {
-			console.log(error);
+			// console.log(error);
 			Swal.fire({
 				icon: "error",
 				title: "Error al generar el reporte",

@@ -521,7 +521,7 @@ export const CourseActivities = () => {
 			setActivities(Array.isArray(actividadesResp) ? actividadesResp : []);
 			setMaterials(Array.isArray(materialesResp) ? materialesResp : []);
 		} catch (err) {
-			console.error("Error al cargar datos de actividades:", err);
+			// console.error("Error al cargar datos de actividades:", err);
 			setError(
 				err?.message ||
 					"No se pudieron cargar las actividades del curso. Intenta nuevamente."
@@ -590,7 +590,7 @@ export const CourseActivities = () => {
 
 			setIsInstructorAssigned(assigned);
 		} catch (error) {
-			console.error("Error al obtener cursos asignados:", error);
+			// console.error("Error al obtener cursos asignados:", error);
 			setIsInstructorAssigned(false);
 		}
 	}, [accountType, userId, id]);
@@ -693,7 +693,7 @@ export const CourseActivities = () => {
 			closeActivityForm();
 			await loadData();
 		} catch (error) {
-			console.error("Error al guardar actividad:", error);
+			// console.error("Error al guardar actividad:", error);
 			await Swal.fire({
 				...swalConfig,
 				icon: "error",
@@ -733,7 +733,7 @@ export const CourseActivities = () => {
 			});
 			await loadData();
 		} catch (error) {
-			console.error("Error al eliminar actividad:", error);
+			// console.error("Error al eliminar actividad:", error);
 			await Swal.fire({
 				...swalConfig,
 				icon: "error",
@@ -778,7 +778,7 @@ export const CourseActivities = () => {
 						: "La actividad se reabrió correctamente.",
 			});
 		} catch (error) {
-			console.error("Error al actualizar estado:", error);
+			// console.error("Error al actualizar estado:", error);
 			await Swal.fire({
 				...swalConfig,
 				icon: "error",

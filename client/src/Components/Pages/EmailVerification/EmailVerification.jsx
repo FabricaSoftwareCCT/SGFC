@@ -23,7 +23,7 @@ useEffect(() => {
   const verifyEmail = async () => {
     const queryParams = new URLSearchParams(location.search);
     const token = queryParams.get("token");
-    console.log("Token recibido en EmailVerification:", token);
+    // console.log("Token recibido en EmailVerification:", token);
 
     if (!token) {
       showError("No se proporciono un token de verificacion.");
@@ -32,18 +32,18 @@ useEffect(() => {
 
     try {
       const response = await fetch(`${API_URL}/api/users/verificarCorreo?token=${token}`);
-      console.log("Respuesta cruda del backend:", response);
+      // console.log("Respuesta cruda del backend:", response);
 
       let data;
       try {
         data = await response.json();
       } catch (jsonError) {
-        console.error("Error al parsear JSON:", jsonError);
+        // console.error("Error al parsear JSON:", jsonError);
         showError("Respuesta inválida del servidor.");
         return;
       }
 
-      console.log("Datos del backend:", data);
+      // console.log("Datos del backend:", data);
 
       if (!response.ok) {
         throw new Error(data.message || "Error en la verificación.");
@@ -59,7 +59,7 @@ useEffect(() => {
         navigate("/", { state: { showSuccessModal: true } });
       }, 5000);
     } catch (error) {
-      console.error("Error en la verificación:", error);
+      // console.error("Error en la verificación:", error);
       showError(error.message || "Error al verificar el correo.");
     }
   };

@@ -10,7 +10,7 @@ export const ModalSignature = ({ children, closeModal, className, editar, nombre
     const [uploadedFileName, setUploadedFileName] = useState("");
     const [firmaDigital, setFirmaDigital] = useState("");
     const [firmaArchivo, setFirmaArchivo] = useState(null);
-    console.log(tipoActa);
+    // console.log(tipoActa);
 
     const clearSignature = () => {
         sigCanvas.current.clear();

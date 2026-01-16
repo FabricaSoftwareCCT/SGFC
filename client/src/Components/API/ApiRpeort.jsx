@@ -70,7 +70,7 @@ export const getAllInscripciones = async (page) =>{
 export const updateBulkStatus = async (estadosP) =>{
 	try {
 		if (!Array.isArray(estadosP) || estadosP.length === 0) {
-			return console.log("No se envio ninguna informacion")
+			return // console.log("No se envio ninguna informacion")
 		}
 		const res = await axiosInstance.put('/api/courses/updateStatusInscripciones', {estadosP})
 		

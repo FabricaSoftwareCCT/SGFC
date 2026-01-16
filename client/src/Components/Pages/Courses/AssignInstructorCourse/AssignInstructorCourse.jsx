@@ -41,7 +41,7 @@ export const AssignInstructorCourse = ({ curso_ID, onClose }) => {
       });
       setAvailability(availabilityMap);
     } catch (error) {
-      console.error('Error al obtener los instructores:', error);
+      // console.error('Error al obtener los instructores:', error);
       await Swal.fire({
         icon: "error",
         title: "Error en el sistema",

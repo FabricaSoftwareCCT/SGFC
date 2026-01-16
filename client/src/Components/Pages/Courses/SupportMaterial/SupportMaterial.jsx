@@ -62,7 +62,7 @@ export const SupportMaterial = () => {
                 setCursoSeleccionado(resp.data.find((c) => c.ID == curso))
             }
         } catch (error) {
-            console.log(error)
+            // console.log(error)
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
@@ -82,7 +82,7 @@ export const SupportMaterial = () => {
             const resp = await axiosInstance.get(`/api/material/${curso.ID}`)
             setArchivos(resp.data.materiales)
         } catch (error) {
-            console.log(error)
+            // console.log(error)
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
@@ -250,7 +250,7 @@ export const SupportMaterial = () => {
                 curso_ID: cursoSeleccionado.ID
             })
         } catch (error) {
-            console.log(error)
+            // console.log(error)
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
@@ -311,7 +311,7 @@ export const SupportMaterial = () => {
                     break
             }
         } catch (error) {
-            console.log(error)
+            // console.log(error)
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
@@ -347,7 +347,7 @@ export const SupportMaterial = () => {
                 }
             });
         } catch (error) {
-            console.log(error)
+            // console.log(error)
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
@@ -424,7 +424,7 @@ export const SupportMaterial = () => {
                         .filter((courseId) => !Number.isNaN(courseId));
                     setAssignedCourseIds(new Set(acceptedIds));
                 } catch (error) {
-                    console.error("Error al obtener cursos asignados:", error);
+                    // console.error("Error al obtener cursos asignados:", error);
                     setAssignedCourseIds(new Set());
                 }
             };

@@ -215,7 +215,7 @@ if (status === 409 || status === 400) {
         });
 
     } catch (e) {
-        console.error('Error al eliminar:', e);
+        // console.error('Error al eliminar:', e);
         
         // Mostrar error con SweetAlert2
         await Swal.fire({

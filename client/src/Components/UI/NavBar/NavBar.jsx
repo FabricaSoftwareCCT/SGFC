@@ -100,7 +100,7 @@ export const NavBar = ({ children, setShowSignIn }) => {
 				setIsMobileMenuOpen(false)
 			}
 		} catch (error) {
-			console.error("Error al cerrar sesión:", error)
+			// console.error("Error al cerrar sesión:", error)
 			localStorage.removeItem("userSession")
 			sessionStorage.removeItem("userSession")
 			navigate("/")
@@ -229,7 +229,7 @@ export const NavBar = ({ children, setShowSignIn }) => {
 				theme: "bulma",
 				customClass: { confirmButton: 'centered-swal-button' }
 			})
-			console.error(error)
+			// console.error(error)
 			setProcessingSolicitud(false)
 		}
 	}
@@ -256,7 +256,7 @@ export const NavBar = ({ children, setShowSignIn }) => {
 				theme: "bulma",
 				customClass: { confirmButton: 'centered-swal-button' }
 			})
-			console.error(error)
+			// console.error(error)
 			setProcessingSolicitud(false)
 		}
 	}
@@ -584,7 +584,7 @@ export const NavBar = ({ children, setShowSignIn }) => {
 							throw new Error(asignacionResponse.data.message || "Error en la asignación")
 						}
 					} catch (asignacionError) {
-						console.error("Error al asignar instructor:", asignacionError)
+						// console.error("Error al asignar instructor:", asignacionError)
 						await Swal.fire({
 							icon: 'error',
 							title: 'Error en asignación',
@@ -601,7 +601,7 @@ export const NavBar = ({ children, setShowSignIn }) => {
 			setShowModalGeneral(false)
 			fetchNotifications()
 		} catch (error) {
-			console.error("Error al cambiar estado de invitación:", error)
+			// console.error("Error al cambiar estado de invitación:", error)
 			await Swal.fire({
 				icon: 'error',
 				title: 'Error',

@@ -46,7 +46,7 @@ export const MisCursosAdmin = () => {
                 }
                 setAccountType(accountType);
             } catch (error) {
-                console.error("Error al cargar los cursos:", error);
+                // console.error("Error al cargar los cursos:", error);
                 setTodosLosCursos([]);
                 setCursos([]);
             } finally {

@@ -25,10 +25,10 @@ export const Modal_Empresa = ({ onClose, onEmpresaSeleccionada }) => {
       try {
         const empresasRes = await axiosInstance.get('/api/users/admin/empresas');
         const empresasData = Array.isArray(empresasRes.data) ? empresasRes.data : empresasRes.data.empresas || [];
-        console.log(empresasData) 
+        // // console.log(empresasData) 
         setEmpresasDisponibles(empresasData);
       } catch (error) {
-        console.error('Error al cargar empresas:', error);
+        // // console.error('Error al cargar empresas:', error);
         setEmpresasDisponibles([]);
       } finally {
         setLoading(false);
@@ -76,7 +76,7 @@ export const Modal_Empresa = ({ onClose, onEmpresaSeleccionada }) => {
       onClose();
       
     } catch (error) {
-      console.error("Error al procesar la empresa:", error);
+      // // console.error("Error al procesar la empresa:", error);
             Swal.fire({
         icon:"error",
         title:"Error al Seleccione una empresa",

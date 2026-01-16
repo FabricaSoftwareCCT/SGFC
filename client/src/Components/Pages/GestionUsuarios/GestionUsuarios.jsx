@@ -81,7 +81,7 @@ export const GestionUsuarios = () => {
 			setUsers(paginatedUsers)
 			
 		} catch (error) {
-			console.log(error)
+			// console.log(error)
 			Swal.fire({
 				icon:"error",
 				title:"Error al consultar los usuarios",
@@ -303,7 +303,7 @@ export const GestionUsuarios = () => {
 			handleCloseModal();
 			fetchUsuarios(); // Recargar los datos
 		} catch (error) {
-			console.error("Error al actualizar el usuario:", error.response?.data || error.message);
+			// console.error("Error al actualizar el usuario:", error.response?.data || error.message);
 			
 			let errorMessage = "Hubo un error al actualizar el usuario. Por favor, inténtelo de nuevo.";
 			

@@ -29,7 +29,7 @@ export const GestionsInstructor = () => {
       setInstructors(response.data);
       setFilteredInstructors(response.data);
     } catch (error) {
-      console.error('Error al obtener los instructores:', error);
+      // console.error('Error al obtener los instructores:', error);
       Swal.fire({
         icon: "error",
         title: "Error en el sistema",

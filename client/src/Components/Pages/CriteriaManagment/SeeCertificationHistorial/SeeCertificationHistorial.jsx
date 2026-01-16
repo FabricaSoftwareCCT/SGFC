@@ -67,7 +67,7 @@ export const SeeCertificationHistorial = () => {
 			setCertificationState(resp.data.certification_status);
 			setCertificationDenial(resp.data.denial_justification);
 		} catch (error) {
-			console.error(error);
+			// console.error(error);
 			await Swal.fire({
 				icon: 'error',
 				title: 'Error',
@@ -104,7 +104,7 @@ export const SeeCertificationHistorial = () => {
 			);
 			setPages(response.data.pages);
 		} catch (error) {
-			console.error(error);
+			// console.error(error);
 			await Swal.fire({
 				icon: 'error',
 				title: 'Error',
@@ -131,7 +131,7 @@ export const SeeCertificationHistorial = () => {
 			);
 			setCurso(response.data);
 		} catch (error) {
-			console.error("Error al obtener el curso:", error);
+			// console.error("Error al obtener el curso:", error);
 		}
 	}
 
@@ -199,7 +199,7 @@ export const SeeCertificationHistorial = () => {
 				setReportContent(await worker.output("bloburl"));
 			}
 		} catch (error) {
-			console.log(error);
+			// console.log(error);
 			Swal.fire({
 				icon: "error",
 				title: "Error en reporte",

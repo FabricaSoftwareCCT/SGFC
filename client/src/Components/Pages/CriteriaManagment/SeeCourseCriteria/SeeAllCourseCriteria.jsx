@@ -217,7 +217,7 @@ export const SeeAllCourseCriteria = () => {
                     throw response.data
                 }
             } catch (error) {
-                console.error(error)
+                // console.error(error)
                 await Swal.fire({
                     icon: 'error',
                     title: 'Error',
@@ -266,7 +266,7 @@ export const SeeAllCourseCriteria = () => {
             setPages(response.data.max_pages)
             setTotalAmount(response.data.total)
         } catch (e) {
-            console.log(e)
+            // console.log(e)
             await Swal.fire({
                 icon: 'error',
                 title: 'Error',
@@ -293,7 +293,7 @@ export const SeeAllCourseCriteria = () => {
             setTotalAmount(response.data.total)
             setLoading(false)
         } catch (e) {
-            console.log(e)
+            // console.log(e)
             await Swal.fire({
                 icon: 'error',
                 title: 'Error',
@@ -315,7 +315,7 @@ export const SeeAllCourseCriteria = () => {
             );
             setCurso(response.data);
         } catch (error) {
-            console.error("Error al obtener el curso:", error);
+            // console.error("Error al obtener el curso:", error);
         }
     }
 
@@ -357,7 +357,7 @@ export const SeeAllCourseCriteria = () => {
                 setReportContent(await worker.output("bloburl"))
             }
         } catch (error) {
-            console.log(error)
+            // console.log(error)
             Swal.fire({
                 icon:"error",
                 title:"Error en reporte",

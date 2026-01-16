@@ -27,7 +27,7 @@ useEffect(()  => {
         }
       
     }catch(err){
-      console.log("Error al obtener los datos", err)
+      // // console.log("Error al obtener los datos", err)
       setHasQuestion(false);
     }
   };
@@ -117,7 +117,7 @@ const handleSaveUpdate = async () => {
 
       //Petición
       const response = await postSecurityQuestion(newQuestion, newAnswer);
-      console.log(response)
+      // // console.log(response)
 
       if(response.status === 200) {
 

@@ -19,13 +19,13 @@ const parseDate = (dateStr) => {
           return adjustedDate
         }
       } catch (e) {
-        console.error("Error al parsear fecha ISO:", e)
+        // console.error("Error al parsear fecha ISO:", e)
       }
     }
 
     return null
   } catch (error) {
-    console.error("Error al parsear fecha:", dateStr, error)
+    // console.error("Error al parsear fecha:", dateStr, error)
     return null
   }
 }
@@ -34,20 +34,20 @@ export const MonthlyCalendar = ({ selectedDate, onDateSelect, startDate, endDate
   // Memoizar las fechas parseadas al inicio
   const parsedStartDate = useMemo(() => {
     const date = parseDate(startDate)
-    console.log("Fecha de inicio parseada:", date ? format(date, "dd/MM/yyyy") : null)
+    // console.log("Fecha de inicio parseada:", date ? format(date, "dd/MM/yyyy") : null)
     return date
   }, [startDate])
 
   const parsedEndDate = useMemo(() => {
     const date = parseDate(endDate)
-    console.log("Fecha de fin parseada:", date ? format(date, "dd/MM/yyyy") : null)
+    // console.log("Fecha de fin parseada:", date ? format(date, "dd/MM/yyyy") : null)
     return date
   }, [endDate])
 
   // Inicializar currentDate con la fecha de inicio del curso
   const [currentDate, setCurrentDate] = useState(() => {
     const initialDate = parsedStartDate || new Date()
-    console.log("Fecha inicial del calendario:", format(initialDate, "dd/MM/yyyy"))
+    // console.log("Fecha inicial del calendario:", format(initialDate, "dd/MM/yyyy"))
     return initialDate
   })
 
@@ -84,7 +84,7 @@ export const MonthlyCalendar = ({ selectedDate, onDateSelect, startDate, endDate
   // Efecto para forzar el mes inicial cuando cambia startDate
   useEffect(() => {
     if (parsedStartDate) {
-      console.log("Actualizando fecha actual a:", format(parsedStartDate, "dd/MM/yyyy"))
+      // console.log("Actualizando fecha actual a:", format(parsedStartDate, "dd/MM/yyyy"))
       setCurrentDate(parsedStartDate)
     }
   }, [parsedStartDate])
@@ -108,7 +108,7 @@ export const MonthlyCalendar = ({ selectedDate, onDateSelect, startDate, endDate
   // Función para verificar si una fecha está dentro del rango del curso
   const isWithinCourseRange = (date) => {
     if (!parsedStartDate || !parsedEndDate) {
-      console.log("Fechas de rango no definidas")
+      // console.log("Fechas de rango no definidas")
       return false
     }
 
@@ -132,7 +132,7 @@ export const MonthlyCalendar = ({ selectedDate, onDateSelect, startDate, endDate
     const localDate = new Date(date.getFullYear(), date.getMonth(), date.getDate())
     const formattedDate = format(localDate, "dd/MM/yyyy")
 
-    console.log("Manejo de clic en fecha:", {
+    // console.log("Manejo de clic en fecha:", {
       fechaOriginal: format(date, "dd/MM/yyyy"),
       fechaLocal: formattedDate,
       fechaActualCalendario: format(currentDate, "dd/MM/yyyy"),
@@ -140,12 +140,12 @@ export const MonthlyCalendar = ({ selectedDate, onDateSelect, startDate, endDate
     })
 
     if (!isSelectable(localDate)) {
-      console.log("Fecha no seleccionable")
+      // console.log("Fecha no seleccionable")
       return
     }
 
     const dateStr = format(localDate, "yyyy-MM-dd")
-    console.log("Seleccionando fecha:", dateStr)
+    // console.log("Seleccionando fecha:", dateStr)
 
     setSelectedDates(new Set([dateStr]))
     onDateSelect(dateStr)
@@ -161,7 +161,7 @@ export const MonthlyCalendar = ({ selectedDate, onDateSelect, startDate, endDate
         const courseStart = startOfMonth(parsedStartDate)
         const courseEnd = endOfMonth(parsedEndDate)
 
-        console.log("Cambiando mes:", {
+        // console.log("Cambiando mes:", {
           mesAnterior: format(prevDate, "MMMM yyyy", { locale: es }),
           nuevoMes: format(newDate, "MMMM yyyy", { locale: es }),
           inicioCurso: format(courseStart, "dd/MM/yyyy"),
@@ -169,7 +169,7 @@ export const MonthlyCalendar = ({ selectedDate, onDateSelect, startDate, endDate
         })
 
         if (newMonthEnd < courseStart || newMonthStart > courseEnd) {
-          console.log("Nuevo mes fuera del rango del curso")
+          // console.log("Nuevo mes fuera del rango del curso")
           return prevDate
         }
       }

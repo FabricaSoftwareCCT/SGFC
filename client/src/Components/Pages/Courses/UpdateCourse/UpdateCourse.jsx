@@ -95,7 +95,7 @@ export const UpdateCourse = () => {
 						const temarioParseado = JSON.parse(response.data.temario);
 						setTemario(temarioParseado);
 					} catch (error) {
-						console.error("Error al parsear el temario:", error);
+						// console.error("Error al parsear el temario:", error);
 						setTemario([]);
 					}
 				}
@@ -306,10 +306,10 @@ export const UpdateCourse = () => {
 				const selectedFile = fileInput.files[0];
 				if (selectedFile instanceof File) {
 					formData.append("imagen", selectedFile);
-					console.log("Imagen agregada al FormData:", selectedFile.name, selectedFile.size);
+					// console.log("Imagen agregada al FormData:", selectedFile.name, selectedFile.size);
 				}
 			} else {
-				console.log("No se seleccionó nueva imagen, se mantendrá la existente");
+				// console.log("No se seleccionó nueva imagen, se mantendrá la existente");
 			}
 
 			const response = await axiosInstance.put(`/api/courses/cursos/${id}`, formData, {
@@ -349,7 +349,7 @@ export const UpdateCourse = () => {
 				});
 			}
 		} catch (error) {
-			console.error("Error al actualizar el curso:", error);
+			// console.error("Error al actualizar el curso:", error);
 			await Swal.fire({
 				icon: 'error',
 				title: 'Error',

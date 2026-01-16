@@ -298,7 +298,7 @@ export const generarExcelEstudiantes = (datosReporte, cursoNombre) => {
     xlsx.utils.book_append_sheet(workBook, xlsx.utils.json_to_sheet(estudiantesData), "Estudiantes");
     xlsx.writeFile(workBook, `reporte_estudiantes_${cursoNombre || 'curso'}.xlsx`, { compression: true });
   } catch (error) {
-    console.error('Error al generar Excel:', error);
+    // console.error('Error al generar Excel:', error);
     throw new Error('Ocurrió un error al generar el archivo Excel');
   }
 };

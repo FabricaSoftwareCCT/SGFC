@@ -177,7 +177,7 @@ export const UpdateInstructor = ({ instructor, onClose }) => {
       window.location.reload();
       document.getElementById("modal-overlayUpdateInstructor").style.display = "none";
     } catch (error) {
-      console.error("Error al actualizar el perfil:", error.response?.data || error.message);
+      // console.error("Error al actualizar el perfil:", error.response?.data || error.message);
       await Swal.fire({
         icon: "error",
         title: "Error",

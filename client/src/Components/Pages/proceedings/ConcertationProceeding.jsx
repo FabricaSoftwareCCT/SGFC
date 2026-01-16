@@ -119,7 +119,7 @@ export const ConcertationProceeding = () => {
 				}
 			})
 			.catch(err => {
-				console.error("Error al obtener datos:", err);
+				// console.error("Error al obtener datos:", err);
 			});
 	}, []);
 
@@ -135,7 +135,7 @@ export const ConcertationProceeding = () => {
 
     const errores = await createMensajeError(validationGeneral);
     if(errores !== null){
-      console.log(errores);
+      // console.log(errores);
     Swal.fire({
         icon: 'error',
         title: 'Error de validación',
@@ -399,7 +399,7 @@ export const ConcertationProceeding = () => {
 			}
 
     } catch (error) {
-      console.error('❌ Error completo:', error);
+      // console.error('❌ Error completo:', error);
       
       // Mostrar información más detallada del error
       let errorMessage = 'Error al enviar el acta de concertación.';

@@ -59,7 +59,7 @@ export const GestionsActas = () => {
 			} catch (error) {
 				setActas([]);
 				setActasOriginales([]);
-				console.error("Error al cargar actas:", error);
+				// console.error("Error al cargar actas:", error);
 				await Swal.fire({
 					icon: "error",
 					title: "Error al cargar actas",
@@ -77,7 +77,7 @@ export const GestionsActas = () => {
 				const userData = JSON.parse(sessionStorage.getItem('userSession') || '{}');
 				setUsuarioLogueado(userData);
 			} catch (error) {
-				console.error('Error al obtener datos del usuario:', error);
+				// console.error('Error al obtener datos del usuario:', error);
 				await Swal.fire({
 					icon: 'error',
 					title: 'Error de sesión',
@@ -196,7 +196,7 @@ export const GestionsActas = () => {
 						customClass: { confirmButton: 'centered-swal-button' }
 					});
 				} catch (error) {
-					console.error('Error al enviar notificación de estado de solicitud de curso:', error);
+					// console.error('Error al enviar notificación de estado de solicitud de curso:', error);
 					await Swal.fire({
 						icon: "error",
 						title: "Error al enviar notificación",

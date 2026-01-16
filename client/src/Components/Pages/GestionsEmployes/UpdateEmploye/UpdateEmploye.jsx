@@ -139,8 +139,8 @@ export const UpdateEmploye = ({ empleado, onClose, isOpen = true }) => {
   const navigate = useNavigate();
 
   const handleCourse = () => {
-    console.log('ID del empleado:', formData.ID);
-    console.log('Navegando a mis cursos...');
+    // console.log('ID del empleado:', formData.ID);
+    // console.log('Navegando a mis cursos...');
     
     closeModalUpdateEmploye();
     navigate('/Cursos/MisCursos', { 
@@ -230,7 +230,7 @@ export const UpdateEmploye = ({ empleado, onClose, isOpen = true }) => {
             customClass: { confirmButton: 'centered-swal-button' }
           });
         } catch (ocrError) {
-          console.error("Error al procesar documento:", ocrError);
+          // console.error("Error al procesar documento:", ocrError);
           await Swal.fire({
             icon: 'warning',
             title: 'Procesamiento de documento',

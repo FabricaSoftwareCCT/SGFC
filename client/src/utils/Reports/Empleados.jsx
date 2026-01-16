@@ -83,7 +83,7 @@ export const generarExcelEmpleado = async (empleado, done, filters) => {
 		xlsx.writeFile(workBook, `Reporte del empleado ${empleado.nombres} ${empleado.apellidos} - ${new Date().toLocaleString("es-CO")}.xlsx`, { compression: true })
 		done()
 	} catch (error) {
-		console.log(error)
+		// // console.log(error)
 		alert("Ocurrió un error al general el excel")
 	}
 }

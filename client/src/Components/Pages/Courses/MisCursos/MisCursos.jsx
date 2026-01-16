@@ -87,7 +87,7 @@ export const MisCursos = () => {
         setFilteredCursos(fetchedCursos);
         setErrorMessage("");
       } catch (error) {
-        console.error("Error al obtener los cursos:", error);
+        // console.error("Error al obtener los cursos:", error);
         setErrorMessage("Error al cargar los cursos. Por favor, intenta de nuevo.");
       } finally {
         setIsLoading(false);
@@ -145,7 +145,7 @@ export const MisCursos = () => {
   // 👉 Ir al detalle del curso
   const handleCardClick = (ID) => {
     if (!ID) {
-      console.error("El ID del curso es undefined o null");
+      // console.error("El ID del curso es undefined o null");
       return;
     }
     navigate(`/Cursos/${ID}`);

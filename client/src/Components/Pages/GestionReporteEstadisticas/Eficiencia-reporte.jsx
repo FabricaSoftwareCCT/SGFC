@@ -72,7 +72,7 @@ export default function EficienciaReporte({ cursoSeleccionado, onVolver }) {
             }
             setDatosEstudiantes(aprendicesData)
         } catch (error) {
-            console.log(error)
+            // console.log(error)
             await Swal.fire({
                 icon: 'error',
                 title: 'Error en el sistema',
@@ -208,11 +208,11 @@ export default function EficienciaReporte({ cursoSeleccionado, onVolver }) {
             tipoFiltro: '',
             valor: ''
         });
-        console.log('Filtros limpiados');
+        // console.log('Filtros limpiados');
     };
 
     const generarReporte = async () => {
-        console.log('Generando reporte de eficiencia...');
+        // console.log('Generando reporte de eficiencia...');
         try {
             if (reportType === "pdf") {
                 if (!pdfContent.current)
@@ -255,7 +255,7 @@ export default function EficienciaReporte({ cursoSeleccionado, onVolver }) {
                 }, 100);
             }
         } catch (error) {
-            console.log(error)
+            // console.log(error)
             Swal.fire({
                 icon: "error",
                 title: "Error al generar el reporte",

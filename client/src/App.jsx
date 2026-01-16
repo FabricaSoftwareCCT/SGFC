@@ -112,7 +112,7 @@ function App() {
 				const localSession = sessionStorage.getItem("userSession");
 				
 				if (localSession) {
-					console.log("Sesión activa en esta pestaña");
+					// console.log("Sesión activa en esta pestaña");
 					return;
 				}
 
@@ -149,7 +149,7 @@ function App() {
 				navigate("/", { state: { accountType: data.session?.payload?.accountType } });
 
 			} catch (error) {
-				console.error("Error al verificar el token:", error);
+				// console.error("Error al verificar el token:", error);
 				sessionStorage.removeItem("userSession");
 			}
 	};

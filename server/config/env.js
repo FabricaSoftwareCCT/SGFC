@@ -47,15 +47,17 @@ const getAllowedOrigins = () => {
     origins.push(process.env.FRONTEND_URL);
     
     // Si FRONTEND_URL tiene una IP, agregar con diferentes puertos
-    const ipMatch = process.env.FRONTEND_URL.match(/http:\/\/(\d+\.\d+\.\d+\.\d+)/);
+    const ipMatch = process.env.FRONTEND_URL.match(/https?:\/\/(\d+\.\d+\.\d+\.\d+)/);
     if (ipMatch) {
       origins.push(`http://${ipMatch[1]}:3000`);
       origins.push(`http://${ipMatch[1]}:80`);
       origins.push(`http://${ipMatch[1]}`);
+      origins.push(`https://${ipMatch[1]}:3000`);
+      origins.push(`https://${ipMatch[1]}`);
     }
     
-    // Si es un dominio, agregar variantes con y sin www
-    const domainMatch = process.env.FRONTEND_URL.match(/http:\/\/([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/);
+    // Si es un dominio, agregar variantes con y sin www (soporta http y https)
+    const domainMatch = process.env.FRONTEND_URL.match(/https?:\/\/([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/);
     if (domainMatch && !ipMatch) {
       const domain = domainMatch[1];
       origins.push(`http://${domain}`);

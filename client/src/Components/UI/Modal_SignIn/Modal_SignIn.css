@@ -1,0 +1,270 @@
+#container_signIn {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.579);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+    padding: 1.25rem;
+    box-shadow: 0rem .25rem .625rem rgba(0, 0, 0, 0.3);
+
+}
+
+.modalSignIn {
+    width: 56.25rem;
+    height: 34.375rem;
+    background-color: #1A1A1A;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: .9375rem;
+    overflow: hidden;
+}
+
+.container_return_signIn>h5 {
+    width: auto;
+    height: auto;
+    position: relative;
+    top: 27%;
+    font-size: 1.125rem;
+    font-weight: 400;
+    z-index: 1000;
+    color: #fff;
+    left: 4%;
+    cursor: pointer;
+}
+
+.container_return_signIn {
+    width: 8.875rem;
+    height: 8.875rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    bottom: 14.0625rem;
+    left: 0;
+    z-index: 1000;
+}
+
+.title2_signIn {
+    color: #00843D;
+}
+
+.title_signIn {
+    margin-bottom: 32px;
+}
+
+.modalOptions {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: space-evenly;
+}
+
+.goTo_register {
+    cursor: pointer;
+
+}
+
+.remember-session {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    margin-top: -8px;
+    padding-left: .4375rem;
+}
+
+.remember-session input[type="checkbox"] {
+    width: auto;
+    height: auto;
+    margin-right: .5rem;
+}
+
+.remember-session label {
+    width: auto;
+    height: auto;
+    color: #fff;
+    font-size: .6875rem;
+
+}
+
+.forgetPassword {
+    cursor: pointer;
+    width: auto;
+    height: auto;
+    font-size: .75rem;
+    color: #00843D;
+    margin-top: 32px;
+    z-index: 1000;
+}
+
+.option_signUp {
+    background: linear-gradient(90deg, #b0b0b01c, #1a1a1a1b);
+    width: 65%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-radius: .9375rem;
+    opacity: 98%;
+    gap: 16px;
+}
+
+.option_signUp>h3,
+.option_signUp>p {
+    width: 60%;
+    height: auto;
+    text-align: center;
+    font-weight: 100;
+}
+
+.option_signUp>.logo {
+    margin: 64px 0 16px 0;
+}
+
+.option_signUp>img {
+    width: 240px;
+    height: auto;
+}
+
+
+.option_signUp>button {
+    width: 8.5625rem;
+    height: auto;
+    font-size: 1rem;
+    font-weight: 100;
+    border-radius: .625rem;
+    background-color: #00843D;
+    border-style: none;
+    margin-top: 16px;
+    padding: .625rem 0 .625rem 0;
+
+}
+
+.option_signUp>h3 {
+    font-size: 1.125rem;
+}
+
+.container_form_signIn {
+    width: auto;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.otherOption {
+    margin: -0.8125rem 0 -1.75rem 0;
+}
+
+.remember-session input[type="checkbox"] {
+    width: auto;
+    height: auto;
+    margin-right: .5rem;
+    accent-color: #00843D;
+}
+
+.form_registerSignIn {
+    width: 100%;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+}
+
+.container_triangles_01_login {
+    width: auto;
+    height: auto;
+    transform: rotate(180deg);
+    position: relative;
+    top: 5rem;
+    z-index: 500;
+}
+
+.container_triangles_02_login {
+    height: auto;
+    position: relative;
+    top: -5rem;
+    z-index: 500;
+}
+
+.google-login-container {
+    margin-top: 2.1rem;
+    width: 100%;
+    align-items: center;
+    padding: 0 20px;
+    bottom: 1.2rem;
+    position: relative;
+    left: 0.2rem;
+}
+
+
+.container_informationGeneral>p {
+    width: 274px;
+    height: auto;
+    font-size: 16px;
+}
+
+.option_1Account,
+.option_2Account {
+    width: auto;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    cursor: pointer;
+}
+
+.option_2Account>img,
+.option_1Account>img {
+    width: auto;
+    height: auto;
+}
+
+.container_AccountTypeAprendiz,
+.container_AccountTypeEmpresa {
+    width: 90px;
+    height: 90px;
+    background-color: #b0b0b0;
+    border-radius: 50%;
+    opacity: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-style: none;
+    cursor: pointer;
+}
+
+
+.container_AccountTypeAprendiz:hover,
+.container_AccountTypeEmpresa:hover {
+    background-color: #00843D;
+    opacity: 70%;
+}
+
+.option_1Account>button>img,
+.option_2Account>button>img {
+    width: 60%;
+    height: auto;
+}
+
+.option_1Account>p,
+.option_2Account>p {
+    width: auto;
+    height: auto;
+}
+
+.container_AccountTypeAprendiz:hover img {
+    content: url('../../../assets/Icons/userGrey.png');
+}
+
+.container_AccountTypeEmpresa:hover img {
+    content: url('../../../assets/Icons/companyGrey.png');
+}

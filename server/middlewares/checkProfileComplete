@@ -1,0 +1,47 @@
+const { User } = require('../models');
+const jwt = require('jsonwebtoken');
+
+const checkProfileComplete = async (req, res, next) => {
+  try {
+    const token = req.cookies.accessToken;
+    
+    // Si no hay token, continuar (podría ser una ruta pública)
+    if (!token) {
+      return next();
+    }
+
+    // Verificar el token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || "secret");
+    const user = await User.findByPk(decoded.id);
+    
+    // Si no se encuentra el usuario, continuar
+    if (!user) {
+      return next();
+    }
+
+    // Solo aplicar para Aprendices con perfil incompleto
+    if (user.accountType === "Aprendiz" && !user.perfil_completo) {
+      // Excluir rutas relacionadas con perfil para evitar loop
+      if (req.path.includes('/perfil') || 
+          req.path.includes('/profile') || 
+          req.path.includes('/actualizar') ||
+          req.path.includes('/check-profile') ||
+          req.method === 'GET' && req.path.includes('/api/users/profile')) {
+        return next();
+      }
+      
+      return res.status(403).json({ 
+        perfilIncompleto: true,
+        message: "Por favor completa tu perfil para acceder a esta función",
+        redirectTo: `/perfil/${user.id}`
+      });
+    }
+    
+    next();
+  } catch (error) {
+    // Si hay error con el token, continuar
+    next();
+  }
+};
+
+module.exports = { checkProfileComplete }; // ← Misma estructura que authMiddleware

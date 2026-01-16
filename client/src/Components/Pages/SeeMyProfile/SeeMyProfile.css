@@ -1,0 +1,1317 @@
+.container_mainSeeMyProfile {
+  min-height: 100%;
+  width: 100%;
+  height: auto;
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+  padding: 0 1rem;
+}
+
+/* Mejorado container_profile con dos secciones claramente divididas y más ancho */
+.container_profile {
+  position: relative;
+  width: 24rem;
+  height: auto;
+  background-color: #2a2a2a;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Sección superior del perfil: foto, rol y email */
+.profile_header_section {
+  width: 100%;
+  padding: 2rem 1.5rem;
+  background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+  border-bottom: 3px solid #00843e3f;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 2px 10px rgba(57, 255, 20, 0.2);
+}
+
+.profile_header_section .profile-img {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 4px solid #00843e3f;
+  box-shadow: 0 0 20px rgba(57, 255, 20, 0.3);
+  transition: transform 0.3s ease;
+}
+
+.profile_header_section .profile-img:hover {
+  transform: scale(1.05);
+}
+
+.profile_role {
+  font-size: 20px;
+  font-weight: 700;
+  color: white;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.profile_email {
+  font-size: 14px;
+  color: #b0b0b0;
+  margin: 0;
+  word-break: break-all;
+}
+
+/* Sección inferior del perfil: datos del usuario */
+.profile_data_section {
+  width: 100%;
+  padding: 1.5rem;
+  background-color: #1a1a1a;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.profile_data_title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0 0 0.5rem 0;
+  text-align: center;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #00843e3f;
+}
+
+.profile_field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.profile_field label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #b0b0b0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.profile_value {
+  padding: 0.75rem;
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 14px;
+}
+
+.input_updateData {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+
+/* Estado hover y focus */
+.input_updateData.custom-select:hover {
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Para opciones - intenta esto */
+.input_updateData.custom-select option {
+  background-color: #2d2f31 !important; /* Gris muy oscuro */
+  color: white !important;
+  padding: 12px 16px;
+  font-size: 14px;
+}
+
+.input_updateData.custom-select option:hover,
+.input_updateData.custom-select option:focus,
+.input_updateData.custom-select option:checked {
+  background-color: #374151 !important; /* Gris un poco más claro para hover */
+  color: white !important;
+}
+
+.input_updateData:focus {
+  border-color: #00843e3f;
+  background-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 10px rgba(57, 255, 20, 0.2);
+}
+
+.input_updateData:disabled {
+  background-color: rgba(255, 255, 255, 0.03);
+  color: #999;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.input_updateData::placeholder {
+  color: #666666;
+}
+
+/* Botones de edición */
+.updateProfile {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  font-size: 1.5rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+
+.updateProfile:hover {
+  background-color: transparent;
+  transform: scale(1.55);
+}
+
+.svg-inline--fa fa-pen-to-square edit-button {
+  color: #00843d;
+  font-size: 1.4rem;
+}
+
+.updateProfile.cancel {
+  background-image: url("../../../assets/Icons/cerca.png");
+  background-size: 60%;
+  background-color: #a80000;
+}
+
+.updateProfile.cancel:hover {
+  background-color: #db1010;
+}
+
+.updateProfile1 {
+  position: absolute;
+  z-index: 999999999;
+  top: 11rem;
+  right: 3rem;
+  width: 4rem;
+  height: 4rem;
+  background-color: #00843d;
+  border-radius: 10px;
+  border-style: none;
+  background: center / 70% no-repeat url("../../../assets/Icons/marca-de-verificacion.png"), #234433;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.updateProfile1:hover {
+  background-color: #163524;
+  transform: scale(1.05);
+}
+
+/* Estilos para perfil de Administrador/Instructor/Gestor */
+.admin_profile_container {
+  width: 100%;
+  max-width: 1200px;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding: 1.5rem;
+  background-color: #1a1a1a;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.admin_header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  background-color: #2a2a2a;
+  border-radius: 15px;
+  gap: 2rem;
+}
+
+.admin_header_left {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.sena_logo {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+.sena_info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.sena_nombre {
+  font-size: 28px;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0;
+}
+
+.text_turismo {
+  color: #00843d;
+}
+
+.sena_nit {
+  font-size: 14px;
+  color: #b0b0b0;
+  margin: 0;
+}
+
+.admin_header_right {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.admin_status_badge {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1.5rem;
+  background-color: #1a1a1a;
+  border-radius: 10px;
+}
+
+.status_indicator {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.status_active {
+  background-color: #00843d;
+  box-shadow: 0 0 10px rgba(57, 255, 20, 0.5);
+}
+
+.status_inactive {
+  background-color: #ef3c3c;
+  box-shadow: 0 0 10px rgba(239, 60, 60, 0.5);
+}
+
+.status_text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.status_label {
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.status_role {
+  font-size: 12px;
+  color: #b0b0b0;
+}
+
+.admin_action_buttons {
+  display: flex;
+  gap: 1rem;
+}
+
+.btn_guardar,
+.btn_cancelar {
+  padding: 0.75rem 2rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn_guardar {
+  background-color: #00843d;
+  color: #000000;
+}
+
+.btn_guardar:hover {
+  background-color: #00843d;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(57, 255, 20, 0.4);
+}
+
+.btn_cancelar {
+  background-color: #ef3c3c;
+  color: #ffffff;
+}
+
+.btn_cancelar:hover {
+  background-color: #d32f2f;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(239, 60, 60, 0.3);
+}
+
+.admin_datos_section {
+  padding: 2rem;
+  background-color: #2a2a2a;
+  border-radius: 15px;
+}
+
+.admin_cursos_section {
+  padding: 2rem;
+  background-color: #2a2a2a;
+  border-radius: 15px;
+}
+
+.section_title {
+  font-size: 24px;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0 0 1.5rem 0;
+  text-align: center;
+}
+
+.admin_datos_grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+}
+
+.admin_field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.admin_field label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #b0b0b0;
+}
+
+.admin_value {
+  padding: 0.75rem 1rem;
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 14px;
+}
+
+/* Estilos para perfil de Empresa con fondo verde brillante */
+.empresa_profile_container {
+  width: 100%;
+  max-width: 1200px;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding: 2rem;
+  background-color: #2a2a2a;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(16, 39, 12, 0.3);
+}
+
+.empresa_header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  background-color: #1a1a1a;
+  border-radius: 15px;
+  gap: 2rem;
+}
+
+.empresa_header_left {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.empresa_logo {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.empresa_logo:hover {
+  transform: scale(1.05);
+}
+
+.empresa_info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.empresa_nombre {
+  font-size: 28px;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0;
+}
+
+.empresa_input_nombre {
+  font-size: 28px;
+  font-weight: 600;
+  background-color: transparent;
+  border: none;
+  border-bottom: 2px solid #00843e3f;
+  color: #ffffff;
+  outline: none;
+  padding: 0.25rem 0;
+  width: 100%;
+  min-width: 300px;
+}
+
+.empresa_nit {
+  font-size: 14px;
+  color: #b0b0b0;
+  margin: 0;
+}
+
+.empresa_input_nit {
+  font-size: 14px;
+  background-color: transparent;
+  border: none;
+  border-bottom: 1px solid #00843e3f;
+  color: #b0b0b0;
+  outline: none;
+  padding: 0.25rem 0;
+  width: 150px;
+}
+
+.empresa_header_right {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.empresa_status_badge {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1.5rem;
+  background-color: #2a2a2a;
+  border-radius: 10px;
+}
+
+.empresa_action_buttons {
+  display: flex;
+  gap: 1rem;
+}
+
+.empresa_datos_section {
+  padding: 2rem;
+  background-color: #1a1a1a;
+  border-radius: 15px;
+}
+
+.empresa_datos_grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+}
+
+.empresa_field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.empresa_field label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #b0b0b0;
+}
+
+.select-disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+.select-disabled:hover {
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.empresa_input {
+  padding: 0.75rem 1rem;
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.empresa_input:focus {
+  border-color: #00843e3f;
+  background-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 10px rgba(57, 255, 20, 0.2);
+}
+
+.empresa_input::placeholder {
+  color: #666666;
+}
+
+/* ====== ESTILOS PARA LOS SELECTS ====== */
+.empresa_input-s {
+  padding: 0.75rem 1rem;
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.2s ease;
+  width: 100%;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg fill='white' height='10' width='14' xmlns='http://www.w3.org/2000/svg'><path d='M7 10L0 0h14z'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 12px 8px;
+  
+  /* Agregar esto */
+  position: relative;
+  z-index: 10;
+}
+/* Estado enfocado */
+.empresa_input-s:focus {
+  border-color: #2F8EAC;
+  background-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 10px rgba(47, 142, 172, 0.3);
+}
+
+/* Color del texto del placeholder (primer option vacío) */
+.empresa_input-s option[value=""] {
+  color: #888;
+}
+
+/* Opciones dentro del desplegable */
+.empresa_input-s option {
+  background-color: #1c1c1c;
+  color: #ffffff;
+}
+
+/* Hover sobre las opciones (según navegador) */
+.empresa_input-s option:hover {
+  background-color: #2F8EAC;
+  color: #fff;
+}
+
+/* Estado deshabilitado */
+.empresa_input-s:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.empresa_value {
+  padding: 0.75rem 1rem;
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 14px;
+}
+
+.empresa_cursos_section {
+  padding: 2rem;
+  background-color: #1a1a1a;
+  border-radius: 15px;
+}
+.manager_status_badge {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 1rem;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  margin-top: 0.5rem;
+}
+
+/* Botones de acción en el perfil para Aprendiz e Instructor */
+.profile_action_buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Select para estado de empresa editable */
+.empresa_status_select {
+  padding: 0.5rem;
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  color: #ffffff;
+  font-size: 14px;
+  outline: none;
+  cursor: pointer;
+}
+
+.empresa_status_select:focus {
+  border-color: #00843e3f;
+}
+
+.empresa_status_select option {
+  background-color: #2a2a2a;
+  color: #ffffff;
+}
+
+/* Estilos mejorados para curso_row */
+.cursos_table {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.curso_row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 1.5rem;
+  background-color: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  gap: 1.5rem;
+}
+
+.curso_row:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-color: rgba(57, 255, 20, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 132, 62, 0.1);
+}
+
+.curso_info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.curso_nombre {
+  font-size: 18px;
+  font-weight: 600;
+  color: #ffffff;
+  line-height: 1.3;
+}
+
+.curso_descripcion {
+  font-size: 14px;
+  color: #b0b0b0;
+  line-height: 1.5;
+  /* Propiedad estándar primero para compatibilidad futura */
+  line-clamp: 2;
+  /* Propiedades WebKit para navegadores actuales */
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  display: -webkit-box;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-height: 3em;
+}
+
+.btn_ver_detalles {
+  padding: 0.75rem 1.5rem;
+  background-color: transparent;
+  border: 1px solid #00843d;
+  border-radius: 8px;
+  color: #00843d;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+  min-width: 120px;
+}
+
+.btn_ver_detalles:hover {
+  background-color: #00843d;
+  color: #000000;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 132, 61, 0.3);
+}
+
+.cursos_empty {
+  padding: 3rem;
+  text-align: center;
+}
+
+.cursos_empty p {
+  font-size: 16px;
+  color: #b0b0b0;
+  margin: 0;
+}
+
+.empresa_instructores_section {
+  padding: 2rem;
+  background-color: #1a1a1a;
+  border-radius: 15px;
+}
+
+.instructores_list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.instructor_item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background-color: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+}
+
+.instructor_nombre {
+  font-size: 14px;
+  color: #ffffff;
+}
+
+.btn_ver_contacto {
+  padding: 0.5rem 1rem;
+  background-color: transparent;
+  border: 1px solid #00843e3f;
+  border-radius: 6px;
+  color: #00843e3f;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn_ver_contacto:hover {
+  background-color: #00843e3f;
+  color: #000000;
+}
+
+/* Estilos para perfil de Aprendiz */
+.aprendiz_profile_container {
+  width: 100%;
+  max-width: 1200px;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding: 1.5rem;
+  background-color: #1a1a1a;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.aprendiz_header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  background-color: #2a2a2a;
+  border-radius: 15px;
+}
+
+.aprendiz_header_left {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.aprendiz_datos_section {
+  padding: 2rem;
+  background-color: #2a2a2a;
+  border-radius: 15px;
+}
+
+.aprendiz_empresa_info {
+  display: flex;
+  gap: 2rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.aprendiz_empresa_info p {
+  font-size: 16px;
+  color: #ffffff;
+  margin: 0;
+}
+
+.aprendiz_empresa_info strong {
+  color: #b0b0b0;
+  font-weight: 500;
+}
+
+.aprendiz_datos_grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+}
+
+.aprendiz_field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.aprendiz_field label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #b0b0b0;
+}
+
+.aprendiz_input {
+  padding: 0.75rem 1rem;
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.aprendiz_input:focus {
+  border-color: #00843e3f;
+  background-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 10px rgba(57, 255, 20, 0.2);
+}
+
+.aprendiz_input:disabled {
+  background-color: rgba(255, 255, 255, 0.03);
+  color: #999;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.aprendiz_input::placeholder {
+  color: #666666;
+}
+
+.aprendiz_value {
+  padding: 0.75rem 1rem;
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 14px;
+}
+
+/* Estilos antiguos mantenidos para compatibilidad */
+.container_data_company {
+  width: 60%;
+  height: auto;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.name_company {
+  width: 100%;
+  height: 7rem;
+  background-color: #00843e3f;
+  border-radius: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.container_data {
+  width: 100%;
+  height: 30rem;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+}
+
+.data_company {
+  width: 30%;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border-radius: 20px;
+  padding: 7px;
+  background-color: #00843e3f;
+  box-sizing: border-box;
+}
+
+.data_company > p {
+  width: 100%;
+  height: auto;
+  font-size: 16px;
+  text-align: center;
+}
+
+.data_courses_instructor {
+  width: 70%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  border-radius: 20px;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.data_courses,
+.data_instructor {
+  width: 100%;
+  height: 50%;
+  display: flex;
+  flex-direction: column;
+  border-radius: 20px;
+  align-items: center;
+  background-color: #00843e3f;
+  padding: 15px;
+  overflow-y: scroll;
+}
+
+.data_course_item {
+  padding: 10px;
+}
+
+.data_course_item * {
+  margin-left: 5px;
+  margin-right: 5px;
+}
+
+.name_company > img {
+  width: 4rem;
+  height: 4rem;
+  object-fit: cover;
+  border-radius: 25%;
+  margin-left: 2rem;
+}
+
+.name_company > div {
+  width: 100%;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.name_company > div > h3,
+.name_company > div > p {
+  width: auto;
+  height: auto;
+  font-size: 24px;
+}
+
+.name_company > div > p {
+  font-size: 14px;
+}
+
+.container_nameCompany-Status {
+  width: 100%;
+  height: auto;
+  display: flex;
+  gap: 1.5rem;
+}
+
+.status-company {
+  width: 7rem;
+  height: 7rem;
+  background-color: #00843e3f;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  z-index: 0;
+}
+
+.color_status {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background-color: #ef3c3c;
+  margin-top: 1rem;
+}
+
+.status-green {
+  background-color: #00843e3f !important;
+}
+
+.status-red {
+  background-color: #ef3c3c !important;
+}
+
+.status-company > h3 {
+  width: 100%;
+  height: auto;
+  font-size: 16px;
+  text-align: center;
+}
+
+.status-company > h4 {
+  width: 100%;
+  height: auto;
+  font-size: 14px;
+  text-align: center;
+}
+
+.input_updateStatus {
+  width: 5rem;
+  height: auto;
+  background-color: transparent;
+  border-radius: 10px;
+  border-style: none;
+  border: 1px solid #b0b0b0;
+  text-align: center;
+}
+
+.input_updateStatus option {
+  background-color: #007736;
+  color: #fff;
+}
+
+#titleDataSede {
+  width: 100%;
+  height: auto;
+  font-size: 18px;
+  text-align: center;
+  margin-top: 0.5rem;
+}
+
+/* ========================================
+   NUEVOS ESTILOS PARA CAMPOS ACTUALIZADOS
+   ======================================== */
+
+/* Campo de descripción completo */
+.empresa_field_full {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.empresa_field_full label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #b0b0b0;
+}
+
+.empresa_textarea {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.2s ease;
+  resize: vertical;
+  min-height: 100px;
+  font-family: inherit;
+  line-height: 1.5;
+}
+
+.empresa_textarea:focus {
+  border-color: #00843e3f;
+  background-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 10px rgba(57, 255, 20, 0.2);
+}
+
+.empresa_textarea::placeholder {
+  color: #666666;
+}
+
+.empresa_descripcion {
+  padding: 0.75rem 1rem;
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 14px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Sección de redes sociales */
+.empresa_redes_sociales {
+  grid-column: 1 / -1;
+  margin-top: 1.5rem;
+  padding: 1.5rem;
+  background-color: rgba(255, 255, 255, 0.03);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.redes_sociales_title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0 0 1rem 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.redes_sociales_grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem;
+}
+
+.red_social_item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.red_social_item label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #b0b0b0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.red_social_link {
+  padding: 0.75rem 1rem;
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: #00843d;
+  font-size: 14px;
+  text-decoration: none;
+  word-break: break-all;
+  transition: all 0.2s ease;
+}
+
+.red_social_link:hover {
+  background-color: rgba(0, 132, 61, 0.1);
+  border-color: #00843d;
+  color: #00c851;
+}
+
+/* Ajustes responsive para nuevos elementos */
+@media (max-width: 768px) {
+  .redes_sociales_grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .empresa_field_full {
+    margin-top: 1rem;
+  }
+  
+  .empresa_redes_sociales {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .red_social_item label {
+    font-size: 12px;
+  }
+  
+  .red_social_link {
+    font-size: 13px;
+    padding: 0.6rem 0.8rem;
+  }
+}
+
+/* Responsive mejorado */
+@media (max-width: 1024px) {
+  .container_mainSeeMyProfile {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .container_profile {
+    width: 100%;
+    max-width: 500px;
+  }
+
+  .empresa_profile_container,
+  .admin_profile_container,
+  .aprendiz_profile_container {
+    width: 100%;
+  }
+
+  .empresa_datos_grid,
+  .admin_datos_grid {
+    grid-template-columns: 1fr;
+  }
+
+  .aprendiz_datos_grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .empresa_header,
+  .admin_header,
+  .aprendiz_header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .empresa_header_right,
+  .admin_header_right {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .empresa_action_buttons,
+  .admin_action_buttons {
+    width: 100%;
+  }
+
+  .btn_guardar,
+  .btn_cancelar {
+    flex: 1;
+  }
+
+  .curso_row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+  
+  .btn_ver_detalles {
+    width: 100%;
+    text-align: center;
+  }
+  
+  .curso_descripcion {
+    line-clamp: 3;
+    -webkit-line-clamp: 3;
+    max-height: 4.5em;
+  }
+
+  .aprendiz_datos_grid {
+    grid-template-columns: 1fr;
+  }
+
+  .aprendiz_empresa_info {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}

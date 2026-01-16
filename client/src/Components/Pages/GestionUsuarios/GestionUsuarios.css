@@ -1,0 +1,1359 @@
+/* GestionUsuarios.css - Clases únicas con prefijo gu- */
+
+/* Header Principal */
+.gu-pantalla {
+	width: 100%;
+	min-height: 100vh;
+	background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+	color: #fff;
+}
+
+.gu-section-principal {
+	width: 100%;
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 1.5rem;
+	box-sizing: border-box;
+}
+
+.gu-section-header {
+	background: linear-gradient(135deg, rgba(0, 132, 61, 0.15) 0%, rgba(0, 200, 83, 0.1) 100%);
+	border: 1px solid rgba(0, 200, 83, 0.3);
+	border-radius: 20px;
+	padding: 1.5rem 2rem;
+	margin-bottom: 2rem;
+	backdrop-filter: blur(20px);
+	box-shadow: 0 8px 32px rgba(0, 132, 61, 0.1);
+}
+
+.gu-header-title-container {
+	margin-bottom: 1rem;
+}
+
+.gu-titulo {
+	color: #fff;
+	font-size: 2.2rem;
+	font-weight: 300;
+	margin: 0;
+}
+
+.gu-titulo-verde {
+	color: #00c853;
+	font-weight: 500;
+}
+
+.gu-paragraph {
+	color: rgba(255, 255, 255, 0.8);
+	font-size: 1.1rem;
+	margin: 0;
+	line-height: 1.5;
+}
+
+/* Sección Body */
+.gu-section-body {
+	display: flex;
+	flex-direction: column;
+	gap: 2rem;
+}
+
+/* Filtros */
+.gu-filter {
+	background: rgba(255, 255, 255, 0.03);
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	border-radius: 15px;
+	padding: 1.5rem;
+	backdrop-filter: blur(10px);
+}
+
+.gu-titulo-filtrar {
+	color: #fff;
+	font-size: 1.3rem;
+	font-weight: 600;
+	margin-bottom: 1.2rem;
+	display: block;
+}
+
+.gu-filter-options {
+	display: grid;
+	grid-template-columns: 1fr 1fr auto;
+	gap: 1.5rem;
+	align-items: end;
+}
+
+.gu-filter-option-name {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+}
+
+.gu-label-filter-option {
+	color: rgba(255, 255, 255, 0.8);
+	font-size: 0.9rem;
+	font-weight: 500;
+}
+
+.gu-input-filter-option {
+	position: relative;
+}
+
+.gu-input-filter-text {
+	width: 100%;
+	background: rgba(255, 255, 255, 0.05);
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	border-radius: 10px;
+	padding: 0.8rem 1rem;
+	color: #fff;
+	font-size: 0.9rem;
+	transition: all 0.3s ease;
+	box-sizing: border-box;
+}
+
+.gu-input-filter-text:focus {
+	outline: none;
+	border-color: #00c853;
+	background: rgba(255, 255, 255, 0.08);
+	box-shadow: 0 0 0 2px rgba(0, 200, 83, 0.2);
+}
+
+.gu-input-filter-text::placeholder {
+	color: rgba(255, 255, 255, 0.5);
+}
+
+.gu-button {
+	background: #00c853;
+	border: none;
+	border-radius: 10px;
+	color: #000;
+	font-weight: 600;
+	padding: 0.8rem 1.5rem;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	font-size: 0.9rem;
+	height: fit-content;
+	white-space: nowrap;
+}
+
+.gu-button:hover {
+	background: #00e676;
+	transform: translateY(-2px);
+	box-shadow: 0 4px 15px rgba(0, 200, 83, 0.3);
+}
+
+/* Tabla de Resultados */
+.gu-result-table {
+	background: rgba(255, 255, 255, 0.03);
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	border-radius: 15px;
+	padding: 1.5rem;
+	backdrop-filter: blur(10px);
+	width: 100%;
+	box-sizing: border-box;
+}
+
+.gu-results-header {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.gu-label-filter-result {
+	color: rgba(255, 255, 255, 0.8);
+	font-size: 0.9rem;
+	background: rgba(255, 255, 255, 0.05);
+	padding: 0.6rem 1rem;
+	border-radius: 8px;
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	display: inline-block;
+}
+
+.gu-items-per-page {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.85rem;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* NUEVO: Contenedor para el scroll */
+.gu-table-wrapper {
+	width: 100%;
+	margin-bottom: 1.5rem;
+	border-radius: 10px;
+	overflow: hidden;
+	background: rgba(255, 255, 255, 0.02);
+	border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.gu-table-container {
+	overflow-x: auto;
+	max-height: 500px;
+	min-height: 200px;
+	position: relative;
+	scrollbar-width: thin;
+	scrollbar-color: rgba(0, 200, 83, 0.3) rgba(255, 255, 255, 0.05);
+}
+
+/* Scrollbar personalizado */
+.gu-table-container::-webkit-scrollbar {
+	height: 8px;
+	width: 8px;
+}
+
+.gu-table-container::-webkit-scrollbar-track {
+	background: rgba(255, 255, 255, 0.05);
+	border-radius: 4px;
+}
+
+.gu-table-container::-webkit-scrollbar-thumb {
+	background: rgba(0, 200, 83, 0.3);
+	border-radius: 4px;
+}
+
+.gu-table-container::-webkit-scrollbar-thumb:hover {
+	background: rgba(0, 200, 83, 0.5);
+}
+
+.gu-companies-table {
+	width: 100%;
+	border-collapse: collapse;
+	background: rgba(255, 255, 255, 0.02);
+	min-width: 900px;
+}
+
+.gu-table-header {
+    background: rgb(6 87 40);
+    border-bottom: 2px solid rgba(0, 200, 83, 0.3);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.gu-table-header th {
+	color: #fff;
+	font-weight: 600;
+	padding: 1rem;
+	text-align: left;
+	font-size: 0.9rem;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	white-space: nowrap;
+	background: rgba(0, 200, 83, 0.1);
+	backdrop-filter: blur(10px);
+}
+
+.gu-header-logo {
+	width: 80px;
+	min-width: 80px;
+	text-align: center;
+}
+
+.gu-header-name {
+	width: 25%;
+	min-width: 200px;
+}
+
+.gu-header-nit {
+	width: 20%;
+	min-width: 150px;
+}
+
+.gu-header-rol {
+	width: 15%;
+	min-width: 120px;
+}
+
+.gu-header-category {
+	width: 15%;
+	min-width: 120px;
+}
+
+.gu-header-actions {
+	width: 15%;
+	min-width: 120px;
+	text-align: center;
+}
+
+/* Filas de la tabla */
+.gu-company-row {
+	border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+	transition: all 0.3s ease;
+}
+
+.gu-company-row:hover {
+	background: rgba(255, 255, 255, 0.05);
+}
+
+.gu-company-row td {
+	padding: 1rem;
+	color: rgba(255, 255, 255, 0.9);
+	font-size: 0.9rem;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.gu-company-logo-cell {
+	text-align: center;
+	padding: 0.5rem;
+}
+
+.gu-company-logo {
+	width: 50px;
+	height: 50px;
+	min-width: 50px;
+	min-height: 50px;
+	border-radius: 50%;
+	object-fit: cover;
+	border: 2px solid #00c853;
+	background: rgba(255, 255, 255, 0.05);
+}
+
+.gu-company-name-cell {
+	font-weight: 500;
+	max-width: 200px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.gu-company-nit-cell {
+	color: rgba(255, 255, 255, 0.8);
+}
+
+.gu-company-category-cell {
+	text-transform: capitalize;
+}
+
+.gu-company-status-cell {
+	text-align: center;
+}
+
+/* Pills de estado */
+.gu-status-pill {
+	padding: 0.4rem 0.8rem;
+	border-radius: 20px;
+	font-size: 0.8rem;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	display: inline-block;
+	min-width: 80px;
+}
+
+.gu-status-active {
+	background: rgba(0, 200, 83, 0.2);
+	color: #00c853;
+	border: 1px solid rgba(0, 200, 83, 0.4);
+}
+
+.gu-status-inactive {
+	background: rgba(255, 107, 107, 0.2);
+	color: #ff6b6b;
+	border: 1px solid rgba(255, 107, 107, 0.4);
+}
+
+.gu-status-unknown {
+	background: rgba(255, 255, 255, 0.1);
+	color: rgba(255, 255, 255, 0.7);
+	border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.gu-manage-button {
+	background: rgba(0, 200, 83, 0.1);
+	border: 1px solid rgba(0, 200, 83, 0.3);
+	border-radius: 8px;
+	color: #00c853;
+	font-weight: 600;
+	padding: 0.6rem 1rem;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	font-size: 0.85rem;
+	white-space: nowrap;
+	min-width: 120px;
+}
+
+.gu-manage-button:hover {
+	background: rgba(0, 200, 83, 0.2);
+	transform: translateY(-2px);
+	box-shadow: 0 4px 12px rgba(0, 200, 83, 0.2);
+}
+
+/* Estados vacíos */
+.gu-no-results {
+	text-align: center;
+	padding: 3rem;
+	color: rgba(255, 255, 255, 0.7);
+	font-size: 1.1rem;
+	background: rgba(255, 255, 255, 0.03);
+	border-radius: 10px;
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 200px;
+}
+
+/* Paginación */
+.gu-pagination-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.company-results-normal {
+	position: absolute;
+	top: 64%;
+	width: 46%;
+	right: 3%;
+	background: rgba(30, 30, 30, 0.98);
+	border: 1px solid rgba(0, 200, 83, 0.3);
+	border-radius: 8px;
+	max-height: 150px;
+	overflow-y: auto;
+	z-index: 1000;
+	margin-top: 0.5rem;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.company-results-normal li {
+	padding: 0.8rem 1rem;
+	cursor: pointer;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+	font-size: 0.9rem;
+	transition: all 0.2s;
+}
+
+.company-results-normal li:hover {
+	background: rgba(0, 200, 83, 0.1);
+	color: #00e676;
+}
+
+.company-results-normal li:last-child {
+	border-bottom: none;
+}
+
+/* Números de página */
+.gu-page-numbers {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+}
+
+.gu-page-number {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.85rem;
+    font-weight: 500;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.gu-page-number:hover {
+    background: rgba(0, 200, 83, 0.1);
+    border-color: rgba(0, 200, 83, 0.3);
+    color: #00c853;
+    transform: translateY(-2px);
+}
+
+.gu-page-number.active {
+    background: rgba(0, 200, 83, 0.2);
+    border-color: #00c853;
+    color: #00c853;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(0, 200, 83, 0.2);
+    transform: translateY(0);
+}
+
+.gu-page-number.active:hover {
+    transform: translateY(-2px);
+}
+
+/* Botones de paginación (si usas PageMover componente) */
+.gu-pagination-container :global(.page-mover) {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.gu-pagination-container :global(.page-mover button) {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    color: rgba(255, 255, 255, 0.8);
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    font-size: 0.85rem;
+}
+
+.gu-pagination-container :global(.page-mover button:hover:not(:disabled)) {
+    background: rgba(0, 200, 83, 0.1);
+    border-color: rgba(0, 200, 83, 0.3);
+    color: #00c853;
+    transform: translateY(-2px);
+}
+
+.gu-pagination-container :global(.page-mover button:disabled) {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.gu-pagination-container :global(.page-mover span) {
+    font-weight: 600;
+    color: #fff;
+    padding: 0 0.5rem;
+}
+
+/* ===== MODAL DE USUARIO ===== */
+
+/* Modal Overlay */
+.gu-modal-overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: rgba(0, 0, 0, 0.8);
+	backdrop-filter: blur(10px);
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	z-index: 1000;
+	padding: 15px;
+	box-sizing: border-box;
+}
+
+.gu-modal-container {
+	width: 100%;
+	max-width: 900px;
+	max-height: 80vh;
+	background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	border-radius: 16px;
+	box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+}
+
+/* Header */
+.gu-modal-header {
+	background: linear-gradient(135deg, rgba(0, 132, 61, 0.2) 0%, rgba(0, 200, 83, 0.15) 100%);
+	border-bottom: 1px solid rgba(0, 200, 83, 0.3);
+	padding: 1.2rem 1.5rem;
+	backdrop-filter: blur(10px);
+	flex-shrink: 0;
+}
+
+.gu-header-content {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 1rem;
+}
+
+.gu-header-content h2 {
+	color: #fff;
+	font-size: 1.3rem;
+	font-weight: 600;
+	margin: 0;
+	display: flex;
+	align-items: center;
+	gap: 0.6rem;
+	flex-wrap: wrap;
+}
+
+.gu-header-icon {
+	color: #00c853;
+}
+
+.gu-close-btn {
+	background: rgba(255, 255, 255, 0.1);
+	border: 1px solid rgba(255, 255, 255, 0.2);
+	border-radius: 8px;
+	color: #fff;
+	padding: 0.6rem 1rem;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	display: flex;
+	align-items: center;
+	gap: 0.4rem;
+	font-size: 0.85rem;
+	backdrop-filter: blur(10px);
+	white-space: nowrap;
+}
+
+.gu-close-btn:hover {
+	background: rgba(0, 200, 83, 0.2);
+	border-color: #00c853;
+	transform: translateY(-1px);
+}
+
+/* Body */
+.gu-modal-body {
+	flex: 1;
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+}
+
+.gu-modal-content {
+	display: grid;
+	grid-template-columns: 1fr 280px;
+	height: 100%;
+	min-height: 0;
+	flex: 1;
+	overflow: hidden;
+}
+
+/* Columna Izquierda - Información */
+.gu-info-column {
+	padding: 1.5rem;
+	overflow-y: auto;
+	display: flex;
+	flex-direction: column;
+	gap: 1.5rem;
+	min-height: 0;
+	flex: 1;
+}
+
+/* Sección del Formulario */
+.gu-form-section {
+	background: rgba(255, 255, 255, 0.03);
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	border-radius: 12px;
+	padding: 1.2rem;
+	backdrop-filter: blur(10px);
+	flex-shrink: 0;
+}
+
+.gu-section-title {
+	color: #fff;
+	font-size: 1.1rem;
+	font-weight: 600;
+	margin-bottom: 1.2rem;
+	display: flex;
+	align-items: center;
+	gap: 0.4rem;
+}
+
+.gu-form-grid {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 1rem;
+}
+
+.gu-input-group {
+	display: flex;
+	flex-direction: column;
+	gap: 0.4rem;
+	min-width: 0;
+}
+
+.gu-input-label {
+	color: rgba(255, 255, 255, 0.8);
+	font-size: 0.8rem;
+	font-weight: 500;
+	display: flex;
+	align-items: center;
+	gap: 0.4rem;
+	white-space: nowrap;
+}
+
+.gu-input-label svg {
+	color: #00c853;
+	width: 12px;
+	flex-shrink: 0;
+}
+
+.gu-input-field {
+	background: rgba(255, 255, 255, 0.05);
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	border-radius: 8px;
+	padding: 0.7rem 0.9rem;
+	color: #fff;
+	font-size: 0.85rem;
+	transition: all 0.3s ease;
+	backdrop-filter: blur(10px);
+	height: 40px;
+	box-sizing: border-box;
+	width: 100%;
+}
+
+.gu-input-field:focus {
+	outline: none;
+	border-color: #00c853;
+	background: rgba(255, 255, 255, 0.08);
+	box-shadow: 0 0 0 2px rgba(0, 200, 83, 0.2);
+}
+
+.gu-display-field {
+	background: rgba(255, 255, 255, 0.05);
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	border-radius: 8px;
+	padding: 0.7rem 0.9rem;
+	color: #fff;
+	font-size: 0.85rem;
+	backdrop-filter: blur(10px);
+	height: 40px;
+	display: flex;
+	align-items: center;
+	box-sizing: border-box;
+	width: 100%;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+/* Botones de Estado y Rol */
+.gu-status-buttons {
+	display: flex;
+	gap: 0.6rem;
+	flex-wrap: wrap;
+}
+
+.gu-status-btn {
+	flex: 1;
+	background: rgba(255, 255, 255, 0.05);
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	border-radius: 8px;
+	padding: 0.6rem 0.8rem;
+	color: rgba(255, 255, 255, 0.7);
+	cursor: pointer;
+	transition: all 0.3s ease;
+	font-size: 0.8rem;
+	backdrop-filter: blur(10px);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.4rem;
+	height: 40px;
+	min-width: 100px;
+	box-sizing: border-box;
+}
+
+.gu-status-btn:hover {
+	background: rgba(0, 200, 83, 0.1);
+	border-color: rgba(0, 200, 83, 0.3);
+	transform: translateY(-1px);
+}
+
+.gu-status-btn.active {
+	background: rgba(0, 200, 83, 0.2);
+	border-color: #00c853;
+	color: #00c853;
+	font-weight: 600;
+	box-shadow: 0 2px 8px rgba(0, 200, 83, 0.2);
+}
+
+.gu-status-dot {
+	width: 6px;
+	height: 6px;
+	border-radius: 50%;
+	background: currentColor;
+	flex-shrink: 0;
+}
+
+.gu-status-btn.active .gu-status-dot {
+	animation: gu-pulse 2s infinite;
+}
+
+@keyframes gu-pulse {
+	0% { opacity: 1; }
+	50% { opacity: 0.5; }
+	100% { opacity: 1; }
+}
+
+.gu-status-display {
+	padding: 0.6rem 0.8rem;
+	border-radius: 8px;
+	font-size: 0.8rem;
+	font-weight: 600;
+	backdrop-filter: blur(10px);
+	border: 1px solid;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.4rem;
+	height: 40px;
+	box-sizing: border-box;
+}
+
+.gu-status-display.activo {
+	background: rgba(0, 200, 83, 0.15);
+	color: #00c853;
+	border-color: rgba(0, 200, 83, 0.4);
+	box-shadow: 0 2px 8px rgba(0, 200, 83, 0.1);
+}
+
+.gu-status-display.inactivo {
+	background: rgba(255, 107, 107, 0.15);
+	color: #ff6b6b;
+	border-color: rgba(255, 107, 107, 0.4);
+	box-shadow: 0 2px 8px rgba(255, 107, 107, 0.1);
+}
+
+/* Columna Derecha - Imagen */
+.gu-image-column {
+	background: rgba(255, 255, 255, 0.02);
+	border-left: 1px solid rgba(255, 255, 255, 0.1);
+	padding: 1.5rem;
+	display: flex;
+	flex-direction: column;
+	gap: 1.2rem;
+	min-height: 0;
+	overflow: hidden;
+}
+
+.gu-image-section {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 1rem;
+	flex: 1;
+	min-height: 0;
+}
+
+.gu-image-container {
+	width: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex: 1;
+	min-height: 0;
+}
+
+/* Contenedor para imagen cuando NO está editando */
+.gu-image-display {
+	width: 200px;
+	height: 240px;
+	border: 2px solid rgba(255, 255, 255, 0.1);
+	border-radius: 12px;
+	overflow: hidden;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: rgba(255, 255, 255, 0.03);
+	flex-shrink: 0;
+}
+
+/* Contenedor para imagen cuando SÍ está editando */
+.gu-image-upload {
+	width: 200px;
+	height: 240px;
+	border: 2px dashed rgba(255, 255, 255, 0.2);
+	border-radius: 12px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	overflow: hidden;
+	position: relative;
+	background: rgba(255, 255, 255, 0.03);
+	flex-shrink: 0;
+}
+
+.gu-image-upload.editable:hover {
+	border-color: #00c853;
+	background: rgba(0, 200, 83, 0.05);
+	transform: translateY(-2px);
+}
+
+.gu-file-input {
+	display: none;
+}
+
+/* IMAGEN */
+.gu-profile-image {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+}
+
+.gu-image-placeholder {
+	text-align: center;
+	color: rgba(255, 255, 255, 0.5);
+	font-size: 0.85rem;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 0.6rem;
+	padding: 1rem;
+	width: 100%;
+	height: 100%;
+}
+
+.gu-placeholder-icon {
+	font-size: 2.5rem;
+	color: rgba(255, 255, 255, 0.3);
+}
+
+.gu-upload-overlay {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: rgba(0, 0, 0, 0.8);
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	color: #00c853;
+	font-weight: 600;
+	font-size: 0.85rem;
+	text-align: center;
+	padding: 1rem;
+	opacity: 0;
+	transition: opacity 0.3s ease;
+	gap: 0.5rem;
+}
+
+.gu-image-upload.editable:hover .gu-upload-overlay {
+	opacity: 1;
+}
+
+.gu-image-info {
+	text-align: center;
+	padding: 0.7rem;
+	background: rgba(255, 255, 255, 0.05);
+	border-radius: 8px;
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	max-width: 200px;
+}
+
+.gu-image-info p {
+	color: rgba(255, 255, 255, 0.6);
+	font-size: 0.75rem;
+	margin: 0;
+	line-height: 1.3;
+}
+
+/* BOTÓN */
+.gu-submit-btn {
+	width: 100%;
+	background: linear-gradient(135deg, #00c853 0%, #00a844 100%);
+	border: none;
+	border-radius: 10px;
+	color: #000;
+	font-weight: 700;
+	padding: 1rem 1.2rem;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	font-size: 0.95rem;
+	margin-top: auto;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.6rem;
+	box-shadow: 0 4px 12px rgba(0, 200, 83, 0.3);
+	flex-shrink: 0;
+	white-space: nowrap;
+}
+
+.gu-submit-btn:hover {
+	background: linear-gradient(135deg, #00e676 0%, #00c853 100%);
+	transform: translateY(-2px);
+	box-shadow: 0 6px 16px rgba(0, 200, 83, 0.4);
+}
+
+/* Scrollbars */
+.gu-info-column::-webkit-scrollbar {
+	width: 5px;
+}
+
+.gu-info-column::-webkit-scrollbar-track {
+	background: rgba(255, 255, 255, 0.05);
+	border-radius: 3px;
+}
+
+.gu-info-column::-webkit-scrollbar-thumb {
+	background: rgba(0, 200, 83, 0.3);
+	border-radius: 3px;
+}
+
+/* ===== RESPONSIVIDAD COMPLETA ===== */
+
+/* Tablets grandes y laptops pequeños */
+@media (max-width: 1024px) {
+    .gu-section-principal {
+        padding: 1.2rem;
+        max-width: 100%;
+    }
+    
+    .gu-titulo {
+        font-size: 2rem;
+    }
+    
+    .gu-paragraph {
+        font-size: 1rem;
+    }
+    
+    .gu-filter-options {
+        grid-template-columns: 1fr 1fr;
+    }
+    
+    .gu-button {
+        grid-column: span 2;
+        justify-self: start;
+    }
+    
+    .gu-page-numbers {
+        gap: 0.3rem;
+    }
+    
+    .gu-page-number {
+        width: 35px;
+        height: 35px;
+        font-size: 0.8rem;
+    }
+}
+
+/* Tablets */
+@media (max-width: 768px) {
+    .gu-pantalla {
+        width: 100%;
+        padding: 0.5rem;
+    }
+    
+    .gu-section-principal {
+        padding: 1rem;
+    }
+    
+    .gu-section-header {
+        padding: 1.2rem;
+    }
+    
+    .gu-titulo {
+        font-size: 1.8rem;
+        text-align: center;
+    }
+    
+    .gu-paragraph {
+        text-align: center;
+        font-size: 0.95rem;
+    }
+    
+    .gu-filter-options {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .gu-button {
+        grid-column: 1;
+        width: 100%;
+        justify-self: center;
+    }
+    
+    .gu-table-container {
+        max-height: 400px;
+    }
+    
+    .gu-table-wrapper {
+        border-radius: 8px;
+    }
+    
+    .gu-table-header th {
+        padding: 0.8rem;
+        font-size: 0.8rem;
+    }
+    
+    .gu-company-row td {
+        padding: 0.8rem;
+        font-size: 0.85rem;
+    }
+    
+    .gu-results-header {
+        flex-direction: column;
+        align-items: stretch;
+        text-align: center;
+    }
+    
+    .gu-items-per-page {
+        text-align: center;
+    }
+    
+    .gu-pagination-container {
+        gap: 0.8rem;
+    }
+    
+    .gu-page-numbers {
+        gap: 0.2rem;
+    }
+    
+    .gu-page-number {
+        width: 32px;
+        height: 32px;
+        font-size: 0.75rem;
+    }
+    
+    .gu-modal-overlay {
+        padding: 10px;
+    }
+    
+    .gu-modal-container {
+        max-height: 85vh;
+        max-width: 95%;
+    }
+    
+    .gu-modal-content {
+        grid-template-columns: 1fr;
+    }
+    
+    .gu-image-column {
+        border-left: none;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 1.2rem;
+    }
+    
+    .gu-form-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .gu-image-display,
+    .gu-image-upload {
+        width: 180px;
+        height: 220px;
+    }
+    
+    .gu-header-content {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.8rem;
+    }
+    
+    .gu-header-content h2 {
+        justify-content: center;
+    }
+    
+    .gu-close-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* Teléfonos grandes */
+@media (max-width: 480px) {
+    .gu-section-principal {
+        padding: 0.8rem;
+    }
+    
+    .gu-section-header {
+        padding: 1rem;
+        border-radius: 15px;
+    }
+    
+    .gu-titulo {
+        font-size: 1.6rem;
+        line-height: 1.3;
+    }
+    
+    .gu-titulo-verde {
+        display: block;
+    }
+    
+    .gu-paragraph {
+        font-size: 0.9rem;
+    }
+    
+    .gu-filter {
+        padding: 1.2rem;
+    }
+    
+    .gu-result-table {
+        padding: 1.2rem;
+    }
+    
+    .gu-table-container {
+        max-height: 350px;
+        min-height: 150px;
+    }
+    
+    .gu-table-header th {
+        padding: 0.6rem 0.5rem;
+        font-size: 0.75rem;
+    }
+    
+    .gu-company-row td {
+        padding: 0.6rem 0.5rem;
+        font-size: 0.8rem;
+    }
+    
+    .gu-company-logo {
+        width: 40px;
+        height: 40px;
+        min-width: 40px;
+        min-height: 40px;
+    }
+    
+    .gu-status-pill {
+        padding: 0.3rem 0.6rem;
+        font-size: 0.7rem;
+        min-width: 70px;
+    }
+    
+    .gu-manage-button {
+        padding: 0.5rem 0.8rem;
+        font-size: 0.8rem;
+        min-width: 100px;
+    }
+    
+    .gu-page-numbers {
+        max-width: 100%;
+        overflow-x: auto;
+        justify-content: flex-start;
+        padding-bottom: 0.5rem;
+    }
+    
+    .gu-page-number {
+        width: 30px;
+        height: 30px;
+        font-size: 0.7rem;
+        flex-shrink: 0;
+    }
+    
+    .gu-modal-overlay {
+        padding: 8px;
+    }
+    
+    .gu-modal-container {
+        max-height: 90vh;
+        border-radius: 12px;
+    }
+    
+    .gu-modal-header {
+        padding: 1rem;
+    }
+    
+    .gu-header-content h2 {
+        font-size: 1.1rem;
+        justify-content: center;
+    }
+    
+    .gu-close-btn {
+        padding: 0.5rem 0.8rem;
+        font-size: 0.8rem;
+    }
+    
+    .gu-close-btn span {
+        display: none;
+    }
+    
+    .gu-info-column {
+        padding: 1rem;
+        gap: 1.2rem;
+    }
+    
+    .gu-form-section {
+        padding: 1rem;
+    }
+    
+    .gu-section-title {
+        font-size: 1rem;
+        justify-content: center;
+    }
+    
+    .gu-image-column {
+        padding: 1rem;
+    }
+    
+    .gu-image-display,
+    .gu-image-upload {
+        width: 160px;
+        height: 200px;
+    }
+    
+    .gu-submit-btn {
+        padding: 0.8rem 1rem;
+        font-size: 0.9rem;
+    }
+    
+    .gu-status-buttons {
+        flex-direction: column;
+    }
+    
+    .gu-status-btn {
+        min-width: 100%;
+    }
+}
+
+/* Teléfonos muy pequeños */
+@media (max-width: 360px) {
+    .gu-titulo {
+        font-size: 1.4rem;
+    }
+    
+    .gu-titulo-filtrar {
+        font-size: 1.1rem;
+        text-align: center;
+    }
+    
+    .gu-label-filter-result {
+        font-size: 0.8rem;
+        padding: 0.5rem 0.8rem;
+        display: block;
+        text-align: center;
+    }
+    
+    .gu-table-container {
+        max-height: 300px;
+    }
+    
+    .gu-table-header th {
+        font-size: 0.7rem;
+        padding: 0.5rem 0.4rem;
+    }
+    
+    .gu-company-row td {
+        font-size: 0.75rem;
+        padding: 0.5rem 0.4rem;
+    }
+    
+    .gu-company-logo {
+        width: 35px;
+        height: 35px;
+        min-width: 35px;
+        min-height: 35px;
+    }
+    
+    .gu-page-number {
+        width: 28px;
+        height: 28px;
+        font-size: 0.65rem;
+    }
+    
+    .gu-image-display,
+    .gu-image-upload {
+        width: 140px;
+        height: 180px;
+    }
+    
+    .gu-modal-container {
+        max-width: 100%;
+        max-height: 95vh;
+    }
+}

@@ -1,0 +1,19 @@
+.page-move-button {
+    background-color: transparent;
+    border: none;
+    font-size: 20px;
+    margin-left: 25px;
+    margin-right: 25px;
+}
+
+.page-mover-container {
+    margin: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.page-mover-label {
+    font-size: 20px;
+    font-weight: bold;
+}

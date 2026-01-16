@@ -1,0 +1,42 @@
+# Imagen base
+FROM node:18-alpine
+
+# Instalar dependencias del sistema para canvas y otros paquetes nativos
+RUN apk add --no-cache python3 make g++ cairo-dev jpeg-dev pango-dev giflib-dev pixman-dev pkgconf
+
+# Instalar PM2 globalmente
+RUN npm install -g pm2
+
+# Definimos el directorio de trabajo
+WORKDIR /usr/src/app
+
+# Copiar dependencias de produccion
+COPY package*.json ./
+
+# Instalar dependencias de produccion
+RUN npm install --omit=dev
+
+# Copiar archivos del directorio
+COPY . .
+
+# Crear directorio para logs de PM2
+RUN mkdir -p logs && chown -R node:node logs
+
+# Crear todos los directorios de uploads con permisos correctos
+# Las subcarpetas dinamicas (curso-X, actividad-Y) se crean automaticamente con recursive: true
+RUN mkdir -p uploads/documentos uploads/temp uploads/solicitudes uploads/material uploads/actividades && \
+    mkdir -p base64storage xlsxUploads && \
+    chown -R node:node uploads base64storage xlsxUploads
+
+# Cambiar usuario de ejecucion de app para evitar usar root
+# Practica de seguridad
+USER node
+
+# Exponer puerto de nuestra app (configurable via PORT)
+EXPOSE 5000
+
+# Configurar healthcheck para verificar si la app esta corriendo
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s CMD wget -qO- http://localhost:5000/health || exit 1
+
+# Comando para iniciar la app con PM2 en modo cluster
+CMD ["pm2-runtime", "start", "ecosystem.config.js", "--env", "production"]

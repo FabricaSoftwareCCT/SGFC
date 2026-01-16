@@ -1,0 +1,344 @@
+#container_signUp {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.579);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+    padding: 20px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.modalSignUp {
+    width: 900px;
+    height: 550px;
+    background-color: #1A1A1A;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+.container_form_register {
+    width: auto;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    left: 7rem;
+}
+
+.content_createAccount {
+    width: auto;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    align-content: center;
+}
+
+.goTo_SignIn {
+    cursor: pointer;
+
+}
+
+.container_return_signUp>h5 {
+    width: auto;
+    height: auto;
+    position: relative;
+    top: 27%;
+    font-size: 18px;
+    font-weight: 400;
+    z-index: 1000;
+    color: #fff;
+    left: 4%;
+    cursor: pointer;
+}
+
+.container_return_signUp {
+    width: 142px;
+    height: 142px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    bottom: 225px;
+    left: 0;
+    z-index: 1000;
+}
+
+.closeModal {
+    width: 142px;
+    height: 115px;
+    background: #b0b0b0;
+    clip-path: path("M142 115C142 2 0 115 0 0H130C138.581 2.52132 141.503 5.87638 142 16.5V115Z");
+    opacity: 0.3;
+    border-style: none;
+    cursor: pointer;
+}
+
+.form_register {
+    width: 100%;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+
+.form_register>input {
+    width: 250px;
+    height: 35px;
+    border-radius: 10px;
+    background-color: transparent;
+    border-style: none;
+    border: 1px solid #fff;
+    padding-left: 1rem;
+}
+
+.password-container {
+    width: auto;
+    height: auto;
+}
+
+.password-container>input {
+    width: 250px;
+    height: 35px;
+    border-radius: 10px;
+    background-color: transparent;
+    border-style: none;
+    border: 1px solid #fff;
+    padding-left: 1rem;
+}
+
+.confirmPassword-container {
+    width: auto;
+    height: auto;
+}
+
+.confirmPassword-container>input {
+    width: 250px;
+    height: 35px;
+    border-radius: 10px;
+    background-color: transparent;
+    border-style: none;
+    border: 1px solid #fff;
+    padding-left: 1rem;
+}
+
+
+
+.form_register>button {
+    width: 268px;
+    height: 35px;
+    border-radius: 10px;
+    border-style: none;
+    margin-top: 1rem;
+}
+
+.button_register {
+    background-color: #00843D;
+    z-index: 1000;
+}
+
+.button_registerGoogle {
+    background: linear-gradient(50deg, #b0b0b00f, #00843e7e);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+}
+
+button {
+    cursor: pointer;
+}
+
+
+.triangle_01 {
+    width: 184px;
+    height: 53px;
+    background: linear-gradient(50deg, #b0b0b0, #1a1a1a);
+    opacity: 5%;
+    clip-path: polygon(30% 0%, 0% 100%, 100% 100%);
+    position: relative;
+    left: 5rem;
+    top: 8.4rem;
+}
+
+.triangle_02 {
+    width: 276px;
+    height: 80px;
+    background: linear-gradient(50deg, #b0b0b0, #1a1a1a);
+    opacity: 5%;
+    clip-path: polygon(30% 0%, 0% 100%, 100% 100%);
+    position: relative;
+    left: 9rem;
+    top: 3.4rem;
+}
+
+.triangle_03 {
+    width: 184px;
+    height: 53px;
+    background: linear-gradient(50deg, #b0b0b0, #1a1a1a);
+    opacity: 5%;
+    clip-path: polygon(30% 0%, 0% 100%, 100% 100%);
+    position: relative;
+    left: 12.5rem;
+    top: 0.1rem;
+}
+
+.container_triangles_01_register {
+    width: auto;
+    height: auto;
+    transform: rotate(180deg);
+    position: relative;
+    top: 88px;
+    z-index: 500;
+}
+
+.container_triangles_02_register {
+    height: auto;
+    position: relative;
+    top: -89px;
+    z-index: 500;
+
+}
+
+.content_createAccount>h2,
+.content_createAccount>p,
+.form_register>p {
+    width: auto;
+    height: auto;
+}
+
+.content_createAccount>h2 {
+    font-weight: 100;
+    font-size: 32px;
+
+}
+
+.title2_register {
+    color: #00843D;
+}
+
+.content_createAccount>p {
+    margin-bottom: 3rem;
+    font-weight: 100;
+}
+
+
+.option_signIn {
+    background: linear-gradient(-90deg, #b0b0b01c, #1a1a1a1b);
+    width: 65%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    left: 8.9rem;
+    border-radius: 15px;
+    opacity: 98%;
+    gap: 1rem;
+}
+
+.option_signIn>h3,
+.option_signIn>p {
+    width: 60%;
+    height: auto;
+    text-align: center;
+    font-weight: 100;
+}
+
+.option_signIn>.logo {
+
+    margin: 4rem 0 1rem 0;
+}
+
+.option_signIn>img {
+    width: 14rem;
+    height: auto;
+}
+
+
+.option_signIn>button {
+    width: 137px;
+    height: auto;
+    font-size: 16px;
+    font-weight: 100;
+    border-radius: 10px;
+    background-color: #00843D;
+    border-style: none;
+    margin-top: 1rem;
+    padding: 10px 0 10px 0;
+
+}
+
+.option_signIn>h3 {
+    font-size: 18px;
+}
+
+.password-requirements {
+    width: 10rem;
+    height: auto;
+    list-style: none;
+    padding: 0;
+    margin: 10px 0;
+    position: absolute;
+    top: 22rem;
+    left: 19rem;
+    background-color: #b0b0b01f;
+    border-radius: 15px;
+    padding: 10px;
+}
+
+.password-requirements li {
+    width: 100%;
+    height: auto;
+    font-size: 0.9rem;
+}
+
+.password-requirements li.valid {
+    color: #00843D;
+}
+
+.password-requirements li.invalid {
+    color: #E53935;
+}
+
+.password-container,
+.confirmPassword-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.password-icon {
+    position: absolute;
+    right: 10px;
+    cursor: pointer;
+    width: 20px;
+    height: 20px;
+}
+
+
+.button_registerGoogle img {
+    width: 25px;
+    height: auto;
+}
+
+.google-login-container {
+    margin-top: 2.1rem;
+    width: 100%;
+    align-items: center;
+    padding: 0 20px;
+    bottom: 1.2rem;
+    position: relative;
+    left: 0.2rem;
+}

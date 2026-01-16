@@ -1,0 +1,58 @@
+.centered-swal-button {
+  display: flex !important;
+  justify-content: center !important;
+  margin: 0 auto !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+/* CSS Global para SweetAlert2 - Corregir diseño horizontal/vertical */
+.swal2-popup {
+  width: auto !important;
+  max-width: 500px !important;
+  min-width: 320px !important;
+}
+
+/* Forzar layout vertical en modales SweetAlert2 */
+.swal2-popup.swal2-modal.swal2-show[class*=swal2] {
+  padding: 1.5em !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.swal2-html-container {
+  width: 100% !important;
+  max-width: 100% !important;
+  word-wrap: break-word !important;
+  word-break: normal !important;
+  white-space: normal !important;
+  overflow-wrap: break-word !important;
+  text-align: center !important;
+  line-height: 1.5 !important;
+  padding: 0 1em !important;
+}
+
+.swal2-title {
+  word-wrap: break-word !important;
+  white-space: normal !important;
+  line-height: 1.4 !important;
+  padding: 0.5em 1em !important;
+}
+
+.swal2-content {
+  word-wrap: break-word !important;
+  white-space: normal !important;
+  overflow-wrap: break-word !important;
+}
+
+.swal2-actions {
+  flex-wrap: wrap !important;
+  justify-content: center !important;
+  gap: 0.5em !important;
+}
+
+.swal2-confirm,
+.swal2-cancel {
+  white-space: nowrap !important;
+  min-width: 100px !important;
+}

@@ -1,0 +1,184 @@
+.start{
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.container_ilustrationStart {
+    width: 100%;
+    height: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 2%;
+}
+
+.container_ilustrationStart>img {
+    width: 100%;
+    max-width: 33rem;
+    height: auto;
+    object-fit: contain;
+}
+
+.container_description {
+    width: 90%;
+    max-width: 1200px;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    margin: 5% auto 0;
+    margin-left: 5%;
+    padding: 0 2rem;
+}
+
+.container_description>h1 {
+    width: 100%;
+    height: auto;
+    color: #fff;
+    font-size: 48px;
+    line-height: 1.2;
+}
+
+.container_description>p {
+    width: 100%;
+    height: auto;
+    font-size: 16px;
+    text-align: justify;
+    color: #fff;
+    line-height: 1.5;
+}
+
+.complementary {
+    color: #00843D;
+}
+
+/* Para dispositivos muy grandes (escritorios grandes) */
+@media (min-width: 1440px) {
+    .container_description>h1 {
+        font-size: 56px;
+    }
+    
+    .container_description>p {
+        font-size: 18px;
+    }
+    
+    .container_ilustrationStart>img {
+        max-width: 40rem;
+    }
+}
+
+/* Para tablets en landscape */
+@media (max-width: 1024px) {
+    .container_description>h1 {
+        font-size: 42px;
+    }
+    
+    .container_description {
+        gap: 1.5rem;
+        margin-top: 6%;
+        padding: 0 1.5rem;
+    }
+    
+    .container_ilustrationStart>img {
+        max-width: 28rem;
+    }
+}
+
+/* Para tablets en portrait */
+@media (max-width: 768px) {
+    .container_description>h1 {
+        font-size: 36px;
+        text-align: center;
+    }
+    
+    .container_description>p {
+        text-align: left;
+        font-size: 15px;
+    }
+    
+    .container_description {
+        gap: 1.5rem;
+        margin-top: 8%;
+        padding: 0 1.5rem;
+    }
+    
+    .container_ilustrationStart>img {
+        max-width: 25rem;
+    }
+}
+
+/* Para móviles grandes */
+@media (max-width: 480px) {
+    .container_ilustrationStart>img {
+        max-width: 20rem;
+    }
+
+    .container_ilustrationStart{
+        margin-top: 5%;
+        padding: 0 1rem;
+    }
+
+    .container_description{
+        width: 90%;
+        margin: 10% auto 0;
+        gap: 1.5rem;
+        text-align: center;
+        padding: 0 1rem;
+    }
+
+    .container_description>h1 {
+        font-size: 28px;
+        text-align: center;
+    }
+    
+    .container_description>p {
+        text-align: justify;
+        font-size: 14px;
+        line-height: 1.6;
+    }
+}
+
+/* Para móviles pequeños */
+@media (max-width: 360px) {
+    .container_description>h1 {
+        font-size: 24px;
+    }
+    
+    .container_description>p {
+        font-size: 13px;
+    }
+    
+    .container_ilustrationStart>img {
+        max-width: 18rem;
+    }
+    
+    .container_description {
+        gap: 1rem;
+        margin-top: 12%;
+        padding: 0 1rem;
+    }
+}
+
+/* Ajustes para orientación landscape en móviles */
+@media (max-height: 500px) and (orientation: landscape) {
+    .container_description {
+        margin-top: 3%;
+        gap: 1rem;
+        padding: 0 1rem;
+    }
+    
+    .container_ilustrationStart {
+        margin-top: 1%;
+        padding: 0 1rem;
+    }
+    
+    .container_description>h1 {
+        font-size: 24px;
+    }
+    
+    .container_description>p {
+        font-size: 13px;
+    }
+}

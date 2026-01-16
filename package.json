@@ -1,0 +1,9 @@
+{
+  "devDependencies": {
+    "cypress": "^15.4.0",
+    "nodemon": "^3.1.11"
+  },
+  "dependencies": {
+    "cypress-recurse": "^1.37.1"
+  }
+}

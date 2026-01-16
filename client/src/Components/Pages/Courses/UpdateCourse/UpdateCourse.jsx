@@ -278,31 +278,43 @@ export const UpdateCourse = () => {
 			};
 			const diasSemana = Object.keys(slotsByDay).map(dia => diasMapping[dia] || dia);
 
-			const updatedCurso = {
-				ficha: curso.ficha,
-				nombre_curso: curso.nombre_curso,
-				descripcion: curso.descripcion,
-				tipo_oferta: curso.tipo_oferta,
-				estado: curso.estado,
-				fecha_inicio: calendarData.startDate,
-				fecha_fin: calendarData.endDate,
-				hora_inicio: horaInicio,
-				hora_fin: horaFin,
-				dias_formacion: JSON.stringify(diasSemana),
-				lugar_formacion: lugarFormacion,
-				slots_formacion: JSON.stringify(calendarData.selectedSlots),
-				duracion_dias: duracionCurso,
-				temario: JSON.stringify(temario.map(({fecha, tema}) => ({fecha, tema}))),
-				modalidad: curso.modalidad,
-				empresa_ID:
-					curso.tipo_oferta === "Cerrada"
-						? empresaSeleccionada?.ID || curso.empresa_ID
-						: null,
-			};
+			// Crear FormData para incluir la imagen
+			const formData = new FormData();
+			formData.append("ficha", curso.ficha);
+			formData.append("nombre_curso", curso.nombre_curso);
+			formData.append("descripcion", curso.descripcion);
+			formData.append("tipo_oferta", curso.tipo_oferta);
+			formData.append("estado", curso.estado);
+			formData.append("fecha_inicio", calendarData.startDate);
+			formData.append("fecha_fin", calendarData.endDate);
+			formData.append("hora_inicio", horaInicio);
+			formData.append("hora_fin", horaFin);
+			formData.append("dias_formacion", JSON.stringify(diasSemana));
+			formData.append("lugar_formacion", lugarFormacion);
+			formData.append("slots_formacion", JSON.stringify(calendarData.selectedSlots));
+			formData.append("duracion_dias", duracionCurso);
+			formData.append("temario", JSON.stringify(temario.map(({fecha, tema}) => ({fecha, tema}))));
+			formData.append("modalidad", curso.modalidad);
+			
+			if (curso.tipo_oferta === "Cerrada") {
+				formData.append("empresa_ID", empresaSeleccionada?.ID || curso.empresa_ID || "");
+			}
 
-			const response = await axiosInstance.put(`/api/courses/cursos/${id}`, updatedCurso, {
+			// Agregar la imagen si se seleccionó una nueva
+			const fileInput = fileInputRef.current;
+			if (fileInput && fileInput.files && fileInput.files.length > 0) {
+				const selectedFile = fileInput.files[0];
+				if (selectedFile instanceof File) {
+					formData.append("imagen", selectedFile);
+					console.log("Imagen agregada al FormData:", selectedFile.name, selectedFile.size);
+				}
+			} else {
+				console.log("No se seleccionó nueva imagen, se mantendrá la existente");
+			}
+
+			const response = await axiosInstance.put(`/api/courses/cursos/${id}`, formData, {
 				headers: {
-					"Content-Type": "application/json",
+					"Content-Type": "multipart/form-data",
 				},
 			});
 

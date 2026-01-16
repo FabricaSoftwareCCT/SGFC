@@ -546,6 +546,9 @@ const updateCurso = async (req, res) => {
 
 		// ✅ Actualizar curso en la base de datos
 		await curso.update(datosActualizacion);
+		
+		// Recargar el curso para obtener los datos actualizados (incluyendo la imagen)
+		await curso.reload();
 
 		// 📨 Notificar por email
 		const usuarios = await User.findAll({

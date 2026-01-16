@@ -11,7 +11,7 @@ import calendar from '../../../../assets/Icons/calendar.png';
 import { AssignInstructorCourse } from '../AssignInstructorCourse/AssignInstructorCourse';
 import ViewCalendar from '../../../UI/Modal_Calendar/ViewCalendar/Calendar';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPenToSquare, faBookOpen, faUsers, faExpandAlt, faXmark, faEye } from '@fortawesome/free-solid-svg-icons'
+import { faPenToSquare, faBookOpen, faUsers, faExpandAlt, faXmark, faEye, faSpinner } from '@fortawesome/free-solid-svg-icons'
 import ReporteEstudiantes from '../../GestionReporteEstadisticas/ReporteEstudiantes';
 
 import 'sweetalert2/themes/bulma.css';
@@ -152,10 +152,18 @@ export const SeeCourse = () => {
 
 	if (!curso) {
 		return (
-			<div className="loading-container">
-				<div className="loading-spinner"></div>
-				<p>Cargando curso...</p>
-			</div>
+			<>
+				<Header />
+				<Main>
+					<div className="loading-state-see-course">
+						<div className="loading-spinner-see-course">
+							<FontAwesomeIcon icon={faSpinner} spin />
+						</div>
+						<p>Cargando curso...</p>
+					</div>
+				</Main>
+				<Footer />
+			</>
 		);
 	}
 
